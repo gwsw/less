@@ -721,6 +721,8 @@ main(argc, argv)
 	}
 
 	if (outfile == NULL)
+		outfile = getenv("LESSKEY");
+	if (outfile == NULL)
 		outfile = homefile(LESSKEYFILE);
 	if ((out = fopen(outfile, "wb")) == NULL)
 	{

@@ -601,7 +601,8 @@ add_hometable()
 	char *filename;
 	PARG parg;
 
-	filename = homefile(LESSKEYFILE);
+	if ((filename = lgetenv("LESSKEY")) == NULL)
+		filename = homefile(LESSKEYFILE);
 	if (filename == NULL)
 		return;
 	if (lesskey(filename) < 0)

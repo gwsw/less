@@ -1,9 +1,13 @@
 
-  See the "less" Web page, http://members.aol.com/marknudel/less 
-  for the latest news about less.  You can also obtain the latest
-  version of less there.
+                     NEWS about less
+
+  See the "less" Web page:
+      http://members.aol.com/marknudel/less 
+  for the latest news about less.  
+  You can also obtain the latest version of less there.
 
 ======================================================================
+
 
 	Major changes between "less" versions 291 and @@VERSION@@
 
@@ -21,6 +25,8 @@
 
 * New modifier for search commands: ^R means don't use regular
   expressions in the search.
+
+* Environment variable LESSKEY gives name of default lesskey file.
 
 * Environment variable LESSSECURE will force less to run in
   "secure" mode.
