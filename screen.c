@@ -201,6 +201,7 @@ public int can_goto_line;		/* Can move cursor to any line */
 public int missing_cap = 0;	/* Some capability is missing */
 
 static char *cheaper();
+static void tmodes();
 
 /*
  * These two variables are sometimes defined in,
@@ -1162,45 +1163,10 @@ get_term()
 	} else
 		can_goto_line = 1;
 
-	sc_s_in = ltgetstr("so", &sp);
-	if (sc_s_in == NULL)
-		sc_s_in = "";
-
-	sc_s_out = ltgetstr("se", &sp);
-	if (sc_s_out == NULL)
-		sc_s_out = "";
-
-	sc_u_in = ltgetstr("us", &sp);
-	if (sc_u_in == NULL)
-		sc_u_in = sc_s_in;
-
-	sc_u_out = ltgetstr("ue", &sp);
-	if (sc_u_out == NULL)
-		sc_u_out = sc_s_out;
-
-	sc_b_in = ltgetstr("md", &sp);
-	if (sc_b_in == NULL)
-	{
-		sc_b_in = sc_s_in;
-		sc_b_out = sc_s_out;
-	} else
-	{
-		sc_b_out = ltgetstr("me", &sp);
-		if (sc_b_out == NULL)
-			sc_b_out = "";
-	}
-
-	sc_bl_in = ltgetstr("mb", &sp);
-	if (sc_bl_in == NULL)
-	{
-		sc_bl_in = sc_s_in;
-		sc_bl_out = sc_s_out;
-	} else
-	{
-		sc_bl_out = ltgetstr("me", &sp);
-		if (sc_bl_out == NULL)
-			sc_bl_out = "";
-	}
+	tmodes("so", "se", &sc_s_in, &sc_s_out, "", "", &sp);
+	tmodes("us", "ue", &sc_u_in, &sc_u_out, sc_s_in, sc_s_out, &sp);
+	tmodes("md", "me", &sc_b_in, &sc_b_out, sc_s_in, sc_s_out, &sp);
+	tmodes("mb", "me", &sc_bl_in, &sc_bl_out, sc_s_in, sc_s_out, &sp);
 
 	sc_visual_bell = ltgetstr("vb", &sp);
 	if (sc_visual_bell == NULL)
@@ -1329,6 +1295,35 @@ cheaper(t1, t2, def)
 		return (t1);
 	return (t2);
 }
+
+	static void
+tmodes(incap, outcap, instr, outstr, def_instr, def_outstr, spp)
+	char *incap;
+	char *outcap;
+	char **instr;
+	char **outstr;
+	char *def_instr;
+	char *def_outstr;
+	char **spp;
+{
+	*instr = ltgetstr(incap, spp);
+	if (*instr == NULL)
+	{
+		/* Use defaults. */
+		*instr = def_instr;
+		*outstr = def_outstr;
+		return;
+	}
+
+	*outstr = ltgetstr(outcap, spp);
+	if (*outstr == NULL)
+		/* No specific out capability; use "me". */
+		*outstr = ltgetstr("me", spp);
+	if (*outstr == NULL)
+		/* Don't even have "me"; use a null string. */
+		*outstr = "";
+}
+
 #endif /* MSDOS_COMPILER */
 
 
