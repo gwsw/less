@@ -58,6 +58,9 @@ extern int reading;
 u_interrupt(type)
 	int type;
 {
+#if OS2
+	SIGNAL(SIGINT, SIG_ACK);
+#endif
 	SIGNAL(SIGINT, u_interrupt);
 	sigs |= S_INTERRUPT;
 	if (reading)

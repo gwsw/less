@@ -34,14 +34,8 @@
 #include "less.h"
 #include "position.h"
 
-#if HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
 #if MSOFTC
 #include <dos.h>
-#endif
-#if OS2
-#include <process.h>
 #endif
 
 extern int screen_trashed;
@@ -103,16 +97,10 @@ lsystem(cmd)
 	 * (the normal standard input), even if less's standard input 
 	 * is coming from a pipe.
 	 */
-#if MSOFTC || OS2
-	inp = dup(0);
-	inp2 = open("CON", O_TEXT|O_RDONLY);
-	dup2(0,inp2);
-#else
 	inp = dup(0);
 	close(0);
-	if (open("/dev/tty", 0) < 0)
+	if (OPEN_TTYIN() < 0)
 		dup(inp);
-#endif
 
 	/*
 	 * Pass the command to the system to be executed.
@@ -146,12 +134,7 @@ lsystem(cmd)
 #else
 #if OS2
 	if (*cmd == '\0')
-	{
-		if ((p = getenv("COMSPEC")) == NULL)
-			p = "cmd.exe";
-		spawnlp(P_WAIT, p, p, NULL);
-	}
-	else
+		cmd = "cmd.exe";
 #endif
 	system(cmd);
 #endif
@@ -159,15 +142,9 @@ lsystem(cmd)
 	/*
 	 * Restore standard input, reset signals, raw mode, etc.
 	 */
-#if MSOFTC || OS2
-	close(inp2);
-	dup2(0,inp);
-	close(inp);
-#else
 	close(0);
 	dup(inp);
 	close(inp);
-#endif
 
 	init_signals(1);
 	raw_mode(1);

@@ -55,6 +55,9 @@
 #if HAVE_STDIO_H
 #include <stdio.h>
 #endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -123,10 +126,16 @@ typedef long		POSITION;
 #else
 #define	OPEN_READ	(0)
 #endif
-#if MSOFTC
+#if MSOFTC || OS2
 #define	OPEN_APPEND	(O_APPEND|O_WRONLY)
 #else
 #define	OPEN_APPEND	(1)
+#endif
+
+#if MSOFTC || OS2
+#define	OPEN_TTYIN()	open("CON", O_TEXT|O_RDONLY)
+#else
+#define	OPEN_TTYIN()	open("/dev/tty", 0)
 #endif
 
 /*

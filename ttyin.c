@@ -30,9 +30,6 @@
  */
 
 #include "less.h"
-#if HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
 
 static int tty;
 
@@ -50,7 +47,7 @@ open_getchr()
 	 */
 	 fd0 = dup(0);
 	 close(0);
-	 tty = open("CON", O_RDONLY|O_BINARY);
+	 tty = OPEN_TTYIN();
 #else
 	/*
 	 * Try /dev/tty.
@@ -58,7 +55,7 @@ open_getchr()
 	 * which in Unix is usually attached to the screen,
 	 * but also usually lets you read from the keyboard.
 	 */
-	tty = open("/dev/tty", 0);
+	tty = OPEN_TTYIN();
 	if (tty < 0)
 		tty = 2;
 #endif

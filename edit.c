@@ -27,10 +27,6 @@
 
 #include "less.h"
 
-#if HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
 public int fd0 = 0;
 
 extern int new_file;

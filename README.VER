@@ -1,5 +1,5 @@
 =======================================================================
-===        NOTE: THIS IS A DISTRIBUTION OF less (version 274)       ===
+===        NOTE: THIS IS A DISTRIBUTION OF less (version 276)       ===
 ===    PLEASE REPORT ANY PROBLEMS TO THE AUTHOR AT markn@3do.com.   ===
 =======================================================================
 
@@ -112,7 +112,13 @@ INSTALLATION (OS/2 systems only)
 6. If the make succeeds, it will generate a program "less.exe"
    in your current directory.  Test the generated program.
 
-7. When satisfied that it works, you may wish to install less.exe,
+7. Make sure you have the emx runtime installed. You need the emx DLLs
+   emx.dll and emxlibcs.dll and also the termcap database, termcap.dat.
+   Make sure you have termcap.dat either in the default location or
+   somewhere in a directory listed in the PATH or INIT environment 
+   variables.
+
+8. When satisfied that it works, you may wish to install less.exe,
    lesskey.exe and less.hlp in a directory which is included in 
    your PATH.
 

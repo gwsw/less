@@ -73,6 +73,11 @@
 #include <sys/ptem.h>
 #endif
 
+#if OS2
+#define	DEFAULT_TERM		"ansi"
+#else
+#define	DEFAULT_TERM		"unknown"
+#endif
 
 /*
  * Strings passed to tputs() to do various terminal functions.
@@ -660,11 +665,28 @@ get_term()
 
 	static char sbuf[1024];
 
+#ifdef OS2
+	/*
+	 * Make sure the termcap database is available.
+	 */
+	sp = getenv("TERMCAP");
+	if (sp == NULL || *sp == '\0')
+	{
+		char *termcap;
+		if ((sp = homefile("termcap.dat")) != NULL)
+		{
+			termcap = (char *) ecalloc(strlen(sp)+9, sizeof(char));
+			sprintf(termcap, "TERMCAP=%s", sp);
+			free(sp);
+			putenv(termcap);
+		}
+	}
+#endif
 	/*
 	 * Find out what kind of terminal this is.
 	 */
  	if ((term = getenv("TERM")) == NULL)
- 		term = "unknown";
+ 		term = DEFAULT_TERM;
  	if (tgetent(termbuf, term) <= 0)
  		strcpy(termbuf, "dumb:hc:");
 
@@ -874,6 +896,11 @@ get_term()
 	t2 = tgetstr("sr", &sp);
 	if (hard || t2 == NULL)
 		t2 = "";
+#if OS2
+	if (*t1 == '\0' && *t2 == '\0')
+		sc_addline = "";
+	else
+#endif
 	if (above_mem)
 		sc_addline = t1;
 	else

@@ -485,6 +485,7 @@
  *	      LESSOPEN on a pipe.
  *	v274: Ported to OS/2 (thanks to Kai Uwe Rommel)	1/6/95
  *	v275: Fix bug if toggle -G at EOF.		1/18/95
+ *	v276: Fix OS/2 version.				1/30/95
  */
 
-char version[] = "275";
+char version[] = "276";
