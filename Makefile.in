@@ -65,7 +65,7 @@ install: all ${srcdir}/less.nro ${srcdir}/lesskey.nro installdirs
 	${INSTALL_DATA} ${srcdir}/lesskey.nro ${mandir}/man${manext}/${manprefix}lesskey.${manext}
 
 installdirs: mkinstalldirs
-	${srcdir}/mkinstalldirs ${bindir} ${mandir}
+	${srcdir}/mkinstalldirs ${bindir} ${mandir}/man${manext}
 
 uninstall:
 	rm -f ${bindir}/${binprefix}less ${bindir}/${binprefix}lesskey ${bindir}/${binprefix}lessecho
