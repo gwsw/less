@@ -15,12 +15,13 @@
 
 	Major changes between "less" versions 378 and @@VERSION@@
 
-* Change to autoconf 2.54.
+* New -L option to disable LESSOPEN processing.
+
+* Further support for large (64 bit) file addressing.
+  Large file support is now set up by the configure script.
+
+* Use autoconf 2.54.
   Replace configure.in, acconfig.h, defines.h.top with configure.ac.
-
-* Further support for 64 bit file addressing.
-
-* New -L option to disabled LESSOPEN processing.
 
 * Overstriking underscore with underscore is now bold or underlined 
   depending on context.
