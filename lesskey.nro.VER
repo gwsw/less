@@ -86,6 +86,10 @@ string is parsed, just as if it were typed in to
 This feature can be used in certain cases to extend
 the functionality of a command.
 For example, see the "{" and ":t" commands in the example below.
+The extra string has a special meaning for the "quit" action:
+when
+.I less
+quits, first character of the extra string is used as its exit status.
 
 .SH EXAMPLE
 The following input file describes the set of
