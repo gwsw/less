@@ -543,7 +543,8 @@ v315   4/26/96	Fix "!;TAB" bug.
 v316   5/2/96	Make "|a" when (a < curr screen) go to end of curr screen.
 v317   5/14/96	Various fixes for the MS-DOS and OS/2 builds.
 		Added ## and %% handling for filenames
-v318   5/29/96	Port to OS-9 Metaware compiler; minor fixes.
+v318   5/29/96	Port to OS-9 Microware compiler; minor fixes.
+v319   7/8/96	Fix Windows port.
 */
 
-char version[] = "318";
+char version[] = "319";

@@ -121,15 +121,21 @@ static unsigned short *whitescreen;
 #endif
 
 #if MSDOS_COMPILER==WIN32C
+struct keyRecord
+{
+	int ascii;
+	int scan;
+} currentKey;
+
+static int keyCount = 0;
 static WORD curr_attr;
 static int pending_scancode = 0;
 static WORD *whitescreen;
 static constant COORD TOPLEFT = {0, 0};
 #define FG_COLORS       (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)
 #define BG_COLORS       (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)
-HANDLE con_in;
 HANDLE con_out;
-#define	SETCOLORS(fg,bg)	curr_attr = (fg) | (bg); \
+#define	SETCOLORS(fg,bg)	curr_attr = (WORD)((fg) | (bg)); \
 				SetConsoleTextAttribute(con_out, curr_attr);
 #endif
 
@@ -616,8 +622,8 @@ scrsize()
 	{
 		CONSOLE_SCREEN_BUFFER_INFO scr;
 		GetConsoleScreenBufferInfo(con_out, &scr);
-		sc_height = scr.dwSize.Y;
-		sc_width = scr.dwSize.X;
+		sc_height = scr.srWindow.Bottom - scr.srWindow.Top + 1;
+		sc_width = scr.srWindow.Right - scr.srWindow.Left + 1;
 	}
 #else
 #if OS2
@@ -988,11 +994,12 @@ get_term()
 	DWORD nread;
 	CONSOLE_SCREEN_BUFFER_INFO scr;
 
+	con_out = GetStdHandle(STD_OUTPUT_HANDLE);
 	GetConsoleScreenBufferInfo(con_out, &scr);
 	ReadConsoleOutputAttribute(con_out, &attr, 1, scr.dwCursorPosition, &nread);
 	sy_bg_color = attr & BG_COLORS;
 	sy_fg_color = attr & FG_COLORS;
-	curr_attr = sy_bg_color | sy_fg_color;
+	curr_attr = (WORD)(sy_bg_color | sy_fg_color);
 
 	/* Can't use the default bg colors in Windows? */
 	nm_bg_color = sy_bg_color;
@@ -1002,14 +1009,16 @@ get_term()
 	/* Make standout = inverse video. */
 	so_fg_color = sy_bg_color;
 	so_bg_color = sy_fg_color;
-
-	con_in = GetStdHandle(STD_INPUT_HANDLE);
-	con_out = GetStdHandle(STD_OUTPUT_HANDLE);
     }
 #endif
 #endif
 #endif
+	/*
+	 * Get size of the screen.
+	 */
 	scrsize();
+	pos_init();
+
 
 #else /* !MSDOS_COMPILER */
 
@@ -1336,8 +1345,8 @@ cheaper(t1, t2, def)
 _settextposition(int row, int col)
 {
 	COORD cpos;
-	cpos.X = col-1;
-	cpos.Y = row-1;
+	cpos.X = (short)col-1;
+	cpos.Y = (short)row-1;
 	SetConsoleCursorPosition(con_out, cpos);
 }
 #endif
@@ -1446,6 +1455,7 @@ add_line()
 	clreol();
 #else
 #if MSDOS_COMPILER==WIN32C
+    {
 	CHAR_INFO fillchar;
 	SMALL_RECT rcSrc, rcClip;
 	COORD new_org = {0, 1};
@@ -1462,6 +1472,7 @@ add_line()
 	fillchar.Attributes = curr_attr;
 	ScrollConsoleScreenBuffer(con_out, &rcSrc, &rcClip, new_org, &fillchar);
 	_settextposition(1,1);
+    }
 #endif
 #endif
 #endif
@@ -1493,7 +1504,7 @@ goto_line(slinenum)
 	tputs(tgoto(sc_move, 0, slinenum), 1, putchr);
 #else
 	flush();
-	_settextposition(slinenum, 1);
+	_settextposition(slinenum+1, 1);
 #endif
 }
 
@@ -1622,9 +1633,9 @@ vbell()
 				sc_height * sc_width, TOPLEFT, &nread);
 	WriteConsoleOutputAttribute(con_out, whitescreen,
 				sc_height * sc_width, TOPLEFT, &nread);
-	delay(100);
+	Sleep(100);
 	WriteConsoleOutputAttribute(con_out, currscreen,
-				sc_height * sc_width, cpos, &nread);
+				sc_height * sc_width, TOPLEFT, &nread);
 	free(currscreen);
 #endif
 #endif
@@ -1672,11 +1683,13 @@ clear()
 #else
 	flush();
 #if MSDOS_COMPILER==WIN32C
+    {
 	DWORD nchars;
 	FillConsoleOutputCharacter(con_out, ' ', 
 			sc_width * sc_height, TOPLEFT, &nchars);
 	FillConsoleOutputAttribute(con_out, curr_attr, 
 			sc_width * sc_height, TOPLEFT, &nchars);
+    }
 #else
 	_clearscreen(_GCLEARSCREEN);
 #endif
@@ -1957,3 +1970,69 @@ putbs()
 	_settextposition(row, col-1);
 #endif /* MSDOS_COMPILER */
 }
+
+#if MSDOS_COMPILER==WIN32C
+	static int
+win32_kbhit(tty)
+	HANDLE tty;
+{
+	INPUT_RECORD ip;
+	DWORD in, read;
+
+	if (keyCount > 0)
+		return TRUE;
+
+	currentKey.scan = 0;
+	currentKey.ascii = 0;
+
+	for (;;)
+	{
+		PeekConsoleInput(tty, &ip, 1, &read);
+		if (read == 0)
+			return FALSE;
+		ReadConsoleInput(tty, &ip, 1, &read);
+ 
+		if (ip.EventType == KEY_EVENT &&
+		    ip.Event.KeyEvent.bKeyDown == TRUE &&
+		    ip.Event.KeyEvent.wVirtualScanCode != 0)
+		{
+			/* Filter out SHIFT and CONTROL key events */
+			if (ip.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
+			    ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL ||
+			    ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU)
+				continue;
+			
+			currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
+			currentKey.scan = ip.Event.KeyEvent.wVirtualScanCode;
+			keyCount = ip.Event.KeyEvent.wRepeatCount;
+			return TRUE;
+		}
+	}
+}
+
+	public char
+WIN32getch(tty)
+	int tty;
+{
+	int ascii, scan;
+
+	if (pending_scancode)
+	{
+		pending_scancode = 0;
+		return ((char)(currentKey.scan & 0x00FF));
+	}
+
+	while (win32_kbhit((HANDLE)tty) == FALSE)
+		continue;
+	keyCount --;
+	ascii = currentKey.ascii;
+	scan = currentKey.scan;
+	/*
+	 * On PC's, the extended keys return a 2 byte sequence beginning 
+	 * with '00', so if the ascii code is 00, the next byte will be 
+	 * the lsb of the scan code.
+	 */
+	pending_scancode = (ascii == 0x00);
+	return (ascii);
+}
+#endif

@@ -93,6 +93,9 @@
 #include <modes.h>
 #include <strings.h>
 #endif
+#if MSDOS_COMPILER==WIN32C
+#include <io.h>
+#endif
 
 #if !STDC_HEADERS
 char *getenv();

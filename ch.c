@@ -33,7 +33,7 @@
 
 #include "less.h"
 #if MSDOS_COMPILER==WIN32C
-#include "errno.h"
+#include <errno.h>
 #endif
 
 public int ignore_eoi;

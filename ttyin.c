@@ -32,7 +32,7 @@
 #include "less.h"
 #if MSDOS_COMPILER==WIN32C
 #include "windows.h"
-extern HANDLE hConIn;
+extern char WIN32getch();
 #endif
 
 static int tty;
@@ -43,6 +43,11 @@ static int tty;
 	public void
 open_getchr()
 {
+#if MSDOS_COMPILER==WIN32C
+	tty = CreateFile("CONIN$", GENERIC_READ, 
+			FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, 
+			OPEN_EXISTING, 0L, NULL);
+#else
 #if MSDOS_COMPILER || OS2
 	extern int fd0;
 	/*
@@ -63,6 +68,18 @@ open_getchr()
 	if (tty < 0)
 		tty = 2;
 #endif
+#endif
+}
+
+/*
+ * Close the keyboard.
+ */
+	public void
+close_getchr()
+{
+#if MSDOS_COMPILER==WIN32C
+	CloseHandle((HANDLE)tty);
+#endif
 }
 
 /*
@@ -82,7 +99,7 @@ getchr()
 		 */
 		flush();
 #if MSDOS_COMPILER==WIN32C
-		c = WIN32getch();
+		c = WIN32getch(tty);
 #else
 		c = getch();
 #endif
