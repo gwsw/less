@@ -442,6 +442,7 @@
  *	v242: Allow lesskey specification of "literal".	10/14/94
  *	v243: Add #stop command to lesskey.		10/14/94
  *	v244: Add -f flag to lesskey.			10/16/94
+ *	v245: Allow TAB_COMPLETE_FILENAME to be undefd.	10/25/94
  */
 
-char version[] = "@(#) less  version 244";
+char version[] = "@(#) less  version 245";
