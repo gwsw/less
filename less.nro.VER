@@ -366,8 +366,9 @@ current file.
 A pound sign (#) is replaced by the name of the previously examined file.
 "!!" repeats the last shell command.
 "!" with no shell command simply invokes a shell.
-In all cases, the shell is taken from the environment variable SHELL,
+On Unix systems, the shell is taken from the environment variable SHELL,
 or defaults to "sh".
+On MS-DOS and OS/2 systems, the shell is the normal command processor.
 .PP
 .IP "| <m> shell-command"
 <m> represents any mark letter.
@@ -530,8 +531,8 @@ to open and interpret the named file as a
 .I lesskey
 (1) file.
 Multiple -k options may be specified.
-If a file called .less exists in the user's home directory, this
-file is also used as a
+If a lesskey file is found in a standard place (see KEY BINDINGS)
+this file is also used as a
 .I lesskey
 file.
 .IP -m
@@ -788,12 +789,28 @@ You may define your own
 commands by using the program 
 .I lesskey
 (1)
-to create a file called ".less" in your home directory.
+to create a lesskey file.
 This file specifies a set of command keys and an action
 associated with each key.
 You may also use
 .I lesskey
-to change the line-editing keys (see LINE EDITING).
+to change the line-editing keys (see LINE EDITING),
+and to set environment variables.
+On Unix systems,
+.I less
+automatically looks for a lesskey file called "$HOME/.less".
+On MS-DOS systems,
+.I less
+looks for a lesskey file called "$HOME/_less", and if it is not found there,
+then looks for a lesskey file called "_less" in any directory specified
+in the PATH environment variable.
+On OS/2 systems,
+.I less
+looks for a lesskey file called "$HOME/less.ini", and if it is not found,
+then looks for a lesskey file called "less.ini" in any directory specified
+in the INIT environment variable, and if it not found there,
+then looks for a lesskey file called "less.ini" in any directory specified
+in the PATH environment variable.
 See the
 .I lesskey
 manual page for more details.
@@ -1185,7 +1202,10 @@ LINES and COLUMNS environment variables.)
 .IP EDITOR
 The name of the editor (used for the v command).
 .IP HOME
-Name of the user's home directory (used to find a .less file).
+Name of the user's home directory (used to find a lesskey file on Unix systems).
+.IP INIT
+Name of the user's init directory (used to find a lesskey file and help file
+on OS/2 systems).
 .IP LANG
 Language for determining the character set.
 .IP LC_CTYPE
@@ -1212,6 +1232,9 @@ Command line to invoke the (optional) input-preprocessor.
 .IP LINES
 Sets the number of lines on the screen.
 Takes precedence over the number of lines specified by the TERM variable.
+.IP PATH
+User's search path (used to find a lesskey file and help file
+on MS-DOS and OS/2 systems).
 .IP SHELL
 The shell used to execute the ! command, as well as to expand filenames.
 .IP TERM

@@ -69,6 +69,7 @@
   !_c_o_m_m_a_n_d             Execute the shell command with $SHELL.
   |XX_c_o_m_m_a_n_d            Pipe file between current pos & mark XX to shell command.
   v                    Edit the current file with $VISUAL or $EDITOR.
+
         ---------------------------------------------------
                            FFLLAAGGSS
 
@@ -109,4 +110,29 @@
   -X            Don't use termcap init/deinit strings.
   -y [_N]        Forward scroll limit.
   -z [_N]        Set size of window.
+
+
+        ---------------------------------------------------
+                          LLIINNEE EEDDIITTIINNGG
+
+        These keys can be used to edit text being entered 
+        on the "command line" at the bottom of the screen.
+
+ RightArrow                       ESC-l   Move cursor right one character.
+ LeftArrow                        ESC-h   Move cursor left one character.
+ CNTL-RightArrow  ESC-RightArrow  ESC-w   Move cursor right one word.
+ CNTL-LeftArrow   ESC-LeftArrow   ESC-b   Move cursor left one word.
+ HOME                             ESC-0   Move cursor to start of line.
+ END                              ESC-$   Move cursor to end of line.
+ BACKSPACE                                Delete char to left of cursor.
+ DELETE                           ESC-x   Delete char under cursor.
+ CNTL-BACKSPACE   ESC-BACKSPACE           Delete word to left of cursor.
+ CNTL-DELETE      ESC-DELETE      ESC-X   Delete word under cursor.
+ UpArrow                          ESC-k   Retrieve previous command line.
+ DownArrow                        ESC-j   Retrieve next command line.
+ TAB                                      Complete filename & cycle.
+ SHIFT-TAB                        ESC-TAB Complete filename & reverse cycle.
+ CNTL-L                                   Complete filename.
+ CNTL-U (Unix only)    ESC (MS-DOS only)  Delete entire line.
+
 

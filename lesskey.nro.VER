@@ -269,6 +269,10 @@ It is not possible to specify special keys, such as uparrow,
 in a keyboard-independent manner.
 The only way to specify such keys is to specify the escape sequence
 which a particular keyboard sends when such a keys is pressed.
+.PP
+On MS-DOS and OS/2 systems, certain keys send a sequence of characters
+which start with a NUL character (0).
+This NUL character should be represented as \e340 in a lesskey file.
 
 .SH COPYRIGHT
 Copyright (c) 1984,1985,1989,1994,1995  Mark Nudelman
