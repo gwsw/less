@@ -10,7 +10,7 @@ less \- opposite of more
 .br
 .B "less --version"
 .br
-.B "less [-[+]aBcCdeEfFgGiIJmMnNqQrRsSuUVwWX]"
+.B "less [-[+]aBcCdeEfFgGiIJmMnNqQrRsSuUVwWX~]"
 .br
 .B "     [-b \fIspace\fP] [-h \fIlines\fP] [-j \fIline\fP] [-k \fIkeyfile\fP]"
 .br
@@ -18,7 +18,7 @@ less \- opposite of more
 .br
 .B "     [-T \fItagsfile\fP] [-x \fItab\fP,...] [-y \fIlines\fP] [-[z] \fIlines\fP]"
 .br
-.B "     [+[+]\fIcmd\fP] [--] [\fIfilename\fP]..."
+.B "     [-# \fIshift\fP] [+[+]\fIcmd\fP] [--] [\fIfilename\fP]..."
 .br
 (See the OPTIONS section for alternate option syntax with long option names.)
 
@@ -796,7 +796,7 @@ lines less than the current screen size.
 For example, if the screen is 24 lines, \fI-z-4\fP sets the 
 scrolling window to 20 lines.  If the screen is resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
-.IP "-\fIcc\fP\ or\ --quotes=\fIcc\fP"
+.IP "-\fI\(dqcc\fP\ or\ --quotes=\fIcc\fP"
 Changes the filename quoting character.
 This may be necessary if you are trying to name a file
 which contains both spaces and quote characters.
