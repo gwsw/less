@@ -213,10 +213,9 @@ main(argc, argv)
 	if (missing_cap && !know_dumb)
 		error("WARNING: terminal is not fully functional", NULL_PARG);
 	init_mark();
-	raw_mode(1);
 	open_getchr();
+	raw_mode(1);
 	init_signals(1);
-
 
 	/*
 	 * Select the first file to examine.

@@ -24,7 +24,7 @@ extern char WIN32getch();
 static DWORD console_mode;
 #endif
 
-static int tty;
+public int tty;
 extern int sigs;
 
 /*
