@@ -10,6 +10,9 @@
 * Command line at bottom of screen now scrolls, so it can be longer 
   than the screen width.
 
+* New command ESC-SPACE scrolls forward a full screen, even if it
+  hits end-of-file.
+
 * Alternate modifiers for search commands: ^N is same as !,
   ^F is same as @, and ^E is same as *.
 

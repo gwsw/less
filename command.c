@@ -874,6 +874,21 @@ commands()
 			backward(number, 1, 0);
 			break;
 		
+		case A_FF_SCREEN:
+			/*
+			 * Force forward one screen.
+			 */
+			if (position(BOTTOM_PLUS_ONE) == NULL_POSITION)
+			{
+				bell();
+				break;
+			}
+			if (number <= 0)
+				number = get_swindow();
+			cmd_exec();
+			forward(number, 1, 0);
+			break;
+
 		case A_F_FOREVER:
 			/*
 			 * Forward forever, ignoring EOF.

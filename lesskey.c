@@ -129,6 +129,7 @@ struct cmdname cmdnames[] =
 	"forw-line",		A_F_LINE,
 	"forw-line-force",	A_FF_LINE,
 	"forw-screen",		A_F_SCREEN,
+	"forw-screen-force",	A_FF_SCREEN,
 	"forw-scroll",		A_F_SCROLL,
 	"forw-search",		A_F_SEARCH,
 	"forw-window",		A_F_WINDOW,

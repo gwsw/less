@@ -59,6 +59,10 @@ Warning: some systems use ^V as a special literalization character.
 .IP "z"
 Like SPACE, but if N is specified, it becomes the new window size.
 .PP
+.IP "ESC-SPACE"
+Like SPACE, but scrolls a full screenful, even if it reaches
+end-of-file in the process.
+.PP
 .IP "RETURN or ^N or e or ^E or j or ^J"
 Scroll forward N lines, default 1.
 The entire N lines are displayed, even if N is more than the screen size.
@@ -999,7 +1003,8 @@ This format can be changed by
 setting the LESSBINFMT environment variable.
 LESSBINFMT may begin with a "*" and one character to select 
 the display attribute:
-"*k" is blinking, "*d" is bold, "*u" is underlined, "*s" is standout.
+"*k" is blinking, "*d" is bold, "*u" is underlined, "*s" is standout,
+and "*n" is normal.
 If LESSBINFMT does not begin with a "*", normal attribute is assumed.
 The remainder of LESSBINFMT is a string which may include one
 printf-style escape sequence (a % followed by x, X, o, d, etc.).
