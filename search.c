@@ -620,7 +620,7 @@ chg_caseless()
 		uncompile_pattern();
 }
 
-#ifdef HILITE_SEARCH
+#if HILITE_SEARCH
 /*
  * Find matching text which is currently on screen and highlight it.
  */

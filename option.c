@@ -245,8 +245,10 @@ toggle_option(c, s, how_toggle)
 		break;
 	}
 
+#if HILITE_SEARCH
 	if (how_toggle != OPT_NO_TOGGLE && (o->otype & HL_REPAINT))
 		repaint_hilite(0);
+#endif
 
 	/*
 	 * Now actually toggle (change) the variable.
@@ -339,8 +341,10 @@ toggle_option(c, s, how_toggle)
 	if (o->ofunc != NULL)
 		(*o->ofunc)((how_toggle==OPT_NO_TOGGLE) ? QUERY : TOGGLE, s);
 
+#if HILITE_SEARCH
 	if (how_toggle != OPT_NO_TOGGLE && (o->otype & HL_REPAINT))
 		chg_hilite();
+#endif
 
 	/*
 	 * Print a message describing the new setting.
