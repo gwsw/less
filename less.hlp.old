@@ -5,7 +5,7 @@
       Notes in parentheses indicate the behavior if _N is given.
 
   h  H                 Display this help.
-  q  :q  :Q  ZZ        Exit.
+  q  :q  Q  :Q  ZZ     Exit.
 
   e  ^E  j  ^N  CR  *  Forward  one line   (or _N lines).
   y  ^Y  k  ^K  ^P  *  Backward one line   (or _N lines).

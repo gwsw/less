@@ -157,6 +157,7 @@ static unsigned char cmdtable[] =
 	'h',0,				A_HELP,
 	'V',0,				A_VERSION,
 	'q',0,				A_QUIT,
+	'Q',0,				A_QUIT,
 	':','q',0,			A_QUIT,
 	':','Q',0,			A_QUIT,
 	'Z','Z',0,			A_QUIT

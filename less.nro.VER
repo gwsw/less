@@ -81,6 +81,7 @@ If N is specified, it becomes the new default for
 subsequent d and u commands.
 .IP "ESC-["
 Scroll horizontally left N characters, default 8.
+This behaves best if you also set the -S option (chop lines).
 .IP "ESC-]"
 Scroll horizontally right N characters, default 8.
 .IP "r or ^R or ^L"
@@ -217,11 +218,13 @@ Same as "/*".
 Same as "?*".
 .IP n
 Repeat previous search, for N-th line containing the last pattern.
-If the previous search was modified by !, the search is made for the
+If the previous search was modified by ^N, the search is made for the
 N-th line NOT containing the pattern.
-If the previous search was modified by *, the search continues
+If the previous search was modified by ^E, the search continues
 in the next (or previous) file if not satisfied in the current file.
-There is no effect if the previous search was modified by @.
+If the previous search was modified by ^R, the search is done
+without using regular expressions.
+There is no effect if the previous search was modified by ^F or ^K.
 .IP N
 Repeat previous search, but in the reverse direction.
 .IP "ESC-n"
@@ -252,6 +255,7 @@ the list of files and the first one is examined.
 .IP "^X^V or E"
 Same as :e.
 Warning: some systems use ^V as a special literalization character.
+On such systems, you may not be able to use ^V.
 .IP ":n"
 Examine the next file (from the list of files given in the command line).
 If a number N is specified, the N-th next file is examined.
@@ -306,12 +310,12 @@ rather than the beginning.
 Prints the version number of 
 .I less 
 being run.
-.IP "q or :q or :Q or ZZ"
+.IP "q or Q or :q or :Q or ZZ"
 Exits
 .I less.
 .PP
 The following 
-three
+four
 commands may or may not be valid, depending on your particular installation.
 .PP
 .IP v
@@ -337,6 +341,9 @@ The section of the file to be piped is between the first line on
 the current screen and the position marked by the letter.
 <m> may also be ^ or $ to indicate beginning or end of file respectively.
 If <m> is . or newline, the current screen is piped.
+.IP "s filename"
+Save the input to a file.
+This only works if the input is a pipe, not an ordinary file.
 .PP
 .SH OPTIONS
 Command line options are described below.
@@ -364,16 +371,12 @@ If an option appears in the LESS variable, it can be reset
 to its default on the command line by beginning the command
 line option with "-+".
 .sp
-A dollar sign ($) may be used to signal the end of an option string.
-This is important only for options like -P which take a
-following string.
+For options like -P which take a following string,
+a dollar sign ($) may be used to signal the end of the string.
 .IP -?
 This option displays a summary of the commands accepted by
 .I less
 (the same as the h command).
-If this option is given, all other options are ignored, and
-.I less
-exits after the help screen is viewed.
 (Depending on how your shell interprets the question mark,
 it may be necessary to quote the question mark, thus: "-\\?".)
 .IP -a
