@@ -606,7 +606,6 @@ ch_flush()
 	{
 		ch_fsize = NULL_POSITION;
 		ch_flags &= ~CH_CANSEEK;
-		return;
 	}
 #endif
 
