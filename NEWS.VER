@@ -19,6 +19,11 @@
 
 * Fix problem with configuring terminal libraries on some systems.
 
+* Add support for PCRE regular expression library.
+
+* Add --with-regex option to configure to allow manually selecting
+  a regular expression library.
+
 * Fix bug compiling with SECURE = 1.
 
 ======================================================================
