@@ -6,7 +6,7 @@ less \- opposite of more
 .br
 .B "less -V"
 .br
-.B "less [-[+]aBcCdeEfgGHiImMnNqQrsSuUw]"
+.B "less [-[+]aBcCdeEfgGiImMnNqQrsSuUVwX]"
 .br
 .B "     [-b \fIbufs\fP] [-h \fIlines\fP] [-j \fIline\fP] [-k \fIkeyfile\fP]"
 .br
