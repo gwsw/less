@@ -480,6 +480,7 @@
  *	v270: Use VISUAL; use S_ISDIR/S_ISREG; fix	1/3/95
  *	      config problem with Solaris POSIX regcomp.
  *	v271: Don't quit on read error.			1/4/95
+ *	v272: Get rid of -L.				1/5/95
  */
 
-char version[] = "271";
+char version[] = "272";

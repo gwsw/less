@@ -1,5 +1,5 @@
 =======================================================================
-===        NOTE: THIS IS A DISTRIBUTION OF less (version 263)       ===
+===        NOTE: THIS IS A DISTRIBUTION OF less (version 272)       ===
 ===    PLEASE REPORT ANY PROBLEMS TO THE AUTHOR AT markn@3do.com.   ===
 =======================================================================
 
@@ -33,11 +33,23 @@ INSTALLATION (Unix systems only):
 
 4. Type "make" and watch the fun.
 
+   If you want less to find the help file in a directory other than
+   the default (/usr/local/share), define "datadir" to that directory.
+   For example: "make datadir=/usr/local/helpfiles"
+
 5. If the make succeeds, it will generate a program "less"
    in your current directory.  Test the generated program.
 
 6. When satisfied that it works, if you wish to install it
    in a public place, type "make install".
+
+   The default install destinations are:
+	Executables (less, lesskey) in /usr/local/bin
+	Data files (less.hlp) in /usr/local/share
+	Documentation (less.nro, lesskey.nro) in /usr/local/man/man1
+   If you want to install any of these files elsewhere, define
+   bindir, datadir, and/or mandir to the appropriate directories.
+   datadir must be defined the same as in step 4.
 
 If you have any problems building or running "less", suggestions, 
 complaints, etc., you may mail to the author at markn@3do.com
@@ -54,7 +66,6 @@ INSTALLATION (MS-DOS systems only)
    LF as line terminators.
 
 2. Rename MAKEFILE.DOS to MAKEFILE.
-   Rename DEFINES.DOS to DEFINES.H.
 
 3. Look at MAKEFILE to make sure that the definitions for CC and LIBDIR
    are correct.  CC should be the name of your Microsoft C compiler and
