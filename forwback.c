@@ -32,6 +32,7 @@ extern int forw_scroll;
 extern int back_scroll;
 extern int ignore_eoi;
 extern int clear_bg;
+extern int final_attr;
 #if TAGS
 extern char *tagoption;
 #endif
@@ -239,7 +240,7 @@ forw(n, pos, force, only_last, nblank)
 		if (top_scroll == OPT_ON)
 			clear_eol();
 		put_line();
-		if (clear_bg)
+		if (clear_bg && final_attr != AT_NORMAL)
 		{
 			/*
 			 * Writing the last character on the last line

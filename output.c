@@ -20,6 +20,7 @@
 
 public int errmsgs;	/* Count of messages displayed by error() */
 public int need_clr;
+public int final_attr;
 
 extern int sigs;
 extern int sc_width;
@@ -90,6 +91,7 @@ put_line()
 	case AT_BLINK:		bl_exit();	break;
 	case AT_STANDOUT:	so_exit();	break;
 	}
+	final_attr = curr_attr;
 }
 
 static char obuf[OUTBUF_SIZE];
