@@ -223,6 +223,7 @@ extern int quiet;		/* If VERY_QUIET, use visual bell for bell */
 extern int no_back_scroll;
 extern int swindow;
 extern int no_init;
+extern int no_keypad;
 extern int sigs;
 extern int wscroll;
 extern int screen_trashed;
@@ -1429,21 +1430,15 @@ win32_deinit_term()
 	public void
 init()
 {
-	if (no_init)
-	{
-#if MSDOS_COMPILER==WIN32C
-		/* no_init or not, never trash win32 console colors. */
-		initcolor();
-		flush();
-#endif
-		return;
-	}
 #if !MSDOS_COMPILER
-	tputs(sc_init, sc_height, putchr);
-	tputs(sc_s_keypad, sc_height, putchr);
+	if (!no_init)
+		tputs(sc_init, sc_height, putchr);
+	if (!no_keypad)
+		tputs(sc_s_keypad, sc_height, putchr);
 #else
 #if MSDOS_COMPILER==WIN32C
-	win32_init_term();
+	if (!no_init)
+		win32_init_term();
 #endif
 	initcolor();
 	flush();
@@ -1457,25 +1452,19 @@ init()
 	public void
 deinit()
 {
-	if (no_init)
-	{
-#if MSDOS_COMPILER==WIN32C
-		/* no_init or not, never trash win32 console colors. */
-		SETCOLORS(sy_fg_color, sy_bg_color);
-#endif
-		return;
-	}
-
 	if (!init_done)
 		return;
 #if !MSDOS_COMPILER
-	tputs(sc_e_keypad, sc_height, putchr);
-	tputs(sc_deinit, sc_height, putchr);
+	if (!no_keypad)
+		tputs(sc_e_keypad, sc_height, putchr);
+	if (!no_init)
+		tputs(sc_deinit, sc_height, putchr);
 #else
 	/* Restore system colors. */
 	SETCOLORS(sy_fg_color, sy_bg_color);
 #if MSDOS_COMPILER==WIN32C
-	win32_deinit_term();
+	if (!no_init)
+		win32_deinit_term();
 #else
 	/* Need clreol to make SETCOLORS take effect. */
 	clreol();

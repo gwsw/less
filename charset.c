@@ -37,10 +37,18 @@ struct charset {
 	{ "IBM-1047",	NULL,       "4cbcbc3b9cbccbccbb4c6bcc5b3cbbc4bc4bccbc191.b" },
 	{ "iso8859",	NULL,       "8bcccbcc18b95.33b." },
 	{ "koi8-r",	NULL,       "8bcccbcc18b95.b128." },
-	{ "latin1",	NULL,       "8bcccbcc18b95.33b." },
 	{ "next",	NULL,       "8bcccbcc18b95.bb125.bb" },
 	{ "utf-8",	&utf_mode,  "8bcccbcc18b." },
 	{ NULL, NULL, NULL }
+};
+
+struct cs_alias {
+	char *name;
+	char *oname;
+} cs_aliases[] = {
+	{ "latin1",	"iso8859" },
+	{ "latin9",	"iso8859" },
+	{ NULL, NULL }
 };
 
 #define	IS_BINARY_CHAR	01
@@ -127,9 +135,20 @@ icharset(name)
 	register char *name;
 {
 	register struct charset *p;
+	register struct cs_alias *a;
 
 	if (name == NULL || *name == '\0')
 		return (0);
+
+	/* First see if the name is an alias. */
+	for (a = cs_aliases;  a->name != NULL;  a++)
+	{
+		if (strcmp(name, a->name) == 0)
+		{
+			name = a->oname;
+			break;
+		}
+	}
 
 	for (p = charsets;  p->name != NULL;  p++)
 	{

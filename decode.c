@@ -293,6 +293,11 @@ init_cmds()
 	add_ecmd_table((char*)edittable, sizeof(edittable));
 #if USERFILE
 	/*
+	 * For backwards compatibility,
+	 * try to add tables in the OLD system lesskey file.
+	 */
+	add_hometable(NULL, BINDIR "/.sysless", 1);
+	/*
 	 * Try to add the tables in the system lesskey file.
 	 */
 	add_hometable("LESSKEY_SYSTEM", LESSKEYFILE_SYS, 1);
@@ -708,7 +713,7 @@ add_hometable(envname, def_filename, sysvar)
 	char *filename;
 	PARG parg;
 
-	if ((filename = lgetenv(envname)) != NULL)
+	if (envname != NULL && (filename = lgetenv(envname)) != NULL)
 		filename = save(filename);
 	else if (sysvar)
 		filename = save(def_filename);

@@ -748,6 +748,11 @@ Disables sending the termcap initialization and deinitialization strings
 to the terminal.
 This is sometimes desirable if the deinitialization string does
 something unnecessary, like clearing the screen.
+.IP "--no-keypad"
+Disables sending the keypad initialization and deinitialization strings
+to the terminal.
+This is sometimes useful if the keypad strings make the numeric
+keypad behave in an undesirable manner.
 .IP "-y\fIn\fP or --max-forw-scroll=\fIn\fP"
 Specifies a maximum number of lines to scroll forward.
 If it is necessary to scroll forward more than \fIn\fP lines,
@@ -920,11 +925,11 @@ uses that as the name of the system-wide lesskey file.
 Otherwise,
 .I less 
 looks in a standard place for the system-wide lesskey file:
-On Unix systems, the system-wide lesskey file is /usr/local/etc/.sysless.
+On Unix systems, the system-wide lesskey file is /usr/local/etc/sysless.
 (However, if 
 .I less 
 was built with a different sysconf directory than /usr/local/etc,
-that directory is where the .sysless file is found.)
+that directory is where the sysless file is found.)
 On MS-DOS and Windows systems, the system-wide lesskey file is c:\\_sysless.
 On OS/2 systems, the system-wide lesskey file is c:\\sysless.ini.
 
@@ -1079,6 +1084,8 @@ Selects an ISO 8859 character set.
 This is the same as ASCII, except characters between 160 and 255 are
 treated as normal characters.
 .IP latin1
+Same as iso8859.
+.IP latin9
 Same as iso8859.
 .IP dos
 Selects a character set appropriate for MS-DOS.

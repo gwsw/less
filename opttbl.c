@@ -42,6 +42,7 @@ public int swindow;		/* Size of scrolling window */
 public int jump_sline;		/* Screen line of "jump target" */
 public int chopline;		/* Truncate displayed lines at screen width */
 public int no_init;		/* Disable sending ti/te termcap strings */
+public int no_keypad;		/* Disable sending ks/ke termcap strings */
 public int twiddle;             /* Show tildes after EOF */
 public int show_attn;		/* Hilite first unread line */
 public int shift_count;		/* Number of positions to shift horizontally */
@@ -102,6 +103,7 @@ static struct optname quote_optname  = { "quotes",               NULL };
 static struct optname tilde_optname  = { "tilde",                NULL };
 static struct optname query_optname  = { "help",                 NULL };
 static struct optname pound_optname  = { "shift",                NULL };
+static struct optname keypad_optname = { "no-keypad",            NULL };
 
 
 /*
@@ -328,6 +330,12 @@ static struct option option[] =
 		NUMBER, 0, &shift_count, NULL,
 		"Horizontal shift: ",
 		"Horizontal shift %d positions",
+		NULL
+	},
+	{ '.', &keypad_optname,
+		BOOL|NO_TOGGLE, OPT_OFF, &no_keypad, NULL,
+		"Use keypad mode",
+		"Don't use keypad mode",
 		NULL
 	},
 	{ '\0', NULL, NOVAR, 0, NULL, NULL, NULL, NULL, NULL }

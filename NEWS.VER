@@ -17,8 +17,13 @@
 
 * Status column (enabled with -J) now shows search results.
 
-* System-wide lesskey file now defaults to etc directory instead of bin.
+* System-wide lesskey file now defaults to sysless in etc directory 
+  instead of .sysless in bin directory.
   Use "configure --sysconfdir=..." to change it.
+  (For backwards compatibility, .sysless in bin is still recognized.)
+
+* -X no longer disables keypad initialization.
+  New option --no-keypad disables keypad initialization.
 
 * Windows version sets window title.
 
