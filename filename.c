@@ -957,12 +957,12 @@ bad_file(filename)
 	filename = shell_unquote(filename);
 	if (is_dir(filename))
 	{
-		static char is_dir[] = " is a directory";
+		static char is_a_dir[] = " is a directory";
 
-		m = (char *) ecalloc(strlen(filename) + sizeof(is_dir), 
+		m = (char *) ecalloc(strlen(filename) + sizeof(is_a_dir), 
 			sizeof(char));
 		strcpy(m, filename);
-		strcat(m, is_dir);
+		strcat(m, is_a_dir);
 	} else
 	{
 #if HAVE_STAT

@@ -28,6 +28,13 @@ extern int so_s_width, so_e_width;
 extern int screen_trashed;
 extern int any_display;
 extern int is_tty;
+#if 
+extern int ctldisp;
+extern int nm_fg_color, nm_bg_color;
+extern int bo_fg_color, bo_bg_color;
+extern int ul_fg_color, ul_bg_color;
+extern int so_fg_color, so_bg_color;
+extern int bl_fg_color, bl_bg_color;
 
 /*
  * Display the line which is in the line buffer.
@@ -179,7 +186,156 @@ flush()
 	if (is_tty && any_display)
 	{
 		*ob = '\0';
-		cputs(obuf);
+		if (ctldisp != OPT_ONPLUS)
+			cputs(obuf);
+		else
+		{
+			/*
+			 * Look for SGR escape sequences, and convert them
+			 * to color commands.  Replace bold, underline,
+			 * and italic escapes into colors specified via
+			 * the -D command-line option.
+			 */
+			char *anchor, *p, *p_next;
+			int buflen = ob - obuf;
+			unsigned char fg, bg, norm_attr;
+			/*
+			 * Only dark colors mentioned here, so that
+			 * bold has visible effect.
+			 */
+			static enum COLORS screen_color[] = {
+				BLACK, RED, GREEN, BROWN,
+				BLUE, MAGENTA, CYAN, LIGHTGRAY
+			};
+
+			/* Normal text colors are used as baseline. */
+			bg = nm_bg_color & 0xf;
+			fg = nm_fg_color & 0xf;
+			norm_attr = (bg << 4) | fg;
+			for (anchor = p_next = obuf;
+			     (p_next = memchr (p_next, ESC,
+					       buflen - (p_next - obuf)))
+			       != NULL; )
+			{
+				p = p_next;
+
+				/*
+				 * Handle the null escape sequence
+				 * (ESC-[m), which is used to restore
+				 * the original color.
+				 */
+				if (p[1] == '[' && is_ansi_end(p[2]))
+				{
+					textattr(norm_attr);
+					p += 3;
+					anchor = p_next = p;
+					continue;
+				}
+
+				if (p[1] == '[')	/* "Esc-[" sequence */
+				{
+					/*
+					 * If some chars seen since
+					 * the last escape sequence,
+					 * write it out to the screen
+					 * using current text attributes.
+					 */
+					if (p > anchor)
+					{
+						*p = '\0';
+						cputs (anchor);
+						*p = ESC;
+						anchor = p;
+					}
+					p += 2;
+					p_next = p;
+					while (!is_ansi_end(*p))
+					{
+						char *q;
+						long code = strtol(p, &q, 10);
+
+						if (!*q)
+						{
+							/*
+							 * Incomplete sequence.
+							 * Leave it unprocessed
+							 * in the buffer.
+							 */
+							int slop = q - anchor;
+							strcpy(obuf, anchor);
+							ob = &obuf[slop];
+							return;
+						}
+
+						if (q == p
+						    || code > 49 || code < 0
+						    || (!is_ansi_end(*q)
+							&& *q != ';'))
+						{
+							p_next = q;
+							break;
+						}
+						if (*q == ';')
+							q++;
+
+						switch (code)
+						{
+						case 1:	/* bold on */
+							fg = bo_fg_color;
+							bg = bo_bg_color;
+							break;
+						case 3:	/* italic on */
+							fg = so_fg_color;
+							bg = so_bg_color;
+							break;
+						case 4:	/* underline on */
+							fg = ul_fg_color;
+							bg = ul_bg_color;
+							break;
+						case 8:	/* concealed on */
+							fg = (bg & 7) | 8;
+							break;
+						case 0:	/* all attrs off */
+						case 22:/* bold off */
+						case 23:/* italic off */
+						case 24:/* underline off */
+							fg = nm_fg_color;
+							bg = nm_bg_color;
+							break;
+						case 30: case 31: case 32:
+						case 33: case 34: case 35:
+						case 36: case 37:
+							fg = (fg & 8) | (screen_color[code - 30]);
+							break;
+						case 39: /* default fg */
+							fg = nm_fg_color;
+							break;
+						case 40: case 41: case 42:
+						case 43: case 44: case 45:
+						case 46: case 47:
+							bg = (bg & 8) | (screen_color[code - 40]);
+							break;
+						case 49: /* default fg */
+							bg = nm_bg_color;
+							break;
+						}
+						p = q;
+					}
+					if (is_ansi_end(*p) && p > p_next)
+					{
+						bg &= 15;
+						fg &= 15;
+						textattr ((bg << 4)| fg);
+						p_next = anchor = p + 1;
+					} else
+						break;
+				} else
+					p_next++;
+			}
+
+			/* Output what's left in the buffer.  */
+			cputs (anchor);
+		}
 		ob = obuf;
 		return;
 	}
