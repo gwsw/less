@@ -21,10 +21,10 @@ prefix = @prefix@
 exec_prefix = @exec_prefix@
 
 # Where the installed binary goes.
-bindir = ${exec_prefix}/bin
+bindir = @bindir@
 binprefix = 
 
-mandir = ${prefix}/man/man${manext}
+mandir = @mandir@
 manext = 1
 manprefix = 
 
