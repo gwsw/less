@@ -266,6 +266,10 @@ seek_filesize(f)
 
 FILE *popen();
 
+/*
+ * Read a string from a file.
+ * Return a pointer to the string in memory.
+ */
 	static char *
 readfd(fd)
 	FILE *fd;
@@ -275,6 +279,10 @@ readfd(fd)
 	char *buf;
 	char *p;
 	
+	/* 
+	 * Make a guess about how many chars in the string
+	 * and allocate a buffer to hold it.
+	 */
 	len = 100;
 	buf = (char *) ecalloc(len, sizeof(char));
 	for (p = buf;  ;  p++)
@@ -283,6 +291,10 @@ readfd(fd)
 			break;
 		if (p - buf >= len-1)
 		{
+			/*
+			 * The string is too big to fit in the buffer we have.
+			 * Allocate a new buffer, twice as big.
+			 */
 			len *= 2;
 			*p = '\0';
 			p = (char *) ecalloc(len, sizeof(char));
@@ -297,6 +309,10 @@ readfd(fd)
 	return (buf);
 }
 
+/*
+ * Execute a shell command.
+ * Return a pointer to a pipe connected to the shell command's standard output.
+ */
 	static FILE *
 shellcmd(cmd, s1, s2)
 	char *cmd;
@@ -332,6 +348,9 @@ shellcmd(cmd, s1, s2)
 	return (fd);
 }
 
+/*
+ * Expand a filename, doing any shell-level substitutions.
+ */
 	public char *
 glob(filename)
 	char *filename;
@@ -364,6 +383,10 @@ glob(filename)
 	return (gfilename);
 }
 
+/*
+ * See if we should open a "replacement file" 
+ * instead of the file we're about to open.
+ */
 	public char *
 open_altfile(filename, pf, pfd)
 	char *filename;
@@ -382,6 +405,10 @@ open_altfile(filename, pf, pfd)
 		return (NULL);
 	if (*lessopen == '|')
 	{
+		/*
+		 * If LESSOPEN starts with a |, it indicates 
+		 * a "pipe preprocessor".
+		 */
 		lessopen++;
 		returnfd = 1;
 	}
@@ -398,15 +425,27 @@ open_altfile(filename, pf, pfd)
 	if (returnfd)
 	{
 		int f = fileno(fd);
+		char c1;
 		char c;
 
-		if (read(f, &c, 1) == 1 && c == '0')
-		{
-			read(f, &c, 1);
-			*pfd = (void *) fd;
-			*pf = fileno(fd);
-			return ("-");
-		}
+		/*
+		 * If LESSOPEN is a pipe preprocessor, it has a funny interface.
+		 * Read one character and ignore the next three.
+		 * If the first was a '0', then the rest of the pipe
+		 * is the replacement file contents.
+		 * If the first char was not a '0', then there is no
+		 * replacement file.
+		 */
+		if (read(f, &c1, 1) != 1)
+			c1 = '1';
+		(void) read(f, &c, 1);
+		(void) read(f, &c, 1);
+		(void) read(f, &c, 1);
+		if (c1 != '0')
+			return (NULL);
+		*pfd = (void *) fd;
+		*pf = f;
+		return ("-");
 	}
 #endif
 	gfilename = readfd(fd);
@@ -416,6 +455,9 @@ open_altfile(filename, pf, pfd)
 	return (gfilename);
 }
 
+/*
+ * Close a replacement file.
+ */
 	public void
 close_altfile(altfilename, filename, pipefd)
 	char *altfilename;
@@ -426,7 +468,7 @@ close_altfile(altfilename, filename, pipefd)
 	FILE *fd;
 	
 	if (pipefd != NULL)
-		pclose((FILE*)pipefd);
+		pclose((FILE*) pipefd);
 	if ((lessclose = getenv("LESSCLOSE")) == NULL)
 	     	return;
 	fd = shellcmd(lessclose, filename, altfilename);

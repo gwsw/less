@@ -472,6 +472,8 @@
  *	      in lesskey file.
  *	v265: Add LESSOPEN=|cmd syntax.			12/24/94
  *	v266: Add -I flag.				12/26/94
+ *	v267: Formalize the four-byte header emitted	12/28/94
+ *	      by a LESSOPEN pipe.
  */
 
-char version[] = "266";
+char version[] = "267";
