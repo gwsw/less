@@ -574,7 +574,10 @@ v333    3/4/99	Changed -w to highlite new line after forward movement.
 v334    3/9/99	Avoid overflowing prompt buffer; add %d and %D.
 v335   3/20/99	Add EBCDIC support (thanks to Thomas Dorner).
               	Use HOMEDRIVE/HOMEPATH on Windows (thanks to Preston Bannister).
+		Posted to Web page.
+-----------------------------------------------------------------
+v336    4/8/99	Fix installation bugs.
 
 */
 
-char version[] = "335";
+char version[] = "336";
