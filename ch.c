@@ -716,8 +716,8 @@ ch_init(f, flags)
 		/*
 		 * Try to seek; set CH_CANSEEK if it works.
 		 */
-		if (!(flags & CH_HELPFILE) && seekable(f))
-			ch_flags |= CH_CANSEEK;
+		if ((flags & CH_CANSEEK) && !seekable(f))
+			ch_flags &= ~CH_CANSEEK;
 		set_filestate(curr_ifile, (void *) thisfile);
 	}
 	if (thisfile->file == -1)

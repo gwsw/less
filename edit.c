@@ -331,18 +331,23 @@ edit_ifile(ifile)
 		error("%s", &parg);
 		free(parg.p_string);
 	    	goto err1;
-	} else if (!force_open && !opened(ifile) && bin_file(f))
+	} else 
 	{
-		/*
-		 * Looks like a binary file.  Ask user if we should proceed.
-		 */
-		parg.p_string = filename;
-		answer = query("\"%s\" may be a binary file.  See it anyway? ",
-			&parg);
-		if (answer != 'y' && answer != 'Y')
+		chflags |= CH_CANSEEK;
+		if (!force_open && !opened(ifile) && bin_file(f))
 		{
-			close(f);
-			goto err1;
+			/*
+			 * Looks like a binary file.  
+			 * Ask user if we should proceed.
+			 */
+			parg.p_string = filename;
+			answer = query("\"%s\" may be a binary file.  See it anyway? ",
+				&parg);
+			if (answer != 'y' && answer != 'Y')
+			{
+				close(f);
+				goto err1;
+			}
 		}
 	}
 
