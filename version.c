@@ -559,7 +559,8 @@ v324   8/21/96	Add support for spaces in filenames (thanks to Simon Munton).
 v325   8/21/96	Add lessecho, for spaces in filenames under Unix.
 v326   8/27/96	Fix DJGPP version.
 v327   9/1/96	Reorganize lglob, make spaces in filenames work better in Unix.
-v328   10/7/96	Fix MS-DOS and OS-9 versions.
+v328   10/7/96	Append / to directory name in filename completion.
+		Fix MS-DOS and OS-9 versions.
 */
 
 char version[] = "328";
