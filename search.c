@@ -395,46 +395,41 @@ clr_hilite()
 /*
  * Add a new hilite to the hilite list.
  */
-	public void
-add_hilite(startpos, endpos)
-	POSITION startpos;
-	POSITION endpos;
-{
+	static void
+add_hilite(anchor, hl)
+	struct hilite *anchor;
 	struct hilite *hl;
+{
 	struct hilite *ihl;
 
 	/*
 	 * Hilites are sorted in the list; find where new one belongs.
 	 * Insert new one after ihl.
 	 */
-	for (ihl = &hilite_anchor;  ihl->hl_next != NULL;  ihl = ihl->hl_next)
+	for (ihl = anchor;  ihl->hl_next != NULL;  ihl = ihl->hl_next)
 	{
-		if (ihl->hl_next->hl_startpos > startpos)
+		if (ihl->hl_next->hl_startpos > hl->hl_startpos)
 			break;
 	}
 
-	if (ihl != &hilite_anchor && startpos <= ihl->hl_endpos)
+	if (ihl != anchor && hl->hl_startpos <= ihl->hl_endpos)
 	{
 		/*
 		 * New hilite starts within existing ihl.
 		 * Just extend ihl to end at the new hilite's end.
 		 */
-		ihl->hl_endpos = MAXPOS(endpos, ihl->hl_endpos);
+		ihl->hl_endpos = MAXPOS(hl->hl_endpos, ihl->hl_endpos);
+		free(hl);
 	} else
 	{
 		/*
 		 * Add new hilite after ihl.
-		 */
-		hl = (struct hilite *) ecalloc(1, sizeof(struct hilite));
-		hl->hl_startpos = startpos;
-		/*
 		 * If new hilite ends within the one after ihl,
 		 * truncate it to end at the start of that one.
 		 */
-		if (ihl->hl_next == NULL)
-			hl->hl_endpos = endpos;
-		else
-			hl->hl_endpos = MINPOS(endpos, ihl->hl_next->hl_startpos);
+		if (ihl->hl_next != NULL)
+			hl->hl_endpos = MINPOS(hl->hl_endpos, 
+						ihl->hl_next->hl_startpos);
 		hl->hl_next = ihl->hl_next;
 		ihl->hl_next = hl;
 	}
@@ -480,7 +475,8 @@ is_hilited(pos, epos, nohide)
  * Adjust hl_startpos & hl_endpos to account for backspace processing.
  */
 	static void
-adj_hilite(linepos)
+adj_hilite(anchor, linepos)
+	struct hilite *anchor;
 	POSITION linepos;
 {
 	char *line;
@@ -498,13 +494,8 @@ adj_hilite(linepos)
 	 */
 	(void) forw_raw_line(linepos, &line);
 	opos = npos = linepos;
-	/*
-	 * Find the first hilite in (or after) this line.
-	 */
-	for (hl = hilite_anchor.hl_next;  hl != NULL;  hl = hl->hl_next)
-		if (hl->hl_startpos >= linepos)
-			break;
-	checkstart = 1;
+	hl = anchor->hl_next;
+	checkstart = TRUE;
 	while (hl != NULL)
 	{
 		/*
@@ -517,12 +508,12 @@ adj_hilite(linepos)
 		if (checkstart && hl->hl_startpos == opos)
 		{
 			hl->hl_startpos = npos;
-			checkstart = 0;
+			checkstart = FALSE;
 			continue; /* {{ not really necessary }} */
 		} else if (!checkstart && hl->hl_endpos == opos)
 		{
 			hl->hl_endpos = npos;
-			checkstart = 1;
+			checkstart = TRUE;
 			hl = hl->hl_next;
 			continue; /* {{ necessary }} */
 		}
@@ -557,6 +548,8 @@ hilite_line(linepos, line, sp, ep)
 	char *ep;
 {
 	char *searchp;
+	struct hilite *hl;
+	struct hilite hilites;
 
 	if (sp == NULL || ep == NULL)
 		return;
@@ -569,6 +562,10 @@ hilite_line(linepos, line, sp, ep)
 	 *    if, for example, the pattern starts with "^". }}
 	 */
 	searchp = line;
+	/*
+	 * Put the hilites into a temporary list until they're adjusted.
+	 */
+	hilites.hl_next = NULL;
 	do {
 		if (ep > sp)
 		{
@@ -577,7 +574,10 @@ hilite_line(linepos, line, sp, ep)
 			 * buffer corresponds to one char position in the file.
 			 * This is not quite true; we need to adjust later.
 			 */
-			add_hilite(linepos + (sp-line), linepos + (ep-line));
+			hl = (struct hilite *) ecalloc(1, sizeof(struct hilite));
+			hl->hl_startpos = linepos + (sp-line);
+			hl->hl_endpos = linepos + (ep-line);
+			add_hilite(&hilites, hl);
 		}
 		/*
 		 * If we matched more than zero characters,
@@ -599,7 +599,15 @@ hilite_line(linepos, line, sp, ep)
 		 * were removed, and hl_startpos/hl_endpos are not correct.
 		 * {{ This is very ugly. }}
 		 */
-		adj_hilite(linepos);
+		adj_hilite(&hilites, linepos);
+	}
+	/*
+	 * Now put the hilites into the real list.
+	 */
+	while ((hl = hilites.hl_next) != NULL)
+	{
+		hilites.hl_next = hl->hl_next;
+		add_hilite(&hilite_anchor, hl);
 	}
 }
 #endif

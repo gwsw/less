@@ -503,7 +503,9 @@ v285   3/7/95	Don't set # in lsystem;
 v286   3/7/95	Reformat change history (too much free time?).
 v287   3/8/95	Fix hilite bug if overstrike multiple chars.
 v288   3/8/95	Allow lesskey to override get_editkey keys.
+v289   3/9/95	Fix adj_hilite bug when line gets processed by
+		hilite_line more than once.
 
 */
 
-char version[] = "288";
+char version[] = "289";
