@@ -41,7 +41,7 @@
 
 * Default LESSCHARSET for MS-DOS versions is now "dos".
 
-* Improved performance in reading very large files.
+* Improved performance in reading very large pipes.
 
 * Eliminated some dependencies on file offets being 32 bits.
 

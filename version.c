@@ -624,7 +624,8 @@ v370 12/23/01	Fix tags error messages.
 -----------------------------------------------------------------
 v371 12/26/01	Fix new_file bug; use popen in Windows version;
 		fix some compiler warnings.
+v372 12/29/01	Make -b be in units of 1K.
 
 */
 
-char version[] = "371";
+char version[] = "372";

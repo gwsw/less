@@ -34,8 +34,8 @@ public int back_scroll;		/* Repaint screen on backwards movement */
 public int forw_scroll;		/* Repaint screen on forward movement */
 public int caseless;		/* Do "caseless" searches */
 public int linenums;		/* Use line numbers */
-public int cbufs;		/* Current number of buffers */
 public int autobuf;		/* Automatically allocate buffers as needed */
+public int bufspace;		/* Max buffer space per file (K) */
 public int ctldisp;		/* Send control chars to screen untranslated */
 public int force_open;		/* Open the file even if not regular file */
 public int swindow;		/* Size of scrolling window */
@@ -128,9 +128,9 @@ static struct option option[] =
 	},
 
 	{ 'b', &b_optname,
-		NUMBER, 10, &cbufs, opt_b, 
-		"Buffers: ",
-		"%d buffers",
+		NUMBER, 64, &bufspace, opt_b, 
+		"Max buffer space per file (K): ",
+		"Max buffer space per file: %dK",
 		NULL
 	},
 	{ 'B', &B__optname,

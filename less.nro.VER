@@ -12,7 +12,7 @@ less \- opposite of more
 .br
 .B "less [-[+]aBcCdeEfFgGiIJmMnNqQrRsSuUVwWX]"
 .br
-.B "     [-b \fIbufs\fP] [-h \fIlines\fP] [-j \fIline\fP] [-k \fIkeyfile\fP]"
+.B "     [-b \fIspace\fP] [-h \fIlines\fP] [-j \fIline\fP] [-k \fIkeyfile\fP]"
 .br
 .B "     [-{oO} \fIlogfile\fP] [-p \fIpattern\fP] [-P \fIprompt\fP] [-t \fItag\fP]"
 .br
@@ -452,19 +452,24 @@ thus skipping all lines displayed on the screen.
 By default, searches start at the second line on the screen
 (or after the last found line; see the -j option).
 .IP "-b\fIn\fP or --buffers=\fIn\fP"
-Specifies the number of buffers
+Specifies the amount of buffer space
 .I less
-will use for each file.
-Buffers are 1K, and by default 10 buffers are used for each file
-(except if the file is a pipe; see the -B option).
-The number \fIn\fP specifies a different number of buffers to use.
+will use for each file, in units of kilobytes (1024 bytes).
+By default 64K of buffer space is used for each file
+(unless the file is a pipe; see the -B option).
+The -b option specifies instead that \fIn\fP kilobytes of 
+buffer space should be used for each file.
+If \fIn\FP is -1, buffer space is unlimited; that is,
+the entire file is read into memory.
 .IP "-B or --auto-buffers"
 By default, when data is read from a pipe,
 buffers are allocated automatically as needed.
 If a large amount of data is read from the pipe, this can cause
 a large amount of memory to be allocated.
 The -B option disables this automatic allocation of buffers for pipes,
-so that only the number of buffers specified by the -b option are used.
+so that only 64K 
+(or the amount of space specified by the -b option).
+is used for the pipe.
 Warning: use of -B can result in erroneous display, since only the
 most recently viewed part of the file is kept in memory; 
 any earlier data is lost.

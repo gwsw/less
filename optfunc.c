@@ -29,7 +29,7 @@
 #include "option.h"
 
 extern int nbufs;
-extern int cbufs;
+extern int bufspace;
 extern int pr_type;
 extern int plusoption;
 extern int swindow;
@@ -316,14 +316,14 @@ opt_b(type, s)
 {
 	switch (type)
 	{
-	case TOGGLE:
-	case QUERY:
-		/*
-		 * Allocate the new number of buffers.
-		 */
-		cbufs = ch_nbuf(cbufs);
-		break;
 	case INIT:
+	case TOGGLE:
+		/*
+		 * Set the new number of buffers.
+		 */
+		ch_setbufspace(bufspace);
+		break;
+	case QUERY:
 		break;
 	}
 }
