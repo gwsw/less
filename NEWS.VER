@@ -26,6 +26,8 @@
 * Overstriking underscore with underscore is now bold or underlined 
   depending on context.
 
+* Use only 7 spaces for line numbers in -N mode, if possible.
+
 * Fix some bugs in handling overstriking in UTF-8 files.
 
 * Fix some nroff issues in the man page.
