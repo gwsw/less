@@ -394,7 +394,7 @@ do_append(c, pos)
 			 * Make sure we can get the entire representation
 			 * of the character on this line.
 			 */
-			if (column + strlen(s) + 
+			if (column + (int) strlen(s) + 
 			    attr_swidth(a) + attr_ewidth(a) > sc_width)
 				return (1);
 

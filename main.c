@@ -95,6 +95,18 @@ main(argc, argv)
 	init_option();
 	scan_option(getenv("LESS"));
 
+#if GNU_OPTIONS
+	/*
+	 * Special case for "less --help" and "less --version".
+	 */
+	if (argc == 2)
+	{
+		if (strcmp(argv[0], "--help") == 0)
+			scan_option("-?");
+		if (strcmp(argv[0], "--version") == 0)
+			scan_option("-V");
+	}
+#endif
 #define	isoptstring(s)	(((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
 	while (--argc > 0 && (isoptstring(argv[0]) || isoptpending()))
 		scan_option(*argv++);

@@ -387,6 +387,8 @@ glob(filename)
 	int length;
 
 	list = _fnexplode(filename);
+	if (list == NULL)
+		return (filename);
 	length = 0;
 	for (cnt = 0;  list[cnt] != NULL;  cnt++)
 	  	length += strlen(list[cnt]) + 1;

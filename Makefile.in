@@ -21,13 +21,13 @@ prefix = @prefix@
 exec_prefix = @exec_prefix@
 
 # Where the installed binary goes.
-bindir = $(exec_prefix)/bin
+bindir = ${exec_prefix}/bin
 binprefix = 
 
 # Where the help file goes.
-datadir = $(prefix)/share
+datadir = ${prefix}/share
 
-mandir = $(prefix)/man/man$(manext)
+mandir = ${prefix}/man/man${manext}
 manext = 1
 manprefix = 
 
@@ -38,7 +38,7 @@ SHELL = /bin/sh
 # This rule allows us to supply the necessary -D options
 # in addition to whatever the user asks for.
 .c.o:
-	$(CC) -I. $(CFLAGS_COMPILE_ONLY) $(CPPFLAGS) $(CFLAGS) $<
+	${CC} -I${srcdir} ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} $<
 
 SRC =	main.c screen.c brac.c ch.c charset.c cmdbuf.c \
 	command.c decode.c edit.c filename.c forwback.c \
@@ -46,12 +46,12 @@ SRC =	main.c screen.c brac.c ch.c charset.c cmdbuf.c \
 	lsystem.c mark.c optfunc.c option.c opttbl.c os.c \
 	output.c position.c prompt.c search.c signal.c \
 	tags.c ttyin.c version.c  
-OBJ =	main.$(O) screen.$(O) brac.$(O) ch.$(O) charset.$(O) cmdbuf.$(O) \
-	command.$(O) decode.$(O) edit.$(O) filename.$(O) forwback.$(O) \
-	help.$(O) ifile.$(O) input.$(O) jump.$(O) line.$(O) linenum.$(O) \
-	lsystem.$(O) mark.$(O) optfunc.$(O) option.$(O) opttbl.$(O) os.$(O) \
-	output.$(O) position.$(O) prompt.$(O) search.$(O) signal.$(O) \
-	tags.$(O) ttyin.$(O) version.$(O)  @REGEX_O@
+OBJ =	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
+	command.${O} decode.${O} edit.${O} filename.${O} forwback.${O} \
+	help.${O} ifile.${O} input.${O} jump.${O} line.${O} linenum.${O} \
+	lsystem.${O} mark.${O} optfunc.${O} option.${O} opttbl.${O} os.${O} \
+	output.${O} position.${O} prompt.${O} search.${O} signal.${O} \
+	tags.${O} ttyin.${O} version.${O}  @REGEX_O@
 DISTFILES = ${SRC} regexp.c regexp.h \
 	INSTALL Makefile.in README NEWS \
 	configure configure.in acconfig.h lesskey.c \
@@ -63,16 +63,16 @@ DISTFILES = ${SRC} regexp.c regexp.h \
 
 all: less lesskey
 
-less: $(OBJ)
-	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
+less: ${OBJ}
+	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
 
-lesskey: lesskey.$(O) version.$(O)
-	$(CC) $(LDFLAGS) -o $@ lesskey.$(O) version.$(O)
+lesskey: lesskey.${O} version.${O}
+	${CC} ${LDFLAGS} -o $@ lesskey.${O} version.${O}
 
-$(OBJ): less.h defines.h funcs.h
+${OBJ}: less.h defines.h funcs.h
 
-filename.$(O): filename.c
-	${CC} -c -DHELPFILE=\"${datadir}/less.hlp\" -I. ${CPPFLAGS} ${CFLAGS} ${srcdir}/filename.c
+filename.${O}: filename.c
+	${CC} -c -DHELPFILE=\"${datadir}/less.hlp\" -I${srcdir} ${CPPFLAGS} ${CFLAGS} ${srcdir}/filename.c
 
 install: all less.hlp less.nro installdirs
 	${INSTALL_PROGRAM} less ${bindir}/${binprefix}less
@@ -110,12 +110,12 @@ config.status: configure
 	./config.status --recheck
 
 lint:
-	lint -I. $(CPPFLAGS) $(SRC)
+	lint -I${srcdir} ${CPPFLAGS} ${SRC}
 newfuncs:
 	mv -f funcs.h funcs.h.old
-	awk -f mkfuncs.awk $(SRC) >funcs.h
+	awk -f mkfuncs.awk ${SRC} >funcs.h
 clean:
-	rm -f *.$(O) core less lesskey
+	rm -f *.${O} core less lesskey
 
 mostlyclean: clean
 

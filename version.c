@@ -489,6 +489,10 @@
  *	v277: Add "next" charset; don't display ^X 	1/31/95
  *	      for X > 128.
  *	v278: Change default for -G.			2/14/95
+ *		Posted to prep.ai.mit.edu
+ *	-----------------------------------------------------------------
+ *	v279: Add GNU options --help, --version.	2/22/95
+ *	      Minor config fixes.
  */
 
-char version[] = "278";
+char version[] = "279";
