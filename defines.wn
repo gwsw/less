@@ -177,8 +177,6 @@
 /* Define as the return type of signal handlers (int or void).  */
 #define RETSIGTYPE void
 
-/* Define if you have the ANSI C header files.  */
-#define STDC_HEADERS	1
 
 /*
  * Regular expression library.
@@ -273,6 +271,9 @@
 
 /* Define if you have the <string.h> header file.  */
 #define HAVE_STRING_H 1
+
+/* Define if you have the <stdlib> header file. */
+#define HAVE_STDLIB_H 1
 
 /* Define if you have the <sys/ioctl.h> header file.  */
 #define HAVE_SYS_IOCTL_H 0
