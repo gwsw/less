@@ -75,6 +75,9 @@
 #ifdef _OSK
 #include <signal.h>
 #endif
+#if OS2
+#include <sys/signal.h>
+#endif
 #if HAVE_SYS_WINDOW_H
 #include <sys/window.h>
 #endif
