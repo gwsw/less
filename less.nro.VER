@@ -16,7 +16,7 @@ less \- opposite of more
 .br
 .B "     [-{oO} \fIlogfile\fP] [-p \fIpattern\fP] [-P \fIprompt\fP] [-t \fItag\fP]"
 .br
-.B "     [-T \fItagsfile\fP] [-x \fItab\fP] [-y \fIlines\fP] [-[z] \fIlines\fP]"
+.B "     [-T \fItagsfile\fP] [-x \fItab\fP,...] [-y \fIlines\fP] [-[z] \fIlines\fP]"
 .br
 .B "     [+[+]\fIcmd\fP] [--] [\fIfilename\fP]..."
 .br
@@ -740,8 +740,13 @@ in which case only the status column is highlighted.
 .IP "-W or --HILITE-UNREAD"
 Like -w, but temporarily highlights the first new line after any 
 forward movement command larger than one line.
-.IP "-x\fIn\fP or --tabs=\fIn\fP"
-Sets tab stops every \fIn\fP positions.
+.IP "-x\fIn\fP,... or --tabs=\fIn\fP,..."
+Sets tab stops.
+If only one \fIn\fP is specified, tab stops are set at multiples of \fIn\fP.
+If multiple values separated by commas are specified, tab stops
+are set at those positions, and then continue with the same spacing as the
+last two.
+For example, \fI-x9,17\fP will set tabs at positions 9, 17, 25, 33, etc.
 The default for \fIn\fP is 8.
 .IP "-X or --no-init"
 Disables sending the termcap initialization and deinitialization strings

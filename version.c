@@ -609,6 +609,7 @@ v361  12/4/01	Add IBM-1047 charset & EBCDIC fixes (thanks to Thomas Dorner).
 		Fix UTF-8 overstriking (thanks to Robert Brady).
 v362  12/4/01	Make status column show search targets.
 v363  12/6/01	Add --no-keypad option.
+		Add variable width tabstops (thanks to Peter Samuelson).
 
 */
 

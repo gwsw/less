@@ -173,10 +173,12 @@
                   Highlight first new line after forward-screen.
   -W  ........  --HILITE-UNREAD
                   Highlight first new line after any forward movement.
-  -x [_N]  ....  --tabs=[_N]
+  -x [_N[,...]]  --tabs=[_N[,...]]
                   Set tab stops.
   -X  ........  --no-init
                   Don't use termcap init/deinit strings.
+                --no-keypad
+                  Don't use termcap keypad init/deinit strings.
   -y [_N]  ....  --max-forw-scroll=[_N]
                   Forward scroll limit.
   -z [_N]  ....  --window=[_N]

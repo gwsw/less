@@ -26,6 +26,9 @@ public int size_linebuf = sizeof(linebuf);
 
 public int cshift;		/* Current left-shift of output line buffer */
 public int hshift;		/* Desired left-shift of output line buffer */
+public int tabstops[TABSTOP_MAX] = { 0 }; /* Custom tabstops */
+public int ntabstops = 1;	/* Number of tabstops */
+public int tabdefault = 8;	/* Default repeated tabstops */
 
 static char attr[LINEBUF_SIZE];	/* Extension of linebuf to hold attributes */
 static int curr;		/* Index into linebuf */
@@ -42,7 +45,6 @@ static char *end_ansi_chars;
 static int do_append();
 
 extern int bs_mode;
-extern int tabstop;
 extern int linenums;
 extern int ctldisp;
 extern int twiddle;
@@ -519,18 +521,29 @@ do_append(c, pos)
 		/*
 		 * Expand a tab into spaces.
 		 */
-		if (tabstop == 0)
-			tabstop = 1;
+		int to_tab;
+		int i;
 		switch (bs_mode)
 		{
 		case BS_CONTROL:
 			goto do_control_char;
 		case BS_NORMAL:
 		case BS_SPECIAL:
+			to_tab = column + cshift - lmargin;
+			if (ntabstops < 2 || to_tab >= tabstops[ntabstops-1])
+				to_tab = tabdefault -
+				     ((to_tab - tabstops[ntabstops-1]) % tabdefault);
+			else
+			{
+				for (i = ntabstops - 2;  i >= 0;  i--)
+					if (to_tab >= tabstops[i])
+						break;
+				to_tab = tabstops[i+1] - to_tab;
+			}
 			do
 			{
 				STOREC(' ', AT_NORMAL);
-			} while (((column + cshift - lmargin) % tabstop) != 0);
+			} while (--to_tab > 0);
 			break;
 		}
 	} else if (control_char(c))

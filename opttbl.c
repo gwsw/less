@@ -289,10 +289,8 @@ static struct option option[] =
 		"Highlight first unread line after any forward movement",
 	},
 	{ 'x', &x_optname,
-		NUMBER|REPAINT, 8, &tabstop, NULL,
-		"Tab stops: ",
-		"Tab stops every %d spaces", 
-		NULL
+		STRING|REPAINT, 0, NULL, opt_x,
+		"Tab stops: ", NULL, NULL
 	},
 	{ 'X', &X__optname,
 		BOOL|NO_TOGGLE, OPT_OFF, &no_init, NULL,

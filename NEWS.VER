@@ -15,15 +15,17 @@
 
 	Major changes between "less" versions 358 and @@VERSION@@
 
+* -x option can now specify multiple variable-width tab stops.
+
 * Status column (enabled with -J) now shows search results.
+
+* -X no longer disables keypad initialization.
+  New option --no-keypad disables keypad initialization.
 
 * System-wide lesskey file now defaults to sysless in etc directory 
   instead of .sysless in bin directory.
   Use "configure --sysconfdir=..." to change it.
   (For backwards compatibility, .sysless in bin is still recognized.)
-
-* -X no longer disables keypad initialization.
-  New option --no-keypad disables keypad initialization.
 
 * Windows version sets window title.
 
