@@ -12,7 +12,7 @@ less \- opposite of more
 .br
 .B "     [-{oO} \fIlogfile\fP] [-p \fIpattern\fP] [-P \fIprompt\fP] [-t \fItag\fP]"
 .br
-.B "     [-T \fItagfile\fP] [-x \fItab\fP] [-y \fIlines\fP] [-[z] \fIlines\fP]"
+.B "     [-T \fItagsfile\fP] [-x \fItab\fP] [-y \fIlines\fP] [-[z] \fIlines\fP]"
 .br
 .B "     [+[+]\fIcmd\fP] [\fIfilename\fP]..."
 
@@ -582,7 +582,7 @@ The -p option on the command line is equivalent to
 specifying +/\fIpattern\fP;
 that is, it tells
 .I less
-to start at the first occurence of \fIpattern\fP in the file.
+to start at the first occurrence of \fIpattern\fP in the file.
 .IP -P\fIprompt\fP
 Provides a way to tailor the three prompt
 styles to your own preference.
@@ -765,7 +765,7 @@ Retrieve the next command line.
 Complete the partial filename to the left of the cursor.
 If it matches more than one filename, the first match
 is entered into the command line.
-Repeated TABs will cycle thru the other matching filesnames.
+Repeated TABs will cycle thru the other matching filenames.
 .IP "BACKTAB [ ESC-TAB ]"
 Like, TAB, but cycles in the reverse direction thru the matching filenames.
 .IP "^L"
@@ -818,11 +818,10 @@ print the name of the replacement file to its standard output.
 If the input preprocessor does not output a replacement filename, 
 .I less
 uses the original file, as normal.
-The input preprocessor is called even when viewing standard input,
-in which case its argument is "-".
+The input preprocessor is not called when viewing standard input.
 To set up an input preprocessor, set the LESSOPEN environment variable
 to a command line which will invoke your input preprocessor.
-This command line should include one occurence of the string "%s", 
+This command line should include one occurrence of the string "%s", 
 which will be replaced by the filename
 when the input preprocessor command is invoked.
 .PP
@@ -836,7 +835,7 @@ This program receives two command line arguments, the original filename
 as entered by the user, and the name of the replacement file.
 To set up an input postprocessor, set the LESSCLOSE environment variable 
 to a command line which will invoke your input postprocessor.
-It may include two occurences of the string "%s"; 
+It may include two occurrences of the string "%s"; 
 the first is replaced with the original name of the file and 
 the second with the name of the replacement file, 
 which was output by LESSOPEN.
@@ -919,6 +918,8 @@ LESSOPEN="|lesspipe.sh %s".
 When an input pipe is used, a LESSCLOSE postprocessor can be used,
 but it is usually not necessary since there is no replacement file
 to clean up.
+In this case, the replacement file name passed to the LESSCLOSE
+postprocessor is "-".
 
 .SH "NATIONAL CHARACTER SETS"
 There are three types of characters in the input file:

@@ -408,6 +408,8 @@ open_altfile(filename, pf, pfd)
 	filename = fexpand(filename);
 	if (filename == NULL)
 		return (NULL);
+	if (strcmp(filename, "-") == 0)
+		return (NULL);
 	if (*lessopen == '|')
 	{
 		/*
@@ -429,13 +431,14 @@ open_altfile(filename, pf, pfd)
 	if (returnfd)
 	{
 #if HAVE_FILENO
-		int f = fileno(fd);
+		int f;
 		char c;
 
 		/*
 		 * Read one char to see if the pipe will produce any data.
 		 * If it does, push the char back on the pipe.
 		 */
+		f = fileno(fd);
 		if (read(f, &c, 1) != 1)
 			/*
 			 * Pipe is empty.  This means there is no alt file.
