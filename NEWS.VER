@@ -13,7 +13,21 @@
 ======================================================================
 
 
-	Major changes between "less" versions 335 and @@VERSION@@
+	Major changes between "less" versions 337 and @@VERSION@@
+
+* Command line options may now be given in either the old single-letter
+  form, or a new long name form (--option-name).
+
+* New command -- toggles an option using the long option name.
+
+* New command __ queries an option using the long option name.
+
+* Less is now released under the GNU General Public License.
+
+======================================================================
+
+
+	Major changes between "less" versions 335 and 337
 
 * Fixed bugs in "make install".
 

@@ -325,6 +325,11 @@ rather than a single option letter.
 Followed by one of the command line option letters,
 this will print a message describing the current setting of that option.
 The setting of the option is not changed.
+.IP __
+(Double underscore.)
+Like the _ (underscore) command, but takes a long option name
+rather than a single option letter.
+You must press RETURN after typing the option name.
 .IP +cmd
 Causes the specified cmd to be executed each time a new file is examined.
 For example, +G causes 

@@ -156,12 +156,13 @@ mca_search()
 	static void
 mca_opt_toggle()
 {
+	char *dash = (optflag == OPT_NO_TOGGLE) ? "_" : "-";
+
 	mca = A_OPT_TOGGLE;
 	clear_cmd();
+	cmd_putstr(dash);
 	if (optgetname)
-		cmd_putstr("--");
-	else
-		cmd_putstr("-");
+		cmd_putstr(dash);
 	switch (optflag)
 	{
 	case OPT_UNSET:
@@ -314,23 +315,36 @@ mca_char(c)
 		 */
 		if (optchar == '\0' && len_cmdbuf() == 0)
 		{
-			switch (c)
+			if (optflag == OPT_NO_TOGGLE)
 			{
-			case '+':
-				/* "-+" = UNSET. */
-				optflag = OPT_UNSET;
-				mca_opt_toggle();
-				return (MCA_MORE);
-			case '!':
-				/* "-!" = SET */
-				optflag = OPT_SET;
-				mca_opt_toggle();
-				return (MCA_MORE);
-			case '-':
-				/* "--" = long option name. */
-				optgetname = TRUE;
-				mca_opt_toggle();
-				return (MCA_MORE);
+				switch (c)
+				{
+				case '_':
+					/* "__" = long option name. */
+					optgetname = TRUE;
+					mca_opt_toggle();
+					return (MCA_MORE);
+				}
+			} else
+			{
+				switch (c)
+				{
+				case '+':
+					/* "-+" = UNSET. */
+					optflag = OPT_UNSET;
+					mca_opt_toggle();
+					return (MCA_MORE);
+				case '!':
+					/* "-!" = SET */
+					optflag = OPT_SET;
+					mca_opt_toggle();
+					return (MCA_MORE);
+				case '-':
+					/* "--" = long option name. */
+					optgetname = TRUE;
+					mca_opt_toggle();
+					return (MCA_MORE);
+				}
 			}
 		}
 		if (optgetname)
@@ -1372,12 +1386,11 @@ commands()
 			/*
 			 * Report a flag setting.
 			 */
-			start_mca(A_DISP_OPTION, "_", (void*)NULL, 0);
+			optflag = OPT_NO_TOGGLE;
+			optgetname = FALSE;
+			mca_opt_toggle();
 			c = getcc();
-			if (c == erase_char || c == kill_char)
-				break;
-			toggle_option(c, "", OPT_NO_TOGGLE);
-			break;
+			goto again;
 
 		case A_FIRSTCMD:
 			/*
