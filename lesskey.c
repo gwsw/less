@@ -224,6 +224,13 @@ int errors;
 
 extern char version[];
 
+	void
+usage()
+{
+	fprintf(stderr, "usage: lesskey [-o output] [input]\n");
+	exit(1);
+}
+
 	char *
 mkpathname(dirname, filename)
 	char *dirname;
@@ -350,7 +357,7 @@ tchar(pp)
 			return (ch);
 		case 'b':
 			*pp = p+1;
-			return ('\r');
+			return ('\b');
 		case 'e':
 			*pp = p+1;
 			return (ESC);
@@ -526,12 +533,6 @@ findaction(actname)
 	return (A_INVALID);
 }
 
-usage()
-{
-	fprintf(stderr, "usage: lesskey [-o output] [input]\n");
-	exit(1);
-}
-
 	void
 error(s)
 	char *s;
@@ -672,6 +673,7 @@ parse_line(line)
 		parse_cmdline(p);
 }
 
+	int
 main(argc, argv)
 	int argc;
 	char *argv[];
@@ -693,7 +695,7 @@ main(argc, argv)
 		{
 			char *env = (char *) calloc(strlen(drive) + 
 					strlen(path) + 6, sizeof(char));
-			strcpy(env, "PATH=");
+			strcpy(env, "HOME=");
 			strcat(env, drive);
 			strcat(env, path);
 			putenv(env);
@@ -777,5 +779,5 @@ main(argc, argv)
 	/* File trailer */
 	fputbytes(out, endsection, sizeof(endsection));
 	fputbytes(out, filetrailer, sizeof(filetrailer));
-	exit(0);
+	return (0);
 }
