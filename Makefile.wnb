@@ -40,7 +40,7 @@ defines.h: defines.w32
 	-del defines.h
 	-copy defines.w32 defines.h
 
-${OBJ}: less.h defines.h
+${OBJ}: less.h defines.h funcs.h cmd.h
 
 clean:
 	-del *.obj 
