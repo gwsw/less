@@ -458,6 +458,39 @@ cannot(s)
 }
 
 /*
+ * Some glue to prevent calling termcap functions if tgetent() failed.
+ */
+static int hardcopy;
+
+	static int
+ltgetflag(capname)
+	char *capname;
+{
+	if (hardcopy)
+		return (0);
+	return (tgetflag(capname));
+}
+
+	static int
+ltgetnum(capname)
+	char *capname;
+{
+	if (hardcopy)
+		return (-1);
+	return (tgetnum(capname));
+}
+
+	static char *
+ltgetstr(capname, pp)
+	char *capname;
+	char **pp;
+{
+	if (hardcopy)
+		return (NULL);
+	return tgetstr(capname, pp);
+}
+
+/*
  * Get size of the output screen.
  */
 #if OS2
@@ -499,7 +532,7 @@ scrsize()
 	if ((s = lgetenv("LINES")) != NULL)
 		sc_height = atoi(s);
 	else
- 		sc_height = tgetnum("li");
+ 		sc_height = ltgetnum("li");
 
 	if (sc_height <= 0)
 		sc_height = 24;
@@ -517,7 +550,7 @@ scrsize()
 	if ((s = lgetenv("COLUMNS")) != NULL)
 		sc_width = atoi(s);
 	else
- 		sc_width = tgetnum("co");
+ 		sc_width = ltgetnum("co");
 
  	if (sc_width <= 0)
   		sc_width = 80;
@@ -562,7 +595,7 @@ get_editkeys()
 
 	/* RIGHT ARROW */
 	sp = tbuf;
-	if ((s = tgetstr("kr", &sp)) != NULL)
+	if ((s = ltgetstr("kr", &sp)) != NULL)
 	{
 		put_ecmd(s, EC_RIGHT);
 		put_esc_ecmd(s, EC_W_RIGHT);
@@ -570,7 +603,7 @@ get_editkeys()
 	
 	/* LEFT ARROW */
 	sp = tbuf;
-	if ((s = tgetstr("kl", &sp)) != NULL)
+	if ((s = ltgetstr("kl", &sp)) != NULL)
 	{
 		put_ecmd(s, EC_LEFT);
 		put_esc_ecmd(s, EC_W_LEFT);
@@ -578,7 +611,7 @@ get_editkeys()
 	
 	/* UP ARROW */
 	sp = tbuf;
-	if ((s = tgetstr("ku", &sp)) != NULL) 
+	if ((s = ltgetstr("ku", &sp)) != NULL) 
 	{
 		put_ecmd(s, EC_UP);
 		put_fcmd(s, A_B_LINE);
@@ -586,7 +619,7 @@ get_editkeys()
 		
 	/* DOWN ARROW */
 	sp = tbuf;
-	if ((s = tgetstr("kd", &sp)) != NULL) 
+	if ((s = ltgetstr("kd", &sp)) != NULL) 
 	{
 		put_ecmd(s, EC_DOWN);
 		put_fcmd(s, A_F_LINE);
@@ -594,35 +627,35 @@ get_editkeys()
 
 	/* PAGE UP */
 	sp = tbuf;
-	if ((s = tgetstr("kP", &sp)) != NULL) 
+	if ((s = ltgetstr("kP", &sp)) != NULL) 
 	{
 		put_fcmd(s, A_B_SCREEN);
 	}
 
 	/* PAGE DOWN */
 	sp = tbuf;
-	if ((s = tgetstr("kN", &sp)) != NULL) 
+	if ((s = ltgetstr("kN", &sp)) != NULL) 
 	{
 		put_fcmd(s, A_F_SCREEN);
 	}
 	
 	/* HOME */
 	sp = tbuf;
-	if ((s = tgetstr("kh", &sp)) != NULL) 
+	if ((s = ltgetstr("kh", &sp)) != NULL) 
 	{
 		put_ecmd(s, EC_HOME);
 	}
 
 	/* END */
 	sp = tbuf;
-	if ((s = tgetstr("@7", &sp)) != NULL) 
+	if ((s = ltgetstr("@7", &sp)) != NULL) 
 	{
 		put_ecmd(s, EC_END);
 	}
 
 	/* DELETE */
 	sp = tbuf;
-	if ((s = tgetstr("kD", &sp)) == NULL) 
+	if ((s = ltgetstr("kD", &sp)) == NULL) 
 	{
 		/* Use DEL (\177) if no "kD" termcap. */
 		tbuf[1] = '\177';
@@ -685,39 +718,6 @@ get_debug_term()
 	sc_addline =	"(AddLine)";
 }
 #endif
-
-/*
- * Some glue to prevent calling termcap functions if tgetent() failed.
- */
-static int hardcopy;
-
-	static int
-ltgetflag(capname)
-	char *capname;
-{
-	if (hardcopy)
-		return (0);
-	return (tgetflag(capname));
-}
-
-	static int
-ltgetnum(capname)
-	char *capname;
-{
-	if (hardcopy)
-		return (-1);
-	return (tgetnum(capname));
-}
-
-	static char *
-ltgetstr(capname, pp)
-	char *capname;
-	char **pp;
-{
-	if (hardcopy)
-		return (NULL);
-	return tgetstr(capname, pp);
-}
 
 /*
  * Get terminal capabilities via termcap.
