@@ -5,8 +5,10 @@
 
 CC = cl
 
-CFLAGS = /ML /W3 /GX /O2 /I "." /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /c
+CFLAGS = /nologo /ML /W3 /GX /O2 /I "." /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /c
 LDFLAGS = /subsystem:console /incremental:no /machine:I386
+# CFLAGS = /nologo /Zp2 /MDd /W3 /Gm /GX /Zi /Od /I "." /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /c
+# LDFLAGS = /subsystem:console /incremental:yes /debug /machine:I386
 LD = link
 LIBS = user32.lib
 
