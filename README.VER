@@ -35,8 +35,8 @@ INSTALLATION (Unix systems only):
 
 4. Type "make" and watch the fun.
 
-5. If the make succeeds, it will generate a program "less"
-   in your current directory.  Test the generated program.
+5. If the make succeeds, it will generate the programs "less" and
+   "lesskey" in your current directory.  Test the generated programs.
 
 6. When satisfied that it works, if you wish to install it
    in a public place, type "make install".
@@ -77,14 +77,14 @@ INSTALLATION (MS-DOS systems only)
    wish to edit the manual page LESS.MAN and the help page HELP.C
    to remove the descriptions of the features which you are removing.
 
-5. Type "make" and watch the fun.
-   You may need to invoke "make -e", if your "make" requires the -e
-   flag to import environment variables.
+5. Run your "make" program and watch the fun.
+   If your "make" requires a flag to import environment variables,
+   you should use that flag.
    If your compiler runs out of memory, try running "make -n >cmds.bat" 
    and then run cmds.bat.
 
-6. If the make succeeds, it will generate a program "LESS.EXE"
-   in your current directory.  Test the generated program.
+6. If the make succeeds, it will generate the programs "LESS.EXE" and
+   "LESSKEY.EXE" in your current directory.  Test the generated programs.
 
 7. When satisfied that it works, you may wish to install LESS.EXE and
    LESSKEY.EXE in a directory which is included in your PATH.
@@ -107,8 +107,8 @@ INSTALLATION (Windows-95 and Windows-NT systems only)
 
 5. Type "make" and watch the fun.
 
-6. If the make succeeds, it will generate a program "less"
-   in your current directory.  Test the generated program.
+6. If the make succeeds, it will generate the programs "less.exe" and
+   "lesskey.exe" in your current directory.  Test the generated programs.
 
 7. When satisfied that it works, if you wish to install it
    in a public place, type "make install".
@@ -133,8 +133,8 @@ INSTALLATION (OS/2 systems only)
 
 5. Type "make" and watch the fun.
 
-6. If the make succeeds, it will generate a program "less.exe"
-   in your current directory.  Test the generated program.
+6. If the make succeeds, it will generate the programs "less.exe" and
+   "lesskey.exe" in your current directory.  Test the generated programs.
 
 7. Make sure you have the emx runtime installed. You need the emx DLLs
    emx.dll and emxlibcs.dll and also the termcap database, termcap.dat.
@@ -163,8 +163,8 @@ INSTALLATION (OS-9 systems only)
 
 5. Type "make" and watch the fun.
 
-6. If the make succeeds, it will generate a program "less"
-   in your current directory.  Test the generated program.
+6. If the make succeeds, it will generate the programs "less" and
+   "lesskey" in your current directory.  Test the generated programs.
 
 7. When satisfied that it works, if you wish to install it
    in a public place, type "make install".
