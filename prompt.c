@@ -129,6 +129,19 @@ ap_pos(pos)
 }
 
 /*
+ * Append a line number to the end of the message.
+ */
+ 	static void
+ap_linenum(linenum)
+	LINENUM linenum;
+{
+	/*
+	 * Assume sizeof(LINENUM) <= sizeof(POSITION).
+	 */
+	ap_pos((POSITION)linenum);
+}
+
+/*
  * Append an integer to the end of the message.
  */
 	static void
@@ -265,7 +278,7 @@ protochar(c, where, iseditproto)
 	case 'd':	/* Current page number */
 		linenum = currline(where);
 		if (linenum > 0 && sc_height > 1)
-			ap_int(((linenum - 1) / (sc_height - 1)) + 1);
+			ap_linenum(((linenum - 1) / (sc_height - 1)) + 1);
 		else
 			ap_quest();
 		break;
@@ -275,7 +288,7 @@ protochar(c, where, iseditproto)
 		    (linenum = find_linenum(len)) <= 0)
 			ap_quest();
 		else
-			ap_int(((linenum - 1) / (sc_height - 1)) + 1);
+			ap_linenum(((linenum - 1) / (sc_height - 1)) + 1);
 		break;
 #if EDITOR
 	case 'E':	/* Editor name */
@@ -296,7 +309,7 @@ protochar(c, where, iseditproto)
 	case 'l':	/* Current line number */
 		linenum = currline(where);
 		if (linenum != 0)
-			ap_int(linenum);
+			ap_linenum(linenum);
 		else
 			ap_quest();
 		break;
@@ -306,7 +319,7 @@ protochar(c, where, iseditproto)
 		    (linenum = find_linenum(len)) <= 0)
 			ap_quest();
 		else
-			ap_int(linenum-1);
+			ap_linenum(linenum-1);
 		break;
 	case 'm':	/* Number of files */
 #if TAGS

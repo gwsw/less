@@ -39,10 +39,10 @@
  * Structure to keep track of a line number and the associated file position.
  * A doubly-linked circular list of line numbers is kept ordered by line number.
  */
-struct linenum
+struct linenum_info
 {
-	struct linenum *next;		/* Link to next in the list */
-	struct linenum *prev;		/* Line to previous in the list */
+	struct linenum_info *next;	/* Link to next in the list */
+	struct linenum_info *prev;	/* Line to previous in the list */
 	POSITION pos;			/* File position */
 	POSITION gap;			/* Gap between prev and next */
 	LINENUM line;			/* Line number */
@@ -62,10 +62,10 @@ struct linenum
 
 public int lnloop = 0;			/* Are we in the line num loop? */
 
-static struct linenum anchor;		/* Anchor of the list */
-static struct linenum *freelist;	/* Anchor of the unused entries */
-static struct linenum pool[NPOOL];	/* The pool itself */
-static struct linenum *spare;		/* We always keep one spare entry */
+static struct linenum_info anchor;	/* Anchor of the list */
+static struct linenum_info *freelist;	/* Anchor of the unused entries */
+static struct linenum_info pool[NPOOL];	/* The pool itself */
+static struct linenum_info *spare;		/* We always keep one spare entry */
 
 extern int linenums;
 extern int sigs;
@@ -77,7 +77,7 @@ extern int sc_height;
 	public void
 clr_linenum()
 {
-	register struct linenum *p;
+	register struct linenum_info *p;
 
 	/*
 	 * Put all the entries on the free list.
@@ -104,7 +104,7 @@ clr_linenum()
  */
 	static void
 calcgap(p)
-	register struct linenum *p;
+	register struct linenum_info *p;
 {
 	/*
 	 * Don't bother to compute a gap for the anchor.
@@ -127,10 +127,10 @@ add_lnum(linenum, pos)
 	LINENUM linenum;
 	POSITION pos;
 {
-	register struct linenum *p;
-	register struct linenum *new;
-	register struct linenum *nextp;
-	register struct linenum *prevp;
+	register struct linenum_info *p;
+	register struct linenum_info *new;
+	register struct linenum_info *nextp;
+	register struct linenum_info *prevp;
 	register POSITION mingap;
 
 	/*
@@ -257,7 +257,7 @@ longish()
 find_linenum(pos)
 	POSITION pos;
 {
-	register struct linenum *p;
+	register struct linenum_info *p;
 	register LINENUM linenum;
 	POSITION cpos;
 
@@ -366,7 +366,7 @@ find_linenum(pos)
 find_pos(linenum)
 	LINENUM linenum;
 {
-	register struct linenum *p;
+	register struct linenum_info *p;
 	POSITION cpos;
 	LINENUM clinenum;
 
@@ -437,7 +437,7 @@ currline(where)
 {
 	POSITION pos;
 	POSITION len;
-	LINENUM lnum;
+	LINENUM linenum;
 
 	pos = position(where);
 	len = ch_length();
@@ -445,8 +445,8 @@ currline(where)
 		pos = position(++where);
 	if (pos == NULL_POSITION)
 		pos = len;
-	lnum = find_linenum(pos);
+	linenum = find_linenum(pos);
 	if (pos == len)
-		lnum--;
-	return (lnum);
+		linenum--;
+	return (linenum);
 }
