@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
+ * Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,13 +86,34 @@ init_prompt()
 }
 
 /*
- * Set the message pointer to the end of the message string.
+ * Append a string to the end of the message.
  */
 	static void
-setmp()
+ap_str(s)
+	char *s;
 {
-	while (*mp != '\0')
-		mp++;
+	int len;
+
+	len = strlen(s);
+	if (mp + len >= message + PROMPT_SIZE)
+		len = message + PROMPT_SIZE - mp - 1;
+	strncpy(mp, s, len);
+	mp += len;
+	*mp = '\0';
+}
+
+/*
+ * Append a character to the end of the message.
+ */
+	static void
+ap_char(c)
+	char c;
+{
+	char buf[2];
+
+	buf[0] = c;
+	buf[1] = '\0';
+	ap_str(buf);
 }
 
 /*
@@ -102,8 +123,10 @@ setmp()
 ap_pos(pos)
 	POSITION pos;
 {
-	sprintf(mp, "%ld", (long)pos);
-	setmp();
+	char buf[MAX_PRINT_POSITION];
+
+	sprintf(buf, PR_POSITION, pos);
+	ap_str(buf);
 }
 
 /*
@@ -113,19 +136,10 @@ ap_pos(pos)
 ap_int(n)
 	int n;
 {
-	sprintf(mp, "%d", n);
-	setmp();
-}
+	char buf[MAX_PRINT_INT];
 
-/*
- * Append a string to the end of the message.
- */
-	static void
-ap_str(s)
-	char *s;
-{
-	strtcpy(mp, s, (unsigned int)(&message[sizeof(message)] - mp));
-	setmp();
+	sprintf(buf, "%d", n);
+	ap_str(buf);
 }
 
 /*
@@ -134,7 +148,7 @@ ap_str(s)
 	static void
 ap_quest()
 {
-	*mp++ = '?';
+	ap_str("?");
 }
 
 /*
@@ -176,8 +190,10 @@ cond(c, where)
 	case 'f':	/* Filename known? */
 		return (strcmp(get_filename(curr_ifile), "-") != 0);
 	case 'l':	/* Line number known? */
+	case 'd':	/* Same as l */
 		return (linenums);
 	case 'L':	/* Final line number known? */
+	case 'D':	/* Same as L */
 		return (linenums && ch_length() != NULL_POSITION);
 	case 'm':	/* More than one file? */
 		return (nifile() > 1);
@@ -221,6 +237,21 @@ protochar(c, where)
 			ap_pos(pos);
 		else
 			ap_quest();
+		break;
+	case 'd':	/* Current page number */
+		n = currline(where);
+		if (n > 0 && sc_height > 1)
+			ap_int(((n - 1) / (sc_height - 1)) + 1);
+		else
+			ap_quest();
+		break;
+	case 'D':	/* Last page number */
+		len = ch_length();
+		if (len == NULL_POSITION || len == ch_zero() ||
+		    (n = find_linenum(len)) <= 0)
+			ap_quest();
+		else
+			ap_int((n - 1) / (sc_height - 1));
 		break;
 #if EDITOR
 	case 'E':	/* Editor name */
@@ -348,6 +379,9 @@ skipcond(p)
 	/*NOTREACHED*/
 }
 
+/*
+ * Decode a char that represents a position on the screen.
+ */
 	static char *
 wherechar(p, wp)
 	char *p;
@@ -355,7 +389,7 @@ wherechar(p, wp)
 {
 	switch (*p)
 	{
-	case 'b': case 'l': case 'p':
+	case 'b': case 'd': case 'l': case 'p':
 		switch (*++p)
 		{
 		case 't':   *wp = TOP;			break;
@@ -391,11 +425,11 @@ pr_expand(proto, maxwidth)
 		switch (*p)
 		{
 		default:	/* Just put the character in the message */
-			*mp++ = *p;
+			ap_char(*p);
 			break;
 		case '\\':	/* Backslash escapes the next character */
 			p++;
-			*mp++ = *p;
+			ap_char(*p);
 			break;
 		case '?':	/* Conditional (IF) */
 			if ((c = *++p) == '\0')
@@ -429,7 +463,6 @@ pr_expand(proto, maxwidth)
 	new_file = 0;
 	if (mp == message)
 		return (NULL);
-	*mp = '\0';
 	if (maxwidth > 0 && mp >= message + maxwidth)
 	{
 		/*
