@@ -128,7 +128,7 @@ static struct loption option[] =
 	},
 
 	{ 'b', &b_optname,
-		NUMBER, 64, &bufspace, opt_b, 
+		NUMBER|INIT_HANDLER, 64, &bufspace, opt_b, 
 		"Max buffer space per file (K): ",
 		"Max buffer space per file: %dK",
 		NULL
@@ -368,6 +368,8 @@ init_option()
 		 */
 		if (o->ovar != NULL)
 			*(o->ovar) = o->odefault;
+		if (o->otype & INIT_HANDLER)
+			(*(o->ofunc))(INIT, (char *) NULL);
 	}
 }
 

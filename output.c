@@ -158,6 +158,9 @@ flush()
 			{
 				col = 0;
 				row++;
+			} else if (*op == '\r')
+			{
+				col = 0;
 			} else
 			{
 				col++;
