@@ -10,10 +10,10 @@
 
 /*
  * This program is used to determine the screen dimensions on OS/2 systems.
+ * Adapted from code written by Kyosuke Tokoro (NBG01720@nifty.ne.jp).
  */
 
 /*
- * Adapted from code written by Kyosuke Tokoro.
  * When I wrote this routine, I consulted some part of the source code 
  * of the xwininfo utility by X Consortium.
  *
