@@ -68,7 +68,7 @@ static struct taglist taglist = { TAG_END, TAG_END };
 struct tag {
 	struct tag *next, *prev; /* List links */
 	char *tag_file;		/* Source file containing the tag */
-	int tag_linenum;	/* Appropriate line number in source file */
+	LINENUM tag_linenum;	/* Appropriate line number in source file */
 	char *tag_pattern;	/* Pattern used to find the tag */
 	char tag_endline;	/* True if the pattern includes '$' */
 };
@@ -113,7 +113,7 @@ cleantags()
 maketagent(name, file, linenum, pattern, endline)
 	char *name;
 	char *file;
-	int linenum;
+	LINENUM linenum;
 	char *pattern;
 	int endline;
 {
@@ -271,7 +271,7 @@ findctag(tag)
 	char *p;
 	register FILE *f;
 	register int taglen;
-	register int taglinenum;
+	LINENUM taglinenum;
 	char *tagfile;
 	char *tagpattern;
 	int tagendline;
@@ -397,7 +397,7 @@ edit_tagfile()
 ctagsearch()
 {
 	POSITION pos, linepos;
-	int linenum;
+	LINENUM linenum;
 	int len;
 	char *line;
 
@@ -568,7 +568,7 @@ findgtag(tag, type)
 			}
 
 			/* Make new entry and add to list. */
-			tp = maketagent(name, file, atoi(line), NULL, 0);
+			tp = maketagent(name, file, (LINENUM) atoi(line), NULL, 0);
 			TAG_INS(tp);
 			total++;
 		}

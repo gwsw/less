@@ -924,7 +924,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 	POSITION *pendpos;
 {
 	char *line;
-	int linenum;
+	LINENUM linenum;
 	char *sp, *ep;
 	int line_match;
 	int cvt_ops;

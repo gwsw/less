@@ -18,7 +18,6 @@
 #include "less.h"
 
 #define IS_CONT(c)  (((c) & 0xC0) == 0x80)
-#define LINENUM_WIDTH   8       /* Chars to use for line number */
 
 public char *linebuf = NULL;	/* Buffer which holds the current output line */
 static char *attr = NULL;	/* Extension of linebuf to hold attributes */
@@ -129,7 +128,7 @@ prewind()
 plinenum(pos)
 	POSITION pos;
 {
-	register int lno;
+	register LINENUM linenum = 0;
 	register int i;
 
 	if (linenums == OPT_ONPLUS)
@@ -142,7 +141,7 @@ plinenum(pos)
 		 * {{ Since forw_raw_line modifies linebuf, we must
 		 *    do this first, before storing anything in linebuf. }}
 		 */
-		lno = find_linenum(pos);
+		linenum = find_linenum(pos);
 	}
 
 	/*
@@ -165,10 +164,16 @@ plinenum(pos)
 	 */
 	if (linenums == OPT_ONPLUS)
 	{
-		sprintf(&linebuf[curr], "%*d", LINENUM_WIDTH, lno);
+		for (i = LINENUM_WIDTH-1;  i >= 0;  i--)
+		{
+			linebuf[curr+i] =
+				(i < LINENUM_WIDTH-1 && linenum == 0) ?
+					' ' : ((linenum % 10) + '0');
+			attr[curr+i] = AT_NORMAL;
+			linenum /= 10;
+		}
+		curr += LINENUM_WIDTH;
 		column += LINENUM_WIDTH;
-		for (i = 0;  i < LINENUM_WIDTH;  i++)
-			attr[curr++] = 0;
 	}
 	/*
 	 * Append enough spaces to bring us to the lmargin.

@@ -246,6 +246,8 @@ protochar(c, where, iseditproto)
 	POSITION pos;
 	POSITION len;
 	int n;
+	LINENUM linenum;
+	LINENUM last_linenum;
 	IFILE h;
 
 	switch (c)
@@ -261,19 +263,19 @@ protochar(c, where, iseditproto)
 		ap_int(hshift);
 		break;
 	case 'd':	/* Current page number */
-		n = currline(where);
-		if (n > 0 && sc_height > 1)
-			ap_int(((n - 1) / (sc_height - 1)) + 1);
+		linenum = currline(where);
+		if (linenum > 0 && sc_height > 1)
+			ap_int(((linenum - 1) / (sc_height - 1)) + 1);
 		else
 			ap_quest();
 		break;
 	case 'D':	/* Last page number */
 		len = ch_length();
 		if (len == NULL_POSITION || len == ch_zero() ||
-		    (n = find_linenum(len)) <= 0)
+		    (linenum = find_linenum(len)) <= 0)
 			ap_quest();
 		else
-			ap_int(((n - 1) / (sc_height - 1)) + 1);
+			ap_int(((linenum - 1) / (sc_height - 1)) + 1);
 		break;
 #if EDITOR
 	case 'E':	/* Editor name */
@@ -292,19 +294,19 @@ protochar(c, where, iseditproto)
 			ap_int(get_index(curr_ifile));
 		break;
 	case 'l':	/* Current line number */
-		n = currline(where);
-		if (n != 0)
-			ap_int(n);
+		linenum = currline(where);
+		if (linenum != 0)
+			ap_int(linenum);
 		else
 			ap_quest();
 		break;
 	case 'L':	/* Final line number */
 		len = ch_length();
 		if (len == NULL_POSITION || len == ch_zero() ||
-		    (n = find_linenum(len)) <= 0)
+		    (linenum = find_linenum(len)) <= 0)
 			ap_quest();
 		else
-			ap_int(n-1);
+			ap_int(linenum-1);
 		break;
 	case 'm':	/* Number of files */
 #if TAGS
@@ -324,13 +326,13 @@ protochar(c, where, iseditproto)
 			ap_quest();
 		break;
 	case 'P':	/* Percent into file (lines) */
-		pos = (POSITION) currline(where);
-		if (pos == 0 ||
+		linenum = currline(where);
+		if (linenum == 0 ||
 		    (len = ch_length()) == NULL_POSITION || len == ch_zero() ||
-		    (n = find_linenum(len)) <= 0)
+		    (last_linenum = find_linenum(len)) <= 0)
 			ap_quest();
 		else
-			ap_int(percentage(pos, (POSITION)n));
+			ap_int(percentage(linenum, last_linenum));
 		break;
 	case 's':	/* Size of file */
 	case 'B':
