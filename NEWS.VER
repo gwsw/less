@@ -1,4 +1,16 @@
 
+	Major changes between "less" versions 237 and 242
+
+* Lesskey now allows redefining line-editing command keys.
+
+* Changes in line-editing keys:
+  The literal key is now ^V or ^A rather than \ (backslash).
+  Filename completion commands are disabled in search commands.
+
+
+======================================================================
+
+
 	Major changes between "less" versions 170 and 237
 
 * By popular demand, text which matches the current search pattern
