@@ -140,6 +140,7 @@ flush()
 		extern HANDLE con_out;
 		*ob = '\0';
 		WriteConsole(con_out, obuf, strlen(obuf), &nwritten, NULL);
+		ob = obuf;
 		return;
 	}
 #else
@@ -148,6 +149,7 @@ flush()
 	{
 		*ob = '\0';
 		_outtext(obuf);
+		ob = obuf;
 		return;
 	}
 #else
@@ -156,6 +158,7 @@ flush()
 	{
 		*ob = '\0';
 		cputs(obuf);
+		ob = obuf;
 		return;
 	}
 #endif

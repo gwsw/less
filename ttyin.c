@@ -33,6 +33,7 @@
 #if MSDOS_COMPILER==WIN32C
 #include "windows.h"
 extern char WIN32getch();
+static DWORD console_mode;
 #endif
 
 static int tty;
@@ -86,6 +87,7 @@ open_getchr()
 close_getchr()
 {
 #if MSDOS_COMPILER==WIN32C
+	SetConsoleMode((HANDLE)tty, console_mode);
 	CloseHandle((HANDLE)tty);
 #endif
 }
