@@ -418,35 +418,17 @@ readfd(fd)
 }
 
 /*
- * Execute a shell command.
- * Return a pointer to a pipe connected to the shell command's standard output.
+ * Get the shell's escape character.
  */
-	static FILE *
-shellcmd(cmd)
-	char *cmd;
+	static char *
+get_meta_escape()
 {
-	FILE *fd;
-#if HAVE_SHELL
-	char *shell;
+	char *s;
 
-	shell = lgetenv("SHELL");
-	if (shell != NULL && *shell != '\0')
-	{
-		/*
-		 * Read the output of <$SHELL -c "cmd">.
-		 */
-		char *scmd;
-		scmd = (char *) ecalloc(strlen(shell) + strlen(cmd) + 7,
-					sizeof(char));
-		sprintf(scmd, "%s -c \"%s\"", shell, cmd);
-		fd = popen(scmd, "r");
-		free(scmd);
-	} else
-#endif
-	{
-		fd = popen(cmd, "r");
-	}
-	return (fd);
+	s = lgetenv("LESSMETAESCAPE");
+	if (s == NULL)
+		s = DEF_METAESCAPE;
+	return (s);
 }
 
 /*
@@ -480,13 +462,10 @@ esc_metachars(s)
 	char *esc;
 	int esclen;
 
-	esc = lgetenv("LESSMETAESCAPE");
-	if (esc == NULL)
-		esc = "\\";
-
 	/*
 	 * Determine how big a string we need to allocate.
 	 */
+	esc = get_meta_escape();
 	esclen = strlen(esc);
 	len = 1; /* Trailing null byte */
 	for (p = s;  *p != '\0';  p++)
@@ -502,6 +481,9 @@ esc_metachars(s)
 				 */
 				return (NULL);
 			}
+			/*
+			 * Allow space for the escape char.
+			 */
 			len += esclen;
 		}
 	}
@@ -513,6 +495,9 @@ esc_metachars(s)
 	{
 		if (metachar(*s))
 		{
+			/*
+			 * Add the escape char.
+			 */
 			strcpy(p, esc);
 			p += esclen;
 		}
@@ -520,6 +505,65 @@ esc_metachars(s)
 	}
 	*p = '\0';
 	return (newstr);
+}
+
+/*
+ * Execute a shell command.
+ * Return a pointer to a pipe connected to the shell command's standard output.
+ */
+	static FILE *
+shellcmd(cmd)
+	char *cmd;
+{
+	FILE *fd;
+
+#if HAVE_SHELL
+	char *shell;
+
+	shell = lgetenv("SHELL");
+	if (shell != NULL && *shell != '\0')
+	{
+		char *scmd;
+		char *esccmd;
+		char *esc;
+
+		/*
+		 * Try to escape any metacharacters in the command.
+		 * If we can't do that, just put the command in quotes.
+		 * (But that doesn't work well if the command itself 
+		 * contains quotes.)
+		 */
+		esc = get_meta_escape();
+		esccmd = NULL;
+		if (*esc == '\0' || (esccmd = esc_metachars(cmd)) == NULL)
+		{
+			/*
+			 * Cannot escape the metacharacters, so use quotes.
+			 * Read the output of <$SHELL -c "cmd">.
+			 */
+			scmd = (char *) ecalloc(strlen(shell) + strlen(cmd) + 7,
+						sizeof(char));
+			sprintf(scmd, "%s -c \"%s\"", shell, cmd);
+		} else
+		{
+			/*
+			 * Read the output of <$SHELL -c cmd>.  
+			 * No quotes; use the escaped cmd.
+			 */
+			scmd = (char *) ecalloc(strlen(shell) + strlen(cmd) + 5,
+						sizeof(char));
+			sprintf(scmd, "%s -c %s", shell, esccmd);
+		}
+		fd = popen(scmd, "r");
+		if (esccmd != NULL)
+			free(esccmd);
+		free(scmd);
+	} else
+#endif
+	{
+		fd = popen(cmd, "r");
+	}
+	return (fd);
 }
 
 #endif /* HAVE_POPEN */
@@ -832,7 +876,8 @@ close_altfile(altfilename, filename, pipefd)
 	sprintf(cmd, lessclose, filename, altfilename);
 	fd = shellcmd(cmd);
 	free(cmd);
-	pclose(fd);
+	if (fd != NULL)
+		pclose(fd);
 #endif
 }
 		

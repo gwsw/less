@@ -23,6 +23,9 @@
 * A "quit" command defined in a lesskey file may now have an "extra" 
   string, which is used to return an exit code from less when it quits.
 
+* New environment variables LESSMETACHARS and LESSMETAESCAPE provide
+  more control over how less interfaces to the shell.
+
 * Ported to Microsoft Visual C compiler for Windows.
 
 * Ported to DJGPP compiler for MS-DOS.

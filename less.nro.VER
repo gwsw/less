@@ -1240,9 +1240,6 @@ as usual, or in a
 .IP COLUMNS
 Sets the number of columns on the screen.
 Takes precedence over the number of columns specified by the TERM variable.
-(But if you have a windowing system which supports TIOCGWINSZ or WIOCGETD,
-the window system's idea of the screen size takes precedence over the
-LINES and COLUMNS environment variables.)
 .IP EDITOR
 The name of the editor (used for the v command).
 .IP HOME
@@ -1274,6 +1271,13 @@ Editor prototype string (used for the v command).
 See discussion under PROMPTS.
 .IP LESSKEY
 Name of the default lesskey(1) file.
+.IP LESSMETACHARS
+List of characters which are considered "metacharacters" by the shell.
+.IP LESSMETAESCAPE
+Prefix which less will add before each metacharacter in a
+command sent to the shell.
+If LESSMETAESCAPE is an empty string, commands containing
+metacharacters will not be passed to the shell.
 .IP LESSOPEN
 Command line to invoke the (optional) input-preprocessor.
 .IP LESSSECURE
@@ -1319,7 +1323,7 @@ more text than the matching string may be highlighted.
 .PP
 On some systems,
 .I setlocale
-claims that characters 0 thru 31 are control characters 
+claims that ASCII characters 0 thru 31 are control characters 
 rather than binary characters.
 This causes 
 .I less 
