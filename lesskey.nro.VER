@@ -32,10 +32,10 @@ If the output file already exists,
 .I lesskey
 will overwrite it.
 .PP
-The -V flag causes
+The -V option causes
 .I lesskey
 to print its version number and immediately exit.  
-If -V is present, other flags and arguments are ignored.
+If -V is present, other options and arguments are ignored.
 .PP
 The input file consists of one or more
 .I sections.
@@ -263,7 +263,7 @@ is simply to have all
 configuration information stored in one file.
 
 .SH EXAMPLE
-The following input file sets the -i flag whenever 
+The following input file sets the -i option whenever 
 .I less
 is run, and specifies the character set to be "latin1":
 .sp

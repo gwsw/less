@@ -265,7 +265,7 @@ Turn off highlighting of strings matching the current search pattern.
 If highlighting is already off because of a previous ESC-u command,
 turn highlighting back on.
 Any search command will also turn highlighting back on.
-(Highlighting can also be disabled by toggling the -G flag;
+(Highlighting can also be disabled by toggling the -G option;
 in that case search commands do not turn highlighting back on.)
 .PP
 .IP ":e [filename]"
@@ -489,13 +489,13 @@ will refuse to open non-regular files.
 Normally, 
 .I less 
 will highlight ALL strings which match the last search command.
-The -g flag changes this behavior to highlight only the particular string 
+The -g option changes this behavior to highlight only the particular string 
 which was found by the last search command.
 This can cause 
 .I less 
 to run somewhat faster than the default.
 .IP -G
-The -G flag suppresses all highlighting of strings found by search commands.
+The -G option suppresses all highlighting of strings found by search commands.
 .IP -h\fIn\fP
 Specifies a maximum number of lines to scroll backward.
 If it is necessary to scroll backward more than \fIn\fP lines,
@@ -558,7 +558,7 @@ Suppresses line numbers.
 The default (to use line numbers) may cause
 .I less
 to run more slowly in some cases, especially with a very large input file.
-Suppressing line numbers with the -n flag will avoid this problem.
+Suppressing line numbers with the -n option will avoid this problem.
 Using line numbers means: the line number will be displayed in the verbose
 prompt and in the = command,
 and the v command will pass the current line number to the editor
@@ -624,7 +624,7 @@ the terminal bell is never rung.
 Causes "raw" control characters to be displayed.
 The default is to display control characters using the caret notation;
 for example, a control-A (octal 001) is displayed as "^A".
-Warning: when the -r flag is used,
+Warning: when the -r option is used,
 .I less
 cannot keep track of the actual appearance of the screen
 (since this depends on how the screen responds to
@@ -1250,7 +1250,7 @@ Language for determining the character set.
 .IP LC_CTYPE
 Language for determining the character set.
 .IP LESS
-Flags which are passed to 
+Options which are passed to 
 .I less
 automatically.
 .IP LESSBINFMT
