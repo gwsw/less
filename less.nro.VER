@@ -553,12 +553,12 @@ variable, rather than being typed in with each
 command.
 Such an option must either be the last option in the LESS variable,
 or be terminated by a dollar sign.
--P or -Ps followed by a string changes the default (short) prompt 
+-Ps followed by a string changes the default (short) prompt 
 to that string.
--Pm changes the medium (-m) prompt to the string, and
+-Pm changes the medium (-m) prompt.
 -PM changes the long (-M) prompt.
-Also, -P= changes the message printed by the = command to the given string,
-and -Ph changes the prompt for the help screen.
+-Ph changes the prompt for the help screen.
+-P= changes the message printed by the = command.
 All prompt strings consist of a sequence of 
 letters and special escape sequences.
 See the section on PROMPTS for more details.

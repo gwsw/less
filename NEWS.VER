@@ -40,6 +40,8 @@
 * Added -Ph to change the prompt for the help text.
   Added -Ps to change the default short prompt (same as plain -P).
 
+* Ported to Borland C compiler for MS-DOS.
+
 * Ported to OS-9.
 
 ======================================================================
@@ -50,8 +52,6 @@
 * Less environment variables can be specified in lesskey files.
 
 * Fixed MS-DOS build.
-
-* Ported to Borland C compiler.
 
 ======================================================================
 
