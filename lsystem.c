@@ -90,7 +90,7 @@ lsystem(cmd, donemsg)
 	 */
 	init_signals(0);
 
-#ifndef _OSK
+#if HAVE_DUP
 	/*
 	 * Force standard input to be the user's terminal
 	 * (the normal standard input), even if less's standard input 
@@ -135,7 +135,7 @@ lsystem(cmd, donemsg)
 	system(cmd);
 #endif
 
-#ifndef _OSK
+#if HAVE_DUP
 	/*
 	 * Restore standard input, reset signals, raw mode, etc.
 	 */

@@ -151,6 +151,11 @@
  */
 #undef	HAVE_SHELL
 
+/* 
+ * HAVE_DUP is 1 if your system has the dup() call.
+ */
+#undef	HAVE_DUP
+
 /*
  * Sizes of various buffers.
  */

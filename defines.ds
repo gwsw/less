@@ -172,6 +172,11 @@
  */
 #define	HAVE_SHELL	0
 
+/* 
+ * HAVE_DUP is 1 if your system has the dup() call.
+ */
+#define	HAVE_DUP	1
+
 /*
  * Sizes of various buffers.
  */
