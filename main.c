@@ -177,14 +177,18 @@ main(argc, argv)
 		init_textlist(&tlist, gfilename);
 		filename = NULL;
 		while ((filename = forw_textlist(&tlist, filename)) != NULL)
-			ifile = get_ifile(filename, ifile);
+		{
+			(void) get_ifile(filename, ifile);
+			ifile = prev_ifile(NULL_IFILE);
+		}
 		free(gfilename);
 #else
 		filename = shell_quote(*argv);
 		if (filename == NULL)
 			filename = *argv;
 		argv++;
-		ifile = get_ifile(filename, ifile);
+		(void) get_ifile(filename, ifile);
+		ifile = prev_ifile(NULL_IFILE);
 #endif
 	}
 	/*
