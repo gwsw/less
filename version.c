@@ -547,6 +547,7 @@ v318   5/29/96	Port to OS-9 Microware compiler; minor fixes
 		(thanks to Martin Gregorie).
 v319   7/8/96	Fix Windows port (thanks to Jeff Paquette).
 v320   7/11/96	Final fixes for Windows port.
+v321   7/18/96	Minor fixes.
 */
 
-char version[] = "320";
+char version[] = "321";
