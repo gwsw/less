@@ -70,8 +70,10 @@
 #if HAVE_CTYPE_H
 #include <ctype.h>
 #endif
-#if STDC_HEADERS
+#if HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
+#if HAVE_STRING_H
 #include <string.h>
 #endif
 #ifdef _OSK
@@ -88,7 +90,7 @@
 #include <pc.h>
 #endif
 
-#if !STDC_HEADERS
+#if !HAVE_STDLIB_H
 char *getenv();
 off_t lseek();
 VOID_POINTER calloc();
