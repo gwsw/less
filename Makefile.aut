@@ -108,4 +108,7 @@ dist: ${DISTFILES}
 tagall:
 	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/v\1/' -e q ${srcdir}/version.c`; \
 	echo "tagging $$REL"; \
-	${RCS} -n$$REL: ${srcdir}/RCS/*,v
+	for f in ${srcdir}/RCS/*,v; do \
+	  REV=`co -p $$f 2>&1 | sed -e '1d' -e '3,$$d' -e 's/revision //'`; \
+	  ${RCS} -N$$REL:$$REV $$f; \
+	done
