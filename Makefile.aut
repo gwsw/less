@@ -12,10 +12,10 @@ SRC = \
 	output.c position.c prompt.c search.c signal.c \
 	tags.c ttyin.c version.c  
 DISTFILES_W = \
-	Makefile.dos Makefile.bcc defines.dos \
-	Makefile.os2 defines.os2 \
-	Makefile.o9c Makefile.o9u defines.o9 \
-	Makefile.w32 defines.w32
+	defines.ds  Makefile.dsb Makefile.dsg Makefile.dsm \
+	defines.o2  Makefile.o2e \
+	defines.o9  Makefile.o9c Makefile.o9u \
+	defines.wn  Makefile.wnm
 DISTFILES = \
 	${SRC} regexp.c regexp.h \
 	INSTALL Makefile.in Makefile.aut README NEWS \
