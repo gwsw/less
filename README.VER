@@ -40,6 +40,24 @@ INSTALLATION (Unix systems only):
    This will generate a Makefile and a defines.h.
    Warning: if you have a GNU sed, make sure it is version 2.05 or later.
 
+   The file INSTALL describes the usage of the configure program in
+   general.  In addition, these options to configure are supported:
+
+   --with-editor=program
+     Specifies the default editor program used by the "v" command.
+     The default is "vi".
+   --with-regex=lib
+     Specifies the regular expression library used by less for pattern
+     matching.  The default is "auto", which means the configure program 
+     finds a regular expression library automatically.  Other values are:
+        posix          Use the POSIX-compatible regcomp.
+        pcre           Use the PCRE library.
+        regcmp         Use the regcmp library.
+        re_comp        Use the re_comp library.
+        regcomp        Use the V8-compatible regcomp.
+        regcomp-local  Use Henry Spencer's V8-compatible regcomp
+                       (source is supplied with less).
+
 3. It is a good idea to look over the generated Makefile and defines.h
    and make sure they look ok.  If you know of any peculiarities of
    your system that configure might not have detected, you may fix the
