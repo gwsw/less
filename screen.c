@@ -133,7 +133,7 @@ extern char PC;		/* Pad character */
 
 extern int quiet;		/* If VERY_QUIET, use visual bell for bell */
 extern int know_dumb;		/* Don't complain about a dumb terminal */
-extern int back_scroll;
+extern int no_back_scroll;
 extern int swindow;
 extern int no_init;
 #if HILITE_SEARCH
@@ -910,7 +910,7 @@ get_term()
 		/*
 		 * Force repaint on any backward movement.
 		 */
-		back_scroll = 0;
+		no_back_scroll = 1;
 	}
 }
 

@@ -36,6 +36,7 @@
 public int hit_eof;	/* Keeps track of how many times we hit end of file */
 public int screen_trashed;
 public int squished;
+public int no_back_scroll = 0;
 
 extern int sigs;
 extern int top_scroll;
@@ -390,6 +391,8 @@ backward(n, force, only_last)
 	public int
 get_back_scroll()
 {
+	if (no_back_scroll)
+		return (0);
 	if (back_scroll >= 0)
 		return (back_scroll);
 	if (top_scroll)
