@@ -1,5 +1,5 @@
 =======================================================================
-===        NOTE: THIS IS A DISTRIBUTION OF less (version 276)       ===
+===        NOTE: THIS IS A DISTRIBUTION OF less (version 277)       ===
 ===    PLEASE REPORT ANY PROBLEMS TO THE AUTHOR AT markn@3do.com.   ===
 =======================================================================
 
@@ -8,6 +8,7 @@ The formatted manual page is in less.man.
 The manual page nroff source is in less.nro.
 Major changes made since the last posted version are in NEWS.
 
+=======================================================================
 INSTALLATION (Unix systems only):
 
 1. Move the distributed source to its own directory and 
@@ -59,6 +60,7 @@ in double curly brackets {{ like this }}.
 
 
 
+=======================================================================
 INSTALLATION (MS-DOS systems only)
 
 1. Move the distributed source to its own directory.
@@ -94,6 +96,7 @@ INSTALLATION (MS-DOS systems only)
 
 
 
+=======================================================================
 INSTALLATION (OS/2 systems only)
 
 1. Move the distributed source to its own directory.

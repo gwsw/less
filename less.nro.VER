@@ -969,10 +969,18 @@ so characters 9 through 255 would be normal.
 (This is an example, and does not necessarily 
 represent any real character set.)
 .PP
-Setting LESSCHARDEF to "8bcccbcc18b95.b" is the same as setting
-LESSCHARSET to "ascii".
-Setting LESSCHARDEF to "8bcccbcc18b95.33b." is the same as setting
-LESSCHARSET to "latin1".
+This table shows the value of LESSCHARDEF which is equivalent
+to each of the possible values for LESSCHARSET:
+.sp
+	ascii\ 	8bcccbcc18b95.b
+.br
+	latin1	8bcccbcc18b95.33b.
+.br
+	dos\ \ \ 	8bcccbcc12bc5b95.b.
+.br
+	koi8-r	8bcccbcc18b95.b128.
+.br
+	next\ \ 	8bcccbcc18b95.bb125.bb
 .PP
 If neither LESSCHARSET nor LESSCHARDEF is set, 
 but your system supports the 

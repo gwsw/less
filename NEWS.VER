@@ -1,4 +1,4 @@
-	Major changes between "less" versions 252 and 276
+	Major changes between "less" versions 252 and 277
 
 * A LESSOPEN preprocessor may now pipe the converted file data to less,
   rather than writing it to a temporary file.
