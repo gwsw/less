@@ -163,7 +163,7 @@ ilocale()
 {
 	register int c;
 
-	setlocale(LC_CTYPE, "");
+	setlocale(LC_ALL, "");
 	for (c = 0;  c < sizeof(chardef);  c++)
 	{
 		if (isprint(c))
