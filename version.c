@@ -531,6 +531,7 @@ v303   1/31/96	Add ESC-SPACE command.
 v304   2/1/96	Add ^R search modifier; add LESSSECURE.
 v305   2/2/96	Workaround Linux /proc kernel bug; add LESSKEY.
 v306   3/16/96	Minor fixes.
+v307   3/25/96	Allow cmd line arg "--"; fix DOS & OS/2 defines.h.
 */
 
-char version[] = "306";
+char version[] = "307";
