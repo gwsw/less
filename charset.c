@@ -247,7 +247,7 @@ init_charset()
  */
 	public int
 binary_char(c)
-	int c;
+	unsigned char c;
 {
 	c &= 0377;
 	return (chardef[c] & IS_BINARY_CHAR);

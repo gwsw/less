@@ -309,7 +309,6 @@ cmd_left()
 cmd_ichar(c)
 	int c;
 {
-	int col;
 	char *s;
 	
 	if (strlen(cmdbuf) >= sizeof(cmdbuf)-2)
@@ -343,8 +342,6 @@ cmd_ichar(c)
 cmd_erase()
 {
 	register char *s;
-	char *p;
-	int col;
 
 	if (cp == cmdbuf)
 	{
@@ -388,8 +385,6 @@ cmd_erase()
 	static int
 cmd_delete()
 {
-	char *p;
-	
 	if (*cp == '\0')
 	{
 		/*
@@ -501,7 +496,6 @@ set_mlist(mlist)
 cmd_updown(action)
 	int action;
 {
-	char *p;
 	char *s;
 	
 	if (curr_mlist == NULL)
