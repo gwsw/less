@@ -1,7 +1,18 @@
-=========================================================================
-    This is the distribution of less, version @@VERSION@@, released @@DATE@@
+
+                            Less, version @@VERSION@@
+
+    This is the distribution of less, version @@VERSION@@, released @@DATE@@.
     This program is part of the GNU project (http://www.gnu.org).
-    See the file COPYING for licensing information.
+
+    This program is free software.  You may redistribute it and/or
+    modify it under the terms of either:
+
+    1. The GNU General Public License, as published by the Free
+       Software Foundation; either version 2, or (at your option) any
+       later version.  A copy of this license is in the file COPYING.
+    or
+    2. The Less License, in the file LICENSE.
+
     Please report any problems to bug-less@gnu.org or @@EMAIL@@.
     See @@HOMEPAGE@@ for the latest info.
     You may also contact the author at:
@@ -10,6 +21,7 @@
           PO Box 2402
           El Granada, CA  94018
           USA
+
 =========================================================================
 
 This is the distribution of "less", a paginator similar to "more" or "pg".
