@@ -949,7 +949,7 @@ get_term()
 	can_goto_line = 1;
 	/*
 	 * Set up default colors.
-	 * The xx_s_width and xx_e_width variables are initialized to 0.
+	 * The xx_s_width and xx_e_width vars are already initialized to 0.
 	 */
 	nm_fg_color = 7;
 	nm_bg_color = 0;
@@ -982,10 +982,8 @@ get_term()
 	sy_bg_color = attr & BG_COLORS;
 	sy_fg_color = attr & FG_COLORS;
 	curr_attr = sy_bg_color | sy_fg_color;
-	con_in = GetStdHandle(STD_INPUT_HANDLE);
-	con_out = GetStdHandle(STD_OUTPUT_HANDLE);
 
-	/* Can't use default bg colors in Windows? */
+	/* Can't use the default bg colors in Windows? */
 	nm_bg_color = sy_bg_color;
 	bo_bg_color = sy_bg_color;
 	ul_bg_color = sy_bg_color;
@@ -993,7 +991,9 @@ get_term()
 	/* Make standout = inverse video. */
 	so_fg_color = sy_bg_color;
 	so_bg_color = sy_fg_color;
-#endif
+
+	con_in = GetStdHandle(STD_INPUT_HANDLE);
+	con_out = GetStdHandle(STD_OUTPUT_HANDLE);
 #endif
 #endif
 #endif
@@ -1336,7 +1336,6 @@ _settextposition(int row, int col)
 initcolor()
 {
 	SETCOLORS(nm_fg_color, nm_bg_color);
-
 #if 0
 	/*
 	 * This clears the screen at startup.  This is different from
