@@ -223,7 +223,7 @@ storec(c, a, pos)
 	register int w;
 
 #if HILITE_SEARCH
-	if (is_hilited(pos))
+	if (is_hilited(pos, pos+1, 0))
 		/*
 		 * This character should be highlighted.
 		 * Override the attribute passed in.

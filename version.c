@@ -460,6 +460,8 @@
  *	v255: Add #define EXAMINE to disable :e etc.	12/8/94
  *	v256: Change highlighting: only highlite search	12/10/94
  *	      results (but now it is reliable).
+ *	v257: Add goto_line and repaint_highlight	12/10/94
+ *	      to optimize highlight repaints.
  */
 
-char version[] = "256";
+char version[] = "257";

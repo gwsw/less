@@ -55,6 +55,7 @@ extern int sigs;
 extern int how_search;
 extern int caseless;
 extern int linenums;
+extern int sc_height;
 extern int jump_sline;
 extern int bs_mode;
 #if HILITE_SEARCH
@@ -158,6 +159,32 @@ prev_pattern()
 }
 
 /*
+ * Repaint the hilites currently displayed on the screen.
+ * Repaint each line which contains highlighted text.
+ */
+	public void
+repaint_hilite()
+{
+	int slinenum;
+	POSITION pos;
+	POSITION epos;
+
+	for (slinenum = TOP;  slinenum < TOP + sc_height-1;  slinenum++)
+	{
+		pos = position(slinenum);
+		if (pos == NULL_POSITION)
+			continue;
+		epos = position(slinenum+1);
+		if (is_hilited(pos, epos, 1))
+		{
+			(void) forw_line(pos);
+			goto_line(slinenum);
+			put_line();
+		}
+	}
+}
+
+/*
  * Hide search string highlighting.
  */
 	public void
@@ -170,7 +197,7 @@ undo_search()
 	}
 #if HILITE_SEARCH
 	hide_hilite = !hide_hilite;
-	screen_trashed = 1;
+	repaint_hilite();
 #endif
 }
 
@@ -291,19 +318,35 @@ clr_hilite()
 }
 
 /*
- * Should a character be highlighted?
+ * Should any characters in a specified range be highlighted?
+ * If nohide is nonzero, don't consider hide_hilite.
  */
 	public int
-is_hilited(pos)
+is_hilited(pos, epos, nohide)
 	POSITION pos;
+	POSITION epos;
+	int nohide;
 {
 	int i;
 
 	if (!hilite_search)
+		/*
+		 * Not doing highlighting.
+		 */
 		return (0);
+
+	if (!nohide && hide_hilite)
+		/*
+		 * Highlighting is hidden.
+		 */
+		return (0);
+
+	/*
+	 * Look at each highlight and see if any part of it falls in the range.
+	 */
 	for (i = 0;  i < num_hilite;  i++)
 	{
-		if (pos >= hl_startpos[i] && pos < hl_endpos[i])
+		if (epos > hl_startpos[i] && hl_endpos[i] > pos)
 			return (1);
 	}
 	return (0);
@@ -491,9 +534,12 @@ search(search_type, pattern, n)
 	}
 
 #if HILITE_SEARCH
-	/* if (hide_hilite)
-		screen_trashed = 1; */
-	hide_hilite = 0;
+	if (hilite_search)
+	{
+		hide_hilite = 1;
+		repaint_hilite();
+		hide_hilite = 0;
+	}
 #endif
 
 	linenum = find_linenum(pos);
@@ -538,6 +584,10 @@ search(search_type, pattern, n)
 			/*
 			 * We hit EOF/BOF without a match.
 			 */
+#if HILITE_SEARCH
+			if (hilite_search)
+				repaint_hilite();
+#endif
 			return (n);
 		}
 
@@ -579,9 +629,16 @@ search(search_type, pattern, n)
 			 * Found the line.
 			 */
 #if HILITE_SEARCH
-			if (hilite_search && line_match && 
-			    sp != NULL && ep != NULL)
-				hilite_line(linepos, line, sp, ep);
+			if (hilite_search)
+			{
+				/*
+				 * Remove any old hilites.
+				 * Put hilites on the new matching strings.
+				 */
+				num_hilite = 0;
+				if (line_match && sp != NULL && ep != NULL)
+					hilite_line(linepos, line, sp, ep);
+			}
 #endif
 			break;
 		}
@@ -589,15 +646,9 @@ search(search_type, pattern, n)
 
 #if HILITE_SEARCH
 	if (hilite_search)
-	{
-		/*
-		 * We need to change the hilites on the screen
-		 * (add new hilites and possibly remove old hilites).
-		 * {{ We have to repaint the whole screen to do this! }}
-		 */
-		screen_trashed = 1;
-	}
+		repaint_hilite();
 #endif
+
 	jump_loc(linepos, jump_sline);
 	return (0);
 }
