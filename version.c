@@ -626,8 +626,10 @@ v371 12/26/01	Fix new_file bug; use popen in Windows version;
 		fix some compiler warnings.
 v372 12/29/01	Make -b be in units of 1K.
 v373  1/14/02	Improve handling of filenames containing shell metachars.
-v374  2/7/02	Fix memory leak; fix bug in -x argument parsing.
+v374   2/7/02	Fix memory leak; fix bug in -x argument parsing.
+v375   4/7/02	Fix searching for SGR sequences; fix SECURE build;
+		add SGR support to DJGPP version (thanks to Eli Zaretskii).
 
 */
 
-char version[] = "374";
+char version[] = "375";
