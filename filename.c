@@ -55,6 +55,35 @@ extern int secure;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 
+#if SPACES_IN_FILENAMES
+/*
+ * Remove quotes around a filename.
+ */
+	public char *
+unquote_file(str)
+	char *str;
+{
+	static char name[_MAX_PATH];
+	char *p = name;
+
+	if (strchr(str, '"') == NULL)
+		return str;
+
+	while (*str && (p < &name[sizeof name - 1]))
+	{
+		if (*str != '"')
+		{
+			*p = *str;
+			p++;
+		}
+		str++;
+	}
+	*p = '\0';
+
+	return name;
+}
+#endif
+
 /*
  * Return a pathname that points to a specified file in a specified directory.
  * Return NULL if the file does not exist in the directory.
@@ -80,7 +109,7 @@ dirfile(dirname, filename)
 	/*
 	 * Make sure the file exists.
 	 */
-	f = open(pathname, OPEN_READ);
+	f = open(UNQUOTE_FILE(pathname), OPEN_READ);
 	if (f < 0)
 	{
 		free(pathname);
@@ -437,12 +466,22 @@ lglob(filename)
 		return (filename);
 	length = 1; /* Room for trailing null byte */
 	for (cnt = 0;  list[cnt] != NULL;  cnt++)
+	{
 	  	length += strlen(list[cnt]) + 1;
+#if SPACES_IN_FILENAMES
+		if (strchr(list[cnt], ' ') != NULL)
+			length += 2; /* Allow for quotes */
+#endif
+	}
 	gfilename = (char *) ecalloc(length, sizeof(char));
 	for (cnt = 0;  list[cnt] != NULL;  cnt++)
 	{
-		strcat(gfilename, list[cnt]);
-	  	strcat(gfilename, " ");
+#if SPACES_IN_FILENAMES
+		if (strchr(list[cnt], ' ') != NULL)
+			sprintf(gfilename, "\"%s\" ", list[cnt]);
+		else
+#endif
+		sprintf(gfilename, "%s ", list[cnt]);
 	}
 	_fnexplodefree(list);
 }
@@ -459,7 +498,13 @@ lglob(filename)
 	/* How much space do we need?  */
 	for (p = glob_results.gl_pathv, cnt = glob_results.gl_pathc;
 	     cnt > 0;  p++, cnt--)
+	{
 		length += strlen(*p) + 1;
+#if SPACES_IN_FILENAMES
+		if (strchr(*p, ' ') != NULL)
+			length += 2; /* Allow for quotes */
+#endif
+	}
 
 	/* Allocate the space and generate the list.  */
 	gfilename = (char *) ecalloc(length, sizeof(char));
@@ -469,6 +514,12 @@ lglob(filename)
 		strcat(gfilename, *p);
 		if (cnt > 1)
 			strcat(gfilename, " ");
+#if SPACES_IN_FILENAMES
+		if (strchr(*p, ' ') != NULL)
+			sprintf(gfilename, "\"%s\" ", *p);
+		else
+#endif
+		sprintf(gfilename, "%s ", *p);
 	}
 
 	free(filename);
@@ -685,6 +736,9 @@ lglob(filename)
 	register char *p;
 	register int len;
 	register int n;
+#if SPACES_IN_FILENAMES
+	register int spaces_in_file;
+#endif
 	DECLARE_FIND(fnd,drive,dir,fname,ext,handle)
 	
 	filename = fexpand(filename);
@@ -692,16 +746,25 @@ lglob(filename)
 	if (secure)
 		return (filename);
 
-	handle = FIND_FIRST(filename, &fnd);
+	handle = FIND_FIRST(UNQUOTE_FILE(filename), &fnd);
 	if (BAD_HANDLE(handle))
 		return (filename);
 
-	_splitpath(filename, drive, dir, fname, ext);
+	_splitpath(UNQUOTE_FILE(filename), drive, dir, fname, ext);
 	len = 100;
 	gfilename = (char *) ecalloc(len, sizeof(char));
 	p = gfilename;
 	do {
 		n = strlen(drive) + strlen(dir) + strlen(fnd.FND_NAME);
+#if SPACES_IN_FILENAMES
+		spaces_in_file = 0;
+		if (strchr(fnd.FND_NAME, ' ') != NULL ||
+		    strchr(filename, ' ') != NULL)
+		{
+			spaces_in_file = 1;
+			n += 2;
+		}
+#endif
 		while (p - gfilename + n+2 >= len)
 		{
 			/*
@@ -715,6 +778,11 @@ lglob(filename)
 			gfilename = p;
 			p = gfilename + strlen(gfilename);
 		}
+#if SPACES_IN_FILENAMES
+		if (spaces_in_file)
+			sprintf(p, "\"%s%s%s\"", drive, dir, fnd.FND_NAME);
+		else
+#endif
 		sprintf(p, "%s%s%s", drive, dir, fnd.FND_NAME);
 		p += n;
 		*p++ = ' ';
@@ -729,16 +797,19 @@ lglob(filename)
 }
 
 	public char *
-open_altfile(filename)
+open_altfile(filename, pf, pfd)
 	char *filename;
+	int *pf;
+	void **pfd;
 {
 	return (NULL);
 }
 
 	public void
-close_altfile(altfilename, filename)
+close_altfile(altfilename, filename, pipefd)
 	char *altfilename;
 	char *filename;
+	void *pipefd;
 {
 }
 		
@@ -753,16 +824,19 @@ lglob(filename)
 
 	
 	public char *
-open_altfile(filename)
+open_altfile(filename, pf, pfd)
 	char *filename;
+	int *pf;
+	void **pfd;
 {
      	return (NULL);
 }
 
 	public void
-close_altfile(altfilename, filename)
+close_altfile(altfilename, filename, pipefd)
 	char *altfilename;
 	char *filename;
+	void *pipefd;
 {
 }
 		
@@ -792,7 +866,7 @@ bad_file(filename)
 	register char *m;
 	struct stat statbuf;
 
-	if (stat(filename, &statbuf) < 0)
+	if (stat(UNQUOTE_FILE(filename), &statbuf) < 0)
 		return (errno_message(filename));
 
 	if (force_open)

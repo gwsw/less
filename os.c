@@ -78,6 +78,8 @@ public int reading;
 
 static jmp_buf read_label;
 
+extern int sigs;
+
 /*
  * Like read() system call, but is deliberately interruptible.
  * A call to intread() from a signal handler will interrupt
@@ -91,6 +93,10 @@ iread(fd, buf, len)
 {
 	register int n;
 
+#if MSDOS_COMPILER==WIN32C
+	if (ABORT_SIGS())
+		return (READ_INTR);
+#else
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
 	if (kbhit())
 	{
@@ -101,6 +107,7 @@ iread(fd, buf, len)
 			return (READ_INTR);
 		ungetch(c);
 	}
+#endif
 #endif
 	if (SET_JUMP(read_label))
 	{

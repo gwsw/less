@@ -555,6 +555,7 @@ v322   8/13/96	Fix bug in shell escape from help file; add support for
 v323   8/19/96	Fixes for Windows version (thanks to Simon Munton);
 		fix for Linux library weirdness (thanks to Jim Diamond);
 		port to DJGPP (thanks to Eli Zaretskii).
+v324   8/21/96	Add support for spaces in filenames (thanks to Simon Munton).
 */
 
-char version[] = "323";
+char version[] = "324";

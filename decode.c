@@ -547,7 +547,7 @@ lesskey(filename)
 	/*
 	 * Try to open the lesskey file.
 	 */
-	f = open(filename, OPEN_READ);
+	f = open(UNQUOTE_FILE(filename), OPEN_READ);
 	if (f < 0)
 		return (1);
 

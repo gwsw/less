@@ -118,7 +118,7 @@ opt_o(type, s)
 			error("No log file", NULL_PARG);
 		else
 		{
-			parg.p_string = namelogfile;
+			parg.p_string = UNQUOTE_FILE(namelogfile);
 			error("Log file \"%s\"", &parg);
 		}
 		break;
@@ -179,7 +179,7 @@ opt_k(type, s)
 	case INIT:
 		if (lesskey(s))
 		{
-			parg.p_string = s;
+			parg.p_string = UNQUOTE_FILE(s);
 			error("Cannot use lesskey file \"%s\"", &parg);
 		}
 		break;
@@ -246,7 +246,7 @@ opt__T(type, s)
 		tags = lglob(s);
 		break;
 	case QUERY:
-		parg.p_string = tags;
+		parg.p_string = UNQUOTE_FILE(tags);
 		error("Tags file \"%s\"", &parg);
 		break;
 	}

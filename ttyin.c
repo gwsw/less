@@ -37,6 +37,7 @@ static DWORD console_mode;
 #endif
 
 static int tty;
+extern int sigs;
 
 /*
  * Open keyboard for input.
@@ -65,7 +66,7 @@ open_getchr()
 	 */
 	 fd0 = dup(0);
 	 close(0);
-	 tty = OPEN_TTYIN();
+	 tty = open("CON", OPEN_READ);
 #if MSDOS_COMPILER==DJGPPC
 	/*
 	 * Setting stdin to binary causes Ctrl-C to not
@@ -80,7 +81,7 @@ open_getchr()
 	 * which in Unix is usually attached to the screen,
 	 * but also usually lets you read from the keyboard.
 	 */
-	tty = OPEN_TTYIN();
+	tty = open("/dev/tty", OPEN_READ);
 	if (tty < 0)
 		tty = 2;
 #endif
@@ -116,6 +117,8 @@ getchr()
 		 */
 		flush();
 #if MSDOS_COMPILER==WIN32C
+		if (ABORT_SIGS())
+			return (READ_INTR);
 		c = WIN32getch(tty);
 #else
 		c = getch();

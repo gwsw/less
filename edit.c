@@ -63,13 +63,23 @@ init_textlist(tlist, str)
 	char *str;
 {
 	char *s;
+#if SPACES_IN_FILENAMES
+	int quoted = 0;
+#endif
 	
 	tlist->string = skipsp(str);
 	tlist->endstring = tlist->string + strlen(tlist->string);
 	for (s = str;  s < tlist->endstring;  s++)
 	{
+#if SPACES_IN_FILENAMES
+		if (*s == ' ' && !quoted)
+			*s = '\0';
+		if (*s == '"')
+			quoted = !quoted;
+#else
 		if (*s == ' ')
 			*s = '\0';
+#endif
 	}
 }
 
@@ -240,7 +250,7 @@ edit_ifile(ifile)
 		return (0);
 	}
 
-	filename = get_filename(ifile);
+	filename = UNQUOTE_FILE(get_filename(ifile));
 	/*
 	 * See if LESSOPEN specifies an "alternate" file to open.
 	 */
@@ -686,6 +696,7 @@ use_logfile(filename)
 	/*
 	 * {{ We could use access() here. }}
 	 */
+	filename = UNQUOTE_FILE(filename);
 	exists = open(filename, OPEN_READ);
 	close(exists);
 	exists = (exists >= 0);
@@ -717,14 +728,12 @@ loop:
 		 * Overwrite: create the file.
 		 */
 		logfile = creat(filename, 0644);
-		SET_BINARY(logfile);
 		break;
 	case 'A': case 'a':
 		/*
 		 * Append: open the file and seek to the end.
 		 */
 		logfile = open(filename, OPEN_APPEND);
-		SET_BINARY(logfile);
 		if (lseek(logfile, (off_t)0, 2) == BAD_LSEEK)
 		{
 			close(logfile);
@@ -754,7 +763,9 @@ loop:
 		 */
 		parg.p_string = filename;
 		error("Cannot write to \"%s\"", &parg);
+		return;
 	}
+	SET_BINARY(logfile);
 }
 
 #endif

@@ -101,7 +101,7 @@ lsystem(cmd, donemsg)
 	 */
 	inp = dup(0);
 	close(0);
-	if (OPEN_TTYIN() < 0)
+	if (open("/dev/tty", OPEN_READ) < 0)
 		dup(inp);
 #endif
 

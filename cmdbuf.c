@@ -730,6 +730,10 @@ cmd_istr(str)
 delimit_word()
 {
 	char *word;
+#if SPACES_IN_FILENAMES
+	char *p;
+	int quoted = 0;
+#endif
 	
 	/*
 	 * Move cursor to end of word.
@@ -762,6 +766,16 @@ delimit_word()
 	 */
 	if (cp == cmdbuf)
 		return (NULL);
+#if SPACES_IN_FILENAMES
+	for (p = cmdbuf;  p < cp;  p++)
+		if (*p == '"')
+		{
+			word = p;
+			quoted = !quoted;
+		}
+	if (quoted)
+		return (word);
+#endif
 	for (word = cp-1;  word > cmdbuf;  word--)
 		if (word[-1] == ' ')
 			break;

@@ -127,7 +127,7 @@ void free();
 #define	OPT_ON		1
 #define	OPT_ONPLUS	2
 
-#ifndef HAVE_MEMCPY
+#if !HAVE_MEMCPY
 #ifndef memcpy
 #define	memcpy(to,from,len)	bcopy((from),(to),(len))
 #endif
@@ -174,27 +174,34 @@ typedef long		POSITION;
 #endif
 #endif
 
-#if MSDOS_COMPILER || OS2
-#define	OPEN_TTYIN()	open("CON", OPEN_READ)
-#else
-#define	OPEN_TTYIN()	open("/dev/tty", OPEN_READ)
-#endif
-
-#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==DJGPPC
-#define	SET_BINARY(f)	setmode(f, O_BINARY)
-#else
+/*
+ * Set a file descriptor to binary mode.
+ */
 #if MSDOS_COMPILER==MSOFTC
 #define	SET_BINARY(f)	_setmode(f, _O_BINARY);
+#else
+#if MSDOS_COMPILER
+#define	SET_BINARY(f)	setmode(f, O_BINARY)
 #else
 #define	SET_BINARY(f)
 #endif
 #endif
 
-
+/*
+ * Does the shell treat "?" as a metacharacter?
+ */
 #if MSDOS_COMPILER || OS2 || _OSK
 #define	SHELL_META_QUEST 0
 #else
 #define	SHELL_META_QUEST 1
+#endif
+
+#if MSDOS_COMPILER || OS2
+#define	SPACES_IN_FILENAMES 1
+#define	UNQUOTE_FILE(x)	unquote_file(x)
+#else
+#define	SPACES_IN_FILENAMES 0
+#define	UNQUOTE_FILE(x)	(x)
 #endif
 
 /*
@@ -310,3 +317,4 @@ struct textlist
 #define	FAKE_HELPFILE	"@/\\less/\\help/\\file/\\@"
 
 #include "funcs.h"
+
