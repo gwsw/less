@@ -297,8 +297,7 @@ compile_pattern(pattern)
 /*
  */
 	static void
-uncompile_pattern(pattern)
-	char *pattern;
+uncompile_pattern()
 {
 #if HAVE_POSIX_REGCOMP
 	if (regpattern != NULL)

@@ -64,12 +64,6 @@ u_interrupt(type)
 		intread();
 }
 
-	public void
-fake_interrupt()
-{
-	sigs |= S_INTERRUPT;
-}
-
 #ifdef SIGTSTP
 /*
  * "Stop" (^Z) signal handler.

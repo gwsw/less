@@ -274,11 +274,8 @@ fch_get()
 ch_ungetchar(c)
 	int c;
 {
-	if (ch_ungotchar != -1)
-	{
-		error("ch_ungetchar overrun");
-		quit(QUIT_ERROR);
-	}
+	if (c != -1 && ch_ungotchar != -1)
+		error("ch_ungetchar overrun", NULL_PARG);
 	ch_ungotchar = c;
 }
 
@@ -653,12 +650,10 @@ ch_init(f, flags)
 	int f;
 	int flags;
 {
-	register struct buf *bp;
-
 	/*
 	 * See if we already have a filestate for this file.
 	 */
-	thisfile = get_filestate(curr_ifile);
+	thisfile = (struct filestate *) get_filestate(curr_ifile);
 	if (thisfile == NULL)
 	{
 		/*
@@ -681,7 +676,7 @@ ch_init(f, flags)
 		 */
 		if (seekable(f))
 			ch_flags |= CH_CANSEEK;
-		set_filestate(curr_ifile, thisfile);
+		set_filestate(curr_ifile, (void *) thisfile);
 	}
 	if (thisfile->file == -1)
 		thisfile->file = f;
@@ -724,7 +719,7 @@ ch_close()
 		 */
 		free(thisfile);
 		thisfile = NULL;
-		set_filestate(curr_ifile, NULL);
+		set_filestate(curr_ifile, (void *) NULL);
 	}
 }
 

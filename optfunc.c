@@ -330,28 +330,6 @@ opt_b(type, s)
 	}
 }
 
-#if HILITE_SEARCH
-/*
- * Handler for the -g/-G option.
- */
-	/*ARGSUSED*/
-	public void
-opt_g(type, s)
-	int type;
-	char *s;
-{
-	switch (type)
-	{
-	case TOGGLE:
-		chg_hilite();
-		break;
-	case QUERY:
-	case INIT:
-		break;
-	}
-}
-#endif
-
 /*
  * Handler for the -i option.
  */
