@@ -80,6 +80,7 @@
   :n                *  Examine the (_N-th) next file from the command line.
   :p                *  Examine the (_N-th) previous file from the command line.
   :x                *  Examine the first (or _N-th) file from the command line.
+  :d                   Delete the current file from the command line list.
   =  ^G  :f            Print current file name.
  ---------------------------------------------------------------------------
 

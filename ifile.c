@@ -74,6 +74,9 @@ incr_index(p, incr)
 		p->h_index += incr;
 }
 
+/*
+ * Link an ifile into the ifile list.
+ */
 	static void
 link_ifile(p, prev)
 	struct ifile *p;
@@ -97,6 +100,9 @@ link_ifile(p, prev)
 	ifiles++;
 }
 	
+/*
+ * Unlink an ifile from the ifile list.
+ */
 	static void
 unlink_ifile(p)
 	struct ifile *p;

@@ -78,6 +78,7 @@
 #define	A_OPT_UNSET		49
 #define	A_F_FOREVER		50
 #define	A_GOPOS			51
+#define	A_REMOVE_FILE		52
 
 #define	A_INVALID		100
 #define	A_NOACTION		101

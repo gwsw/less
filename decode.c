@@ -155,6 +155,7 @@ static unsigned char cmdtable[] =
 	':','n',0,			A_NEXT_FILE,
 	':','p',0,			A_PREV_FILE,
 	':','x',0,			A_INDEX_FILE,
+	':','d',0,			A_REMOVE_FILE,
 	'-',0,				A_OPT_TOGGLE,
 	':','t',0,			A_OPT_TOGGLE|A_EXTRA,	't',0,
 	's',0,				A_OPT_TOGGLE|A_EXTRA,	'o',0,
