@@ -1030,10 +1030,15 @@ cmd_char(c)
 /*
  * Return the number currently in the command buffer.
  */
-	public int
+	public LINENUM
 cmd_int()
 {
-	return (atoi(cmdbuf));
+	register char *p;
+	LINENUM n = 0;
+
+	for (p = cmdbuf;  *p != '\0';  p++)
+		n = (10 * n) + (*p - '0');
+	return (n);
 }
 
 /*

@@ -233,6 +233,7 @@ typedef union parg
 {
 	char *p_string;
 	int p_int;
+	LINENUM p_linenum;
 } PARG;
 
 #define	NULL_PARG	((PARG *)NULL)

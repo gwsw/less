@@ -403,8 +403,40 @@ putstr(s)
  * Output an integer in a given radix.
  */
 	static int
-iprintnum(num, radix)
+iprint_int(num, radix)
 	int num;
+	int radix;
+{
+	register char *s;
+	int r;
+	int neg;
+	char buf[INT_STRLEN_BOUND(num)];
+
+	neg = (num < 0);
+	if (neg)
+		num = -num;
+
+	s = buf;
+	do
+	{
+		*s++ = (num % radix) + '0';
+	} while ((num /= radix) != 0);
+
+	if (neg)
+		*s++ = '-';
+	r = s - buf;
+
+	while (s > buf)
+		putchr(*--s);
+	return (r);
+}
+
+/*
+ * Output a line number in a given radix.
+ */
+	static int
+iprint_linenum(num, radix)
+	LINENUM num;
 	int radix;
 {
 	register char *s;
@@ -441,7 +473,6 @@ less_printf(fmt, parg)
 	PARG *parg;
 {
 	register char *s;
-	register int n;
 	register int col;
 
 	col = 0;
@@ -454,7 +485,8 @@ less_printf(fmt, parg)
 		} else
 		{
 			++fmt;
-			switch (*fmt++) {
+			switch (*fmt++)
+			{
 			case 's':
 				s = parg->p_string;
 				parg++;
@@ -465,9 +497,12 @@ less_printf(fmt, parg)
 				}
 				break;
 			case 'd':
-				n = parg->p_int;
+				col += iprint_int(parg->p_int, 10);
 				parg++;
-				col += iprintnum(n, 10);
+				break;
+			case 'n':
+				col += iprint_linenum(parg->p_linenum, 10);
+				parg++;
 				break;
 			}
 		}
