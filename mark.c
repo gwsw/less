@@ -124,8 +124,7 @@ getmark(c)
 		 * Current position in the current file.
 		 */
 		m = &sm;
-		m->m_scrpos.pos = ch_tell();
-		m->m_scrpos.ln = 0;
+		get_scrpos(&m->m_scrpos);
 		m->m_ifile = curr_ifile;
 		break;
 	case '\'':

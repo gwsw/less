@@ -154,7 +154,7 @@ pshift(shift)
  * Return the printing width of the start (enter) sequence
  * for a given character attribute.
  */
-	int
+	static int
 attr_swidth(a)
 	int a;
 {
@@ -172,7 +172,7 @@ attr_swidth(a)
  * Return the printing width of the end (exit) sequence
  * for a given character attribute.
  */
-	int
+	static int
 attr_ewidth(a)
 	int a;
 {
@@ -526,7 +526,6 @@ null_line()
 	is_null_line = 1;
 }
 
-#if 1
 /*
  * Analogous to forw_line(), but deals with "raw lines":
  * lines which are not split for screen width.
@@ -631,4 +630,3 @@ back_raw_line(curr_pos, linep)
 		*linep = p;
 	return (new_pos);
 }
-#endif
