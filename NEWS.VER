@@ -31,7 +31,7 @@
 * If a ^P is entered between the dash and the option letter of the -
   command, the message describing the new setting is suppressed.
 
-* Lesskey files may now contain escape sequences to represent the
+* Lesskey files may now contain \k escape sequences to represent the
   "special" keys (arrows, PAGE-UP/PAGE-DOWN, HOME, END, INSERT, DELETE).
 
 * New command :d removes the current file from the list of files.
