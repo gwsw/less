@@ -162,6 +162,7 @@ main(argc, argv)
 		ifile = get_ifile(FAKE_HELPFILE, ifile);
 	while (argc-- > 0)
 	{
+		char *filename;
 #if (MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC)
 		/*
 		 * Because the "shell" doesn't expand filename patterns,
@@ -171,7 +172,6 @@ main(argc, argv)
 		 */
 		struct textlist tlist;
 		char *gfilename;
-		char *filename;
 		
 		gfilename = lglob(*argv++);
 		init_textlist(&tlist, gfilename);
@@ -180,7 +180,11 @@ main(argc, argv)
 			ifile = get_ifile(filename, ifile);
 		free(gfilename);
 #else
-		ifile = get_ifile(*argv++, ifile);
+		filename = shell_quote(*argv);
+		if (filename == NULL)
+			filename = *argv;
+		argv++;
+		ifile = get_ifile(filename, ifile);
 #endif
 	}
 	/*

@@ -106,9 +106,8 @@ opt_o(type, s)
 			error("No log file", NULL_PARG);
 		else
 		{
-			parg.p_string = unquote_file(namelogfile);
+			parg.p_string = namelogfile;
 			error("Log file \"%s\"", &parg);
-			free(parg.p_string);
 		}
 		break;
 	}
@@ -168,9 +167,8 @@ opt_k(type, s)
 	case INIT:
 		if (lesskey(s, 0))
 		{
-			parg.p_string = unquote_file(s);
+			parg.p_string = s;
 			error("Cannot use lesskey file \"%s\"", &parg);
-			free(parg.p_string);
 		}
 		break;
 	}
@@ -236,9 +234,8 @@ opt__T(type, s)
 		tags = lglob(s);
 		break;
 	case QUERY:
-		parg.p_string = unquote_file(tags);
+		parg.p_string = tags;
 		error("Tags file \"%s\"", &parg);
-		free(parg.p_string);
 		break;
 	}
 }
@@ -534,6 +531,11 @@ opt_quote(type, s)
 	{
 	case INIT:
 	case TOGGLE:
+		if (s[0] == '\0')
+		{
+			openquote = closequote = '\0';
+			break;
+		}
 		if (s[1] != '\0' && s[2] != '\0')
 		{
 			error("-\" must be followed by 1 or 2 chars", NULL_PARG);

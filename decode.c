@@ -653,7 +653,7 @@ lesskey(filename, sysvar)
 	/*
 	 * Try to open the lesskey file.
 	 */
-	filename = unquote_file(filename);
+	filename = shell_unquote(filename);
 	f = open(filename, OPEN_READ);
 	free(filename);
 	if (f < 0)

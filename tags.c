@@ -280,7 +280,7 @@ findctag(tag)
 	char tline[TAGLINE_SIZE];
 	struct tag *tp;
 
-	p = unquote_file(tags);
+	p = shell_unquote(tags);
 	f = fopen(p, "r");
 	free(p);
 	if (f == NULL)
@@ -499,6 +499,7 @@ findgtag(tag, type)
 #else
 		char command[512];
 		char *flag;
+		char *qtag;
 		char *cmd = lgetenv("LESSGLOBALTAGS");
 
 		if (cmd == NULL || *cmd == '\0')
@@ -523,9 +524,12 @@ findgtag(tag, type)
 		}
 
 		/* Get our data from global(1). */
-		tag = esc_metachars(tag);
-		sprintf(command, "%s -x%s %s", cmd, flag, tag);
-		free(tag);
+		qtag = shell_quote(tag);
+		if (qtag == NULL)
+			qtag = tag;
+		sprintf(command, "%s -x%s %s", cmd, flag, qtag);
+		if (qtag != tag)
+			free(qtag);
 		fp = popen(command, "r");
 #endif
 	}

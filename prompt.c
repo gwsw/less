@@ -273,18 +273,7 @@ protochar(c, where, iseditproto)
 		break;
 #endif
 	case 'f':	/* File name */
-		s = unquote_file(get_filename(curr_ifile));
-		/*
-		 * If we are expanding editproto then we escape metachars.
-		 * This allows us to run the editor on files with funny names.
-		 */
-		if (iseditproto && (escs = esc_metachars(s)) != NULL)
-		{
-			free(s);
-			s = escs;
-		}
-		ap_str(s);
-		free(s);
+		ap_str(get_filename(curr_ifile));
 		break;
 	case 'i':	/* Index into list of files */
 		if (ntags())
@@ -352,11 +341,8 @@ protochar(c, where, iseditproto)
 	case 'x':	/* Name of next file */
 		h = next_ifile(curr_ifile);
 		if (h != NULL_IFILE)
-		{
-			s = unquote_file(get_filename(h));
-			ap_str(s);
-			free(s);
-		} else
+			ap_str(get_filename(h));
+		else
 			ap_quest();
 		break;
 	}
