@@ -474,8 +474,8 @@ will refuse to open non-regular files.
 .IP -F
 Normally, 
 .I less 
-will highlight all strings which match the current
-search pattern, by displaying them in standout mode.
+will highlight the string which matched the last
+search command, by displaying it in standout mode.
 The -F flag suppresses this highlighting.
 .IP -h\fIn\fP
 Specifies a maximum number of lines to scroll backward.
@@ -1142,16 +1142,8 @@ If the :e command is used to name more than one file,
 and one of the named files has been viewed previously,
 the new files may be entered into the list in an unexpected order.
 .PP
-If a line longer than the screen width is split (folded), 
-and a search matches text which straddles the split,
-the matching text will not be highlighted.
-In certain cases, patterns beginning with a ^ may not be 
-highlighted correctly.
-Patterns which include a TAB character may not be highlighted correctly.
-If a search is done using the ! operator for text NOT matching a pattern,
-the strings which do match the pattern are highlighted.
-In all cases, even if the highlighting is incorrect,
-the text will nevertheless be found correctly by the search.
+In certain cases, when a pattern begins with a ^,
+more text than the matching string may be highlighted.
 
 .SH COPYRIGHT
 Copyright (c) 1984,1985,1989,1994  Mark Nudelman

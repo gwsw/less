@@ -1,3 +1,11 @@
+	Major changes between "less" versions 237 and 
+
+* Search pattern highlighting has been fixed.  It now highlights only
+  the text which satisfied the last search command, but does so reliably.
+
+
+======================================================================
+
 
 	Major changes between "less" versions 237 and 252
 
