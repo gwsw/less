@@ -370,10 +370,8 @@ opt__V(type, s)
 		putstr(version);
 		putstr("\nCopyright (C) 1999 Mark Nudelman\n\n");
 		putstr("less comes with NO WARRANTY, to the extent permitted by law.\n");
-		putstr("You may redistribute copies of less under the terms\n");
-		putstr("of the GNU General Public License.\n");
-		putstr("For more information about these matters,\n");
-		putstr("see the file named COPYING in the less distribution.\n");
+		putstr("For information about the terms of redistribution,\n");
+		putstr("see the file named README in the less distribution.\n");
 		quit(QUIT_OK);
 		break;
 	}
