@@ -10,7 +10,23 @@
 ======================================================================
 
 
-	Major changes between "less" versions 291 and @@VERSION@@
+	Major changes between "less" versions 321 and @@VERSION@@
+
+* Added commands ESC-( and ESC-), same as ESC-[ and ESC-].
+
+* LeftArrow and RightArrow are same as ESC-[ and ESC-].
+
+* A "quit" command defined in a lesskey file may now have an "extra" 
+  string, which is used to return an exit code from less when it quits.
+
+* Ported to DJGPP compiler for MS-DOS.
+
+* Bug fixes.
+
+======================================================================
+
+
+	Major changes between "less" versions 291 and 321
 
 * Command line at bottom of screen now scrolls, so it can be longer 
   than the screen width.
