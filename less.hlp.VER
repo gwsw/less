@@ -148,7 +148,7 @@
                   Start at pattern (from command line).
   -P [_p_r_o_m_p_t]   --prompt=[_p_r_o_m_p_t]
                   Define new prompt.
-  -q  -Q  ....  --quiet  --QUIET
+  -q  -Q  ....  --quiet  --QUIET  --silent --SILENT
                   Quiet the terminal bell.
   -r  ........  --raw-control-chars
                   Output "raw" control characters.

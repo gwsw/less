@@ -655,7 +655,7 @@ edit_stdin()
 {
 	if (isatty(fd0))
 	{
-		error("Missing filename (\"less -help\" for help)", NULL_PARG);
+		error("Missing filename (\"less --help\" for help)", NULL_PARG);
 		quit(QUIT_OK);
 	}
 	return (edit("-"));

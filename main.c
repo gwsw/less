@@ -323,6 +323,7 @@ sprefix(ps, s, uppercase)
 	int uppercase;
 {
 	register int c;
+	register int sc;
 	register int len = 0;
 
 	for ( ;  *s != '\0';  s++, ps++)
@@ -335,7 +336,10 @@ sprefix(ps, s, uppercase)
 			if (SIMPLE_IS_UPPER(c))
 				c = SIMPLE_TO_LOWER(c);
 		}
-		if (c != *s)
+		sc = *s;
+		if (len > 0 && SIMPLE_IS_UPPER(sc))
+			sc = SIMPLE_TO_LOWER(sc);
+		if (c != sc)
 			break;
 		len++;
 	}

@@ -154,7 +154,7 @@ scan_option(s)
 		{
 			printopt = optname;
 			lc = SIMPLE_IS_LOWER(optname[0]);
-			o = findopt_name(&optname, &err);
+			o = findopt_name(&optname, NULL, &err);
 			s = optname;
 			if (*s == '\0')
 			{

@@ -356,6 +356,7 @@ mca_char(c)
 			 * accepting chars until user hits RETURN.
 			 */
 			struct option *o;
+			char *oname;
 			int lc;
 
 			if (c == '\n' || c == '\r')
@@ -395,7 +396,7 @@ mca_char(c)
 					return (MCA_DONE);
 				p = get_cmdbuf();
 				lc = islower(p[0]);
-				o = findopt_name(&p, NULL);
+				o = findopt_name(&p, &oname, NULL);
 				if (o != NULL)
 				{
 					/*
@@ -408,7 +409,7 @@ mca_char(c)
 						optchar = toupper(optchar);
 					cmd_reset();
 					mca_opt_toggle();
-					for (p = o->oname;  *p != '\0';  p++)
+					for (p = oname;  *p != '\0';  p++)
 					{
 						c = *p;
 						if (!lc && islower(c))

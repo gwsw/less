@@ -620,7 +620,7 @@ to that string.
 All prompt strings consist of a sequence of 
 letters and special escape sequences.
 See the section on PROMPTS for more details.
-.IP "-q or --quiet"
+.IP "-q or --quiet or --silent"
 Causes moderately "quiet" operation:
 the terminal bell is not rung 
 if an attempt is made to scroll past the end of the file
@@ -629,7 +629,7 @@ If the terminal has a "visual bell", it is used instead.
 The bell will be rung on certain other errors,
 such as typing an invalid character.
 The default is to ring the terminal bell in all such cases.
-.IP "-Q or --QUIET"
+.IP "-Q or --QUIET or --SILENT"
 Causes totally "quiet" operation:
 the terminal bell is never rung.
 .IP "-r or --raw-control-chars"

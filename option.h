@@ -58,10 +58,16 @@
 /* Error code from findopt_name */
 #define OPT_AMBIG       1
 
+struct optname
+{
+	char *oname;            /* Long (GNU-style) option name */
+	struct optname *onext;  /* List of synonymous option names */
+};
+
 struct option
 {
 	char oletter;		/* The controlling letter (a-z) */
-	char *oname;		/* Long (GNU-style) option name */
+	struct optname *onames; /* Long (GNU-style) option name */
 	int otype;		/* Type of the option */
 	int odefault;		/* Default value */
 	int *ovar;		/* Pointer to the associated variable */
