@@ -133,7 +133,7 @@ typedef long		POSITION;
 #endif
 
 #if MSOFTC || OS2
-#define	OPEN_TTYIN()	open("CON", O_TEXT|O_RDONLY)
+#define	OPEN_TTYIN()	open("CON", O_BINARY|O_RDONLY)
 #else
 #define	OPEN_TTYIN()	open("/dev/tty", 0)
 #endif
