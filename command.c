@@ -1381,6 +1381,8 @@ commands()
 			break;
 
 		case A_REMOVE_FILE:
+			if (ch_getflags() & CH_HELPFILE)
+				break;
 			old_ifile = curr_ifile;
 			new_ifile = getoff_ifile(curr_ifile);
 			if (new_ifile == NULL_IFILE)
