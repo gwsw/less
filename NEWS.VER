@@ -4,7 +4,7 @@
 ======================================================================
 
   For the latest news about less, see the "less" Web page:
-      http://members.aol.com/marknudel/less 
+      @@HOMEPAGE@@
   You can also download the latest version of less there.
 
 ======================================================================
@@ -12,7 +12,7 @@
 
 	Major changes between "less" versions 321 and @@VERSION@@
 
-* Now supports filenames containing spaces.
+* Now supports filenames containing spaces (in double quotes).
 
 * In filename completion, a slash is appended to a directory name.
 

@@ -1,6 +1,7 @@
 # Makefile for authoring less.
 
 EMAIL = lessmail@aol.com
+HOMEPAGE = http://members.aol.com/marknudel/less
 SHELL = /bin/sh
 
 srcdir = .
@@ -64,9 +65,10 @@ REPLACE_VERSION = \
 	DT=`date '+%d %h %y'`; \
 	echo "Stuffing version number $$REL into $@"; \
 	sed \
-		-e "s/@@VERSION@@/$$REL/" \
-		-e "s/@@DATE@@/$$DT/" \
-		-e "s/@@EMAIL@@/${EMAIL}/" >$@
+		-e "s;@@VERSION@@;$$REL;" \
+		-e "s;@@DATE@@;$$DT;" \
+		-e "s;@@EMAIL@@;${EMAIL};" \
+		-e "s;@@HOMEPAGE@@;${HOMEPAGE};" >$@
 
 ${srcdir}/README: ${srcdir}/README.VER ${srcdir}/version.c
 	${REPLACE_VERSION} ${srcdir}/README.VER
