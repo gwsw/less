@@ -266,7 +266,7 @@ edit_ifile(ifile)
 		 */
 		f = fd0;
 		chflags |= CH_KEEPOPEN;
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==WIN32C
 		/*
 		 * Must switch stdin to BINARY mode.
 		 */
