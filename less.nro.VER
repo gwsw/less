@@ -1275,7 +1275,16 @@ to avoid possible problems.
 In certain cases, when search highlighting is enabled and 
 a search pattern begins with a ^,
 more text than the matching string may be highlighted.
-
+.PP
+On some systems,
+.I setlocale
+claims that characters 0 thru 31 are control characters 
+rather than binary characters.
+This causes 
+.I less 
+to treat some binary files as ordinary, non-binary files.
+To workaround this problem, set the environment variable
+LESSCHARSET to "ascii" (or whatever character set is appropriate).
 
 .SH COPYRIGHT
 Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
