@@ -35,6 +35,15 @@
  */
 #include <defines.h>
 
+#ifdef _SEQUENT_
+/*
+ * Kludge for Sequent Dynix systems that have sigsetmask, but
+ * it's not compatible with the way less calls it.
+ * {{ Do other systems need this? }}
+ */
+#undef HAVE_SIGSETMASK
+#endif
+
 /*
  * Language details.
  */

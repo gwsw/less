@@ -38,7 +38,7 @@ SHELL = /bin/sh
 # This rule allows us to supply the necessary -D options
 # in addition to whatever the user asks for.
 .c.o:
-	${CC} -I${srcdir} ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} $<
+	${CC} -I. ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} $<
 
 SRC =	main.c screen.c brac.c ch.c charset.c cmdbuf.c \
 	command.c decode.c edit.c filename.c forwback.c \
@@ -72,7 +72,7 @@ lesskey: lesskey.${O} version.${O}
 ${OBJ}: less.h defines.h funcs.h
 
 filename.${O}: filename.c
-	${CC} -c -DHELPFILE=\"${datadir}/less.hlp\" -I${srcdir} ${CPPFLAGS} ${CFLAGS} ${srcdir}/filename.c
+	${CC} -c -DHELPFILE=\"${datadir}/less.hlp\" -I. ${CPPFLAGS} ${CFLAGS} ${srcdir}/filename.c
 
 install: all less.hlp less.nro installdirs
 	${INSTALL_PROGRAM} less ${bindir}/${binprefix}less
@@ -106,7 +106,7 @@ stamp-h: defines.h.in config.status
 	touch stamp-h
 Makefile: Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= ./config.status
-config.status: configure
+config.status: ${srcdir}/configure
 	./config.status --recheck
 
 configure: configure.in
@@ -114,7 +114,7 @@ configure: configure.in
 	autoconf
 
 lint:
-	lint -I${srcdir} ${CPPFLAGS} ${SRC}
+	lint -I. ${CPPFLAGS} ${SRC}
 newfuncs:
 	mv -f funcs.h funcs.h.old
 	awk -f mkfuncs.awk ${SRC} >funcs.h

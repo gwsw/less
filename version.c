@@ -505,7 +505,8 @@ v287   3/8/95	Fix hilite bug if overstrike multiple chars.
 v288   3/8/95	Allow lesskey to override get_editkey keys.
 v289   3/9/95	Fix adj_hilite bug when line gets processed by
 		hilite_line more than once.
-v290   3/9/95	Make configure automatically.
+v290   3/9/95	Make configure automatically.  Fix Sequent problem
+		with incompatible sigsetmask().
 
 */
 
