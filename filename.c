@@ -424,8 +424,7 @@ lglob(filename)
 	 */
 	for (s = filename;  *s != '\0';  s++)
 	{
-		if (*s == ';' || *s == ':' || 
-		    *s == '\'' || *s == '\"' || *s == '\\')
+		if (*s == ';' || *s == '\'' || *s == '\"' || *s == '\\')
 			return (filename);
 	}
 
