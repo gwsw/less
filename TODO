@@ -109,3 +109,5 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 *v340	204	F while search pattern active doesn't go to end of long line.
 *v340	205	-G suppress -W hiliting.
 	206	Support UTF-8.
+	207	Should check entire page before saying "Nothing to search".
+	208	Should not set '' mark in help file.
