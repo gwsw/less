@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1984,1985,1989,1994,1995  Mark Nudelman
+ * Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -533,6 +533,7 @@ v305   2/2/96	Workaround Linux /proc kernel bug; add LESSKEY.
 v306   3/16/96	Minor fixes.
 v307   3/25/96	Allow cmd line arg "--"; fix DOS & OS/2 defines.h.
 v308   4/4/96	Port to OS-9 (thanks to Boisy Pitre); fix -d.
+v309   4/9/96	Fix OS-9 version; fix tags bug with "$".
 */
 
-char version[] = "308";
+char version[] = "309";
