@@ -852,9 +852,17 @@ lessopen.sh:
 .br
 	case "$1" in
 .br
-	*.Z)	uncompress -c $1 >$1.tmp
+	*.Z)	uncompress -c $1  >/tmp/less.$$  2>/dev/null
 .br
-		echo $1.tmp
+		if [ -s /tmp/less.$$ ]; then 
+.br
+			echo /tmp/less.$$
+.br
+		else
+.br
+			rm -f /tmp/less.$$
+.br
+		fi
 .br
 		;;
 .br
@@ -899,7 +907,7 @@ lesspipe.sh:
 .br
 	case "$1" in
 .br
-	*.Z)	uncompress -c $1
+	*.Z)	uncompress -c $1  2>/dev/null
 .br
 		;;
 .br
