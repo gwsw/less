@@ -192,8 +192,14 @@
  * in termcap.h. */
 #define MUST_DEFINE_OSPEED 0
 
-/* Define if you have locale.h and setlocale. */
+/* Define HAVE_LOCALE if you have locale.h and setlocale. */
 #define HAVE_LOCALE 0
+
+/* Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr */
+#define HAVE_TERMIOS_FUNCS 0
+
+/* Define HAVE_UPPER_LOWER if you have isupper, islower, toupper, tolower */
+#define HAVE_UPPER_LOWER 1
 
 /* Define if you have _setjmp.  */
 #define HAVE__SETJMP	0
@@ -204,8 +210,14 @@
 /* Define if you have sigsetmask.  */
 #define HAVE_SIGSETMASK	0
 
+/* Define if you have strchr.  */
+#define HAVE_STRCHR 1
+
 /* Define if you have system.  */
 #define HAVE_SYSTEM	1
+
+/* Define if you have the <ctype.h> header file.  */
+#define HAVE_CTYPE_H 1
 
 /* Define if you have the <errno.h> header file.  */
 #define HAVE_ERRNO_H 0
