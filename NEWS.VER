@@ -1,3 +1,14 @@
+	Major changes between "less" versions 278 and 290
+
+* Accepts GNU-style options "--help" and "--version".
+
+* OS/2 version looks for less.ini in $HOME before $INIT and $PATH.
+
+* Bug fixes
+
+======================================================================
+
+
 	Major changes between "less" versions 252 and 278
 
 * A LESSOPEN preprocessor may now pipe the converted file data to less,
