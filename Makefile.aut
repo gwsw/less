@@ -20,7 +20,7 @@ DISTFILES = \
 	${SRC} regexp.c regexp.h \
 	INSTALL Makefile.in Makefile.aut README NEWS \
 	configure configure.in acconfig.h lesskey.c \
-	cmd.h funcs.h less.h lesskey.h option.h position.h \
+	cmd.h funcs.h less.h lesskey.h option.h pckeys.h position.h \
 	install.sh defines.h.in defines.h.top mkinstalldirs \
 	less.nro lesskey.nro less.man lesskey.man less.hlp \
 	mkfuncs.awk mkhelp.c \
