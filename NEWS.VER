@@ -15,6 +15,16 @@
 
 	Major changes between "less" versions 337 and @@VERSION@@
 
+* New option -F (--quit-if-one-screen) quits if the text fits on
+  the first screen.
+
+* New escape for prompt strings: %c is replaced by column number.
+
+======================================================================
+
+
+	Major changes between "less" versions 337 and 340
+
 * Command line options for less may now be given in either the old 
   single-letter form, or a new long name form (--option-name).
   See the less man page or "less --help" for the list of long option names.
