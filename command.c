@@ -156,14 +156,22 @@ mca_search()
 	static void
 mca_opt_toggle()
 {
-	char *dash = (optflag == OPT_NO_TOGGLE) ? "_" : "-";
+	int no_prompt;
+	int flag;
+	char *dash;
+	
+	no_prompt = (optflag & OPT_NO_PROMPT);
+	flag = (optflag & ~OPT_NO_PROMPT);
+	dash = (flag == OPT_NO_TOGGLE) ? "_" : "-";
 
 	mca = A_OPT_TOGGLE;
 	clear_cmd();
 	cmd_putstr(dash);
 	if (optgetname)
 		cmd_putstr(dash);
-	switch (optflag)
+	if (no_prompt)
+		cmd_putstr("(P)");
+	switch (flag)
 	{
 	case OPT_UNSET:
 		cmd_putstr("+");
@@ -315,7 +323,7 @@ mca_char(c)
 		 */
 		if (optchar == '\0' && len_cmdbuf() == 0)
 		{
-			if (optflag == OPT_NO_TOGGLE)
+			if ((optflag & ~OPT_NO_PROMPT) == OPT_NO_TOGGLE)
 			{
 				switch (c)
 				{
@@ -337,6 +345,10 @@ mca_char(c)
 				case '!':
 					/* "-!" = SET */
 					optflag = OPT_SET;
+					mca_opt_toggle();
+					return (MCA_MORE);
+				case CONTROL('P'):
+					optflag ^= OPT_NO_PROMPT;
 					mca_opt_toggle();
 					return (MCA_MORE);
 				case '-':
@@ -430,7 +442,8 @@ mca_char(c)
 		}
 
 		optchar = c;
-		if (optflag != OPT_TOGGLE || single_char_option(c))
+		if ((optflag & ~OPT_NO_PROMPT) != OPT_TOGGLE ||
+		    single_char_option(c))
 		{
 			toggle_option(c, "", optflag);
 			return (MCA_DONE);
@@ -827,6 +840,8 @@ commands()
 	char *extra;
 	char tbuf[2];
 	PARG parg;
+	IFILE old_ifile;
+	IFILE new_ifile;
 
 	search_type = SRCH_FORW;
 	wscroll = (sc_height + 1) / 2;
@@ -1374,6 +1389,22 @@ commands()
 				number = 1;
 			if (edit_index(number))
 				error("No such file", NULL_PARG);
+			break;
+
+		case A_REMOVE_FILE:
+			old_ifile = curr_ifile;
+			new_ifile = getoff_ifile(curr_ifile);
+			if (new_ifile == NULL_IFILE)
+			{
+				bell();
+				break;
+			}
+			if (edit_ifile(new_ifile) != 0)
+			{
+				reedit_ifile(old_ifile);
+				break;
+			}
+			del_ifile(old_ifile);
 			break;
 
 		case A_OPT_TOGGLE:
