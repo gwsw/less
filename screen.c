@@ -827,28 +827,28 @@ delay(msec)
 special_key_str(key)
 	int key;
 {
-#if MSDOS_COMPILER
-	char k_right[]		= { '\340', PCK_RIGHT, 0 };
-	char k_left[]		= { '\340', PCK_LEFT, 0  };
-	char k_ctl_rightarrow[]	= { '\340', PCK_CTL_RIGHT, 0  };
-	char k_ctl_leftarrow[]	= { '\340', PCK_CTL_LEFT, 0  };
-	char k_insert[]		= { '\340', PCK_INSERT, 0  };
-	char k_delete[]		= { '\340', PCK_DELETE, 0  };
-	char k_ctl_delete[]	= { '\340', PCK_CTL_DELETE, 0  };
-	char k_ctl_backspace[]	= { '\177', 0 };
-	case k_home[]		= { '\340', PCK_HOME, 0 };
-	case k_end[]		= { '\340', PCK_END, 0 };
-	case k_up[]		= { '\340', PCK_UP, 0 };
-	case k_down[]		= { '\340', PCK_DOWN, 0 };
-	case k_backtab[]	= { '\340', PCK_SHIFT_TAB, 0 };
-	case k_pagedown[]	= { '\340', PCK_PAGEDOWN, 0 };
-	case k_pageup[]		= { '\340', PCK_PAGEUP, 0 };
-	case k_alt_e[]		= { '\340', PCK_ALT_E, 0  };
-	case k_f1[]		= { '\340', PCK_F1, 0 };
-#else
 	static char tbuf[40];
-	char *sp = tbuf;
 	char *s;
+#if MSDOS_COMPILER
+	static char k_right[]		= { '\340', PCK_RIGHT, 0 };
+	static char k_left[]		= { '\340', PCK_LEFT, 0  };
+	static char k_ctl_right[]	= { '\340', PCK_CTL_RIGHT, 0  };
+	static char k_ctl_left[]	= { '\340', PCK_CTL_LEFT, 0  };
+	static char k_insert[]		= { '\340', PCK_INSERT, 0  };
+	static char k_delete[]		= { '\340', PCK_DELETE, 0  };
+	static char k_ctl_delete[]	= { '\340', PCK_CTL_DELETE, 0  };
+	static char k_ctl_backspace[]	= { '\177', 0 };
+	static char k_home[]		= { '\340', PCK_HOME, 0 };
+	static char k_end[]		= { '\340', PCK_END, 0 };
+	static char k_up[]		= { '\340', PCK_UP, 0 };
+	static char k_down[]		= { '\340', PCK_DOWN, 0 };
+	static char k_backtab[]		= { '\340', PCK_SHIFT_TAB, 0 };
+	static char k_pagedown[]	= { '\340', PCK_PAGEDOWN, 0 };
+	static char k_pageup[]		= { '\340', PCK_PAGEUP, 0 };
+	static char k_alt_e[]		= { '\340', PCK_ALT_E, 0  };
+	static char k_f1[]		= { '\340', PCK_F1, 0 };
+#else
+	char *sp = tbuf;
 #endif
 
 	switch (key)
@@ -883,6 +883,15 @@ special_key_str(key)
 		break;
 	case SK_INSERT:
 		s = k_insert;
+		break;
+	case SK_CTL_LEFT_ARROW:
+		s = k_ctl_left;
+		break;
+	case SK_CTL_RIGHT_ARROW:
+		s = k_ctl_right;
+		break;
+	case SK_CTL_DELETE:
+		s = k_ctl_delete;
 		break;
 #else
 	case SK_RIGHT_ARROW:

@@ -189,14 +189,17 @@ static unsigned char edittable[] =
 	SK(SK_LEFT_ARROW),0,		EC_LEFT,	/* LEFTARROW */
 	ESC,'b',0,			EC_W_LEFT,	/* ESC b */
 	ESC,SK(SK_LEFT_ARROW),0,	EC_W_LEFT,	/* ESC LEFTARROW */
+	SK(SK_CTL_LEFT_ARROW),0,	EC_W_LEFT,	/* CTRL-LEFTARROW */
 	ESC,'w',0,			EC_W_RIGHT,	/* ESC w */
 	ESC,SK(SK_RIGHT_ARROW),0,	EC_W_RIGHT,	/* ESC RIGHTARROW */
+	SK(SK_CTL_RIGHT_ARROW),0,	EC_W_RIGHT,	/* CTRL-RIGHTARROW */
 	ESC,'i',0,			EC_INSERT,	/* ESC i */
 	SK(SK_INSERT),0,		EC_INSERT,	/* INSERT */
 	ESC,'x',0,			EC_DELETE,	/* ESC x */
 	SK(SK_DELETE),0,		EC_DELETE,	/* DELETE */
 	ESC,'X',0,			EC_W_DELETE,	/* ESC X */
 	ESC,SK(SK_DELETE),0,		EC_W_DELETE,	/* ESC DELETE */
+	SK(SK_CTL_DELETE),0,		EC_W_DELETE,	/* CTRL-DELETE */
 	ESC,'\b',0,			EC_W_BACKSPACE,	/* ESC BACKSPACE */
 	ESC,'0',0,			EC_HOME,	/* ESC 0 */
 	SK(SK_HOME),0,			EC_HOME,	/* HOME */
@@ -266,7 +269,7 @@ expand_special_keys(table, len)
 			klen = fm[2] & 0377;
 			fm += klen;
 			if (repl == NULL || strlen(repl) > klen)
-				repl = "";
+				repl = "\377";
 			while (*repl != '\0')
 				*to++ = *repl++;
 		}
