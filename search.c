@@ -369,6 +369,9 @@ hilite_line(linepos, line, sp, ep)
 	 * sp and ep delimit the first match in the line.
 	 * Mark the corresponding file positions, then
 	 * look for further matches and mark them.
+	 * {{ This technique, of calling match_pattern on subsequent
+	 *    substrings of the line, may mark more than is correct
+	 *    if, for example, the pattern starts with "^". }}
 	 */
 	num_hilite = 0;
 	searchp = line;
