@@ -610,4 +610,4 @@ v361  12/4/01	Add IBM-1047 charset & EBCDIC fixes (thanks to Thomas Dorner).
 
 */
 
-char version[] = "359";
+char version[] = "361";
