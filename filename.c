@@ -1020,9 +1020,8 @@ filesize(f)
 
 	if ((size = (long) _gs_size(f)) >= 0)
 		return ((POSITION) size);
-#else
+#endif
+#endif
 	return (seek_filesize(f));
-#endif
-#endif
 }
 
