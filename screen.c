@@ -95,11 +95,15 @@ extern int fd0;
 #if MSDOS_COMPILER==MSOFTC
 static int videopages;
 static long msec_loops;
+static int flash_created = 0;
 #define	SETCOLORS(fg,bg)	{ _settextcolor(fg); _setbkcolor(bg); }
 #endif
 
-#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
+#if MSDOS_COMPILER==BORLANDC
 static unsigned short *whitescreen;
+static int flash_created = 0;
+#endif
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 #define _settextposition(y,x)   gotoxy(x,y)
 #define _clearscreen(m)         clrscr()
 #define _outtext(s)             cputs(s)
@@ -149,8 +153,6 @@ public int bl_bg_color;
 static int sy_fg_color;		/* Color of system text (before less) */
 static int sy_bg_color;
 
-static int flash_created = 0;
-
 #else
 
 /*
@@ -199,8 +201,10 @@ public int missing_cap = 0;	/* Some capability is missing */
 
 static int attrmode = AT_NORMAL;
 
+#if !MSDOS_COMPILER
 static char *cheaper();
 static void tmodes();
+#endif
 
 /*
  * These two variables are sometimes defined in,
@@ -843,7 +847,6 @@ special_key_str(key)
 	static char k_backtab[]		= { '\340', PCK_SHIFT_TAB, 0 };
 	static char k_pagedown[]	= { '\340', PCK_PAGEDOWN, 0 };
 	static char k_pageup[]		= { '\340', PCK_PAGEUP, 0 };
-	static char k_alt_e[]		= { '\340', PCK_ALT_E, 0  };
 	static char k_f1[]		= { '\340', PCK_F1, 0 };
 #else
 	char *sp = tbuf;
@@ -1658,7 +1661,7 @@ goto_line(slinenum)
 #endif
 }
 
-#if MSDOS_COMPILER
+#if MSDOS_COMPILER==MSOFTC || MSDOS_COMPILER==BORLANDC
 /*
  * Create an alternate screen which is all white.
  * This screen is used to create a "flash" effect, by displaying it
