@@ -174,7 +174,8 @@ fch_get()
 		if (lseek(ch_file, (off_t)pos, 0) == BAD_LSEEK)
 		{
  			error("seek error", NULL_PARG);
- 			quit(QUIT_ERROR);
+			clear_eol();
+			return (EOI);
  		}
  		ch_fpos = pos;
  	}
@@ -200,7 +201,8 @@ fch_get()
 	if (n < 0)
 	{
 		error("read error", NULL_PARG);
-		quit(QUIT_ERROR);
+		clear_eol();
+		n = 0;
 	}
 
 #if LOGFILE
