@@ -131,29 +131,24 @@ flush()
 		CONSOLE_SCREEN_BUFFER_INFO scr;
 		DWORD nchars;
 		COORD cpos;
-		WORD nm_attr;
 		int olen;
+		int len;
 		extern HANDLE con_out;
 		extern int nm_fg_color;
 		extern int nm_bg_color;
 #define	MAKEATTR(fg,bg)		((WORD)((fg)|((bg)<<4)))
 
-		*ob = '\0';
 		olen = ob - obuf;
 		/*
-		 * To avoid color problems, if we're scrolling the screen,
+		 * There is a bug in Win32 WriteConsole() if we're
+		 * writing in the last cell whith a different color.
+		 * To avoid color problems, in the bottom line,
+		 * we scroll the screen, with scroll_up(), and then
 		 * we write only up to the char that causes the scroll,
-		 * (a newline or a char in the last column), then fill 
-		 * the bottom line with the "normal" attribute, then 
-		 * write the rest.
-		 * When Windows scrolls, it takes the attributes for the 
-		 * new line from the first char of the (previously) 
-		 * bottom line.
-		 *
-		 * {{ This still doesn't work correctly in all cases! }}
+		 * (a newline or a char in the last column). Then we write
+		 * the rest using the same algorithm.
 		 */
-		nm_attr = MAKEATTR(nm_fg_color, nm_bg_color);
-		for (op = obuf;  *op != '\0';  )
+		for (op = obuf;  olen > 0;  )
 		{
 			GetConsoleScreenBufferInfo(con_out, &scr);
 			/* Find the next newline. */
@@ -170,22 +165,22 @@ flush()
 			if (scr.dwCursorPosition.Y != scr.srWindow.Bottom ||
 			    p == NULL)
 			{
-				/* Write the entire buffer. */
-				WriteConsole(con_out, op, olen,
-						&nwritten, NULL);
-				op += olen;
+				/*
+				 * Write the entire buffer.
+				 */
+				len = olen;
 			} else
 			{
-				/* Write only up to the scrolling char. */
-				WriteConsole(con_out, op, p - op + 1, 
-						&nwritten, NULL);
-				cpos.X = 0;
-				cpos.Y = scr.dwCursorPosition.Y;
-				FillConsoleOutputAttribute(con_out, nm_attr,
-						sc_width, cpos, &nchars);
-				olen -= p - op + 1;
-				op = p + 1;
+				/*
+				 * Manually scroll up one line first, then
+				 * write only up to the scrolling char.
+				 */
+				len = p - op + 1;
+				win32_scroll_up(1);
 			}
+			WriteConsole(con_out, op, len, &nwritten, NULL);
+			op += len;
+			olen -= len;
 		}
 		ob = obuf;
 		return;

@@ -1601,6 +1601,55 @@ remove_top(n)
 #endif
 }
 
+#if MSDOS_COMPILER==WIN32C
+/*
+ * Remove the n topmost lines and scroll everything below it in the 
+ * window upward.
+ */
+	public void
+win32_scroll_up(n)
+	int n;
+{
+	extern int sc_height;
+	extern HANDLE con_out;
+	extern int nm_fg_color;
+	extern int nm_bg_color;
+	SMALL_RECT rcSrc, rcClip;
+	CHAR_INFO fillchar;
+	COORD new_org;
+	CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */
+#define	MAKEATTR(fg,bg)		((WORD)((fg)|((bg)<<4)))
+
+	GetConsoleScreenBufferInfo(con_out, &csbi);
+
+	/* Get the extent of all-visible-rows-but-the-last. */
+	rcSrc.Left    = csbi.srWindow.Left;
+	rcSrc.Top     = csbi.srWindow.Top + n;
+	rcSrc.Right   = csbi.srWindow.Right;
+	rcSrc.Bottom  = csbi.srWindow.Bottom;
+
+	/* Get the clip rectangle. */
+	rcClip.Left   = rcSrc.Left;
+	rcClip.Top    = csbi.srWindow.Top;
+	rcClip.Right  = rcSrc.Right;
+	rcClip.Bottom = rcSrc.Bottom ;
+
+	/* Move the source window up n rows. */
+	new_org.X = rcSrc.Left;
+	new_org.Y = rcSrc.Top - n;
+
+	/* Fill the right character and attributes. */
+	fillchar.Char.AsciiChar = ' ';
+	fillchar.Attributes = MAKEATTR(nm_fg_color, nm_bg_color);
+
+	ScrollConsoleScreenBuffer(con_out, &rcSrc, &rcClip, new_org, &fillchar);
+
+	/* Position cursor n lines up. */
+	csbi.dwCursorPosition.Y -= n;
+	SetConsoleCursorPosition(con_out, csbi.dwCursorPosition);
+}
+#endif
+
 /*
  * Move cursor to lower left corner of screen.
  */
