@@ -1020,7 +1020,7 @@ get_term()
 
 	static char sbuf[TERMSBUF_SIZE];
 
-#ifdef OS2
+#if OS2
 	/*
 	 * Make sure the termcap database is available.
 	 */

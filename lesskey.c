@@ -693,7 +693,11 @@ main(argc, argv)
 		desc = stdin;
 	else if ((desc = fopen(infile, "r")) == NULL)
 	{
+#if HAVE_PERROR
 		perror(infile);
+#else
+		fprintf(stderr, "Cannot open %s\n", infile);
+#endif
 		usage();
 	}
 
@@ -724,7 +728,11 @@ main(argc, argv)
 		outfile = homefile(LESSKEYFILE);
 	if ((out = fopen(outfile, "wb")) == NULL)
 	{
+#if HAVE_PERROR
 		perror(outfile);
+#else
+		fprintf(stderr, "Cannot open %s\n", outfile);
+#endif
 		exit(1);
 	}
 

@@ -132,6 +132,8 @@
 
 /* This is not needed; it is defined by the compiler. */
 /* #define _OSK 1 */
+#define OS2 		0
+#define MSDOS_COMPILER	0
 
 /*
  * Pathname separator character.
@@ -141,7 +143,7 @@
 /*
  * HAVE_SYS_TYPES_H is 1 if your system has <sys/types.h>.
  */
-#undef HAVE_SYS_TYPES_H
+#define HAVE_SYS_TYPES_H 0
 
 /*
  * Define if you have the <sgstat.h> header file.
@@ -151,13 +153,17 @@
 /*
  * HAVE_STAT is 1 if your system has the stat() call.
  */
-#undef	HAVE_STAT
+#define	HAVE_STAT 0
 
 /*
  * HAVE_PERROR is 1 if your system has the perror() call.
  * (Actually, if it has sys_errlist, sys_nerr and errno.)
  */
+#if _OSK_MWC32
+#define	HAVE_PERROR	0
+#else
 #define	HAVE_PERROR	1
+#endif
 
 /*
  * HAVE_TIME is 1 if your system has the time() call.
@@ -167,12 +173,12 @@
 /*
  * HAVE_SHELL is 1 if your system supports a SHELL command interpreter.
  */
-#undef	HAVE_SHELL
+#define	HAVE_SHELL 0
 
 /* 
  * HAVE_DUP is 1 if your system has the dup() call.
  */
-#undef	HAVE_DUP
+#define	HAVE_DUP 0
 
 /*
  * Sizes of various buffers.
@@ -190,13 +196,21 @@
 #define off_t long
 
 /* Define if you need to in order for stat and other things to work.  */
-#undef _POSIX_SOURCE
+#define _POSIX_SOURCE 0
 
 /* Define as the return type of signal handlers (int or void).  */
+#if _OSK_MWC32
+#define RETSIGTYPE int
+#else
 #define RETSIGTYPE void
+#endif
 
 /* Define if you have the ANSI C header files.  */
+#if _OSK_MWC32
+#define STDC_HEADERS 0
+#else
 #define STDC_HEADERS 1
+#endif
 
 /*
  * Regular expression library.
@@ -207,23 +221,23 @@
  * HAVE_V8_REGCOMP: Henry Spencer V8 regcomp() and regexp.h
  * NO_REGEX: pattern matching is supported, but without metacharacters.
  */
-#undef HAVE_POSIX_REGCOMP
-#undef HAVE_RE_COMP
-#undef HAVE_REGCMP
-#undef HAVE_V8_REGCOMP
-#define NO_REGEX 1
+#define HAVE_POSIX_REGCOMP 0
+#define HAVE_RE_COMP 0
+#define HAVE_REGCMP 0
+#define HAVE_V8_REGCOMP 1
+#define NO_REGEX 0
 
 /* Define HAVE_VOID if your compiler supports the "void" type. */
 #define HAVE_VOID 1
 
 /* Define HAVE_CONST if your compiler supports the "const" modifier. */
-#define HAVE_CONST 1
+#define HAVE_CONST 0
 
 /* Define HAVE_TIME_T if your system supports the "time_t" type. */
 #define HAVE_TIME_T 1
 
 /* Define HAVE_STRERROR if you have the strerror() function. */
-#define HAVE_STRERROR 1
+#define HAVE_STRERROR 0
 
 /* Define HAVE_FILENO if you have the fileno() macro. */
 #define HAVE_FILENO 1
@@ -232,22 +246,22 @@
 /* Define MUST_DEFINE_ERRNO if you have errno but it is not define 
  * in errno.h */
 #define HAVE_ERRNO 1
-#undef MUST_DEFINE_ERRNO
+#define MUST_DEFINE_ERRNO 0
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
-#undef HAVE_SYS_ERRLIST
+#define HAVE_SYS_ERRLIST 0
 
 /* Define HAVE_OSPEED if your termcap library has the ospeed variable */
 /* Define MUST_DEFINE_OSPEED if you have ospeed but it is not defined
  * in termcap.h. */
-#undef HAVE_OSPEED
-#undef MUST_DEFINE_OSPEED
+#define HAVE_OSPEED 0
+#define MUST_DEFINE_OSPEED 0
 
 /* Define HAVE_LOCALE if you have locale.h and setlocale. */
-#undef HAVE_LOCALE
+#define HAVE_LOCALE 0
 
 /* Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr */
-#undef HAVE_TERMIOS_FUNCS
+#define HAVE_TERMIOS_FUNCS 0
 
 /* Define HAVE_UPPER_LOWER if you have isupper, islower, toupper, tolower */
 #define HAVE_UPPER_LOWER 1
@@ -259,10 +273,10 @@
 #define HAVE_MEMCPY 1
 
 /* Define if you have the sigsetmask function.  */
-#undef HAVE_SIGSETMASK
+#define HAVE_SIGSETMASK 0
 
 /* Define if you have the strchr function.  */
-#define HAVE_STRCHR 1
+#define HAVE_STRCHR 0
 
 /* Define if you have the system function.  */
 #define HAVE_SYSTEM 1
@@ -274,10 +288,10 @@
 #define HAVE_ERRNO_H 1
 
 /* Define if you have the <fcntl.h> header file.  */
-#undef HAVE_FCNTL_H
+#define HAVE_FCNTL_H 0
 
 /* Define if you have the <limits.h> header file.  */
-#undef HAVE_LIMITS_H 
+#define HAVE_LIMITS_H  0
 
 /* Define if you have the <stdio.h> header file.  */
 #define HAVE_STDIO_H 1
@@ -286,28 +300,28 @@
 #define HAVE_STRING_H 1
 
 /* Define if you have the <sys/ioctl.h> header file.  */
-#undef HAVE_SYS_IOCTL_H
+#define HAVE_SYS_IOCTL_H 0
 
 /* Define if you have the <sys/ptem.h> header file.  */
-#undef HAVE_SYS_PTEM_H
+#define HAVE_SYS_PTEM_H 0
 
 /* Define if you have the <sys/stream.h> header file.  */
-#undef HAVE_SYS_STREAM_H
+#define HAVE_SYS_STREAM_H 0
 
 /* Define if you have the <termcap.h> header file.  */
 #define HAVE_TERMCAP_H 1
 
 /* Define if you have the <termio.h> header file.  */
-#undef HAVE_TERMIO_H
+#define HAVE_TERMIO_H 0
 
 /* Define if you have the <termios.h> header file.  */
-#undef HAVE_TERMIOS_H
+#define HAVE_TERMIOS_H 0
 
 /* Define if you have the <time.h> header file.  */
 #define HAVE_TIME_H 1
 
 /* Define if you have the <unistd.h> header file.  */
-#undef HAVE_UNISTD_H
+#define HAVE_UNISTD_H 0
 
 /* Define if you have the <values.h> header file.  */
-#undef HAVE_VALUES_H
+#define HAVE_VALUES_H 0

@@ -39,7 +39,9 @@
 #endif
 #ifdef _OSK
 #include <rbf.h>
+#ifndef _OSK_MWC32
 #include <modes.h>
+#endif
 #endif
 
 extern int force_open;

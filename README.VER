@@ -152,11 +152,12 @@ INSTALLATION (OS-9 systems only)
 
 1. Move the distributed source to its own directory.
 
-2. Rename Makefile.os9 to Makefile.
+2. If you are using Metaware C, rename Makefile.o9m to Makefile.
+   If you are using Ultra C, rename Makefile.o9u to Makefile.
 
 3. Check the Makefile to make sure the definitions look ok.
 
-4. If you wish, you may edit defines.os9 to remove some optional features.
+4. If you wish, you may edit defines.o9 to remove some optional features.
    If you choose not to include some features in your version, you may
    wish to edit the manual page less.man and the help page help.c
    to remove the descriptions of the features which you are removing.

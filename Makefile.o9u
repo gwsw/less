@@ -4,6 +4,7 @@
 #### Start of system configuration section. ####
 
 CC = cc
+CPPFLAGS =
 CFLAGS = -v=.
 CFLAGS_COMPILE_ONLY = -eas
 LDFLAGS = -olM=24k
@@ -27,7 +28,7 @@ OBJ =	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
 	output.${O} position.${O} prompt.${O} search.${O} signal.${O} \
 	tags.${O} ttyin.${O} version.${O}  regexp.${O}
 
-all:    less lesskey
+all: less lesskey
 
 less: ${OBJ}
 	${CC} ${OBJ} -f=$@ ${LDFLAGS} ${LIBS}
@@ -37,5 +38,5 @@ lesskey: lesskey.${O} version.${O}
 
 ${OBJ}: defines.h less.h
 
-defines.h: defines.osk
-	copy defines.os9 defines.h -rf
+defines.h: defines.o9m
+	copy defines.o9m defines.h -rf

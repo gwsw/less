@@ -91,6 +91,7 @@
 #endif
 #ifdef _OSK
 #include <modes.h>
+#include <strings.h>
 #endif
 
 #if !STDC_HEADERS
@@ -268,7 +269,11 @@ struct textlist
 #define	CONTROL(c)	((c)&037)
 #define	ESC		CONTROL('[')
 
+#if _OSK_MWC32
+#define	LSIGNAL(sig,func)	os9_signal(sig,func)
+#else
 #define	LSIGNAL(sig,func)	signal(sig,func)
+#endif
 
 #define	S_INTERRUPT	01
 #define	S_STOP		02

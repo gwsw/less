@@ -254,3 +254,31 @@ percent_pos(pos, percent)
 	else
 		return (percent * (pos / 100));
 }
+
+#ifdef _OSK_MWC32
+
+/*
+ * This implements an ANSI-style intercept setup for Metaware C 3.2
+ */
+	public int 
+os9_signal(type, handler)
+	int type;
+	RETSIGTYPE (*handler)();
+{
+	intercept(handler);
+}
+
+#include <sgstat.h>
+
+	public int 
+isatty(f)
+	int f;
+{
+	struct sgbuf sgbuf;
+
+	if (_gs_opt(f, &sgbuf) < 0)
+		return -1;
+	return (sgbuf.sg_class == 0);
+}
+	
+#endif
