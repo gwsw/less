@@ -212,10 +212,14 @@
 #define HAVE_FILENO 1
 
 /* Define HAVE_ERRNO if you have the errno variable */
+/* Define MUST_DEFINE_ERRNO if you have errno but it is not define 
+ * in errno.h */
 #if MSDOS_COMPILER==MSOFTC
-#define HAVE_ERRNO 0
+#define HAVE_ERRNO 1
+#define MUST_DEFINE_ERRNO 0
 #else
 #define HAVE_ERRNO 1
+#define MUST_DEFINE_ERRNO 1
 #endif
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
