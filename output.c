@@ -180,7 +180,7 @@ flush()
 putchr(c)
 	int c;
 {
-	if (ob >= &obuf[sizeof(obuf)])
+	if (ob >= &obuf[sizeof(obuf)-1])
 		flush();
 	if (need_clr)
 	{
