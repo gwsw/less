@@ -180,10 +180,12 @@ lsystem(cmd, donemsg)
  * The section to be piped is the section "between" the current
  * position and the position marked by the given letter.
  *
- * The "current" position means the top line displayed if the mark
- * is after the current screen, or the bottom line displayed if
- * the mark is before the current screen.
- * If the mark is on the current screen, the whole screen is displayed.
+ * If the mark is after the current screen, the section between
+ * the top line displayed and the mark is piped.
+ * If the mark is before the current screen, the section between
+ * the mark and the bottom line displayed is piped.
+ * If the mark is on the current screen, or if the mark is ".",
+ * the whole current screen is piped.
  */
 	public int
 pipe_mark(c, cmd)
@@ -208,7 +210,7 @@ pipe_mark(c, cmd)
  	if (c == '.') 
  		return (pipe_data(cmd, tpos, bpos));
  	else if (mpos <= tpos)
- 		return (pipe_data(cmd, mpos, tpos));
+ 		return (pipe_data(cmd, mpos, bpos));
  	else if (bpos == NULL_POSITION)
  		return (pipe_data(cmd, tpos, bpos));
  	else
@@ -375,7 +377,7 @@ FILE *popen(command, type)
 		return (NULL);
 	}
 
-	return(_pfp);
+	return (_pfp);
 }
 
 int pclose(stream)
@@ -386,9 +388,9 @@ int pclose(stream)
 
 	f = fileno(stream);
 	fclose(stream);
-	while (((i=wait(&status)) != _pid[f]) && i != ERR)
+	while ((i = wait(&status)) != _pid[f] && i != ERR)
 		;
-	_pid[f]= 0;
-	return((i == ERR) ? ERR : status);
+	_pid[f] = 0;
+	return ((i == ERR) ? ERR : status);
 }
 #endif /* _OSK */
