@@ -583,7 +583,11 @@ v337    4/9/99	Fix another installation bug.
 v338   4/13/99	Add support for long option names.
 v339   4/18/99	Add \k, long option names to lesskey.  Add -^P.  Add :d.
 v340   4/21/99	Add regexec2.  Fix Windows build.
+		Posted to Web page.
+-----------------------------------------------------------------
+v341    5/6/99  Add -F option; %c & ?c prompt escapes.
+		(Thanks to Michele ...)
 
 */
 
-char version[] = "340";
+char version[] = "341";

@@ -1124,6 +1124,9 @@ a "B" means use the line just after the bottom line,
 and a "j" means use the "target" line, as specified by the -j option.
 .IP "%B"
 Replaced by the size of the current input file.
+.IP "%c"
+Replaced by the column number of the text appearing in the first
+column of the screen.
 .IP "%d\fIX\fP"
 Replaced by the page number of a line in the input file.
 The line to be used is determined by the \fIX\fP, as with the %b option.
@@ -1178,6 +1181,8 @@ True if any characters have been included in the prompt so far.
 True if the byte offset of the specified line is known.
 .IP "?B"
 True if the size of current input file is known.
+.IP "?c"
+True if the text is horizontally shifted (%c is not zero).
 .IP "?d\fIX\fP"
 True if the page number of the specified line is known.
 .IP "?e"

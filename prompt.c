@@ -185,6 +185,8 @@ cond(c, where)
 		return (mp > message);
 	case 'b':	/* Current byte offset known? */
 		return (curr_byte(where) != NULL_POSITION);
+	case 'c':
+		return (hshift != 0);
 	case 'e':	/* At end of file? */
 		return (hit_eof);
 	case 'f':	/* Filename known? */
@@ -238,6 +240,9 @@ protochar(c, where)
 		else
 			ap_quest();
 		break;
+	case 'c':
+		ap_int(hshift);
+		break;
 	case 'd':	/* Current page number */
 		n = currline(where);
 		if (n > 0 && sc_height > 1)
@@ -251,7 +256,7 @@ protochar(c, where)
 		    (n = find_linenum(len)) <= 0)
 			ap_quest();
 		else
-			ap_int((n - 1) / (sc_height - 1));
+			ap_int(((n - 1) / (sc_height - 1)) + 1);
 		break;
 #if EDITOR
 	case 'E':	/* Editor name */
