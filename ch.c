@@ -34,6 +34,7 @@
 #include "less.h"
 
 public int ignore_eoi;
+public int ch_ungetchar = -1;
 
 /*
  * Pool of buffers holding the most recently used blocks of the input file.
@@ -607,6 +608,8 @@ ch_init(f, keepopen)
 	int f;
 	int keepopen;
 {
+	register struct buf *bp;
+
 	/*
 	 * See if we already have a filestate for this file.
 	 */
@@ -639,6 +642,30 @@ ch_init(f, keepopen)
 	if (thisfile->file == -1)
 		thisfile->file = f;
 	ch_flush();
+
+	if (ch_ungetchar != -1)
+	{
+		/*
+		 * This is a rather kludgy and limited way to push 
+		 * a single char onto an input file descriptor.
+		 * It is used only by open_altfile.
+		 */
+		if (ch_addbuf())
+		{
+			error("Cannot allocate 1 buffer", NULL_PARG);
+			quit(1);
+		}
+		bp = ch_buftail;
+		bp->block = 0;
+		bp->data[0] = ch_ungetchar;
+		bp->datasize = 1;
+		ch_fpos = 1;
+#if LOGFILE
+		if (logfile >= 0)
+			write(logfile, (char *) &bp->data[0], 1);
+#endif
+		ch_ungetchar = -1;
+	}
 }
 
 /*

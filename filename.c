@@ -425,24 +425,17 @@ open_altfile(filename, pf, pfd)
 	if (returnfd)
 	{
 		int f = fileno(fd);
-		char c1;
 		char c;
+		extern int ch_ungetchar;
 
 		/*
-		 * If LESSOPEN is a pipe preprocessor, it has a funny interface.
-		 * Read one character and ignore the next three.
-		 * If the first was a '0', then the rest of the pipe
-		 * is the replacement file contents.
-		 * If the first char was not a '0', then there is no
-		 * replacement file.
+		 * Read one char to see if the pipe will produce any data.
+		 * If it does, use ch_ungetchar to push the char 
+		 * back on the pipe.
 		 */
-		if (read(f, &c1, 1) != 1)
-			c1 = '1';
-		(void) read(f, &c, 1);
-		(void) read(f, &c, 1);
-		(void) read(f, &c, 1);
-		if (c1 != '0')
+		if (read(f, &c, 1) != 1)
 			return (NULL);
+		ch_ungetchar = c;
 		*pfd = (void *) fd;
 		*pf = f;
 		return ("-");

@@ -474,6 +474,7 @@
  *	v266: Add -I flag.				12/26/94
  *	v267: Formalize the four-byte header emitted	12/28/94
  *	      by a LESSOPEN pipe.
+ *	v268: Get rid of four-byte header.		12/28/94
  */
 
-char version[] = "267";
+char version[] = "268";

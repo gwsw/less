@@ -878,13 +878,10 @@ An input preprocessor that works this way is called an input pipe.
 An input pipe, instead of writing the name of a replacement file on
 its standard output,
 writes the entire replacement file's contents on its standard output.
-It must also write an extra four characters (a header) before the 
-first byte of the file contents.
-The first character of the header should be a zero "0";
-the next three characters are ignored and may be any value.
-If the first character is any character except zero
-(or if the pipe does not produce any characters),
-then there is no replacement file and the original file's contents are used.
+If the input pipe does not write any characters on its standard output,
+then there is no replacement file and 
+.I less
+uses the original file, as normal.
 To use an input pipe,
 make the first character in the LESSOPEN environment variable a 
 vertical bar (|) to signify that the input preprocessor is an input pipe.
@@ -898,9 +895,7 @@ lesspipe.sh:
 .br
 	case "$1" in
 .br
-	*.Z)	echo "0xx"  # The newline is the fourth character
-.br
-		uncompress -c $1
+	*.Z)	uncompress -c $1
 .br
 		;;
 .br
