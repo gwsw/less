@@ -655,11 +655,7 @@ edit_stdin()
 {
 	if (isatty(fd0))
 	{
-#if SHELL_META_QUEST
-		error("Missing filename (\"less -\\?\" for help)", NULL_PARG);
-#else
-		error("Missing filename (\"less -?\" for help)", NULL_PARG);
-#endif
+		error("Missing filename (\"less -help\" for help)", NULL_PARG);
 		quit(QUIT_OK);
 	}
 	return (edit("-"));

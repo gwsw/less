@@ -105,11 +105,20 @@ VOID_POINTER calloc();
 void free();
 #endif
 
+/*
+ * Simple lowercase test which can be used during option processing
+ * (before options are parsed which might tell us what charset to use).
+ */
+#define SIMPLE_IS_UPPER(c)	((c) >= 'A' && (c) <= 'Z')
+#define SIMPLE_IS_LOWER(c)	((c) >= 'a' && (c) <= 'z')
+#define	SIMPLE_TO_UPPER(c)	((c) - 'a' + 'A')
+#define	SIMPLE_TO_LOWER(c)	((c) - 'A' + 'a')
+
 #if !HAVE_UPPER_LOWER
-#define	isupper(c)	((c) >= 'A' && (c) <= 'Z')
-#define	islower(c)	((c) >= 'a' && (c) <= 'z')
-#define	toupper(c)	((c) - 'a' + 'A')
-#define	tolower(c)	((c) - 'A' + 'a')
+#define	isupper(c)	SIMPLE_IS_UPPER(c)
+#define	islower(c)	SIMPLE_IS_LOWER(c)
+#define	toupper(c)	SIMPLE_TO_UPPER(c)
+#define	tolower(c)	SIMPLE_TO_LOWER(c)
 #endif
 
 #ifndef NULL
@@ -271,6 +280,8 @@ struct textlist
 #define	CC_QUIT		1	/* Char was a request to abort current cmd */
 #define	CC_ERROR	2	/* Char could not be accepted due to error */
 #define	CC_PASS		3	/* Char was rejected (internal) */
+
+#define CF_QUIT_ON_ERASE 0001   /* Abort cmd if its entirely erased */
 
 /* Special chars used to tell put_line() to do something special */
 #define	AT_NORMAL	(0)

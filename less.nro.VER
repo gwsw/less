@@ -288,7 +288,7 @@ If possible, it also prints the length of the file,
 the number of lines in the file
 and the percent of the file above the last displayed line.
 .IP \-
-Followed by one of the command line option letters (see below),
+Followed by one of the command line option letters (see OPTIONS below),
 this will change the setting of that option
 and print a message describing the new setting.
 If the option letter has a numeric value (such as -b or -h),
@@ -296,23 +296,31 @@ or a string value (such as -P or -t),
 a new value may be entered after the option letter.
 If no new value is entered, a message describing
 the current setting is printed and nothing is changed.
+.IP \-\-
+Like the \- command, but takes a long option name (see OPTIONS below)
+rather than a single option letter.
+You must press RETURN after typing the option name.
 .IP \-+
-Followed by one of the command line option letters (see below),
+Followed by one of the command line option letters
 this will reset the option to its default setting
 and print a message describing the new setting.
 (The "\-+\fIX\fP" command does the same thing
 as "\-+\fIX\fP" on the command line.)
 This does not work for string-valued options.
-.IP \-\-
-Followed by one of the command line option letters (see below),
+.IP \-\-+
+Like the \-+ command, but takes a long option name
+rather than a single option letter.
+.IP \-!
+Followed by one of the command line option letters,
 this will reset the option to the "opposite" of its default setting
 and print a message describing the new setting.
-(The "\-\-\fIX\fP" command does the same thing
-as "\-\fIX\fP" on the command line.)
 This does not work for numeric or string-valued options.
+.IP \-\-!
+Like the \-! command, but takes a long option name
+rather than a single option letter.
 .IP _
 (Underscore.)
-Followed by one of the command line option letters (see below),
+Followed by one of the command line option letters,
 this will print a message describing the current setting of that option.
 The setting of the option is not changed.
 .IP +cmd
@@ -366,6 +374,14 @@ Most options may be changed while
 .I less 
 is running, via the "\-" command.
 .PP
+Most options may be given in one of two forms: 
+either a dash followed by a single letter,
+or two dashes followed by a multicharacter option name.
+A multicharacter option name may be abbreviated as long as
+the abbreviation is unambiguous.
+For example, "--quit-at-eof" may be abbreviated "--quit", but not
+"--qui", since both "--quit-at-eof" and "--quiet" begin with "--qui".
+.PP
 Options are also taken from the environment variable "LESS".
 For example, 
 to avoid typing "less -options ..." each time 
@@ -386,8 +402,8 @@ percent signs in the options string by double percent signs.
 The environment variable is parsed before the command line,
 so command line options override the LESS environment variable.
 If an option appears in the LESS variable, it can be reset
-to its default on the command line by beginning the command
-line option with "-+".
+to its default value on the command line by beginning the command
+line option with "\-+".
 .sp
 For options like -P or -D which take a following string,
 a dollar sign ($) must be used to signal the end of the string.
@@ -395,28 +411,27 @@ For example, to set two -D options on MS-DOS, you must have
 a dollar sign between them, like this:
 .sp
 LESS="-Dn9.1$-Ds4.1"
-.IP -?
+.sp
+.IP "-? or --help"
 This option displays a summary of the commands accepted by
 .I less
 (the same as the h command).
 (Depending on how your shell interprets the question mark,
 it may be necessary to quote the question mark, thus: "-\\?".)
-.IP --help
-Same as -?.
-.IP -a
+.IP "-a or --search-skip-screen"
 Causes searches to start after the last line
 displayed on the screen, 
 thus skipping all lines displayed on the screen.
 By default, searches start at the second line on the screen
 (or after the last found line; see the -j option).
-.IP -b\fIn\fP
+.IP "-b\fIn\fP or --buffers=\fIn\fP"
 Specifies the number of buffers
 .I less
 will use for each file.
 Buffers are 1K, and by default 10 buffers are used for each file
 (except if the file is a pipe; see the -B option).
 The number \fIn\fP specifies a different number of buffers to use.
-.IP -B
+.IP "-B or --auto-buffers"
 By default, when data is read from a pipe,
 buffers are allocated automatically as needed.
 If a large amount of data is read from the pipe, this can cause
@@ -426,13 +441,13 @@ so that only the number of buffers specified by the -b option are used.
 Warning: use of -B can result in erroneous display, since only the
 most recently viewed part of the file is kept in memory; 
 any earlier data is lost.
-.IP -c
+.IP "-c or --clear-screen"
 Causes full screen repaints to be painted from the top line down.
 By default,
 full screen repaints are done by scrolling from the bottom of the screen.
-.IP -C
+.IP "-C or --CLEAR-SCREEN"
 The -C option is like -c, but the screen is cleared before it is repainted.
-.IP -d
+.IP "-d or --dumb"
 The -d option suppresses the error message
 normally displayed if the terminal is dumb;
 that is, lacks some important capability,
@@ -440,7 +455,7 @@ such as the ability to clear the screen or scroll backward.
 The -d option does not otherwise change the behavior of
 .I less
 on a dumb terminal).
-.IP -D\fBx\fP\fIcolor\fP
+.IP "-D\fBx\fP\fIcolor\fP or --color=\fBx\fP\fIcolor\fP"
 [MS-DOS only]
 Sets the color of the text displayed.
 \fBx\fP is a single character which selects the type of text whose color is 
@@ -449,7 +464,7 @@ being set: n=normal, s=standout, d=bold, u=underlined, k=blink.
 The first number selects the foreground color and the second selects 
 the background color of the text.
 A single number \fIN\fP is the same as \fIN.0\fP.
-.IP -e
+.IP "-e or --quit-at-eof"
 Causes 
 .I less 
 to automatically exit
@@ -457,18 +472,18 @@ the second time it reaches end-of-file.
 By default, the only way to exit 
 .I less
 is via the "q" command.
-.IP -E
+.IP "-E or --QUIT-AT-EOF"
 Causes 
 .I less
 to automatically exit the first time it reaches end-of-file.
-.IP -f
+.IP "-f or --force"
 Forces non-regular files to be opened.
 (A non-regular file is a directory or a device special file.)
 Also suppresses the warning message when a binary file is opened.
 By default,
 .I less
 will refuse to open non-regular files.
-.IP -g
+.IP "-g or --hilite-search"
 Normally, 
 .I less 
 will highlight ALL strings which match the last search command.
@@ -477,25 +492,25 @@ which was found by the last search command.
 This can cause 
 .I less 
 to run somewhat faster than the default.
-.IP -G
+.IP "-G or --HILITE-SEARCH"
 The -G option suppresses all highlighting of strings found by search commands.
-.IP -h\fIn\fP
+.IP "-h\fIn\fP or --scroll-back-limit=\fIn\fP"
 Specifies a maximum number of lines to scroll backward.
 If it is necessary to scroll backward more than \fIn\fP lines,
 the screen is repainted in a forward direction instead.
 (If the terminal does not have the ability to scroll
 backward, -h0 is implied.)
-.IP -i
+.IP "-i or --ignore-case"
 Causes searches to ignore case; that is,
 uppercase and lowercase are considered identical.
 This option is ignored if any uppercase letters
 appear in the search pattern; 
 in other words,
 if a pattern contains uppercase letters, then that search does not ignore case.
-.IP -I
+.IP "-I or --IGNORE-CASE"
 Like -i, but searches ignore case even if 
 the pattern contains uppercase letters.
-.IP -j\fIn\fP
+.IP "-j\fIn\fP or --jump-target=\fIn\fP"
 Specifies a line on the screen where the "target" line
 is to be positioned.
 A target line is the object of a text search, 
@@ -511,7 +526,7 @@ after the target line.
 For example, if "-j4" is used, the target line is the
 fourth line on the screen, so searches begin at the fifth line
 on the screen.
-.IP -k\fIfilename\fP
+.IP "-k\fIfilename\fP or --lesskey-file=\fIfilename\fP"
 Causes
 .I less
 to open and interpret the named file as a
@@ -523,7 +538,7 @@ if a lesskey file is found in a standard place (see KEY BINDINGS),
 it is also used as a 
 .I lesskey
 file.
-.IP -m
+.IP "-m or --long-prompt"
 Causes 
 .I less
 to prompt verbosely (like \fImore\fP),
@@ -531,12 +546,12 @@ with the percent into the file.
 By default,
 .I less
 prompts with a colon.
-.IP -M
+.IP "-M or --LONG-PROMPT"
 Causes 
 .I less
 to prompt even more verbosely than 
 .I more.
-.IP -n
+.IP "-n or --line-numbers"
 Suppresses line numbers.
 The default (to use line numbers) may cause
 .I less
@@ -546,10 +561,10 @@ Using line numbers means: the line number will be displayed in the verbose
 prompt and in the = command,
 and the v command will pass the current line number to the editor
 (see also the discussion of LESSEDIT in PROMPTS below).
-.IP -N
+.IP "-N or --LINE-NUMBERS"
 Causes a line number to be displayed at the beginning of
 each line in the display.
-.IP -o\fIfilename\fP
+.IP "-o\fIfilename\fP or --log-file=\fIfilename\fP"
 Causes
 .I less
 to copy its input to the named file as it is being viewed.
@@ -558,7 +573,7 @@ not an ordinary file.
 If the file already exists, 
 .I less
 will ask for confirmation before overwriting it.
-.IP -O\fIfilename\fP
+.IP "-O\fIfilename\fP or --LOG-FILE=\fIfilename\fP"
 The -O option is like -o, but it will overwrite an existing
 file without asking for confirmation.
 .sp
@@ -569,13 +584,13 @@ to specify a log file.
 Without a file name, they will simply report the name of the log file.
 The "s" command is equivalent to specifying -o from within
 .I less.
-.IP -p\fIpattern\fP
+.IP "-p\fIpattern\fP or --pattern=\fIpattern\fP"
 The -p option on the command line is equivalent to 
 specifying +/\fIpattern\fP;
 that is, it tells
 .I less
 to start at the first occurrence of \fIpattern\fP in the file.
-.IP -P\fIprompt\fP
+.IP "-P\fIprompt\fP or --prompt=\fIprompt\fP"
 Provides a way to tailor the three prompt
 styles to your own preference.
 This option would normally be put in the LESS environment
@@ -593,7 +608,7 @@ to that string.
 All prompt strings consist of a sequence of 
 letters and special escape sequences.
 See the section on PROMPTS for more details.
-.IP -q
+.IP "-q or --quiet"
 Causes moderately "quiet" operation:
 the terminal bell is not rung 
 if an attempt is made to scroll past the end of the file
@@ -602,10 +617,10 @@ If the terminal has a "visual bell", it is used instead.
 The bell will be rung on certain other errors,
 such as typing an invalid character.
 The default is to ring the terminal bell in all such cases.
-.IP -Q
+.IP "-Q or --QUIET"
 Causes totally "quiet" operation:
 the terminal bell is never rung.
-.IP -r
+.IP "-r or --raw-control-chars"
 Causes "raw" control characters to be displayed.
 The default is to display control characters using the caret notation;
 for example, a control-A (octal 001) is displayed as "^A".
@@ -616,18 +631,18 @@ cannot keep track of the actual appearance of the screen
 each type of control character).
 Thus, various display problems may result,
 such as long lines being split in the wrong place.
-.IP -s
+.IP "-s or --squeeze-blank-lines"
 Causes consecutive blank lines to be squeezed into a single blank line.
 This is useful when viewing
 .I nroff
 output.
-.IP -S
+.IP "-S or --chop-long-lines"
 Causes lines longer than the screen width to be
 chopped rather than folded.
 That is, the remainder of a long line is simply discarded.
 The default is to fold long lines; that is, display the remainder
 on the next line.
-.IP -t\fItag\fP
+.IP "-t\fItag\fP or --tag=\fItag\fP"
 The -t option, followed immediately by a TAG,
 will edit the file containing that tag.
 For this to work, there must be a file called "tags" in the
@@ -639,12 +654,12 @@ This option may also be specified from within
 (using the \- command) as a way of examining a new file.
 The command ":t" is equivalent to specifying -t from within
 .I less.
-.IP -T\fItagsfile\fP
+.IP "-T\fItagsfile\fP or --tag-file=\fItagsfile\fP"
 Specifies a tags file to be used instead of "tags".
-.IP -u
+.IP "-u or --underline-special"
 Causes backspaces and carriage returns to be treated as printable characters;
 that is, they are sent to the terminal when they appear in the input.
-.IP -U
+.IP "-U or --UNDERLINE-SPECIAL"
 Causes backspaces, tabs and carriage returns to be 
 treated as control characters;
 that is, they are handled as specified by the -r option.
@@ -660,39 +675,37 @@ the overstruck text is printed
 using the terminal's hardware boldface capability.
 Other backspaces are deleted, along with the preceding character.
 Carriage returns immediately followed by a newline are deleted.
-Other carriage returns are handled as specified by the -r option.
+other carriage returns are handled as specified by the -r option.
 Text which is overstruck or underlined can be searched for
 if neither -u nor -U is in effect.
-.IP -V
+.IP "-V or --version"
 Displays the version number of 
 .I less.
-.IP --version
-Same as -V.
-.IP -w
+.IP "-w or --hilite-unread"
 Temporarily highlights the first "new" line after a forward movement
 of a full page.
 The first "new" line is the line immediately following the line previously
 at the bottom of the screen.
 The highlight is removed at the next command which causes movement.
-.IP -W
+.IP "-W or --HILITE-UNREAD"
 Like -w, but temporarily highlights the first new line after any 
 forward movement command larger than one line.
-.IP -x\fIn\fP
+.IP "-x\fIn\fP or --tabs=\fIn\fP"
 Sets tab stops every \fIn\fP positions.
 The default for \fIn\fP is 8.
-.IP -X
+.IP "-X or --noinit"
 Disables sending the termcap initialization and deinitialization strings
 to the terminal.
 This is sometimes desirable if the deinitialization string does
 something unnecessary, like clearing the screen.
-.IP -y\fIn\fP
+.IP "-y\fIn\fP or --scroll-forw-limit=\fIn\fP"
 Specifies a maximum number of lines to scroll forward.
 If it is necessary to scroll forward more than \fIn\fP lines,
 the screen is repainted instead.
 The -c or -C option may be used to repaint from the top of
 the screen if desired.
 By default, any forward movement causes scrolling.
-.IP -[z]\fIn\fP
+.IP "-[z]\fIn\fP or --window=\fIn\fP"
 Changes the default scrolling window size to \fIn\fP lines.
 The default is one screenful.
 The z and w commands can also be used to change the window size.
@@ -706,7 +719,7 @@ lines less than the current screen size.
 For example, if the screen is 24 lines, \fI-z-4\fP sets the 
 scrolling window to 20 lines.  If the screen is resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
-.IP -"
+.IP "-\"\fIcc\fP or --quotes=\fIcc\fP"
 Changes the filename quoting character.
 This may be necessary if you are trying to name a file
 which contains both spaces and quote characters.
@@ -720,6 +733,9 @@ Filenames containing a space should then be preceded by the open quote
 character and followed by the close quote character.
 Note that even after the quote characters are changed, this option
 remains -" (a dash followed by a double quote).
+.IP "-~ or --tilde"
+Normally lines after end of file are displayed as a single tilde (~).
+This option causes lines after end of file to be displayed as blank lines.
 .IP --
 A command line argument of "--" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.

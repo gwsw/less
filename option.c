@@ -56,9 +56,13 @@ scan_option(s)
 	char *s;
 {
 	register struct option *o;
-	register int c;
+	register int optc;
+	char *optname;
+	char *printopt;
 	char *str;
 	int set_default;
+	int lc;
+	int err;
 	PARG parg;
 
 	if (s == NULL)
@@ -78,19 +82,28 @@ scan_option(s)
 	}
 
 	set_default = FALSE;
+	optname = NULL;
 
 	while (*s != '\0')
 	{
 		/*
 		 * Check some special cases first.
 		 */
-		switch (c = *s++)
+		switch (optc = *s++)
 		{
 		case ' ':
 		case '\t':
 		case END_OPTION_STRING:
 			continue;
 		case '-':
+			/*
+			 * "--" indicates an option name instead of a letter.
+			 */
+			if (*s == '-')
+			{
+				optname = ++s;
+				break;
+			}
 			/*
 			 * "-+" means set these options back to their defaults.
 			 * (They may have been set otherwise by previous 
@@ -113,7 +126,7 @@ scan_option(s)
 				every_first_cmd = save(++s);
 			else
 				ungetsc(s);
-			s = optstring(s, c);
+			s = optstring(s, printopt);
 			continue;
 		case '0':  case '1':  case '2':  case '3':  case '4':
 		case '5':  case '6':  case '7':  case '8':  case '9':
@@ -123,7 +136,7 @@ scan_option(s)
 			 * window size.
 			 */
 			s--;
-			c = 'z';
+			optc = 'z';
 			break;
 		}
 
@@ -131,17 +144,55 @@ scan_option(s)
 		 * Not a special case.
 		 * Look up the option letter in the option table.
 		 */
-		o = findopt(c);
+		err = 0;
+		if (optname == NULL)
+		{
+			printopt = propt(optc);
+			lc = SIMPLE_IS_LOWER(optc);
+			o = findopt(optc);
+		} else
+		{
+			printopt = optname;
+			lc = SIMPLE_IS_LOWER(optname[0]);
+			o = findopt_name(&optname, &err);
+			s = optname;
+			if (*s == '\0')
+			{
+				/*
+				 * The option name matches exactly.
+				 */
+				;
+			} else if (*s == '=')
+			{
+				/*
+				 * The option name is followed by "=value".
+				 */
+				if (o != NULL && (o->otype & OTYPE) != STRING)
+				{
+					parg.p_string = printopt;
+					error("The %s option should not be followed by =",
+						&parg);
+					quit(QUIT_ERROR);
+				}
+				s++;
+			} else
+			{
+				/*
+				 * The specified name is longer than the
+				 * real option name.
+				 */
+				o = NULL;
+			}
+		}
 		if (o == NULL)
 		{
-			parg.p_string = propt(c);
-#if SHELL_META_QUEST
-			error("There is no %s option (\"less -\\?\" for help)",
-				&parg);
-#else
-			error("There is no %s option (\"less -?\" for help)",
-				&parg);
-#endif
+			parg.p_string = printopt;
+			if (err == OPT_AMBIG)
+				error("%s is an ambiguous abbreviation (\"less --help\" for help)",
+					&parg);
+			else
+				error("There is no %s option (\"less --help\" for help)",
+					&parg);
 			quit(QUIT_ERROR);
 		}
 
@@ -158,8 +209,7 @@ scan_option(s)
 			if (set_default)
 				*(o->ovar) = o->odefault;
 			else
-				*(o->ovar) = flip_triple(o->odefault,
-						(o->oletter == c));
+				*(o->ovar) = flip_triple(o->odefault, lc);
 			break;
 		case STRING:
 			if (*s == '\0')
@@ -178,10 +228,10 @@ scan_option(s)
 			 * the handling function.
 			 */
 			str = s;
-			s = optstring(s, c);
+			s = optstring(s, printopt);
 			break;
 		case NUMBER:
-			*(o->ovar) = getnum(&s, c, (int*)NULL);
+			*(o->ovar) = getnum(&s, printopt, (int*)NULL);
 			break;
 		}
 		/*
@@ -293,14 +343,14 @@ toggle_option(c, s, how_toggle)
 			{
 			case OPT_TOGGLE:
 				*(o->ovar) = flip_triple(*(o->ovar), 
-						o->oletter == c);
+						islower(c));
 				break;
 			case OPT_UNSET:
 				*(o->ovar) = o->odefault;
 				break;
 			case OPT_SET:
 				*(o->ovar) = flip_triple(o->odefault,
-						o->oletter == c);
+						islower(c));
 				break;
 			}
 			break;
@@ -313,7 +363,7 @@ toggle_option(c, s, how_toggle)
 			{
 			case OPT_SET:
 			case OPT_UNSET:
-				error("Can't use \"-+\" or \"--\" for a string option",
+				error("Cannot use \"-+\" or \"--\" for a string option",
 					NULL_PARG);
 				return;
 			}
@@ -333,7 +383,7 @@ toggle_option(c, s, how_toggle)
 				*(o->ovar) = o->odefault;
 				break;
 			case OPT_SET:
-				error("Can't use \"--\" for a numeric option",
+				error("Can't use \"-!\" for a numeric option",
 					NULL_PARG);
 				return;
 			}
@@ -461,11 +511,11 @@ isoptpending()
  * Print error message about missing string.
  */
 	static void
-nostring(c)
-	int c;
+nostring(printopt)
+	char *printopt;
 {
 	PARG parg;
-	parg.p_string = propt(c);
+	parg.p_string = printopt;
 	error("String is required after %s", &parg);
 }
 
@@ -475,7 +525,7 @@ nostring(c)
 	public void
 nopendopt()
 {
-	nostring(pendopt->oletter);
+	nostring(propt(pendopt->oletter));
 }
 
 /*
@@ -484,15 +534,15 @@ nopendopt()
  * Return a pointer to the remainder of the string, if any.
  */
 	static char *
-optstring(s, c)
+optstring(s, printopt)
 	char *s;
-	int c;
+	char *printopt;
 {
 	register char *p;
 
 	if (*s == '\0')
 	{
-		nostring(c);
+		nostring(printopt);
 		quit(QUIT_ERROR);
 	}
 	for (p = s;  *p != '\0';  p++)
@@ -510,9 +560,9 @@ optstring(s, c)
  * the char * to point after the translated number.
  */
 	public int
-getnum(sp, c, errp)
+getnum(sp, printopt, errp)
 	char **sp;
-	int c;
+	char *printopt;
 	int *errp;
 {
 	register char *s;
@@ -534,7 +584,7 @@ getnum(sp, c, errp)
 			*errp = TRUE;
 			return (-1);
 		}
-		parg.p_string = propt(c);
+		parg.p_string = printopt;
 		error("Number is required after %s", &parg);
 		quit(QUIT_ERROR);
 	}

@@ -107,6 +107,7 @@ public void constant *ml_shell = (void *)3;
  * History for the current command.
  */
 static struct mlist *curr_mlist = NULL;
+static int curr_cmdflags;
 
 
 /*
@@ -367,15 +368,10 @@ cmd_erase()
 	cmd_repaint(cp);
 	
 	/*
-	 * This is rather weird.
 	 * We say that erasing the entire command string causes us
-	 * to abort the current command, BUT ONLY IF there is no history
-	 * for this type of command.  This causes commands like search (/)
-	 * and edit (:e) to stay active even if we erase the entire string,
-	 * but commands like <digit> and - go away when we erase the string.
-	 * (See same thing in cmd_kill.)
+	 * to abort the current command, if CF_QUIT_ON_ERASE is set.
 	 */
-	if (curr_mlist == NULL && cp == cmdbuf && *cp == '\0')
+	if ((curr_cmdflags & CF_QUIT_ON_ERASE) && cp == cmdbuf && *cp == '\0')
 		return (CC_QUIT);
 	return (CC_OK);
 }
@@ -470,11 +466,12 @@ cmd_kill()
 	cmd_home();
 	*cp = '\0';
 	cmd_repaint(cp);
+
 	/*
-	 * Same weirdness as in cmd_erase.
-	 * If the current command has no history, abort the current command.
+	 * We say that erasing the entire command string causes us
+	 * to abort the current command, if CF_QUIT_ON_ERASE is set.
 	 */
-	if (curr_mlist == NULL)
+	if (curr_cmdflags & CF_QUIT_ON_ERASE)
 		return (CC_QUIT);
 	return (CC_OK);
 }
@@ -483,10 +480,12 @@ cmd_kill()
  * Select an mlist structure to be the current command history.
  */
 	public void
-set_mlist(mlist)
+set_mlist(mlist, cmdflags)
 	void *mlist;
+	int cmdflags;
 {
 	curr_mlist = (struct mlist *) mlist;
+	curr_cmdflags = cmdflags;
 }
 
 #if CMD_HISTORY

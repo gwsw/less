@@ -76,6 +76,7 @@ static int search_type;		/* The previous type of search */
 static int number;		/* The number typed by the user */
 static char optchar;
 static int optflag;
+static int optgetname;
 static POSITION bottompos;
 #if PIPEC
 static char pipec;
@@ -100,15 +101,16 @@ cmd_exec()
  * Set up the display to start a new multi-character command.
  */
 	static void
-start_mca(action, prompt, mlist)
+start_mca(action, prompt, mlist, cmdflags)
 	int action;
 	char *prompt;
 	void *mlist;
+	int cmdflags;
 {
 	mca = action;
 	clear_cmd();
 	cmd_putstr(prompt);
-	set_mlist(mlist);
+	set_mlist(mlist, cmdflags);
 }
 
 	public int
@@ -145,7 +147,31 @@ mca_search()
 		cmd_putstr("/");
 	else
 		cmd_putstr("?");
-	set_mlist(ml_search);
+	set_mlist(ml_search, 0);
+}
+
+/*
+ * Set up the display to start a new toggle-option command.
+ */
+	static void
+mca_opt_toggle()
+{
+	mca = A_OPT_TOGGLE;
+	clear_cmd();
+	if (optgetname)
+		cmd_putstr("--");
+	else
+		cmd_putstr("-");
+	switch (optflag)
+	{
+	case OPT_UNSET:
+		cmd_putstr("+");
+		break;
+	case OPT_SET:
+		cmd_putstr("!");
+		break;
+	}
+	set_mlist(NULL, 0);
 }
 
 /*
@@ -238,6 +264,7 @@ mca_char(c)
 	char *p;
 	int flag;
 	char buf[3];
+	PARG parg;
 
 	switch (mca)
 	{
@@ -283,35 +310,115 @@ mca_char(c)
 		 * so user doesn't have to hit RETURN.
 		 * If the first char is + or -, this indicates
 		 * OPT_UNSET or OPT_SET respectively, instead of OPT_TOGGLE.
+		 * "--" begins inputting a long option name.
 		 */
-		if (c == erase_char || c == kill_char)
-			break;
-		if (optchar != '\0' && optchar != '+' && optchar != '-')
-			/*
-			 * We already have the option letter.
-			 */
-			break;
-		switch (c)
+		if (optchar == '\0' && len_cmdbuf() == 0)
 		{
-		case '+':
-			optflag = OPT_UNSET;
-			break;
-		case '-':
-			optflag = OPT_SET;
-			break;
-		default:
-			optchar = c;
-			if (optflag != OPT_TOGGLE || single_char_option(c))
+			switch (c)
 			{
-				toggle_option(c, "", optflag);
-				return (MCA_DONE);
+			case '+':
+				/* "-+" = UNSET. */
+				optflag = OPT_UNSET;
+				mca_opt_toggle();
+				return (MCA_MORE);
+			case '!':
+				/* "-!" = SET */
+				optflag = OPT_SET;
+				mca_opt_toggle();
+				return (MCA_MORE);
+			case '-':
+				/* "--" = long option name. */
+				optgetname = TRUE;
+				mca_opt_toggle();
+				return (MCA_MORE);
 			}
-			break;
 		}
-		if (optchar == '+' || optchar == '-')
+		if (optgetname)
 		{
-			optchar = c;
-			break;
+			/*
+			 * We're getting a long option name.
+			 * See if we've matched an option name yet.
+			 * If so, display the complete name and stop 
+			 * accepting chars until user hits RETURN.
+			 */
+			struct option *o;
+			int lc;
+
+			if (c == '\n' || c == '\r')
+			{
+				/*
+				 * When the user hits RETURN, make sure
+				 * we've matched an option name, then
+				 * pretend he just entered the equivalent
+				 * option letter.
+				 */
+				if (optchar == '\0')
+				{
+					parg.p_string = get_cmdbuf();
+					error("There is no --%s option", &parg);
+					return (MCA_DONE);
+				}
+				optgetname = FALSE;
+				cmd_reset();
+				c = optchar;
+			} else
+			{
+				if (optchar != '\0')
+				{
+					/*
+					 * Already have a match for the name.
+					 * Don't accept anything but erase/kill.
+					 */
+					if (c == erase_char || c == kill_char)
+						return (MCA_DONE);
+					return (MCA_MORE);
+				}
+				/*
+				 * Add char to cmd buffer and try to match
+				 * the option name.
+				 */
+				if (cmd_char(c) == CC_QUIT)
+					return (MCA_DONE);
+				p = get_cmdbuf();
+				lc = islower(p[0]);
+				o = findopt_name(&p, NULL);
+				if (o != NULL)
+				{
+					/*
+					 * Got a match.
+					 * Remember the option letter and
+					 * display the full option name.
+					 */
+					optchar = o->oletter;
+					if (!lc && islower(optchar))
+						optchar = toupper(optchar);
+					cmd_reset();
+					mca_opt_toggle();
+					for (p = o->oname;  *p != '\0';  p++)
+					{
+						c = *p;
+						if (!lc && islower(c))
+							c = toupper(c);
+						if (cmd_char(c) != CC_OK)
+							return (MCA_DONE);
+					}
+				}
+				return (MCA_MORE);
+			}
+		} else
+		{
+			if (c == erase_char || c == kill_char)
+				break;
+			if (optchar != '\0')
+				/* We already have the option letter. */
+				break;
+		}
+
+		optchar = c;
+		if (optflag != OPT_TOGGLE || single_char_option(c))
+		{
+			toggle_option(c, "", optflag);
+			return (MCA_DONE);
 		}
 		/*
 		 * Display a prompt appropriate for the option letter.
@@ -323,7 +430,7 @@ mca_char(c)
 			buf[2] = '\0';
 			p = buf;
 		}
-		start_mca(A_OPT_TOGGLE, p, (void*)NULL);
+		start_mca(A_OPT_TOGGLE, p, (void*)NULL, 0);
 		return (MCA_MORE);
 
 	case A_F_SEARCH:
@@ -385,6 +492,7 @@ mca_char(c)
 		exec_mca();
 		return (MCA_DONE);
 	}
+
 	/*
 	 * Append the char to the command buffer.
 	 */
@@ -829,7 +937,7 @@ commands()
 			/*
 			 * First digit of a number.
 			 */
-			start_mca(A_DIGIT, ":", (void*)NULL);
+			start_mca(A_DIGIT, ":", (void*)NULL, CF_QUIT_ON_ERASE);
 			goto again;
 
 		case A_F_WINDOW:
@@ -1164,7 +1272,7 @@ commands()
 				error("Command not available", NULL_PARG);
 				break;
 			}
-			start_mca(A_EXAMINE, "Examine: ", ml_examine);
+			start_mca(A_EXAMINE, "Examine: ", ml_examine, 0);
 			c = getcc();
 			goto again;
 #else
@@ -1195,7 +1303,7 @@ commands()
 					NULL_PARG);
 				break;
 			}
-			start_mca(A_SHELL, "!", ml_shell);
+			start_mca(A_SHELL, "!", ml_shell, 0);
 			/*
 			 * Expand the editor prototype string
 			 * and pass it to the system to execute.
@@ -1251,8 +1359,9 @@ commands()
 			break;
 
 		case A_OPT_TOGGLE:
-			start_mca(A_OPT_TOGGLE, "-", (void*)NULL);
 			optflag = OPT_TOGGLE;
+			optgetname = FALSE;
+			mca_opt_toggle();
 			c = getcc();
 			goto again;
 
@@ -1260,7 +1369,7 @@ commands()
 			/*
 			 * Report a flag setting.
 			 */
-			start_mca(A_DISP_OPTION, "_", (void*)NULL);
+			start_mca(A_DISP_OPTION, "_", (void*)NULL, 0);
 			c = getcc();
 			if (c == erase_char || c == kill_char)
 				break;
@@ -1271,7 +1380,7 @@ commands()
 			/*
 			 * Set an initial command for new files.
 			 */
-			start_mca(A_FIRSTCMD, "+", (void*)NULL);
+			start_mca(A_FIRSTCMD, "+", (void*)NULL, 0);
 			c = getcc();
 			goto again;
 
@@ -1285,7 +1394,7 @@ commands()
 				error("Command not available", NULL_PARG);
 				break;
 			}
-			start_mca(A_SHELL, "!", ml_shell);
+			start_mca(A_SHELL, "!", ml_shell, 0);
 			c = getcc();
 			goto again;
 #else
@@ -1299,7 +1408,7 @@ commands()
 			 */
 			if (ch_getflags() & CH_HELPFILE)
 				break;
-			start_mca(A_SETMARK, "mark: ", (void*)NULL);
+			start_mca(A_SETMARK, "mark: ", (void*)NULL, 0);
 			c = getcc();
 			if (c == erase_char || c == kill_char ||
 			    c == '\n' || c == '\r')
@@ -1311,7 +1420,7 @@ commands()
 			/*
 			 * Go to a mark.
 			 */
-			start_mca(A_GOMARK, "goto mark: ", (void*)NULL);
+			start_mca(A_GOMARK, "goto mark: ", (void*)NULL, 0);
 			c = getcc();
 			if (c == erase_char || c == kill_char || 
 			    c == '\n' || c == '\r')
@@ -1326,7 +1435,7 @@ commands()
 				error("Command not available", NULL_PARG);
 				break;
 			}
-			start_mca(A_PIPE, "|mark: ", (void*)NULL);
+			start_mca(A_PIPE, "|mark: ", (void*)NULL, 0);
 			c = getcc();
 			if (c == erase_char || c == kill_char)
 				break;
@@ -1335,7 +1444,7 @@ commands()
 			if (badmark(c))
 				break;
 			pipec = c;
-			start_mca(A_PIPE, "!", ml_shell);
+			start_mca(A_PIPE, "!", ml_shell, 0);
 			c = getcc();
 			goto again;
 #else
@@ -1345,7 +1454,7 @@ commands()
 
 		case A_B_BRACKET:
 		case A_F_BRACKET:
-			start_mca(action, "Brackets: ", (void*)NULL);
+			start_mca(action, "Brackets: ", (void*)NULL, 0);
 			c = getcc();
 			goto again;
 
@@ -1374,7 +1483,8 @@ commands()
 			if (mca != A_PREFIX)
 			{
 				cmd_reset();
-				start_mca(A_PREFIX, " ", (void*)NULL);
+				start_mca(A_PREFIX, " ", (void*)NULL,
+					CF_QUIT_ON_ERASE);
 				(void) cmd_char(c);
 			}
 			c = getcc();

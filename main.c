@@ -39,7 +39,6 @@ public IFILE	curr_ifile = NULL_IFILE;
 public IFILE	old_ifile = NULL_IFILE;
 public struct scrpos initial_scrpos;
 public int	any_display = FALSE;
-public int	twiddle = TRUE;
 public POSITION	start_attnpos = NULL_POSITION;
 public POSITION	end_attnpos = NULL_POSITION;
 public int	wscroll;
@@ -105,7 +104,7 @@ main(argc, argv)
 		{
 			char *env = (char *) ecalloc(strlen(drive) + 
 					strlen(path) + 6, sizeof(char));
-			strcpy(env, "PATH=");
+			strcpy(env, "HOME=");
 			strcat(env, drive);
 			strcat(env, path);
 			putenv(env);
@@ -125,24 +124,6 @@ main(argc, argv)
 	init_option();
 	scan_option(lgetenv("LESS"));
 
-#if GNU_OPTIONS
-	/*
-	 * Special case for "less --help" and "less --version".
-	 */
-	if (argc == 1)
-	{
-		if (strcmp(argv[0], "--help") == 0)
-		{
-			scan_option("-?");
-			argc = 0;
-		}
-		if (strcmp(argv[0], "--version") == 0)
-		{
-			scan_option("-V");
-			argc = 0;
-		}
-	}
-#endif
 #define	isoptstring(s)	(((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
 	while (argc > 0 && (isoptstring(*argv) || isoptpending()))
 	{
@@ -328,6 +309,37 @@ skipsp(s)
 	while (*s == ' ' || *s == '\t')	
 		s++;
 	return (s);
+}
+
+/*
+ * See how many characters of two strings are identical.
+ * If uppercase is true, the first string must begin with an uppercase
+ * character; the remainder of the first string may be either case.
+ */
+	public int
+sprefix(ps, s, uppercase)
+	char *ps;
+	char *s;
+	int uppercase;
+{
+	register int c;
+	register int len = 0;
+
+	for ( ;  *s != '\0';  s++, ps++)
+	{
+		c = *ps;
+		if (uppercase)
+		{
+			if (len == 0 && SIMPLE_IS_LOWER(c))
+				return (-1);
+			if (SIMPLE_IS_UPPER(c))
+				c = SIMPLE_TO_LOWER(c);
+		}
+		if (c != *s)
+			break;
+		len++;
+	}
+	return (len);
 }
 
 /*
