@@ -13,7 +13,29 @@
 ======================================================================
 
 
-	Major changes between "less" versions 330 and @@VERSION@@
+	Major changes between "less" versions 332 and @@VERSION@@
+
+* The old -w flag (suppress tildes after end-of-file has been removed.
+
+* New -w flag highlights the first new line after a forward-screen.
+
+* New -W flag highlights the first new line after any forward movement.
+
+* Window resize works even if LINES and/or COLUMNS environment 
+  variables are incorrect.
+
+* New percent escapes for prompt strings:
+  %d is replaced by the page number, and
+  %D is replaced by the number of pages in the file.
+
+* Added charset "iso8859".
+
+* Fixed some bugs causing incorrect display on DOS/Windows.
+
+======================================================================
+
+
+	Major changes between "less" versions 330 and 332
 
 * Filenames from the command line are entered into the command history,
   so UPARROW/DOWNARROW can be used to retrieve them from the :e command.
