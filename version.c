@@ -600,6 +600,10 @@ v356   7/5/00	Add -J option.
 v357   7/6/00	Support sigprocmask.
 -----------------------------------------------------------------
 v358   7/8/00	Fix problems with #stop in lesskey file.
+		Posted to Web page.
+-----------------------------------------------------------------
+v359  9/10/00	
+
 */
 
-char version[] = "358";
+char version[] = "359";
