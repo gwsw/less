@@ -578,7 +578,10 @@ v335   3/20/99	Add EBCDIC support (thanks to Thomas Dorner).
 -----------------------------------------------------------------
 v336    4/8/99	Fix installation bugs.
 v337    4/9/99	Fix another installation bug.
+		Posted to Web page.
+-----------------------------------------------------------------
+v338   4/13/99	Add support for long option names.
 
 */
 
-char version[] = "337";
+char version[] = "338";
