@@ -1,25 +1,14 @@
 # Makefile for less.
-# OS-9 version.
+# OS-9 version for gcc.
 
 #### Start of system configuration section. ####
 
-# Use these values for Ultra C.
-CC = cc 
-CFLAGS = -D_OSK -v=.
-CFLAGS_COMPILE_ONLY = -eas
-LDFLAGS = -olM=24k -f=$@
-LIBS = -ltermlib.l -lsys_clib.l -lunix.l
+CC=gcc
+CFLAGS = -D_OSK -I. -O
+CFLAGS_COMPILE_ONLY = -c
+LDFLAGS = -o $@
+LIBS = -ltermlib
 O = r
-HELPFILE_DEFINE = -dHELPFILE=\"/dd/sys/less.hlp\" 
-
-# Use these values for gcc.
-#CC=gcc
-#CFLAGS = -D_OSK -I. -O
-#CFLAGS_COMPILE_ONLY = -c
-#LDFLAGS = -o $@
-#LIBS = -ltermlib
-#O = r
-#HELPFILE_DEFINE = -DHELPFILE=\"/dd/sys/less.hlp\" 
 
 
 #### End of system configuration section. ####
@@ -47,9 +36,6 @@ lesskey: lesskey.${O} version.${O}
 	${CC} lesskey.${O} version.${O} ${LDFLAGS}
 
 ${OBJ}: defines.h less.h
-
-filename.${O}: filename.c
-	${CC} ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${HELPFILE_DEFINE} filename.c
 
 defines.h: defines.osk
 	copy defines.osk defines.h -rf
