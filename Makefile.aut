@@ -4,23 +4,27 @@ SHELL = /bin/sh
 
 srcdir = .
 
-SRC =	main.c screen.c brac.c ch.c charset.c cmdbuf.c \
+SRC = \
+	main.c screen.c brac.c ch.c charset.c cmdbuf.c \
 	command.c decode.c edit.c filename.c forwback.c \
 	help.c ifile.c input.c jump.c line.c linenum.c \
 	lsystem.c mark.c optfunc.c option.c opttbl.c os.c \
 	output.c position.c prompt.c search.c signal.c \
 	tags.c ttyin.c version.c  
-DISTFILES = ${SRC} regexp.c regexp.h \
+DISTFILES_W = \
+	Makefile.dos Makefile.bcc defines.dos \
+	Makefile.os2 defines.os2 \
+	Makefile.os9 defines.os9 \
+	Makefile.w32 defines.w32
+DISTFILES = \
+	${SRC} regexp.c regexp.h \
 	INSTALL Makefile.in Makefile.aut README NEWS \
 	configure configure.in acconfig.h lesskey.c \
 	cmd.h funcs.h less.h lesskey.h option.h position.h \
 	install.sh defines.h.in defines.h.top mkinstalldirs \
 	less.nro lesskey.nro less.man lesskey.man less.hlp \
 	mkfuncs.awk mkhelp.c \
-	Makefile.dos Makefile.bcc defines.dos \
-	Makefile.os2 defines.os2 \
-	Makefile.os9 defines.os9 \
-	Makefile.w32 defines.w32
+	${DISTFILES_W}
 
 all: help.c funcs.h ${srcdir}/configure 
 
@@ -76,13 +80,17 @@ dist: ${DISTFILES}
 	@cd ${srcdir}; \
 	REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/less-\1/' -e q version.c`; \
 	rm -rf release/$$REL; mkdir release/$$REL; \
-	echo "Creating release/$$REL/$$REL.tar.gz"; \
+	echo "Preparing $$REL"; \
 	rm -rf $$REL; mkdir $$REL; \
 	for file in ${DISTFILES}; do \
-	  ln $$file $$REL || \
-	  { echo "cannot link, copying $$file"; cp -p $$file $$REL; }; \
+	  cp -p $$file $$REL; \
+	  chmod -w $$REL/$$file; \
 	done; \
+	cd $$REL; chmod +w ${DISTFILES_W}; cd ..; \
+	echo "Creating release/$$REL/$$REL.tar.gz"; \
 	tar -chf - $$REL | gzip -c >release/$$REL/$$REL.tar.gz; \
+	echo "Creating release/$$REL/$$REL.zip"; \
+	zip -rq release/$$REL/$$REL.zip $$REL; \
 	rm -rf $$REL
 
 tagall:
