@@ -258,7 +258,7 @@ percent_pos(pos, percent)
 #ifdef _OSK_MWC32
 
 /*
- * This implements an ANSI-style intercept setup for Metaware C 3.2
+ * This implements an ANSI-style intercept setup for Microware C 3.2
  */
 	public int 
 os9_signal(type, handler)
