@@ -539,7 +539,7 @@ edit_stdin()
 {
 	if (isatty(fd0))
 	{
-#if MSOFTC
+#if MSOFTC || OS2
 		error("Missing filename (\"less -?\" for help)", NULL_PARG);
 #else
 		error("Missing filename (\"less -\\?\" for help)", NULL_PARG);

@@ -69,9 +69,15 @@ help(nomsg)
 #else
 	cmd = (char *) ecalloc(strlen(helpfile) + strlen(progname) + 150,
 				sizeof(char));
+#if OS2
+	sprintf(cmd, 
+	 "-%s -m -H -+E -+s \"-PmHELP -- ?eEND -- Press g to see it again:Press RETURN for more., or q when done \" %s",
+		progname, helpfile);
+#else
 	sprintf(cmd, 
 	 "-%s -m -H -+E -+s '-PmHELP -- ?eEND -- Press g to see it again:Press RETURN for more., or q when done ' %s",
 		progname, helpfile);
+#endif
 #endif
 	free(helpfile);
 	lsystem(cmd);

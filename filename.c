@@ -49,11 +49,11 @@ homefile(filename)
 	register char *pathname;
 	register char *homedir;
 
-	homedir = getenv("HOME");
 #if MSOFTC
 	/*
 	 * If $HOME is not defined, look for the file anywhere on search path.
 	 */
+	homedir = getenv("HOME");
 	pathname = NULL;
 	if (homedir != NULL)
 	{
@@ -85,6 +85,20 @@ homefile(filename)
 	}
 	
 #else
+#if OS2
+	pathname = (char *) calloc(256, sizeof(char));
+	if (pathname == NULL)
+		return (NULL);
+	_searchenv(filename, "INIT", pathname);
+	if (pathname[0] == '\0')
+		_searchenv(filename, "PATH", pathname);
+	if (pathname[0] == '\0')
+	{
+		free(pathname);
+		return (NULL);
+	}
+#else
+	homedir = getenv("HOME");
 	if (homedir == NULL)
 		return (NULL);
 	pathname = (char *) calloc(strlen(homedir)+strlen(filename)+2,
@@ -92,6 +106,7 @@ homefile(filename)
 	if (pathname == NULL)
 		return (NULL);
 	sprintf(pathname, "%s/%s", homedir, filename);
+#endif
 #endif
 	return (pathname);
 }
@@ -106,7 +121,7 @@ find_helpfile()
 	
 	if ((helpfile = getenv("LESSHELP")) != NULL)
 		return (save(helpfile));
-#if MSOFTC
+#if MSOFTC || OS2
 	return (homefile(HELPFILE));
 #else
 	return (save(HELPFILE));
@@ -334,6 +349,7 @@ shellcmd(cmd, s1, s2)
 		(s2 == NULL ? 0 : strlen(s2)) + 1;
 	scmd = (char *) ecalloc(len, sizeof(char));
 	sprintf(scmd, cmd, s1, s2);
+#if HAVE_SHELL
 	shell = getenv("SHELL");
 	if (shell != NULL && *shell != '\0')
 	{
@@ -346,7 +362,7 @@ shellcmd(cmd, s1, s2)
 		free(scmd);
 		scmd = scmd2;
 	}
-
+#endif
 	fd = popen(scmd, "r");
 	free(scmd);
 	return (fd);
@@ -366,6 +382,26 @@ glob(filename)
 	if (filename == NULL)
 		return (NULL);
 
+#if OS2
+{
+	char **list;
+	char *names;
+	int cnt;
+	int length;
+
+	list = _fnexplode(filename);
+	length = 0;
+	for (cnt = 0;  list[cnt] != NULL;  cnt++)
+	  	length += strlen(list[cnt]) + 1;
+	gfilename = (char *) ecalloc(length, sizeof(char));
+	for (cnt = 0;  list[cnt] != NULL;  cnt++)
+	{
+		strcat(gfilename, list[cnt]);
+	  	strcat(gfilename, " ");
+	}
+	_fnexplodefree(list);
+}
+#else
 	/*
 	 * We get the shell to expand the filename for us by passing
 	 * an "echo" command to the shell and reading its output.
@@ -384,6 +420,7 @@ glob(filename)
 	pclose(fd);
 	if (*gfilename == '\0')
 		return (NULL);
+#endif
 	return (gfilename);
 }
 

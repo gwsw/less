@@ -215,6 +215,24 @@ int errors;
 
 extern char version[];
 
+	char *
+mkpathname(dirname, filename)
+	char *dirname;
+	char *filename;
+{
+	char *pathname;
+
+	pathname = calloc(strlen(dirname) + strlen(filename) + 2, sizeof(char));
+	strcpy(pathname, dirname);
+#if MSOFTC || OS2
+	strcat(pathname, "\\");
+#else
+	strcat(pathname, "/");
+#endif
+	strcat(pathname, filename);
+	return (pathname);
+}
+
 /*
  * Figure out the name of a default file (in the user's HOME directory).
  */
@@ -225,22 +243,18 @@ homefile(filename)
 	char *p;
 	char *pathname;
 
-	p = getenv("HOME");
-	if (p == NULL || *p == '\0')
+#if OS2
+	if ((p = getenv("INIT")) != NULL && *p != '\0')
+		pathname = mkpathname(p, filename);
+	else
+#endif
+	if ((p = getenv("HOME")) != NULL && *p != '\0')
 	{
-		fprintf(stderr, "cannot find $HOME - using current directory\n");
-		pathname = calloc(strlen(filename) + 1, sizeof(char));
-		strcpy(pathname, filename);
+		pathname = mkpathname(p, filename);
 	} else
 	{
-		pathname = calloc(strlen(filename) + strlen(p) + 2, sizeof(char));
-		strcpy(pathname, p);
-#if MSOFTC
-		strcat(pathname, "\\");
-#else
-		strcat(pathname, "/");
-#endif
-		strcat(pathname, filename);
+		fprintf(stderr, "cannot find $HOME - using current directory\n");
+		pathname = mkpathname(".", filename);
 	}
 	return (pathname);
 }

@@ -43,7 +43,7 @@ lesskey: lesskey.obj version.obj
 
 defines.h: defines.dos
 	-del defines.h
-	-ren defines.dos defines.h
+	-copy defines.dos defines.h
 
 $(OBJ): less.h defines.h
 

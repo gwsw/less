@@ -158,6 +158,11 @@ raw_mode(on)
 
 	if (on == curr_on)
 		return;
+#if OS2
+	signal(SIGINT, SIG_IGN);
+	erase_char = '\b';
+	kill_char = '\033';
+#else
 #if HAVE_TERMIOS_H && HAVE_TERMIOS_FUNCS
     {
 	struct termios s;
@@ -392,6 +397,7 @@ raw_mode(on)
     }
 #endif
 #endif
+#endif
 	curr_on = on;
 }
 
@@ -414,6 +420,19 @@ cannot(s)
 /*
  * Get size of the output screen.
  */
+#if OS2
+	public void
+scrsize()
+{
+	int s[2];
+
+	_scrsize(s);
+	sc_width = s[0];
+	sc_height = s[1];
+}
+
+#else
+
 	public void
 scrsize()
 {
@@ -463,6 +482,7 @@ scrsize()
  	if (sc_width <= 0)
   		sc_width = 80;
 }
+#endif /* OS2 */
 
 /*
  * Take care of the "variable" keys.

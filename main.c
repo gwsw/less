@@ -78,6 +78,11 @@ main(argc, argv)
 {
 	IFILE ifile;
 
+#ifdef __EMX__
+	_response(&argc, &argv);
+	_wildcard(&argc, &argv);
+#endif
+
 	progname = *argv++;
 
 	/*
@@ -125,7 +130,7 @@ main(argc, argv)
 	ifile = NULL_IFILE;
 	while (--argc >= 0)
 	{
-#if MSOFTC
+#if MSOFTC || OS2
 		/*
 		 * Because the "shell" doesn't expand filename patterns,
 		 * treat each argument as a filename pattern rather than

@@ -1,4 +1,4 @@
-	Major changes between "less" versions 252 and 272
+	Major changes between "less" versions 252 and 274
 
 * A LESSOPEN preprocessor may now pipe the converted file data to less,
   rather than writing it to a temporary file.
@@ -17,6 +17,8 @@
   pattern contains uppercase letters.
 
 * Less now checks for the environment variable VISUAL before EDITOR.
+
+* Ported to OS/2.
 
 ======================================================================
 

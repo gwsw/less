@@ -35,21 +35,27 @@
 /* User preferences.  */
 
 /*
+ * SECURE is 1 if you wish to disable a bunch of features in order to
+ * be safe to run by unprivileged users.
+ */
+#define	SECURE		0
+
+/*
  * SHELL_ESCAPE is 1 if you wish to allow shell escapes.
  * (This is possible only if your system supplies the system() function.)
  */
-#define	SHELL_ESCAPE	1
+#define	SHELL_ESCAPE	(!SECURE)
 
 /*
  * EXAMINE is 1 if you wish to allow examining files by name from within less.
  */
-#define	EXAMINE		1
+#define	EXAMINE		(!SECURE)
 
 /*
  * TAB_COMPLETE_FILENAME is 1 if you wish to allow the TAB key
  * to complete filenames at prompts.
  */
-#define	TAB_COMPLETE_FILENAME	1
+#define	TAB_COMPLETE_FILENAME	(!SECURE)
 
 /*
  * CMD_HISTORY is 1 if you wish to allow keys to cycle through
@@ -68,19 +74,19 @@
  * (This is possible only if your system supplies the system() function.)
  * EDIT_PGM is the name of the (default) editor to be invoked.
  */
-#define	EDITOR		1
+#define	EDITOR		(!SECURE)
 #define	EDIT_PGM	"vi"
 
 /*
  * TAGS is 1 if you wish to support tag files.
  */
-#define	TAGS		1
+#define	TAGS		(!SECURE)
 
 /*
  * USERFILE is 1 if you wish to allow a .less file to specify 
  * user-defined key bindings.
  */
-#define	USERFILE	1
+#define	USERFILE	(!SECURE)
 
 /*
  * GLOB is 1 if you wish to have shell metacharacters expanded in filenames.
@@ -98,7 +104,7 @@
 /*
  * LOGFILE is 1 if you wish to allow the -l option (to create log files).
  */
-#define	LOGFILE		1
+#define	LOGFILE		(!SECURE)
 
 /*
  * ONLY_RETURN is 1 if you want RETURN to be the only input which
@@ -136,13 +142,13 @@
 /*
  * HAVE_STAT is 1 if your system has the stat() call.
  */
-#define	HAVE_STAT		1
+#define	HAVE_STAT	1
 
 /*
  * HAVE_PERROR is 1 if your system has the perror() call.
  * (Actually, if it has sys_errlist, sys_nerr and errno.)
  */
-#define	HAVE_PERROR		1
+#define	HAVE_PERROR	1
 
 /*
  * HAVE_TIME is 1 if your system has the time() call.
@@ -158,7 +164,7 @@
 /* #define	off_t	long */
 
 /* Define as the return type of signal handlers (int or void).  */
-#define RETSIGTYPE	void
+#define RETSIGTYPE void
 
 /* Define if you have the ANSI C header files.  */
 #define STDC_HEADERS	1
@@ -188,6 +194,9 @@
 /* Define HAVE_STRERROR if you have the strerror() function. */
 #define HAVE_STRERROR 0
 
+/* Define HAVE_FILENO if you have the fileno() macro. */
+#define HAVE_FILENO 0
+
 /* Define HAVE_ERRNO if you have the errno variable */
 #define HAVE_ERRNO 0
 
@@ -209,19 +218,19 @@
 /* Define HAVE_UPPER_LOWER if you have isupper, islower, toupper, tolower */
 #define HAVE_UPPER_LOWER 1
 
-/* Define if you have _setjmp.  */
+/* Define if you have the _setjmp function.  */
 #define HAVE__SETJMP	0
 
-/* Define if you have memcpy.  */
+/* Define if you have the memcpy function.  */
 #define HAVE_MEMCPY 1
 
-/* Define if you have sigsetmask.  */
+/* Define if you have the sigsetmask function.  */
 #define HAVE_SIGSETMASK	0
 
-/* Define if you have strchr.  */
+/* Define if you have the strchr function.  */
 #define HAVE_STRCHR 1
 
-/* Define if you have system.  */
+/* Define if you have the system function.  */
 #define HAVE_SYSTEM	1
 
 /* Define if you have the <ctype.h> header file.  */

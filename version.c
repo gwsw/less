@@ -483,6 +483,7 @@
  *	v272: Get rid of -L.				1/5/95
  *	v273: Fix ch_ungetchar bug; don't call		1/6/95
  *	      LESSOPEN on a pipe.
+ *	v274: Ported to OS/2 (thanks to Kai Uwe Rommel)	1/6/95
  */
 
-char version[] = "273";
+char version[] = "274";

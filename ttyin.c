@@ -42,7 +42,7 @@ static int tty;
 	public void
 open_getchr()
 {
-#if MSOFTC
+#if MSOFTC || OS2
 	extern int fd0;
 	/*
 	 * Open a new handle to CON: in binary mode 
@@ -85,6 +85,14 @@ getchr()
 		if (c == '\003')
 			return (READ_INTR);
 #else
+#if OS2
+		flush();
+		while (_read_kbd(0, 0, 0) != -1)
+			continue;
+		if ((c = _read_kbd(0, 1, 0)) == -1)
+			return (READ_INTR);
+		result = 1;
+#else
 		result = iread(tty, &c, sizeof(char));
 		if (result == READ_INTR)
 			return (READ_INTR);
@@ -96,6 +104,7 @@ getchr()
 			 */
 			quit(QUIT_ERROR);
 		}
+#endif
 #endif
 		/*
 		 * Various parts of the program cannot handle

@@ -134,8 +134,13 @@ scan_option(s)
 		if (o == NULL)
 		{
 			parg.p_string = propt(c);
+#if MSOFTC || OS2
+			error("There is no %s flag (\"less -?\" for help)",
+				&parg);
+#else
 			error("There is no %s flag (\"less -\\?\" for help)",
 				&parg);
+#endif
 			quit(QUIT_ERROR);
 		}
 

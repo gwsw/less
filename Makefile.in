@@ -53,11 +53,13 @@ OBJ =	main.$(O) screen.$(O) brac.$(O) ch.$(O) charset.$(O) cmdbuf.$(O) \
 	output.$(O) position.$(O) prompt.$(O) search.$(O) signal.$(O) \
 	tags.$(O) ttyin.$(O) version.$(O)  @REGEX_O@
 DISTFILES = ${SRC} regexp.c regexp.h \
-	INSTALL Makefile.in Makefile.dos README NEWS \
-	configure configure.in doscreen.c acconfig.h lesskey.c \
-	cmd.h defines.dos funcs.h less.h lesskey.h option.h position.h \
+	INSTALL Makefile.in README NEWS \
+	configure configure.in acconfig.h lesskey.c \
+	cmd.h funcs.h less.h lesskey.h option.h position.h \
 	install.sh defines.h.in defines.h.top mkinstalldirs \
-	less.nro lesskey.nro less.man lesskey.man less.hlp 
+	less.nro lesskey.nro less.man lesskey.man less.hlp \
+	Makefile.dos defines.dos doscreen.c \
+	Makefile.os2 defines.os2
 
 all: less lesskey
 

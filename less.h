@@ -118,7 +118,7 @@ typedef long		POSITION;
 /*
  * Flags for open()
  */
-#if MSOFTC
+#if MSOFTC || OS2
 #define	OPEN_READ	(O_RDONLY|O_BINARY)
 #else
 #define	OPEN_READ	(0)

@@ -1,5 +1,5 @@
 =======================================================================
-===        NOTE: THIS IS A DISTRIBUTION OF less (version 272)       ===
+===        NOTE: THIS IS A DISTRIBUTION OF less (version 274)       ===
 ===    PLEASE REPORT ANY PROBLEMS TO THE AUTHOR AT markn@3do.com.   ===
 =======================================================================
 
@@ -74,7 +74,7 @@ INSTALLATION (MS-DOS systems only)
    modify the definitions directly in MAKEFILE, or set your environment 
    variables CC and/or LIBDIR to override the definitions in MAKEFILE.
 
-4. If you wish, you may edit DEFINES.H to remove some optional features.
+4. If you wish, you may edit DEFINES.DOS to remove some optional features.
    If you choose not to include some features in your version, you may
    wish to edit the manual page LESS.MAN and the help page LESS.HLP 
    to remove the descriptions of the features which you are removing.
@@ -90,5 +90,29 @@ INSTALLATION (MS-DOS systems only)
 
 7. When satisfied that it works, you may wish to install LESS.EXE,
    LESSKEY.EXE and LESS.HLP in a directory which is included in 
+   your PATH.
+
+
+
+INSTALLATION (OS/2 systems only)
+
+1. Move the distributed source to its own directory.
+
+2. Rename Makefile.os2 to Makefile.
+
+3. Check the Makefile to make sure the definitions look ok.
+
+4. If you wish, you may edit defines.os2 to remove some optional features.
+   If you choose not to include some features in your version, you may
+   wish to edit the manual page less.man and the help page less.hlp
+   to remove the descriptions of the features which you are removing.
+
+5. Type "make" and watch the fun.
+
+6. If the make succeeds, it will generate a program "less.exe"
+   in your current directory.  Test the generated program.
+
+7. When satisfied that it works, you may wish to install less.exe,
+   lesskey.exe and less.hlp in a directory which is included in 
    your PATH.
 
