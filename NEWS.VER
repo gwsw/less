@@ -1,4 +1,4 @@
-	Major changes between "less" versions 252 and 277
+	Major changes between "less" versions 252 and 278
 
 * A LESSOPEN preprocessor may now pipe the converted file data to less,
   rather than writing it to a temporary file.
@@ -7,11 +7,10 @@
   reliably, even if a string is split across two screen lines,
   contains TABs, etc.
 
-* The default for search highlighting has been changed to highlight
-  only the string which terminated the last search.  The old behavior
-  (highlighting every matching string) can be enabled with the -G flag.
-  Search highlighting can be disabled completely with the -g flag.
-  (The -g flag replaces the -F flag, which is now obsolete.)
+* The -F flag (which suppress search highlighting) has been changed 
+  to -G.  A new flag, -g, changes search highlighting to highlight 
+  only the string found by the last search command, instead of all 
+  strings which match the last search command.
 
 * New flag -I acts like -i, but ignores case even if the search 
   pattern contains uppercase letters.

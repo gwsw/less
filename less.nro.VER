@@ -255,7 +255,7 @@ Turn off highlighting of strings matching the current search pattern.
 If highlighting is already off because of a previous ESC-u command,
 turn highlighting back on.
 Any search command will also turn highlighting back on.
-(Highlighting can also be disabled by toggling the -g flag;
+(Highlighting can also be disabled by toggling the -G flag;
 in that case search commands do not turn highlighting back on.)
 .PP
 .IP ":e [filename]"
@@ -477,17 +477,14 @@ will refuse to open non-regular files.
 .IP -g
 Normally, 
 .I less 
-will highlight the string which matched the last
-search command, by displaying it in standout mode.
-The -g flag suppresses this highlighting.
+will highlight ALL strings which match the last search command.
+The -g flag changes this behavior to highlight only the particular string 
+which was found by the last search command.
+This can cause 
+.I less 
+to run somewhat faster than the default.
 .IP -G
-The -G flag causes
-.I less
-to highlight ALL strings which match the last search command,
-rather than only the one which terminated the last search.
-Warning: use of -G may cause 
-.I less
-to run more slowly.
+The -G flag suppresses all highlighting of strings found by search commands.
 .IP -h\fIn\fP
 Specifies a maximum number of lines to scroll backward.
 If it is necessary to scroll backward more than \fIn\fP lines,

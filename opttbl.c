@@ -109,7 +109,7 @@ static struct option option[] =
 		NULL
 	},
 #if HILITE_SEARCH
-	{ 'g', TRIPLE|HL_REPAINT, 1, &hilite_search, NULL,
+	{ 'g', TRIPLE|HL_REPAINT, OPT_ONPLUS, &hilite_search, NULL,
 		"Don't highlight search matches",
 		"Highlight matches for previous search only",
 		"Highlight all matches for previous search pattern",

@@ -488,6 +488,7 @@
  *	v276: Fix OS/2 version.				1/30/95
  *	v277: Add "next" charset; don't display ^X 	1/31/95
  *	      for X > 128.
+ *	v278: Change default for -G.			2/14/95
  */
 
-char version[] = "277";
+char version[] = "278";
