@@ -37,6 +37,8 @@
 
 * Default LESSCHARSET for MS-DOS versions is now "dos".
 
+* Improved performance in reading very large files.
+
 * Fix problems when viewing files with very long lines.
 
 * Fix overstriking in UTF-8 mode, and overstriking tabs.
