@@ -108,6 +108,7 @@
 #define	EC_B_COMPLETE	18
 #define	EC_LITERAL	19
 
+#define	EC_NOACTION	101
 #define	EC_UINVALID	102
 
 /* Flags for editchar() */

@@ -31,7 +31,9 @@
  */
 #define	PCK_SHIFT_TAB		'\017'
 #define	PCK_ALT_E		'\022'
+#define	PCK_CAPS_LOCK		'\072'
 #define	PCK_F1			'\073'
+#define	PCK_NUM_LOCK		'\105'
 #define	PCK_HOME		'\107'
 #define	PCK_UP			'\110'
 #define	PCK_PAGEUP		'\111'

@@ -838,6 +838,8 @@ static char kecmdtable[] = {
 	'\17',0,		EC_B_COMPLETE,	/* BACKTAB (?) */
 	'\340',PCK_SHIFT_TAB,0,	EC_B_COMPLETE,	/* BACKTAB */
 	'\14',0,		EC_EXPAND,	/* CTRL-L */
+	'\340',PCK_CAPS_LOCK,0,	EC_NOACTION,	/* CAPS LOCK */
+	'\340',PCK_NUM_LOCK,0,	EC_NOACTION,	/* NUM LOCK */
 	0  /* Extra byte to terminate; subtracted from size, below */
 };
 static int sz_kecmdtable = sizeof(kecmdtable) -1;
@@ -858,6 +860,8 @@ static char kfcmdtable[] =
 	'\340',PCK_END,0,	A_GOEND,	/* END */
 	'\340',PCK_F1,0,	A_HELP,		/* F1 */
 	'\340',PCK_ALT_E,0,	A_EXAMINE,	/* Alt-E */
+	'\340',PCK_CAPS_LOCK,0,	A_NOACTION,	/* CAPS LOCK */
+	'\340',PCK_NUM_LOCK,0,	A_NOACTION,	/* NUM LOCK */
 	0
 };
 static int sz_kfcmdtable = sizeof(kfcmdtable) - 1;

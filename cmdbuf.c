@@ -690,6 +690,8 @@ cmd_edit(c)
 	case EC_EXPAND:
 		return (cmd_complete(action));
 #endif
+	case EC_NOACTION:
+		return (CC_OK);
 	default:
 		not_in_completion();
 		return (CC_PASS);
@@ -1001,10 +1003,7 @@ cmd_char(c)
 	/*
 	 * Insert the char into the command buffer.
 	 */
-	action = cmd_ichar(c);
-	if (action != CC_OK)
-		return (action);
-	return (CC_OK);
+	return (cmd_ichar(c));
 }
 
 /*
