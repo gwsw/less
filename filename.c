@@ -552,6 +552,10 @@ lglob(filename)
 #endif
 			sprintf(gfilename + strlen(gfilename), "%s ", p);
 	}
+	/*
+	 * Overwrite the final trailing space with a null terminator.
+	 */
+	*--p = '\0';
 	GLOB_LIST_DONE(list);
 }
 #else
