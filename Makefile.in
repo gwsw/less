@@ -54,7 +54,7 @@ lesskey: lesskey.${O} version.${O}
 
 ${OBJ}: ${srcdir}/less.h ${srcdir}/funcs.h defines.h 
 
-install: all ${srcdir}/less.hlp ${srcdir}/less.nro ${srcdir}/lesskey.nro installdirs
+install: all ${srcdir}/less.nro ${srcdir}/lesskey.nro installdirs
 	${INSTALL_PROGRAM} less ${bindir}/${binprefix}less
 	${INSTALL_PROGRAM} lesskey ${bindir}/${binprefix}lesskey
 	${INSTALL_DATA} ${srcdir}/less.nro ${mandir}/${manprefix}less.${manext}
