@@ -36,7 +36,7 @@
 
 * Fix problems when viewing files with very long lines.
 
-* Fix overstriking in UTF-8 mode.
+* Fix overstriking in UTF-8 mode, and overstriking tabs.
 
 * Improve horizontal shifting of text using -R option with ANSI color.
 

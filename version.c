@@ -612,7 +612,8 @@ v363  12/6/01	Add --no-keypad option.
 		Add variable width tabstops (thanks to Peter Samuelson).
 v364 12/10/01	Better handling of very long lines in input;
 		Fix horizontal shifting of colored text.
+v365 12/11/01	Fix overstriking of tabs.
 
 */
 
-char version[] = "364";
+char version[] = "365";
