@@ -115,6 +115,31 @@ winch(type)
 #endif
 #endif
 
+#if MSDOS_COMPILER==WIN32C
+/*
+ * Handle CTRL-C and CTRL-BREAK keys.
+ */
+#include "windows.h"
+
+	static BOOL WINAPI 
+wbreak_handler(dwCtrlType)
+	DWORD dwCtrlType;
+{
+	switch (dwCtrlType)
+	{
+	case CTRL_C_EVENT:
+	case CTRL_BREAK_EVENT:
+		sigs |= S_INTERRUPT;
+		if (reading)
+			intread();
+		return (TRUE);
+	default:
+		break;
+	}
+	return (FALSE);
+}
+#endif
+
 /*
  * Set up the signal handlers.
  */
@@ -128,6 +153,9 @@ init_signals(on)
 		 * Set signal handlers.
 		 */
 		(void) LSIGNAL(SIGINT, u_interrupt);
+#if MSDOS_COMPILER==WIN32C
+		SetConsoleCtrlHandler(wbreak_handler, TRUE);
+#endif
 #ifdef SIGTSTP
 		(void) LSIGNAL(SIGTSTP, stop);
 #endif
@@ -144,6 +172,9 @@ init_signals(on)
 		 * Restore signals to defaults.
 		 */
 		(void) LSIGNAL(SIGINT, SIG_DFL);
+#if MSDOS_COMPILER==WIN32C
+		SetConsoleCtrlHandler(wbreak_handler, FALSE);
+#endif
 #ifdef SIGTSTP
 		(void) LSIGNAL(SIGTSTP, SIG_DFL);
 #endif
