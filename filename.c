@@ -232,6 +232,9 @@ fcomplete(s)
 	s = glob(fpat);
 	if (s != NULL && strcmp(s,fpat) == 0)
 	{
+		/*
+		 * The filename didn't expand.
+		 */
 		free(s);
 		s = NULL;
 	}
@@ -278,9 +281,6 @@ seek_filesize(f)
 	return ((POSITION) spos);
 }
 
-/*
- * Expand a filename, substituting any environment variables, etc.
- */
 #if GLOB
 
 FILE *popen();
@@ -375,17 +375,14 @@ shellcmd(cmd, s1, s2)
 glob(filename)
 	char *filename;
 {
-	FILE *fd;
 	char *gfilename;
 
 	filename = fexpand(filename);
 	if (filename == NULL)
 		return (NULL);
-
 #if OS2
 {
 	char **list;
-	char *names;
 	int cnt;
 	int length;
 
@@ -402,6 +399,9 @@ glob(filename)
 	_fnexplodefree(list);
 }
 #else
+{
+	FILE *fd;
+
 	/*
 	 * We get the shell to expand the filename for us by passing
 	 * an "echo" command to the shell and reading its output.
@@ -420,6 +420,7 @@ glob(filename)
 	pclose(fd);
 	if (*gfilename == '\0')
 		return (NULL);
+}
 #endif
 	return (gfilename);
 }
@@ -442,9 +443,6 @@ open_altfile(filename, pf, pfd)
 	ch_ungetchar(-1);
 	if ((lessopen = getenv("LESSOPEN")) == NULL)
 		return (NULL);
-	filename = fexpand(filename);
-	if (filename == NULL)
-		return (NULL);
 	if (strcmp(filename, "-") == 0)
 		return (NULL);
 	if (*lessopen == '|')
@@ -457,7 +455,6 @@ open_altfile(filename, pf, pfd)
 		returnfd = 1;
 	}
 	fd = shellcmd(lessopen, filename, (char*)NULL);
-	free(filename);
 	if (fd == NULL)
 	{
 		/*
