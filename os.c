@@ -49,6 +49,9 @@
 #if HAVE_VALUES_H
 #include <values.h>
 #endif
+#if HAVE_LIMITS_H
+#include <limits.h>
+#endif
 
 #if HAVE_TIME_T
 #define time_type	time_t
@@ -192,16 +195,15 @@ errno_message(filename)
 /*
  * Return the largest possible number that can fit in a long.
  */
-#ifdef MAXLONG
 	static long
 get_maxlong()
 {
-	return (MAXLONG);
-}
+#ifdef LONG_MAX
+	return (LONG_MAX);
 #else
-	static long
-get_maxlong()
-{
+#ifdef MAXLONG
+	return (MAXLONG);
+#else
 	long n, n2;
 
 	/*
@@ -216,22 +218,35 @@ get_maxlong()
 		n2 *= 2;
 	} while (n2 / 2 == n);
 	return (n);
-}
 #endif
+#endif
+}
 
 /*
- * Return the ratio of two longs, as a percentage.
+ * Return the ratio of two POSITIONS, as a percentage.
+ * {{ Assumes a POSITION is a long int. }}
  */
 	public int
 percentage(num, den)
-	long num, den;
+	POSITION num, den;
 {
-	static long maxlong100 = 0;
-	
-	if (maxlong100 == 0)
-		maxlong100 = get_maxlong() / 100;
-	if (num > maxlong100)
-		return (num / (den/100));
+	if (num <= get_maxlong() / 100)
+		return ((100 * num) / den);
 	else
-		return (100*num / den);
+		return (num / (den / 100));
+}
+
+/*
+ * Return the specified percentage of a POSITION.
+ * {{ Assumes a POSITION is a long int. }}
+ */
+	public POSITION
+percent_pos(pos, percent)
+	POSITION pos;
+	int percent;
+{
+	if (pos <= get_maxlong() / 100)
+		return ((percent * pos) / 100);
+	else
+		return (percent * (pos / 100));
 }

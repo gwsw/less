@@ -133,10 +133,7 @@ jump_percent(percent)
 		error("Don't know length of file", NULL_PARG);
 		return;
 	}
-	/*
-	 * {{ This calculation may overflow! }}
-	 */
-	pos = (percent * len) / 100;
+	pos = percent_pos(len, percent);
 	if (pos >= len)
 		pos = len-1;
 

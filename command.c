@@ -219,10 +219,9 @@ exec_mca()
 		}
 
 		if (shellcmd == NULL)
-			lsystem("");
+			lsystem("", "!done");
 		else
-			lsystem(shellcmd);
-		error("!done", NULL_PARG);
+			lsystem(shellcmd, "!done");
 		break;
 #endif
 #if PIPEC
@@ -1108,7 +1107,7 @@ commands()
 			 * and pass it to the system to execute.
 			 */
 			cmd_exec();
-			lsystem(pr_expand(editproto, 0));
+			lsystem(pr_expand(editproto, 0), (char*)NULL);
 			/*
 			 * Re-edit the file, since data may have changed.
 			 * Some editors even recreate the file, so flushing

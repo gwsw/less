@@ -522,7 +522,8 @@ v297   1/24/96	Don't call termcap if tgetent fails;
 		add #defines for buffers.
 v298   1/24/96	Change @@ to ^K.  
 		Add alternate search modifiers ^N, ^F, ^E.
-
+v299   1/25/96	Fix percent overflow in jump_percent (thanks to Brent Wiese);
+		don't send "ti" after shell command till RETURN pressed.
 */
 
-char version[] = "298";
+char version[] = "299";

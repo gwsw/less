@@ -69,9 +69,9 @@ less: ${OBJ}
 lesskey: lesskey.${O} version.${O}
 	${CC} ${LDFLAGS} -o $@ lesskey.${O} version.${O}
 
-${OBJ}: less.h defines.h funcs.h
+${OBJ}: ${srcdir}/less.h ${srcdir}/funcs.h defines.h 
 
-filename.${O}: filename.c
+filename.${O}: ${srcdir}/filename.c
 	${CC} -c -DHELPFILE=\"${datadir}/less.hlp\" -I. ${CPPFLAGS} ${CFLAGS} ${srcdir}/filename.c
 
 install: all ${srcdir}/less.hlp ${srcdir}/less.nro ${srcdir}/lesskey.nro installdirs
@@ -104,14 +104,13 @@ defines.h: stamp-h
 stamp-h: defines.h.in config.status
 	test ! -f stamp-h || CONFIG_FILES= CONFIG_HEADERS=defines.h ./config.status
 	touch stamp-h
-Makefile: Makefile.in config.status
+Makefile: ${srcdir}/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= ./config.status
 config.status: ${srcdir}/configure
 	./config.status --recheck
 
-configure: configure.in
-	autoheader
-	autoconf
+${srcdir}/configure: ${srcdir}/configure.in
+	cd ${srcdir}; autoheader; autoconf
 
 lint:
 	lint -I. ${CPPFLAGS} ${SRC}
@@ -151,8 +150,9 @@ ${srcdir}/lesskey.man: ${srcdir}/lesskey.nro
 
 
 dist: ${DISTFILES}
-	if [ ! -d release ]; then mkdir release; fi
-	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/less-\1/' -e q ${srcdir}/version.c`; \
+	if [ ! -d ${srcdir}/release ]; then mkdir ${srcdir}/release; fi
+	@cd ${srcdir}; \
+	REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/less-\1/' -e q version.c`; \
 	rm -rf release/$$REL; mkdir release/$$REL; \
 	echo "Creating release/$$REL/$$REL.tar.gz"; \
 	rm -rf $$REL; mkdir $$REL; \

@@ -49,8 +49,9 @@ extern IFILE curr_ifile;
  * Like plain "system()", but handles resetting terminal modes, etc.
  */
 	public void
-lsystem(cmd)
+lsystem(cmd, donemsg)
 	char *cmd;
+	char *donemsg;
 {
 	register int inp;
 	register char *shell;
@@ -145,6 +146,12 @@ lsystem(cmd)
 
 	init_signals(1);
 	raw_mode(1);
+	if (donemsg != NULL)
+	{
+		putstr(donemsg);
+		putstr("  (press RETURN)");
+		get_return();
+	}
 	init();
 	screen_trashed = 1;
 

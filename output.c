@@ -260,6 +260,26 @@ iprintf(fmt, parg)
 }
 
 /*
+ * Get a RETURN.
+ * If some other non-trivial char is pressed, unget it, so it will
+ * become the next command.
+ */
+	public void
+get_return()
+{
+	int c;
+
+#if ONLY_RETURN
+	while ((c = getchr()) != '\n' && c != '\r')
+		bell();
+#else
+	c = getchr();
+	if (c != '\n' && c != '\r' && c != ' ' && c != READ_INTR)
+		ungetcc(c);
+#endif
+}
+
+/*
  * Output a message in the lower left corner of the screen
  * and wait for carriage return.
  */
@@ -268,7 +288,6 @@ error(fmt, parg)
 	char *fmt;
 	PARG *parg;
 {
-	int c;
 	int col = 0;
 	static char return_to_continue[] = "  (press RETURN)";
 
@@ -293,14 +312,7 @@ error(fmt, parg)
 	so_exit();
 	col += sizeof(return_to_continue) + so_e_width;
 
-#if ONLY_RETURN
-	while ((c = getchr()) != '\n' && c != '\r')
-		bell();
-#else
-	c = getchr();
-	if (c != '\n' && c != '\r' && c != ' ' && c != READ_INTR)
-		ungetcc(c);
-#endif
+	get_return();
 	lower_left();
 
 	if (col >= sc_width)

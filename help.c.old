@@ -80,9 +80,7 @@ help(nomsg)
 #endif
 #endif
 	free(helpfile);
-	lsystem(cmd);
-	if (!nomsg)
-		error("End of help", NULL_PARG);
+	lsystem(cmd, nomsg ? (char*)NULL : "End of help");
 	free(cmd);
 #endif
 }
