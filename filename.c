@@ -547,7 +547,7 @@ shellcmd(cmd)
 			 * Read the output of <$SHELL -c cmd>.  
 			 * No quotes; use the escaped cmd.
 			 */
-			scmd = (char *) ecalloc(strlen(shell) + strlen(cmd) + 5,
+			scmd = (char *) ecalloc(strlen(shell) + strlen(esccmd) + 5,
 						sizeof(char));
 			sprintf(scmd, "%s -c %s", shell, esccmd);
 			free(esccmd);
@@ -799,10 +799,19 @@ open_altfile(filename, pf, pfd)
 #endif
 	}
 
-	cmd = (char *) ecalloc(strlen(lessopen) + strlen(filename) + 2, 
+	gfilename = esc_metachars(filename);
+	if (gfilename == NULL)
+	{
+		/*
+		 * Cannot escape metacharacters.
+		 */
+		return (NULL);
+	}
+	cmd = (char *) ecalloc(strlen(lessopen) + strlen(gfilename) + 2, 
 			sizeof(char));
-	sprintf(cmd, lessopen, filename);
+	sprintf(cmd, lessopen, gfilename);
 	fd = shellcmd(cmd);
+	free(gfilename);
 	free(cmd);
 	if (fd == NULL)
 	{
@@ -858,6 +867,8 @@ close_altfile(altfilename, filename, pipefd)
 {
 #if HAVE_POPEN
 	char *lessclose;
+	char *gfilename;
+	char *galtfilename;
 	FILE *fd;
 	char *cmd;
 	
@@ -867,10 +878,23 @@ close_altfile(altfilename, filename, pipefd)
 		pclose((FILE*) pipefd);
 	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)
 	     	return;
-	cmd = (char *) ecalloc(strlen(lessclose) + strlen(filename) + 
-			strlen(altfilename) + 2, sizeof(char));
-	sprintf(cmd, lessclose, filename, altfilename);
+	gfilename = esc_metachars(filename);
+	if (gfilename == NULL)
+	{
+		return;
+	}
+	galtfilename = esc_metachars(altfilename);
+	if (galtfilename == NULL)
+	{
+		free(gfilename);
+		return;
+	}
+	cmd = (char *) ecalloc(strlen(lessclose) + strlen(gfilename) + 
+			strlen(galtfilename) + 2, sizeof(char));
+	sprintf(cmd, lessclose, gfilename, galtfilename);
 	fd = shellcmd(cmd);
+	free(galtfilename);
+	free(gfilename);
 	free(cmd);
 	if (fd != NULL)
 		pclose(fd);
