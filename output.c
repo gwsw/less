@@ -28,13 +28,15 @@ extern int so_s_width, so_e_width;
 extern int screen_trashed;
 extern int any_display;
 extern int is_tty;
-#if 
+
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;
 extern int nm_fg_color, nm_bg_color;
 extern int bo_fg_color, bo_bg_color;
 extern int ul_fg_color, ul_bg_color;
 extern int so_fg_color, so_bg_color;
 extern int bl_fg_color, bl_bg_color;
+#endif
 
 /*
  * Display the line which is in the line buffer.
