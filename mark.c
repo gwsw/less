@@ -26,7 +26,6 @@
 
 
 #include "less.h"
-#include "position.h"
 
 extern IFILE curr_ifile;
 extern int sc_height;

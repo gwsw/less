@@ -30,7 +30,6 @@
  */
 
 #include "less.h"
-#include "position.h"
 
 public char *	every_first_cmd = NULL;
 public int	new_file;

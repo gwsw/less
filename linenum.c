@@ -50,7 +50,6 @@
  */
 
 #include "less.h"
-#include "position.h"
 
 /*
  * Structure to keep track of a line number and the associated file position.
