@@ -216,15 +216,17 @@ fcomplete(s)
 	 * (Thus, "FILE" is globbed as "FILE*.*", 
 	 *  but "FILE.A" is globbed as "FILE.A*").
 	 */
-	char *slash;
-	for (slash = s+strlen(s)-1;  slash > s;  slash--)
-		if (*slash = *PATHNAME_SEP || *slash == '/')
-			break;
-	fpat = (char *) ecalloc(strlen(s)+4, sizeof(char));
-	if (strchr(slash, '.') == NULL)
-		sprintf(fpat, "%s*.*", s);
-	else
-		sprintf(fpat, "%s*", s);
+	{
+		char *slash;
+		for (slash = s+strlen(s)-1;  slash > s;  slash--)
+			if (*slash = *PATHNAME_SEP || *slash == '/')
+				break;
+		fpat = (char *) ecalloc(strlen(s)+4, sizeof(char));
+		if (strchr(slash, '.') == NULL)
+			sprintf(fpat, "%s*.*", s);
+		else
+			sprintf(fpat, "%s*", s);
+	}
 #else
 	fpat = (char *) ecalloc(strlen(s)+2, sizeof(char));
 	sprintf(fpat, "%s*", s);
