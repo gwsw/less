@@ -296,7 +296,9 @@ init_cmds()
 	 * For backwards compatibility,
 	 * try to add tables in the OLD system lesskey file.
 	 */
+#ifdef BINDIR
 	add_hometable(NULL, BINDIR "/.sysless", 1);
+#endif
 	/*
 	 * Try to add the tables in the system lesskey file.
 	 */

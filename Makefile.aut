@@ -1,7 +1,7 @@
 # Makefile for authoring less.
 
-EMAIL = marknu@flash.net
-HOMEPAGE = http://www.flash.net/~marknu/less
+EMAIL = markn@greenwoodsoftware.com
+HOMEPAGE = http://www.greenwoodsoftware.com/less
 SHELL = /bin/sh
 RCS = rcs
 NROFF = nroff -man
