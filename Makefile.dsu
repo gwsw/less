@@ -38,8 +38,8 @@ less: $(OBJ)
 	-del lesskey.obj
 	$(CC) $(LDFLAGS) -o $@ *.obj $(LIBS)
 
-lesskey: lesskey.obj
-	$(CC) $(LDFLAGS) -o $@ lesskey.obj $(LIBS)
+lesskey: lesskey.obj version.obj
+	$(CC) $(LDFLAGS) -o $@ lesskey.obj version.obj $(LIBS)
 
 $(OBJ): less.h defines.h
 
