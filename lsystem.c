@@ -90,6 +90,7 @@ lsystem(cmd, donemsg)
 	 */
 	init_signals(0);
 
+#ifndef OSK
 	/*
 	 * Force standard input to be the user's terminal
 	 * (the normal standard input), even if less's standard input 
@@ -99,6 +100,7 @@ lsystem(cmd, donemsg)
 	close(0);
 	if (OPEN_TTYIN() < 0)
 		dup(inp);
+#endif
 
 	/*
 	 * Pass the command to the system to be executed.
@@ -253,7 +255,7 @@ pipe_data(cmd, spos, epos)
 	raw_mode(0);
 	init_signals(0);
 #ifdef SIGPIPE
-	SIGNAL(SIGPIPE, SIG_IGN);
+	LSIGNAL(SIGPIPE, SIG_IGN);
 #endif
 
 	c = EOI;
@@ -284,7 +286,7 @@ pipe_data(cmd, spos, epos)
 	pclose(f);
 
 #ifdef SIGPIPE
-	SIGNAL(SIGPIPE, SIG_DFL);
+	LSIGNAL(SIGPIPE, SIG_DFL);
 #endif
 	init_signals(1);
 	raw_mode(1);

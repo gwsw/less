@@ -31,6 +31,10 @@
 * Environment variable LESSSECURE will force less to run in
   "secure" mode.
 
+* Command line argument "--" signals that the rest of the arguments
+  are files (not option flags).
+
+
 ======================================================================
 
 

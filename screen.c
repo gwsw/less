@@ -129,6 +129,7 @@ public int so_s_width, so_e_width;	/* Printing width of standout seq */
 public int bl_s_width, bl_e_width;	/* Printing width of blink seq */
 public int above_mem, below_mem;	/* Memory retained above/below screen */
 public int can_goto_line;		/* Can move cursor to any line */
+public int missing_cap = 0;	/* Some capability is missing */
 
 static char *cheaper();
 
@@ -142,7 +143,6 @@ extern char PC;		/* Pad character */
 #endif
 
 extern int quiet;		/* If VERY_QUIET, use visual bell for bell */
-extern int know_dumb;		/* Don't complain about a dumb terminal */
 extern int no_back_scroll;
 extern int swindow;
 extern int no_init;
@@ -173,11 +173,6 @@ raw_mode(on)
 
 	if (on == curr_on)
 		return;
-#if OS2
-	signal(SIGINT, SIG_IGN);
-	erase_char = '\b';
-	kill_char = '\033';
-#else
 #if HAVE_TERMIOS_H && HAVE_TERMIOS_FUNCS
     {
 	struct termios s;
@@ -399,6 +394,7 @@ raw_mode(on)
 	ioctl(2, TCSETAW, &s);
     }
 #else
+#ifdef TIOCGETP
     {
 	struct sgttyb s;
 	static struct sgttyb save_term;
@@ -435,26 +431,15 @@ raw_mode(on)
 	}
 	ioctl(2, TIOCSETN, &s);
     }
+#else
+	/* OS2 */
+	LSIGNAL(SIGINT, SIG_IGN);
+	erase_char = '\b';
+	kill_char = '\033';
 #endif
 #endif
 #endif
 	curr_on = on;
-}
-
-	static void
-cannot(s)
-	char *s;
-{
-	PARG parg;
-
-	if (know_dumb)
-		/* 
-		 * User knows this is a dumb terminal, so don't tell him.
-		 */
-		return;
-
-	parg.p_string = s;
-	error("WARNING: terminal cannot %s", &parg);
 }
 
 /*
@@ -487,28 +472,22 @@ ltgetstr(capname, pp)
 {
 	if (hardcopy)
 		return (NULL);
-	return tgetstr(capname, pp);
+	return (tgetstr(capname, pp));
 }
 
 /*
  * Get size of the output screen.
  */
-#if OS2
 	public void
 scrsize()
 {
+#if OS2
 	int s[2];
 
 	_scrsize(s);
 	sc_width = s[0];
 	sc_height = s[1];
-}
-
 #else
-
-	public void
-scrsize()
-{
 	register char *s;
 #ifdef TIOCGWINSZ
 	struct winsize w;
@@ -554,8 +533,8 @@ scrsize()
 
  	if (sc_width <= 0)
   		sc_width = 80;
-}
 #endif /* OS2 */
+}
 
 /*
  * Take care of the "variable" keys.
@@ -834,21 +813,21 @@ get_term()
 	sc_eol_clear = ltgetstr("ce", &sp);
 	if (sc_eol_clear == NULL || *sc_eol_clear == '\0')
 	{
-		cannot("clear to end of line");
+		missing_cap = 1;
 		sc_eol_clear = "";
 	}
 
 	sc_eos_clear = ltgetstr("cd", &sp);
 	if (below_mem && (sc_eos_clear == NULL || *sc_eos_clear == '\0'))
 	{
-		cannot("clear to end of screen");
+		missing_cap = 1;
 		sc_eol_clear = "";
 	}
 
 	sc_clear = ltgetstr("cl", &sp);
 	if (sc_clear == NULL || *sc_clear == '\0')
 	{
-		cannot("clear screen");
+		missing_cap = 1;
 		sc_clear = "\n\n";
 	}
 
@@ -933,7 +912,7 @@ get_term()
 		t2 = sp;
 		sp += strlen(sp) + 1;
 	}
-	sc_home = cheaper(t1, t2, "home cursor", "|\b^");
+	sc_home = cheaper(t1, t2, "|\b^");
 
 	/*
 	 * Choose between using "ll" and "cm"  ("lower left" and "cursor move")
@@ -950,8 +929,7 @@ get_term()
 		t2 = sp;
 		sp += strlen(sp) + 1;
 	}
-	sc_lower_left = cheaper(t1, t2,
-		"move cursor to lower left of screen", "\r");
+	sc_lower_left = cheaper(t1, t2, "\r");
 
 	/*
 	 * Choose between using "al" or "sr" ("add line" or "scroll reverse")
@@ -971,7 +949,7 @@ get_term()
 	if (above_mem)
 		sc_addline = t1;
 	else
-		sc_addline = cheaper(t1, t2, "scroll backwards", "");
+		sc_addline = cheaper(t1, t2, "");
 	if (*sc_addline == '\0')
 	{
 		/*
@@ -1014,14 +992,13 @@ cost(t)
  * cost (see cost() function).
  */
 	static char *
-cheaper(t1, t2, doit, def)
+cheaper(t1, t2, def)
 	char *t1, *t2;
-	char *doit;
 	char *def;
 {
 	if (*t1 == '\0' && *t2 == '\0')
 	{
-		cannot(doit);
+		missing_cap = 1;
 		return (def);
 	}
 	if (*t1 == '\0')

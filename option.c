@@ -134,11 +134,11 @@ scan_option(s)
 		if (o == NULL)
 		{
 			parg.p_string = propt(c);
-#if MSDOS_COMPILER || OS2
-			error("There is no %s flag (\"less -?\" for help)",
+#if SHELL_META_QUEST
+			error("There is no %s flag (\"less -\\?\" for help)",
 				&parg);
 #else
-			error("There is no %s flag (\"less -\\?\" for help)",
+			error("There is no %s flag (\"less -?\" for help)",
 				&parg);
 #endif
 			quit(QUIT_ERROR);

@@ -82,7 +82,6 @@ static int sy_fg_color;
 static int sy_bg_color;
 
 extern int quiet;		/* If VERY_QUIET, use visual bell for bell */
-extern int know_dumb;		/* Don't complain about a dumb terminal */
 extern int back_scroll;
 extern int swindow;
 

@@ -83,6 +83,9 @@
 #include <stdlib.h>
 #include <string.h>
 #endif
+#ifdef OSK
+#include <modes.h>
+#endif
 
 #if !STDC_HEADERS
 char *getenv();
@@ -139,23 +142,37 @@ typedef long		POSITION;
 #if MSDOS_COMPILER || OS2
 #define	OPEN_READ	(O_RDONLY|O_BINARY)
 #else
+#ifdef OSK
+#define	OPEN_READ	(S_IREAD)
+#else
 #ifdef O_RDONLY
 #define	OPEN_READ	(O_RDONLY)
 #else
 #define	OPEN_READ	(0)
 #endif
 #endif
+#endif
 
 #if defined(O_WRONLY) && defined(O_APPEND)
 #define	OPEN_APPEND	(O_APPEND|O_WRONLY)
 #else
+#ifdef OSK
+#define OPEN_APPEND	(S_IWRITE)
+#else
 #define	OPEN_APPEND	(1)
+#endif
 #endif
 
 #if MSDOS_COMPILER || OS2
 #define	OPEN_TTYIN()	open("CON", OPEN_READ)
 #else
 #define	OPEN_TTYIN()	open("/dev/tty", OPEN_READ)
+#endif
+
+#if MSDOS_COMPILER || OS2 || OSK
+#define	SHELL_META_QUEST 0
+#else
+#define	SHELL_META_QUEST 1
 #endif
 
 /*
@@ -245,7 +262,7 @@ struct textlist
 #define	CONTROL(c)	((c)&037)
 #define	ESC		CONTROL('[')
 
-#define	SIGNAL(sig,func)	signal(sig,func)
+#define	LSIGNAL(sig,func)	signal(sig,func)
 
 #define	S_INTERRUPT	01
 #define	S_STOP		02

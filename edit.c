@@ -536,10 +536,10 @@ edit_stdin()
 {
 	if (isatty(fd0))
 	{
-#if MSDOS_COMPILER || OS2
-		error("Missing filename (\"less -?\" for help)", NULL_PARG);
-#else
+#if SHELL_META_QUEST
 		error("Missing filename (\"less -\\?\" for help)", NULL_PARG);
+#else
+		error("Missing filename (\"less -?\" for help)", NULL_PARG);
 #endif
 		quit(QUIT_OK);
 	}

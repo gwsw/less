@@ -67,6 +67,8 @@ extern char *	tagoption;
 extern int	jump_sline;
 #endif
 
+extern int	missing_cap;
+extern int	know_dumb;
 
 
 /*
@@ -201,6 +203,8 @@ main(argc, argv)
 		quit(QUIT_OK);
 	}
 
+	if (missing_cap && !know_dumb)
+		error("WARNING: terminal is not fully functional; output may look bad", NULL_PARG);
 	init_mark();
 	raw_mode(1);
 	open_getchr();

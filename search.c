@@ -998,7 +998,7 @@ search(search_type, pattern, n)
 		 */
 		if (search_type & SRCH_PAST_EOF)
 			return (n);
-		repaint();
+		/* repaint(); -- why was this here? */
 		error("Nothing to search", NULL_PARG);
 		return (-1);
 	}
