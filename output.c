@@ -298,7 +298,7 @@ iprintnum(num, radix)
  * using a more portable argument list mechanism than printf's.
  */
 	static int
-iprintf(fmt, parg)
+less_printf(fmt, parg)
 	register char *fmt;
 	PARG *parg;
 {
@@ -378,7 +378,7 @@ error(fmt, parg)
 		col += so_s_width;
 	}
 
-	col += iprintf(fmt, parg);
+	col += less_printf(fmt, parg);
 
 	if (!(any_display && is_tty))
 	{
@@ -419,7 +419,7 @@ ierror(fmt, parg)
 {
 	clear_bot();
 	so_enter();
-	(void) iprintf(fmt, parg);
+	(void) less_printf(fmt, parg);
 	putstr(intr_to_abort);
 	so_exit();
 	flush();
@@ -441,7 +441,7 @@ query(fmt, parg)
 	if (any_display && is_tty)
 		clear_bot();
 
-	(void) iprintf(fmt, parg);
+	(void) less_printf(fmt, parg);
 	c = getchr();
 
 	if (!(any_display && is_tty))
