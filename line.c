@@ -17,6 +17,8 @@
 
 #include "less.h"
 
+#define IS_CONT(c)  (((c) & 0xC0) == 0x80)
+
 /* Buffer which holds the current output line */
 public char linebuf[LINEBUF_SIZE];
 public int size_linebuf = sizeof(linebuf);
@@ -47,6 +49,7 @@ extern int ul_s_width, ul_e_width;
 extern int bl_s_width, bl_e_width;
 extern int so_s_width, so_e_width;
 extern int sc_width, sc_height;
+extern int utf_mode;
 
 /*
  * Rewind the line buffer.
@@ -110,6 +113,29 @@ plinenum(pos)
 }
 
 /*
+ *
+ */
+	static int
+utf_len(char *s, int len)
+{
+	int ulen = 0;
+
+	while (*s != '\0' && len > 0)
+	{
+		if (!IS_CONT(*s))
+			len--;
+		s++;
+		ulen++;
+	}
+	while (IS_CONT(*s))
+	{
+		s++;
+		ulen++;
+	}
+	return (ulen);
+}
+
+/*
  * Shift the input line left.
  * This means discarding N printable chars at the start of the buffer.
  */
@@ -118,19 +144,28 @@ pshift(shift)
 	int shift;
 {
 	int i;
+	int real_shift;
 
 	if (shift > column)
 		shift = column;
 	if (shift > curr)
 		shift = curr;
 
-	for (i = 0;  i < curr - shift;  i++)
+	if (!utf_mode)
+		real_shift = shift;
+	else
 	{
-		linebuf[i] = linebuf[i + shift];
-		attr[i] = attr[i + shift];
+		real_shift = utf_len(linebuf, shift);
+		if (real_shift > curr)
+			real_shift = curr;
+	}
+	for (i = 0;  i < curr - real_shift;  i++)
+	{
+		linebuf[i] = linebuf[i + real_shift];
+		attr[i] = attr[i + real_shift];
 	}
 	column -= shift;
-	curr -= shift;
+	curr -= real_shift;
 	cshift += shift;
 }
 
@@ -182,6 +217,9 @@ pwidth(c, a)
 	int a;
 {
 	register int w;
+
+	if (utf_mode && IS_CONT(c))
+		return (0);
 
 	if (c == '\b')
 		/*

@@ -20,22 +20,26 @@
 #include <ctype.h>
 #endif
 
+public int utf_mode = 0;
+
 /*
  * Predefined character sets,
  * selected by the LESSCHARSET environment variable.
  */
 struct charset {
 	char *name;
+	int *p_flag;
 	char *desc;
 } charsets[] = {
-	{ "ascii",	"8bcccbcc18b95.b"		},
-	{ "dos",	"8bcccbcc12bc5b95.b."		},
-	{ "ebcdic",	"5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b." },
-	{ "iso8859",	"8bcccbcc18b95.33b."		},
-	{ "koi8-r",	"8bcccbcc18b95.b128."		},
-	{ "latin1",	"8bcccbcc18b95.33b."		},
-	{ "next",	"8bcccbcc18b95.bb125.bb"	},
-	{ NULL, NULL }
+	{ "ascii",	NULL,       "8bcccbcc18b95.b" },
+	{ "dos",	NULL,       "8bcccbcc12bc5b95.b." },
+	{ "ebcdic",	NULL,       "5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b." },
+	{ "iso8859",	NULL,       "8bcccbcc18b95.33b." },
+	{ "koi8-r",	NULL,       "8bcccbcc18b95.b128." },
+	{ "latin1",	NULL,       "8bcccbcc18b95.33b." },
+	{ "next",	NULL,       "8bcccbcc18b95.bb125.bb" },
+	{ "utf-8",	&utf_mode,  "8bcccbcc18b." },
+	{ NULL, NULL, NULL }
 };
 
 #define	IS_BINARY_CHAR	01
@@ -131,6 +135,8 @@ icharset(name)
 		if (strcmp(name, p->name) == 0)
 		{
 			ichardef(p->desc);
+			if (p->p_flag != NULL)
+				*(p->p_flag) = 1;
 			return (1);
 		}
 	}
