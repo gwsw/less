@@ -116,7 +116,7 @@
                   Repaint by scrolling/clearing.
   -d  ........  --dumb
                   Dumb terminal.
-  -D [_x_n_._n]     --color=_x_n_._n
+  -D [_x_n_._n]  .  --color=_x_n_._n
                   Set screen colors. (MS-DOS only)
   -e  -E  ....  --quit-at-eof  --QUIT-AT-EOF
                   Quit at end of file.

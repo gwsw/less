@@ -3,8 +3,13 @@
     This program is part of the GNU project (http://www.gnu.org).
     See the file COPYING for licensing information.
     Please report any problems to the author at @@EMAIL@@.
-        (Please note change of email address.)
     See @@HOMEPAGE@@ for the latest info.
+    You may also contact the author at:
+          Mark Nudelman
+          Greenwood Software
+          PO Box 2402
+          El Granada, CA  94018
+          USA
 =========================================================================
 
 This is the distribution of "less", a paginator similar to "more" or "pg".

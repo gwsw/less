@@ -17,10 +17,16 @@
 
 * Command line options may now be given in either the old single-letter
   form, or a new long name form (--option-name).
+  See the man page or "less --help" for the list of long option names.
 
 * New command -- toggles an option using the long option name.
 
 * New command __ queries an option using the long option name.
+
+* The old -- command is available as -!.
+
+* New option -~ (like -w before version 335)
+  suppresses tildes after end-of-file.
 
 * Less is now released under the GNU General Public License.
 
