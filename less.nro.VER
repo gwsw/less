@@ -79,6 +79,10 @@ Warning: some systems use ^Y as a special job control character.
 Scroll backward N lines, default one half of the screen size.
 If N is specified, it becomes the new default for 
 subsequent d and u commands.
+.IP "ESC-["
+Scroll horizontally left N characters, default 8.
+.IP "ESC-]"
+Scroll horizontally right N characters, default 8.
 .IP "r or ^R or ^L"
 Repaint the screen.
 .IP R

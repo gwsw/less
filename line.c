@@ -37,6 +37,9 @@
 public char linebuf[LINEBUF_SIZE];
 public int size_linebuf = sizeof(linebuf);
 
+public int cshift;		/* Current left-shift of output line buffer */
+public int hshift;		/* Desired left-shift of output line buffer */
+
 static char attr[LINEBUF_SIZE];	/* Extension of linebuf to hold attributes */
 static int curr;		/* Index into linebuf */
 static int column;		/* Printable length, accounting for
@@ -69,6 +72,7 @@ prewind()
 {
 	curr = 0;
 	column = 0;
+	cshift = 0;
 	overstrike = 0;
 	is_null_line = 0;
 	pendc = '\0';
@@ -118,7 +122,32 @@ plinenum(pos)
 		linebuf[curr] = ' ';
 		attr[curr++] = AT_NORMAL;
 		column++;
-	} while ((column % tabstop) != 0);
+	} while (((column + cshift) % tabstop) != 0);
+}
+
+/*
+ * Shift the input line left.
+ * This means discarding N printable chars at the start of the buffer.
+ */
+	static void
+pshift(shift)
+	int shift;
+{
+	int i;
+
+	if (shift > column)
+		shift = column;
+	if (shift > curr)
+		shift = curr;
+
+	for (i = 0;  i < curr - shift;  i++)
+	{
+		linebuf[i] = linebuf[i + shift];
+		attr[i] = attr[i + shift];
+	}
+	column -= shift;
+	curr -= shift;
+	cshift += shift;
 }
 
 /*
@@ -287,6 +316,8 @@ pappend(c, pos)
 	register int c;
 	POSITION pos;
 {
+	int r;
+
 	if (pendc)
 	{
 		if (do_append(pendc, pendpos))
@@ -310,7 +341,16 @@ pappend(c, pos)
 		return (0);
 	}
 
-	return (do_append(c, pos));
+	r = do_append(c, pos);
+	/*
+	 * If we need to shift the line, do it.
+	 * But wait until we get to at least the middle of the screen,
+	 * so shifting it doesn't affect the chars we're currently
+	 * pappending.  (Bold & underline can get messed up otherwise.)
+	 */
+	if (cshift < hshift && column > sc_width / 2)
+		pshift(hshift - cshift);
+	return (r);
 }
 
 	static int
@@ -376,7 +416,7 @@ do_append(c, pos)
 			do
 			{
 				STOREC(' ', AT_NORMAL);
-			} while ((column % tabstop) != 0);
+			} while (((column + cshift) % tabstop) != 0);
 			break;
 		}
 	} else if (control_char(c))
@@ -429,6 +469,12 @@ pdone(endline)
 		 * (that is, discard the CR in a CR/LF sequence).
 		 */
 		(void) do_append(pendc, pendpos);
+
+	/*
+	 * Make sure we've shifted the line, if we need to.
+	 */
+	if (cshift < hshift)
+		pshift(hshift - cshift);
 
 	/*
 	 * Add a newline if necessary,

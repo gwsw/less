@@ -14,6 +14,8 @@
 * Command line at bottom of screen now scrolls, so it can be longer 
   than the screen width.
 
+* New commands ESC-] and ESC-[ scroll the display horizontally.
+
 * New command ESC-SPACE scrolls forward a full screen, even if it
   hits end-of-file.
 

@@ -47,6 +47,7 @@ extern int wscroll;
 extern int top_scroll;
 extern int ignore_eoi;
 extern int secure;
+extern int hshift;
 extern char *every_first_cmd;
 extern char *curr_altfilename;
 extern char version[];
@@ -1320,6 +1321,22 @@ commands()
 			start_mca(action, "Brackets: ", (void*)NULL);
 			c = getcc();
 			goto again;
+
+		case A_LSHIFT:
+			if (number <= 0)
+				number = 8;
+			if (number > hshift)
+				number = hshift;
+			hshift -= number;
+			screen_trashed = 1;
+			break;
+
+		case A_RSHIFT:
+			if (number <= 0)
+				number = 8;
+			hshift += number;
+			screen_trashed = 1;
+			break;
 
 		case A_PREFIX:
 			/*

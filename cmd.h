@@ -67,7 +67,8 @@
 #define	A_INDEX_FILE		38
 #define	A_UNDO_SEARCH		39
 #define	A_FF_SCREEN		40
-
+#define	A_LSHIFT		41
+#define	A_RSHIFT		42
 #define	A_AGAIN_SEARCH		43
 #define	A_T_AGAIN_SEARCH	44
 #define	A_REVERSE_SEARCH	45
