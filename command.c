@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
+ * Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,7 @@ extern int top_scroll;
 extern int ignore_eoi;
 extern int secure;
 extern int hshift;
+extern int show_attn;
 extern char *every_first_cmd;
 extern char *curr_altfilename;
 extern char version[];
@@ -75,6 +76,7 @@ static int search_type;		/* The previous type of search */
 static int number;		/* The number typed by the user */
 static char optchar;
 static int optflag;
+static POSITION bottompos;
 #if PIPEC
 static char pipec;
 #endif
@@ -89,6 +91,7 @@ static void multi_search();
 	static void
 cmd_exec()
 {
+	clear_attn();
 	lower_left();
 	flush();
 }
@@ -460,6 +463,7 @@ prompt()
 	 * Make sure the screen is displayed.
 	 */
 	make_display();
+	bottompos = position(BOTTOM_PLUS_ONE);
 
 	/*
 	 * If the -E flag is set and we've hit EOF on the last file, quit.
@@ -842,6 +846,8 @@ commands()
 			if (number <= 0)
 				number = get_swindow();
 			cmd_exec();
+			if (show_attn)
+				set_attnpos(bottompos);
 			forward(number, 0, 1);
 			break;
 
@@ -869,6 +875,8 @@ commands()
 			if (number <= 0)
 				number = 1;
 			cmd_exec();
+			if (show_attn == OPT_ONPLUS && number > 1)
+				set_attnpos(bottompos);
 			forward(number, 0, 0);
 			break;
 
@@ -889,6 +897,8 @@ commands()
 			if (number <= 0)
 				number = 1;
 			cmd_exec();
+			if (show_attn == OPT_ONPLUS && number > 1)
+				set_attnpos(bottompos);
 			forward(number, 1, 0);
 			break;
 
@@ -909,6 +919,8 @@ commands()
 			if (number <= 0)
 				number = get_swindow();
 			cmd_exec();
+			if (show_attn == OPT_ONPLUS)
+				set_attnpos(bottompos);
 			forward(number, 1, 0);
 			break;
 
@@ -941,6 +953,8 @@ commands()
 			if (number > 0)
 				wscroll = number;
 			cmd_exec();
+			if (show_attn == OPT_ONPLUS)
+				set_attnpos(bottompos);
 			forward(wscroll, 0, 0);
 			break;
 

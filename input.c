@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
+ * Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,8 @@ extern int squeeze;
 extern int chopline;
 extern int sigs;
 extern int ignore_eoi;
+extern POSITION start_attnpos;
+extern POSITION end_attnpos;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int size_linebuf;
@@ -316,4 +318,38 @@ back_line(curr_pos)
 	pdone(endline);
 
 	return (begin_new_pos);
+}
+
+/*
+ * Set attnpos.
+ */
+	public void
+set_attnpos(pos)
+	POSITION pos;
+{
+	int c;
+
+	if (pos != NULL_POSITION)
+	{
+		if (ch_seek(pos))
+			return;
+		for (;;)
+		{
+			c = ch_forw_get();
+			if (c == EOI)
+				return;
+			if (c != '\n' && c != '\r')
+				break;
+			pos++;
+		}
+	}
+	start_attnpos = pos;
+	for (;;)
+	{
+		c = ch_forw_get();
+		pos++;
+		if (c == EOI || c == '\n' || c == '\r')
+			break;
+	}
+	end_attnpos = pos;
 }
