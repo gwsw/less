@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-1999  Mark Nudelman
+ * Copyright (C) 1984-2000  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -29,6 +29,7 @@ struct mark {
  * The final one is lmark, for the "last mark"; addressed by the apostrophe.
  */
 #define	NMARKS		((2*26)+1)	/* a-z, A-Z, lastmark */
+#define	LASTMARK	(NMARKS-1)
 static struct mark marks[NMARKS];
 
 /*
@@ -109,7 +110,7 @@ getmark(c)
 		/*
 		 * The "last mark".
 		 */
-		m = &marks[NMARKS-1];
+		m = &marks[LASTMARK];
 		break;
 	default:
 		/*
@@ -169,8 +170,8 @@ lastmark()
 	get_scrpos(&scrpos);
 	if (scrpos.pos == NULL_POSITION)
 		return;
-	marks[NMARKS-1].m_scrpos = scrpos;
-	marks[NMARKS-1].m_ifile = curr_ifile;
+	marks[LASTMARK].m_scrpos = scrpos;
+	marks[LASTMARK].m_ifile = curr_ifile;
 }
 
 /*
@@ -192,7 +193,7 @@ gomark(c)
 	 * it has not been set to anything yet,
 	 * set it to the beginning of the current file.
 	 */
-	if (m == &marks[NMARKS-1] && m->m_scrpos.pos == NULL_POSITION)
+	if (m == &marks[LASTMARK] && m->m_scrpos.pos == NULL_POSITION)
 	{
 		m->m_ifile = curr_ifile;
 		m->m_scrpos.pos = ch_zero();

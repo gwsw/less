@@ -1294,14 +1294,14 @@ Each is broken into two lines here for readability only.
 ?n?f%f\ .?m(file\ %i\ of\ %m)\ ..?e(END)\ ?x-\ Next\\:\ %x.:
 	?pB%pB\\%:byte\ %bB?s/%s...%t
 .sp
-?f%f\ .?n?m(file\ %i\ of\ %m)\ ..?ltline\ %lt?L/%L.\ :byte\ %bB?s/%s.\ .
-	?e(END)\ ?x-\ Next\\:\ %x.:?pB%pB\\%..%t
+?f%f\ .?n?m(file\ %i\ of\ %m)\ ..?ltlines\ %lt-%lb?L/%L.\ :
+	byte\ %bB?s/%s.\ .?e(END)\ ?x-\ Next\\:\ %x.:?pB%pB\\%..%t
 .sp
 .fi
 And here is the default message produced by the = command:
 .nf
 .sp
-?f%f\ .?m(file\ %i\ of\ %m)\ .?ltline\ %lt?L/%L.\ .
+?f%f\ .?m(file\ %i\ of\ %m)\ .?ltlines\ %lt-%lb?L/%L.\ .
 	byte\ %bB?s/%s.\ ?e(END)\ :?pB%pB\\%..%t
 .fi
 .PP
@@ -1441,8 +1441,8 @@ lesskey(1)
 
 .SH WARNINGS
 The = command and prompts (unless changed by -P)
-report the line number of the line at the top of the screen,
-but the byte and percent of the line at the bottom of the screen.
+report the line numbers of the lines at the top and bottom of the screen,
+but the byte and percent of the line after the one at the bottom of the screen.
 .PP
 If the :e command is used to name more than one file,
 and one of the named files has been viewed previously,
@@ -1469,14 +1469,11 @@ to treat some binary files as ordinary, non-binary files.
 To workaround this problem, set the environment variable
 LESSCHARSET to "ascii" (or whatever character set is appropriate).
 .PP
-The MS-DOS and Windows versions sometimes display incorrect
-highlighting when lines are longer than the screen width.
-.PP
 See @@HOMEPAGE@@ for the latest list of known bugs in this
 version of less.
 
 .SH COPYRIGHT
-Copyright (C) 1999  Mark Nudelman
+Copyright (C) 2000  Mark Nudelman
 .PP
 less is part of the GNU project and is free software.
 You can redistribute it and/or modify it

@@ -19,6 +19,8 @@
 
 * Add --with-editor option to configure script.
 
+* The -M prompt and = message now show the top and bottom line number.
+
 * Fix bug in running the editor on a file whose name contains quotes, etc.
 
 * Fix bug in horizontal scrolling of long lines.

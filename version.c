@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-1999  Mark Nudelman
+ * Copyright (C) 1984-2000  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -587,6 +587,7 @@ v348  12/28/99	Fix deleting file with marks (thanks to Dimitar Jekov).
 v349   1/24/00	Fix minor DJGPP bugs; check environment vars for UTF-8;
 		add --with-editor (thanks to Eli, Markus Kuhn, Thomas Schoepf).
 v350   3/1/00	Fix clear-while-standout bug.
+v351   3/5/00	Change -M and = prompts to show top & bottom line number.
 */
 
-char version[] = "350";
+char version[] = "351";

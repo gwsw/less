@@ -43,7 +43,10 @@ INSTALLATION (Unix systems only):
 3. It is a good idea to look over the generated Makefile and defines.h
    and make sure they look ok.  If you know of any peculiarities of
    your system that configure might not have detected, you may fix the
-   Makefile now.  
+   Makefile now.  Take particular notice of the list of "terminal" 
+   libraries in the LIBS definition in the Makefile; these may need 
+   to be edited.  The terminal libraries will be some subset of
+       -lncurses  -lcurses  -ltermcap  -ltermlib
 
    If you wish, you may edit defines.h to remove some optional features.
    If you wish to build a "secure" version of less (which disables all

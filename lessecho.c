@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-1999  Mark Nudelman
+ * Copyright (C) 1984-2000  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -24,7 +24,7 @@
 
 #include "less.h"
 
-static char *version = "$Revision: 1.4 $";
+static char *version = "$Revision: 1.5 $";
 
 static int quote_all = 0;
 static char openquote = '"';

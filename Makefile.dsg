@@ -42,7 +42,7 @@ lessecho: lessecho.${O} version.${O}
 	${CC} ${LDFLAGS} -o $@ lessecho.${O} version.${O}
 
 defines.h: defines.ds
-	update $< $@
+	command.com /c copy $< $@
 
 ${OBJ}: less.h defines.h funcs.h
 
