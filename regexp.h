@@ -27,6 +27,7 @@ typedef struct regexp {
 
 extern regexp *regcomp _ANSI_ARGS_((char *exp));
 extern int regexec _ANSI_ARGS_((regexp *prog, char *string));
+extern int regexec2 _ANSI_ARGS_((regexp *prog, char *string, int notbol));
 extern void regsub _ANSI_ARGS_((regexp *prog, char *source, char *dest));
 extern void regerror _ANSI_ARGS_((char *msg));
 

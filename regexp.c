@@ -721,6 +721,7 @@ int
 regexec2(prog, string, notbol)
 register regexp *prog;
 register char *string;
+int notbol;
 {
 	register char *s;
 
