@@ -25,6 +25,9 @@
 
 * Fix bug in doing :d on a file which contains marks.
 
+* Fix bug causing cleared lines to sometimes be filled with standout, 
+  bold, underline, etc. on certain terminals.
+
 * Fixes for MS-DOS (DJGPP) version.
 
 ======================================================================

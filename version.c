@@ -586,6 +586,7 @@ v348  12/28/99	Fix deleting file with marks (thanks to Dimitar Jekov).
 		Fix color problem in DJGPP version (thanks to Eli Zaretskii).
 v349   1/24/00	Fix minor DJGPP bugs; check environment vars for UTF-8;
 		add --with-editor (thanks to Eli, Markus Kuhn, Thomas Schoepf).
+v350   3/1/00	Fix clear-while-standout bug.
 */
 
-char version[] = "349";
+char version[] = "350";
