@@ -13,11 +13,12 @@
 ======================================================================
 
 
-	Major changes between "less" versions 352 and @@VERSION@@
+	Major changes between "less" versions 354 and @@VERSION@@
 
 * Add -J (--status-column) option to display a status column.
 
 * Add -# (--shift) option to set default horizontal shift distance.
+  Default horizontal shift distance is now one-half screen width.
 
 * Horizontal shifting does not shift line numbers if -N is in effect.
 
