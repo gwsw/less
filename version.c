@@ -574,7 +574,8 @@ v341    5/6/99  Add -F option; %c & ?c prompt escapes.
 v342   7/22/99  Add system-wide lesskey file; allow GPL or Less License.
 v343   9/23/99	Support UTF-8 (Thanks to Robert Brady).
 		Add %P and ?P in prompts.
+v344  10/27/99	-w highlights target line of g and p commands.
 
 */
 
-char version[] = "343";
+char version[] = "344";

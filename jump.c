@@ -21,6 +21,7 @@ extern int jump_sline;
 extern int squished;
 extern int screen_trashed;
 extern int sc_width, sc_height;
+extern int show_attn;
 
 /*
  * Jump to the end of the file.
@@ -66,6 +67,8 @@ jump_back(n)
 	pos = find_pos(n);
 	if (pos != NULL_POSITION && ch_seek(pos) == 0)
 	{
+		if (show_attn)
+			set_attnpos(pos);
 		jump_loc(pos, jump_sline);
 	} else if (n <= 1 && ch_beg_seek() == 0)
 	{
@@ -147,6 +150,8 @@ jump_line_loc(pos, sline)
 			(void) ch_forw_get();
 		pos = ch_tell();
 	}
+	if (show_attn)
+		set_attnpos(pos);
 	jump_loc(pos, sline);
 }
 
@@ -180,6 +185,8 @@ jump_loc(pos, sline)
 			forw(nline, position(BOTTOM_PLUS_ONE), 1, 0, 0);
 		else
 			back(-nline, position(TOP), 1, 0);
+		if (show_attn)
+			repaint_hilite(1);
 		return;
 	}
 
@@ -217,6 +224,8 @@ jump_loc(pos, sline)
 				 * that we can just scroll there after all.
 				 */
 				forw(sc_height-sline+nline-1, bpos, 1, 0, 0);
+				if (show_attn)
+					repaint_hilite(1);
 				return;
 			}
 			pos = back_line(pos);
@@ -264,6 +273,8 @@ jump_loc(pos, sline)
 				 * that we can just scroll there after all.
 				 */
 				back(nline+1, tpos, 1, 0);
+				if (show_attn)
+					repaint_hilite(1);
 				return;
 			}
 		}

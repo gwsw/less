@@ -725,6 +725,7 @@ Temporarily highlights the first "new" line after a forward movement
 of a full page.
 The first "new" line is the line immediately following the line previously
 at the bottom of the screen.
+Also highlights the target line after a g or p command.
 The highlight is removed at the next command which causes movement.
 .IP "-W or --HILITE-UNREAD"
 Like -w, but temporarily highlights the first new line after any 
@@ -1055,13 +1056,12 @@ be considered normal, control, and binary.
 The LESSCHARSET environment variable may be used to select a character set.
 Possible values for LESSCHARSET are:
 .IP ascii
-The default character set.
 BS, TAB, NL, CR, and formfeed are control characters,
 all chars with values between 32 and 126 are normal,
 and all others are binary.
 .IP iso8859
 Selects the ISO 8859/1 character set.
-latin-1 is the same as ASCII, except characters between 161 and 255 are
+This is the same as ASCII, except characters between 161 and 255 are
 treated as normal characters.
 .IP latin1
 Same as iso8859.
@@ -1073,6 +1073,11 @@ Selects an EBCDIC character set.
 Selects a Russian character set.
 .IP next
 Selects a character set appropriate for NeXT computers.
+.IP utf-8
+Selects the UTF-8 character set.
+.PP
+If the LESSCHARSET environment variable is not set,
+the default character set is latin1.
 .PP
 In special cases, it may be desired to tailor
 .I less

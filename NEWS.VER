@@ -17,12 +17,16 @@
 
 * The UTF-8 character set is now supported.
 
+* The default character set is now latin1 rather than ascii.
+
 * New option -R (--RAW-CONTROL-CHARS) is like -r but handles 
-  wrapped lines, as long as the input contains only normal text and 
-  ANSI color escape sequences.
+  long (wrapped) lines correctly, as long as the input contains only 
+  normal text and ANSI color escape sequences.
 
 * New option -F (--quit-if-one-screen) quits if the text fits on
   the first screen.
+
+* The -w option now highlights the target line of a g or p command.
 
 * A system-wide lesskey file is supported (LESSKEY_SYSTEM).
 

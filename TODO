@@ -119,6 +119,7 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 *v343	214	Support HOME/END commands.
 *v343	215	Change default LESSCHARSET to latin1.
 *v343	216	Prompt escape to do percent in file based on lines not bytes.
-
-
+*v343	217	Change iprintf name to avoid conflict with Cygwin.
+*v343	218	h:d crashes.
+*v344	219	-w should highlight target line on g and p commands.
 
