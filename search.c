@@ -61,7 +61,6 @@ extern int linenums;
 extern int sc_height;
 extern int jump_sline;
 extern int bs_mode;
-extern int ignore_eoi;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int screen_trashed;
@@ -646,7 +645,7 @@ hilite_screen()
 	get_scrpos(&scrpos);
 	if (scrpos.pos == NULL_POSITION)
 		return;
-	prep_hilite(scrpos.pos, position(BOTTOM_PLUS_ONE));
+	prep_hilite(scrpos.pos, position(BOTTOM_PLUS_ONE), -1);
 	repaint_hilite(1);
 }
 
@@ -732,11 +731,12 @@ search_pos(search_type)
  * Search a subset of the file, specified by start/end position.
  */
 	static int
-search_range(pos, endpos, search_type, n, plinepos, pendpos)
+search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 	POSITION pos;
 	POSITION endpos;
 	int search_type;
-	int n;
+	int matches;
+	int maxlines;
 	POSITION *plinepos;
 	POSITION *pendpos;
 {
@@ -763,15 +763,17 @@ search_range(pos, endpos, search_type, n, plinepos, pendpos)
 			return (-1);
 		}
 
-		if (endpos != NULL_POSITION && pos >= endpos)
+		if ((endpos != NULL_POSITION && pos >= endpos) || maxlines == 0)
 		{
 			/*
 			 * Reached end position without a match.
 			 */
 			if (pendpos != NULL)
 				*pendpos = pos;
-			return (n);
+			return (matches);
 		}
+		if (maxlines > 0)
+			maxlines--;
 
 		if (search_type & SRCH_FORW)
 		{
@@ -802,7 +804,7 @@ search_range(pos, endpos, search_type, n, plinepos, pendpos)
 			 */
 			if (pendpos != NULL)
 				*pendpos = oldpos;
-			return (n);
+			return (matches);
 		}
 
 		/*
@@ -855,7 +857,7 @@ search_range(pos, endpos, search_type, n, plinepos, pendpos)
 			if (line_match)
 				hilite_line(linepos, line, sp, ep);
 #endif
-		} else if (--n <= 0)
+		} else if (--matches <= 0)
 		{
 			/*
 			 * Found the one match we're looking for.
@@ -987,7 +989,7 @@ xsearch_type = search_type;
 		return (-1);
 	}
 
-	n = search_range(pos, NULL_POSITION, search_type, n, 
+	n = search_range(pos, NULL_POSITION, search_type, n, -1,
 			&pos, (POSITION*)NULL);
 	if (n != 0)
 	{
@@ -1035,14 +1037,14 @@ xsearch_type = search_type;
  * prep_hilite asks that the range (spos,epos) be covered by the prep region.
  */
 	public void
-prep_hilite(spos, epos)
+prep_hilite(spos, epos, maxlines)
 	POSITION spos;
 	POSITION epos;
+	int maxlines;
 {
 	POSITION nprep_startpos = prep_startpos;
 	POSITION nprep_endpos = prep_endpos;
 	POSITION new_epos;
-	int save_ignore_eoi;
 	int result;
 /*
  * Search beyond where we're asked to search, so the prep region covers
@@ -1113,23 +1115,16 @@ prep_hilite(spos, epos)
 		{
 			/*
 			 * New range starts within or after old prep region.
-			 * Trim search to start near end of old prep region
-			 * (actually, one linebuf before end of old range).
+			 * Trim search to start at end of old prep region.
 			 */
-			if (prep_endpos < size_linebuf)
-				spos = 0;
-			else 
-				spos = prep_endpos - size_linebuf;
+			spos = prep_endpos;
 		}
 	}
 
 	if (epos == NULL_POSITION || epos > spos)
 	{
-		save_ignore_eoi = ignore_eoi;
-		ignore_eoi = 0;
 		result = search_range(spos, epos, SRCH_FORW|SRCH_FIND_ALL, 0,
-				(POSITION*)NULL, &new_epos);
-		ignore_eoi = save_ignore_eoi;
+				maxlines, (POSITION*)NULL, &new_epos);
 		if (result < 0)
 			return;
 		if (prep_endpos == NULL_POSITION || new_epos > prep_endpos)

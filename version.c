@@ -525,6 +525,7 @@ v298   1/24/96	Change @@ to ^K.
 v299   1/25/96	Fix percent overflow in jump_percent (thanks to Brent Wiese);
 		don't send "ti" after shell command till RETURN pressed.
 v300   1/25/96	Change -U to print tabs as ^I.
+v301   1/30/96	Make hilites work in cmd F output.
 */
 
-char version[] = "300";
+char version[] = "301";

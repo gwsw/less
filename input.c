@@ -40,6 +40,7 @@
 extern int squeeze;
 extern int chopline;
 extern int sigs;
+extern int ignore_eoi;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int size_linebuf;
@@ -68,7 +69,8 @@ forw_line(curr_pos)
 	}
 #if HILITE_SEARCH
 	if (hilite_search == OPT_ONPLUS)
-		prep_hilite(curr_pos, curr_pos + 3*size_linebuf);
+		prep_hilite(curr_pos, curr_pos + 3*size_linebuf, 
+				ignore_eoi ? 1 : -1);
 #endif
 	if (ch_seek(curr_pos))
 	{
@@ -178,7 +180,7 @@ back_line(curr_pos)
 #if HILITE_SEARCH
 	if (hilite_search == OPT_ONPLUS)
 		prep_hilite((curr_pos < 3*size_linebuf) ? 
-				0 : curr_pos - 3*size_linebuf, curr_pos);
+				0 : curr_pos - 3*size_linebuf, curr_pos, -1);
 #endif
 	if (ch_seek(curr_pos-1))
 	{
