@@ -82,10 +82,11 @@ INSTALLATION (MS-DOS systems only,
 
 3. Look at MAKEFILE to make sure that the definitions for CC and LIBDIR
    are correct.  CC should be the name of your C compiler and
-   LIBDIR should be the directory where the C libraries
-   reside.  If these definitions need to be changed, you can either 
-   modify the definitions directly in MAKEFILE, or set your environment 
-   variables CC and/or LIBDIR to override the definitions in MAKEFILE.
+   LIBDIR should be the directory where the C libraries reside (for
+   Microsoft C only).  If these definitions need to be changed, you can
+   either modify the definitions directly in MAKEFILE, or set your
+   environment variables CC and/or LIBDIR to override the definitions
+   in MAKEFILE.
 
 4. If you wish, you may edit DEFINES.DS to remove some optional features.
    If you choose not to include some features in your version, you may

@@ -479,10 +479,12 @@ lglob(filename)
 	{
 #if SPACES_IN_FILENAMES
 		if (strchr(list[cnt], ' ') != NULL)
-			sprintf(gfilename, "\"%s\" ", list[cnt]);
+			strcat(strcat(strcat(gfilename, "\""), list[cnt]), "\"");
 		else
 #endif
-		sprintf(gfilename, "%s ", list[cnt]);
+		strcat(gfilename, list[cnt]);
+		if (cnt > 1)
+			strcat(gfilename, " ");
 	}
 	_fnexplodefree(list);
 }
@@ -517,10 +519,12 @@ lglob(filename)
 			strcat(gfilename, " ");
 #if SPACES_IN_FILENAMES
 		if (strchr(*p, ' ') != NULL)
-			sprintf(gfilename, "\"%s\" ", *p);
+			strcat(strcat(strcat(gfilename, "\""), *p), "\"");
 		else
 #endif
-		sprintf(gfilename, "%s ", *p);
+		strcat(gfilename, *p);
+		if (cnt > 1)
+			strcat(gfilename, " ");
 	}
 
 	free(filename);

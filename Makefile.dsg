@@ -52,7 +52,6 @@ installcheck:
 TAGS:
 	etags *.c *.h
 
-#	command > funcs.h /c mkfuncs
 newfuncs:
 	redir -o funcs.h gawk -f mkfuncs.awk ${OBJ:.${O}=.c}
 
@@ -62,7 +61,7 @@ clean:
 mostlyclean: clean
 
 distclean: clean
-	if not exist makefile.dj ren makefile makefile.dj
+	if not exist Makefile.dsg ren Makefile Makefile.dsg
 	if not exist defines.ds ren defines.h defines.ds
 	${SUBSHELL} for %%f in (Makefile defines.h) do if exist %%f del %%f
 
