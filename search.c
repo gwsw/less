@@ -64,6 +64,7 @@ extern int bs_mode;
 extern int hilite_search;
 extern int screen_trashed;
 extern int size_linebuf;
+extern int squished;
 static int hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
@@ -183,6 +184,9 @@ repaint_hilite(on)
 	POSITION epos;
 	int save_hide_hilite;
 	extern int can_goto_line;
+
+	if (squished)
+		repaint();
 
 	save_hide_hilite = hide_hilite;
 	if (!on)
