@@ -100,6 +100,8 @@ static unsigned char cmdtable[] =
 	'%',0,				A_PERCENT,
 	ESC,'[',0,			A_LSHIFT,
 	ESC,']',0,			A_RSHIFT,
+	ESC,'(',0,			A_LSHIFT,
+	ESC,')',0,			A_RSHIFT,
 	'{',0,				A_F_BRACKET|A_EXTRA,	'{','}',0,
 	'}',0,				A_B_BRACKET|A_EXTRA,	'{','}',0,
 	'(',0,				A_F_BRACKET|A_EXTRA,	'(',')',0,
@@ -604,7 +606,9 @@ add_hometable()
 	char *filename;
 	PARG parg;
 
-	if ((filename = lgetenv("LESSKEY")) == NULL)
+	if ((filename = lgetenv("LESSKEY")) != NULL)
+		filename = save(filename);
+	else
 		filename = homefile(LESSKEYFILE);
 	if (filename == NULL)
 		return;
