@@ -52,17 +52,10 @@ extern char *curr_altfilename;
 extern char version[];
 extern struct scrpos initial_scrpos;
 extern IFILE curr_ifile;
-#if CMD_HISTORY
-extern void *ml_search;
-extern void *ml_examine;
+extern void constant *ml_search;
+extern void constant *ml_examine;
 #if SHELL_ESCAPE || PIPEC
-extern void *ml_shell;
-#endif
-#else
-/* No CMD_HISTORY */
-#define	ml_search	NULL
-#define	ml_examine	NULL
-#define	ml_shell  	NULL
+extern void constant *ml_shell;
 #endif
 #if EDITOR
 extern char *editor;
@@ -110,9 +103,7 @@ start_mca(action, prompt, mlist)
 	mca = action;
 	clear_cmd();
 	cmd_putstr(prompt);
-#if CMD_HISTORY
 	set_mlist(mlist);
-#endif
 }
 
 	public int
@@ -134,20 +125,16 @@ mca_search()
 
 	clear_cmd();
 
-	if (search_type & SRCH_FIRST_FILE)
-		cmd_putstr("@");
-
-	if (search_type & SRCH_NO_MOVE)
-		cmd_putstr("#");
-
-	if (search_type & SRCH_PAST_EOF)
-		cmd_putstr("*");
-
 	if (search_type & SRCH_NO_MATCH)
-		cmd_putstr("!");
-
+		cmd_putstr("Non-match ");
+	if (search_type & SRCH_PAST_EOF)
+		cmd_putstr("EOF-skip ");
+	if (search_type & SRCH_FIRST_FILE)
+		cmd_putstr("First-file ");
+	if (search_type & SRCH_NO_MOVE)
+		cmd_putstr("Keep-pos ");
 	if (search_type & SRCH_NO_REGEX)
-		cmd_putstr("=");
+		cmd_putstr("Regex-off ");
 
 	if (search_type & ~(SRCH_FORW | SRCH_BACK))
 		cmd_putstr("  ");
@@ -156,9 +143,7 @@ mca_search()
 		cmd_putstr("/");
 	else
 		cmd_putstr("?");
-#if CMD_HISTORY
 	set_mlist(ml_search);
-#endif
 }
 
 /*

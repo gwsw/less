@@ -75,24 +75,34 @@ struct mlist
  */
 struct mlist mlist_search =  
 	{ &mlist_search,  &mlist_search,  &mlist_search,  NULL };
-public void *ml_search = (void *) &mlist_search;
+public void constant *ml_search = (void *) &mlist_search;
 
 struct mlist mlist_examine = 
 	{ &mlist_examine, &mlist_examine, &mlist_examine, NULL };
-public void *ml_examine = (void *) &mlist_examine;
+public void constant *ml_examine = (void *) &mlist_examine;
 
 #if SHELL_ESCAPE || PIPEC
 struct mlist mlist_shell =   
 	{ &mlist_shell,   &mlist_shell,   &mlist_shell,   NULL };
-public void *ml_shell = (void *) &mlist_shell;
-#endif /* SHELL_ESCAPE || PIPEC */
+public void constant *ml_shell = (void *) &mlist_shell;
+#endif
+
+#else /* CMD_HISTORY */
+
+/* If CMD_HISTORY is off, these are just flags. */
+public void constant *ml_search = (void *)1;
+public void constant *ml_examine = (void *)2;
+#if SHELL_ESCAPE || PIPEC
+public void constant *ml_shell = (void *)3;
+#endif
+
+#endif /* CMD_HISTORY */
 
 /*
  * History for the current command.
  */
 static struct mlist *curr_mlist = NULL;
 
-#endif /* CMD_HISTORY */
 
 /*
  * Reset command buffer (to empty).
@@ -469,7 +479,6 @@ cmd_kill()
 	return (CC_OK);
 }
 
-#if CMD_HISTORY
 /*
  * Select an mlist structure to be the current command history.
  */
@@ -480,6 +489,7 @@ set_mlist(mlist)
 	curr_mlist = (struct mlist *) mlist;
 }
 
+#if CMD_HISTORY
 /*
  * Move up or down in the currently selected command history list.
  */
@@ -521,6 +531,7 @@ cmd_updown(action)
 	*cp = '\0';
 	return (CC_OK);
 }
+#endif
 
 /*
  * Accept the command in the command buffer.
@@ -529,6 +540,7 @@ cmd_updown(action)
 	public void
 cmd_accept()
 {
+#if CMD_HISTORY
 	struct mlist *ml;
 	
 	/*
@@ -568,8 +580,8 @@ cmd_accept()
 	 * Thus, an UPARROW will always retrieve the previous command.
 	 */
 	curr_mlist->curr_mp = ml->next;
-}
 #endif
+}
 
 /*
  * Try to perform a line-edit function on the command buffer,
@@ -596,16 +608,20 @@ cmd_edit(c)
 	 * See if the char is indeed a line-editing command.
 	 */
 	flags = 0;
+#if CMD_HISTORY
 	if (curr_mlist == NULL)
 		/*
 		 * No current history; don't accept history manipulation cmds.
 		 */
 		flags |= EC_NOHISTORY;
-	if (curr_mlist == &mlist_search)
+#endif
+#if TAB_COMPLETE_FILENAME
+	if (curr_mlist == ml_search)
 		/*
 		 * In a search command; don't accept file-completion cmds.
 		 */
 		flags |= EC_NOCOMPLETE;
+#endif
 
 	action = editchar(c, flags);
 

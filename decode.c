@@ -653,6 +653,7 @@ editchar(c, flags)
 		action = ecmd_decode(usercmd, &s);
 	} while (action == A_PREFIX);
 	
+#if CMD_HISTORY
 	if (flags & EC_NOHISTORY) 
 	{
 		/*
@@ -667,6 +668,8 @@ editchar(c, flags)
 			break;
 		}
 	}
+#endif
+#if TAB_COMPLETE_FILENAME
 	if (flags & EC_NOCOMPLETE) 
 	{
 		/*
@@ -682,6 +685,7 @@ editchar(c, flags)
 			break;
 		}
 	}
+#endif
 	if ((flags & EC_PEEK) || action == A_INVALID)
 	{
 		/*
