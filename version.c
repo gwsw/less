@@ -636,6 +636,7 @@ v376  6/10/02	Fix bug in overstriking mulitbyte UTF-8 characters
 v377  9/10/02	Fix bug in Windows version when file contains CR;
 		fix bug in search highlights with -R;
 		make initial buffer limit really be 64K not unlimited.
+v378  9/30/02	Misc bug fixes and compiler warning cleanup.
 */
 
-char version[] = "377";
+char version[] = "378";

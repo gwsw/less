@@ -382,7 +382,7 @@ toggle_option(c, s, how_toggle)
 			switch (how_toggle)
 			{
 			case OPT_TOGGLE:
-				num = getnum(&s, '\0', &err);
+				num = getnum(&s, NULL, &err);
 				if (!err)
 					*(o->ovar) = num;
 				break;
@@ -613,8 +613,11 @@ getnum(sp, printopt, errp)
 			*errp = TRUE;
 			return (-1);
 		}
-		parg.p_string = printopt;
-		error("Number is required after %s", &parg);
+		if (printopt != NULL)
+		{
+			parg.p_string = printopt;
+			error("Number is required after %s", &parg);
+		}
 		quit(QUIT_ERROR);
 	}
 

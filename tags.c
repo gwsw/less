@@ -217,7 +217,7 @@ tagsearch()
 nexttag(n)
 	int n;
 {
-	char *tagfile;
+	char *tagfile = (char *) NULL;
 
 	while (n-- > 0)
 		tagfile = nextgtag();
@@ -231,7 +231,7 @@ nexttag(n)
 prevtag(n)
 	int n;
 {
-	char *tagfile;
+	char *tagfile = (char *) NULL;
 
 	while (n-- > 0)
 		tagfile = prevgtag();
@@ -335,6 +335,7 @@ findctag(tag)
 		/*
 		 * First see if it is a line number. 
 		 */
+		tagendline = 0;
 		taglinenum = getnum(&p, 0, &err);
 		if (err)
 		{

@@ -64,25 +64,25 @@ struct mlist
  */
 struct mlist mlist_search =  
 	{ &mlist_search,  &mlist_search,  &mlist_search,  NULL };
-public void constant *ml_search = (void *) &mlist_search;
+public void * constant ml_search = (void *) &mlist_search;
 
 struct mlist mlist_examine = 
 	{ &mlist_examine, &mlist_examine, &mlist_examine, NULL };
-public void constant *ml_examine = (void *) &mlist_examine;
+public void * constant ml_examine = (void *) &mlist_examine;
 
 #if SHELL_ESCAPE || PIPEC
 struct mlist mlist_shell =   
 	{ &mlist_shell,   &mlist_shell,   &mlist_shell,   NULL };
-public void constant *ml_shell = (void *) &mlist_shell;
+public void * constant ml_shell = (void *) &mlist_shell;
 #endif
 
 #else /* CMD_HISTORY */
 
 /* If CMD_HISTORY is off, these are just flags. */
-public void constant *ml_search = (void *)1;
-public void constant *ml_examine = (void *)2;
+public void * constant ml_search = (void *)1;
+public void * constant ml_examine = (void *)2;
 #if SHELL_ESCAPE || PIPEC
-public void constant *ml_shell = (void *)3;
+public void * constant ml_shell = (void *)3;
 #endif
 
 #endif /* CMD_HISTORY */

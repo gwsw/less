@@ -142,7 +142,7 @@ opt_l(type, s)
 	{
 	case INIT:
 		t = s;
-		n = getnum(&t, 'l', &err);
+		n = getnum(&t, "l", &err);
 		if (err || n <= 0)
 		{
 			error("Line number is required after -l", NULL_PARG);
@@ -390,7 +390,7 @@ colordesc(s, fg_color, bg_color)
 	int fg, bg;
 	int err;
 	
-	fg = getnum(&s, 'D', &err);
+	fg = getnum(&s, "D", &err);
 	if (err)
 	{
 		error("Missing fg color in -D", NULL_PARG);
@@ -401,7 +401,7 @@ colordesc(s, fg_color, bg_color)
 	else
 	{
 		s++;
-		bg = getnum(&s, 'D', &err);
+		bg = getnum(&s, "D", &err);
 		if (err)
 		{
 			error("Missing fg color in -D", NULL_PARG);

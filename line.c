@@ -604,13 +604,13 @@ do_append(c, pos)
 			backc();
 			STORE_CHAR(linebuf[curr], AT_BOLD, pos);
 			overstrike = 3;
-		} else if (utf_mode && (IS_UTF8_3BYTE(c) || overstrike==2 && IS_UTF8_TRAIL(c)) && curr > 1 && (char)c == linebuf[curr-2])
+		} else if (utf_mode && (IS_UTF8_3BYTE(c) || (overstrike==2 && IS_UTF8_TRAIL(c))) && curr > 1 && (char)c == linebuf[curr-2])
 		{
 			backc();
 			backc();
 			STORE_CHAR(linebuf[curr], AT_BOLD, pos);
 			overstrike = 2;
-		} else if (utf_mode && curr > 0 && (IS_UTF8_2BYTE(c) || overstrike==1 && IS_UTF8_TRAIL(c)) && (char)c == linebuf[curr-1])
+		} else if (utf_mode && curr > 0 && (IS_UTF8_2BYTE(c) || (overstrike==1 && IS_UTF8_TRAIL(c))) && (char)c == linebuf[curr-1])
 		{
 			backc();
 			STORE_CHAR(linebuf[curr], AT_BOLD, pos);
