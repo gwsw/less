@@ -5,7 +5,7 @@
 
 CC = cc
 CPPFLAGS = -D_OSK_MWC32 -DDEBUG=0 -DSTRCSPN
-CFLAGS = -k=0 -t=/r0 -v=.
+CFLAGS = -k=0 -v=.
 CFLAGS_COMPILE_ONLY = -r 
 LDFLAGS = -igm=8
 LIBS = -l=/dd/lib/termlib.l
@@ -39,5 +39,5 @@ lesskey: lesskey.${O} version.${O}
 
 ${OBJ}: defines.h less.h
 
-defines.h: defines.o9c
-	copy defines.o9c defines.h -rf
+defines.h: defines.o9
+	copy defines.o9 defines.h -rf
