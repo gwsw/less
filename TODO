@@ -102,10 +102,10 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 *v334	198	On Windows, "j" at EOF scrolls down.
 	199	less +F on file with no newline, additional chars display on 
 		next line.
-	200	#196 returns in v334.
+*v364?	200	#196 returns in v334.
 	201	DJGPP cannot use long filenames in NT.
-	202	DJGPP highlights too much on line wrap.
-	203	Windows MSC highlights too much on line wrap.
+*v364?	202	DJGPP highlights too much on line wrap.
+*v364	203	Windows MSC highlights too much on line wrap.
 *v340	204	F while search pattern active doesn't go to end of long line.
 *v340	205	-G suppress -W hiliting.
 *v343	206	Support UTF-8.
@@ -122,4 +122,5 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 *v343	217	Change iprintf name to avoid conflict with Cygwin.
 *v343	218	h:d crashes.
 *v344	219	-w should highlight target line on g and p commands.
+	220	Search for ^$ with -s won't go past multiple blank lines.
 
