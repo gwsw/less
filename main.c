@@ -131,18 +131,18 @@ main(argc, argv)
 		 * a single filename.  
 		 * Expand the pattern and iterate over the expanded list.
 		 */
-		{
-			struct textlist tlist;
-			char *gfilename;
-			char *filename;
-			
-			gfilename = glob(*argv++);
-			init_textlist(&tlist, gfilename);
-			filename = NULL;
-			while ((filename = forw_textlist(&tlist, filename)) != NULL)
-				ifile = get_ifile(filename, ifile);
-			free(gfilename);
-		}
+		struct textlist tlist;
+		char *gfilename;
+		char *filename;
+		
+		gfilename = glob(*argv++);
+		if (gfilename == NULL)
+			continue;
+		init_textlist(&tlist, gfilename);
+		filename = NULL;
+		while ((filename = forw_textlist(&tlist, filename)) != NULL)
+			ifile = get_ifile(filename, ifile);
+		free(gfilename);
 #else
 		ifile = get_ifile(*argv++, ifile);
 #endif
