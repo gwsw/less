@@ -588,4 +588,4 @@ v349   1/24/00	Fix minor DJGPP bugs; check environment vars for UTF-8;
 		add --with-editor (thanks to Eli, Markus Kuhn, Thomas Schoepf).
 */
 
-char version[] = "348";
+char version[] = "349";
