@@ -42,7 +42,7 @@
 * Default LESSCHARSET for MS-DOS versions is now "dos".
 
 * Searching works better with ANSI (SGR) escape sequences.
-  ANSI escape sequences are now supported in the MS-DOS (DJGPP) version.
+  ANSI color escape sequences are now supported in the MS-DOS (DJGPP) version.
 
 * Improved performance in reading very large pipes.
 
