@@ -17,6 +17,8 @@
 
 * Fix bug in horizontal scrolling of long lines.
 
+* Fix bug in doing :x on a file which contains marks.
+
 * Fixes for MS-DOS version.
 
 ======================================================================

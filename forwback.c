@@ -122,6 +122,13 @@ forw(n, pos, force, only_last, nblank)
 
 	if (!do_repaint)
 	{
+		/*
+		 * Forget any current line shift we might have
+		 * (from the last line of the previous screenful).
+		 */
+		extern int cshift;
+		cshift = 0;
+
 		if (top_scroll && n >= sc_height - 1 && pos != ch_length())
 		{
 			/*

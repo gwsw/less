@@ -138,6 +138,7 @@ del_ifile(h)
 	 * If the ifile we're deleting is the currently open ifile,
 	 * move off it.
 	 */
+	unmark(h);
 	if (h == curr_ifile)
 		curr_ifile = getoff_ifile(curr_ifile);
 	p = int_ifile(h);

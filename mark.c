@@ -26,14 +26,10 @@ struct mark {
 /*
  * The table of marks.
  * Each mark is identified by a lowercase or uppercase letter.
+ * The final one is lmark, for the "last mark"; addressed by the apostrophe.
  */
-#define	NMARKS		(2*26)		/* a-z, A-Z */
+#define	NMARKS		((2*26)+1)	/* a-z, A-Z, lastmark */
 static struct mark marks[NMARKS];
-
-/*
- * Special mark for the "last mark"; addressed by the apostrophe.
- */
-static struct mark lmark;
 
 /*
  * Initialize the mark table to show no marks are set.
@@ -45,7 +41,6 @@ init_mark()
 
 	for (i = 0;  i < NMARKS;  i++)
 		marks[i].m_scrpos.pos = NULL_POSITION;
-	lmark.m_scrpos.pos = NULL_POSITION;
 }
 
 /*
@@ -114,7 +109,7 @@ getmark(c)
 		/*
 		 * The "last mark".
 		 */
-		m = &lmark;
+		m = &marks[NMARKS-1];
 		break;
 	default:
 		/*
@@ -174,8 +169,8 @@ lastmark()
 	get_scrpos(&scrpos);
 	if (scrpos.pos == NULL_POSITION)
 		return;
-	lmark.m_scrpos = scrpos;
-	lmark.m_ifile = curr_ifile;
+	marks[NMARKS-1].m_scrpos = scrpos;
+	marks[NMARKS-1].m_ifile = curr_ifile;
 }
 
 /*
@@ -197,7 +192,7 @@ gomark(c)
 	 * it has not been set to anything yet,
 	 * set it to the beginning of the current file.
 	 */
-	if (m == &lmark && m->m_scrpos.pos == NULL_POSITION)
+	if (m == &marks[NMARKS-1] && m->m_scrpos.pos == NULL_POSITION)
 	{
 		m->m_ifile = curr_ifile;
 		m->m_scrpos.pos = ch_zero();
@@ -245,4 +240,18 @@ markpos(c)
 		return (NULL_POSITION);
 	}
 	return (m->m_scrpos.pos);
+}
+
+/*
+ * Clear the marks associated with a specified ifile.
+ */
+	public void
+unmark(ifile)
+	IFILE ifile;
+{
+	int i;
+
+	for (i = 0;  i < NMARKS;  i++)
+		if (marks[i].m_ifile == ifile)
+			marks[i].m_scrpos.pos = NULL_POSITION;
 }

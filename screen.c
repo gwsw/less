@@ -94,7 +94,7 @@
 #if MSDOS_COMPILER==MSOFTC
 static int videopages;
 static long msec_loops;
-#define	SETCOLORS(fg,bg)	_settextcolor(fg); _setbkcolor(bg);
+#define	SETCOLORS(fg,bg)	{ _settextcolor(fg); _setbkcolor(bg); }
 #endif
 
 #if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
@@ -102,7 +102,23 @@ static unsigned short *whitescreen;
 #define _settextposition(y,x)   gotoxy(x,y)
 #define _clearscreen(m)         clrscr()
 #define _outtext(s)             cputs(s)
-#define	SETCOLORS(fg,bg)	textcolor(fg); textbackground(bg);
+#define	SETCOLORS(fg,bg)	{ textcolor(fg); textbackground(bg); \
+				  if (bg == nm_bg_color) clreol_maybe(); }
+extern int sc_height;
+	static void
+clreol_maybe()
+{
+	/*
+	 * Clear to EOL, but only if in the last display line.
+	 * This is a kludgey way to work around display problems when color
+	 * is switched at the rightmost column of the last display line.
+	 * The problem is that when the display is scrolled, the empty
+	 * line added from below inherits the colors of the last
+	 * character on the previous line.
+	 */
+	if (wherey() == sc_height)
+		clreol();
+}
 #endif
 
 #if MSDOS_COMPILER==WIN32C
