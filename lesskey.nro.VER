@@ -122,6 +122,8 @@ default command keys used by less:
 	z		forw-window 
 	w		back-window 
 	F		forw-forever 
+	\ee[		left-scroll
+	\ee]		right-scroll
 	R		repaint-flush 
 	r		repaint 
 	^R		repaint 
