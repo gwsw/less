@@ -45,7 +45,6 @@ extern int so_s_width, so_e_width;
 extern int linenums;
 extern int sc_height;
 extern int jump_sline;
-extern int helping;
 extern IFILE curr_ifile;
 #if EDITOR
 extern char *editor;
@@ -452,7 +451,7 @@ eq_message()
 	public char *
 pr_string()
 {
-	if (helping)
+	if (ch_getflags() & CH_HELPFILE)
 		return (pr_expand(hproto, sc_width-so_s_width-so_e_width-2));
 	return (pr_expand(prproto[pr_type], sc_width-so_s_width-so_e_width-2));
 }

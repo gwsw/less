@@ -47,7 +47,6 @@ extern int wscroll;
 extern int top_scroll;
 extern int ignore_eoi;
 extern int secure;
-extern int helping;
 extern char *every_first_cmd;
 extern char *curr_altfilename;
 extern char version[];
@@ -469,7 +468,8 @@ prompt()
 	/*
 	 * If the -E flag is set and we've hit EOF on the last file, quit.
 	 */
-	if (quit_at_eof == OPT_ONPLUS && hit_eof && !helping && 
+	if (quit_at_eof == OPT_ONPLUS && hit_eof && 
+	    !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
 
@@ -905,6 +905,8 @@ commands()
 			/*
 			 * Forward forever, ignoring EOF.
 			 */
+			if (ch_getflags() & CH_HELPFILE)
+				break;
 			cmd_exec();
 			jump_forw();
 			ignore_eoi = 1;
@@ -1008,7 +1010,7 @@ commands()
 			/*
 			 * Print file name, etc.
 			 */
-			if (helping)
+			if (ch_getflags() & CH_HELPFILE)
 				break;
 			cmd_exec();
 			parg.p_string = eq_message();
@@ -1108,11 +1110,8 @@ commands()
 			/*
 			 * Help.
 			 */
-			if (helping)
-			{
-				bell();
+			if (ch_getflags() & CH_HELPFILE)
 				break;
-			}
 			cmd_exec();
 			(void) edit(FAKE_HELPFILE);
 			break;
@@ -1145,6 +1144,8 @@ commands()
 				error("Command not available", NULL_PARG);
 				break;
 			}
+			if (ch_getflags() & CH_HELPFILE)
+				break;
 			start_mca(A_SHELL, "!", ml_shell);
 			if (strcmp(get_filename(curr_ifile), "-") == 0)
 			{
@@ -1184,7 +1185,8 @@ commands()
 				number = 1;
 			if (edit_next(number))
 			{
-				if (quit_at_eof && hit_eof && !helping)
+				if (quit_at_eof && hit_eof && 
+				    !(ch_getflags() & CH_HELPFILE))
 					quit(QUIT_OK);
 				parg.p_string = (number > 1) ? "(N-th) " : "";
 				error("No %snext file", &parg);
@@ -1261,6 +1263,8 @@ commands()
 			/*
 			 * Set a mark.
 			 */
+			if (ch_getflags() & CH_HELPFILE)
+				break;
 			start_mca(A_SETMARK, "mark: ", (void*)NULL);
 			c = getcc();
 			if (c == erase_char || c == kill_char ||

@@ -48,7 +48,6 @@ extern int forw_scroll;
 extern int back_scroll;
 extern int need_clr;
 extern int ignore_eoi;
-extern int helping;
 #if TAGS
 extern char *tagoption;
 #endif
@@ -321,7 +320,7 @@ forward(n, force, only_last)
 {
 	POSITION pos;
 
-	if (quit_at_eof && hit_eof && !helping)
+	if (quit_at_eof && hit_eof && !(ch_getflags() & CH_HELPFILE))
 	{
 		/*
 		 * If the -e flag is set and we're trying to go

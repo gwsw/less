@@ -44,7 +44,6 @@ public char *	progname;
 public int	quitting;
 public int	secure;
 public int	dohelp;
-public int	helping;
 
 #if LOGFILE
 public int	logfile = -1;
@@ -331,7 +330,7 @@ quit(status)
 {
 	static int save_status;
 
-	if (helping)
+	if (curr_ifile != NULL_IFILE && ch_getflags() & CH_HELPFILE)
 	{
 		if (edit_prev(1) == 0)
 			return;

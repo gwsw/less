@@ -36,7 +36,6 @@ extern char *every_first_cmd;
 extern int any_display;
 extern int force_open;
 extern int is_tty;
-extern int helping;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -217,12 +216,15 @@ edit_ifile(ifile)
 	was_curr_ifile = curr_ifile;
 	if (curr_ifile != NULL_IFILE)
 	{
+		chflags = ch_getflags();
 		close_file();
-		if (helping)
+		if (chflags & CH_HELPFILE)
 		{
+			/*
+			 * Don't keep the help file in the ifile list.
+			 */
 			del_ifile(was_curr_ifile);
 			was_curr_ifile = old_ifile;
-			helping = 0;
 		}
 	}
 
@@ -325,9 +327,7 @@ edit_ifile(ifile)
 	new_file = TRUE;
 	ch_init(f, chflags);
 
-	if (chflags & CH_HELPFILE)
-		helping = 1;
-	else
+	if (!(chflags & CH_HELPFILE))
 	{
 #if LOGFILE
 		if (namelogfile != NULL && is_tty)
