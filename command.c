@@ -615,8 +615,8 @@ prompt()
 	/* 
 	 * In Win32, display the file name in the window title.
 	 */
-	p = pr_expand("Less?f - %f.", 0);
-	SetConsoleTitle(p);
+	if (!(ch_getflags() & CH_HELPFILE))
+		SetConsoleTitle(pr_expand("Less?f - %f.", 0));
 #endif
 	/*
 	 * Select the proper prompt and display it.
