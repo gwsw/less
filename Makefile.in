@@ -152,7 +152,7 @@ lesskey.man: lesskey.nro
 
 dist: ${DISTFILES}
 	if [ ! -d release ]; then mkdir release; fi
-	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/less-\1/' -e q version.c`; \
+	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/less-\1/' -e q ${srcdir}/version.c`; \
 	rm -rf release/$$REL; mkdir release/$$REL; \
 	echo "Creating release/$$REL/$$REL.tar.gz"; \
 	rm -rf $$REL; mkdir $$REL; \
@@ -164,6 +164,6 @@ dist: ${DISTFILES}
 	rm -rf $$REL
 
 tagall:
-	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/v\1/' -e q version.c`; \
+	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/v\1/' -e q ${srcdir}/version.c`; \
 	echo "tagging $$REL"; \
-	$(RCS) -N$$REL: RCS/*,v
+	$(RCS) -N$$REL: ${srcdir}/RCS/*,v
