@@ -104,6 +104,7 @@ main(argc, argv)
 	init_cmds();
 	init_prompt();
 	init_charset();
+	init_line();
 	init_option();
 	scan_option(lgetenv("LESS"));
 

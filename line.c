@@ -34,6 +34,7 @@ static int overstrike;		/* Next char should overstrike previous char */
 static int is_null_line;	/* There is no current line */
 static char pendc;
 static POSITION pendpos;
+static char *end_ansi_chars;
 
 static int do_append();
 
@@ -50,6 +51,17 @@ extern int bl_s_width, bl_e_width;
 extern int so_s_width, so_e_width;
 extern int sc_width, sc_height;
 extern int utf_mode;
+
+/*
+ * Initialize from environment variables.
+ */
+	public void
+init_line()
+{
+	end_ansi_chars = lgetenv("LESSANSIENDCHARS");
+	if (end_ansi_chars == NULL || *end_ansi_chars == '\0')
+		end_ansi_chars = "m";
+}
 
 /*
  * Rewind the line buffer.
@@ -258,6 +270,28 @@ backc()
 }
 
 /*
+ * Are we currently within a recognized ANSI escape sequence?
+ */
+	static int
+in_ansi_esc_seq()
+{
+	int i;
+
+	/*
+	 * Search backwards for either an ESC (which means we ARE in a seq);
+	 * or an end char (which means we're NOT in a seq).
+	 */
+	for (i = curr-1;  i >= 0;  i--)
+	{
+		if (linebuf[i] == ESC)
+			return (1);
+		if (strchr(end_ansi_chars, linebuf[i]) != NULL)
+			return (0);
+	}
+	return (0);
+}
+
+/*
  * Append a character and attribute to the line buffer.
  */
 	static int
@@ -276,8 +310,11 @@ storec(c, a, pos)
 		 */
 		a = AT_STANDOUT;
 #endif
-	w = pwidth(c, a);
-	if (ctldisp > 0 && column + w + attr_ewidth(a) > sc_width)
+	if (ctldisp == OPT_ONPLUS && in_ansi_esc_seq())
+		w = 0;
+	else
+		w = pwidth(c, a);
+	if (ctldisp != OPT_ON && column + w + attr_ewidth(a) > sc_width)
 		/*
 		 * Won't fit on screen.
 		 */
@@ -444,7 +481,7 @@ do_append(c, pos)
 	} else if (control_char(c))
 	{
 	do_control_char:
-		if (ctldisp == 0)
+		if (ctldisp != OPT_OFF)
 		{
 			/*
 			 * Output as a normal character.
@@ -502,7 +539,7 @@ pdone(endline)
 	 * Add a newline if necessary,
 	 * and append a '\0' to the end of the line.
 	 */
-	if (column < sc_width || !auto_wrap || ignaw || ctldisp == 0)
+	if (column < sc_width || !auto_wrap || ignaw || ctldisp == OPT_ON)
 	{
 		linebuf[curr] = '\n';
 		attr[curr] = AT_NORMAL;

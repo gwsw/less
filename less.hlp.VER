@@ -132,9 +132,9 @@
   -h [_N]  ....  --max-back-scroll=[_N]
                   Backward scroll limit.
   -i  ........  --ignore-case
-                  Ignore case in searches.
+                  Ignore case in searches that do not contain uppercase.
   -I  ........  --IGNORE-CASE
-                  Ignore case in searches and in search patterns.
+                  Ignore case in all searches.
   -j [_N]  ....  --jump-target=[_N]
                   Screen position of target lines.
   -k [_f_i_l_e]  .  --lesskey-file=[_f_i_l_e]
@@ -153,7 +153,7 @@
                   Define new prompt.
   -q  -Q  ....  --quiet  --QUIET  --silent --SILENT
                   Quiet the terminal bell.
-  -r  ........  --raw-control-chars
+  -r  -R  ....  --raw-control-chars  --RAW-CONTROL-CHARS
                   Output "raw" control characters.
   -s  ........  --squeeze-blank-lines
                   Squeeze multiple blank lines.

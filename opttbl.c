@@ -231,10 +231,10 @@ static struct option option[] =
 		"Never ring the bell"
 	},
 	{ 'r', &r_optname,
-		BOOL|REPAINT, OPT_ON, &ctldisp, NULL,
-		"Display control characters directly",
+		TRIPLE|REPAINT, OPT_OFF, &ctldisp, NULL,
 		"Display control characters as ^X",
-		NULL
+		"Display control characters directly",
+		"Display control characters directly, processing ANSI sequences"
 	},
 	{ 's', &s_optname,
 		BOOL|REPAINT, OPT_OFF, &squeeze, NULL,

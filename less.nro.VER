@@ -654,6 +654,22 @@ cannot keep track of the actual appearance of the screen
 each type of control character).
 Thus, various display problems may result,
 such as long lines being split in the wrong place.
+.IP "-R or --RAW-CONTROL-CHARS"
+Like -r, but tries to keep track of the screen appearance where possible.
+This works only if the input consists of normal text and possibly some
+ANSI "color" escape sequences, which are sequences of the form:
+.sp
+	ESC [ ... m
+.sp
+where the "..." is zero or more characters other than "m".
+For the purpose of keeping track of screen appearance,
+all control characters and all ANSI color escape sequences are
+assumed to not move the cursor.
+You can make
+.I less
+think that characters other than "m" can end ANSI color escape sequences
+by setting the environment variable LESSANSIENDCHARS to the list of
+characters which can end a color escape sequence.
 .IP "-s or --squeeze-blank-lines"
 Causes consecutive blank lines to be squeezed into a single blank line.
 This is useful when viewing
@@ -1359,6 +1375,9 @@ Language for determining the character set.
 Options which are passed to 
 .I less
 automatically.
+.IP LESSANSIENDCHARS
+Characters which are assumed to end an ANSI color escape sequence
+(default "m").
 .IP LESSBINFMT
 Format for displaying non-printable, non-control characters.
 .IP LESSCHARDEF
