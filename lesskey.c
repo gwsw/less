@@ -254,7 +254,7 @@ parse_args(argc, argv)
 	char **argv;
 {
 	outfile = NULL;
-	while (--argc > 0 && **(++argv) == '-')
+	while (--argc > 0 && **(++argv) == '-' && argv[0][1] != '\0')
 	{
 		switch (argv[0][1])
 		{
@@ -277,7 +277,7 @@ parse_args(argc, argv)
 	if (argc > 1)
 		usage();
 	/*
-	 * Open the input file, or use standard input if none specified.
+	 * Open the input file, or use DEF_LESSKEYINFILE if none specified.
 	 */
 	if (argc > 0)
 		infile = *argv;
@@ -619,7 +619,9 @@ main(argc, argv)
 	/*
 	 * Open the input file.
 	 */
-	if ((desc = fopen(infile, "r")) == NULL)
+	if (strcmp(infile, "-") == 0)
+		desc = stdin;
+	else if ((desc = fopen(infile, "r")) == NULL)
 	{
 		perror(infile);
 		exit(1);

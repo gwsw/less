@@ -10,10 +10,11 @@ lesskey \- specify key bindings for less
 is used to specify a set of key bindings to be used by 
 .I less.
 The input file is a text file which describes the key bindings,
-and the output file is a binary file which is used by 
+If the input file is "-", standard input is read.
+If no input file is specified, $HOME/.lesskey.in is read.
+The output file is a binary file which is used by 
 .I less.
-If no input file is specified, $HOME/.lesskey.in is used.
-If no output file is specified, $HOME/.less is used.
+If no output file is specified, $HOME/.less is written.
 If the output file already exists,
 .I lesskey
 will overwrite it.

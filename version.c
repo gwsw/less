@@ -448,6 +448,7 @@
  *	v248: Add -V option to lesskey.			11/5/94
  *	v249: Remove -f flag from lesskey; default	11/5/94
  *	      input file is ~/.lesskey.in, not stdin.
+ *	v250: Lesskey input file "-" means stdin.	11/7/94
  */
 
-char version[] = "249";
+char version[] = "250";
