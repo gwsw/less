@@ -163,8 +163,23 @@
  */
 #define	HAVE_SHELL	0
 
+/*
+ * Sizes of various buffers.
+ */
+#define	CMDBUF_SIZE	512	/* Buffer for multichar commands */
+#define	UNGOT_SIZE	100	/* Max chars to unget() */
+#define	LINEBUF_SIZE	1024	/* Max size of line in input file */
+#define	OUTBUF_SIZE	1024	/* Output buffer */
+#define	PROMPT_SIZE	200	/* Max size of prompt string */
+#define	TERMBUF_SIZE	2048	/* Termcap buffer for tgetent */
+#define	TERMSBUF_SIZE	1024	/* Buffer to hold termcap strings */
+#define	TAGLINE_SIZE	512	/* Max size of line in tags file */
+
 /* Define to `long' if <sys/types.h> doesn't define.  */
 /* #define	off_t	long */
+
+/* Define if you need to in order for stat and other things to work.  */
+/* #undef _POSIX_SOURCE */
 
 /* Define as the return type of signal handlers (int or void).  */
 #define RETSIGTYPE void
@@ -247,8 +262,14 @@
 /* Define if you have the <fcntl.h> header file.  */
 #define HAVE_FCNTL_H 1
 
+/* Define if you have the <limits.h> header file.  */
+#define HAVE_LIMITS_H 0
+
 /* Define if you have the <stdio.h> header file.  */
 #define HAVE_STDIO_H 1
+
+/* Define if you have the <string.h> header file.  */
+#define HAVE_STRING_H 1
 
 /* Define if you have the <sys/ioctl.h> header file.  */
 #define HAVE_SYS_IOCTL_H 0
