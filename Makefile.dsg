@@ -6,10 +6,13 @@ srcdir = .
 VPATH = .
 
 CC = gcc
+AWK = gawk
 
-CFLAGS = -O2
+#CFLAGS = -O2
+CFLAGS = -g
 CFLAGS_COMPILE_ONLY = -c
-LDFLAGS = -s
+#LDFLAGS = -s
+LDFLAGS = -g
 O=o
 
 LIBS =
@@ -37,7 +40,7 @@ lesskey: lesskey.${O} version.${O}
 	${CC} ${LDFLAGS} -o $@ lesskey.${O} version.${O}
 
 defines.h: defines.ds
-	update $< $@
+	cp -f $< $@
 
 ${OBJ}: less.h defines.h funcs.h
 
@@ -51,7 +54,8 @@ TAGS:
 	etags *.c *.h
 
 newfuncs:
-	redir -o funcs.h gawk -f mkfuncs.awk ${OBJ:.${O}=.c}
+	rm -f funcs.h
+	${AWK} -f mkfuncs.awk ${OBJ:.${O}=.c} > funcs.h
 
 clean:
 	for %f in (*.${O} less lesskey *.exe) do if exist %f del %f
