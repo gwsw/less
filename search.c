@@ -346,7 +346,8 @@ is_hilited(pos, epos, nohide)
 	 */
 	for (i = 0;  i < num_hilite;  i++)
 	{
-		if (epos > hl_startpos[i] && hl_endpos[i] > pos)
+		if (hl_endpos[i] > pos &&
+		    (epos == NULL_POSITION || epos > hl_startpos[i]))
 			return (1);
 	}
 	return (0);
