@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
+ * Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,9 @@ public IFILE	curr_ifile = NULL_IFILE;
 public IFILE	old_ifile = NULL_IFILE;
 public struct scrpos initial_scrpos;
 public int	any_display = FALSE;
+public int	twiddle = TRUE;
+public POSITION	start_attnpos = NULL_POSITION;
+public POSITION	end_attnpos = NULL_POSITION;
 public int	wscroll;
 public char *	progname;
 public int	quitting;
@@ -213,6 +216,7 @@ main(argc, argv)
 	open_getchr();
 	init_signals(1);
 
+
 	/*
 	 * Select the first file to examine.
 	 */
@@ -257,20 +261,6 @@ main(argc, argv)
 	commands();
 	quit(QUIT_OK);
 	/*NOTREACHED*/
-}
-
-/*
- * Copy a string, truncating to the specified length if necessary.
- * Unlike strncpy(), the resulting string is guaranteed to be null-terminated.
- */
-	public void
-strtcpy(to, from, len)
-	char *to;
-	char *from;
-	unsigned int len;
-{
-	strncpy(to, from, len);
-	to[len-1] = '\0';
 }
 
 /*
