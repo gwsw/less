@@ -266,6 +266,15 @@ edit_ifile(ifile)
 		 */
 		f = fd0;
 		chflags |= CH_KEEPOPEN;
+#if MSDOS_COMPILER==BORLANDC
+		/*
+		 * Must switch stdin to BINARY mode.
+		 */
+		setmode(f, O_BINARY);
+#endif
+#if MSDOS_COMPILER==MSOFTC
+		_setmode(f, _O_BINARY);
+#endif
 	} else if (strcmp(open_filename, FAKE_HELPFILE) == 0)
 	{
 		f = -1;
