@@ -637,6 +637,10 @@ v377  9/10/02	Fix bug in Windows version when file contains CR;
 		fix bug in search highlights with -R;
 		make initial buffer limit really be 64K not unlimited.
 v378  9/30/02	Misc bug fixes and compiler warning cleanup.
+		Posted to Web page.
+-----------------------------------------------------------------
+v379 11/20/02	Add -L option; fix bug with ctrl-K in lesskey files;
+		fix minor man page problems.
 */
 
-char version[] = "378";
+char version[] = "379";

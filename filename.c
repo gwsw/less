@@ -50,6 +50,7 @@
 
 extern int force_open;
 extern int secure;
+extern int use_lessopen;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 #if SPACES_IN_FILENAMES
@@ -799,7 +800,7 @@ open_altfile(filename, pf, pfd)
 	int returnfd = 0;
 #endif
 	
-	if (secure)
+	if (!use_lessopen || secure)
 		return (NULL);
 	ch_ungetchar(-1);
 	if ((lessopen = lgetenv("LESSOPEN")) == NULL)

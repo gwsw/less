@@ -47,6 +47,7 @@ public int twiddle;             /* Show tildes after EOF */
 public int show_attn;		/* Hilite first unread line */
 public int shift_count;		/* Number of positions to shift horizontally */
 public int status_col;		/* Display a status column */
+public int use_lessopen;	/* Use the LESSOPEN filter */
 #if HILITE_SEARCH
 public int hilite_search;	/* Highlight matched search patterns? */
 #endif
@@ -75,6 +76,7 @@ static struct optname J__optname     = { "status-column",        NULL };
 #if USERFILE
 static struct optname k_optname      = { "lesskey-file",         NULL };
 #endif
+static struct optname L__optname     = { "no-lessopen",          NULL };
 static struct optname m_optname      = { "long-prompt",          NULL };
 static struct optname n_optname      = { "line-numbers",         NULL };
 #if LOGFILE
@@ -246,6 +248,14 @@ static struct loption option[] =
 	{ 'l', NULL,
 		STRING|NO_TOGGLE|NO_QUERY, 0, NULL, opt_l,
 		{ NULL, NULL, NULL }
+	},
+	{ 'L', &L__optname,
+		BOOL, OPT_ON, &use_lessopen, NULL,
+		{
+			"Don't use the LESSOPEN filter",
+			"Use the LESSOPEN filter",
+			NULL
+		}
 	},
 	{ 'm', &m_optname,
 		TRIPLE, OPT_OFF, &pr_type, NULL,
@@ -467,11 +477,16 @@ findopt_name(p_optname, p_oname, p_err)
 	register struct optname *oname;
 	register int len;
 	int uppercase;
+	int optname_len;
 	struct loption *maxo = NULL;
 	struct optname *maxoname = NULL;
 	int maxlen = 0;
 	int ambig = 0;
 	int exact = 0;
+	char *eq;
+
+	eq = strchr(optname, '=');
+	optname_len = (eq != NULL) ? eq - optname : strlen(optname);
 
 	/*
 	 * Check all options.
@@ -491,6 +506,8 @@ findopt_name(p_optname, p_oname, p_err)
 			for (uppercase = 0;  uppercase <= 1;  uppercase++)
 			{
 				len = sprefix(optname, oname->oname, uppercase);
+				if (len < optname_len)
+					continue;
 				if (!exact && len == maxlen)
 					/*
 					 * Already had a partial match,

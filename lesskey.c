@@ -352,8 +352,9 @@ init_tables()
  * Parse one character of a string.
  */
 	char *
-tstr(pp)
+tstr(pp, xlate)
 	char **pp;
+	int xlate;
 {
 	register char *p;
 	register char ch;
@@ -380,7 +381,7 @@ tstr(pp)
 				ch = 8*ch + (*p - '0');
 			while (*++p >= '0' && *p <= '7' && ++i < 3);
 			*pp = p;
-			if (ch == CONTROL('K'))
+			if (xlate && ch == CONTROL('K'))
 				return tstr_control_k;
 			buf[0] = ch;
 			buf[1] = '\0';
@@ -403,31 +404,35 @@ tstr(pp)
 			*pp = p+1;
 			return ("\t");
 		case 'k':
-			switch (*++p)
+			if (xlate)
 			{
-			case 'u': ch = SK_UP_ARROW; break;
-			case 'd': ch = SK_DOWN_ARROW; break;
-			case 'r': ch = SK_RIGHT_ARROW; break;
-			case 'l': ch = SK_LEFT_ARROW; break;
-			case 'U': ch = SK_PAGE_UP; break;
-			case 'D': ch = SK_PAGE_DOWN; break;
-			case 'h': ch = SK_HOME; break;
-			case 'e': ch = SK_END; break;
-			case 'x': ch = SK_DELETE; break;
-			default:
-				error("illegal char after \\k");
+				switch (*++p)
+				{
+				case 'u': ch = SK_UP_ARROW; break;
+				case 'd': ch = SK_DOWN_ARROW; break;
+				case 'r': ch = SK_RIGHT_ARROW; break;
+				case 'l': ch = SK_LEFT_ARROW; break;
+				case 'U': ch = SK_PAGE_UP; break;
+				case 'D': ch = SK_PAGE_DOWN; break;
+				case 'h': ch = SK_HOME; break;
+				case 'e': ch = SK_END; break;
+				case 'x': ch = SK_DELETE; break;
+				default:
+					error("illegal char after \\k");
+					*pp = p+1;
+					return ("");
+				}
 				*pp = p+1;
-				return ("");
+				buf[0] = SK_SPECIAL_KEY;
+				buf[1] = ch;
+				buf[2] = 6;
+				buf[3] = 1;
+				buf[4] = 1;
+				buf[5] = 1;
+				buf[6] = '\0';
+				return (buf);
 			}
-			*pp = p+1;
-			buf[0] = SK_SPECIAL_KEY;
-			buf[1] = ch;
-			buf[2] = 6;
-			buf[3] = 1;
-			buf[4] = 1;
-			buf[5] = 1;
-			buf[6] = '\0';
-			return (buf);
+			/* FALLTHRU */
 		default:
 			/*
 			 * Backslash followed by any other char 
@@ -436,7 +441,7 @@ tstr(pp)
 			*pp = p+1;
 			buf[0] = *p;
 			buf[1] = '\0';
-			if (buf[0] == CONTROL('K'))
+			if (xlate && buf[0] == CONTROL('K'))
 				return tstr_control_k;
 			return (buf);
 		}
@@ -454,7 +459,7 @@ tstr(pp)
 	*pp = p+1;
 	buf[0] = *p;
 	buf[1] = '\0';
-	if (buf[0] == CONTROL('K'))
+	if (xlate && buf[0] == CONTROL('K'))
 		return tstr_control_k;
 	return (buf);
 }
@@ -639,7 +644,7 @@ parse_cmdline(p)
 	cmdlen = 0;
 	do
 	{
-		s = tstr(&p);
+		s = tstr(&p, 1);
 		cmdlen += strlen(s);
 		if (cmdlen > MAX_CMDLEN)
 			error("command too long");
@@ -688,7 +693,7 @@ parse_cmdline(p)
 		 */
 		add_cmd_char(action | A_EXTRA);
 		while (*p != '\0')
-			add_cmd_str(tstr(&p));
+			add_cmd_str(tstr(&p, 0));
 		add_cmd_char('\0');
 	}
 }
@@ -701,7 +706,7 @@ parse_varline(p)
 
 	do
 	{
-		s = tstr(&p);
+		s = tstr(&p, 0);
 		add_cmd_str(s);
 	} while (*p != ' ' && *p != '\t' && *p != '=' && *p != '\0');
 	/*
@@ -721,7 +726,7 @@ parse_varline(p)
 	p = skipsp(p);
 	while (*p != '\0')
 	{
-		s = tstr(&p);
+		s = tstr(&p, 0);
 		add_cmd_str(s);
 	}
 	add_cmd_char('\0');
@@ -763,7 +768,7 @@ main(argc, argv)
 {
 	FILE *desc;
 	FILE *out;
-	char line[200];
+	char line[1024];
 
 #ifdef WIN32
 	if (getenv("HOME") == NULL)
