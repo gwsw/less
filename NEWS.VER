@@ -7,23 +7,34 @@
       @@HOMEPAGE@@
   You can also download the latest version of less from there.
 
-  The email address for questions about less 
-  has been changed to @@EMAIL@@.
+  To report bugs, suggestions or comments, send email to 
+  bug-less@gnu.org or @@EMAIL@@.
 
 ======================================================================
 
 
 	Major changes between "less" versions 337 and @@VERSION@@
 
-* Command line options may now be given in either the old single-letter
-  form, or a new long name form (--option-name).
-  See the man page or "less --help" for the list of long option names.
+* Command line options for less may now be given in either the old 
+  single-letter form, or a new long name form (--option-name).
+  See the less man page or "less --help" for the list of long option names.
+
+* Command line options for lesskey may now be given in a new long name
+  form.  See the lesskey man page for the list of long option names.
 
 * New command -- toggles an option using the long option name.
 
 * New command __ queries an option using the long option name.
 
-* The old -- command is available as -!.
+* The old -- command is renamed as -!.
+
+* If a ^P is entered between the dash and the option letter of the -
+  command, the message describing the new setting is suppressed.
+
+* Lesskey files may now contain escape sequences to represent the
+  "special" keys (arrows, PAGE-UP/PAGE-DOWN, HOME, END, INSERT, DELETE).
+
+* New command :d removes the current file from the list of files.
 
 * New option -~ (like -w before version 335)
   suppresses tildes after end-of-file.

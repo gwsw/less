@@ -581,7 +581,8 @@ v337    4/9/99	Fix another installation bug.
 		Posted to Web page.
 -----------------------------------------------------------------
 v338   4/13/99	Add support for long option names.
+v339   4/18/99	Add \k, long option names to lesskey.  Add -^P.  Add :d.
 
 */
 
-char version[] = "338";
+char version[] = "339";
