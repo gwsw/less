@@ -149,7 +149,9 @@ plinenum(pos)
  *
  */
 	static int
-utf_len(char *s, int len)
+utf_len(s, len)
+	char *s;
+	int len;
 {
 	int ulen = 0;
 
