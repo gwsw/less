@@ -1,7 +1,13 @@
-	Major changes between "less" versions 237 and 
+	Major changes between "less" versions 252 and 
 
-* Search pattern highlighting has been fixed.  It now highlights only
-  the text which satisfied the last search command, but does so reliably.
+* Search pattern highlighting has been fixed.  It now highlights 
+  reliably, even if a string is split across two screen lines.
+
+* The default for search highlighting has been changed to highlight
+  only the string which terminated the last search.  The old behavior
+  (highlighting every matching string) can be enabled with the -G flag.
+  Search highlighting can be disabled completely with the -g flag.
+  (The -g flag replaces the -F flag, which is now obsolete.)
 
 
 ======================================================================

@@ -40,6 +40,10 @@
 extern int squeeze;
 extern int chopline;
 extern int sigs;
+#if HILITE_SEARCH
+extern int hilite_search;
+extern int size_linebuf;
+#endif
 
 /*
  * Get the next line.
@@ -57,7 +61,16 @@ forw_line(curr_pos)
 	int blankline;
 	int endline;
 
-	if (curr_pos == NULL_POSITION || ch_seek(curr_pos))
+	if (curr_pos == NULL_POSITION)
+	{
+		null_line();
+		return (NULL_POSITION);
+	}
+#if HILITE_SEARCH
+	if (hilite_search == 2)
+		prep_hilite(curr_pos, curr_pos + 3*size_linebuf);
+#endif
+	if (ch_seek(curr_pos))
 	{
 		null_line();
 		return (NULL_POSITION);
@@ -157,8 +170,17 @@ back_line(curr_pos)
 	int c;
 	int endline;
 
-	if (curr_pos == NULL_POSITION || curr_pos <= ch_zero() ||
-		ch_seek(curr_pos-1))
+	if (curr_pos == NULL_POSITION || curr_pos <= ch_zero())
+	{
+		null_line();
+		return (NULL_POSITION);
+	}
+#if HILITE_SEARCH
+	if (hilite_search == 2)
+		prep_hilite((curr_pos < 3*size_linebuf) ? 
+				0 : curr_pos - 3*size_linebuf, curr_pos);
+#endif
+	if (ch_seek(curr_pos-1))
 	{
 		null_line();
 		return (NULL_POSITION);

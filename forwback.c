@@ -50,9 +50,6 @@ extern int ignore_eoi;
 #if TAGS
 extern char *tagoption;
 #endif
-#if HILITE_SEARCH
-extern int hilite_search;
-#endif
 
 /*
  * Sound the bell to indicate user is trying to move past end of file.
@@ -254,10 +251,6 @@ forw(n, pos, force, only_last, nblank)
 		eof_bell();
 	else if (do_repaint)
 		repaint();
-#if HILITE_SEARCH
-	if (hilite_search == 2)
-		screen_hilite();
-#endif
 	first_time = 0;
 	(void) currline(BOTTOM);
 }
@@ -311,10 +304,6 @@ back(n, pos, force, only_last)
 		eof_bell();
 	else if (do_repaint)
 		repaint();
-#if HILITE_SEARCH
-	if (hilite_search == 2)
-		screen_hilite();
-#endif
 	(void) currline(BOTTOM);
 }
 

@@ -32,6 +32,9 @@
 #include "less.h"
 #include "position.h"
 
+#define	MINPOS(a,b)	(((a) < (b)) ? (a) : (b))
+#define	MAXPOS(a,b)	(((a) > (b)) ? (a) : (b))
+
 #if HAVE_POSIX_REGCOMP
 #include <regex.h>
 #endif
@@ -60,8 +63,11 @@ extern int jump_sline;
 extern int bs_mode;
 #if HILITE_SEARCH
 extern int hilite_search;
-static int hide_hilite;
 extern int screen_trashed;
+extern int size_linebuf;
+static int hide_hilite;
+static POSITION prep_startpos;
+static POSITION prep_endpos;
 
 struct hilite
 {
@@ -69,8 +75,7 @@ struct hilite
 	POSITION hl_startpos;
 	POSITION hl_endpos;
 };
-static struct hilite *hilite_list = NULL;
-static struct hilite *hilite_tail = NULL;
+static struct hilite hilite_anchor = { NULL };
 #endif
 
 /*
@@ -170,16 +175,23 @@ prev_pattern()
  * Repaint each line which contains highlighted text.
  */
 	public void
-repaint_hilite()
+repaint_hilite(on)
+	int on;
 {
 	int slinenum;
 	POSITION pos;
 	POSITION epos;
+	int save_hide_hilite;
 	extern int can_goto_line;
+
+	save_hide_hilite = hide_hilite;
+	if (!on)
+		hide_hilite = 1;
 
 	if (!can_goto_line)
 	{
 		repaint();
+		hide_hilite = save_hide_hilite;
 		return;
 	}
 
@@ -200,6 +212,7 @@ repaint_hilite()
 			put_line();
 		}
 	}
+	hide_hilite = save_hide_hilite;
 }
 #endif
 
@@ -216,7 +229,7 @@ undo_search()
 	}
 #if HILITE_SEARCH
 	hide_hilite = !hide_hilite;
-	repaint_hilite();
+	repaint_hilite(1);
 #endif
 }
 
@@ -336,12 +349,13 @@ clr_hilite()
 	struct hilite *hl;
 	struct hilite *nexthl;
 
-	for (hl = hilite_list;  hl != NULL;  hl = nexthl)
+	for (hl = hilite_anchor.hl_next;  hl != NULL;  hl = nexthl)
 	{
 		nexthl = hl->hl_next;
 		free((void*)hl);
 	}
-	hilite_list = hilite_tail = NULL;
+	hilite_anchor.hl_next = NULL;
+	prep_startpos = prep_endpos = NULL_POSITION;
 }
 
 /*
@@ -353,18 +367,42 @@ add_hilite(startpos, endpos)
 	POSITION endpos;
 {
 	struct hilite *hl;
+	struct hilite *ihl;
 
-	hl = (struct hilite *) ecalloc(1, sizeof(struct hilite));
-	hl->hl_next = NULL;
-	hl->hl_startpos = startpos;
-	hl->hl_endpos = endpos;
-	if (hilite_tail == NULL)
+	/*
+	 * Hilites are sorted in the list; find where new one belongs.
+	 * Insert new one after ihl.
+	 */
+	for (ihl = &hilite_anchor;  ihl->hl_next != NULL;  ihl = ihl->hl_next)
 	{
-		hilite_list = hilite_tail = hl;
+		if (ihl->hl_next->hl_startpos > startpos)
+			break;
+	}
+
+	if (ihl != &hilite_anchor && startpos <= ihl->hl_endpos)
+	{
+		/*
+		 * New hilite starts within existing ihl.
+		 * Just extend ihl to end at the new hilite's end.
+		 */
+		ihl->hl_endpos = MAXPOS(endpos, ihl->hl_endpos);
 	} else
 	{
-		hilite_tail->hl_next = hl;
-		hilite_tail = hl;
+		/*
+		 * Add new hilite after ihl.
+		 */
+		hl = (struct hilite *) ecalloc(1, sizeof(struct hilite));
+		hl->hl_startpos = startpos;
+		/*
+		 * If new hilite ends within the one after ihl,
+		 * truncate it to end at the start of that one.
+		 */
+		if (ihl->hl_next == NULL)
+			hl->hl_endpos = endpos;
+		else
+			hl->hl_endpos = MINPOS(endpos, ihl->hl_next->hl_startpos);
+		hl->hl_next = ihl->hl_next;
+		ihl->hl_next = hl;
 	}
 }
 
@@ -395,7 +433,7 @@ is_hilited(pos, epos, nohide)
 	/*
 	 * Look at each highlight and see if any part of it falls in the range.
 	 */
-	for (hl = hilite_list;  hl != NULL;  hl = hl->hl_next)
+	for (hl = hilite_anchor.hl_next;  hl != NULL;  hl = hl->hl_next)
 	{
 		if (hl->hl_endpos > pos &&
 		    (epos == NULL_POSITION || epos > hl->hl_startpos))
@@ -418,11 +456,18 @@ adj_hilite(linepos)
 	POSITION npos;
 
 	/*
+	 * The line was already scanned and hilites were added (in hilite_line).
+	 * But it was assumed that each char position in the line 
+	 * correponds to one char position in the file.
+	 * This may not be true if there are backspaces in the line.
 	 * Get the raw line again.  Look at each character.
 	 */
 	(void) forw_raw_line(linepos, &line);
 	opos = npos = linepos;
-	for (hl = hilite_list;  hl != NULL;  hl = hl->hl_next)
+	/*
+	 * Find the first hilite in (or after) this line.
+	 */
+	for (hl = hilite_anchor.hl_next;  hl != NULL;  hl = hl->hl_next)
 		if (hl->hl_startpos >= linepos)
 			break;
 	checkstart = 1;
@@ -432,7 +477,7 @@ adj_hilite(linepos)
 		 * See if we need to adjust the current hl_startpos or 
 		 * hl_endpos.  After adjusting startpos[i], move to endpos[i].
 		 * After adjusting endpos[i], move to startpos[i+1].
-		 * The hl_ lists must be sorted: 
+		 * The hilite list must be sorted thus: 
 		 * startpos[0] < endpos[0] <= startpos[1] < endpos[1] <= etc.
 		 */
 		if (checkstart && hl->hl_startpos == opos)
@@ -454,6 +499,11 @@ adj_hilite(linepos)
 		line++;
 		if (line[0] == '\b' && line[1] != '\0')
 		{
+			/*
+			 * Found a backspace.  The file position moves
+			 * forward by 2 relative to the processed line
+			 * which was searched in hilite_line.
+			 */
 			npos += 2;
 			line += 2;
 		}
@@ -463,6 +513,7 @@ adj_hilite(linepos)
 /*
  * Make a hilite for each string in a physical line which matches 
  * the current pattern.
+ * sp,ep delimit the first match already found.
  */
 	static void
 hilite_line(linepos, line, sp, ep)
@@ -529,18 +580,43 @@ chg_caseless()
 	if (!is_ucase_pattern)
 		is_caseless = caseless;
 #ifdef HILITE_SEARCH
-	chg_hilite();
+/*	chg_hilite();*/
 #endif
 }
 
 #ifdef HILITE_SEARCH
+/*
+ * Find matching text which is currently on screen and highlight it.
+ */
+	static void
+hilite_screen()
+{
+	struct scrpos scrpos;
+
+	get_scrpos(&scrpos);
+	if (scrpos.pos == NULL_POSITION)
+		return;
+	prep_hilite(scrpos.pos, position(BOTTOM_PLUS_ONE));
+	repaint_hilite(1);
+}
+
+/*
+ * Change highlighting parameters.
+ */
 	public void
 chg_hilite()
 {
-	hide_hilite = 1;
-	repaint_hilite();
+	/*
+	 * Erase any highlights currently on screen.
+	 */
 	clr_hilite();
 	hide_hilite = 0;
+
+	if (hilite_search == 2)
+		/*
+		 * Display highlights.
+		 */
+		hilite_screen();
 }
 #endif
 
@@ -602,12 +678,13 @@ search_pos(search_type)
  * Search a subset of the file, specified by start/end position.
  */
 	static int
-search_range(pos, endpos, search_type, n, plinepos)
+search_range(pos, endpos, search_type, n, plinepos, pendpos)
 	POSITION pos;
 	POSITION endpos;
 	int search_type;
 	int n;
 	POSITION *plinepos;
+	POSITION *pendpos;
 {
 	char *line;
 	int linenum;
@@ -637,6 +714,8 @@ search_range(pos, endpos, search_type, n, plinepos)
 			/*
 			 * Reached end position without a match.
 			 */
+			if (pendpos != NULL)
+				*pendpos = pos;
 			return (n);
 		}
 
@@ -667,6 +746,8 @@ search_range(pos, endpos, search_type, n, plinepos)
 			/*
 			 * Reached EOF/BOF without a match.
 			 */
+			if (pendpos != NULL)
+				*pendpos = linepos;
 			return (n);
 		}
 
@@ -775,8 +856,24 @@ search(search_type, pattern, n)
 			error("No previous regular expression", NULL_PARG);
 			return (-1);
 		}
+#if HILITE_SEARCH
+		if (hilite_search == 1)
+		{
+			/*
+			 * Erase the highlights currently on screen.
+			 * If the search fails, we'll redisplay them later.
+			 */
+			repaint_hilite(0);
+			hide_hilite = 0;
+		}
+#endif
 	} else
 	{
+		/*
+		 * Compile the pattern.
+		 */
+		if (compile_pattern(pattern) < 0)
+			return (-1);
 		/*
 		 * Ignore case if -i is set AND 
 		 * the pattern is all lowercase.
@@ -786,12 +883,26 @@ search(search_type, pattern, n)
 			is_caseless = 0;
 		else
 			is_caseless = caseless;
-
-		/*
-		 * Compile the pattern.
-		 */
-		if (compile_pattern(pattern) < 0)
-			return (-1);
+#if HILITE_SEARCH
+		if (hilite_search)
+		{
+			/*
+			 * Erase the highlights currently on screen.
+			 * Also permanently delete them from the hilite list.
+			 */
+			repaint_hilite(0);
+			hide_hilite = 0;
+			clr_hilite();
+		}
+		if (hilite_search == 2)
+		{
+			/*
+			 * Highlight any matches currently on screen,
+			 * before we actually start the search.
+			 */
+			hilite_screen();
+		}
+#endif
 	}
 
 	/*
@@ -809,26 +920,18 @@ search(search_type, pattern, n)
 		return (-1);
 	}
 
-#if HILITE_SEARCH
-	if (hilite_search)
-	{
-		/*
-		 * Hide current hilites on the screen, because they may change.
-		 */
-		hide_hilite = 1;
-		repaint_hilite();
-		hide_hilite = 0;
-	}
-#endif
-
-	n = search_range(pos, NULL_POSITION, search_type, n, &pos);
+	n = search_range(pos, NULL_POSITION, search_type, n, &pos, NULL);
 	if (n != 0)
 	{
 		/*
 		 * Search was unsuccessful.
 		 */
 #if HILITE_SEARCH
-		repaint_hilite();
+		if (hilite_search == 1 && n > 0)
+			/*
+			 * Redisplay old hilites.
+			 */
+			repaint_hilite(1);
 #endif
 		return (n);
 	}
@@ -837,45 +940,112 @@ search(search_type, pattern, n)
 	 * Go to the matching line.
 	 */
 	jump_loc(pos, jump_sline);
+
 #if HILITE_SEARCH
 	if (hilite_search == 1)
-	{
 		/*
-		 * Display the hilites in the matching line.
+		 * Display new hilites in the matching line.
 		 */
-		repaint_hilite();
-	}
+		repaint_hilite(1);
 #endif
 	return (0);
 }
 
 #if HILITE_SEARCH
 /*
- * Highlight all strings currently displayed which match the current pattern.
+ * Prepare hilites in a given range of the file.
  */
 	public void
-screen_hilite()
+prep_hilite(spos, epos)
+	POSITION spos;
+	POSITION epos;
 {
-	struct scrpos scrpos;
+	POSITION nprep_startpos = prep_startpos;
+	POSITION nprep_endpos = prep_endpos;
+/*
+ * Search beyond where we're asked to search, so the prep region covers
+ * more than we need.  Do one big search instead of a bunch of small ones.
+ */
+#define	SEARCH_MORE 2048
 
 	if (!prev_pattern())
 		return;
 	/*
-	 * Get the range of file positions displayed on the screen.
+	 * Find two ranges:
+	 * The range that we need to search (spos,epos); and the range that
+	 * the "prep" region now covers (nprep_startpos,nprep_endpos).
 	 */
-	get_scrpos(&scrpos);
-	if (scrpos.pos == NULL_POSITION)
-		return;
-	/*
-	 * Clear the hilite list.
-	 * Search the subset of the file which is currently displayed
-	 * and add all matches to the hilite list.
-	 * Then display the hilites.
-	 */
-	clr_hilite();
-	(void) search_range(scrpos.pos, position(BOTTOM_PLUS_ONE), 
-		SRCH_FORW|SRCH_FIND_ALL, 0, NULL);
-	repaint_hilite();
+
+	if (prep_startpos == NULL_POSITION ||
+	    epos < prep_startpos || spos > prep_endpos)
+	{
+		/*
+		 * New range is not contiguous with old prep region.
+		 * Discard the old prep region and start a new one.
+		 */
+		clr_hilite();
+		nprep_startpos = spos;
+		epos += SEARCH_MORE;
+		nprep_endpos = epos;
+	} else
+	{
+		/*
+		 * New range partially or completely overlaps old prep region.
+		 */
+		if (epos > prep_endpos)
+		{
+			/*
+			 * New range ends after old prep region.
+			 * Extend prep region to end at end of new range.
+			 */
+			epos += SEARCH_MORE;
+			nprep_endpos = epos;
+		} else /* (epos <= prep_endpos) */
+		{
+			/*
+			 * New range ends within old prep region.
+			 * Truncate search to end at start of old prep region.
+			 */
+			epos = prep_startpos;
+		}
+
+		if (spos < prep_startpos)
+		{
+			/*
+			 * New range starts before old prep region.
+			 * Extend old prep region backwards to start at 
+			 * start of new range.
+			 */
+			if (spos < SEARCH_MORE)
+				spos = 0;
+			else
+				spos -= SEARCH_MORE;
+			nprep_startpos = spos;
+		} else /* (spos >= prep_startpos) */
+		{
+			/*
+			 * New range starts within or after old prep region.
+			 * Trim search to start near end of old prep region
+			 * (actually, one linebuf before end of old range).
+			 */
+			if (prep_endpos < size_linebuf)
+				spos = 0;
+			else 
+				spos = prep_endpos - size_linebuf;
+		}
+	}
+
+	if (epos > spos)
+	{
+		if (search_range(spos, epos, SRCH_FORW|SRCH_FIND_ALL, 
+				0, NULL, &epos) >= 0)
+		{
+			if (epos > nprep_endpos)
+				nprep_endpos = epos;
+		}
+	}
+	prep_startpos = nprep_startpos;
+	prep_endpos = nprep_endpos;
 }
 #endif
 

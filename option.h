@@ -37,6 +37,7 @@
 #define	NOVAR		020	/* No associated variable */
 #define	REPAINT		040	/* Repaint screen after toggling option */
 #define	NO_TOGGLE	0100	/* Option cannot be toggled with "-" cmd */
+#define	HL_REPAINT	0200	/* Repaint hilites after toggling option */
 
 #define	OTYPE		(BOOL|TRIPLE|NUMBER|STRING|NOVAR)
 

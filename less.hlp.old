@@ -80,7 +80,8 @@
   -d            Dumb terminal.
   -e  -E        Quit at end of file.
   -f            Force open non-regular files.
-  -F            Don't highlight matches for previous search pattern.
+  -g            Don't highlight matches for previous search pattern.
+  -G            Highlight ALL matches for previous search pattern.
   -h [_N]        Backward scroll limit.
   -i            Ignore case in searches.
   -j [_N]        Screen position of target lines.

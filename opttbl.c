@@ -109,7 +109,7 @@ static struct option option[] =
 		NULL
 	},
 #if HILITE_SEARCH
-	{ 'g', TRIPLE, 1, &hilite_search, opt_g,
+	{ 'g', TRIPLE|HL_REPAINT, 1, &hilite_search, NULL,
 		"Don't highlight search matches",
 		"Highlight matches for previous search only",
 		"Highlight all matches for previous search pattern",
@@ -125,7 +125,7 @@ static struct option option[] =
 		"Don't allow help command",
 		NULL
 	},
-	{ 'i', BOOL, 0, &caseless, opt_i,
+	{ 'i', BOOL|HL_REPAINT, 0, &caseless, opt_i,
 		"Case is significant in searches",
 		"Ignore case in searches",
 		NULL
