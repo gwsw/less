@@ -282,6 +282,8 @@ If a number N is specified, the N-th previous file is examined.
 .IP ":x"
 Examine the first file in the command line list.
 If a number N is specified, the N-th file in the list is examined.
+.IP ":d"
+Remove the current file from the list of files.
 .IP "= or ^G or :f"
 Prints some information about the file being viewed,
 including its name
@@ -293,6 +295,8 @@ and the percent of the file above the last displayed line.
 Followed by one of the command line option letters (see OPTIONS below),
 this will change the setting of that option
 and print a message describing the new setting.
+If a ^P (CONTROL-P) is entered immediately after the dash,
+the setting of the option is changed but no message is printed.
 If the option letter has a numeric value (such as -b or -h),
 or a string value (such as -P or -t),
 a new value may be entered after the option letter.
@@ -302,6 +306,8 @@ the current setting is printed and nothing is changed.
 Like the \- command, but takes a long option name (see OPTIONS below)
 rather than a single option letter.
 You must press RETURN after typing the option name.
+A ^P immediately after the second dash suppresses printing of a 
+message describing the new setting, as in the \- command.
 .IP \-+
 Followed by one of the command line option letters
 this will reset the option to its default setting
