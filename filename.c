@@ -477,10 +477,13 @@ open_altfile(filename, pf, pfd)
 		 */
 		f = fileno(fd);
 		if (read(f, &c, 1) != 1)
+		{
 			/*
 			 * Pipe is empty.  This means there is no alt file.
 			 */
+			pclose(fd);
 			return (NULL);
+		}
 		ch_ungetchar(c);
 		*pfd = (void *) fd;
 		*pf = f;
