@@ -615,7 +615,8 @@ v364 12/10/01	Better handling of very long lines in input;
 v365 12/11/01	Fix overstriking of tabs;
 		Add support for global(1) and multiple tag matches
 		(thanks to Shigio Yamaguchi and Tim Vanderhoek).
+v366 12/11/01	Fixes for OS/2 (thanks to Kyosuke Tokoro).
 
 */
 
-char version[] = "365";
+char version[] = "366";

@@ -882,7 +882,7 @@ Like, TAB, but cycles in the reverse direction thru the matching filenames.
 Complete the partial filename to the left of the cursor.
 If it matches more than one filename, all matches are entered into
 the command line (if they fit).
-.IP "^U (Unix) or ESC (MS-DOS)"
+.IP "^U (Unix and OS/2) or ESC (MS-DOS)"
 Delete the entire command line,
 or cancel the command if the command line is empty.
 If you have changed your line-kill character in Unix to something
@@ -1411,7 +1411,8 @@ LINES and COLUMNS environment variables.)
 .IP EDITOR
 The name of the editor (used for the v command).
 .IP HOME
-Name of the user's home directory (used to find a lesskey file on Unix systems).
+Name of the user's home directory
+(used to find a lesskey file on Unix and OS/2 systems).
 .IP "HOMEDRIVE, HOMEPATH"
 Concatenation of the HOMEDRIVE and HOMEPATH environment variables is
 the name of the user's home directory if the HOME variable is not set

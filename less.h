@@ -83,7 +83,7 @@
 #include <modes.h>
 #include <strings.h>
 #endif
-#if MSDOS_COMPILER==WIN32C
+#if MSDOS_COMPILER==WIN32C || OS2
 #include <io.h>
 #endif
 #if MSDOS_COMPILER==DJGPPC
@@ -190,7 +190,7 @@ typedef off_t		POSITION;
 #if MSDOS_COMPILER==MSOFTC
 #define	SET_BINARY(f)	_setmode(f, _O_BINARY);
 #else
-#if MSDOS_COMPILER
+#if MSDOS_COMPILER || OS2
 #define	SET_BINARY(f)	setmode(f, O_BINARY)
 #else
 #define	SET_BINARY(f)

@@ -66,6 +66,7 @@ extern int fd0;
 #endif
 #if OS2
 #include <sys/signal.h>
+#include "pckeys.h"
 #endif
 #if HAVE_SYS_STREAM_H
 #include <sys/stream.h>
@@ -88,6 +89,7 @@ extern int fd0;
 
 #if OS2
 #define	DEFAULT_TERM		"ansi"
+static char *windowid;
 #else
 #define	DEFAULT_TERM		"unknown"
 #endif
@@ -712,6 +714,27 @@ scrsize()
 		_scrsize(s);
 		sys_width = s[0];
 		sys_height = s[1];
+		/*
+		 * When using terminal emulators for XFree86/OS2, the
+		 * _scrsize function does not work well.
+		 * Call the scrsize.exe program to get the window size.
+		 */
+		windowid = getenv("WINDOWID");
+		if (windowid != NULL)
+		{
+			FILE *fd = popen("scrsize", "rt");
+			if (fd != NULL)
+			{
+				int w, h;
+				fscanf(fd, "%i %i", &w, &h);
+				if (w > 0 && h > 0)
+				{
+					sys_width = w;
+					sys_height = h;
+				}
+				pclose(fd);
+			}
+		}
 	}
 #else
 #ifdef TIOCGWINSZ
@@ -835,7 +858,7 @@ special_key_str(key)
 {
 	static char tbuf[40];
 	char *s;
-#if MSDOS_COMPILER
+#if MSDOS_COMPILER || OS2
 	static char k_right[]		= { '\340', PCK_RIGHT, 0 };
 	static char k_left[]		= { '\340', PCK_LEFT, 0  };
 	static char k_ctl_right[]	= { '\340', PCK_CTL_RIGHT, 0  };
@@ -852,12 +875,56 @@ special_key_str(key)
 	static char k_pagedown[]	= { '\340', PCK_PAGEDOWN, 0 };
 	static char k_pageup[]		= { '\340', PCK_PAGEUP, 0 };
 	static char k_f1[]		= { '\340', PCK_F1, 0 };
-#else
+#endif
+#if !MSDOS_COMPILER
 	char *sp = tbuf;
 #endif
 
 	switch (key)
 	{
+#if OS2
+	/*
+	 * If windowid is not NULL, assume less is executed in 
+	 * the XFree86 environment.
+	 */
+	case SK_RIGHT_ARROW:
+		s = windowid ? ltgetstr("kr", &sp) : k_right;
+		break;
+	case SK_LEFT_ARROW:
+		s = windowid ? ltgetstr("kl", &sp) : k_left;
+		break;
+	case SK_UP_ARROW:
+		s = windowid ? ltgetstr("ku", &sp) : k_up;
+		break;
+	case SK_DOWN_ARROW:
+		s = windowid ? ltgetstr("kd", &sp) : k_down;
+		break;
+	case SK_PAGE_UP:
+		s = windowid ? ltgetstr("kP", &sp) : k_pageup;
+		break;
+	case SK_PAGE_DOWN:
+		s = windowid ? ltgetstr("kN", &sp) : k_pagedown;
+		break;
+	case SK_HOME:
+		s = windowid ? ltgetstr("kh", &sp) : k_home;
+		break;
+	case SK_END:
+		s = windowid ? ltgetstr("@7", &sp) : k_end;
+		break;
+	case SK_DELETE:
+		if (windowid)
+		{
+			s = ltgetstr("kD", &sp);
+			if (s == NULL)
+			{
+				tbuf[0] = '\177';
+				tbuf[1] = '\0';
+				s = tbuf;
+			}
+		} else
+			s = k_delete;
+		break;
+#endif
 #if MSDOS_COMPILER
 	case SK_RIGHT_ARROW:
 		s = k_right;
@@ -886,6 +953,8 @@ special_key_str(key)
 	case SK_DELETE:
 		s = k_delete;
 		break;
+#endif
+#if MSDOS_COMPILER || OS2
 	case SK_INSERT:
 		s = k_insert;
 		break;

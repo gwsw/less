@@ -35,7 +35,7 @@
 
 * Windows version sets window title.
 
-* Default LESSCHARSET for MS-DOS versions is "dos".
+* Default LESSCHARSET for MS-DOS versions is now "dos".
 
 * Fix problems when viewing files with very long lines.
 
@@ -43,9 +43,11 @@
 
 * Improve horizontal shifting of text using -R option with ANSI color.
 
-* Eliminate some 32-bit file offset dependencies.
+* Eliminate some dependencies on file offets being 32 bits.
 
 * Some fixes for EBCDIC systems.
+
+* Some fixes for OS/2 systems.
 
 ======================================================================
 

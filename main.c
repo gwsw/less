@@ -162,7 +162,7 @@ main(argc, argv)
 		ifile = get_ifile(FAKE_HELPFILE, ifile);
 	while (argc-- > 0)
 	{
-#if (MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC) || OS2
+#if (MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC)
 		/*
 		 * Because the "shell" doesn't expand filename patterns,
 		 * treat each argument as a filename pattern rather than
