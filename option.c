@@ -53,14 +53,24 @@ scan_option(s)
 		return;
 
 	/*
-	 * If we have a pending string-valued option, handle it now.
+	 * If we have a pending option which requires an argument,
+	 * handle it now.
 	 * This happens if the previous option was, for example, "-P"
 	 * without a following string.  In that case, the current
-	 * option is simply the string for the previous option.
+	 * option is simply the argument for the previous option.
 	 */
 	if (pendopt != NULL)
 	{
-		(*pendopt->ofunc)(INIT, s);
+		switch (pendopt->otype & OTYPE)
+		{
+		case STRING:
+			(*pendopt->ofunc)(INIT, s);
+			break;
+		case NUMBER:
+			printopt = propt(pendopt->oletter);
+			*(pendopt->ovar) = getnum(&s, printopt, (int*)NULL);
+			break;
+		}
 		pendopt = NULL;
 		return;
 	}
@@ -218,6 +228,11 @@ scan_option(s)
 			s = optstring(s, printopt);
 			break;
 		case NUMBER:
+			if (*s == '\0')
+			{
+				pendopt = o;
+				return;
+			}
 			*(o->ovar) = getnum(&s, printopt, (int*)NULL);
 			break;
 		}
@@ -510,7 +525,7 @@ nostring(printopt)
 {
 	PARG parg;
 	parg.p_string = printopt;
-	error("String is required after %s", &parg);
+	error("Value is required after %s", &parg);
 }
 
 /*
