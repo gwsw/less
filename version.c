@@ -495,6 +495,7 @@
  *	      Minor config fixes.
  *	v280: Clean up calls to glob(); don't set #	2/24/95
  *	      if we can't open the new file.
+ *	v281: Repeat search should turn on hilites.	2/24/95
  */
 
-char version[] = "280";
+char version[] = "281";
