@@ -155,8 +155,8 @@ adding this control line to the input file:
 #stop
 .sp
 This will cause all default commands to be ignored.
-Furthermore, any further commands in the input file following the #stop
-line are ignored.
+The #stop line should be the last line in that section of the file.
+(Another section, introduced by #line-edit, may follow the #stop line.)
 .PP
 Be aware that #stop can be dangerous.  
 Since all default commands are disabled, 
@@ -168,7 +168,7 @@ For example, failure to provide a "quit" command can lead to frustration.
 New key bindings may be specified for the line editing commands,
 in a manner similar to the way key bindings for 
 ordinary commands are specified.
-This control line marks the beginning of a sequence of line-editing commands:
+This control line marks the beginning of a section of line-editing commands:
 .sp
 #line-edit
 .sp
