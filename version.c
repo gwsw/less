@@ -441,6 +441,7 @@
  *	      Don't expand filenames in search command.
  *	v242: Allow lesskey specification of "literal".	10/14/94
  *	v243: Add #stop command to lesskey.		10/14/94
+ *	v244: Add -f flag to lesskey.			10/16/94
  */
 
-char version[] = "@(#) less  version 243";
+char version[] = "@(#) less  version 244";
