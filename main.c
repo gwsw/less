@@ -86,6 +86,7 @@ main(argc, argv)
 #endif
 
 	progname = *argv++;
+	argc--;
 
 	secure = 0;
 	s = lgetenv("LESSSECURE");
@@ -107,7 +108,7 @@ main(argc, argv)
 	/*
 	 * Special case for "less --help" and "less --version".
 	 */
-	if (argc == 2)
+	if (argc == 1)
 	{
 		if (strcmp(argv[0], "--help") == 0)
 			scan_option("-?");
@@ -116,8 +117,14 @@ main(argc, argv)
 	}
 #endif
 #define	isoptstring(s)	(((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
-	while (--argc > 0 && (isoptstring(argv[0]) || isoptpending()))
-		scan_option(*argv++);
+	while (argc > 0 && (isoptstring(*argv) || isoptpending()))
+	{
+		s = *argv++;
+		argc--;
+		if (strcmp(s, "--") == 0)
+			break;
+		scan_option(s);
+	}
 #undef isoptstring
 
 	if (isoptpending())
@@ -148,7 +155,7 @@ main(argc, argv)
 	 * to "register" them with the ifile system.
 	 */
 	ifile = NULL_IFILE;
-	while (--argc >= 0)
+	while (argc-- > 0)
 	{
 #if MSDOS_COMPILER || OS2
 		/*
