@@ -52,6 +52,7 @@ static unsigned short *whitescreen;
 #define _settextcolor(c)	textcolor(c)
 #define _setbkcolor(c)		textbackground(c)
 #define _clearscreen(m)		clrscr()
+#define _outtext(s)		cputs(s)
 #endif
 #endif
 
@@ -245,8 +246,8 @@ get_term()
 	static void
 initcolor()
 {
-#if MSDOS_COMPILER==MSOFTC
-	struct videoconfig w;
+	int height;
+	int width;
 	char *blanks;
 	int row;
 	int col;
@@ -256,20 +257,14 @@ initcolor()
 	 */
 	_settextcolor(nm_fg_color);
 	_setbkcolor(nm_bg_color);
-	_getvideoconfig(&w);
-	blanks = (char *) ecalloc(w.numtextcols, sizeof(char));
-	for (col = 0;  col < w.numtextcols;  col++)
+	scrsize(&height, &width);
+	blanks = (char *) ecalloc(width+1, sizeof(char));
+	for (col = 0;  col < width;  col++)
 		blanks[col] = ' ';
-	for (row = w.numtextrows;  row > 0;  row--)
-		_outmem(blanks, w.numtextcols);
+	blanks[width] = '\0';
+	for (row = 0;  row < height;  row++)
+		_outtext(blanks);
 	free(blanks);
-#else
-#if MSDOS_COMPILER==BORLANDC
-	flush();
-	textattr(WHITE+(BLACK<<4));
-	clrscr();
-endif
-endif
 }
 
 /*
