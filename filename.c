@@ -408,11 +408,27 @@ lglob(filename)
 #else
 {
 	FILE *fd;
+	char *s;
 
 	/*
 	 * We get the shell to expand the filename for us by passing
 	 * an "echo" command to the shell and reading its output.
 	 */
+
+	/*
+	 * Certain characters will cause problems if passed to the shell,
+	 * so we disallow them.
+	 * {{ This presumes too much knowlege about the shell, but not
+	 *    doing this can cause serious problems.  For example, do 
+	 *    "!;TAB" when the first file in the dir is named "rm". }}
+	 */
+	for (s = filename;  *s != '\0';  s++)
+	{
+		if (*s == ';' || *s == ':' || 
+		    *s == '\'' || *s == '\"' || *s == '\\')
+			return (filename);
+	}
+
 	fd = shellcmd("echo %s", filename, (char*)NULL);
 	if (fd == NULL)
 	{
