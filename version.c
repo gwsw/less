@@ -622,7 +622,9 @@ v368 12/18/01	Update lesskey commands.
 v370 12/23/01	Fix tags error messages.
 		Posted to Web page.
 -----------------------------------------------------------------
+v371 12/26/01	Fix new_file bug; use popen in Windows version;
+		fix some compiler warnings.
 
 */
 
-char version[] = "370";
+char version[] = "371";
