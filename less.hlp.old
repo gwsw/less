@@ -1,5 +1,5 @@
 
-                     SUMMARY OF COMMANDS
+                   SSUUMMMMAARRYY OOFF LLEESSSS CCOOMMMMAANNDDSS
 
       Commands marked with * may be preceded by a number, _N.
       Notes in parentheses indicate the behavior if _N is given.
@@ -68,7 +68,7 @@
   |XX_c_o_m_m_a_n_d            Pipe file between current pos & mark XX to shell command.
   v                    Edit the current file with $VISUAL or $EDITOR.
         ---------------------------------------------------
-                         FLAGS
+                           FFLLAAGGSS
 
         Most flags may be changed either on the command line,
         or from within less by using the - command.

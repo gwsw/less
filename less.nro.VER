@@ -650,7 +650,8 @@ Specifies a tags file to be used instead of "tags".
 Causes backspaces and carriage returns to be treated as printable characters;
 that is, they are sent to the terminal when they appear in the input.
 .IP -U
-Causes backspaces and carriage returns to be treated as control characters;
+Causes backspaces, tabs and carriage returns to be 
+treated as control characters;
 that is, they are handled as specified by the -r option.
 .sp
 By default, if neither -u nor -U is given,

@@ -370,10 +370,18 @@ do_append(c, pos)
 		 */
 		if (tabstop == 0)
 			tabstop = 1;
-		do
+		switch (bs_mode)
 		{
-			STOREC(' ', AT_NORMAL);
-		} while ((column % tabstop) != 0);
+		case BS_CONTROL:
+			goto do_control_char;
+		case BS_NORMAL:
+		case BS_SPECIAL:
+			do
+			{
+				STOREC(' ', AT_NORMAL);
+			} while ((column % tabstop) != 0);
+			break;
+		}
 	} else if (control_char(c))
 	{
 	do_control_char:
