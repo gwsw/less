@@ -73,6 +73,16 @@
 #include <sys/ptem.h>
 #endif
 
+/*
+ * Check for broken termios package that forces you to manually
+ * set the line discipline.
+ */
+#ifdef __ultrix__
+#define MUST_SET_LINE_DISCIPLINE 1
+#else
+#define MUST_SET_LINE_DISCIPLINE 0
+#endif
+
 #if OS2
 #define	DEFAULT_TERM		"ansi"
 #else
@@ -315,6 +325,13 @@ raw_mode(on)
 #ifdef VDSUSP
 		s.c_cc[VDSUSP] = 0;
 #endif
+#if MUST_SET_LINE_DISCIPLINE
+		/*
+		 * System's termios is broken; need to explicitly 
+		 * request TERMIODISC line discipline.
+		 */
+		s.c_line = TERMIODISC;
+#endif
 	} else
 	{
 		/*
@@ -323,6 +340,18 @@ raw_mode(on)
 		s = save_term;
 	}
 	tcsetattr(2, TCSADRAIN, &s);
+#if MUST_SET_LINE_DISCIPLINE
+	if (!on)
+	{
+		/*
+		 * Broken termios *ignores* any line discipline
+		 * except TERMIODISC.  A different old line discipline
+		 * is therefore not restored, yet.  Restore the old
+		 * line discipline by hand.
+		 */
+		ioctl(2, TIOCSETD, &save_term.c_line);
+	}
+#endif
     }
 #else
 #ifdef TCGETA
