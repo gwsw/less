@@ -16,6 +16,7 @@ DISTFILES = ${SRC} regexp.c regexp.h \
 	cmd.h funcs.h less.h lesskey.h option.h position.h \
 	install.sh defines.h.in defines.h.top mkinstalldirs \
 	less.nro lesskey.nro less.man lesskey.man less.hlp \
+	mkfuncs.awk mkhelp.c \
 	Makefile.dos Makefile.bcc defines.dos \
 	Makefile.os2 defines.os2 \
 	Makefile.os9 defines.os9 \
