@@ -459,7 +459,7 @@ By default 64K of buffer space is used for each file
 (unless the file is a pipe; see the -B option).
 The -b option specifies instead that \fIn\fP kilobytes of 
 buffer space should be used for each file.
-If \fIn\FP is -1, buffer space is unlimited; that is,
+If \fIn\fP is -1, buffer space is unlimited; that is,
 the entire file is read into memory.
 .IP "-B or --auto-buffers"
 By default, when data is read from a pipe,
@@ -468,7 +468,7 @@ If a large amount of data is read from the pipe, this can cause
 a large amount of memory to be allocated.
 The -B option disables this automatic allocation of buffers for pipes,
 so that only 64K 
-(or the amount of space specified by the -b option).
+(or the amount of space specified by the -b option)
 is used for the pipe.
 Warning: use of -B can result in erroneous display, since only the
 most recently viewed part of the file is kept in memory; 
@@ -486,7 +486,7 @@ that is, lacks some important capability,
 such as the ability to clear the screen or scroll backward.
 The -d option does not otherwise change the behavior of
 .I less
-on a dumb terminal).
+on a dumb terminal.
 .IP "-D\fBx\fP\fIcolor\fP or --color=\fBx\fP\fIcolor\fP"
 [MS-DOS only]
 Sets the color of the text displayed.
