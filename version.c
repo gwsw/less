@@ -498,6 +498,8 @@
  *	v281: Repeat search should turn on hilites.	2/24/95
  *	v282: Minor fixes.				3/2/95
  *	v283: Fix homefile; make OS2 look in $HOME.	3/2/95
+ *	v284: Error if "v" on LESSOPENed file;		3/2/95
+ *	      "%" figures out file size on pipe.
  */
 
-char version[] = "283";
+char version[] = "284";

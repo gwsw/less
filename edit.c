@@ -47,7 +47,7 @@ extern int force_logfile;
 extern char *namelogfile;
 #endif
 
-static char *curr_altfilename = NULL;
+char *curr_altfilename = NULL;
 static void *curr_altpipe;
 
 

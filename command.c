@@ -48,6 +48,7 @@ extern int nohelp;
 extern int top_scroll;
 extern int ignore_eoi;
 extern char *every_first_cmd;
+extern char *curr_altfilename;
 extern char version[];
 extern struct scrpos initial_scrpos;
 extern IFILE curr_ifile;
@@ -1074,6 +1075,12 @@ commands()
 			if (strcmp(get_filename(curr_ifile), "-") == 0)
 			{
 				error("Cannot edit standard input", NULL_PARG);
+				break;
+			}
+			if (curr_altfilename != NULL)
+			{
+				error("Cannot edit file processed with LESSOPEN", 
+					NULL_PARG);
 				break;
 			}
 			/*
