@@ -514,7 +514,8 @@ v291   3/21/95	Add #env to lesskey.  Fix MS-DOS build.
 -----------------------------------------------------------------
 v292   4/24/95	Add MS-DOS support for Borland C.
 		Fix arrow keys in MS-DOS versions.
+v293   4/28/95	Add auto-versioning stuff to make dist.
 
 */
 
-char version[] = "292";
+char version[] = "293";

@@ -1,8 +1,10 @@
-	Major changes between "less" versions 290 and 291
+	Major changes between "less" versions 290 and @@VERSION@@
 
 * Less environment variables can be specified in lesskey files.
 
 * Fixed MS-DOS build.
+
+* Ported to Borland C compiler.
 
 ======================================================================
 

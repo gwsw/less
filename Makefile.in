@@ -124,10 +124,31 @@ clean:
 mostlyclean: clean
 
 distclean: clean
-	rm -f Makefile config.status config.log config.cache defines.h stamp-h
+	rm -f Makefile config.status config.log config.cache defines.h stamp-h \
+		README NEWS less.nro lesskey.nro  less.man lesskey.man
 
 realclean: distclean
 	rm -f TAGS
+
+REPLACE_VERSION = \
+	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q version.c`; \
+	echo "Stuffing version number into $@"; \
+	sed -e "s/@@VERSION@@/$$REL/" $? >$@
+
+README: README.VER
+	${REPLACE_VERSION}
+NEWS: NEWS.VER
+	${REPLACE_VERSION}
+less.nro: less.nro.VER
+	${REPLACE_VERSION}
+lesskey.nro: lesskey.nro.VER
+	${REPLACE_VERSION}
+
+less.man: less.nro
+	mkman less.nro >less.man
+lesskey.man: lesskey.nro
+	mkman lesskey.nro >lesskey.man
+
 
 dist: ${DISTFILES}
 	if [ ! -d release ]; then mkdir release; fi
