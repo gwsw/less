@@ -411,6 +411,10 @@ tstr(pp)
 			case 'h': ch = SK_HOME; break;
 			case 'e': ch = SK_END; break;
 			case 'x': ch = SK_DELETE; break;
+			default:
+				error("illegal char after \\k");
+				*pp = p+1;
+				return ("");
 			}
 			*pp = p+1;
 			buf[0] = SK_SPECIAL_KEY;
