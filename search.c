@@ -664,22 +664,6 @@ adj_hilite(anchor, linepos, cvt_ops)
 		}
 		if (*line == '\0')
 			break;
-		opos++;
-		npos++;
-		line++;
-		if (cvt_ops & CVT_BS)
-		{
-			while (line[0] == '\b' && line[1] != '\0')
-			{
-				/*
-				 * Found a backspace.  The file position moves
-				 * forward by 2 relative to the processed line
-				 * which was searched in hilite_line.
-				 */
-				npos += 2;
-				line += 2;
-			}
-		}
 		if (cvt_ops & CVT_ANSI)
 		{
 			while (line[0] == ESC)
@@ -696,6 +680,22 @@ adj_hilite(anchor, linepos, cvt_ops)
 					if (is_ansi_end(*line++))
 						break;
 				}
+			}
+		}
+		opos++;
+		npos++;
+		line++;
+		if (cvt_ops & CVT_BS)
+		{
+			while (line[0] == '\b' && line[1] != '\0')
+			{
+				/*
+				 * Found a backspace.  The file position moves
+				 * forward by 2 relative to the processed line
+				 * which was searched in hilite_line.
+				 */
+				npos += 2;
+				line += 2;
 			}
 		}
 	}
