@@ -23,6 +23,14 @@ static int curseq;
 extern int linenums;
 extern int sigs;
 
+enum tag_result {
+	TAG_FOUND,
+	TAG_NOFILE,
+	TAG_NOTAG,
+	TAG_NOTYPE,
+	TAG_INTR
+};
+
 /*
  * Tag type
  */
@@ -35,8 +43,8 @@ enum {
 	T_GPATH		/* 'GPATH': path name (global) */
 };
 
-static void findctag();
-static void findgtag();
+static enum tag_result findctag();
+static enum tag_result findgtag();
 static char *nextgtag();
 static char *prevgtag();
 static POSITION ctagsearch();
@@ -165,11 +173,27 @@ findtag(tag)
 	register char *tag;
 {
 	int type = gettagtype();
+	enum tag_result result;
 
 	if (type == T_CTAGS)
-		findctag(tag);
+		result = findctag(tag);
 	else
-		findgtag(tag, type);
+		result = findgtag(tag, type);
+	switch (result)
+	{
+	case TAG_FOUND:
+	case TAG_INTR:
+		break;
+	case TAG_NOFILE:
+		error("No tags file", NULL_PARG);
+		break;
+	case TAG_NOTAG:
+		error("No such tag in tags file", NULL_PARG);
+		break;
+	case TAG_NOTYPE:
+		error("unknown tag type", NULL_PARG);
+		break;
+	}
 }
 
 /*
@@ -240,7 +264,7 @@ curr_tag()
  * Find tags in the "tags" file.
  * Sets curtag to the first tag entry.
  */
-	static void
+	static enum tag_result
 findctag(tag)
 	register char *tag;
 {
@@ -260,10 +284,7 @@ findctag(tag)
 	f = fopen(p, "r");
 	free(p);
 	if (f == NULL)
-	{
-		error("No tags file", NULL_PARG);
-		return;
-	}
+		return TAG_NOFILE;
 
 	cleantags();
 	total = 0;
@@ -346,12 +367,10 @@ findctag(tag)
 	}
 	fclose(f);
 	if (total == 0)
-	{
-		error("No such tag in tags file", NULL_PARG);
-		return;
-	}
+		return TAG_NOTAG;
 	curtag = taglist.tl_first;
 	curseq = 1;
+	return TAG_FOUND;
 }
 
 /*
@@ -450,7 +469,7 @@ ctagsearch()
  * for future use by gtagsearch().
  * Sets curtag to the first tag entry.
  */
-	static void
+	static enum tag_result
 findgtag(tag, type)
 	char *tag;		/* tag to load */
 	int type;		/* tags type */
@@ -460,7 +479,7 @@ findgtag(tag, type)
 	struct tag *tp;
 
 	if (type != T_CTAGS_X && tag == NULL)
-		return;
+		return TAG_NOFILE;
 
 	cleantags();
 	total = 0;
@@ -477,17 +496,14 @@ findgtag(tag, type)
 	} else
 	{
 #if !HAVE_POPEN
-		return;
+		return TAG_NOFILE;
 #else
 		char command[512];
 		char *flag;
 		char *cmd = lgetenv("LESSGLOBALTAGS");
 
 		if (cmd == NULL || *cmd == '\0')
-		{
-			error("No tags file", NULL_PARG);
-			return;
-		}
+			return TAG_NOFILE;
 		/* Get suitable flag value for global(1). */
 		switch (type)
 		{
@@ -504,8 +520,7 @@ findgtag(tag, type)
 			flag = "P";
 			break;
 		default:
-			error("unknown tag type", NULL_PARG);
-			return;
+			return TAG_NOTYPE;
 		}
 
 		/* Get our data from global(1). */
@@ -527,7 +542,7 @@ findgtag(tag, type)
 				if (fp != stdin)
 					pclose(fp);
 #endif
-				return;
+				return TAG_INTR;
 			}
 			if (buf[strlen(buf) - 1] == '\n')
 				buf[strlen(buf) - 1] = 0;
@@ -557,10 +572,9 @@ findgtag(tag, type)
 		{
 			if (pclose(fp))
 			{
-				error("No tags file", NULL_PARG);
 				curtag = NULL;
 				total = curseq = 0;
-				return;
+				return TAG_NOFILE;
 			}
 		}
 	}
@@ -568,9 +582,10 @@ findgtag(tag, type)
 	/* Check to see if we found anything. */
 	tp = taglist.tl_first;
 	if (tp == TAG_END)
-		return;  /* Nope! */
+		return TAG_NOTAG;
 	curtag = tp;
 	curseq = 1;
+	return TAG_FOUND;
 }
 
 static int circular = 0;	/* 1: circular tag structure */
