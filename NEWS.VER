@@ -1,5 +1,5 @@
 
-	Major changes between "less" versions 237 and 249
+	Major changes between "less" versions 237 and 251
 
 * Changes in line-editing keys:
   The literal key is now ^V or ^A rather than \ (backslash).
