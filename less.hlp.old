@@ -98,6 +98,7 @@
   -t [_t_a_g]      Find a tag.
   -T [_t_a_g_s_f_i_l_e] Use an alternate tags file.
   -u  -U        Change handling of backspaces.
+  -V            Display the version number of "less".
   -w            Display ~ for lines after end-of-file.
   -x [_N]        Set tab stops.
   -X            Don't use termcap init/deinit strings.

@@ -4,6 +4,8 @@ less \- opposite of more
 .SH SYNOPSIS
 .B "less -?"
 .br
+.B "less -V"
+.br
 .B "less [-[+]aBcCdeEfHimMnNqQrsSuUw]"
 .br
 .B "     [-b \fIbufs\fP] [-h \fIlines\fP] [-j \fIline\fP] [-k \fIkeyfile\fP]"
@@ -649,6 +651,9 @@ Other backspaces are deleted, along with the preceding character.
 Carriage returns immediately followed by a newline are deleted.
 Other carriage returns are handled as specified by the -r option.
 Text which is overstruck or underlined can be searched for.
+.IP -V
+Displays the version number of 
+.I less.
 .IP -w
 Causes blank lines to be used to represent lines
 past the end of the file.

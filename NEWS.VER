@@ -1,16 +1,19 @@
 
-	Major changes between "less" versions 237 and 246
+	Major changes between "less" versions 237 and 247
 
-* Lesskey now allows redefining line-editing command keys.
+* Changes in line-editing keys:
+  The literal key is now ^V or ^A rather than \ (backslash).
+  Filename completion commands (TAB and ^L) are disabled 
+  when typing a search pattern.
+
+* Line-editing command keys can be redefined using lesskey.
 
 * New lesskey option -f forces lesskey to overwrite an existing file.
   Lesskey will no longer overwrite existing files by default.
 
-* Changes in line-editing keys:
-  The literal key is now ^V or ^A rather than \ (backslash).
-  Filename completion commands are disabled in search commands.
+* New option -V displays version number of less.
 
-* Help file is now installed by default in /usr/local/share 
+* Help file less.hlp is now installed by default in /usr/local/share 
   rather than /usr/local/lib.
 
 

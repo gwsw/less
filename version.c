@@ -444,6 +444,7 @@
  *	v244: Add -f flag to lesskey.			10/16/94
  *	v245: Allow TAB_COMPLETE_FILENAME to be undefd.	10/25/94
  *	v246: Move help file to /usr/local/share.	10/27/94
+ *	v247: Add -V option.				10/27/94
  */
 
-char version[] = "@(#) less  version 246";
+char version[] = "@(#) less  version 247";

@@ -56,6 +56,7 @@ extern int any_display;
 extern char *prproto[];
 extern char *eqproto;
 extern IFILE curr_ifile;
+extern char version[];
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -368,6 +369,30 @@ opt_i(type, s)
 		break;
 	case QUERY:
 	case INIT:
+		break;
+	}
+}
+
+/*
+ * Handler for the -V option.
+ */
+	/*ARGSUSED*/
+	public void
+opt__V(type, s)
+	int type;
+	char *s;
+{
+	PARG parg;
+
+	switch (type)
+	{
+	case TOGGLE:
+	case QUERY:
+	case INIT:
+		parg.p_string = version+4;
+		error("%s", &parg);
+		if (type == INIT)
+			quit(0);
 		break;
 	}
 }

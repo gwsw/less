@@ -205,6 +205,9 @@ static struct option option[] =
 		"Backspaces cause overstrike",
 		"Print backspace as ^H"
 	},
+	{ 'V', NOVAR, 0, NULL, opt__V,
+		NULL, NULL, NULL
+	},
 	{ 'w', BOOL|REPAINT, 1, &twiddle, NULL,
 		"Display nothing for lines after end-of-file",
 		"Display ~ for lines after end-of-file",
