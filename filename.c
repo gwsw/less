@@ -425,9 +425,9 @@ open_altfile(filename, pf, pfd)
 		 */
 		return (NULL);
 	}
-#if HAVE_FILENO
 	if (returnfd)
 	{
+#if HAVE_FILENO
 		int f = fileno(fd);
 		char c;
 
@@ -444,8 +444,11 @@ open_altfile(filename, pf, pfd)
 		*pfd = (void *) fd;
 		*pf = f;
 		return (save("-"));
-	}
+#else
+		error("LESSOPEN pipe is not supported", NULL_PARG);
+		return (NULL);
 #endif
+	}
 	gfilename = readfd(fd);
 	pclose(fd);
 	if (*gfilename == '\0')
@@ -569,6 +572,12 @@ close_altfile(altfilename, filename)
 #if HAVE_STAT
 
 #include <sys/stat.h>
+#ifndef S_ISDIR
+#define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
+#endif
+#ifndef S_ISREG
+#define	S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)
+#endif
 
 /*
  * Returns NULL if the file can be opened and
@@ -588,7 +597,7 @@ bad_file(filename)
 	if (force_open)
 		return (NULL);
 
-	if ((statbuf.st_mode & S_IFMT) == S_IFDIR)
+	if (S_ISDIR(statbuf.st_mode))
 	{
 		static char is_dir[] = " is a directory";
 		m = (char *) ecalloc(strlen(filename) + sizeof(is_dir), 
@@ -597,7 +606,7 @@ bad_file(filename)
 		strcat(m, is_dir);
 		return (m);
 	}
-	if ((statbuf.st_mode & S_IFMT) != S_IFREG)
+	if (!S_ISREG(statbuf.st_mode))
 	{
 		static char not_reg[] = " is not a regular file";
 		m = (char *) ecalloc(strlen(filename) + sizeof(not_reg), 
