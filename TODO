@@ -1,0 +1,111 @@
+	101	-s leaves ~ lines at start of file
+	102	allow -o for non-pipe input
+*v326	103	q doesn't always quit (in error())
+	104	-s on file with trailing blank lines; G says 99%
+*v334	105	add installbin installman
+*v311	106	allow undefine CMD_HISTORY
+?	107	use tgetstr(x,NULL)
+	108	force Spencer regex
+*	109	continue after "read error"
+*v312	110	continue after cannot reopen in lsystem()
+*v313	111	horizontal scrolling
+	112	don't move to lowerleft on first screen
+*	113	test POSIX regex for bugs
+*	114	check VISUAL before EDITOR
+*	115	files with % or # (escape char?)
+*v279	116	support --help, --version
+*v285	117	files with % or # (DOS crashes)
+*v285	118	v cmd makes # refer to %
+*v340	119	support other GNU options
+*v304	120	turn off regex on individual search
+x	121	EBCDIC translation
+	122	Display in partial screen.
+*	123	Borland compiler.
+	124	Use GNU regex (ftp.gnu.ai.mit.edu in regex-0.12.tar.gz)
+*v309	125	Look at patches/rod
+?	126	ache hilite bug
+*	127	add version number to man page .TH less v290
+*v301	128	Cmd F doesn't show hilites in new text.
+*v301	129	Cmd F doesn't repaint on SIGWINCH.
+	130	Cmd F doesn't work if file shrinks or is deleted.
+*v295	131	Hilite pattern matches without searching.
+*v303	132	forw-screen-force.
+*v325	133	Spaces in filenames.
+*v296	134	cmdbuf longer than screen width.
+*	135	Bob Pegram diffs
+*v295	136	Linux gets seg fault when TERM=abc
+*		(Don't call termcap funcs if tgetent fails.)
+*v295	137	Search in squished file gives "Nothing to search" but
+*		then repaints badly.
+	138	/a[1,2] on Solaris matches a1, a2 and a4.
+	139	Stan Brown DOS 291 issues.
+*v304	140	Runtime secure (env var? non-overridable flag?).
+*v305	141	LESS=-kfilename; can't set LESS in the #env section.
+*v334	142	quit telnet; less spins (Robert Baruch)
+*v311	143	"!cmd, v" goes to EOF.
+*v305	144	Raul Miller fix for /proc files on Linux.
+	145	Incorporate diffs for Windows NT (patches/nt).
+*v299	146	Fix percent overflow in jump_percent.
+*v310	147	Manage help file better (less291.hlp?)
+?	148	Can't see messages from error reading lesskey file.
+*v299	149	Pause after !cmd before "ti".
+?	150	Two -D options on cmd line: second ignored.
+?	151	Escape codes for DOS are wrong.
+	152	Sun cmdtool pipe bug. (rzupl)
+*v306	153	Check for ncurses.
+*v309	154	Port to OS/9 (Boisy)
+*<v340	155	Regexp for DOS.
+*v307	156	Bad display on "/^Kpattern" in squished mode.
+*v307	157	date | less > foo produces an escape sequence at end of foo.
+*v340	158	Allow special keys (arrows, etc.) in lesskey file.
+*	159	Document \340 DOS escape sequences.
+*v307	160	Use -- for end of options.
+*v308	161	Fix -d.
+	162	Make compatible with POSIX more.
+*v315	163	"!a;TAB" gives shell error msg.
+!v314	164	Make -e quit immediately on short file.
+	165	Make %L always work when line numbers are on.
+*v317	166	Configure fails on AIX (bad substitution).
+	167	Set -S when top line is tail of a wrapped line - bad display.
+*v340	168	toggle-option-noprompt
+	169	Add kludge to get ti/te for xterm on Solaris/SGI.
+*v334	170	Fix MS-DOS Microsoft C build.
+	171	Fix OS-9 Ultra C build.
+	172	Don't display escape sequences for arrow keys, etc.
+	173	Fix filename completion in OS-9.
+	174	Search does not find string which follows a \0 byte.
+*v322	175	Add alternate command for ESC-[.
+*v322	176	! from help file crashes (Holger).
+*v334	177	Mark last line from prev screen, like trn -m (Lance).
+*v322	178	Linux does "stty 0" (David Stone).
+x	179	Very long line (files/1234); search /1234; doesn't match all.
+		[Line got broken by LINEBUF_SIZE.]
+	180	Add shortcut for lesspipe based on suffix (David Witten)
+*v325	181	Linux can't link with ncurses & termcap.
+*v340	182	Command to delete a file from the ifile list.
+*v334	183	Document "$" at end of string options better.
+	184	"Bookmarks" (save marks on exit).
+	185	Arrow keys don't work with -X (on some terminals?).
+	186	Last line of pipe on end of screen; doesn't say END.
+*v329	187	Add -" to change quote char.
+	188	Pass thru ANSI color escape sequences.
+	189	Correct keycodes for Windows (Simon Munton)
+x	190	Csh says "stty: TCGETS: Operation not supported on socket" 
+-		on filename completion.
+*v337	191	Enable regular expressions in MS-DOS version.
+	192	Fix problem with ^ in searches.
+x	193	Is setlocale() right about "binary" chars 0-31?
+*v331	194	Resolve issue when buffer is bigger than display window.
+	195	Search "HaveExtra" in ethernet.c doesn't hilite all.
+*v331	196	CAPS LOCK leaks characters in Windows.
+	197	Default system-wide LESSKEY file.
+*v334	198	On Windows, "j" at EOF scrolls down.
+	199	less +F on file with no newline, additional chars display on 
+		next line.
+	200	#196 returns in v334.
+	201	DJGPP cannot use long filenames in NT.
+	202	DJGPP highlights too much on line wrap.
+	203	Windows MSC highlights too much on line wrap.
+*v340	204	F while search pattern active doesn't go to end of long line.
+*v340	205	-G suppress -W hiliting.
+	206	Support UTF-8.
