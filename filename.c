@@ -417,6 +417,8 @@ readfd(fd)
 	return (buf);
 }
 
+#if HAVE_SHELL
+
 /*
  * Get the shell's escape character.
  */
@@ -507,6 +509,8 @@ esc_metachars(s)
 	return (newstr);
 }
 
+#endif /* HAVE_SHELL */
+
 /*
  * Execute a shell command.
  * Return a pointer to a pipe connected to the shell command's standard output.
@@ -558,6 +562,11 @@ shellcmd(cmd)
 #endif
 	{
 		fd = popen(cmd, "r");
+		/*
+		 * Redirection in `popen' might have messed with the
+		 * standard devices.  Restore binary input mode.
+		 */
+		SET_BINARY(0);
 	}
 	return (fd);
 }
@@ -704,7 +713,11 @@ lglob(filename)
 	lessecho = lgetenv("LESSECHO");
 	if (lessecho == NULL || *lessecho == '\0')
 		lessecho = "lessecho";
+#if HAVE_SHELL
 	s = esc_metachars(filename);
+#else
+	s = save(filename);
+#endif
 	if (s == NULL)
 	{
 		/*
@@ -831,6 +844,7 @@ open_altfile(filename, pf, pfd)
 		 * If it does, push the char back on the pipe.
 		 */
 		f = fileno(fd);
+		SET_BINARY(f);
 		if (read(f, &c, 1) != 1)
 		{
 			/*
