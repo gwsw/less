@@ -984,8 +984,8 @@ Possible values for LESSCHARSET are:
 .IP ascii
 The default character set.
 BS, TAB, NL, CR, and formfeed are control characters,
-all chars with values between 127 and 255 are binary,
-and all others are normal.
+all chars with values between 32 and 126 are normal,
+and all others are binary.
 .IP iso8859
 Selects the ISO 8859/1 character set.
 latin-1 is the same as ASCII, except characters between 161 and 255 are
@@ -994,6 +994,8 @@ treated as normal characters.
 Same as iso8859.
 .IP dos
 Selects a character set appropriate for MS-DOS.
+.IP ebcdic
+Selects an EBCDIC character set.
 .IP koi8-r
 Selects a Russian character set.
 .IP next
@@ -1021,11 +1023,17 @@ to each of the possible values for LESSCHARSET:
 .sp
 	ascii\ 	8bcccbcc18b95.b
 .br
-	latin1	8bcccbcc18b95.33b.
-.br
 	dos\ \ \ 	8bcccbcc12bc5b95.b.
 .br
+	ebcdic	5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b
+.br
+	\ \ \ \ \ \ 	9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b.
+.br
+	iso8859	8bcccbcc18b95.33b.
+.br
 	koi8-r	8bcccbcc18b95.b128.
+.br
+	latin1	8bcccbcc18b95.33b.
 .br
 	next\ \ 	8bcccbcc18b95.bb125.bb
 .PP
