@@ -1,8 +1,8 @@
 =======================================================================
-===          This is the distribution of less (version @@VERSION@@)         ===
-===    Please report any problems to the author at markn@3do.com.   ===
-===  See http://members.aol.com/marknudel/less for the latest info. ===
-=======================================================================
+=== This is the distribution of less, version @@VERSION@@, released @@DATE@@ ===
+===     Please report any problems to the author at markn@3do.com.    ===
+===   See http://members.aol.com/marknudel/less for the latest info.  ===
+=========================================================================
 
 This is the distribution of "less", a paginator similar to "more" or "pg".
 The formatted manual page is in less.man.

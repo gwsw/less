@@ -1,4 +1,4 @@
-.TH LESS 1 "Version @@VERSION@@"
+.TH LESS 1 "Version @@VERSION@@ @@DATE@@"
 .SH NAME
 less \- opposite of more
 .SH SYNOPSIS
