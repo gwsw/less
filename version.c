@@ -541,6 +541,7 @@ v313   4/25/96	Added horizontal scrolling.
 v314   4/26/96	Modified -e to quit on reaching end of a squished file.
 v315   4/26/96	Fix "!;TAB" bug.
 v316   5/2/96	Make "|a" when (a < curr screen) go to end of curr screen.
+v317   5/14/96	Various fixes for the MS-DOS build.
 */
 
-char version[] = "316";
+char version[] = "317";
