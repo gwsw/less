@@ -517,7 +517,8 @@ v292   4/24/95	Add MS-DOS support for Borland C.
 v293   4/28/95	Add auto-versioning stuff to make dist.
 v294   5/12/95	Fix Borland build.
 v295   1/20/96	Fix search on squished file; add /@@.
+v296   1/23/96	Allow cmdbuf larger than screen width.
 
 */
 
-char version[] = "295";
+char version[] = "296";

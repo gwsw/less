@@ -108,7 +108,7 @@ start_mca(action, prompt, mlist)
 	void *mlist;
 {
 	mca = action;
-	clear_bot();
+	clear_cmd();
 	cmd_putstr(prompt);
 #if CMD_HISTORY
 	set_mlist(mlist);
@@ -132,7 +132,7 @@ mca_search()
 	else
 		mca = A_B_SEARCH;
 
-	clear_bot();
+	clear_cmd();
 
 	if (search_type & SRCH_FIRST_FILE)
 		cmd_putstr("@");
@@ -464,7 +464,7 @@ prompt()
 	/*
 	 * Select the proper prompt and display it.
 	 */
-	clear_bot();
+	clear_cmd();
 	p = pr_string();
 	if (p == NULL)
 		putchr(':');
@@ -1254,8 +1254,8 @@ commands()
 			 */
 			if (mca != A_PREFIX)
 			{
-				start_mca(A_PREFIX, " ", (void*)NULL);
 				cmd_reset();
+				start_mca(A_PREFIX, " ", (void*)NULL);
 				(void) cmd_char(c);
 			}
 			c = getcc();
