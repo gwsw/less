@@ -420,8 +420,7 @@ edit_list(filelist)
 		 * Trying to edit the current file; don't reopen it.
 		 */
 		return (0);
-	if (edit_ifile(save_curr_ifile))
-		quit(QUIT_ERROR);
+	reedit_ifile(save_curr_ifile);
 	return (edit(good_filename));
 }
 
@@ -449,14 +448,13 @@ edit_last()
 /*
  * Edit the next file in the command line (ifile) list.
  */
-	public int
-edit_next(n)
+	static int
+edit_next_from(h, n)
+	IFILE h;
 	int n;
 {
-	IFILE h;
 	IFILE next;
 
-	h = curr_ifile;
 	/*
 	 * Skip n filenames, then try to edit each filename.
 	 */
@@ -483,17 +481,23 @@ edit_next(n)
 	return (0);
 }
 
+	public int
+edit_next(n)
+	int n;
+{
+	return edit_next_from(curr_ifile, n);
+}
+
 /*
  * Edit the previous file in the command line list.
  */
-	public int
-edit_prev(n)
+	static int
+edit_prev_from(h, n)
+	IFILE h;
 	int n;
 {
-	IFILE h;
 	IFILE next;
 
-	h = curr_ifile;
 	/*
 	 * Skip n filenames, then try to edit each filename.
 	 */
@@ -520,6 +524,13 @@ edit_prev(n)
 	return (0);
 }
 
+	public int
+edit_prev(n)
+	int n;
+{
+	return edit_prev_from(curr_ifile, n);
+}
+
 /*
  * Edit a specific file in the command line (ifile) list.
  */
@@ -542,6 +553,42 @@ edit_index(n)
 	} while (get_index(h) != n);
 
 	return (edit_ifile(h));
+}
+
+/*
+ * Reedit the ifile which was previously open.
+ */
+	public void
+reedit_ifile(save_ifile)
+	IFILE save_ifile;
+{
+	IFILE next;
+	IFILE prev;
+
+	/*
+	 * Try to reopen the ifile.
+	 * Note that opening it may fail (maybe the file was removed),
+	 * in which case the ifile will be deleted from the list.
+	 * So save the next and prev ifiles first.
+	 */
+	next = next_ifile(save_ifile);
+	prev = prev_ifile(save_ifile);
+	if (edit_ifile(save_ifile) == 0)
+		return;
+	/*
+	 * If can't reopen it, open the next input file in the list.
+	 */
+	if (edit_next_from(next, 0) == 0)
+		return;
+	/*
+	 * If can't open THAT one, open the previous input file in the list.
+	 */
+	if (edit_prev_from(prev, 0) == 0)
+		return;
+	/*
+	 * If can't even open that, we're stuck.  Just quit.
+	 */
+	quit(QUIT_ERROR);
 }
 
 /*

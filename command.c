@@ -661,8 +661,7 @@ multi_search(pattern, n)
 		/*
 		 * Restore the file we were originally viewing.
 		 */
-		if (edit_ifile(save_ifile))
-			quit(QUIT_ERROR);
+		reedit_ifile(save_ifile);
 	}
 }
 
@@ -1177,8 +1176,7 @@ commands()
 			 * Some editors even recreate the file, so flushing
 			 * buffers is not sufficient.
 			 */
-			if (edit_ifile(curr_ifile))
-				quit(QUIT_ERROR);
+			reedit_ifile(curr_ifile);
 			break;
 #else
 			error("Command not available", NULL_PARG);

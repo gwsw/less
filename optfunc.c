@@ -220,8 +220,7 @@ opt_t(type, s)
 			break;
 		if ((pos = tagsearch()) == NULL_POSITION)
 		{
-			if (edit_ifile(save_ifile))
-				quit(QUIT_ERROR);
+			reedit_ifile(save_ifile);
 			break;
 		}
 		jump_loc(pos, jump_sline);

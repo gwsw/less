@@ -158,8 +158,7 @@ lsystem(cmd, donemsg)
 	/*
 	 * Reopen the current input file.
 	 */
-	if (edit_ifile(save_ifile))
-		quit(QUIT_ERROR);
+	reedit_ifile(save_ifile);
 
 #if defined(SIGWINCH) || defined(SIGWIND)
 	/*
