@@ -27,6 +27,9 @@
 #define	REGCOMP_FLAG	0
 #endif
 #endif
+#if HAVE_PCRE
+#include <pcre.h>
+#endif
 #if HAVE_RE_COMP
 char *re_comp();
 int re_exec();
@@ -77,6 +80,9 @@ static struct hilite hilite_anchor = { NULL, NULL_POSITION, NULL_POSITION };
  */
 #if HAVE_POSIX_REGCOMP
 static regex_t *regpattern = NULL;
+#endif
+#if HAVE_PCRE
+pcre *regpattern = NULL;
 #endif
 #if HAVE_RE_COMP
 int re_pattern = 0;
@@ -150,6 +156,9 @@ prev_pattern()
 	if (last_search_type & SRCH_NO_REGEX)
 		return (last_pattern != NULL);
 #if HAVE_POSIX_REGCOMP
+	return (regpattern != NULL);
+#endif
+#if HAVE_PCRE
 	return (regpattern != NULL);
 #endif
 #if HAVE_RE_COMP
@@ -301,6 +310,21 @@ compile_pattern(pattern, search_type)
 			regfree(regpattern);
 		regpattern = s;
 #endif
+#if HAVE_PCRE
+		pcre *comp;
+		const char *errstring;
+		int erroffset;
+		PARG parg;
+		comp = pcre_compile(pattern, 0,
+				&errstring, &erroffset, NULL);
+		if (comp == NULL)
+		{
+			parg.p_string = (char *) errstring;
+			error("%s", &parg);
+			return (-1);
+		}
+		regpattern = comp;
+#endif
 #if HAVE_RE_COMP
 		PARG parg;
 		if ((parg.p_string = re_comp(pattern)) != NULL)
@@ -358,6 +382,11 @@ uncompile_pattern()
 		regfree(regpattern);
 	regpattern = NULL;
 #endif
+#if HAVE_PCRE
+	if (regpattern != NULL)
+		pcre_free(regpattern);
+	regpattern = NULL;
+#endif
 #if HAVE_RE_COMP
 	re_pattern = 0;
 #endif
@@ -404,6 +433,18 @@ match_pattern(line, sp, ep, notbol)
 		*sp = rm.rm_sp;
 		*ep = rm.rm_ep;
 #endif
+	}
+#endif
+#if HAVE_PCRE
+	{
+		int flags = (notbol) ? PCRE_NOTBOL : 0;
+		int ovector[3];
+		matched = pcre_exec(regpattern, NULL, line, strlen(line),
+			0, flags, ovector, 3) >= 0;
+		if (!matched)
+			return (0);
+		*sp = line + ovector[0];
+		*ep = line + ovector[1];
 	}
 #endif
 #if HAVE_RE_COMP
