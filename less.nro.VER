@@ -1078,6 +1078,8 @@ Selects the UTF-8 encoding of the ISO 10646 character set.
 .PP
 If the LESSCHARSET environment variable is not set,
 the default character set is latin1.
+However, if the string "UTF-8" is found in the LC_ALL, LC_CTYPE or LANG
+environment variables, then the default character set is utf-8 instead.
 .PP
 In special cases, it may be desired to tailor
 .I less

@@ -156,7 +156,7 @@ ilocale()
 	register int c;
 
 	setlocale(LC_ALL, "");
-	for (c = 0;  c < sizeof(chardef);  c++)
+	for (c = 0;  c < (int) sizeof(chardef);  c++)
 	{
 		if (isprint(c))
 			chardef[c] = 0;
@@ -221,6 +221,21 @@ init_charset()
 		ichardef(s);
 		return;
 	}
+
+#if HAVE_STRSTR
+	/*
+	 * Check whether LC_ALL, LC_CTYPE or LANG look like UTF-8 is used.
+	 */
+	if ((s = lgetenv("LC_ALL")) != NULL ||
+	    (s = lgetenv("LC_CTYPE")) != NULL ||
+	    (s = lgetenv("LANG")) != NULL)
+	{
+		if (strstr(s, "UTF-8") != NULL || strstr(s, "utf-8") != NULL)
+			if (icharset("utf-8"))
+				return;
+	}
+#endif
+
 #if HAVE_LOCALE
 	/*
 	 * Use setlocale.

@@ -71,9 +71,9 @@ lsystem(cmd, donemsg)
 	/*
 	 * Working directory is global on MSDOS.
 	 * The child might change the working directory, so we
-	 * must save and restore CWD across calls to `system',
+	 * must save and restore CWD across calls to "system",
 	 * or else we won't find our file when we return and
-	 * try to `reedit_ifile' it.
+	 * try to "reedit_ifile" it.
 	 */
 	getcwd(cwd, FILENAME_MAX);
 #endif
@@ -152,6 +152,10 @@ lsystem(cmd, donemsg)
 	free(p);
 #else
 #if MSDOS_COMPILER==DJGPPC
+	/*
+	 * Make stdin of the child be in cooked mode.
+	 */
+	setmode(0, O_TEXT);
 	/*
 	 * We don't need to catch signals of the child (it
 	 * also makes trouble with some DPMI servers).

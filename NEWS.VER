@@ -15,11 +15,17 @@
 
 	Major changes between "less" versions 346 and @@VERSION@@
 
+* Enable UTF-8 if "UTF-8" appears in locale-related environment variables.
+
+* Add --with-editor option to configure script.
+
+* Fix bug in running the editor on a file whose name contains quotes, etc.
+
 * Fix bug in horizontal scrolling of long lines.
 
-* Fix bug in doing :x on a file which contains marks.
+* Fix bug in doing :d on a file which contains marks.
 
-* Fixes for MS-DOS version.
+* Fixes for MS-DOS (DJGPP) version.
 
 ======================================================================
 

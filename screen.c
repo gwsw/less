@@ -26,6 +26,7 @@
 #include <conio.h>
 #if MSDOS_COMPILER==DJGPPC
 #include <pc.h>
+extern int fd0;
 #endif
 #else
 #if MSDOS_COMPILER==WIN32C
@@ -584,6 +585,15 @@ raw_mode(on)
 	erase_char = '\b';
 #if MSDOS_COMPILER==DJGPPC
 	kill_char = CONTROL('U');
+	/*
+	 * So that when we shell out or run another program, its
+	 * stdin is in cooked mode.  We do not switch stdin to binary 
+	 * mode if fd0 is zero, since that means we were called before
+	 * tty was reopened in open_getchr, in which case we would be
+	 * changing the original stdin device outside less.
+	 */
+	if (fd0 != 0)
+		setmode(0, on ? O_BINARY : O_TEXT);
 #else
 	kill_char = ESC;
 #endif

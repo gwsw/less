@@ -582,8 +582,10 @@ v346   11/4/99  Fix bugs in long option processing; R cmd should clear hilites.
 		Posted to Web page.
 -----------------------------------------------------------------
 v347  12/13/99	Fixes for DJGPP version (thanks to Eli Zaretskii).
-v348  12/28/99	Fix deleting file with marks (thanks to ).
+v348  12/28/99	Fix deleting file with marks (thanks to Dimitar Jekov).
 		Fix color problem in DJGPP version (thanks to Eli Zaretskii).
+v349   1/24/00	Fix minor DJGPP bugs; check environment vars for UTF-8;
+		add --with-editor (thanks to Eli, Markus Kuhn, Thomas Schoepf).
 */
 
 char version[] = "348";
