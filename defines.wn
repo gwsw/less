@@ -99,7 +99,7 @@
  * PIPEC is 1 if you wish to have the "|" command
  * which allows the user to pipe data into a shell command.
  */
-#define	PIPEC		0
+#define	PIPEC		1
 
 /*
  * LOGFILE is 1 if you wish to allow the -l option (to create log files).
@@ -311,3 +311,6 @@
 
 /* Define if you have the <values.h> header file.  */
 #define HAVE_VALUES_H 1
+
+#define	popen	_popen
+#define	pclose	_pclose
