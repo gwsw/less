@@ -294,6 +294,6 @@ which start with a NUL character (0).
 This NUL character should be represented as \e340 in a lesskey file.
 
 .SH COPYRIGHT
-Copyright (c) 1984,1985,1989,1994,1995  Mark Nudelman
+Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
 .br
 Comments to: @@EMAIL@@

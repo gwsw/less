@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
+ * Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -138,7 +138,7 @@ flush()
 		return;
 #if MSDOS_COMPILER==WIN32C
 	if (is_tty && any_display)
-        {
+	{
 		char *p;
 		DWORD nwritten = 0;
 		CONSOLE_SCREEN_BUFFER_INFO scr;
@@ -175,7 +175,7 @@ flush()
 		}
 		ob = obuf;
 		return;
-        }
+	}
 
 #else
 #if MSDOS_COMPILER==MSOFTC
@@ -218,7 +218,10 @@ putchr(c)
 	}
 #if MSDOS_COMPILER
 	if (c == '\n' && is_tty)
+	{
+		/* remove_top(1); */
 		putchr('\r');
+	}
 #else
 #ifdef _OSK
 	if (c == '\n' && is_tty)  /* In OS-9, '\n' == 0x0D */
