@@ -652,39 +652,50 @@ ltgetstr(capname, pp)
 scrsize()
 {
 	register char *s;
+	int n;
+	int sys_height;
+	int sys_width;
 
-	sc_width = sc_height = 0;
+#define	DEF_SC_WIDTH	80
+#if MSDOS_COMPILER
+#define	DEF_SC_HEIGHT	25
+#else
+#define	DEF_SC_HEIGHT	24
+#endif
+
+
+	sys_width = sys_height = 0;
 
 #if MSDOS_COMPILER==MSOFTC
 	{
 		struct videoconfig w;
 		_getvideoconfig(&w);
-		sc_height = w.numtextrows;
-		sc_width = w.numtextcols;
+		sys_height = w.numtextrows;
+		sys_width = w.numtextcols;
 	}
 #else
 #if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	{
 		struct text_info w;
 		gettextinfo(&w);
-		sc_height = w.screenheight;
-		sc_width = w.screenwidth;
+		sys_height = w.screenheight;
+		sys_width = w.screenwidth;
 	}
 #else
 #if MSDOS_COMPILER==WIN32C
 	{
 		CONSOLE_SCREEN_BUFFER_INFO scr;
 		GetConsoleScreenBufferInfo(con_out, &scr);
-		sc_height = scr.srWindow.Bottom - scr.srWindow.Top + 1;
-		sc_width = scr.srWindow.Right - scr.srWindow.Left + 1;
+		sys_height = scr.srWindow.Bottom - scr.srWindow.Top + 1;
+		sys_width = scr.srWindow.Right - scr.srWindow.Left + 1;
 	}
 #else
 #if OS2
 	{
 		int s[2];
 		_scrsize(s);
-		sc_width = s[0];
-		sc_height = s[1];
+		sys_width = s[0];
+		sys_height = s[1];
 	}
 #else
 #ifdef TIOCGWINSZ
@@ -693,9 +704,9 @@ scrsize()
 		if (ioctl(2, TIOCGWINSZ, &w) == 0)
 		{
 			if (w.ws_row > 0)
-				sc_height = w.ws_row;
+				sys_height = w.ws_row;
 			if (w.ws_col > 0)
-				sc_width = w.ws_col;
+				sys_width = w.ws_col;
 		}
 	}
 #else
@@ -705,9 +716,9 @@ scrsize()
 		if (ioctl(2, WIOCGETD, &w) == 0)
 		{
 			if (w.uw_height > 0)
-				sc_height = w.uw_height / w.uw_vs;
+				sys_height = w.uw_height / w.uw_vs;
 			if (w.uw_width > 0)
-				sc_width = w.uw_width / w.uw_hs;
+				sys_width = w.uw_width / w.uw_hs;
 		}
 	}
 #endif
@@ -716,31 +727,28 @@ scrsize()
 #endif
 #endif
 #endif
-	if (sc_height > 0)
-		;
-	else if ((s = lgetenv("LINES")) != NULL)
-		sc_height = atoi(s);
-#if !MSDOS_COMPILER
-	else
- 		sc_height = ltgetnum("li");
-#endif
-	if (sc_height <= 0)
-#if MSDOS_COMPILER
-		sc_height = 25;
-#else
-		sc_height = 24;
-#endif
 
-	if (sc_width > 0)
-		;
-	else if ((s = lgetenv("COLUMNS")) != NULL)
-		sc_width = atoi(s);
+	if ((s = lgetenv("LINES")) != NULL)
+		sc_height = atoi(s);
+	else if (sys_height > 0)
+		sc_height = sys_height;
 #if !MSDOS_COMPILER
-	else
- 		sc_width = ltgetnum("co");
+	else if ((n = ltgetnum("li")) > 0)
+ 		sc_height = n;
 #endif
- 	if (sc_width <= 0)
-  		sc_width = 80;
+	else
+		sc_height = DEF_SC_HEIGHT;
+
+	if ((s = lgetenv("COLUMNS")) != NULL)
+		sc_width = atoi(s);
+	else if (sys_width > 0)
+		sc_width = sys_width;
+#if !MSDOS_COMPILER
+	else if ((n = ltgetnum("co")) > 0)
+ 		sc_width = n;
+#endif
+	else
+		sc_width = DEF_SC_WIDTH;
 }
 
 #if MSDOS_COMPILER==MSOFTC
@@ -978,40 +986,6 @@ static int sz_kfcmdtable = sizeof(kfcmdtable) - 1;
 	add_ecmd_table(kecmdtable, sz_kecmdtable);
 }
 
-#if DEBUG
-	static void
-get_debug_term()
-{
-	auto_wrap = 1;
-	ignaw = 1;
-	so_s_width = so_e_width = 0;
-	bo_s_width = bo_e_width = 0;
-	ul_s_width = ul_e_width = 0;
-	bl_s_width = bl_e_width = 0;
-	sc_s_keypad =	"(InitKey)";
-	sc_e_keypad =	"(DeinitKey)";
-	sc_init =	"(InitTerm)";
-	sc_deinit =	"(DeinitTerm)";
-	sc_eol_clear =	"(ClearEOL)";
-	sc_eos_clear =	"(ClearEOS)";
-	sc_clear =	"(ClearScreen)";
-	sc_move =	"(Move<%d,%d>)";
-	sc_s_in =	"(SO+)";
-	sc_s_out =	"(SO-)";
-	sc_u_in =	"(UL+)";
-	sc_u_out =	"(UL-)";
-	sc_b_in =	"(BO+)";
-	sc_b_out =	"(BO-)";
-	sc_bl_in =	"(BL+)";
-	sc_bl_out =	"(BL-)";
-	sc_visual_bell ="(VBell)";
-	sc_backspace =	"(BS)";
-	sc_home =	"(Home)";
-	sc_lower_left =	"(LL)";
-	sc_addline =	"(AddLine)";
-}
-#endif
-
 /*
  * Get terminal capabilities via termcap.
  */
@@ -1061,24 +1035,6 @@ get_term()
 					1, scr.dwCursorPosition, &nread);
 	sy_bg_color = (curr_attr & BG_COLORS) >> 4; /* normalize */
 	sy_fg_color = curr_attr & FG_COLORS;
-
-#if 0
-	/*
-	 * If we use the default bg colors, for some as-yet-undetermined 
-	 * reason, when you scroll the text colors get messed up in what 
-	 * seems to be a random manner. Portions of text will be in 
-	 * nm_bg_color but the remainder of that line (which was fine 
-	 * before the scroll) will now appear in sy_bg_color. Too strange!
-	 */
-	nm_bg_color = sy_bg_color;
-	bo_bg_color = sy_bg_color;
-	ul_bg_color = sy_bg_color;
-	bl_bg_color = sy_bg_color;
-
-	/* Make standout = inverse video. */
-	so_fg_color = sy_bg_color;
-	so_bg_color = sy_fg_color;
-#endif
     }
 #endif
 #endif
@@ -1132,14 +1088,6 @@ get_term()
 	 */
 	scrsize();
 	pos_init();
-
-#if DEBUG
-	if (strncmp(term,"LESSDEBUG",9) == 0)
-	{
-		get_debug_term();
-		return;
-	}
-#endif /* DEBUG */
 
 	auto_wrap = ltgetflag("am");
 	ignaw = ltgetflag("xn");
