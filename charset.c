@@ -34,6 +34,7 @@ struct charset {
 	{ "ascii",	NULL,       "8bcccbcc18b95.b" },
 	{ "dos",	NULL,       "8bcccbcc12bc5b223.b" },
 	{ "ebcdic",	NULL,       "5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b." },
+	{ "IBM-1047",	NULL,       "4cbcbc3b9cbccbccbb4c6bcc5b3cbbc4bc4bccbc191.b" },
 	{ "iso8859",	NULL,       "8bcccbcc18b95.33b." },
 	{ "koi8-r",	NULL,       "8bcccbcc18b95.b128." },
 	{ "latin1",	NULL,       "8bcccbcc18b95.33b." },
@@ -293,8 +294,22 @@ prchar(c)
 		sprintf(buf, "%c", c);
 	else if (c == ESC)
 		sprintf(buf, "ESC");
-	else if (c < 128 && !control_char(c ^ 0100))
-		sprintf(buf, "^%c", c ^ 0100);
+#if IS_EBCDIC_HOST
+	else if (!binary_char(c) && c < 64)
+		sprintf(buf, "^%c",
+		/*
+		 * This array roughly inverts CONTROL() #defined in less.h,
+	 	 * and should be kept in sync with CONTROL() and IBM-1047.
+ 	 	 */
+		"@ABC.I.?...KLMNO"
+		"PQRS.JH.XY.."
+		"\\]^_"
+		"......W[.....EFG"
+		"..V....D....TU.Z"[c]);
+#else
+  	else if (c < 128 && !control_char(c ^ 0100))
+  		sprintf(buf, "^%c", c ^ 0100);
+#endif
 	else
 		sprintf(buf, binfmt, c);
 	return (buf);

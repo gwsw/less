@@ -1082,6 +1082,11 @@ Same as iso8859.
 Selects a character set appropriate for MS-DOS.
 .IP ebcdic
 Selects an EBCDIC character set.
+.IP IBM-1047
+Selects an EBCDIC character set used by OS/390 Unix Services.
+This is the EBCDIC analogue of latin1.  You get similar results
+by setting either LESSCHARSET=IBM-1047 or LC_CTYPE=en_US
+in your environment.
 .IP koi8-r
 Selects a Russian character set.
 .IP next
@@ -1116,6 +1121,9 @@ to each of the possible values for LESSCHARSET:
 	ebcdic	5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b
 .br
 	\ \ \ \ \ \ 	9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b.
+.br
+	IBM-1047	4cbcbc3b9cbccbccbb4c6bcc5b3cbbc4bc4bccbc
+	\ \ \ \ \ \ 	191.b
 .br
 	iso8859	8bcccbcc18b95.33b.
 .br

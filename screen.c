@@ -419,6 +419,9 @@ raw_mode(on)
 		 */
 		s = save_term;
 	}
+#if HAVE_FSYNC
+	fsync(2);
+#endif
 	tcsetattr(2, TCSADRAIN, &s);
 #if MUST_SET_LINE_DISCIPLINE
 	if (!on)
@@ -1899,7 +1902,7 @@ vbell()
 beep()
 {
 #if !MSDOS_COMPILER
-	putchr('\7');
+	putchr(CONTROL('G'));
 #else
 #if MSDOS_COMPILER==WIN32C
 	MessageBeep(0);

@@ -24,7 +24,6 @@
 #if MSDOS_COMPILER==DJGPPC
 #include <glob.h>
 #include <dir.h>
-#include <limits.h>
 #define _MAX_PATH	PATH_MAX
 #endif
 #endif

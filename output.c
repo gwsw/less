@@ -250,7 +250,7 @@ iprintnum(num, radix)
 	register char *s;
 	int r;
 	int neg;
-	char buf[10];
+	char buf[INT_STRLEN_BOUND(num)];
 
 	neg = (num < 0);
 	if (neg)

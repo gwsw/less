@@ -14,8 +14,8 @@
  * Necessarily very OS dependent.
  */
 
-#include <signal.h>
 #include "less.h"
+#include <signal.h>
 #include "position.h"
 
 #if MSDOS_COMPILER

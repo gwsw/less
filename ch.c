@@ -21,6 +21,8 @@
 #include <windows.h>
 #endif
 
+typedef POSITION BLOCKNUM;
+
 public int ignore_eoi;
 
 /*
@@ -32,7 +34,7 @@ public int ignore_eoi;
 #define LBUFSIZE	1024
 struct buf {
 	struct buf *next, *prev;  /* Must be first to match struct filestate */
-	long block;
+	BLOCKNUM block;
 	unsigned int datasize;
 	unsigned char data[LBUFSIZE];
 };
@@ -44,13 +46,13 @@ struct buf {
 struct filestate {
 	/* -- Following members must match struct buf */
 	struct buf *buf_next, *buf_prev;
-	long buf_block;
+	BLOCKNUM buf_block;
 	/* -- End of struct buf copy */
 	int file;
 	int flags;
 	POSITION fpos;
 	int nbufs;
-	long block;
+	BLOCKNUM block;
 	unsigned int offset;
 	POSITION fsize;
 };
@@ -125,7 +127,7 @@ fch_get()
 	 * If the LRU buffer has data in it, 
 	 * then maybe allocate a new buffer.
 	 */
-	if (ch_buftail == END_OF_CHAIN || ch_buftail->block != (long)(-1))
+	if (ch_buftail == END_OF_CHAIN || ch_buftail->block != -1)
 	{
 		/*
 		 * There is no empty buffer to use.
@@ -318,8 +320,8 @@ sync_logfile()
 {
 	register struct buf *bp;
 	int warned = FALSE;
-	long block;
-	long nblocks;
+	BLOCKNUM block;
+	BLOCKNUM nblocks;
 
 	nblocks = (ch_fpos + LBUFSIZE - 1) / LBUFSIZE;
 	for (block = 0;  block < nblocks;  block++)
@@ -352,7 +354,7 @@ sync_logfile()
  */
 	static int
 buffered(block)
-	long block;
+	BLOCKNUM block;
 {
 	register struct buf *bp;
 
@@ -370,7 +372,7 @@ buffered(block)
 ch_seek(pos)
 	register POSITION pos;
 {
-	long new_block;
+	BLOCKNUM new_block;
 	POSITION len;
 
 	len = ch_length();
@@ -470,12 +472,10 @@ ch_length()
 /*
  * Return the current position in the file.
  */
-#define	tellpos(blk,off)   ((POSITION)((((long)(blk)) * LBUFSIZE) + (off)))
-
 	public POSITION
 ch_tell()
 {
-	return (tellpos(ch_block, ch_offset));
+	return (ch_block * LBUFSIZE) + ch_offset;
 }
 
 /*
@@ -570,7 +570,7 @@ ch_flush()
 	 * Initialize all the buffers.
 	 */
 	for (bp = ch_bufhead;  bp != END_OF_CHAIN;  bp = bp->next)
-		bp->block = (long)(-1);
+		bp->block = -1;
 
 	/*
 	 * Figure out the size of the file, if we can.
@@ -626,7 +626,7 @@ ch_addbuf()
 	if (bp == NULL)
 		return (1);
 	ch_nbufs++;
-	bp->block = (long)(-1);
+	bp->block = -1;
 	bp->next = END_OF_CHAIN;
 	bp->prev = ch_buftail;
 	ch_buftail->next = bp;
@@ -693,7 +693,7 @@ ch_init(f, flags)
 		thisfile = (struct filestate *) 
 				calloc(1, sizeof(struct filestate));
 		thisfile->buf_next = thisfile->buf_prev = END_OF_CHAIN;
-		thisfile->buf_block = (long)(-1);
+		thisfile->buf_block = -1;
 		thisfile->nbufs = 0;
 		thisfile->flags = 0;
 		thisfile->fpos = 0;

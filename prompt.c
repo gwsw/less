@@ -109,10 +109,19 @@ ap_char(c)
 ap_pos(pos)
 	POSITION pos;
 {
-	char buf[MAX_PRINT_POSITION];
-
-	sprintf(buf, PR_POSITION, pos);
-	ap_str(buf);
+	char buf[INT_STRLEN_BOUND(pos) + 1]; 
+	char *p = buf + sizeof(buf) - 1;
+	int neg = (pos < 0);
+ 
+	if (neg)
+		pos = -pos;
+	*p = '\0';
+	do
+		*--p = '0' + (pos % 10);
+	while ((pos /= 10) != 0);
+	if (neg)
+		*--p = '-';
+	ap_str(p);
 }
 
 /*
@@ -122,7 +131,7 @@ ap_pos(pos)
 ap_int(n)
 	int n;
 {
-	char buf[MAX_PRINT_INT];
+	char buf[INT_STRLEN_BOUND(n) + 1];
 
 	sprintf(buf, "%d", n);
 	ap_str(buf);

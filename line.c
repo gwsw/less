@@ -471,12 +471,37 @@ do_append(c, pos)
 		 * bold (if an identical character is overstruck),
 		 * or just deletion of the character in the buffer.
 		 */
-		overstrike = 0;
-		if ((char)c == linebuf[curr])
+		overstrike--;
+		if (utf_mode && curr > 1 && (char)c == linebuf[curr-2])
+		{
+			backc();
+			backc();
+			overstrike = 2;
+		} else if (utf_mode && curr > 0 && (char)c == linebuf[curr-1])
+		{
+			backc();
 			STOREC(linebuf[curr], AT_BOLD);
-		else if (c == '_')
+			overstrike = 1;
+		} else if ((char)c == linebuf[curr])
+		{
+			STOREC(linebuf[curr], AT_BOLD);
+		} else if (c == '_')
+		{
+			if (utf_mode)
+			{
+				if (curr > 0 && IS_CONT(linebuf[curr]))
+					attr[curr-1] = AT_UNDERLINE;
+				if (curr > 1 && IS_CONT(linebuf[curr-1]))
+					attr[curr-2] = AT_UNDERLINE;
+				if (curr > 2 && IS_CONT(linebuf[curr-2]))
+					attr[curr-3] = AT_UNDERLINE;
+				if (curr > 3 && IS_CONT(linebuf[curr-3]))
+					attr[curr-4] = AT_UNDERLINE;
+				if (curr > 4 && IS_CONT(linebuf[curr-4]))
+					attr[curr-5] = AT_UNDERLINE;
+			}
 			STOREC(linebuf[curr], AT_UNDERLINE);
-		else if (linebuf[curr] == '_')
+		} else if (linebuf[curr] == '_')
 			STOREC(c, AT_UNDERLINE);
 		else if (control_char(c))
 			goto do_control_char;
