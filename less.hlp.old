@@ -65,7 +65,7 @@
 
   !_c_o_m_m_a_n_d             Passes the command to $SHELL to be executed.
   |XX_c_o_m_m_a_n_d            Pipe file between current pos & mark XX to shell command.
-  v                    Edit the current file with $EDITOR.
+  v                    Edit the current file with $VISUAL or $EDITOR.
         ---------------------------------------------------
                          FLAGS
 
@@ -73,9 +73,9 @@
         or from within less by using the - command.
 
   -?            Display help (from command line).
-  -a            Set forward search starting location.
+  -a            Forward search skips current screen.
   -b [_N]        Number of buffers.
-  -B            Automatically allocate buffers.
+  -B            Don't automatically allocate buffers for pipes.
   -c  -C        Repaint by scrolling/clearing.
   -d            Dumb terminal.
   -e  -E        Quit at end of file.
@@ -94,7 +94,7 @@
   -p [_p_a_t_t_e_r_n]  Start at pattern (from command line).
   -P [_p_r_o_m_p_t]   Define new prompt.
   -q  -Q        Quiet the terminal bell.
-  -r            Translate control characters.
+  -r            Output "raw" control characters.
   -s            Squeeze multiple blank lines.
   -S            Chop long lines.
   -t [_t_a_g]      Find a tag.
