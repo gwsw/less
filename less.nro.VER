@@ -1497,6 +1497,11 @@ more text than the matching string may be highlighted.
 (This problem does not occur when less is compiled to use the POSIX
 regular expression package.)
 .PP
+When viewing text containing ANSI color escape sequences using the -R option,
+searching will not find text containing an embedded escape sequence.
+Also, search highlighting may change the color of some of the text
+which follows the highlighted text.
+.PP
 On some systems,
 .I setlocale
 claims that ASCII characters 0 thru 31 are control characters 
@@ -1511,7 +1516,7 @@ See @@HOMEPAGE@@ for the latest list of known bugs in this
 version of less.
 
 .SH COPYRIGHT
-Copyright (C) 2000  Mark Nudelman
+Copyright (C) 2001  Mark Nudelman
 .PP
 less is part of the GNU project and is free software.
 You can redistribute it and/or modify it
