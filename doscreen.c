@@ -246,6 +246,11 @@ get_term()
 	static void
 initcolor()
 {
+	/*
+	 * This clears the screen at startup.  This is different from
+	 * the behavior of other versions of less.  Disable it for now.
+	 */
+#if 0
 	int height;
 	int width;
 	char *blanks;
@@ -265,6 +270,7 @@ initcolor()
 	for (row = 0;  row < height;  row++)
 		_outtext(blanks);
 	free(blanks);
+#endif
 }
 
 /*
@@ -453,7 +459,10 @@ vbell()
 	currscreen = (unsigned short *) 
 		malloc(sc_width * sc_height * sizeof(short));
 	if (currscreen == NULL || whitescreen == NULL)
+	{
+		beep();
 		return;
+	}
 	gettext(1, 1, sc_width, sc_height, currscreen);
 	puttext(1, 1, sc_width, sc_height, whitescreen);
 	delay(100);
