@@ -475,6 +475,8 @@
  *	v267: Formalize the four-byte header emitted	12/28/94
  *	      by a LESSOPEN pipe.
  *	v268: Get rid of four-byte header.		12/28/94
+ *	v269: Close alt file before open new one.	1/2/95
+ *	      Avoids multiple popen().
  */
 
-char version[] = "268";
+char version[] = "269";

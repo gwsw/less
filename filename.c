@@ -237,6 +237,10 @@ bin_file(f)
 	int n;
 	unsigned char data[64];
 
+	if (!seekable(f))
+		return (0);
+	if (lseek(f, (off_t)0, 0) == BAD_LSEEK)
+		return (0);
 	n = read(f, data, sizeof(data));
 	for (i = 0;  i < n;  i++)
 		if (binary_char(data[i]))
@@ -413,6 +417,7 @@ open_altfile(filename, pf, pfd)
 		returnfd = 1;
 	}
 	fd = shellcmd(lessopen, filename, (char*)NULL);
+	free(filename);
 	if (fd == NULL)
 	{
 		/*
@@ -420,30 +425,33 @@ open_altfile(filename, pf, pfd)
 		 */
 		return (NULL);
 	}
-	free(filename);
 #if HAVE_FILENO
 	if (returnfd)
 	{
 		int f = fileno(fd);
 		char c;
-		extern int ch_ungetchar;
 
 		/*
 		 * Read one char to see if the pipe will produce any data.
-		 * If it does, use ch_ungetchar to push the char 
-		 * back on the pipe.
+		 * If it does, push the char back on the pipe.
 		 */
 		if (read(f, &c, 1) != 1)
+			/*
+			 * Pipe is empty.  This means there is no alt file.
+			 */
 			return (NULL);
-		ch_ungetchar = c;
+		ch_ungetchar(c);
 		*pfd = (void *) fd;
 		*pf = f;
-		return ("-");
+		return (save("-"));
 	}
 #endif
 	gfilename = readfd(fd);
 	pclose(fd);
 	if (*gfilename == '\0')
+		/*
+		 * Pipe is empty.  This means there is no alt file.
+		 */
 		return (NULL);
 	return (gfilename);
 }

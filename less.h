@@ -224,6 +224,11 @@ struct textlist
 #define	QUIT_ERROR	1
 #define	QUIT_SAVED_STATUS (-1)
 
+/* filestate flags */
+#define	CH_CANSEEK	001
+#define	CH_KEEPOPEN	002
+#define	CH_POPENED	004
+
 #define	ch_zero()	((POSITION)0)
 
 #include "funcs.h"

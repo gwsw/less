@@ -167,7 +167,7 @@ close_file()
 }
 
 /*
- * Edit a new file.
+ * Edit a new file (given its name).
  * Filename == "-" means standard input.
  * Filename == NULL means just close the current file.
  */
@@ -180,6 +180,10 @@ edit(filename)
 	return (edit_ifile(get_ifile(filename, curr_ifile)));
 }
 	
+/*
+ * Edit a new file (given its IFILE).
+ * ifile == NULL means just close the current file.
+ */
 	public int
 edit_ifile(ifile)
 	IFILE ifile;
@@ -187,24 +191,13 @@ edit_ifile(ifile)
 	int f;
 	int answer;
 	int no_display;
-	int keepopen;
+	int chflags;
 	char *filename;
 	char *open_filename;
 	char *alt_filename;
 	void *alt_pipe;
 	PARG parg;
 		
-	if (ifile == NULL_IFILE)
-	{
-		/*
-		 * Close the current file, but don't open a new one.
-		 */
-#if LOGFILE
-		end_logfile();
-#endif
-		close_file();
-		return (0);
-	}
 	if (ifile == curr_ifile)
 	{
 		/*
@@ -212,6 +205,29 @@ edit_ifile(ifile)
 		 */
 		return (0);
 	}
+
+	/*
+	 * We must close the currently open file now.
+	 * This is necessary to make the open_altfile/close_altfile pairs
+	 * nest properly (or rather to avoid nesting at all).
+	 * {{ Some stupid implementations of popen() mess up if you do:
+	 *    fA = popen("A"); fB = popen("B"); pclose(fA); pclose(fB); }}
+	 */
+#if LOGFILE
+	end_logfile();
+#endif
+	if (curr_ifile != NULL_IFILE)
+	{
+		old_ifile = curr_ifile;
+		close_file();
+	}
+
+	if (ifile == NULL_IFILE)
+		/*
+		 * No new file to open.
+		 */
+		return (0);
+
 	filename = get_filename(ifile);
 	/*
 	 * See if LESSOPEN specifies an "alternate" file to open.
@@ -220,21 +236,25 @@ edit_ifile(ifile)
 	alt_filename = open_altfile(filename, &f, &alt_pipe);
 	open_filename = (alt_filename != NULL) ? alt_filename : filename;
 
-	keepopen = FALSE;
+	chflags = 0;
 	if (alt_pipe != NULL)
 	{
 		/*
-		 * f has been set to the file descriptor of the alternate
-		 * file in the call to open_altfile above.
+		 * The alternate "file" is actually a pipe.
+		 * f has already been set to the file descriptor of the pipe
+		 * in the call to open_altfile above.
+		 * Keep the file descriptor open because it was opened 
+		 * via popen(), and pclose() wants to close it.
 		 */
-		;
+		chflags |= CH_POPENED;
 	} else if (strcmp(open_filename, "-") == 0)
 	{
 		/* 
 		 * Use standard input.
+		 * Keep the file descriptor open because we can't reopen it.
 		 */
 		f = fd0;
-		keepopen = TRUE;
+		chflags |= CH_KEEPOPEN;
 	} else if ((parg.p_string = bad_file(open_filename)) != NULL)
 	{
 		/*
@@ -249,6 +269,10 @@ edit_ifile(ifile)
 			free(alt_filename);
 		}
 		del_ifile(ifile);
+		/*
+		 * Re-open the current file.
+		 */
+		(void) edit_ifile(old_ifile);
 		return (1);
 	} else if ((f = open(open_filename, OPEN_READ)) < 0)
 	{
@@ -274,29 +298,6 @@ edit_ifile(ifile)
 		}
 	}
 
-#if LOGFILE
-{
-	char *s;
-	
-	/*
-	 * End any open logfile, start a new one.
-	 */
-	s = namelogfile;
-	end_logfile();
-	if (f >= 0 && s != NULL && is_tty)
-		use_logfile(s);
-}
-#endif
-
-	/*
-	 * We are now committed to using the new file.
-	 * Close the current input file and set up to use the new one.
-	 */
-	if (curr_ifile != NULL_IFILE)
-	{
-		old_ifile = curr_ifile;
-		close_file();
-	}
 	/*
 	 * Get the new ifile.
 	 * Get the saved position for the file.
@@ -307,7 +308,11 @@ edit_ifile(ifile)
 	set_open(curr_ifile); /* File has been opened */
 	get_pos(curr_ifile, &initial_scrpos);
 	new_file = TRUE;
-	ch_init(f, keepopen);
+	ch_init(f, chflags);
+#if LOGFILE
+	if (namelogfile != NULL && is_tty)
+		use_logfile(namelogfile);
+#endif
 
 	if (every_first_cmd != NULL)
 		ungetsc(every_first_cmd);
@@ -573,7 +578,10 @@ use_logfile(filename)
 	register int answer;
 	PARG parg;
 
-	if (!ch_ispipe())
+	if (ch_getflags() & CH_CANSEEK)
+		/*
+		 * Can't currently use a log file on a file that can seek.
+		 */
 		return;
 
 	/*

@@ -886,7 +886,7 @@ commands()
 			 * Flush buffers, then repaint screen.
 			 * Don't flush the buffers on a pipe!
 			 */
-			if (!ch_ispipe())
+			if (ch_getflags() & CH_CANSEEK)
 			{
 				ch_flush();
 				clr_linenum();

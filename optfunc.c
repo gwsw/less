@@ -93,7 +93,7 @@ opt_o(type, s)
 		namelogfile = s;
 		break;
 	case TOGGLE:
-		if (!ch_ispipe())
+		if (ch_getflags() & CH_CANSEEK)
 		{
 			error("Input is not a pipe", NULL_PARG);
 			return;

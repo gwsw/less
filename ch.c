@@ -34,7 +34,6 @@
 #include "less.h"
 
 public int ignore_eoi;
-public int ch_ungetchar = -1;
 
 /*
  * Pool of buffers holding the most recently used blocks of the input file.
@@ -68,9 +67,6 @@ struct filestate {
 	POSITION fsize;
 };
 
-/* filestate flags */
-#define	CAN_SEEK	001
-#define	KEEP_OPEN	002
 
 #define	END_OF_CHAIN	((struct buf *)thisfile)
 #define	ch_bufhead	thisfile->buf_next
@@ -84,6 +80,7 @@ struct filestate {
 #define	ch_file		thisfile->file
 
 static struct filestate *thisfile;
+static int ch_ungotchar = -1;
 
 extern int autobuf;
 extern int sigs;
@@ -145,7 +142,7 @@ fch_get()
 		 * 1. We can't seek on this file and -b is not in effect; or
 		 * 2. We haven't allocated the max buffers for this file yet.
 		 */
-		if ((autobuf && !(ch_flags & CAN_SEEK)) ||
+		if ((autobuf && !(ch_flags & CH_CANSEEK)) ||
 		    (cbufs == -1 || ch_nbufs < cbufs))
 			if (ch_addbuf())
 				/*
@@ -172,7 +169,7 @@ fch_get()
 		 * If input is a pipe, we're in trouble (can't seek on a pipe).
 		 * Some data has been lost: just return "?".
 		 */
-		if (!(ch_flags & CAN_SEEK))
+		if (!(ch_flags & CH_CANSEEK))
 			return ('?');
 		if (lseek(ch_file, (off_t)pos, 0) == BAD_LSEEK)
 		{
@@ -187,8 +184,17 @@ fch_get()
 	 * If we read less than a full block, that's ok.
 	 * We use partial block and pick up the rest next time.
 	 */
-	n = iread(ch_file, &bp->data[bp->datasize], 
-		(unsigned int)(LBUFSIZE - bp->datasize));
+	if (ch_ungotchar == -1)
+	{
+		n = iread(ch_file, &bp->data[bp->datasize], 
+			(unsigned int)(LBUFSIZE - bp->datasize));
+	} else
+	{
+		bp->data[bp->datasize] = ch_ungotchar;
+		n = 1;
+		ch_ungotchar = -1;
+	}
+
 	if (n == READ_INTR)
 		return (EOI);
 	if (n < 0)
@@ -196,7 +202,6 @@ fch_get()
 		error("read error", NULL_PARG);
 		quit(QUIT_ERROR);
 	}
-	ch_fpos += n;
 
 #if LOGFILE
 	/*
@@ -206,6 +211,7 @@ fch_get()
 		write(logfile, (char *) &bp->data[bp->datasize], n);
 #endif
 
+	ch_fpos += n;
 	bp->datasize += n;
 
 	/*
@@ -258,6 +264,22 @@ fch_get()
 	return (bp->data[ch_offset]);
 }
 
+/*
+ * ch_ungetchar is a rather kludgy and limited way to push 
+ * a single char onto an input file descriptor.
+ */
+	public void
+ch_ungetchar(c)
+	int c;
+{
+	if (ch_ungotchar != -1)
+	{
+		error("ch_ungetchar overrun");
+		quit(QUIT_ERROR);
+	}
+	ch_ungotchar = c;
+}
+
 #if LOGFILE
 /*
  * Close the logfile.
@@ -269,6 +291,8 @@ end_logfile()
 	static int tried = FALSE;
 
 	if (logfile < 0)
+		return;
+	if (thisfile == NULL)
 		return;
 	if (!tried && ch_fsize == NULL_POSITION)
 	{
@@ -294,10 +318,12 @@ sync_logfile()
 	register struct buf *bp;
 	int warned = FALSE;
 	long block;
-	long last_block;
+	long nblocks;
 
-	last_block = (ch_fpos + LBUFSIZE - 1) / LBUFSIZE;
-	for (block = 0;  block <= last_block;  block++)
+	if (thisfile == NULL)
+		return;
+	nblocks = (ch_fpos + LBUFSIZE - 1) / LBUFSIZE;
+	for (block = 0;  block < nblocks;  block++)
 	{
 		for (bp = ch_bufhead;  ;  bp = bp->next)
 		{
@@ -348,13 +374,27 @@ ch_seek(pos)
 	long new_block;
 	POSITION len;
 
+	if (thisfile == NULL)
+		return (0);
+
 	len = ch_length();
 	if (pos < ch_zero() || (len != NULL_POSITION && pos > len))
 		return (1);
 
 	new_block = pos / LBUFSIZE;
-	if (!(ch_flags & CAN_SEEK) && pos != ch_fpos && !buffered(new_block))
-		return (1);
+	if (!(ch_flags & CH_CANSEEK) && pos != ch_fpos && !buffered(new_block))
+	{
+		if (ch_fpos > pos)
+			return (1);
+		while (ch_fpos < pos)
+		{
+			if (ch_forw_get() == EOI)
+				return (1);
+			if (ABORT_SIGS())
+				return (1);
+		}
+		return (0);
+	}
 	/*
 	 * Set read pointer.
 	 */
@@ -371,7 +411,10 @@ ch_end_seek()
 {
 	POSITION len;
 
-	if (ch_flags & CAN_SEEK)
+	if (thisfile == NULL)
+		return (0);
+
+	if (ch_flags & CH_CANSEEK)
 		ch_fsize = filesize(ch_file);
 
 	len = ch_length();
@@ -424,6 +467,8 @@ ch_beg_seek()
 	public POSITION
 ch_length()
 {
+	if (thisfile == NULL)
+		return (NULL_POSITION);
 	if (ignore_eoi)
 		return (NULL_POSITION);
 	return (ch_fsize);
@@ -448,6 +493,8 @@ ch_forw_get()
 {
 	register int c;
 
+	if (thisfile == NULL)
+		return (EOI);
 	c = ch_get();
 	if (c == EOI)
 		return (EOI);
@@ -467,13 +514,15 @@ ch_forw_get()
 	public int
 ch_back_get()
 {
+	if (thisfile == NULL)
+		return (EOI);
 	if (ch_offset > 0)
 		ch_offset --;
 	else
 	{
 		if (ch_block <= 0)
 			return (EOI);
-		if (!(ch_flags & CAN_SEEK) && !buffered(ch_block-1))
+		if (!(ch_flags & CH_CANSEEK) && !buffered(ch_block-1))
 			return (EOI);
 		ch_block--;
 		ch_offset = LBUFSIZE-1;
@@ -518,7 +567,11 @@ ch_flush()
 {
 	register struct buf *bp;
 
-	if (!(ch_flags & CAN_SEEK))
+	if (thisfile == NULL)
+		return;
+
+	ch_ungotchar = -1;
+	if (!(ch_flags & CH_CANSEEK))
 	{
 		/*
 		 * If input is a pipe, we don't flush buffer contents,
@@ -601,12 +654,22 @@ ch_delbufs()
 }
 
 /*
+ * Is it possible to seek on a file descriptor?
+ */
+	public int
+seekable(f)
+	int f;
+{
+	return (lseek(f, (off_t)1, 0) != BAD_LSEEK);
+}
+
+/*
  * Initialize file state for a new file.
  */
 	public void
-ch_init(f, keepopen)
+ch_init(f, flags)
 	int f;
-	int keepopen;
+	int flags;
 {
 	register struct buf *bp;
 
@@ -630,42 +693,17 @@ ch_init(f, keepopen)
 		thisfile->offset = 0;
 		thisfile->file = -1;
 		thisfile->fsize = NULL_POSITION;
-		if (keepopen)
-			ch_flags |= KEEP_OPEN;
+		ch_flags = flags;
 		/*
-		 * Try to seek; set CAN_SEEK if it works.
+		 * Try to seek; set CH_CANSEEK if it works.
 		 */
-		if (lseek(f, (off_t)1, 0) != BAD_LSEEK)
-			ch_flags |= CAN_SEEK;
+		if (seekable(f))
+			ch_flags |= CH_CANSEEK;
 		set_filestate(curr_ifile, thisfile);
 	}
 	if (thisfile->file == -1)
 		thisfile->file = f;
 	ch_flush();
-
-	if (ch_ungetchar != -1)
-	{
-		/*
-		 * This is a rather kludgy and limited way to push 
-		 * a single char onto an input file descriptor.
-		 * It is used only by open_altfile.
-		 */
-		if (ch_addbuf())
-		{
-			error("Cannot allocate 1 buffer", NULL_PARG);
-			quit(QUIT_ERROR);
-		}
-		bp = ch_buftail;
-		bp->block = 0;
-		bp->data[0] = ch_ungetchar;
-		bp->datasize = 1;
-		ch_fpos = 1;
-#if LOGFILE
-		if (logfile >= 0)
-			write(logfile, (char *) &bp->data[0], 1);
-#endif
-		ch_ungetchar = -1;
-	}
 }
 
 /*
@@ -676,21 +714,24 @@ ch_close()
 {
 	int keepstate = FALSE;
 
-	if (ch_flags & CAN_SEEK)
+	if (ch_flags & (CH_CANSEEK|CH_POPENED))
 	{
 		/*
-		 * We can seek, so we don't need to keep buffers around.
+		 * We can seek or re-open, so we don't need to keep buffers.
 		 */
 		ch_delbufs();
 	} else
 		keepstate = TRUE;
-	if (!(ch_flags & KEEP_OPEN))
+	if (!(ch_flags & CH_KEEPOPEN))
 	{
 		/*
 		 * We don't need to keep the file descriptor open
 		 * (because we can re-open it.)
+		 * But don't really close it if it was opened via popen(),
+		 * because pclose() wants to close it.
 		 */
-		close(ch_file);
+		if (!(ch_flags & CH_POPENED))
+			close(ch_file);
 		ch_file = -1;
 	} else
 		keepstate = TRUE;
@@ -704,12 +745,16 @@ ch_close()
 	}
 }
 
+/*
+ * Return ch_flags for the current file.
+ */
 	public int
-ch_ispipe()
+ch_getflags()
 {
-	return (!(ch_flags & CAN_SEEK));
+	return (ch_flags);
 }
 
+#if 0
 	public void
 ch_dump(struct filestate *fs)
 {
@@ -737,3 +782,4 @@ ch_dump(struct filestate *fs)
 		printf("\"\n");
 	}
 }
+#endif

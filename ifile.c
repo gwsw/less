@@ -319,6 +319,7 @@ set_filestate(ifile, filestate)
 	int_ifile(ifile)->h_filestate = filestate;
 }
 
+#if 0
 	public void
 if_dump()
 {
@@ -332,3 +333,4 @@ if_dump()
 		ch_dump(p->h_filestate);
 	}
 }
+#endif

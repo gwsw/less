@@ -816,6 +816,8 @@ print the name of the replacement file to its standard output.
 If the input preprocessor does not output a replacement filename, 
 .I less
 uses the original file, as normal.
+The input preprocessor is called even when viewing standard input,
+in which case its argument is "-".
 To set up an input preprocessor, set the LESSOPEN environment variable
 to a command line which will invoke your input preprocessor.
 This command line should include one occurence of the string "%s", 
@@ -877,7 +879,7 @@ starting to view it.
 An input preprocessor that works this way is called an input pipe.
 An input pipe, instead of writing the name of a replacement file on
 its standard output,
-writes the entire replacement file's contents on its standard output.
+writes the entire contents of the replacement file on its standard output.
 If the input pipe does not write any characters on its standard output,
 then there is no replacement file and 
 .I less
