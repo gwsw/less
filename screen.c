@@ -309,6 +309,12 @@ raw_mode(on)
 		);
 		s.c_cc[VMIN] = 1;
 		s.c_cc[VTIME] = 0;
+#ifdef VLNEXT
+		s.c_cc[VLNEXT] = 0;
+#endif
+#ifdef VDSUSP
+		s.c_cc[VDSUSP] = 0;
+#endif
 	} else
 	{
 		/*
