@@ -15,17 +15,21 @@ main(argc, argv)
 	int ch;
 	int i = 0;
 
+	printf("/* This file was generated from less.hlp */\n");
 	printf("#include \"less.h\"\n");
 	printf("constant char helpdata[] = {\n");
 	while ((ch = getchar()) != EOF)
 	{
-		if (i > 0)
-			printf(",");
-		if ((i++ % 16) == 0)
+		if (ch >= ' ' && ch < 0x7f && 
+		    ch != '\'' && ch != '\\')
+			printf("'%c'", ch);
+		else
+			printf("0x%02x", ch);
+		printf(",");
+		if (ch == '\n' || ch == '\r')
 			printf("\n");
-		printf("0x%02x", ch);
 	}
 	printf("};\n");
-	printf("int size_helpdata = sizeof(helpdata);\n");
+	printf("constant int size_helpdata = sizeof(helpdata);\n");
 	return (0);
 }
