@@ -213,6 +213,7 @@ struct textlist
 /* How should we search? */
 #define	SRCH_FORW	0001	/* Search forward from current position */
 #define	SRCH_BACK	0002	/* Search backward from current position */
+#define	SRCH_NO_MOVE	0004	/* Highlight, but don't move */
 #define	SRCH_FIND_ALL	0010	/* Find and highlight all matches */
 #define	SRCH_NOMATCH	0100	/* Search for non-matching lines */
 #define	SRCH_PAST_EOF	0200	/* Search past end-of-file, into next file */

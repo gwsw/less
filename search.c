@@ -878,6 +878,7 @@ search_range(pos, endpos, search_type, n, plinepos, pendpos)
 	}
 }
 
+int xsearch_type;
 /*
  * Search for the n-th occurrence of a specified pattern, 
  * either forward or backward.
@@ -896,6 +897,7 @@ search(search_type, pattern, n)
 	POSITION pos;
 	int ucase;
 
+xsearch_type = search_type;
 	if (pattern == NULL || *pattern == '\0')
 	{
 		/*
@@ -978,6 +980,7 @@ search(search_type, pattern, n)
 		 */
 		if (search_type & SRCH_PAST_EOF)
 			return (n);
+		repaint();
 		error("Nothing to search", NULL_PARG);
 		return (-1);
 	}
@@ -999,10 +1002,13 @@ search(search_type, pattern, n)
 		return (n);
 	}
 
-	/*
-	 * Go to the matching line.
-	 */
-	jump_loc(pos, jump_sline);
+	if (!(search_type & SRCH_NO_MOVE))
+	{
+		/*
+		 * Go to the matching line.
+		 */
+		jump_loc(pos, jump_sline);
+	}
 
 #if HILITE_SEARCH
 	if (hilite_search == OPT_ON)

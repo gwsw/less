@@ -137,6 +137,12 @@ mca_search()
 	if (search_type & SRCH_FIRST_FILE)
 		cmd_putstr("@");
 
+	if (search_type & SRCH_NO_MOVE)
+	{
+		cmd_putstr("@");
+		cmd_putstr("@");
+	}
+
 	if (search_type & SRCH_PAST_EOF)
 		cmd_putstr("*");
 
@@ -348,7 +354,13 @@ mca_char(c)
 			flag = SRCH_NOMATCH;
 			break;
 		case '@':
-			flag = SRCH_FIRST_FILE;
+			if (search_type & SRCH_FIRST_FILE)
+			{
+				/* "@@" */
+				search_type &= ~SRCH_FIRST_FILE;
+				flag = SRCH_NO_MOVE;
+			} else
+				flag = SRCH_FIRST_FILE;
 			break;
 		case '*':
 			flag = SRCH_PAST_EOF;
@@ -593,7 +605,14 @@ multi_search(pattern, n)
 
 	for (;;)
 	{
-		if ((n = search(search_type, pattern, n)) == 0)
+		n = search(search_type, pattern, n);
+		/*
+		 * The SRCH_NO_MOVE flag doesn't "stick": it gets cleared
+		 * after being used once.  This allows "n" to work after
+		 * using a /@@ search.
+		 */
+		search_type &= ~SRCH_NO_MOVE;
+		if (n == 0)
 			/*
 			 * Found it.
 			 */

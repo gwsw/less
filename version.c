@@ -516,7 +516,8 @@ v292   4/24/95	Add MS-DOS support for Borland C.
 		Fix arrow keys in MS-DOS versions.
 v293   4/28/95	Add auto-versioning stuff to make dist.
 v294   5/12/95	Fix Borland build.
+v295   1/20/96	Fix search on squished file; add /@@.
 
 */
 
-char version[] = "294";
+char version[] = "295";

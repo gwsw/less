@@ -198,6 +198,9 @@ Begin the search at the first line of the first file
 in the command line list,
 regardless of what is currently displayed on the screen
 or the settings of the -a or -j options.
+.IP @@
+Highlight any text which matches the pattern on the current screen, 
+but don't move to the first match.
 .RE
 .PP
 .IP ?pattern
