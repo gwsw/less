@@ -28,6 +28,8 @@
 /*
  *	lesskey [-o output] [input]
  *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ *
  *	Make a .less file.
  *	If no input file is specified, standard input is used.
  *	If no output file is specified, $HOME/.less is used.
@@ -35,6 +37,8 @@
  *	The .less file is used to specify (to "less") user-defined
  *	key bindings.  Basically any sequence of 1 to MAX_CMDLEN
  *	keystrokes may be bound to an existing less function.
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  *
  *	The input file is an ascii file consisting of a 
  *	sequence of lines of the form:
@@ -57,11 +61,25 @@
  *	"chars" is an optional sequence of characters which is treated
  *		as keyboard input after the command is executed.
  *
- *	Blank lines and lines which start with # are ignored.
+ *	Blank lines and lines which start with # are ignored, 
+ *	except for the special control lines:
+ *		#line-edit	Signals the beginning of the line-editing
+ *				keys section.
+ *		#stop		Stops command parsing in less;
+ *				causes all default keys to be disabled.
  *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  *
- *	The output file is a non-ascii file, consisting of
- *	zero or more byte sequences of the form:
+ *	The output file is a non-ascii file, consisting of a header,
+ *	one or more sections, and a trailer.
+ *	Each section begins with a section header, a section length word
+ *	and the section data.  Normally there are three sections:
+ *		CMD_SECTION	Definition of command keys.
+ *		EDIT_SECTION	Definition of editing keys.
+ *		END_SECTION	A special section header, with no 
+ *				length word or section data.
+ *
+ *	Section data consists of zero or more byte sequences of the form:
  *		string <0> <action>
  *	or
  *		string <0> <action|A_EXTRA> chars <0>
@@ -71,6 +89,8 @@
  *	"<action>" is one byte containing the action code (the A_xxx value).
  *	If action is ORed with A_EXTRA, the action byte is followed
  *		by the null-terminated "chars" string.
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  */
 
 #include "less.h"
@@ -172,14 +192,20 @@ struct table cmdtable;
 struct table edittable;
 struct table *currtable = &cmdtable;
 
-char fileheader[] = 
-	{ C0_LESSKEY_MAGIC, C1_LESSKEY_MAGIC, 
-	  C2_LESSKEY_MAGIC, C3_LESSKEY_MAGIC };
-char filetrailer[] = 
-	{ C0_END_LESSKEY_MAGIC, C1_END_LESSKEY_MAGIC, C2_END_LESSKEY_MAGIC };
-char cmdsection[] = { CMD_SECTION };
-char editsection[] = { EDIT_SECTION };
-char endsection[] = { END_SECTION };
+char fileheader[] = {
+	C0_LESSKEY_MAGIC, 
+	C1_LESSKEY_MAGIC, 
+	C2_LESSKEY_MAGIC, 
+	C3_LESSKEY_MAGIC
+};
+char filetrailer[] = {
+	C0_END_LESSKEY_MAGIC, 
+	C1_END_LESSKEY_MAGIC, 
+	C2_END_LESSKEY_MAGIC
+};
+char cmdsection[] =	{ CMD_SECTION };
+char editsection[] =	{ EDIT_SECTION };
+char endsection[] =	{ END_SECTION };
 
 int force = 0;
 char *infile = NULL;
@@ -188,6 +214,9 @@ char *outfile = NULL ;
 int linenum;
 int errors;
 
+/*
+ * Parse command line arguments.
+ */
 	void
 parse_args(argc, argv)
 	int argc;
@@ -225,6 +254,9 @@ parse_args(argc, argv)
 		infile = "-";
 }
 
+/*
+ * Figure out the name of the output file.
+ */
 	char *
 find_outfile()
 {
@@ -251,6 +283,9 @@ find_outfile()
 	return (filename);
 }
 
+/*
+ * Initialize data structures.
+ */
 	void
 init_tables()
 {
@@ -349,6 +384,10 @@ skipnsp(s)
 	return (s);
 }
 
+/*
+ * Clean up an input line:
+ * strip off the trailing newline & any trailing # comment.
+ */
 	char *
 clean_line(s)
 	char *s;
@@ -363,6 +402,9 @@ clean_line(s)
 	return (s);
 }
 
+/*
+ * Add a byte to the output command table.
+ */
 	void
 add_cmd_char(c)
 	int c;
@@ -404,7 +446,7 @@ control_line(s)
 }
 
 /*
- * 
+ * Output some bytes.
  */
 	void
 fputbytes(fd, buf, len)
@@ -420,7 +462,7 @@ fputbytes(fd, buf, len)
 }
 
 /*
- * 
+ * Output an integer, in special KRADIX form.
  */
 	void
 fputint(fd, val)
@@ -441,6 +483,9 @@ fputint(fd, val)
 	fwrite(&c, sizeof(char), 1, fd);
 }
 
+/*
+ * Find an action, given the name of the action.
+ */
 	int
 findaction(actname)
 	char *actname;
