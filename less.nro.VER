@@ -1142,6 +1142,7 @@ and a search matches text which straddles the split,
 the matching text will not be highlighted.
 In certain cases, patterns beginning with a ^ may not be 
 highlighted correctly.
+Patterns which include a TAB character may not be highlighted correctly.
 If a search is done using the ! operator for text NOT matching a pattern,
 the strings which do match the pattern are highlighted.
 In all cases, even if the highlighting is incorrect,
