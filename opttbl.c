@@ -108,6 +108,15 @@ static struct optname keypad_optname = { "no-keypad",            NULL };
 
 /*
  * Table of all options and their semantics.
+ *
+ * For BOOL and TRIPLE options, odesc[0], odesc[1], odesc[2] are
+ * the description of the option when set to 0, 1 or 2, respectively.
+ * For NUMBER options, odesc[0] is the prompt to use when entering
+ * a new value, and odesc[1] is the description, which should contain 
+ * one %d which is replaced by the value of the number.
+ * For STRING options, odesc[0] is the prompt to use when entering
+ * a new value, and odesc[1], if not NULL, is the set of characters
+ * that are valid in the string.
  */
 static struct option option[] =
 {
@@ -145,7 +154,9 @@ static struct option option[] =
 #if MSDOS_COMPILER
 	{ 'D', &D__optname,
 		STRING|REPAINT|NO_QUERY, 0, NULL, opt_D,
-		"color desc: ", NULL, NULL
+		"color desc: ", 
+		"Ddknsu0123456789.",
+		NULL
 	},
 #endif
 	{ 'e', &e_optname,
@@ -290,7 +301,9 @@ static struct option option[] =
 	},
 	{ 'x', &x_optname,
 		STRING|REPAINT, 0, NULL, opt_x,
-		"Tab stops: ", NULL, NULL
+		"Tab stops: ",
+		"0123456789,",
+		NULL
 	},
 	{ 'X', &X__optname,
 		BOOL|NO_TOGGLE, OPT_OFF, &no_init, NULL,
