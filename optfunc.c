@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
+ * Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -383,7 +383,7 @@ opt__V(type, s)
 
 #if MSDOS_COMPILER
 /*
- *
+ * Parse an MSDOS color descriptor.
  */
    	static void
 colordesc(s, fg_color, bg_color)
@@ -412,6 +412,8 @@ colordesc(s, fg_color, bg_color)
 			return;
 		}
 	}
+	if (*s != '\0')
+		error("Extra characters at end of -D option", NULL_PARG);
 	*fg_color = fg;
 	*bg_color = bg;
 }
