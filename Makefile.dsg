@@ -54,14 +54,14 @@ newfuncs:
 	redir -o funcs.h gawk -f mkfuncs.awk ${OBJ:.${O}=.c}
 
 clean:
-	for %%f in (*.${O} less lesskey *.exe) do if exist %%f del %%f
+	for %f in (*.${O} less lesskey *.exe) do if exist %f del %f
 
 mostlyclean: clean
 
 distclean: clean
 	if not exist Makefile.dsg ren Makefile Makefile.dsg
 	if not exist defines.ds ren defines.h defines.ds
-	for %%f in (Makefile defines.h) do if exist %%f del %%f
+	for %f in (Makefile defines.h) do if exist %f del %f
 
 realclean: distclean
 	if exist TAGS del TAGS
