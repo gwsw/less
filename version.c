@@ -576,7 +576,10 @@ v343   9/23/99	Support UTF-8 (Thanks to Robert Brady).
 		Add %P and ?P in prompts.
 v344  10/27/99	-w highlights target line of g and p commands.
 v345  10/29/99	Make -R pass thru ESC but not other control chars.
+		Posted to Web page.
+-----------------------------------------------------------------
+v346   11/4/99  Fix bugs in long option processing; R cmd should clear hilites.
 
 */
 
-char version[] = "345";
+char version[] = "346";
