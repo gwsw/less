@@ -68,11 +68,7 @@ dirfile(dirname, filename)
 					sizeof(char));
 	if (pathname == NULL)
 		return (NULL);
-#if MSDOS_COMPILER || OS2
-	sprintf(pathname, "%s\\%s", dirname, filename);
-#else
-	sprintf(pathname, "%s/%s", dirname, filename);
-#endif
+	sprintf(pathname, "%s%s%s", dirname, PATHNAME_SEP, filename);
 	/*
 	 * Make sure the file exists.
 	 */
@@ -83,7 +79,7 @@ dirfile(dirname, filename)
 		pathname = NULL;
 	} else
 	{
-		close (f);
+		close(f);
 	}
 	return (pathname);
 }
@@ -222,7 +218,7 @@ fcomplete(s)
 	 */
 	char *slash;
 	for (slash = s+strlen(s)-1;  slash > s;  slash--)
-		if (*slash == '/' || *slash == '\\')
+		if (*slash = *PATHNAME_SEP || *slash == '/')
 			break;
 	fpat = (char *) ecalloc(strlen(s)+4, sizeof(char));
 	if (strchr(slash, '.') == NULL)
@@ -343,7 +339,6 @@ shellcmd(cmd, s1, s2)
 	char *s2;
 {
 	char *scmd;
-	char *scmd2;
 	char *shell;
 	FILE *fd;
 	int len;
@@ -360,6 +355,7 @@ shellcmd(cmd, s1, s2)
 		/*
 		 * Read the output of <$SHELL -c "cmd">.
 		 */
+		char *scmd2;
 		scmd2 = (char *) ecalloc(strlen(shell) + strlen(scmd) + 7,
 					sizeof(char));
 		sprintf(scmd2, "%s -c \"%s\"", shell, scmd);
@@ -462,8 +458,10 @@ open_altfile(filename, pf, pfd)
 {
 	char *lessopen;
 	char *gfilename;
-	int returnfd = 0;
 	FILE *fd;
+#if HAVE_FILENO
+	int returnfd = 0;
+#endif
 	
 	if (secure)
 		return (NULL);
@@ -478,8 +476,13 @@ open_altfile(filename, pf, pfd)
 		 * If LESSOPEN starts with a |, it indicates 
 		 * a "pipe preprocessor".
 		 */
+#if HAVE_FILENO
 		lessopen++;
 		returnfd = 1;
+#else
+		error("LESSOPEN pipe is not supported", NULL_PARG);
+		return (NULL);
+#endif
 	}
 	fd = shellcmd(lessopen, filename, (char*)NULL);
 	if (fd == NULL)
@@ -489,9 +492,9 @@ open_altfile(filename, pf, pfd)
 		 */
 		return (NULL);
 	}
+#if HAVE_FILENO
 	if (returnfd)
 	{
-#if HAVE_FILENO
 		int f;
 		char c;
 
@@ -512,11 +515,8 @@ open_altfile(filename, pf, pfd)
 		*pfd = (void *) fd;
 		*pf = f;
 		return (save("-"));
-#else
-		error("LESSOPEN pipe is not supported", NULL_PARG);
-		return (NULL);
-#endif
 	}
+#endif
 	gfilename = readfd(fd);
 	pclose(fd);
 	if (*gfilename == '\0')
@@ -552,6 +552,35 @@ close_altfile(altfilename, filename, pipefd)
 #else
 #if MSDOS_COMPILER
 
+/*
+ * Define macros for the MS-DOS "find file" interfaces.
+ */
+#if MSDOS_COMPILER==WIN32C
+
+#define	FIND_FIRST(filename,fndp)	findfirst(filename, fndp, ~0)
+#define	FIND_NEXT(fndp)			findnext(fndp)
+#define	FND_NAME			ff_name
+#define	DECLARE_FIND(fnd,drive,dir,fname,ext) \
+					struct ffblk fnd;	\
+					char drive[MAXDRIVE];	\
+					char dir[MAXDIR];	\
+					char fname[MAXFILE];	\
+					char ext[MAXEXT];	
+
+#else
+
+#define	FIND_FIRST(filename,fndp)	_dos_findfirst(filename, ~0, fndp)
+#define	FIND_NEXT(fndp)			_dos_findnext(fndp)
+#define	FND_NAME			name
+#define	DECLARE_FIND(fnd,drive,dir,fname,ext) \
+					struct find_t fnd;	\
+					char drive[_MAX_DRIVE];	\
+					char dir[_MAX_DIR];	\
+					char fname[_MAX_FNAME];	\
+					char ext[_MAX_EXT];	
+
+#endif
+	
 	public char *
 lglob(filename)
 	char *filename;
@@ -560,26 +589,7 @@ lglob(filename)
 	register char *p;
 	register int len;
 	register int n;
-
-#if MSDOS_COMPILER==WIN32C
-#define	FIND_FIRST(filename,fndp)	findfirst(filename, fndp, ~0)
-#define	FIND_NEXT(fndp)			findnext(fndp)
-#define	FND_NAME			ff_name
-	struct ffblk fnd;
-	char drive[MAXDRIVE];
-	char dir[MAXDIR];
-	char fname[MAXFILE];
-	char ext[MAXEXT];
-#else
-#define	FIND_FIRST(filename,fndp)	_dos_findfirst(filename, ~0, fndp)
-#define	FIND_NEXT(fndp)			_dos_findnext(fndp)
-#define	FND_NAME			name
-	struct find_t fnd;
-	char drive[_MAX_DRIVE];
-	char dir[_MAX_DIR];
-	char fname[_MAX_FNAME];
-	char ext[_MAX_EXT];
-#endif
+	DECLARE_FIND(fnd,drive,dir,fname,ext)
 	
 	filename = fexpand(filename);
 
@@ -597,6 +607,9 @@ lglob(filename)
 		n = strlen(drive) + strlen(dir) + strlen(fnd.FND_NAME);
 		while (p - gfilename + n+2 >= len)
 		{
+			/*
+			 * No room in current buffer.  Allocate a bigger one.
+			 */
 			len *= 2;
 			*p = '\0';
 			p = (char *) ecalloc(len, sizeof(char));
@@ -610,6 +623,9 @@ lglob(filename)
 		*p++ = ' ';
 	} while (FIND_NEXT(&fnd) == 0);
 
+	/*
+	 * Overwrite the final trailing space with a null terminator.
+	 */
 	*--p = '\0';
 	return (gfilename);
 }

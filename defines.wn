@@ -134,6 +134,11 @@
 #define MSDOS_COMPILER	WIN32C
 
 /*
+ * Pathname separator character.
+ */
+#define	PATHNAME_SEP	"\\"
+
+/*
  * HAVE_SYS_TYPES_H is 1 if your system has <sys/types.h>.
  */
 #define HAVE_SYS_TYPES_H	1

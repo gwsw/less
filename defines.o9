@@ -134,6 +134,11 @@
 /* #define _OSK 1 */
 
 /*
+ * Pathname separator character.
+ */
+#define	PATHNAME_SEP	"/"
+
+/*
  * HAVE_SYS_TYPES_H is 1 if your system has <sys/types.h>.
  */
 #undef HAVE_SYS_TYPES_H

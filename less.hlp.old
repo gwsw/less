@@ -37,8 +37,8 @@
         ^N or !  Search for NON-matching lines.
         ^E or *  Search multiple files (pass thru END OF FILE).
         ^F or @  Start search at FIRST file (for /) or last file (for ?).
-	^K       Highlight matches, but don't move (KEEP position).
-	^R       Don't use REGULAR EXPRESSIONS.
+        ^K       Highlight matches, but don't move (KEEP position).
+        ^R       Don't use REGULAR EXPRESSIONS.
         ---------------------------------------------------
   g  <  ESC-<       *  Go to first line in file (or line _N).
   G  >  ESC->       *  Go to last line in file (or line _N).
@@ -48,15 +48,21 @@
   ESC-^F _<_c_1_> _<_c_2_>  *  Find close bracket _<_c_2_>.
   ESC-^B _<_c_1_> _<_c_2_>  *  Find open bracket _<_c_1_> 
         ---------------------------------------------------
-	Each "find close bracket" command goes forward to the close bracket 
-	  matching the (_N-th) open bracket in the top line.
-	Each "find open bracket" command goes backward to the open bracket 
-	  matching the (_N-th) close bracket in the bottom line.
+        Each "find close bracket" command goes forward to the close bracket 
+          matching the (_N-th) open bracket in the top line.
+        Each "find open bracket" command goes backward to the open bracket 
+          matching the (_N-th) close bracket in the bottom line.
         ---------------------------------------------------
   m_<_l_e_t_t_e_r_>            Mark the current position with <letter>.
   '_<_l_e_t_t_e_r_>            Go to a previously marked position.
   ''                   Go to the previous position.
   ^X^X                 Same as '.
+        ---------------------------------------------------
+        A mark is any upper-case or lower-case letter.
+        Certain marks are predefined:
+             ^  means  beginning of the file
+             $  means  end of the file
+        ---------------------------------------------------
 
   :e [_f_i_l_e]            Examine a new file.
   ^X^V                 Same as :e.
@@ -97,8 +103,8 @@
   -k [_f_i_l_e]     Use a lesskey file.
   -m  -M        Set prompt style.
   -n  -N        Use line numbers.
-  -o [_f_i_l_e]     Log file.
-  -O [_f_i_l_e]     Log file (unconditionally overwrite).
+  -o [_f_i_l_e]     Copy to log file (standard input only).
+  -O [_f_i_l_e]     Copy to log file (unconditionally overwrite).
   -p [_p_a_t_t_e_r_n]  Start at pattern (from command line).
   -P [_p_r_o_m_p_t]   Define new prompt.
   -q  -Q        Quiet the terminal bell.

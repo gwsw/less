@@ -539,7 +539,8 @@ v311   4/22/96	Add Windows32 support; merge doscreen.c into screen.c.
 v312   4/24/96	Don't quit after "cannot reopen" error.
 v313   4/25/96	Added horizontal scrolling.
 v314   4/26/96	Modified -e to quit on reaching end of a squished file.
-v315   4/2696	Fix "!;TAB" bug.
+v315   4/26/96	Fix "!;TAB" bug.
+v316   5/2/96	Make "|a" when (a < curr screen) go to end of curr screen.
 */
 
-char version[] = "315";
+char version[] = "316";
