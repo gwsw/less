@@ -2114,7 +2114,10 @@ WIN32getch(tty)
 	}
 
 	while (win32_kbhit((HANDLE)tty) == FALSE)
+	{
+		Sleep(20);
 		continue;
+	}
 	keyCount --;
 	ascii = currentKey.ascii;
 	/*
