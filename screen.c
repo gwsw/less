@@ -252,6 +252,7 @@ raw_mode(on)
     {
 	struct termios s;
 	static struct termios save_term;
+	static int saved_term = 0;
 
 	if (on) 
 	{
@@ -263,7 +264,11 @@ raw_mode(on)
 		/*
 		 * Save modes and set certain variables dependent on modes.
 		 */
-		save_term = s;
+		if (!saved_term)
+		{
+			save_term = s;
+			saved_term = 1;
+		}
 #if HAVE_OSPEED
 		switch (cfgetospeed(&s))
 		{
@@ -428,6 +433,7 @@ raw_mode(on)
     {
 	struct termio s;
 	static struct termio save_term;
+	static int saved_term = 0;
 
 	if (on)
 	{
@@ -439,7 +445,11 @@ raw_mode(on)
 		/*
 		 * Save modes and set certain variables dependent on modes.
 		 */
-		save_term = s;
+		if (!saved_term)
+		{
+			save_term = s;
+			saved_term = 1;
+		}
 #if HAVE_OSPEED
 		ospeed = s.c_cflag & CBAUD;
 #endif
@@ -473,6 +483,7 @@ raw_mode(on)
     {
 	struct sgttyb s;
 	static struct sgttyb save_term;
+	static int saved_term = 0;
 
 	if (on)
 	{
@@ -484,7 +495,11 @@ raw_mode(on)
 		/*
 		 * Save modes and set certain variables dependent on modes.
 		 */
-		save_term = s;
+		if (!saved_term)
+		{
+			save_term = s;
+			saved_term = 1;
+		}
 #if HAVE_OSPEED
 		ospeed = s.sg_ospeed;
 #endif
@@ -511,6 +526,7 @@ raw_mode(on)
     {
 	struct sgbuf s;
 	static struct sgbuf save_term;
+	static int saved_term = 0;
 
 	if (on)
 	{
@@ -522,7 +538,11 @@ raw_mode(on)
 		/*
 		 * Save modes and set certain variables dependent on modes.
 		 */
-		save_term = s;
+		if (!saved_term)
+		{
+			save_term = s;
+			saved_term = 1;
+		}
 		erase_char = s.sg_bspch;
 		kill_char = s.sg_dlnch;
 		werase_char = CONTROL('W');
@@ -787,14 +807,16 @@ static char kfcmdtable[] =
 	 * PC function keys.
 	 * Note that '\0' is converted to '\340' on input.
 	 */
-	'\340','\120',0,		A_F_LINE,		/* down arrow */
-	'\340','\121',0,		A_F_SCREEN,		/* page down */
-	'\340','\110',0,		A_B_LINE,		/* up arrow */
-	'\340','\111',0,		A_B_SCREEN,		/* page up */
-	'\340','\107',0,		A_GOLINE,		/* home */
-	'\340','\117',0,		A_GOEND,		/* end */
-	'\340','\073',0,		A_HELP,			/* F1 */
-	'\340','\022',0,		A_EXAMINE,		/* Alt-E */
+	'\340','\120',0,	A_F_LINE,	/* DOWNARROW */
+	'\340','\121',0,	A_F_SCREEN,	/* PAGEDOWN */
+	'\340','\110',0,	A_B_LINE,	/* UPARROW */
+	'\340','\111',0,	A_B_SCREEN,	/* PAGEUP */
+	'\340','\115',0,	A_RSHIFT,	/* RIGHTARROW */
+	'\340','\113',0,	A_LSHIFT,	/* LEFTARROW */
+	'\340','\107',0,	A_GOLINE,	/* HOME */
+	'\340','\117',0,	A_GOEND,	/* END */
+	'\340','\073',0,	A_HELP,		/* F1 */
+	'\340','\022',0,	A_EXAMINE,	/* Alt-E */
 	0
 };
 static int sz_kfcmdtable = sizeof(kfcmdtable) - 1;
@@ -832,6 +854,7 @@ static int sz_kfcmdtable = sizeof(kfcmdtable) - 1;
 	{
 		put_ecmd(s, EC_RIGHT);
 		put_esc_ecmd(s, EC_W_RIGHT);
+		put_fcmd(s, A_RSHIFT);
 	}
 	
 	/* LEFT ARROW */
@@ -840,6 +863,7 @@ static int sz_kfcmdtable = sizeof(kfcmdtable) - 1;
 	{
 		put_ecmd(s, EC_LEFT);
 		put_esc_ecmd(s, EC_W_LEFT);
+		put_fcmd(s, A_LSHIFT);
 	}
 	
 	/* UP ARROW */
@@ -2011,6 +2035,32 @@ win32_kbhit(tty)
 			currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
 			currentKey.scan = ip.Event.KeyEvent.wVirtualScanCode;
 			keyCount = ip.Event.KeyEvent.wRepeatCount;
+
+			if (ip.Event.KeyEvent.dwControlKeyState & 
+				(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
+			{
+				switch (currentKey.scan)
+				{
+				case 0x12:     /* letter 'E' */
+					currentKey.ascii = 0;
+					break;
+				}
+			} else if (ip.Event.KeyEvent.dwControlKeyState & 
+				(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
+			{
+				switch (currentKey.scan)
+				{
+				case 0x4d: /* right arrow */
+					currentKey.scan = '\164';
+					break;
+				case 0x4b: /* left arrow */
+					currentKey.scan = '\163';
+					break;
+				case 0x53: /* delete */
+					currentKey.scan = '\223';
+					break;
+				}
+			}
 			return TRUE;
 		}
 	}
