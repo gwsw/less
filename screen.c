@@ -169,7 +169,64 @@ raw_mode(on)
 		 */
 		save_term = s;
 #if HAVE_OSPEED
-		ospeed = cfgetospeed(&s);
+		switch (cfgetospeed(&s))
+		{
+#ifdef B0
+		case B0: ospeed = 0; break;
+#endif
+#ifdef B50
+		case B50: ospeed = 1; break;
+#endif
+#ifdef B75
+		case B75: ospeed = 2; break;
+#endif
+#ifdef B110
+		case B110: ospeed = 3; break;
+#endif
+#ifdef B134
+		case B134: ospeed = 4; break;
+#endif
+#ifdef B150
+		case B150: ospeed = 5; break;
+#endif
+#ifdef B200
+		case B200: ospeed = 6; break;
+#endif
+#ifdef B300
+		case B300: ospeed = 7; break;
+#endif
+#ifdef B600
+		case B600: ospeed = 8; break;
+#endif
+#ifdef B1200
+		case B1200: ospeed = 9; break;
+#endif
+#ifdef B1800
+		case B1800: ospeed = 10; break;
+#endif
+#ifdef B2400
+		case B2400: ospeed = 11; break;
+#endif
+#ifdef B4800
+		case B4800: ospeed = 12; break;
+#endif
+#ifdef B9600
+		case B9600: ospeed = 13; break;
+#endif
+#ifdef EXTA
+		case EXTA: ospeed = 14; break;
+#endif
+#ifdef EXTB
+		case EXTB: ospeed = 15; break;
+#endif
+#ifdef B57600
+		case B57600: ospeed = 16; break;
+#endif
+#ifdef B115200
+		case B115200: ospeed = 17; break;
+#endif
+		default: ;
+		}
 #endif
 		erase_char = s.c_cc[VERASE];
 		kill_char = s.c_cc[VKILL];

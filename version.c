@@ -449,6 +449,8 @@
  *	v249: Remove -f flag from lesskey; default	11/5/94
  *	      input file is ~/.lesskey.in, not stdin.
  *	v250: Lesskey input file "-" means stdin.	11/7/94
+ *	v251: Convert cfgetospeed result to ospeed.	11/9/94
+ *	      (Thanks to Andrew Chernov)
  */
 
-char version[] = "250";
+char version[] = "251";
