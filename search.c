@@ -157,6 +157,8 @@ is_ucase(s)
 	static int
 prev_pattern()
 {
+	if (last_search_type & SRCH_NO_REGEX)
+		return (last_pattern != NULL);
 #if HAVE_POSIX_REGCOMP
 	return (regpattern != NULL);
 #endif
@@ -254,51 +256,55 @@ compile_pattern(pattern, search_type)
 	char *pattern;
 	int search_type;
 {
-#if HAVE_POSIX_REGCOMP
-	regex_t *s = (regex_t *) ecalloc(1, sizeof(regex_t));
-	if (regcomp(s, pattern, REGCOMP_FLAG))
+	if ((search_type & SRCH_NO_REGEX) == 0)
 	{
-		free(s);
-		error("Invalid pattern", NULL_PARG);
-		return (-1);
-	}
-	if (regpattern != NULL)
-		regfree(regpattern);
-	regpattern = s;
+#if HAVE_POSIX_REGCOMP
+		regex_t *s = (regex_t *) ecalloc(1, sizeof(regex_t));
+		if (regcomp(s, pattern, REGCOMP_FLAG))
+		{
+			free(s);
+			error("Invalid pattern", NULL_PARG);
+			return (-1);
+		}
+		if (regpattern != NULL)
+			regfree(regpattern);
+		regpattern = s;
 #endif
 #if HAVE_RE_COMP
-	PARG parg;
-	if ((parg.p_string = re_comp(pattern)) != NULL)
-	{
-		error("%s", &parg);
-		return (-1);
-	}
-	re_pattern = 1;
+		PARG parg;
+		if ((parg.p_string = re_comp(pattern)) != NULL)
+		{
+			error("%s", &parg);
+			return (-1);
+		}
+		re_pattern = 1;
 #endif
 #if HAVE_REGCMP
-	char *s;
-	if ((s = regcmp(pattern, 0)) == NULL)
-	{
-		error("Invalid pattern", NULL_PARG);
-		return (-1);
-	}
-	if (cpattern != NULL)
-		free(cpattern);
-	cpattern = s;
+		char *s;
+		if ((s = regcmp(pattern, 0)) == NULL)
+		{
+			error("Invalid pattern", NULL_PARG);
+			return (-1);
+		}
+		if (cpattern != NULL)
+			free(cpattern);
+		cpattern = s;
 #endif
 #if HAVE_V8_REGCOMP
-	struct regexp *s;
-	if ((s = regcomp(pattern)) == NULL)
-	{
-		/*
-		 * regcomp has already printed error message via regerror().
-		 */
-		return (-1);
-	}
-	if (regpattern != NULL)
-		free(regpattern);
-	regpattern = s;
+		struct regexp *s;
+		if ((s = regcomp(pattern)) == NULL)
+		{
+			/*
+			 * regcomp has already printed an error message 
+			 * via regerror().
+			 */
+			return (-1);
+		}
+		if (regpattern != NULL)
+			free(regpattern);
+		regpattern = s;
 #endif
+	}
 
 	if (last_pattern != NULL)
 		free(last_pattern);
@@ -334,9 +340,7 @@ uncompile_pattern()
 		free(regpattern);
 	regpattern = NULL;
 #endif
-#if NO_REGEX
 	last_pattern = NULL;
-#endif
 }
 
 /*
