@@ -232,7 +232,11 @@ fch_get()
 			 * Wait a while, then try again.
 			 */
 			if (!slept)
-				ierror("Waiting for data", NULL_PARG);
+			{
+				PARG parg;
+				parg.p_string = wait_message();
+				ierror("%s", &parg);
+			}
 #if !MSDOS_COMPILER
 	 		sleep(1);
 #else

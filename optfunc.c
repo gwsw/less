@@ -42,6 +42,7 @@ extern char closequote;
 extern char *prproto[];
 extern char *eqproto;
 extern char *hproto;
+extern char *wproto;
 extern IFILE curr_ifile;
 extern char version[];
 #if LOGFILE
@@ -291,6 +292,7 @@ opt__P(type, s)
 		case 'M':  proto = &prproto[PR_LONG];	s++;	break;
 		case '=':  proto = &eqproto;		s++;	break;
 		case 'h':  proto = &hproto;		s++;	break;
+		case 'w':  proto = &wproto;		s++;	break;
 		default:   proto = &prproto[PR_SHORT];		break;
 		}
 		free(*proto);

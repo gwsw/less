@@ -50,10 +50,13 @@ static constant char e_proto[] =
   "?f%f .?m(file %i of %m) .?ltlines %lt-%lb?L/%L. .byte %bB?s/%s. ?e(END) :?pB%pB\\%..%t";
 static constant char h_proto[] =
   "HELP -- ?eEND -- Press g to see it again:Press RETURN for more., or q when done";
+static constant char w_proto[] =
+  "Waiting for data";
 
 public char *prproto[3];
 public char constant *eqproto = e_proto;
 public char constant *hproto = h_proto;
+public char constant *wproto = w_proto;
 
 static char message[PROMPT_SIZE];
 static char *mp;
@@ -69,6 +72,7 @@ init_prompt()
 	prproto[2] = save(M_proto);
 	eqproto = save(e_proto);
 	hproto = save(h_proto);
+	wproto = save(w_proto);
 }
 
 /*
@@ -527,4 +531,13 @@ pr_string()
 	if (ch_getflags() & CH_HELPFILE)
 		return (pr_expand(hproto, sc_width-so_s_width-so_e_width-2));
 	return (pr_expand(prproto[pr_type], sc_width-so_s_width-so_e_width-2));
+}
+
+/*
+ * Return a message suitable for printing while waiting in the F command.
+ */
+	public char *
+wait_message()
+{
+	return (pr_expand(wproto, sc_width-so_s_width-so_e_width-2));
 }
