@@ -1,8 +1,10 @@
 # Makefile for authoring less.
 
-EMAIL = markn@fog.net
-HOMEPAGE = http://www.fog.net/markn/less
+EMAIL = marknu@flash.net
+HOMEPAGE = http://www.flash.net/~marknu/less
 SHELL = /bin/sh
+RCS = rcs
+NROFF = nroff -man
 
 srcdir = .
 
@@ -80,9 +82,9 @@ ${srcdir}/lesskey.nro: ${srcdir}/lesskey.nro.VER ${srcdir}/version.c
 	${REPLACE_VERSION} ${srcdir}/lesskey.nro.VER
 
 ${srcdir}/less.man: ${srcdir}/less.nro
-	mkman ${srcdir}/less.nro >${srcdir}/less.man
+	${NROFF} ${srcdir}/less.nro >${srcdir}/less.man
 ${srcdir}/lesskey.man: ${srcdir}/lesskey.nro
-	mkman ${srcdir}/lesskey.nro >${srcdir}/lesskey.man
+	${NROFF} ${srcdir}/lesskey.nro >${srcdir}/lesskey.man
 
 
 distfiles: ${DISTFILES}
