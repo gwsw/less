@@ -293,9 +293,11 @@ compile_pattern(pattern)
 	regpattern = s;
 #endif
 #if NO_REGEX
-	static char lpbuf[100];
-	strcpy(lpbuf, pattern);
-	last_pattern = lpbuf;
+	if (last_pattern != NULL)
+		free(last_pattern);
+	last_pattern = calloc(1, strlen(pattern)+1);
+	if (last_pattern != NULL)
+		strcpy(last_pattern, pattern);
 #endif
 	return (0);
 }

@@ -57,7 +57,7 @@ findtag(tag)
 	register int taglen;
 	int search_char;
 	int err;
-	static char tline[200];
+	char tline[TAGLINE_SIZE];
 
 	if ((f = fopen(tags, "r")) == NULL)
 	{

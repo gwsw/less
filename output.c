@@ -104,7 +104,7 @@ put_line()
 	}
 }
 
-static char obuf[1024];
+static char obuf[OUTBUF_SIZE];
 static char *ob = obuf;
 
 /*

@@ -33,10 +33,11 @@
 
 #include "less.h"
 
-public char linebuf[1024];	/* Buffer which holds the current output line */
+/* Buffer which holds the current output line */
+public char linebuf[LINEBUF_SIZE];
 public int size_linebuf = sizeof(linebuf);
 
-static char attr[1024];		/* Extension of linebuf to hold attributes */
+static char attr[LINEBUF_SIZE];	/* Extension of linebuf to hold attributes */
 static int curr;		/* Index into linebuf */
 static int column;		/* Printable length, accounting for
 				   backspaces, etc. */

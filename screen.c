@@ -728,9 +728,9 @@ get_term()
 	char *sp;
 	register char *t1, *t2;
 	char *term;
-	char termbuf[2048];
+	char termbuf[TERMBUF_SIZE];
 
-	static char sbuf[1024];
+	static char sbuf[TERMSBUF_SIZE];
 
 #ifdef OS2
 	/*

@@ -70,7 +70,7 @@ extern char *editproto;
 #endif
 extern int screen_trashed;	/* The screen has been overwritten */
 
-static char ungot[100];
+static char ungot[UNGOT_SIZE];
 static char *ungotp = NULL;
 #if SHELL_ESCAPE
 static char *shellcmd = NULL;	/* For holding last shell command for "!!" */

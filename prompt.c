@@ -66,7 +66,7 @@ static char e_proto[] =
 public char *prproto[3];
 public char *eqproto = e_proto;
 
-static char message[250];
+static char message[PROMPT_SIZE];
 static char *mp;
 
 /*

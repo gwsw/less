@@ -35,7 +35,7 @@
 
 extern int sc_width;
 
-static char cmdbuf[512];	/* Buffer for holding a multi-char command */
+static char cmdbuf[CMDBUF_SIZE]; /* Buffer for holding a multi-char command */
 static int cmd_col;		/* Current column of the cursor */
 static int prompt_col;		/* Column of cursor just after prompt */
 static char *cp;		/* Pointer into cmdbuf */
