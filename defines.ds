@@ -208,7 +208,6 @@
 
 /* Define if you have the ANSI C header files.  */
 #define STDC_HEADERS	1
-#define __STDC__	1
 
 /*
  * Regular expression library.
@@ -298,7 +297,7 @@
 #define HAVE_FCNTL_H 1
 
 /* Define if you have the <limits.h> header file.  */
-#define HAVE_LIMITS_H 0
+#define HAVE_LIMITS_H 1
 
 /* Define if you have the <stdio.h> header file.  */
 #define HAVE_STDIO_H 1
@@ -354,4 +353,16 @@
 #define S_IFMT		_S_IFMT
 #define S_IFDIR		_S_IFDIR
 #define S_IFREG		_S_IFREG
+#define dup		_dup
+#define open		_open
+#define lseek		_lseek
+#define write		_write
+#define creat		_creat
+#define fstat		_fstat
+#define isatty		_isatty
+#define close		_close
+#define read		_read
+#define ungetch		_ungetch
+#define kbhit		_kbhit
+#define getch		_getch
 #endif
