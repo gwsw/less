@@ -124,7 +124,8 @@ findtag(tag)
 			search_char = *p++;
 			if (*p == '^')
 				p++;
-			tagpattern = q = p;
+			tagpattern = (char *) ecalloc(strlen(p)+1, sizeof(char));
+			q = tagpattern;
 			while (*p != search_char && *p != '\0')
 			{
 				if (*p == '\\')
@@ -214,6 +215,8 @@ tagsearch()
 			break;
 	}
 
+	free(tagpattern);
+	tagpattern = NULL;
 	return (linepos);
 }
 
