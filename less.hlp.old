@@ -98,45 +98,86 @@
                            OOPPTTIIOONNSS
 
         Most options may be changed either on the command line,
-        or from within less by using the - command.
+        or from within less by using the - or -- command.
+	Options may be given in one of two forms: either a
+	single character preceded by a -, or a name preceeded by --.
 
-  -?            Display help (from command line).
-  -a            Forward search skips current screen.
-  -b [_N]        Number of buffers.
-  -B            Don't automatically allocate buffers for pipes.
-  -c  -C        Repaint by scrolling/clearing.
-  -d            Dumb terminal.
-  -D [_x_n_._n]     Set screen colors. (MS-DOS only)
-  -e  -E        Quit at end of file.
-  -f            Force open non-regular files.
-  -g            Highlight only last match for searches.
-  -G            Don't highlight any matches for searches.
-  -h [_N]        Backward scroll limit.
-  -i            Ignore case in searches.
-  -I            Ignore case in searches and in search patterns.
-  -j [_N]        Screen position of target lines.
-  -k [_f_i_l_e]     Use a lesskey file.
-  -m  -M        Set prompt style.
-  -n  -N        Use line numbers.
-  -o [_f_i_l_e]     Copy to log file (standard input only).
-  -O [_f_i_l_e]     Copy to log file (unconditionally overwrite).
-  -p [_p_a_t_t_e_r_n]  Start at pattern (from command line).
-  -P [_p_r_o_m_p_t]   Define new prompt.
-  -q  -Q        Quiet the terminal bell.
-  -r            Output "raw" control characters.
-  -s            Squeeze multiple blank lines.
-  -S            Chop long lines.
-  -t [_t_a_g]      Find a tag.
-  -T [_t_a_g_s_f_i_l_e] Use an alternate tags file.
-  -u  -U        Change handling of backspaces.
-  -V            Display the version number of "less".
-  -w            Highlight first new line after forward-screen.
-  -W            Highlight first new line after any forward movement.
-  -x [_N]        Set tab stops.
-  -X            Don't use termcap init/deinit strings.
-  -y [_N]        Forward scroll limit.
-  -z [_N]        Set size of window.
-  -" [_c[_c]]     Set shell quote characters.
+  -?  ........  --help
+                  Display help (from command line).
+  -a  ........  --search-skip-screen
+                  Forward search skips current screen.
+  -b [_N]  ....  --buffers=[_N]
+                  Number of buffers.
+  -B  ........  --auto-buffers
+                  Don't automatically allocate buffers for pipes.
+  -c  -C  ....  --clear-screen  --CLEAR-SCREEN
+                  Repaint by scrolling/clearing.
+  -d  ........  --dumb
+                  Dumb terminal.
+  -D [_x_n_._n]     --color=_x_n_._n
+                  Set screen colors. (MS-DOS only)
+  -e  -E  ....  --quit-at-eof  --QUIT-AT-EOF
+                  Quit at end of file.
+  -f  ........  --force
+                  Force open non-regular files.
+  -g  ........  --hilite-search
+                  Highlight only last match for searches.
+  -G  ........  --HILITE-SEARCH
+                  Don't highlight any matches for searches.
+  -h [_N]  ....  --max-back-scroll=[_N]
+                  Backward scroll limit.
+  -i  ........  --ignore-case
+                  Ignore case in searches.
+  -I  ........  --IGNORE-CASE
+                  Ignore case in searches and in search patterns.
+  -j [_N]  ....  --jump-target=[_N]
+                  Screen position of target lines.
+  -k [_f_i_l_e]  .  --lesskey-file=[_f_i_l_e]
+                  Use a lesskey file.
+  -m  -M  ....  --long-prompt  --LONG-PROMPT
+                  Set prompt style.
+  -n  -N  ....  --line-numbers  --LINE-NUMBERS
+                  Use line numbers.
+  -o [_f_i_l_e]  .  --log-file=[_f_i_l_e]
+                  Copy to log file (standard input only).
+  -O [_f_i_l_e]  .  --LOG-FILE=[_f_i_l_e]
+                  Copy to log file (unconditionally overwrite).
+  -p [_p_a_t_t_e_r_n]  --pattern=[_p_a_t_t_e_r_n]
+                  Start at pattern (from command line).
+  -P [_p_r_o_m_p_t]   --prompt=[_p_r_o_m_p_t]
+                  Define new prompt.
+  -q  -Q  ....  --quiet  --QUIET
+                  Quiet the terminal bell.
+  -r  ........  --raw-control-chars
+                  Output "raw" control characters.
+  -s  ........  --squeeze-blank-lines
+                  Squeeze multiple blank lines.
+  -S  ........  --chop-long-lines
+                  Chop long lines.
+  -t [_t_a_g]  ..  --tag=[_t_a_g]
+                  Find a tag.
+  -T [_t_a_g_s_f_i_l_e] --tag-file=[_t_a_g_s_f_i_l_e]
+                  Use an alternate tags file.
+  -u  -U  ....  --underline-special  --UNDERLINE-SPECIAL
+                  Change handling of backspaces.
+  -V  ........  --version
+                  Display the version number of "less".
+  -w  ........  --hilite-unread
+                  Highlight first new line after forward-screen.
+  -W  ........  --HILITE-UNREAD
+                  Highlight first new line after any forward movement.
+  -x [_N]  ....  --tabs=[_N]
+                  Set tab stops.
+  -X  ........  --no-init
+                  Don't use termcap init/deinit strings.
+  -y [_N]  ....  --max-forw-scroll=[_N]
+                  Forward scroll limit.
+  -z [_N]  ....  --window=[_N]
+                  Set size of window.
+  -" [_c[_c]]  .  --quotes=[_c[_c]]
+                  Set shell quote characters.
+  -~  ........  --tilde
+                  Don't display tildes after end of file.
  ---------------------------------------------------------------------------
 
                           LLIINNEE EEDDIITTIINNGG
@@ -160,5 +201,4 @@
  TAB                                        Complete filename & cycle.
  SHIFT-TAB                        ESC-TAB   Complete filename & reverse cycle.
  CNTL-L                                     Complete filename, list all.
-
 
