@@ -4,9 +4,9 @@
 #### Start of system configuration section. ####
 
 CC = gcc
-CFLAGS = -I. -Zomf -Zmtd -O
-LDFLAGS = -s -Zstack 512
-LIBS = 
+CFLAGS = -I. -Zomf -O
+LDFLAGS = -s -Zcrtdll -Zstack 512
+LIBS = -ltermcap
 O = obj
 
 #### End of system configuration section. ####
