@@ -149,11 +149,6 @@
 #define HAVE_SGSTAT_H	0
 
 /*
- * HAVE_STAT is 1 if your system has the stat() call.
- */
-#define	HAVE_STAT	1
-
-/*
  * HAVE_PERROR is 1 if your system has the perror() call.
  * (Actually, if it has sys_errlist, sys_nerr and errno.)
  */
@@ -260,6 +255,9 @@
 
 /* Define if you have the sigsetmask function.  */
 #define HAVE_SIGSETMASK	0
+
+/* Define if you have the stat function.  */
+#define HAVE_STAT 1
 
 /* Define if you have the strchr function.  */
 #define HAVE_STRCHR 1
