@@ -24,6 +24,7 @@
  *
  * *** NOTE: this code has been altered slightly for use in Tcl. ***
  * Slightly modified by David MacKenzie to undo most of the changes for TCL.
+ * Added regexec2 with notbol parameter. -- 4/19/99 Mark Nudelman
  */
 
 #include "less.h"
@@ -717,7 +718,7 @@ STATIC char *regprop();
  - regexec - match a regexp against a string
  */
 int
-regexec(prog, string)
+regexec2(prog, string, notbol)
 register regexp *prog;
 register char *string;
 {
@@ -748,7 +749,10 @@ register char *string;
 	}
 
 	/* Mark beginning of line for ^ . */
-	regbol = string;
+	if (notbol)
+		regbol = NULL;
+	else
+		regbol = string;
 
 	/* Simplest case:  anchored match need be tried only once. */
 	if (prog->reganch)
@@ -772,6 +776,14 @@ register char *string;
 
 	/* Failure. */
 	return(0);
+}
+
+int
+regexec(prog, string)
+register regexp *prog;
+register char *string;
+{
+	return regexec2(prog, string, 0);
 }
 
 /*

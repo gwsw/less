@@ -207,6 +207,7 @@
 /* #undef HAVE_REGCMP */
 #define HAVE_V8_REGCOMP 1
 /* #undef NO_REGEX */
+#define HAVE_REGEXEC2 1
 
 /* Define HAVE_VOID if your compiler supports the "void" type. */
 #define HAVE_VOID 1

@@ -429,7 +429,11 @@ match_pattern(line, sp, ep, notbol)
 	*sp = __loc1;
 #endif
 #if HAVE_V8_REGCOMP
+#if HAVE_REGEXEC2
+	matched = regexec2(regpattern, line, notbol);
+#else
 	matched = regexec(regpattern, line);
+#endif
 	if (!matched)
 		return (0);
 	*sp = regpattern->startp[0];
@@ -632,7 +636,9 @@ hilite_line(linepos, line, sp, ep)
 	 * look for further matches and mark them.
 	 * {{ This technique, of calling match_pattern on subsequent
 	 *    substrings of the line, may mark more than is correct
-	 *    if, for example, the pattern starts with "^". }}
+	 *    if the pattern starts with "^".  This bug is fixed
+	 *    for those regex functions that accept a notbol parameter
+	 *    (currently POSIX and V8-with-regexec2). }}
 	 */
 	searchp = line;
 	/*
