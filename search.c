@@ -801,7 +801,23 @@ search_pos(search_type)
 		linenum = adjsline(jump_sline);
 		pos = position(linenum);
 		if (search_type & SRCH_FORW)
+		{
 			pos = forw_raw_line(pos, (char **)NULL);
+			while (pos == NULL_POSITION)
+			{
+				if (++linenum >= sc_height)
+					break;
+				pos = position(linenum);
+			}
+		} else 
+		{
+			while (pos == NULL_POSITION)
+			{
+				if (--linenum < 0)
+					break;
+				pos = position(linenum);
+			}
+		}
 	}
 	return (pos);
 }

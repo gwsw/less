@@ -122,10 +122,12 @@
 /*
  * LESSKEYFILE is the filename of the default lesskey output file 
  * (in the HOME directory).
+ * LESSKEYFILE_SYS is the filename of the system-wide lesskey output file.
  * DEF_LESSKEYINFILE is the filename of the default lesskey input 
  * (in the HOME directory).
  */
 #define	LESSKEYFILE		"_less"
+#define	LESSKEYFILE_SYS		"c:\\_sysless"
 #define	DEF_LESSKEYINFILE	"_lesskey"
 
 

@@ -862,7 +862,7 @@ looks in a standard place for the lesskey file:
 On Unix systems,
 .I less
 looks for a lesskey file called "$HOME/.less".
-On MS-DOS systems,
+On MS-DOS and Windows systems,
 .I less
 looks for a lesskey file called "$HOME/_less", and if it is not found there,
 then looks for a lesskey file called "_less" in any directory specified
@@ -877,6 +877,18 @@ in the PATH environment variable.
 See the
 .I lesskey
 manual page for more details.
+.P
+A system-wide lesskey file may also be set up to provide key bindings.
+If a key is defined in both a local lesskey file and in the
+system-wide file, key bindings in the local file take precedence over 
+those in the system-wide file.
+On Unix systems, the system-wide lesskey file is /usr/local/bin/.sysless.
+(However, if 
+.I less 
+was built with a different binary directory than /usr/local/bin,
+that directory is where the .sysless file is found.)
+On MS-DOS and Windows systems, the system-wide lesskey file is c:\\_sysless.
+On OS/2 systems, the system-wide lesskey file is c:\\sysless.ini.
 
 .SH "INPUT PREPROCESSOR"
 You may define an "input preprocessor" for 
@@ -1307,6 +1319,10 @@ Environment variables may be specified either in the system environment
 as usual, or in a 
 .I lesskey
 (1) file.
+If environment variables are defined in more than one place, 
+variables defined in a local lesskey file take precedence over
+variables defined in the system environment, which take precedence
+over variables defined in the system-wide lesskey file.
 .IP COLUMNS
 Sets the number of columns on the screen.
 Takes precedence over the number of columns specified by the TERM variable.

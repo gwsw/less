@@ -98,7 +98,7 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 *v331	194	Resolve issue when buffer is bigger than display window.
 	195	Search "HaveExtra" in ethernet.c doesn't hilite all.
 *v331	196	CAPS LOCK leaks characters in Windows.
-	197	Default system-wide LESSKEY file.
+*v342	197	Default system-wide LESSKEY file.
 *v334	198	On Windows, "j" at EOF scrolls down.
 	199	less +F on file with no newline, additional chars display on 
 		next line.
@@ -109,5 +109,5 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 *v340	204	F while search pattern active doesn't go to end of long line.
 *v340	205	-G suppress -W hiliting.
 	206	Support UTF-8.
-	207	Should check entire page before saying "Nothing to search".
-	208	Should not set '' mark in help file.
+*v342	207	Should check entire page before saying "Nothing to search".
+*v342	208	Should not set '' mark in help file.

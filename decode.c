@@ -227,6 +227,7 @@ struct tablelist
 static struct tablelist *list_fcmd_tables = NULL;
 static struct tablelist *list_ecmd_tables = NULL;
 static struct tablelist *list_var_tables = NULL;
+static struct tablelist *list_sysvar_tables = NULL;
 
 
 /*
@@ -303,9 +304,13 @@ init_cmds()
 	add_ecmd_table((char*)edittable, sizeof(edittable));
 #if USERFILE
 	/*
+	 * Try to add the tables in the system lesskey file.
+	 */
+	add_hometable("LESSKEY_SYSTEM", LESSKEYFILE_SYS, 1);
+	/*
 	 * Try to add the tables in the standard lesskey file "$HOME/.less".
 	 */
-	add_hometable();
+	add_hometable("LESSKEY", LESSKEYFILE, 0);
 #endif
 }
 
@@ -366,12 +371,13 @@ add_ecmd_table(buf, len)
 /*
  * Add an environment variable table.
  */
-	public void
-add_var_table(buf, len)
+	static void
+add_var_table(tlist, buf, len)
+	struct tablelist **tlist;
 	char *buf;
 	int len;
 {
-	if (add_cmd_table(&list_var_tables, buf, len) < 0)
+	if (add_cmd_table(tlist, buf, len) < 0)
 		error("Warning: environment variables from lesskey file unavailable", NULL_PARG);
 }
 
@@ -528,7 +534,13 @@ lgetenv(var)
 	a = cmd_decode(list_var_tables, var, &s);
 	if (a == EV_OK)
 		return (s);
-	return (getenv(var));
+	s = getenv(var);
+	if (s != NULL && *s != '\0')
+		return (s);
+	a = cmd_decode(list_sysvar_tables, var, &s);
+	if (a == EV_OK)
+		return (s);
+	return (NULL);
 }
 
 #if USERFILE
@@ -573,9 +585,10 @@ old_lesskey(buf, len)
  * Process a new (post-v241) lesskey file.
  */
 	static int
-new_lesskey(buf, len)
+new_lesskey(buf, len, sysvar)
 	char *buf;
 	int len;
+	int sysvar;
 {
 	char *p;
 	register int c;
@@ -607,7 +620,8 @@ new_lesskey(buf, len)
 			break;
 		case VAR_SECTION:
 			n = gint(&p);
-			add_var_table(p, n);
+			add_var_table((sysvar) ? 
+				&list_sysvar_tables : &list_var_tables, p, n);
 			p += n;
 			break;
 		case END_SECTION:
@@ -625,8 +639,9 @@ new_lesskey(buf, len)
  * Set up a user command table, based on a "lesskey" file.
  */
 	public int
-lesskey(filename)
+lesskey(filename, sysvar)
 	char *filename;
+	int sysvar;
 {
 	register char *buf;
 	register POSITION len;
@@ -687,25 +702,30 @@ lesskey(filename)
 	if (buf[0] != C0_LESSKEY_MAGIC || buf[1] != C1_LESSKEY_MAGIC ||
 	    buf[2] != C2_LESSKEY_MAGIC || buf[3] != C3_LESSKEY_MAGIC)
 		return (old_lesskey(buf, (int)len));
-	return (new_lesskey(buf, (int)len));
+	return (new_lesskey(buf, (int)len, sysvar));
 }
 
 /*
  * Add the standard lesskey file "$HOME/.less"
  */
 	public void
-add_hometable()
+add_hometable(envname, def_filename, sysvar)
+	char *envname;
+	char *def_filename;
+	int sysvar;
 {
 	char *filename;
 	PARG parg;
 
-	if ((filename = lgetenv("LESSKEY")) != NULL)
+	if ((filename = lgetenv(envname)) != NULL)
 		filename = save(filename);
+	else if (sysvar)
+		filename = save(def_filename);
 	else
-		filename = homefile(LESSKEYFILE);
+		filename = homefile(def_filename);
 	if (filename == NULL)
 		return;
-	if (lesskey(filename) < 0)
+	if (lesskey(filename, sysvar) < 0)
 	{
 		parg.p_string = filename;
 		error("Cannot use lesskey file \"%s\"", &parg);

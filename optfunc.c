@@ -181,7 +181,7 @@ opt_k(type, s)
 	switch (type)
 	{
 	case INIT:
-		if (lesskey(s))
+		if (lesskey(s, 0))
 		{
 			parg.p_string = unquote_file(s);
 			error("Cannot use lesskey file \"%s\"", &parg);

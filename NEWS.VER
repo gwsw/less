@@ -20,6 +20,8 @@
 
 * New escape for prompt strings: %c is replaced by column number.
 
+* A system-wide lesskey file is supported.
+
 ======================================================================
 
 
