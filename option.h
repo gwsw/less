@@ -38,6 +38,7 @@
 #define	REPAINT		040	/* Repaint screen after toggling option */
 #define	NO_TOGGLE	0100	/* Option cannot be toggled with "-" cmd */
 #define	HL_REPAINT	0200	/* Repaint hilites after toggling option */
+#define	NO_QUERY	0400	/* Option cannot be queried with "_" cmd */
 
 #define	OTYPE		(BOOL|TRIPLE|NUMBER|STRING|NOVAR)
 
@@ -57,7 +58,7 @@
 struct option
 {
 	char oletter;		/* The controlling letter (a-z) */
-	char otype;		/* Type of the option */
+	int otype;		/* Type of the option */
 	int odefault;		/* Default value */
 	int *ovar;		/* Pointer to the associated variable */
 	void (*ofunc)();	/* Pointer to special handling function */
