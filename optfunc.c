@@ -130,7 +130,7 @@ opt__O(type, s)
 	int type;
 	char *s;
 {
-	force_logfile = 1;
+	force_logfile = TRUE;
 	opt_o(type, s);
 }
 
@@ -155,7 +155,7 @@ opt_l(type, s)
 			error("The -l option is obsolete.  Use -o", NULL_PARG);
 			return;
 		}
-		plusoption = 1;
+		plusoption = TRUE;
 		ungetsc(s);
 		break;
 	case QUERY:
@@ -227,7 +227,7 @@ opt_t(type, s)
 		if ((pos = tagsearch()) == NULL_POSITION)
 		{
 			if (edit_ifile(save_ifile))
-				quit(-1);
+				quit(1);
 			break;
 		}
 		jump_loc(pos, jump_sline);
@@ -283,7 +283,7 @@ opt_p(type, s)
 		 * {{ This won't work if the "/" command is
 		 *    changed or invalidated by a .lesskey file. }}
 		 */
-		plusoption = 1;
+		plusoption = TRUE;
 		ungetsc(s);
 		ungetsc("/");
 		break;
@@ -524,7 +524,7 @@ opt_query(type, s)
 		get_term();
 		open_getchr();
 		init();
-		any_display = 1;
+		any_display = TRUE;
 		help(1);
 		quit(0);
 		/*NOTREACHED*/

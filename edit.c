@@ -220,7 +220,7 @@ edit_ifile(ifile)
 	alt_filename = open_altfile(filename, &f, &alt_pipe);
 	open_filename = (alt_filename != NULL) ? alt_filename : filename;
 
-	keepopen = 0;
+	keepopen = FALSE;
 	if (alt_pipe != NULL)
 	{
 		/*
@@ -234,7 +234,7 @@ edit_ifile(ifile)
 		 * Use standard input.
 		 */
 		f = fd0;
-		keepopen = 1;
+		keepopen = TRUE;
 	} else if ((parg.p_string = bad_file(open_filename)) != NULL)
 	{
 		/*
@@ -306,7 +306,7 @@ edit_ifile(ifile)
 	curr_altpipe = alt_pipe;
 	set_open(curr_ifile); /* File has been opened */
 	get_pos(curr_ifile, &initial_scrpos);
-	new_file = 1;
+	new_file = TRUE;
 	ch_init(f, keepopen);
 
 	if (every_first_cmd != NULL)
@@ -314,7 +314,7 @@ edit_ifile(ifile)
 
 	no_display = !any_display;
 	flush();
-	any_display = 1;
+	any_display = TRUE;
 
 	if (is_tty)
 	{
@@ -403,7 +403,7 @@ edit_list(filelist)
 		 */
 		return (0);
 	if (edit_ifile(save_curr_ifile))
-		quit(-1);
+		quit(1);
 	return (edit(good_filename));
 }
 

@@ -114,7 +114,7 @@ fch_get()
 	POSITION pos;
 	POSITION len;
 
-	slept = 0;
+	slept = FALSE;
 
 	/*
 	 * Look for a buffer holding the desired block.
@@ -150,7 +150,7 @@ fch_get()
 				/*
 				 * Allocation failed: turn off autobuf.
 				 */
-				autobuf = 0;
+				autobuf = OPT_OFF;
 	}
 	bp = ch_buftail;
 	bp->block = ch_block;
@@ -225,7 +225,7 @@ fch_get()
 #if !MSOFTC
 	 		sleep(1);
 #endif
-			slept = 1;
+			slept = TRUE;
 		}
 		if (ABORT_SIGS())
 			return (EOI);
@@ -265,13 +265,13 @@ fch_get()
 	public void
 end_logfile()
 {
-	static int tried = 0;
+	static int tried = FALSE;
 
 	if (logfile < 0)
 		return;
 	if (!tried && ch_fsize == NULL_POSITION)
 	{
-		tried = 1;
+		tried = TRUE;
 		ierror("Finishing logfile", NULL_PARG);
 		while (ch_forw_get() != EOI)
 			if (ABORT_SIGS())
@@ -291,7 +291,7 @@ end_logfile()
 sync_logfile()
 {
 	register struct buf *bp;
-	int warned = 0;
+	int warned = FALSE;
 	long block;
 	long last_block;
 
@@ -306,7 +306,7 @@ sync_logfile()
 				{
 					error("Warning: log file is incomplete",
 						NULL_PARG);
-					warned = 1;
+					warned = TRUE;
 				}
 				break;
 			}
@@ -332,8 +332,8 @@ buffered(block)
 
 	for (bp = ch_bufhead;  bp != END_OF_CHAIN;  bp = bp->next)
 		if (bp->block == block)
-			return (1);
-	return (0);
+			return (TRUE);
+	return (FALSE);
 }
 
 /*
@@ -647,7 +647,7 @@ ch_init(f, keepopen)
 	public void
 ch_close()
 {
-	int keepstate = 0;
+	int keepstate = FALSE;
 
 	if (ch_flags & CAN_SEEK)
 	{
@@ -656,7 +656,7 @@ ch_close()
 		 */
 		ch_delbufs();
 	} else
-		keepstate = 1;
+		keepstate = TRUE;
 	if (!(ch_flags & KEEP_OPEN))
 	{
 		/*
@@ -666,7 +666,7 @@ ch_close()
 		close(ch_file);
 		ch_file = -1;
 	} else
-		keepstate = 1;
+		keepstate = TRUE;
 	if (!keepstate)
 	{
 		/*

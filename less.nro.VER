@@ -6,7 +6,7 @@ less \- opposite of more
 .br
 .B "less -V"
 .br
-.B "less [-[+]aBcCdeEfHimMnNqQrsSuUw]"
+.B "less [-[+]aBcCdeEfgGHiImMnNqQrsSuUw]"
 .br
 .B "     [-b \fIbufs\fP] [-h \fIlines\fP] [-j \fIline\fP] [-k \fIkeyfile\fP]"
 .br
@@ -497,7 +497,12 @@ backward, -h0 is implied.)
 Causes searches to ignore case; that is,
 uppercase and lowercase are considered identical.
 This option is ignored if any uppercase letters
-appear in the search pattern.
+appear in the search pattern; 
+in other words,
+if a pattern contains uppercase letters, then that search does not ignore case.
+.IP -I
+Like -i, but searches ignore case even if 
+the pattern contains uppercase letters.
 .IP -j\fIn\fP
 Specifies a line on the screen where "target" lines
 are to be positioned.

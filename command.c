@@ -638,7 +638,7 @@ multi_search(pattern, n)
 		 * Restore the file we were originally viewing.
 		 */
 		if (edit_ifile(save_ifile))
-			quit(-1);
+			quit(1);
 	}
 }
 
@@ -1090,7 +1090,7 @@ commands()
 			 * buffers is not sufficient.
 			 */
 			if (edit_ifile(curr_ifile))
-				quit(-1);
+				quit(1);
 			break;
 #else
 			error("Command not available", NULL_PARG);

@@ -237,9 +237,6 @@ undo_search()
 #endif
 }
 
-/*
- * Compile a pattern in preparation for a pattern match.
- */
 	static int
 compile_pattern(pattern)
 	char *pattern;
@@ -295,6 +292,35 @@ compile_pattern(pattern)
 	last_pattern = lpbuf;
 #endif
 	return (0);
+}
+
+/*
+ */
+	static void
+uncompile_pattern(pattern)
+	char *pattern;
+{
+#if HAVE_POSIX_REGCOMP
+	if (regpattern != NULL)
+		regfree(regpattern);
+	regpattern = NULL;
+#endif
+#if HAVE_RE_COMP
+	re_pattern = 0;
+#endif
+#if HAVE_REGCMP
+	if (cpattern != NULL)
+		free(cpattern);
+	cpattern = NULL;
+#endif
+#if HAVE_V8_REGCOMP
+	if (regpattern != NULL)
+		free(regpattern);
+	regpattern = NULL;
+#endif
+#if NO_REGEX
+	last_pattern = NULL;
+#endif
 }
 
 /*
@@ -582,10 +608,17 @@ hilite_line(linepos, line, sp, ep)
 chg_caseless()
 {
 	if (!is_ucase_pattern)
+		/*
+		 * Pattern did not have uppercase.
+		 * Just set the search caselessness to the global caselessness.
+		 */
 		is_caseless = caseless;
-#ifdef HILITE_SEARCH
-/*	chg_hilite();*/
-#endif
+	else
+		/*
+		 * Pattern did have uppercase.
+		 * Discard the pattern; we can't change search caselessness now.
+		 */
+		uncompile_pattern();
 }
 
 #ifdef HILITE_SEARCH
@@ -848,6 +881,7 @@ search(search_type, pattern, n)
 	int n;
 {
 	POSITION pos;
+	int ucase;
 
 	if (pattern == NULL || *pattern == '\0')
 	{
@@ -875,14 +909,17 @@ search(search_type, pattern, n)
 		/*
 		 * Compile the pattern.
 		 */
+		ucase = is_ucase(pattern);
+		if (caseless == OPT_ONPLUS)
+			cvt_text(pattern, pattern, CVT_TO_LC);
 		if (compile_pattern(pattern) < 0)
 			return (-1);
 		/*
 		 * Ignore case if -i is set AND 
 		 * the pattern is all lowercase.
 		 */
-		is_ucase_pattern = is_ucase(pattern);
-		if (is_ucase_pattern)
+		is_ucase_pattern = ucase;
+		if (is_ucase_pattern && caseless != OPT_ONPLUS)
 			is_caseless = 0;
 		else
 			is_caseless = caseless;

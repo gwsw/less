@@ -84,6 +84,17 @@ void free();
 #define	NULL	0
 #endif
 
+#ifndef TRUE
+#define	TRUE		1
+#endif
+#ifndef FALSE
+#define	FALSE		0
+#endif
+
+#define	OPT_OFF		0
+#define	OPT_ON		1
+#define	OPT_ONPLUS	2
+
 #ifndef HAVE_MEMCPY
 #ifndef memcpy
 #define	memcpy(to,from,len)	bcopy((from),(to),(len))

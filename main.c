@@ -38,7 +38,7 @@ public int	is_tty;
 public IFILE	curr_ifile = NULL_IFILE;
 public IFILE	old_ifile = NULL_IFILE;
 public struct scrpos initial_scrpos;
-public int	any_display = 0;
+public int	any_display = FALSE;
 public int	wscroll;
 public char *	progname;
 public int	quitting;
@@ -51,7 +51,7 @@ extern int	force_open;
 
 #if LOGFILE
 public int	logfile = -1;
-public int	force_logfile = 0;
+public int	force_logfile = FALSE;
 public char *	namelogfile = NULL;
 #endif
 

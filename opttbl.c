@@ -68,7 +68,7 @@ public int hilite_search;	/* Highlight matched search patterns? */
  */
 static struct option option[] =
 {
-	{ 'a', BOOL, 0, &how_search, NULL,
+	{ 'a', BOOL, OPT_OFF, &how_search, NULL,
 		"Search includes displayed screen",
 		"Search skips displayed screen",
 		NULL
@@ -78,17 +78,17 @@ static struct option option[] =
 		"%d buffers",
 		NULL
 	},
-	{ 'B', BOOL, 1, &autobuf, NULL,
+	{ 'B', BOOL, OPT_ON, &autobuf, NULL,
 		"Don't automatically allocate buffers",
 		"Automatically allocate buffers when needed",
 		NULL
 	},
-	{ 'c', TRIPLE, 0, &top_scroll, NULL,
+	{ 'c', TRIPLE, OPT_OFF, &top_scroll, NULL,
 		"Repaint by scrolling from bottom of screen",
 		"Repaint by clearing each line",
 		"Repaint by painting from top of screen"
 	},
-	{ 'd', BOOL|NO_TOGGLE, 0, &know_dumb, NULL,
+	{ 'd', BOOL|NO_TOGGLE, OPT_OFF, &know_dumb, NULL,
 		"Assume intelligent terminal",
 		"Assume dumb terminal",
 		NULL
@@ -98,12 +98,12 @@ static struct option option[] =
 		"color desc: ", NULL, NULL
 	},
 #endif
-	{ 'e', TRIPLE, 0, &quit_at_eof, NULL,
+	{ 'e', TRIPLE, OPT_OFF, &quit_at_eof, NULL,
 		"Don't quit at end-of-file",
 		"Quit at end-of-file",
 		"Quit immediately at end-of-file"
 	},
-	{ 'f', BOOL, 0, &force_open, NULL,
+	{ 'f', BOOL, OPT_OFF, &force_open, NULL,
 		"Open only regular files",
 		"Open even non-regular files",
 		NULL
@@ -120,15 +120,15 @@ static struct option option[] =
 		"Backwards scroll limit is %d lines",
 		NULL
 	},
-	{ 'H', BOOL|NO_TOGGLE, 0, &nohelp, NULL,
+	{ 'H', BOOL|NO_TOGGLE, OPT_OFF, &nohelp, NULL,
 		"Allow help command",
 		"Don't allow help command",
 		NULL
 	},
-	{ 'i', BOOL|HL_REPAINT, 0, &caseless, opt_i,
+	{ 'i', TRIPLE|HL_REPAINT, OPT_OFF, &caseless, opt_i,
 		"Case is significant in searches",
 		"Ignore case in searches",
-		NULL
+		"Ignore case in searches and in patterns"
 	},
 	{ 'j', NUMBER, 1, &jump_sline, NULL,
 		"Target line: ",
@@ -148,12 +148,12 @@ static struct option option[] =
 		NULL, NULL, NULL
 	},
 #endif
-	{ 'm', TRIPLE, 0, &pr_type, NULL,
+	{ 'm', TRIPLE, OPT_OFF, &pr_type, NULL,
 		"Short prompt",
 		"Medium prompt",
 		"Long prompt"
 	},
-	{ 'n', TRIPLE|REPAINT, 1, &linenums, NULL,
+	{ 'n', TRIPLE|REPAINT, OPT_ON, &linenums, NULL,
 		"Don't use line numbers",
 		"Use line numbers",
 		"Constantly display line numbers"
@@ -172,22 +172,22 @@ static struct option option[] =
 	{ 'P', STRING, 0, NULL, opt__P,
 		"prompt: ", NULL, NULL
 	},
-	{ 'q', TRIPLE, 0, &quiet, NULL,
+	{ 'q', TRIPLE, OPT_OFF, &quiet, NULL,
 		"Ring the bell for errors AND at eof/bof",
 		"Ring the bell for errors but not at eof/bof",
 		"Never ring the bell"
 	},
-	{ 'r', BOOL|REPAINT, 1, &ctldisp, NULL,
+	{ 'r', BOOL|REPAINT, OPT_ON, &ctldisp, NULL,
 		"Display control characters directly",
 		"Display control characters as ^X",
 		NULL
 	},
-	{ 's', BOOL|REPAINT, 0, &squeeze, NULL,
+	{ 's', BOOL|REPAINT, OPT_OFF, &squeeze, NULL,
 		"Display all blank lines",
 		"Squeeze multiple blank lines",
 		NULL
 	},
-	{ 'S', BOOL|REPAINT, 0, &chopline, NULL,
+	{ 'S', BOOL|REPAINT, OPT_OFF, &chopline, NULL,
 		"Fold long lines",
 		"Chop long lines",
 		NULL
@@ -200,7 +200,7 @@ static struct option option[] =
 		"tags file: ", NULL, NULL
 	},
 #endif
-	{ 'u', TRIPLE|REPAINT, 0, &bs_mode, NULL,
+	{ 'u', TRIPLE|REPAINT, OPT_OFF, &bs_mode, NULL,
 		"Display underlined text in underline mode",
 		"Backspaces cause overstrike",
 		"Print backspace as ^H"
@@ -208,7 +208,7 @@ static struct option option[] =
 	{ 'V', NOVAR, 0, NULL, opt__V,
 		NULL, NULL, NULL
 	},
-	{ 'w', BOOL|REPAINT, 1, &twiddle, NULL,
+	{ 'w', BOOL|REPAINT, OPT_ON, &twiddle, NULL,
 		"Display nothing for lines after end-of-file",
 		"Display ~ for lines after end-of-file",
 		NULL
@@ -218,7 +218,7 @@ static struct option option[] =
 		"Tab stops every %d spaces", 
 		NULL
 	},
-	{ 'X', BOOL|NO_TOGGLE, 0, &no_init, NULL,
+	{ 'X', BOOL|NO_TOGGLE, OPT_OFF, &no_init, NULL,
 		"Send init/deinit strings to terminal",
 		"Don't use init/deinit strings",
 		NULL

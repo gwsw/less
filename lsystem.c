@@ -166,7 +166,7 @@ lsystem(cmd)
 	 * Reopen the current input file.
 	 */
 	if (edit_ifile(save_ifile))
-		quit(-1);
+		quit(1);
 
 #if defined(SIGWINCH) || defined(SIGWIND)
 	/*

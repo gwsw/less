@@ -471,6 +471,7 @@
  *	v264: Allow EXTRA string after line-edit cmd	12/23/94
  *	      in lesskey file.
  *	v265: Add LESSOPEN=|cmd syntax.			12/24/94
+ *	v266: Add -I flag.				12/26/94
  */
 
-char version[] = "265";
+char version[] = "266";

@@ -84,6 +84,7 @@
   -G            Highlight ALL matches for previous search pattern.
   -h [_N]        Backward scroll limit.
   -i            Ignore case in searches.
+  -I            Ignore case in searches and in search patterns.
   -j [_N]        Screen position of target lines.
   -k [_f_i_l_e]     Use a lesskey file.
   -m  -M        Set prompt style.

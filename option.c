@@ -38,7 +38,7 @@
 #include "option.h"
 
 static struct option *pendopt;
-public int plusoption;
+public int plusoption = FALSE;
 
 static char *propt();
 static char *optstring();
@@ -77,7 +77,7 @@ scan_option(s)
 		return;
 	}
 
-	set_default = 0;
+	set_default = FALSE;
 
 	while (*s != '\0')
 	{
@@ -107,7 +107,7 @@ scan_option(s)
 			 * "++" means process the commands at the start of
 			 * EVERY input file.
 			 */
-			plusoption = 1;
+			plusoption = TRUE;
 			if (*s == '+')
 				every_first_cmd = save(++s);
 			else
@@ -363,7 +363,7 @@ toggle_option(c, s, how_toggle)
 	}
 
 	if (how_toggle != OPT_NO_TOGGLE && (o->otype & REPAINT))
-		screen_trashed = 1;
+		screen_trashed = TRUE;
 }
 
 /*
@@ -375,9 +375,9 @@ flip_triple(val, lc)
 	int lc;
 {
 	if (lc)
-		return ((val == 1) ? 0 : 1);
+		return ((val == OPT_ON) ? OPT_OFF : OPT_ON);
 	else
-		return ((val == 2) ? 0 : 2);
+		return ((val == OPT_ONPLUS) ? OPT_OFF : OPT_ONPLUS);
 }
 
 /*
@@ -406,8 +406,8 @@ single_char_option(c)
 
 	o = findopt(c);
 	if (o == NULL)
-		return (1);
-	return (o->otype & (BOOL|TRIPLE|NOVAR|NO_TOGGLE));
+		return (TRUE);
+	return ((o->otype & (BOOL|TRIPLE|NOVAR|NO_TOGGLE)) != 0);
 }
 
 /*
@@ -503,17 +503,17 @@ getnum(sp, c, errp)
 	PARG parg;
 
 	s = skipsp(*sp);
-	neg = 0;
+	neg = FALSE;
 	if (*s == '-')
 	{
-		neg = 1;
+		neg = TRUE;
 		s++;
 	}
 	if (*s < '0' || *s > '9')
 	{
 		if (errp != NULL)
 		{
-			*errp = 1;
+			*errp = TRUE;
 			return (-1);
 		}
 		parg.p_string = propt(c);
@@ -526,7 +526,7 @@ getnum(sp, c, errp)
 		n = 10 * n + *s++ - '0';
 	*sp = s;
 	if (errp != NULL)
-		*errp = 0;
+		*errp = FALSE;
 	if (neg)
 		n = -n;
 	return (n);
