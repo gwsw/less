@@ -56,7 +56,7 @@ extern int erase_char, kill_char;
  * Command table is ordered roughly according to expected
  * frequency of use, so the common commands are near the beginning.
  */
-static char cmdtable[] =
+static unsigned char cmdtable[] =
 {
 	'\r',0,				A_F_LINE,
 	'\n',0,				A_F_LINE,
@@ -158,7 +158,7 @@ static char cmdtable[] =
 	'Z','Z',0,			A_QUIT
 };
 
-static char edittable[] =
+static unsigned char edittable[] =
 {
 	'\t',0,	    		EC_F_COMPLETE,	/* TAB */
 	'\17',0,		EC_B_COMPLETE,	/* BACKTAB */
@@ -643,6 +643,10 @@ editchar(c, flags)
 		while (nch > 1) {
 			ungetcc(usercmd[--nch]);
 		}
+	} else
+	{
+		if (s != NULL)
+			ungetsc(s);
 	}
 	return action;
 }

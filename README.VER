@@ -64,9 +64,6 @@ INSTALLATION (MS-DOS systems only)
    variables CC and/or LIBDIR to override the definitions in MAKEFILE.
 
 4. If you wish, you may edit DEFINES.H to remove some optional features.
-   If you wish to build a "secure" version of less (which disables all
-   features which might allow a user to do unintended things to the system
-   on which less is running), edit DEFINES.H and define SECURE to 1.
    If you choose not to include some features in your version, you may
    wish to edit the manual page LESS.MAN and the help page LESS.HLP 
    to remove the descriptions of the features which you are removing.

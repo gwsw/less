@@ -468,6 +468,8 @@
  *	v261: Use system WERASE char as EC_W_BACKSPACE.	12/14/94
  *	v262: Add -g/-G flag and screen_hilite.		12/16/94
  *	v263: Reimplement/optimize -G flag behavior.	12/20/94
+ *	v264: Allow EXTRA string after line-edit cmd	12/23/94
+ *	      in lesskey file.
  */
 
-char version[] = "263";
+char version[] = "264";
