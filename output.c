@@ -42,6 +42,7 @@ extern int sc_width;
 extern int so_s_width, so_e_width;
 extern int screen_trashed;
 extern int any_display;
+extern int is_tty;
 
 /*
  * Display the line which is in the line buffer.
@@ -133,30 +134,39 @@ flush()
 	register int fd;
 
 #if MSDOS_COMPILER==WIN32C
-    {
-	DWORD nwritten = 0;
-	extern HANDLE con_out;
-	*ob = '\0';
-	WriteConsole(con_out, obuf, strlen(obuf), &nwritten, NULL);
-    }
+	if (is_tty && any_display)
+	{
+		DWORD nwritten = 0;
+		extern HANDLE con_out;
+		*ob = '\0';
+		WriteConsole(con_out, obuf, strlen(obuf), &nwritten, NULL);
+		return;
+	}
 #else
 #if MSDOS_COMPILER==MSOFTC
-	*ob = '\0';
-	_outtext(obuf);
+	if (is_tty && any_display)
+	{
+		*ob = '\0';
+		_outtext(obuf);
+		return;
+	}
 #else
 #if MSDOS_COMPILER==BORLANDC
-	*ob = '\0';
-	cputs(obuf);
-#else
+	if (is_tty && any_display)
+	{
+		*ob = '\0';
+		cputs(obuf);
+		return;
+	}
+#endif
+#endif
+#endif
 	n = ob - obuf;
 	if (n == 0)
 		return;
 	fd = (any_display) ? 1 : 2;
 	if (write(fd, obuf, n) != n)
 		screen_trashed = 1;
-#endif
-#endif
-#endif
 	ob = obuf;
 }
 
@@ -175,11 +185,11 @@ putchr(c)
 		clear_bot();
 	}
 #if MSDOS_COMPILER
-	if (c == '\n')
+	if (c == '\n' && is_tty)
 		putchr('\r');
 #else
 #ifdef _OSK
-	if (c == '\n')  /* In OS-9, '\n' == 0x0D */
+	if (c == '\n' && is_tty)  /* In OS-9, '\n' == 0x0D */
 		putchr(0x0A);
 #endif
 #endif
