@@ -41,6 +41,10 @@ less: $(OBJ)
 lesskey: lesskey.obj version.obj
 	$(CC) $(LDFLAGS) -o $@ lesskey.obj version.obj $(LIBS)
 
+defines.h: defines.dos
+	-del defines.h
+	-ren defines.dos defines.h
+
 $(OBJ): less.h defines.h
 
 clean:
