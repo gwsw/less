@@ -110,7 +110,8 @@ config.status: configure
 lint:
 	lint -I. $(CPPFLAGS) $(SRC)
 newfuncs:
-	awk -f mkfuncs.awk $(SRC) >newfuncs
+	mv -f funcs.h funcs.h.old
+	awk -f mkfuncs.awk $(SRC) >funcs.h
 clean:
 	rm -f *.$(O) core less lesskey
 
