@@ -211,6 +211,7 @@ protochar(c, where)
 	POSITION len;
 	int n;
 	IFILE h;
+	char *s;
 
 	switch (c)
 	{
@@ -227,7 +228,9 @@ protochar(c, where)
 		break;
 #endif
 	case 'f':	/* File name */
-		ap_str(get_filename(curr_ifile));
+		s = unquote_file(get_filename(curr_ifile));
+		ap_str(s);
+		free(s);
 		break;
 	case 'i':	/* Index into list of files */
 		ap_int(get_index(curr_ifile));
@@ -273,8 +276,11 @@ protochar(c, where)
 	case 'x':	/* Name of next file */
 		h = next_ifile(curr_ifile);
 		if (h != NULL_IFILE)
-			ap_str(get_filename(h));
-		else
+		{
+			s = unquote_file(get_filename(h));
+			ap_str(s);
+			free(s);
+		} else
 			ap_quest();
 		break;
 	}

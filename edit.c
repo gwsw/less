@@ -140,6 +140,7 @@ back_textlist(tlist, prev)
 close_file()
 {
 	struct scrpos scrpos;
+	char *filename;
 	
 	if (curr_ifile == NULL_IFILE)
 		return;
@@ -164,8 +165,9 @@ close_file()
 	 */
 	if (curr_altfilename != NULL)
 	{
-		close_altfile(curr_altfilename, get_filename(curr_ifile),
-			curr_altpipe);
+		filename = unquote_file(get_filename(curr_ifile));
+		close_altfile(curr_altfilename, filename, curr_altpipe);
+		free(filename);
 		free(curr_altfilename);
 		curr_altfilename = NULL;
 	}
