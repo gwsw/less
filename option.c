@@ -116,8 +116,7 @@ scan_option(s)
 			 * EVERY input file.
 			 */
 			plusoption = TRUE;
-			str = s;
-			s = optstring(s, propt('+'), NULL);
+			s = optstring(s, &str, propt('+'), NULL);
 			if (*str == '+')
 				every_first_cmd = save(++str);
 			else
@@ -225,8 +224,7 @@ scan_option(s)
 			 * All processing of STRING options is done by 
 			 * the handling function.
 			 */
-			str = s;
-			s = optstring(s, printopt, o->odesc[1]);
+			s = optstring(s, &str, printopt, o->odesc[1]);
 			break;
 		case NUMBER:
 			if (*s == '\0')
@@ -544,8 +542,9 @@ nopendopt()
  * Return a pointer to the remainder of the string, if any.
  */
 	static char *
-optstring(s, printopt, validchars)
+optstring(s, p_str, printopt, validchars)
 	char *s;
+	char **p_str;
 	char *printopt;
 	char *validchars;
 {
@@ -557,7 +556,9 @@ optstring(s, printopt, validchars)
 		nostring(printopt);
 		quit(QUIT_ERROR);
 	}
+	*p_str = s;
 	for (p = s;  *p != '\0';  p++)
+	{
 		if (*p == END_OPTION_STRING ||
 		    (validchars != NULL && strchr(validchars, *p) == NULL))
 		{
@@ -565,15 +566,19 @@ optstring(s, printopt, validchars)
 			{
 			case END_OPTION_STRING:
 			case ' ':  case '\t':  case '-':
+				/* Replace the char with a null to terminate string. */
+				*p++ = '\0';
 				break;
 			default:
-				parg.p_string = p;
-				error("Option string needs delimiter before %s", &parg);
+				/* Cannot replace char; make a copy of the string. */
+				*p_str = (char *) ecalloc(p-s+1, sizeof(char));
+				strncpy(*p_str, s, p-s);
+				(*p_str)[p-s] = '\0';
 				break;
 			}
-			*p = '\0';
-			return (p+1);
+			break;
 		}
+	}
 	return (p);
 }
 
