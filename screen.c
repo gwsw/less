@@ -112,6 +112,7 @@ public int ul_s_width, ul_e_width;	/* Printing width of underline seq */
 public int so_s_width, so_e_width;	/* Printing width of standout seq */
 public int bl_s_width, bl_e_width;	/* Printing width of blink seq */
 public int above_mem, below_mem;	/* Memory retained above/below screen */
+public int can_goto;			/* Can move cursor to any line */
 
 static char *cheaper();
 
@@ -568,6 +569,40 @@ get_editkeys()
 	add_ecmd_table(kecmdtable, sz_kecmdtable);
 }
 
+#if DEBUG
+	static void
+get_debug_term()
+{
+	auto_wrap = 1;
+	ignaw = 1;
+	so_s_width = so_e_width = 0;
+	bo_s_width = bo_e_width = 0;
+	ul_s_width = ul_e_width = 0;
+	bl_s_width = bl_e_width = 0;
+	sc_s_keypad =	"(InitKey)";
+	sc_e_keypad =	"(DeinitKey)";
+	sc_init =	"(InitTerm)";
+	sc_deinit =	"(DeinitTerm)";
+	sc_eol_clear =	"(ClearEOL)";
+	sc_eos_clear =	"(ClearEOS)";
+	sc_clear =	"(ClearScreen)";
+	sc_move =	"(Move<%d,%d>)";
+	sc_s_in =	"(SO+)";
+	sc_s_out =	"(SO-)";
+	sc_u_in =	"(UL+)";
+	sc_u_out =	"(UL-)";
+	sc_b_in =	"(BO+)";
+	sc_b_out =	"(BO-)";
+	sc_bl_in =	"(BL+)";
+	sc_bl_out =	"(BL-)";
+	sc_visual_bell ="(VBell)";
+	sc_backspace =	"(BS)";
+	sc_home =	"(Home)";
+	sc_lower_left =	"(LL)";
+	sc_addline =	"(AddLine)";
+}
+#endif
+
 /*
  * Get terminal capabilities via termcap.
  */
@@ -597,6 +632,14 @@ get_term()
 	 */
 	scrsize();
 	pos_init();
+
+#if DEBUG
+	if (strncmp(term,"LESSDEBUG",9) == 0)
+	{
+		get_debug_term();
+		return;
+	}
+#endif /* DEBUG */
 
 	auto_wrap = tgetflag("am");
 	ignaw = tgetflag("xn");
@@ -674,7 +717,9 @@ get_term()
 		 * We need it only if we don't have home or lower-left.
 		 */
 		sc_move = "";
-	}
+		can_goto = 0;
+	} else
+		can_goto = 1;
 
 	sc_s_in = tgetstr("so", &sp);
 	if (hard || sc_s_in == NULL)
@@ -900,6 +945,19 @@ add_line()
 lower_left()
 {
 	tputs(sc_lower_left, 1, putchr);
+}
+
+/*
+ * Goto a specific line on the screen.
+ */
+	public void
+goto_line(slinenum)
+	int slinenum;
+{
+	char *sc_goto;
+
+	sc_goto = tgoto(sc_move, 0, slinenum);
+	tputs(sc_goto, 1, putchr);
 }
 
 /*
