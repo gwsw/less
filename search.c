@@ -61,6 +61,7 @@ extern int linenums;
 extern int sc_height;
 extern int jump_sline;
 extern int bs_mode;
+extern int ignore_eoi;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int screen_trashed;
@@ -798,7 +799,7 @@ search_range(pos, endpos, search_type, n, plinepos, pendpos)
 			 * Reached EOF/BOF without a match.
 			 */
 			if (pendpos != NULL)
-				*pendpos = NULL_POSITION;
+				*pendpos = oldpos;
 			return (n);
 		}
 
@@ -811,10 +812,8 @@ search_range(pos, endpos, search_type, n, plinepos, pendpos)
 		 * we're "far" from the last place we remembered it.
 		 */
 		if (linenums && abs((int)(pos - oldpos)) > 1024)
-		{
 			add_lnum(linenum, pos);
-			oldpos = pos;
-		}
+		oldpos = pos;
 
 		/*
 		 * If it's a caseless search, convert the line to lowercase.
@@ -1015,6 +1014,7 @@ search(search_type, pattern, n)
 	return (0);
 }
 
+
 #if HILITE_SEARCH
 /*
  * Prepare hilites in a given range of the file.
@@ -1033,6 +1033,9 @@ prep_hilite(spos, epos)
 {
 	POSITION nprep_startpos = prep_startpos;
 	POSITION nprep_endpos = prep_endpos;
+	POSITION new_epos;
+	int save_ignore_eoi;
+	int result;
 /*
  * Search beyond where we're asked to search, so the prep region covers
  * more than we need.  Do one big search instead of a bunch of small ones.
@@ -1049,7 +1052,7 @@ prep_hilite(spos, epos)
 
 	if (prep_startpos == NULL_POSITION ||
 	    (epos != NULL_POSITION && epos < prep_startpos) ||
-	    (prep_endpos != NULL_POSITION && spos > prep_endpos))
+	    spos > prep_endpos)
 	{
 		/*
 		 * New range is not contiguous with old prep region.
@@ -1059,7 +1062,6 @@ prep_hilite(spos, epos)
 		if (epos != NULL_POSITION)
 			epos += SEARCH_MORE;
 		nprep_startpos = spos;
-		nprep_endpos = epos;
 	} else
 	{
 		/*
@@ -1070,7 +1072,7 @@ prep_hilite(spos, epos)
 			/*
 			 * New range goes to end of file.
 			 */
-			nprep_endpos = NULL_POSITION;
+			;
 		} else if (epos > prep_endpos)
 		{
 			/*
@@ -1078,7 +1080,6 @@ prep_hilite(spos, epos)
 			 * Extend prep region to end at end of new range.
 			 */
 			epos += SEARCH_MORE;
-			nprep_endpos = epos;
 		} else /* (epos <= prep_endpos) */
 		{
 			/*
@@ -1107,9 +1108,7 @@ prep_hilite(spos, epos)
 			 * Trim search to start near end of old prep region
 			 * (actually, one linebuf before end of old range).
 			 */
-			if (prep_endpos == NULL_POSITION)
-				return;
-			else if (prep_endpos < size_linebuf)
+			if (prep_endpos < size_linebuf)
 				spos = 0;
 			else 
 				spos = prep_endpos - size_linebuf;
@@ -1118,12 +1117,15 @@ prep_hilite(spos, epos)
 
 	if (epos == NULL_POSITION || epos > spos)
 	{
-		if (search_range(spos, epos, SRCH_FORW|SRCH_FIND_ALL, 0,
-				(POSITION*)NULL, &epos) >= 0)
-		{
-			if (epos == NULL_POSITION || epos > nprep_endpos)
-				nprep_endpos = epos;
-		}
+		save_ignore_eoi = ignore_eoi;
+		ignore_eoi = 0;
+		result = search_range(spos, epos, SRCH_FORW|SRCH_FIND_ALL, 0,
+				(POSITION*)NULL, &new_epos);
+		ignore_eoi = save_ignore_eoi;
+		if (result < 0)
+			return;
+		if (prep_endpos == NULL_POSITION || new_epos > prep_endpos)
+			nprep_endpos = new_epos;
 	}
 	prep_startpos = nprep_startpos;
 	prep_endpos = nprep_endpos;
