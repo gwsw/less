@@ -135,13 +135,13 @@ REPLACE_VERSION = \
 	echo "Stuffing version number into $@"; \
 	sed -e "s/@@VERSION@@/$$REL/" $? >$@
 
-README: README.VER
+README: README.VER version.c
 	${REPLACE_VERSION}
-NEWS: NEWS.VER
+NEWS: NEWS.VER version.c
 	${REPLACE_VERSION}
-less.nro: less.nro.VER
+less.nro: less.nro.VER version.c
 	${REPLACE_VERSION}
-lesskey.nro: lesskey.nro.VER
+lesskey.nro: lesskey.nro.VER version.c
 	${REPLACE_VERSION}
 
 less.man: less.nro
