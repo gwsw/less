@@ -122,7 +122,7 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 *v343	217	Change iprintf name to avoid conflict with Cygwin.
 *v343	218	h:d crashes.
 *v344	219	-w should highlight target line on g and p commands.
-	220	Support fixed tab stop specifiers.
+*v363	220	Support fixed tab stop specifiers.
 	221	Write a LESSOPEN filter to do C/C++ syntax highlighting (look at vim?).
 *v351	222	Fix standout/clear bug on "ut" terminals.
 	223	Add command to do dynamic line-by-line filtering.
@@ -135,7 +135,7 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 *v354	230	Don't use STDC_HEADERS?
 *v354	231	Prefer xcurses over curses, curses+termcap over termcap.
 	232	Convert docs to Texinfo.
-	234	Support large files (define POSITION = off_t).
+*v361	234	Support large files (define POSITION = off_t).
 	235	Support real Unicode.
 *v356	235	Don't use extension .dsm.
 *v357	236	Support sigprocmask for Cygwin.
@@ -144,7 +144,7 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 *v367	239	Use hash for buffers to avoid slowdown in large files.
 *v367	240	Fix utf_len non-K&R declaration.
 *v367	241	Colin Watson's rewording of LESSCHARSET man section.
-	242	Nanosec's patch for quotes.
+x	242	Nanosec's patch for quotes.
 *v367	243	Make it easier to install system lesskey file elsewhere.
 	244	Allocate ungetcc space dynamically.
 	245	Log files with lots of ^H's don't highlight matches properly.
