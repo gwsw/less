@@ -136,14 +136,14 @@
 /* Settings always true for MS-DOS systems.  */
 
 /*
- * Define MSDOS if compiling for MS-DOS.
- *  1 == Microsoft C
- *  2 == Turbo/Borland C
+ * Define MSDOS_COMPILER if compiling for MS-DOS.
+ *  MSOFTC == Microsoft C
+ *  BORLANDC == Turbo/Borland C
  */
 #ifdef __BORLANDC__
-#define	MSDOS		BORLANDC
+#define	MSDOS_COMPILER		BORLANDC
 #else
-#define	MSDOS		MSOFTC
+#define	MSDOS_COMPILER		MSOFTC
 #endif
 
 /*
@@ -173,9 +173,7 @@
 #define	HAVE_SHELL	0
 
 /* Define to `long' if <sys/types.h> doesn't define.  */
-#if MSDOS==MSOFTC
-/* #define	off_t	long */
-#else
+#if MSDOS_COMPILER==BORLANDC
 #define	off_t	long 
 #endif
 
@@ -214,7 +212,7 @@
 #define HAVE_FILENO 1
 
 /* Define HAVE_ERRNO if you have the errno variable */
-#if MSDOS==MSOFTC
+#if MSDOS_COMPILER==MSOFTC
 #define HAVE_ERRNO 0
 #else
 #define HAVE_ERRNO 1
@@ -239,7 +237,7 @@
 #define HAVE_UPPER_LOWER 1
 
 /* Define if you have the _setjmp function.  */
-#if MSDOS==MSOFTC
+#if MSDOS_COMPILER==MSOFTC
 #define HAVE__SETJMP	0
 #else
 #define HAVE__SETJMP	1
@@ -294,13 +292,13 @@
 #define HAVE_UNISTD_H 0
 
 /* Define if you have the <values.h> header file.  */
-#if MSDOS==MSOFTC
+#if MSDOS_COMPILER==MSOFTC
 #define HAVE_VALUES_H 0
 #else
 #define HAVE_VALUES_H 1
 #endif
 
-#if MSDOS == MSOFTC && _MSC_VER >= 700
+#if MSDOS_COMPILER == MSOFTC && _MSC_VER >= 700
 /*
  * The names of these things changed in Microsoft C version 7.0.
  */

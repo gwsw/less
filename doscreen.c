@@ -43,9 +43,6 @@
 #endif
 #include <time.h>
 
-#if MSDOS_COMPILER==MSOFTC
-static int flash_created = 0;
-#else
 #if MSDOS_COMPILER==BORLANDC
 static unsigned short *whitescreen;
 #define _settextposition(y,x)	gotoxy(x,y)
@@ -54,9 +51,9 @@ static unsigned short *whitescreen;
 #define _clearscreen(m)		clrscr()
 #define _outtext(s)		cputs(s)
 #endif
-#endif
 
 static int init_done = 0;
+static int flash_created = 0;
 static int videopages;
 static long msec_loops;
 
@@ -246,11 +243,14 @@ get_term()
 	static void
 initcolor()
 {
+	_settextcolor(nm_fg_color);
+	_setbkcolor(nm_bg_color);
+
+#if 0
 	/*
 	 * This clears the screen at startup.  This is different from
 	 * the behavior of other versions of less.  Disable it for now.
 	 */
-#if 0
 	int height;
 	int width;
 	char *blanks;

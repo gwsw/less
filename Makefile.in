@@ -58,7 +58,7 @@ DISTFILES = ${SRC} regexp.c regexp.h \
 	cmd.h funcs.h less.h lesskey.h option.h position.h \
 	install.sh defines.h.in defines.h.top mkinstalldirs \
 	less.nro lesskey.nro less.man lesskey.man less.hlp \
-	Makefile.dos defines.dos doscreen.c \
+	Makefile.dos Makefile.bcc defines.dos doscreen.c \
 	Makefile.os2 defines.os2
 
 all: less lesskey
