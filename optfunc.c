@@ -50,7 +50,6 @@ extern int pr_type;
 extern int plusoption;
 extern int swindow;
 extern int sc_height;
-extern int any_display;
 extern int secure;
 extern int dohelp;
 extern char openquote;
