@@ -13,7 +13,25 @@
 ======================================================================
 
 
-	Major changes between "less" versions 376 and @@VERSION@@
+	Major changes between "less" versions 378 and @@VERSION@@
+
+* Change to autoconf 2.54.
+  Replace configure.in, acconfig.h, defines.h.top with configure.ac.
+
+* Further support for 64 bit file addressing.
+
+* New -L option to disabled LESSOPEN processing.
+
+* Overstriking underscore with underscore is now bold or underlined 
+  depending on context.
+
+* Fix some bugs in handling overstriking in UTF-8 files.
+
+* Fix some nroff issues in the man page.
+
+======================================================================
+
+	Major changes between "less" versions 376 and 378
 
 * Bug fixes:
   Default buffer space is now 64K as documented.
