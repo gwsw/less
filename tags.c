@@ -52,6 +52,7 @@ findtag(tag)
 	register char *tag;
 {
 	char *p;
+	char *q;
 	register FILE *f;
 	register int taglen;
 	int search_char;
@@ -117,17 +118,22 @@ findtag(tag)
 			 * No, it must be a pattern.
 			 * Delete the initial "^" (if present) and 
 			 * the final "$" from the pattern.
+			 * Delete any backslash in the pattern.
 			 */
 			taglinenum = 0;
 			search_char = *p++;
 			if (*p == '^')
 				p++;
-			tagpattern = p;
+			tagpattern = q = p;
 			while (*p != search_char && *p != '\0')
-				p++;
-			if (p[-1] == '$')
-				p--;
-			*p = '\0';
+			{
+				if (*p == '\\')
+					p++;
+				*q++ = *p++;
+			}
+			if (q[-1] == '$')
+				q--;
+			*q = '\0';
 		}
 
 		fclose(f);

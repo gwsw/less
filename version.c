@@ -453,6 +453,9 @@
  *	      (Thanks to Andrew Chernov)
  *	v252: Change default lesskey input file from 	11/16/94
  *	      .lesskey.in to .lesskey.
+ *		Posted to prep.ai.mit.edu
+ *	-----------------------------------------------------------------
+ *	v253: Fix bug when tags file has a backslash.	11/21/94
  */
 
-char version[] = "252";
+char version[] = "253";
