@@ -660,7 +660,7 @@ gtagsearch()
  * The following commands write this format.
  *	o Traditinal Ctags with -x option
  *	o Global with -x option
- *		See <http://www.tamacom.com/global>
+ *		See <http://www.gnu.org/software/global/global.html>
  *
  * [extended format]
  * <tag>   <type>  <lineno>   <file>        <image>
