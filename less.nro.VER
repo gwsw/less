@@ -4,7 +4,11 @@ less \- opposite of more
 .SH SYNOPSIS
 .B "less -?"
 .br
+.B "less --help"
+.br
 .B "less -V"
+.br
+.B "less --version"
 .br
 .B "less [-[+]aBcCdeEfgGiImMnNqQrsSuUVwX]"
 .br
@@ -79,11 +83,14 @@ Warning: some systems use ^Y as a special job control character.
 Scroll backward N lines, default one half of the screen size.
 If N is specified, it becomes the new default for 
 subsequent d and u commands.
-.IP "ESC-["
-Scroll horizontally left N characters, default 8.
-This behaves best if you also set the -S option (chop lines).
-.IP "ESC-]"
+.IP "ESC-) or RIGHTARROW"
 Scroll horizontally right N characters, default 8.
+This behaves best if you also set the -S option (chop lines).
+Note that if you wish to enter a number N, you must use ESC-), not RIGHTARROW,
+because the arrow is taken to be a line editing command
+(see the LINE EDITING section).
+.IP "ESC-( or LEFTARROW"
+Scroll horizontally left N characters, default 8.
 .IP "r or ^R or ^L"
 Repaint the screen.
 .IP R
@@ -384,6 +391,8 @@ This option displays a summary of the commands accepted by
 (the same as the h command).
 (Depending on how your shell interprets the question mark,
 it may be necessary to quote the question mark, thus: "-\\?".)
+.IP --help
+Same as -?.
 .IP -a
 Causes searches to start after the last line
 displayed on the screen, 
@@ -647,6 +656,8 @@ if neither -u nor -U is in effect.
 .IP -V
 Displays the version number of 
 .I less.
+.IP --version
+Same as -V.
 .IP -w
 Causes blank lines to be used to represent lines
 past the end of the file.
@@ -904,7 +915,7 @@ previous example scripts:
 .PP
 lesspipe.sh:
 .br
-	!# /bin/sh
+	#! /bin/sh
 .br
 	case "$1" in
 .br
