@@ -552,6 +552,9 @@ after the target line.
 For example, if "-j4" is used, the target line is the
 fourth line on the screen, so searches begin at the fifth line
 on the screen.
+.IP "-J or --status-column"
+Displays a status column at the left edge of the screen.
+The status column is used only if the -w or -W option is in effect.
 .IP "-k\fIfilename\fP or --lesskey-file=\fIfilename\fP"
 Causes
 .I less
@@ -730,6 +733,8 @@ The first "new" line is the line immediately following the line previously
 at the bottom of the screen.
 Also highlights the target line after a g or p command.
 The highlight is removed at the next command which causes movement.
+The entire line is highlighted, unless the -J option is in effect,
+in which case only the status column is highlighted.
 .IP "-W or --HILITE-UNREAD"
 Like -w, but temporarily highlights the first new line after any 
 forward movement command larger than one line.

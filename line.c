@@ -18,6 +18,7 @@
 #include "less.h"
 
 #define IS_CONT(c)  (((c) & 0xC0) == 0x80)
+#define LINENUM_WIDTH   8       /* Chars to use for line number */
 
 /* Buffer which holds the current output line */
 public char linebuf[LINEBUF_SIZE];
@@ -45,6 +46,7 @@ extern int linenums;
 extern int ctldisp;
 extern int twiddle;
 extern int binattr;
+extern int status_col;
 extern int auto_wrap, ignaw;
 extern int bo_s_width, bo_e_width;
 extern int ul_s_width, ul_e_width;
@@ -52,6 +54,8 @@ extern int bl_s_width, bl_e_width;
 extern int so_s_width, so_e_width;
 extern int sc_width, sc_height;
 extern int utf_mode;
+extern POSITION start_attnpos;
+extern POSITION end_attnpos;
 
 /*
  * Initialize from environment variables.
@@ -76,8 +80,10 @@ prewind()
 	is_null_line = 0;
 	pendc = '\0';
 	lmargin = 0;
+	if (status_col)
+		lmargin += 1;
 	if (linenums == OPT_ONPLUS)
-		lmargin = 9;
+		lmargin += LINENUM_WIDTH+1;
 }
 
 /*
@@ -89,12 +95,7 @@ plinenum(pos)
 {
 	register int lno;
 	register int i;
-	register int n;
 
-	/*
-	 * We display the line number at the start of each line
-	 * only if the -N option is set.
-	 */
 	if (linenums == OPT_ONPLUS)
 	{
 		/*
@@ -102,13 +103,35 @@ plinenum(pos)
 		 * {{ Note: since find_linenum calls forw_raw_line,
 		 *    it may seek in the input file, requiring the caller 
 		 *    of plinenum to re-seek if necessary. }}
+		 * {{ Since forw_raw_line modifies linebuf, we must
+		 *    do this first, before storing anything in linebuf. }}
 		 */
 		lno = find_linenum(pos);
+	}
 
-		sprintf(&linebuf[curr], "%*d", lmargin-1, lno);
-		n = strlen(&linebuf[curr]);
-		column += n;
-		for (i = 0;  i < n;  i++)
+	/*
+	 * Display a status column if the -J option is set.
+	 */
+	if (status_col)
+	{
+		linebuf[curr] = ' ';
+		if (start_attnpos != NULL_POSITION &&
+		    pos >= start_attnpos && pos < end_attnpos)
+			attr[curr] = AT_STANDOUT;
+		else
+			attr[curr] = 0;
+		curr++;
+		column++;
+	}
+	/*
+	 * Display the line number at the start of each line
+	 * if the -N option is set.
+	 */
+	if (linenums == OPT_ONPLUS)
+	{
+		sprintf(&linebuf[curr], "%*d", LINENUM_WIDTH, lno);
+		column += LINENUM_WIDTH;
+		for (i = 0;  i < LINENUM_WIDTH;  i++)
 			attr[curr++] = 0;
 	}
 	/*
