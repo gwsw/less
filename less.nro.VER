@@ -380,6 +380,9 @@ or if you use
 .sp
 LESS="-options"; export LESS
 .sp
+On MS-DOS, you don't need the quotes, but you should replace any 
+percent signs in the options string by double percent signs.
+.sp
 The environment variable is parsed before the command line,
 so command line options override the LESS environment variable.
 If an option appears in the LESS variable, it can be reset
@@ -697,7 +700,9 @@ scrolling window to 20 lines.  If the screen is resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
 .IP -"
 Changes the filename quoting character.
-Followed by a single character, changes the quote character to that
+This may be necessary if you are trying to name a file
+which contains both spaces and quote characters.
+Followed by a single character, this changes the quote character to that
 character.
 Filenames containing a space should then be surrounded by that character
 rather than by double quotes.
