@@ -75,7 +75,7 @@ lsystem(cmd, donemsg)
 	/*
 	 * Close the current input file.
 	 */
-	save_ifile = curr_ifile;
+	save_ifile = save_curr_ifile();
 	(void) edit_ifile(NULL_IFILE);
 
 	/*

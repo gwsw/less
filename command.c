@@ -602,7 +602,7 @@ multi_search(pattern, n)
 	int changed_file;
 
 	changed_file = 0;
-	save_ifile = curr_ifile;
+	save_ifile = save_curr_ifile();
 
 	if (search_type & SRCH_FIRST_FILE)
 	{
@@ -615,7 +615,10 @@ multi_search(pattern, n)
 		else
 			nomore = edit_last();
 		if (nomore)
+		{
+			unsave_ifile(save_ifile);
 			return;
+		}
 		changed_file = 1;
 		search_type &= ~SRCH_FIRST_FILE;
 	}
@@ -630,10 +633,13 @@ multi_search(pattern, n)
 		 */
 		search_type &= ~SRCH_NO_MOVE;
 		if (n == 0)
+		{
 			/*
 			 * Found it.
 			 */
+			unsave_ifile(save_ifile);
 			return;
+		}
 
 		if (n < 0)
 			/*
@@ -688,9 +694,10 @@ commands()
 	register char *cbuf;
 	int newaction;
 	int save_search_type;
-	char *s;
+	char *extra;
 	char tbuf[2];
 	PARG parg;
+	IFILE save_ifile;
 
 	search_type = SRCH_FORW;
 	wscroll = (sc_height + 1) / 2;
@@ -790,14 +797,14 @@ commands()
 				tbuf[1] = '\0';
 				cbuf = tbuf;
 			}
-			s = NULL;
-			action = fcmd_decode(cbuf, &s);
+			extra = NULL;
+			action = fcmd_decode(cbuf, &extra);
 			/*
 			 * If an "extra" string was returned,
 			 * process it as a string of command characters.
 			 */
-			if (s != NULL)
-				ungetsc(s);
+			if (extra != NULL)
+				ungetsc(extra);
 		}
 		/*
 		 * Clear the cmdbuf string.
@@ -1039,6 +1046,8 @@ commands()
 				if (edit_prev(1) == 0)
 					break;
 			}
+			if (extra != NULL)
+				quit(*extra);
 			quit(QUIT_OK);
 			break;
 
@@ -1176,13 +1185,14 @@ commands()
 			 */
 			make_display();
 			cmd_exec();
+			save_ifile = save_curr_ifile();
 			lsystem(pr_expand(editproto, 0), (char*)NULL);
 			/*
 			 * Re-edit the file, since data may have changed.
 			 * Some editors even recreate the file, so flushing
 			 * buffers is not sufficient.
 			 */
-			reedit_ifile(curr_ifile);
+			reedit_ifile(save_ifile);
 			break;
 #else
 			error("Command not available", NULL_PARG);
