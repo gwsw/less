@@ -374,22 +374,22 @@ pipe_data(cmd, spos, epos)
 
 #define ERR      (-1)
 #define PIPEMAX  _NFILE
-#define READ     1 /* For OS-9 */
-#define WRITE    2 /* For OS-9 */
-#define STDIN    0 /* For OS-9 */
-#define STDOUT   1 /* For OS-9 */
+#define READ     1 		/* For OS-9 */
+#define WRITE    2 		/* For OS-9 */
+#define STDIN    0 		/* For OS-9 */
+#define STDOUT   1 		/* For OS-9 */
 
-#define RESTORE  free(parameter); close(path); dup(save); close(save);
+#define RESTORE  free(cmd); close(path); dup(save); close(save);
 
 static int   _pid[PIPEMAX];
 
-FILE *popen(command, type)
+	FILE *
+popen(command, type)
 	char *command, *type;
 {
-	register char *p = command;
-	char *parameter;
-	FILE *_pfp;
-	int l, path, pipe, pcnt, save;
+	FILE	*_pfp;
+	char	*cmd;
+	int	l, path, pipe, pcnt, save;
 
 	path = (*type == 'w') ? STDIN : STDOUT;
 
@@ -412,22 +412,12 @@ FILE *popen(command, type)
 		return (NULL);
 	}
 
-	while (*p != ' ' && *p)
-		p++;
-	if (*p == ' ')
-		p++;
-	l = strlen(p);
-	parameter = (char *) malloc(l+2);
-	strcpy(parameter,p);
-	strcat(parameter,"\n");
-
-	if ((_pid[pcnt] = os9fork(command,l+1,parameter,1,1,0)) == ERR) 
-	{
-		{ RESTORE }
-		close(pipe);
-		_pid[pcnt] = 0;
-		return (NULL);
-	}
+	cmd = (char*)malloc((strlen(command)+4));
+	if (cmd == NULL)
+		return(NULL);    
+	strcpy(cmd, command);
+	strcat(cmd," &");
+	l = system(cmd);
 
 	{ RESTORE }
 
@@ -443,7 +433,8 @@ FILE *popen(command, type)
 	return (_pfp);
 }
 
-int pclose(stream)
+	int 
+pclose(stream)
 	FILE *stream;
 {
 	register int i;

@@ -82,9 +82,6 @@
 #if OS2
 #include <sys/signal.h>
 #endif
-#if HAVE_SYS_WINDOW_H
-#include <sys/window.h>
-#endif
 #if HAVE_SYS_STREAM_H
 #include <sys/stream.h>
 #endif

@@ -54,7 +54,7 @@
  * TAB_COMPLETE_FILENAME is 1 if you wish to allow the TAB key
  * to complete filenames at prompts.
  */
-#define	TAB_COMPLETE_FILENAME	0 /* TEMPORARILY NOT WORKING IN OS-9 */
+#define	TAB_COMPLETE_FILENAME	1
 
 /*
  * CMD_HISTORY is 1 if you wish to allow keys to cycle through
@@ -168,7 +168,13 @@
 /*
  * HAVE_SHELL is 1 if your system supports a SHELL command interpreter.
  */
-#define	HAVE_SHELL 0
+#define	HAVE_SHELL 1
+
+/*
+ * Default shell metacharacters and meta-escape character.
+ */
+#define DEF_METACHARS   "; \t\n'\"()<>|&^`#\\"
+#define DEF_METAESCAPE  "\\"
 
 /* 
  * HAVE_DUP is 1 if your system has the dup() call.
