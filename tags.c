@@ -36,6 +36,7 @@ public char *tags = "tags";
 
 static char *tagpattern;
 static int taglinenum;
+static int tagendline;
 
 extern int linenums;
 extern int sigs;
@@ -132,7 +133,8 @@ findtag(tag)
 					p++;
 				*q++ = *p++;
 			}
-			if (q[-1] == '$')
+			tagendline = (q[-1] == '$');
+			if (tagendline)
 				q--;
 			*q = '\0';
 		}
@@ -210,8 +212,11 @@ tagsearch()
 		 * Test the line to see if we have a match.
 		 * Use strncmp because the pattern may be
 		 * truncated (in the tags file) if it is too long.
+		 * If tagendline is set, make sure we match all
+		 * the way to end of line (no extra chars after the match).
 		 */
-		if (strncmp(tagpattern, line, strlen(tagpattern)) == 0)
+		if (strncmp(tagpattern, line, strlen(tagpattern)) == 0 &&
+		    (!tagendline || line[strlen(tagpattern)] == '\0'))
 			break;
 	}
 
