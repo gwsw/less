@@ -225,6 +225,7 @@ extern int quiet;		/* If VERY_QUIET, use visual bell for bell */
 extern int no_back_scroll;
 extern int swindow;
 extern int no_init;
+extern int sigs;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -2087,6 +2088,8 @@ WIN32getch(tty)
 	while (win32_kbhit((HANDLE)tty) == FALSE)
 	{
 		Sleep(20);
+		if (ABORT_SIGS())
+			return ('\003');
 		continue;
 	}
 	keyCount --;

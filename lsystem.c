@@ -36,7 +36,12 @@
 
 #if MSDOS_COMPILER
 #include <dos.h>
+#ifdef _MSC_VER
+#include <direct.h>
+#define setdisk(n) _chdrive(n)
+#else
 #include <dir.h>
+#endif
 #endif
 
 extern int screen_trashed;

@@ -59,7 +59,7 @@
 #else
 #if MSDOS_COMPILER==MSOFTC || MSDOS_COMPILER==BORLANDC
 
-#define	GLOB_FIRST_NAME(filename,fndp,h) h = _dos_findfirst(filename, ~0, fndp)
+#define	GLOB_FIRST_NAME(filename,fndp,h) h = _dos_findfirst(filename, ~FA_LABEL, fndp)
 #define	GLOB_FIRST_FAILED(handle)	((handle) != 0)
 #define	GLOB_NEXT_NAME(handle,fndp)		_dos_findnext(fndp)
 #define	GLOB_NAME_DONE(handle)
@@ -90,7 +90,7 @@
 #else
 #if MSDOS_COMPILER==WIN32C && !defined(_MSC_VER) /* Borland C for Windows */
 
-#define	GLOB_FIRST_NAME(filename,fndp,h) h = findfirst(filename, fndp, ~0)
+#define	GLOB_FIRST_NAME(filename,fndp,h) h = findfirst(filename, fndp, ~FA_LABEL)
 #define	GLOB_FIRST_FAILED(handle)	((handle) != 0)
 #define	GLOB_NEXT_NAME(handle,fndp)	findnext(fndp)
 #define	GLOB_NAME_DONE(handle)
