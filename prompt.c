@@ -511,7 +511,6 @@ pr_expand(proto, maxwidth)
 		}
 	}
 
-	new_file = 0;
 	if (mp == message)
 		return (NULL);
 	if (maxwidth > 0 && mp >= message + maxwidth)
@@ -543,9 +542,13 @@ eq_message()
 	public char *
 pr_string()
 {
-	if (ch_getflags() & CH_HELPFILE)
-		return (pr_expand(hproto, sc_width-so_s_width-so_e_width-2));
-	return (pr_expand(prproto[pr_type], sc_width-so_s_width-so_e_width-2));
+	char *prompt;
+
+	prompt = pr_expand((ch_getflags() & CH_HELPFILE) ?
+				hproto : prproto[pr_type],
+			sc_width-so_s_width-so_e_width-2);
+	new_file = 0;
+	return (prompt);
 }
 
 /*
