@@ -497,6 +497,7 @@
  *	      if we can't open the new file.
  *	v281: Repeat search should turn on hilites.	2/24/95
  *	v282: Minor fixes.				3/2/95
+ *	v283: Fix homefile; make OS2 look in $HOME.	3/2/95
  */
 
-char version[] = "282";
+char version[] = "283";

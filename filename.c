@@ -40,6 +40,47 @@ extern IFILE curr_ifile;
 extern IFILE old_ifile;
 
 /*
+ * Return a pathname that points to a specified file in a specified directory.
+ * Return NULL if the file does not exist in the directory.
+ */
+	static char *
+dirfile(dirname, filename)
+	char *dirname;
+	char *filename;
+{
+	char *pathname;
+	int f;
+
+	if (dirname == NULL || *dirname == '\0')
+		return (NULL);
+	/*
+	 * Construct the full pathname.
+	 */
+	pathname = (char *) calloc(strlen(dirname) + strlen(filename) + 2, 
+					sizeof(char));
+	if (pathname == NULL)
+		return (NULL);
+#if MSOFTC || OS2
+	sprintf(pathname, "%s\\%s", dirname, filename);
+#else
+	sprintf(pathname, "%s/%s", dirname, filename);
+#endif
+	/*
+	 * Make sure the file exists.
+	 */
+	f = open(pathname, OPEN_READ);
+	if (f < 0)
+	{
+		free(pathname);
+		pathname = NULL;
+	} else
+	{
+		close (f);
+	}
+	return (pathname);
+}
+
+/*
  * Return the full pathname of the given file in the "home directory".
  */
 	public char *
@@ -47,68 +88,32 @@ homefile(filename)
 	char *filename;
 {
 	register char *pathname;
-	register char *homedir;
 
-#if MSOFTC
 	/*
-	 * If $HOME is not defined, look for the file anywhere on search path.
+	 * Try $HOME/filename.
 	 */
-	homedir = getenv("HOME");
-	pathname = NULL;
-	if (homedir != NULL)
-	{
-		/*
-		 * Found $HOME.
-		 */
-		pathname = (char *) calloc(strlen(homedir)+strlen(filename)+2, 
-					sizeof(char));
-		if (pathname == NULL)
-			return (NULL);
-		sprintf(pathname, "%s\\%s", homedir, filename);
-		if (access(pathname, 0) < 0)
-		{
-			free(pathname);
-			pathname = NULL;
-		}
-	}
-	if (pathname == NULL)
-	{
-			
-		pathname = (char *) calloc(_MAX_PATH, sizeof(char));
-		_searchenv(filename, "PATH", pathname);
-		if (*pathname == '\0')
-			
-		{
-			free(pathname);
-			pathname = NULL;
-		}
-	}
-	
-#else
+	pathname = dirfile(getenv("HOME"), filename);
+	if (pathname != NULL)
+		return (pathname);
 #if OS2
-	pathname = (char *) calloc(256, sizeof(char));
-	if (pathname == NULL)
-		return (NULL);
-	_searchenv(filename, "INIT", pathname);
-	if (pathname[0] == '\0')
-		_searchenv(filename, "PATH", pathname);
-	if (pathname[0] == '\0')
-	{
-		free(pathname);
-		return (NULL);
-	}
-#else
-	homedir = getenv("HOME");
-	if (homedir == NULL)
-		return (NULL);
-	pathname = (char *) calloc(strlen(homedir)+strlen(filename)+2,
-				sizeof(char));
-	if (pathname == NULL)
-		return (NULL);
-	sprintf(pathname, "%s/%s", homedir, filename);
+	/*
+	 * Try $INIT/filename.
+	 */
+	pathname = dirfile(getenv("INIT"), filename);
+	if (pathname != NULL)
+		return (pathname);
 #endif
+#if MSOFTC || OS2
+	/*
+	 * Look for the file anywhere on search path.
+	 */
+	pathname = (char *) calloc(_MAX_PATH, sizeof(char));
+	_searchenv(filename, "PATH", pathname);
+	if (*pathname != '\0')
+		return (pathname);
+	free(pathname);
 #endif
-	return (pathname);
+	return (NULL);
 }
 
 /*
