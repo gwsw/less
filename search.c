@@ -394,8 +394,13 @@ match_pattern(line, sp, ep, notbol)
 		matched = !regexec(regpattern, line, 1, &rm, flags);
 		if (!matched)
 			return (0);
+#ifndef __WATCOMC__
 		*sp = line + rm.rm_so;
 		*ep = line + rm.rm_eo;
+#else
+		*sp = rm.rm_sp;
+		*ep = rm.rm_ep;
+#endif
 	}
 #endif
 #if HAVE_RE_COMP
