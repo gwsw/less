@@ -109,7 +109,7 @@ opt_o(type, s)
 			return;
 		}
 		s = skipsp(s);
-		namelogfile = glob(s);
+		namelogfile = lglob(s);
 		use_logfile(namelogfile);
 		sync_logfile();
 		break;
@@ -245,7 +245,7 @@ opt__T(type, s)
 		break;
 	case TOGGLE:
 		s = skipsp(s);
-		tags = glob(s);
+		tags = lglob(s);
 		break;
 	case QUERY:
 		parg.p_string = tags;

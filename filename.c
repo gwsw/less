@@ -247,7 +247,7 @@ fcomplete(s)
 	fpat = (char *) ecalloc(strlen(s)+2, sizeof(char));
 	sprintf(fpat, "%s*", s);
 #endif
-	s = glob(fpat);
+	s = lglob(fpat);
 	if (strcmp(s,fpat) == 0)
 	{
 		/*
@@ -390,7 +390,7 @@ shellcmd(cmd, s1, s2)
  * Expand a filename, doing any shell-level substitutions.
  */
 	public char *
-glob(filename)
+lglob(filename)
 	char *filename;
 {
 	char *gfilename;
@@ -552,7 +552,7 @@ close_altfile(altfilename, filename, pipefd)
 #if MSDOS_COMPILER
 
 	public char *
-glob(filename)
+lglob(filename)
 	char *filename;
 {
 	register char *gfilename;
@@ -615,7 +615,7 @@ close_altfile(altfilename, filename)
 #else
 
 	public char *
-glob(filename)
+lglob(filename)
 	char *filename;
 {
 	return (fexpand(filename));

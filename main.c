@@ -170,7 +170,7 @@ main(argc, argv)
 		char *gfilename;
 		char *filename;
 		
-		gfilename = glob(*argv++);
+		gfilename = lglob(*argv++);
 		init_textlist(&tlist, gfilename);
 		filename = NULL;
 		while ((filename = forw_textlist(&tlist, filename)) != NULL)

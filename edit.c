@@ -384,7 +384,7 @@ edit_list(filelist)
 	filename = NULL;
 	while ((filename = forw_textlist(&tl_files, filename)) != NULL)
 	{
-		gfilelist = glob(filename);
+		gfilelist = lglob(filename);
 		init_textlist(&tl_gfiles, gfilelist);
 		gfilename = NULL;
 		while ((gfilename = forw_textlist(&tl_gfiles, gfilename)) != NULL)
