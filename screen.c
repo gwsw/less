@@ -684,8 +684,8 @@ scrsize()
 	{
 		CONSOLE_SCREEN_BUFFER_INFO scr;
 		GetConsoleScreenBufferInfo(con_out, &scr);
-		sys_height = scr.srWindow.Bottom - scr.srWindow.Top + 1;
-		sys_width = scr.srWindow.Right - scr.srWindow.Left + 1;
+		sys_height = scr.dwSize.Y;
+		sys_width = scr.dwSize.X;
 	}
 #else
 #if OS2
