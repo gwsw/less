@@ -548,6 +548,10 @@ v318   5/29/96	Port to OS-9 Microware compiler; minor fixes
 v319   7/8/96	Fix Windows port (thanks to Jeff Paquette).
 v320   7/11/96	Final fixes for Windows port.
 v321   7/18/96	Minor fixes.
+		Posted to Web page.
+-----------------------------------------------------------------
+v322   8/13/96	Fix bug in shell escape from help file; add support for 
+		Microsoft Visual C under Windows; numerous small fixes.
 */
 
-char version[] = "321";
+char version[] = "322";
