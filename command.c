@@ -425,22 +425,11 @@ mca_char(c)
 }
 
 /*
- * Display the appropriate prompt.
+ * Make sure the screen is displayed.
  */
 	static void
-prompt()
+make_display()
 {
-	register char *p;
-
-	if (ungotp != NULL && ungotp > ungot)
-	{
-		/*
-		 * No prompt necessary if commands are from 
-		 * ungotten chars rather than from the user.
-		 */
-		return;
-	}
-
 	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
 	 */
@@ -464,6 +453,29 @@ prompt()
 		repaint();
 		top_scroll = save_top_scroll;
 	}
+}
+
+/*
+ * Display the appropriate prompt.
+ */
+	static void
+prompt()
+{
+	register char *p;
+
+	if (ungotp != NULL && ungotp > ungot)
+	{
+		/*
+		 * No prompt necessary if commands are from 
+		 * ungotten chars rather than from the user.
+		 */
+		return;
+	}
+
+	/*
+	 * Make sure the screen is displayed.
+	 */
+	make_display();
 
 	/*
 	 * If the -E flag is set and we've hit EOF on the last file, quit.
@@ -1146,7 +1158,6 @@ commands()
 			}
 			if (ch_getflags() & CH_HELPFILE)
 				break;
-			start_mca(A_SHELL, "!", ml_shell);
 			if (strcmp(get_filename(curr_ifile), "-") == 0)
 			{
 				error("Cannot edit standard input", NULL_PARG);
@@ -1158,10 +1169,14 @@ commands()
 					NULL_PARG);
 				break;
 			}
+			start_mca(A_SHELL, "!", ml_shell);
 			/*
 			 * Expand the editor prototype string
 			 * and pass it to the system to execute.
+			 * (Make sure the screen is displayed so the
+			 * expansion of "+%lm" works.)
 			 */
+			make_display();
 			cmd_exec();
 			lsystem(pr_expand(editproto, 0), (char*)NULL);
 			/*
