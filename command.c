@@ -872,8 +872,16 @@ commands()
 			jump_forw();
 			ignore_eoi = 1;
 			hit_eof = 0;
-			while (!ABORT_SIGS())
+			while (!sigs)
 				forward(1, 0, 0);
+			/*
+			 * This is a kludge to get us back in "F mode"
+			 * after processing a non-abort signal (e.g.
+			 * window-change).  It fails if command "F"
+			 * is reassigned in the lesskey file.
+			 */
+			if (sigs && !ABORT_SIGS())
+				ungetcc('F');
 			ignore_eoi = 0;
 			break;
 

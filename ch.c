@@ -236,7 +236,7 @@ fch_get()
 #endif
 			slept = TRUE;
 		}
-		if (ABORT_SIGS())
+		if (sigs)
 			return (EOI);
 	}
 
