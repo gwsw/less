@@ -167,6 +167,11 @@ putchr(c)
 #if MSDOS_COMPILER
 	if (c == '\n')
 		putchr('\r');
+#else
+#ifdef _OSK
+	if (c == '\n')  /* In OS-9, '\n' == 0x0D */
+		putchr(0x0A);
+#endif
 #endif
 	*ob++ = c;
 	return (c);

@@ -44,7 +44,11 @@
 #if HAVE_TERMIO_H
 #include <termio.h>
 #else
+#ifdef _OSK
+#include <sgstat.h>
+#else
 #include <sgtty.h>
+#endif
 #if HAVE_SYS_IOCTL_H && (defined(TIOCGWINSZ) || defined(TCGETA) || defined(TIOCGETP) || defined(WIOCGETD))
 #include <sys/ioctl.h>
 #endif
@@ -52,6 +56,9 @@
 #endif
 #if HAVE_TERMCAP_H
 #include <termcap.h>
+#endif
+#ifdef _OSK
+#include <signal.h>
 #endif
 
 #ifndef TIOCGWINSZ
@@ -140,6 +147,10 @@ static char *cheaper();
 #if MUST_DEFINE_OSPEED
 extern short ospeed;	/* Terminal output baud rate */
 extern char PC;		/* Pad character */
+#endif
+#ifdef _OSK
+short ospeed;
+char PC_, *UP, *BC;
 #endif
 
 extern int quiet;		/* If VERY_QUIET, use visual bell for bell */
@@ -432,10 +443,48 @@ raw_mode(on)
 	ioctl(2, TIOCSETN, &s);
     }
 #else
+#ifdef _OSK
+    {
+	struct sgbuf s;
+	static struct sgbuf save_term;
+
+	if (on)
+	{
+		/*
+		 * Get terminal modes.
+		 */
+		_gs_opt(2, &s);
+
+		/*
+		 * Save modes and set certain variables dependent on modes.
+		 */
+		save_term = s;
+		erase_char = s.sg_bspch;
+		kill_char = s.sg_dlnch;
+		werase_char = 0;
+
+		/*
+		 * Set the modes to the way we want them.
+		 */
+		s.sg_echo = 0;
+		s.sg_eofch = 0;
+		s.sg_pause = 0;
+		s.sg_psch = 0;
+	} else
+	{
+		/*
+		 * Restore saved modes.
+		 */
+		s = save_term;
+	}
+	_ss_opt(2, &s);
+    }
+#else
 	/* OS2 */
 	LSIGNAL(SIGINT, SIG_IGN);
 	erase_char = '\b';
 	kill_char = '\033';
+#endif
 #endif
 #endif
 #endif

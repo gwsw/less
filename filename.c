@@ -34,6 +34,10 @@
 #if MSDOS_COMPILER
 #include <dos.h>
 #endif
+#ifdef _OSK
+#include <rbf.h>
+#include <modes.h>
+#endif
 
 extern int force_open;
 extern int secure;
@@ -706,6 +710,49 @@ filesize(f)
 }
 
 #else
+#ifdef _OSK
+
+	public char *
+bad_file(filename)
+	char *filename;
+{
+	register int f;
+	register char *m;
+
+	if ((f = open(filename, S_IREAD | S_IFDIR)) >= 0)
+	{
+		static char is_dir[] = " is a directory";
+		close(f);
+		if (force_open)
+			return (NULL);
+		m = (char *) ecalloc(strlen(filename) + sizeof(is_dir),
+			sizeof(char));
+		strcpy(m, filename);
+		strcat(m, is_dir);
+		return (m);
+	}
+	if ((f = open(filename, S_IREAD)) < 0)
+		return (errno_message(filename));
+	close(f);
+	return (NULL);
+}
+
+	public POSITION
+filesize(f)
+	int f;
+{
+	long size;
+
+	if ((size = (long)_gs_size(f)) < 0)
+		/*
+		 * Can't stat; try seeking to the end.
+		 */
+		return (seek_filesize(f));
+
+	return ((POSITION) size);
+}
+
+#else
 
 /*
  * If we have no way to find out, just say the file is good.
@@ -727,4 +774,5 @@ filesize(f)
 	return (seek_filesize(f));
 }
 
+#endif
 #endif

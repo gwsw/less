@@ -110,6 +110,10 @@ iread(fd, buf, len)
 		reading = 0;
 #if HAVE_SIGSETMASK
 		sigsetmask(0);
+#else
+#ifdef _OSK
+		sigmask(~0);
+#endif
 #endif
 		return (READ_INTR);
 	}

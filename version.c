@@ -532,6 +532,7 @@ v304   2/1/96	Add ^R search modifier; add LESSSECURE.
 v305   2/2/96	Workaround Linux /proc kernel bug; add LESSKEY.
 v306   3/16/96	Minor fixes.
 v307   3/25/96	Allow cmd line arg "--"; fix DOS & OS/2 defines.h.
+v308   4/4/96	Port to OS-9 (thanks to Boisy Pitre); fix -d.
 */
 
-char version[] = "307";
+char version[] = "308";

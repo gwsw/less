@@ -83,7 +83,7 @@
 #include <stdlib.h>
 #include <string.h>
 #endif
-#ifdef OSK
+#ifdef _OSK
 #include <modes.h>
 #endif
 
@@ -142,7 +142,7 @@ typedef long		POSITION;
 #if MSDOS_COMPILER || OS2
 #define	OPEN_READ	(O_RDONLY|O_BINARY)
 #else
-#ifdef OSK
+#ifdef _OSK
 #define	OPEN_READ	(S_IREAD)
 #else
 #ifdef O_RDONLY
@@ -156,7 +156,7 @@ typedef long		POSITION;
 #if defined(O_WRONLY) && defined(O_APPEND)
 #define	OPEN_APPEND	(O_APPEND|O_WRONLY)
 #else
-#ifdef OSK
+#ifdef _OSK
 #define OPEN_APPEND	(S_IWRITE)
 #else
 #define	OPEN_APPEND	(1)
@@ -169,7 +169,7 @@ typedef long		POSITION;
 #define	OPEN_TTYIN()	open("/dev/tty", OPEN_READ)
 #endif
 
-#if MSDOS_COMPILER || OS2 || OSK
+#if MSDOS_COMPILER || OS2 || _OSK
 #define	SHELL_META_QUEST 0
 #else
 #define	SHELL_META_QUEST 1

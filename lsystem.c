@@ -90,7 +90,7 @@ lsystem(cmd, donemsg)
 	 */
 	init_signals(0);
 
-#ifndef OSK
+#ifndef _OSK
 	/*
 	 * Force standard input to be the user's terminal
 	 * (the normal standard input), even if less's standard input 
@@ -135,12 +135,14 @@ lsystem(cmd, donemsg)
 	system(cmd);
 #endif
 
+#ifndef _OSK
 	/*
 	 * Restore standard input, reset signals, raw mode, etc.
 	 */
 	close(0);
 	dup(inp);
 	close(inp);
+#endif
 
 	init_signals(1);
 	raw_mode(1);
@@ -300,3 +302,94 @@ pipe_data(cmd, spos, epos)
 }
 
 #endif
+
+#ifdef _OSK
+/*
+ * Popen, and Pclose, for OS-9.
+ */
+
+#define ERR      (-1)
+#define PIPEMAX  _NFILE
+#define READ     1 /* For OS-9 */
+#define WRITE    2 /* For OS-9 */
+#define STDIN    0 /* For OS-9 */
+#define STDOUT   1 /* For OS-9 */
+
+#define RESTORE  free(parameter); close(path); dup(save); close(save);
+
+static int   _pid[PIPEMAX];
+
+FILE *popen(command, type)
+	char *command, *type;
+{
+	register char *p = command;
+	char *parameter;
+	FILE *_pfp;
+	int l, path, pipe, pcnt, save;
+
+	path = (*type == 'w') ? STDIN : STDOUT;
+
+	if ((pipe = open("/pipe", READ+WRITE)) == ERR)
+		return (NULL);
+	pcnt = pipe;
+
+	if ((save = dup(path)) == ERR) 
+	{
+		close(pipe);
+		return (NULL);
+	}
+	close(path);
+
+	if (dup(pipe) == ERR) 
+	{
+		dup(save);
+		close(save);
+		close(pipe);
+		return (NULL);
+	}
+
+	while (*p != ' ' && *p)
+		p++;
+	if (*p == ' ')
+		p++;
+	l = strlen(p);
+	parameter = (char *) malloc(l+2);
+	strcpy(parameter,p);
+	strcat(parameter,"\n");
+
+	if ((_pid[pcnt] = os9fork(command,l+1,parameter,1,1,0)) == ERR) 
+	{
+		{ RESTORE }
+		close(pipe);
+		_pid[pcnt] = 0;
+		return (NULL);
+	}
+
+	{ RESTORE }
+
+	if ((_pfp = fdopen(pipe,type)) == NULL)
+	{
+		close(pipe);
+		while (((l=wait(0)) != _pid[pcnt]) && l != ERR)
+			;
+		_pid[pcnt] = 0;
+		return (NULL);
+	}
+
+	return(_pfp);
+}
+
+int pclose(stream)
+	FILE *stream;
+{
+	register int i;
+	int f, status;
+
+	f = fileno(stream);
+	fclose(stream);
+	while (((i=wait(&status)) != _pid[f]) && i != ERR)
+		;
+	_pid[f]= 0;
+	return((i == ERR) ? ERR : status);
+}
+#endif /* _OSK */
