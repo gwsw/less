@@ -203,9 +203,9 @@ char filetrailer[] = {
 	C1_END_LESSKEY_MAGIC, 
 	C2_END_LESSKEY_MAGIC
 };
-char cmdsection[] =	{ CMD_SECTION };
-char editsection[] =	{ EDIT_SECTION };
-char endsection[] =	{ END_SECTION };
+char cmdsection[1] =	{ CMD_SECTION };
+char editsection[1] =	{ EDIT_SECTION };
+char endsection[1] =	{ END_SECTION };
 
 char *infile = NULL;
 char *outfile = NULL ;
