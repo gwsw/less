@@ -152,7 +152,7 @@ INSTALLATION (OS-9 systems only)
 
 1. Move the distributed source to its own directory.
 
-2. If you are using Metaware C, rename Makefile.o9m to Makefile.
+2. If you are using Microware C, rename Makefile.o9m to Makefile.
    If you are using Ultra C, rename Makefile.o9u to Makefile.
 
 3. Check the Makefile to make sure the definitions look ok.
@@ -162,13 +162,15 @@ INSTALLATION (OS-9 systems only)
    wish to edit the manual page less.man and the help page help.c
    to remove the descriptions of the features which you are removing.
 
-5. Type "make" and watch the fun.
+5. Type "dmake" and watch the fun.
+   The standard OS-9 "make" will probably not work.  If you don't
+   have dmake, you can get a copy from os9archive.rtsi.com.
 
 6. If the make succeeds, it will generate the programs "less" and
    "lesskey" in your current directory.  Test the generated programs.
 
 7. When satisfied that it works, if you wish to install it
-   in a public place, type "make install".
+   in a public place, type "dmake install".
    See step 6 of the Unix installation instructions for details
    on how to change the default installation directories.
 
