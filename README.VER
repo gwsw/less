@@ -224,3 +224,10 @@ INSTALLATION (OS-9 systems only,
    See step 6 of the Unix installation instructions for details
    on how to change the default installation directories.
 
+=======================================================================
+ACKNOWLEDGMENTS:
+  Some versions of the less distribution are packaged using 
+  Info-ZIP's compression utility.
+  Info-ZIP's software is free and can be obtained as source 
+  code or executables from various anonymous-ftp sites,
+  including ftp.uu.net:/pub/archiving/zip.
