@@ -45,6 +45,7 @@ extern int so_s_width, so_e_width;
 extern int linenums;
 extern int sc_height;
 extern int jump_sline;
+extern int helping;
 extern IFILE curr_ifile;
 #if EDITOR
 extern char *editor;
@@ -54,17 +55,20 @@ extern char *editor;
  * Prototypes for the three flavors of prompts.
  * These strings are expanded by pr_expand().
  */
-static char s_proto[] =
+static constant char s_proto[] =
   "?n?f%f .?m(file %i of %m) ..?e(END) ?x- Next\\: %x..%t";
-static char m_proto[] =
+static constant char m_proto[] =
   "?n?f%f .?m(file %i of %m) ..?e(END) ?x- Next\\: %x.:?pB%pB\\%:byte %bB?s/%s...%t";
-static char M_proto[] =
+static constant char M_proto[] =
   "?f%f .?n?m(file %i of %m) ..?ltline %lt?L/%L. :byte %bB?s/%s. .?e(END) ?x- Next\\: %x.:?pB%pB\\%..%t";
-static char e_proto[] =
+static constant char e_proto[] =
   "?f%f .?m(file %i of %m) .?ltline %lt?L/%L. .byte %bB?s/%s. ?e(END) :?pB%pB\\%..%t";
+static constant char h_proto[] =
+  "HELP -- ?eEND -- Press g to see it again:Press RETURN for more., or q when done";
 
 public char *prproto[3];
-public char *eqproto = e_proto;
+public char constant *eqproto = e_proto;
+public char constant *hproto = h_proto;
 
 static char message[PROMPT_SIZE];
 static char *mp;
@@ -79,6 +83,7 @@ init_prompt()
 	prproto[1] = save(m_proto);
 	prproto[2] = save(M_proto);
 	eqproto = save(e_proto);
+	hproto = save(h_proto);
 }
 
 /*
@@ -447,5 +452,7 @@ eq_message()
 	public char *
 pr_string()
 {
+	if (helping)
+		return (pr_expand(hproto, sc_width-so_s_width-so_e_width-2));
 	return (pr_expand(prproto[pr_type], sc_width-so_s_width-so_e_width-2));
 }

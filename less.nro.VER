@@ -553,10 +553,12 @@ variable, rather than being typed in with each
 command.
 Such an option must either be the last option in the LESS variable,
 or be terminated by a dollar sign.
--P followed by a string changes the default (short) prompt to that string.
+-P or -Ps followed by a string changes the default (short) prompt 
+to that string.
 -Pm changes the medium (-m) prompt to the string, and
 -PM changes the long (-M) prompt.
-Also, -P= changes the message printed by the = command to the given string.
+Also, -P= changes the message printed by the = command to the given string,
+and -Ph changes the prompt for the help screen.
 All prompt strings consist of a sequence of 
 letters and special escape sequences.
 See the section on PROMPTS for more details.
@@ -1199,8 +1201,7 @@ The name of the editor (used for the v command).
 .IP HOME
 Name of the user's home directory (used to find a lesskey file on Unix systems).
 .IP INIT
-Name of the user's init directory (used to find a lesskey file and help file
-on OS/2 systems).
+Name of the user's init directory (used to find a lesskey file on OS/2 systems).
 .IP LANG
 Language for determining the character set.
 .IP LC_CTYPE
@@ -1220,8 +1221,6 @@ Command line to invoke the (optional) input-postprocessor.
 .IP LESSEDIT
 Editor prototype string (used for the v command).
 See discussion under PROMPTS.
-.IP LESSHELP
-Name of the help file.
 .IP LESSKEY
 Name of the default lesskey(1) file.
 .IP LESSOPEN
@@ -1233,7 +1232,7 @@ See discussion under SECURITY.
 Sets the number of lines on the screen.
 Takes precedence over the number of lines specified by the TERM variable.
 .IP PATH
-User's search path (used to find a lesskey file and help file
+User's search path (used to find a lesskey file 
 on MS-DOS and OS/2 systems).
 .IP SHELL
 The shell used to execute the ! command, as well as to expand filenames.

@@ -47,14 +47,15 @@
 extern int nbufs;
 extern int cbufs;
 extern int pr_type;
-extern int nohelp;
 extern int plusoption;
 extern int swindow;
 extern int sc_height;
 extern int any_display;
 extern int secure;
+extern int dohelp;
 extern char *prproto[];
 extern char *eqproto;
+extern char *hproto;
 extern IFILE curr_ifile;
 #if LOGFILE
 extern char *namelogfile;
@@ -298,9 +299,11 @@ opt__P(type, s)
 		 */
 		switch (*s)
 		{
+		case 's':  proto = &prproto[PR_SHORT];	s++;	break;
 		case 'm':  proto = &prproto[PR_MEDIUM];	s++;	break;
 		case 'M':  proto = &prproto[PR_LONG];	s++;	break;
 		case '=':  proto = &eqproto;		s++;	break;
+		case 'h':  proto = &hproto;		s++;	break;
 		default:   proto = &prproto[PR_SHORT];		break;
 		}
 		free(*proto);
@@ -468,8 +471,6 @@ opt_query(type, s)
 	int type;
 	char *s;
 {
-	if (nohelp)
-		return;
 	switch (type)
 	{
 	case QUERY:
@@ -477,20 +478,7 @@ opt_query(type, s)
 		error("Use \"h\" for help", NULL_PARG);
 		break;
 	case INIT:
-		/*
-		 * This is "less -?".
-		 * It rather ungracefully grabs control, 
-		 * does the initializations normally done in main,
-		 * shows the help file and exits.
-		 */
-		raw_mode(1);
-		get_term();
-		open_getchr();
-		init();
-		any_display = TRUE;
-		help(1);
-		quit(QUIT_OK);
-		/*NOTREACHED*/
+		dohelp = 1;
 	}
 }
 

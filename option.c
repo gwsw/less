@@ -96,7 +96,7 @@ scan_option(s)
 			 * (They may have been set otherwise by previous 
 			 * options.)
 			 */
-			set_default = (*s == '+')
+			set_default = (*s == '+');
 			if (set_default)
 				s++;
 			continue;

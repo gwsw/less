@@ -1,5 +1,5 @@
 =======================================================================
-===          This is a distribution of less (version @@VERSION@@)         ===
+===         This is the distribution of less (version @@VERSION@@)         ===
 ===    Please report any problems to the author at markn@3do.com.   ===
 ===  See http://members.aol.com/marknudel/less for the latest info. ===
 =======================================================================
@@ -31,12 +31,9 @@ INSTALLATION (Unix systems only):
    If you choose not to include some features in your version, you may
    wish to edit the manual page "less.nro" and the help page "less.hlp" 
    to remove the descriptions of the features which you are removing.
+   If you edit less.hlp, you should run "make -f Makefile.author help.c".
 
 4. Type "make" and watch the fun.
-
-   If you want less to find the help file in a directory other than
-   the default (/usr/local/share), define "datadir" to that directory.
-   For example: "make datadir=/usr/local/helpfiles"
 
 5. If the make succeeds, it will generate a program "less"
    in your current directory.  Test the generated program.
@@ -46,11 +43,9 @@ INSTALLATION (Unix systems only):
 
    The default install destinations are:
 	Executables (less, lesskey) in /usr/local/bin
-	Data files (less.hlp) in /usr/local/share
 	Documentation (less.nro, lesskey.nro) in /usr/local/man/man1
    If you want to install any of these files elsewhere, define
-   bindir, datadir, and/or mandir to the appropriate directories.
-   datadir must be defined the same as in step 4.
+   bindir and/or mandir to the appropriate directories.
 
 If you have any problems building or running "less", suggestions, 
 complaints, etc., you may mail to the author at markn@3do.com
@@ -79,7 +74,7 @@ INSTALLATION (MS-DOS systems only)
 
 4. If you wish, you may edit DEFINES.DOS to remove some optional features.
    If you choose not to include some features in your version, you may
-   wish to edit the manual page LESS.MAN and the help page LESS.HLP 
+   wish to edit the manual page LESS.MAN and the help page HELP.C
    to remove the descriptions of the features which you are removing.
 
 5. Type "make" and watch the fun.
@@ -91,9 +86,8 @@ INSTALLATION (MS-DOS systems only)
 6. If the make succeeds, it will generate a program "LESS.EXE"
    in your current directory.  Test the generated program.
 
-7. When satisfied that it works, you may wish to install LESS.EXE,
-   LESSKEY.EXE and LESS.HLP in a directory which is included in 
-   your PATH.
+7. When satisfied that it works, you may wish to install LESS.EXE and
+   LESSKEY.EXE in a directory which is included in your PATH.
 
 
 
@@ -108,7 +102,7 @@ INSTALLATION (OS/2 systems only)
 
 4. If you wish, you may edit defines.os2 to remove some optional features.
    If you choose not to include some features in your version, you may
-   wish to edit the manual page less.man and the help page less.hlp
+   wish to edit the manual page less.man and the help page help.c
    to remove the descriptions of the features which you are removing.
 
 5. Type "make" and watch the fun.
@@ -122,9 +116,8 @@ INSTALLATION (OS/2 systems only)
    somewhere in a directory listed in the PATH or INIT environment 
    variables.
 
-8. When satisfied that it works, you may wish to install less.exe,
-   lesskey.exe and less.hlp in a directory which is included in 
-   your PATH.
+8. When satisfied that it works, you may wish to install less.exe and
+   lesskey.exe in a directory which is included in your PATH.
 
 
 
@@ -133,16 +126,14 @@ INSTALLATION (OS-9 systems only)
 
 1. Move the distributed source to its own directory.
 
-2. Rename Makefile.osk to Makefile.
+2. If you are using gcc, rename Makefile.gcc.os9 to Makefile.
+   If you are using Ultra C, rename Makefile.ult.os9 to Makefile.
 
 3. Check the Makefile to make sure the definitions look ok.
-   If you are using gcc, you should not need to change anything.
-   If you are using Ultra C, comment out the gcc definitions near
-   the top of the file, and un-comment the Ultra C definitions.
 
 4. If you wish, you may edit defines.osk to remove some optional features.
    If you choose not to include some features in your version, you may
-   wish to edit the manual page less.man and the help page less.hlp
+   wish to edit the manual page less.man and the help page help.c
    to remove the descriptions of the features which you are removing.
 
 5. Type "make" and watch the fun.

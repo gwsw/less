@@ -31,12 +31,12 @@ public int fd0 = 0;
 
 extern int new_file;
 extern int errmsgs;
-extern int quit_at_eof;
 extern int cbufs;
 extern char *every_first_cmd;
 extern int any_display;
 extern int force_open;
 extern int is_tty;
+extern int helping;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -134,6 +134,7 @@ close_file()
 	
 	if (curr_ifile == NULL_IFILE)
 		return;
+
 	/*
 	 * Save the current position so that we can return to
 	 * the same position if we edit this file again.
@@ -217,6 +218,12 @@ edit_ifile(ifile)
 	if (curr_ifile != NULL_IFILE)
 	{
 		close_file();
+		if (helping)
+		{
+			del_ifile(was_curr_ifile);
+			was_curr_ifile = old_ifile;
+			helping = 0;
+		}
 	}
 
 	if (ifile == NULL_IFILE)
@@ -257,6 +264,10 @@ edit_ifile(ifile)
 		 */
 		f = fd0;
 		chflags |= CH_KEEPOPEN;
+	} else if (strcmp(open_filename, FAKE_HELPFILE) == 0)
+	{
+		f = -1;
+		chflags |= CH_HELPFILE;
 	} else if ((parg.p_string = bad_file(open_filename)) != NULL)
 	{
 		/*
@@ -313,13 +324,18 @@ edit_ifile(ifile)
 	get_pos(curr_ifile, &initial_scrpos);
 	new_file = TRUE;
 	ch_init(f, chflags);
-#if LOGFILE
-	if (namelogfile != NULL && is_tty)
-		use_logfile(namelogfile);
-#endif
 
-	if (every_first_cmd != NULL)
-		ungetsc(every_first_cmd);
+	if (chflags & CH_HELPFILE)
+		helping = 1;
+	else
+	{
+#if LOGFILE
+		if (namelogfile != NULL && is_tty)
+			use_logfile(namelogfile);
+#endif
+		if (every_first_cmd != NULL)
+			ungetsc(every_first_cmd);
+	}
 
 	no_display = !any_display;
 	flush();

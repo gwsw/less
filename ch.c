@@ -86,6 +86,8 @@ extern int autobuf;
 extern int sigs;
 extern int cbufs;
 extern int secure;
+extern constant char helpdata[];
+extern constant int size_helpdata;
 extern IFILE curr_ifile;
 #if LOGFILE
 extern int logfile;
@@ -186,15 +188,19 @@ fch_get()
 	 * If we read less than a full block, that's ok.
 	 * We use partial block and pick up the rest next time.
 	 */
-	if (ch_ungotchar == -1)
-	{
-		n = iread(ch_file, &bp->data[bp->datasize], 
-			(unsigned int)(LBUFSIZE - bp->datasize));
-	} else
+	if (ch_ungotchar != -1)
 	{
 		bp->data[bp->datasize] = ch_ungotchar;
 		n = 1;
 		ch_ungotchar = -1;
+	} else if (ch_flags & CH_HELPFILE)
+	{
+		bp->data[bp->datasize] = helpdata[ch_fpos];
+		n = 1;
+	} else
+	{
+		n = iread(ch_file, &bp->data[bp->datasize], 
+			(unsigned int)(LBUFSIZE - bp->datasize));
 	}
 
 	if (n == READ_INTR)
@@ -459,6 +465,8 @@ ch_length()
 {
 	if (ignore_eoi)
 		return (NULL_POSITION);
+	if (ch_flags & CH_HELPFILE)
+		return (size_helpdata);
 	return (ch_fsize);
 }
 
@@ -690,7 +698,7 @@ ch_init(f, flags)
 		/*
 		 * Try to seek; set CH_CANSEEK if it works.
 		 */
-		if (seekable(f))
+		if (!(flags & CH_HELPFILE) && seekable(f))
 			ch_flags |= CH_CANSEEK;
 		set_filestate(curr_ifile, (void *) thisfile);
 	}
@@ -707,7 +715,7 @@ ch_close()
 {
 	int keepstate = FALSE;
 
-	if (ch_flags & (CH_CANSEEK|CH_POPENED))
+	if (ch_flags & (CH_CANSEEK|CH_POPENED|CH_HELPFILE))
 	{
 		/*
 		 * We can seek or re-open, so we don't need to keep buffers.
@@ -723,7 +731,7 @@ ch_close()
 		 * But don't really close it if it was opened via popen(),
 		 * because pclose() wants to close it.
 		 */
-		if (!(ch_flags & CH_POPENED))
+		if (!(ch_flags & (CH_POPENED|CH_HELPFILE)))
 			close(ch_file);
 		ch_file = -1;
 	} else

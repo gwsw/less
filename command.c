@@ -44,10 +44,10 @@ extern int swindow;
 extern int jump_sline;
 extern int quitting;
 extern int wscroll;
-extern int nohelp;
 extern int top_scroll;
 extern int ignore_eoi;
 extern int secure;
+extern int helping;
 extern char *every_first_cmd;
 extern char *curr_altfilename;
 extern char version[];
@@ -469,7 +469,7 @@ prompt()
 	/*
 	 * If the -E flag is set and we've hit EOF on the last file, quit.
 	 */
-	if (quit_at_eof == OPT_ONPLUS && hit_eof && 
+	if (quit_at_eof == OPT_ONPLUS && hit_eof && !helping && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
 
@@ -1008,11 +1008,13 @@ commands()
 			/*
 			 * Print file name, etc.
 			 */
+			if (helping)
+				break;
 			cmd_exec();
 			parg.p_string = eq_message();
 			error("%s", &parg);
 			break;
-			
+
 		case A_VERSION:
 			/*
 			 * Print version number, without the "@(#)".
@@ -1026,6 +1028,7 @@ commands()
 			 * Exit.
 			 */
 			quit(QUIT_OK);
+			break;
 
 /*
  * Define abbreviation for a commonly used sequence below.
@@ -1105,15 +1108,13 @@ commands()
 			/*
 			 * Help.
 			 */
-			if (nohelp)
+			if (helping)
 			{
 				bell();
 				break;
 			}
-			clear_bot();
-			putstr(" help");
 			cmd_exec();
-			help(0);
+			(void) edit(FAKE_HELPFILE);
 			break;
 
 		case A_EXAMINE:
@@ -1183,7 +1184,7 @@ commands()
 				number = 1;
 			if (edit_next(number))
 			{
-				if (quit_at_eof && hit_eof)
+				if (quit_at_eof && hit_eof && !helping)
 					quit(QUIT_OK);
 				parg.p_string = (number > 1) ? "(N-th) " : "";
 				error("No %snext file", &parg);

@@ -122,23 +122,6 @@ homefile(filename)
 }
 
 /*
- * Find out where the help file is.
- */
-	public char *
-find_helpfile()
-{
-	register char *helpfile;
-	
-	if ((helpfile = lgetenv("LESSHELP")) != NULL)
-		return (save(helpfile));
-#if MSDOS_COMPILER || OS2
-	return (homefile(HELPFILE));
-#else
-	return (save(HELPFILE));
-#endif
-}
-
-/*
  * Expand a string, substituting any "%" with the current filename,
  * and any "#" with the previous filename.
  * {{ This is a lot of work just to support % and #. }}

@@ -128,10 +128,6 @@
 #define	LESSKEYFILE		"_less"
 #define	DEF_LESSKEYINFILE	"_lesskey"
 
-/*
- * HELPFILE is the full pathname of the help file.
- */
-#define	HELPFILE	"less.hlp"
 
 /* Settings always true for MS-DOS systems.  */
 
@@ -221,6 +217,9 @@
 
 /* Define HAVE_VOID if your compiler supports the "void" type. */
 #define HAVE_VOID 1
+
+/* Define HAVE_CONST if your compiler supports the "const" modifier. */
+#define HAVE_CONST 1
 
 /* Define HAVE_TIME_T if your system supports the "time_t" type. */
 #define HAVE_TIME_T 1

@@ -43,12 +43,8 @@ public int	wscroll;
 public char *	progname;
 public int	quitting;
 public int	secure;
-
-extern int	quit_at_eof;
-extern int	cbufs;
-extern int	errmsgs;
-extern int	screen_trashed;
-extern int	force_open;
+public int	dohelp;
+public int	helping;
 
 #if LOGFILE
 public int	logfile = -1;
@@ -113,9 +109,15 @@ main(argc, argv)
 	if (argc == 1)
 	{
 		if (strcmp(argv[0], "--help") == 0)
+		{
 			scan_option("-?");
+			argc = 0;
+		}
 		if (strcmp(argv[0], "--version") == 0)
+		{
 			scan_option("-V");
+			argc = 0;
+		}
 	}
 #endif
 #define	isoptstring(s)	(((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
@@ -157,6 +159,8 @@ main(argc, argv)
 	 * to "register" them with the ifile system.
 	 */
 	ifile = NULL_IFILE;
+	if (dohelp)
+		ifile = get_ifile(FAKE_HELPFILE, ifile);
 	while (argc-- > 0)
 	{
 #if MSDOS_COMPILER || OS2
@@ -326,6 +330,12 @@ quit(status)
 	int status;
 {
 	static int save_status;
+
+	if (helping)
+	{
+		if (edit_prev(1) == 0)
+			return;
+	}
 
 	/*
 	 * Put cursor at bottom left corner, clear the line,

@@ -52,7 +52,6 @@ public int caseless;		/* Do "caseless" searches */
 public int linenums;		/* Use line numbers */
 public int cbufs;		/* Current number of buffers */
 public int autobuf;		/* Automatically allocate buffers as needed */
-public int nohelp;		/* Disable the HELP command */
 public int ctldisp;		/* Send control chars to screen untranslated */
 public int force_open;		/* Open the file even if not regular file */
 public int swindow;		/* Size of scrolling window */
@@ -118,11 +117,6 @@ static struct option option[] =
 	{ 'h', NUMBER, -1, &back_scroll, NULL,
 		"Backwards scroll limit: ",
 		"Backwards scroll limit is %d lines",
-		NULL
-	},
-	{ 'H', BOOL|NO_TOGGLE, OPT_OFF, &nohelp, NULL,
-		"Allow help command",
-		"Don't allow help command",
 		NULL
 	},
 	{ 'i', TRIPLE|HL_REPAINT, OPT_OFF, &caseless, opt_i,
