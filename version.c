@@ -530,6 +530,7 @@ v302   1/31/96	Fix cmd F to notice window-change signals.
 v303   1/31/96	Add ESC-SPACE command.
 v304   2/1/96	Add ^R search modifier; add LESSSECURE.
 v305   2/2/96	Workaround Linux /proc kernel bug; add LESSKEY.
+v306   3/16/96	Minor fixes.
 */
 
-char version[] = "305";
+char version[] = "306";
