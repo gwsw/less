@@ -10,9 +10,9 @@ INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 
-CFLAGS = -O
+CFLAGS = @CFLAGS@
 CFLAGS_COMPILE_ONLY = -c
-LDFLAGS = 
+LDFLAGS = @LDFLAGS@
 O=o
 
 LIBS = @LIBS@
@@ -100,10 +100,10 @@ TAGS:
 # Don't rerun config.status if we just configured (so there's no stamp-h).
 defines.h: stamp-h
 stamp-h: defines.h.in config.status
-	test ! -f stamp-h || ./config.status
+	test ! -f stamp-h || CONFIG_FILES= CONFIG_HEADERS=defines.h ./config.status
 	touch stamp-h
 Makefile: Makefile.in config.status
-	./config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= ./config.status
 config.status: configure
 	./config.status --recheck
 
@@ -118,7 +118,7 @@ clean:
 mostlyclean: clean
 
 distclean: clean
-	rm -f Makefile config.status defines.h stamp-h
+	rm -f Makefile config.status config.log config.cache defines.h stamp-h
 
 realclean: distclean
 	rm -f TAGS
