@@ -92,6 +92,8 @@ expand_linebuf()
 	}
 	memcpy(new_buf, linebuf, size_linebuf * sizeof(char));
 	memcpy(new_attr, attr, size_linebuf * sizeof(char));
+	free(attr);
+	free(linebuf);
 	linebuf = new_buf;
 	attr = new_attr;
 	size_linebuf = new_size;
