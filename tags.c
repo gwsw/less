@@ -309,8 +309,7 @@ findctag(tag)
 		 * or a search pattern surrounded by a pair of delimiters.
 		 * Parse the line and extract these parts.
 		 */
-		tagfile = tagpattern = NULL;
-		taglinenum = 0;
+		tagpattern = NULL;
 
 		/*
 		 * Skip over the whitespace after the tag name.

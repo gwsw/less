@@ -125,7 +125,6 @@ flush()
 #if MSDOS_COMPILER==WIN32C
 	if (is_tty && any_display)
 	{
-		char *p;
 		char *op;
 		DWORD nwritten = 0;
 		CONSOLE_SCREEN_BUFFER_INFO scr;

@@ -313,7 +313,7 @@ os9_signal(type, handler)
 
 #include <sgstat.h>
 
-	public int 
+	int 
 isatty(f)
 	int f;
 {

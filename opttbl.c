@@ -448,7 +448,7 @@ findopt_name(p_optname, p_oname, p_err)
 					maxoname = oname;
 					maxlen = len;
 					ambig = 0;
-					exact = (len == strlen(oname->oname));
+					exact = (len == (int)strlen(oname->oname));
 				}
 				if (!(o->otype & TRIPLE))
 					break;
