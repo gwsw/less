@@ -642,6 +642,7 @@ v378  9/30/02	Misc bug fixes and compiler warning cleanup.
 v379 11/23/02	Add -L option; fix bug with ctrl-K in lesskey files;
 		improve UTF-8 overstriking and underscore overstriking;
 		fix minor man page problems; change to autoconf 2.54.
+v380 11/24/02	Make LINENUM same as POSITION.
 */
 
-char version[] = "379";
+char version[] = "380";

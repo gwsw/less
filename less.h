@@ -154,8 +154,8 @@ void free();
  * Special types and constants.
  */
 typedef off_t		POSITION;
-typedef long		LINENUM;
-#define LINENUM_WIDTH	8	/* Printing width of a line number */
+typedef off_t		LINENUM;
+#define LINENUM_WIDTH	11	/* Printing width of a line number */
 
 #define	NULL_POSITION	((POSITION)(-1))
 
