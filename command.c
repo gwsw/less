@@ -1403,8 +1403,8 @@ commands()
 			}
 			break;
 
-#if TAGS
 		case A_NEXT_TAG:
+#if TAGS
 			if (number <= 0)
 				number = 1;
 			tagfile = nexttag(number);
@@ -1419,9 +1419,13 @@ commands()
 				if (pos != NULL_POSITION)
 					jump_loc(pos, jump_sline);
 			}
+#else
+			error("Command not available", NULL_PARG);
+#endif
 			break;
 
 		case A_PREV_TAG:
+#if TAGS
 			if (number <= 0)
 				number = 1;
 			tagfile = prevtag(number);
@@ -1436,8 +1440,10 @@ commands()
 				if (pos != NULL_POSITION)
 					jump_loc(pos, jump_sline);
 			}
-			break;
+#else
+			error("Command not available", NULL_PARG);
 #endif
+			break;
 
 		case A_INDEX_FILE:
 			/*
