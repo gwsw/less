@@ -211,6 +211,8 @@ public int above_mem, below_mem;	/* Memory retained above/below screen */
 public int can_goto_line;		/* Can move cursor to any line */
 public int missing_cap = 0;	/* Some capability is missing */
 
+static int attrmode = AT_NORMAL;
+
 static char *cheaper();
 static void tmodes();
 
@@ -1925,40 +1927,61 @@ clear_eol()
 }
 
 /*
- * Clear the bottom line of the display.
- * Leave the cursor at the beginning of the bottom line.
+ * Clear the current line.
+ * Clear the screen if there's off-screen memory below the display.
  */
-	public void
-clear_bot()
+	static void
+clear_eol_bot()
 {
-	lower_left();
 #if MSDOS_COMPILER
-#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
-	{
-		unsigned char save_attr;
-		struct text_info txinfo;
-
-		/*
-		 * Clear bottom, but with the background color of the text
-		 * window, not with background of stand-out color, so the the
-		 * bottom line stays stand-out only to the extent of prompt.
-		 */
-		gettextinfo(&txinfo);
-		save_attr = txinfo.attribute;
-		lower_left();
-		textbackground(nm_bg_color);
-		clear_eol();
-		textbackground(save_attr >> 4);
-	}
-#else
 	clear_eol();
-#endif
 #else
 	if (below_mem)
 		tputs(sc_eos_clear, 1, putchr);
 	else
 		tputs(sc_eol_clear, 1, putchr);
 #endif
+}
+
+/*
+ * Clear the bottom line of the display.
+ * Leave the cursor at the beginning of the bottom line.
+ */
+	public void
+clear_bot()
+{
+	/*
+	 * If we're in a non-normal attribute mode, temporarily exit
+	 * the mode while we do the clear.  Some terminals fill the
+	 * cleared area with the current attribute.
+	 */
+	lower_left();
+	switch (attrmode)
+	{
+	case AT_STANDOUT:
+		so_exit();
+		clear_eol_bot();
+		so_enter();
+		break;
+	case AT_UNDERLINE:
+		ul_exit();
+		clear_eol_bot();
+		ul_enter();
+		break;
+	case AT_BOLD:
+		bo_exit();
+		clear_eol_bot();
+		bo_enter();
+		break;
+	case AT_BLINK:
+		bl_exit();
+		clear_eol_bot();
+		bl_enter();
+		break;
+	default:
+		clear_eol_bot();
+		break;
+	}
 }
 
 /*
@@ -1973,6 +1996,7 @@ so_enter()
 	flush();
 	SETCOLORS(so_fg_color, so_bg_color);
 #endif
+	attrmode = AT_STANDOUT;
 }
 
 /*
@@ -1987,6 +2011,7 @@ so_exit()
 	flush();
 	SETCOLORS(nm_fg_color, nm_bg_color);
 #endif
+	attrmode = AT_NORMAL;
 }
 
 /*
@@ -2002,6 +2027,7 @@ ul_enter()
 	flush();
 	SETCOLORS(ul_fg_color, ul_bg_color);
 #endif
+	attrmode = AT_UNDERLINE;
 }
 
 /*
@@ -2016,6 +2042,7 @@ ul_exit()
 	flush();
 	SETCOLORS(nm_fg_color, nm_bg_color);
 #endif
+	attrmode = AT_NORMAL;
 }
 
 /*
@@ -2030,6 +2057,7 @@ bo_enter()
 	flush();
 	SETCOLORS(bo_fg_color, bo_bg_color);
 #endif
+	attrmode = AT_BOLD;
 }
 
 /*
@@ -2044,6 +2072,7 @@ bo_exit()
 	flush();
 	SETCOLORS(nm_fg_color, nm_bg_color);
 #endif
+	attrmode = AT_NORMAL;
 }
 
 /*
@@ -2058,6 +2087,7 @@ bl_enter()
 	flush();
 	SETCOLORS(bl_fg_color, bl_bg_color);
 #endif
+	attrmode = AT_BLINK;
 }
 
 /*
@@ -2072,6 +2102,7 @@ bl_exit()
 	flush();
 	SETCOLORS(nm_fg_color, nm_bg_color);
 #endif
+	attrmode = AT_NORMAL;
 }
 
 #if 0 /* No longer used */
