@@ -374,6 +374,7 @@ opt__V(type, s)
 		putstr("less comes with NO WARRANTY, to the extent permitted by law.\n");
 		putstr("For information about the terms of redistribution,\n");
 		putstr("see the file named README in the less distribution.\n");
+		putstr("Homepage: http://www.greenwoodsoftware.com/less\n");
 		quit(QUIT_OK);
 		break;
 	}
