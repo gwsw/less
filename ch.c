@@ -177,7 +177,7 @@ fch_get()
 		if (lseek(ch_file, (off_t)pos, 0) == BAD_LSEEK)
 		{
  			error("seek error", NULL_PARG);
- 			quit(1);
+ 			quit(QUIT_ERROR);
  		}
  		ch_fpos = pos;
  	}
@@ -194,7 +194,7 @@ fch_get()
 	if (n < 0)
 	{
 		error("read error", NULL_PARG);
-		quit(1);
+		quit(QUIT_ERROR);
 	}
 	ch_fpos += n;
 
@@ -503,7 +503,7 @@ ch_nbuf(want_nbufs)
 			parg.p_int = want_nbufs - ch_nbufs;
 			error("Cannot allocate %d buffers", &parg);
 			if (ch_nbufs == 0)
-				quit(1);
+				quit(QUIT_ERROR);
 			break;
 		}
 	}
@@ -653,7 +653,7 @@ ch_init(f, keepopen)
 		if (ch_addbuf())
 		{
 			error("Cannot allocate 1 buffer", NULL_PARG);
-			quit(1);
+			quit(QUIT_ERROR);
 		}
 		bp = ch_buftail;
 		bp->block = 0;

@@ -136,7 +136,7 @@ scan_option(s)
 			parg.p_string = propt(c);
 			error("There is no %s flag (\"less -\\?\" for help)",
 				&parg);
-			quit(1);
+			quit(QUIT_ERROR);
 		}
 
 		switch (o->otype & OTYPE)
@@ -475,7 +475,7 @@ optstring(s, c)
 	if (*s == '\0')
 	{
 		nostring(c);
-		quit(1);
+		quit(QUIT_ERROR);
 	}
 	for (p = s;  *p != '\0';  p++)
 		if (*p == END_OPTION_STRING)
@@ -518,7 +518,7 @@ getnum(sp, c, errp)
 		}
 		parg.p_string = propt(c);
 		error("Number is required after %s", &parg);
-		quit(1);
+		quit(QUIT_ERROR);
 	}
 
 	n = 0;

@@ -220,6 +220,10 @@ struct textlist
 #define S_WINCH		04
 #define	ABORT_SIGS()	(sigs & (S_INTERRUPT|S_STOP))
 
+#define	QUIT_OK		0
+#define	QUIT_ERROR	1
+#define	QUIT_SAVED_STATUS (-1)
+
 #define	ch_zero()	((POSITION)0)
 
 #include "funcs.h"

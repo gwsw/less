@@ -102,7 +102,7 @@ main(argc, argv)
 		 * following string, but there was no following string.
 		 */
 		nopendopt();
-		quit(0);
+		quit(QUIT_OK);
 	}
 
 #if EDITOR
@@ -164,7 +164,7 @@ main(argc, argv)
 				cat_file();
 			} while (edit_next(1) == 0);
 		}
-		quit(0);
+		quit(QUIT_OK);
 	}
 
 	init_mark();
@@ -189,36 +189,36 @@ main(argc, argv)
 		if (nifile() > 0)
 		{
 			error("No filenames allowed with -t option", NULL_PARG);
-			quit(1);
+			quit(QUIT_ERROR);
 		}
 		findtag(tagoption);
 		if (tagfile == NULL)
-			quit(1);
+			quit(QUIT_ERROR);
 		if (edit(tagfile))  /* Edit file which contains the tag */
-			quit(1);
+			quit(QUIT_ERROR);
 		/*
 		 * Search for the line which contains the tag.
 		 * Set up initial_scrpos so we display that line.
 		 */
 		initial_scrpos.pos = tagsearch();
 		if (initial_scrpos.pos == NULL_POSITION)
-			quit(1);
+			quit(QUIT_ERROR);
 		initial_scrpos.ln = jump_sline;
 	} else
 #endif
 	if (nifile() == 0)
 	{
 		if (edit_stdin())  /* Edit standard input */
-			quit(1);
+			quit(QUIT_ERROR);
 	} else 
 	{
 		if (edit_first())  /* Edit first valid file in cmd line */
-			quit(1);
+			quit(QUIT_ERROR);
 	}
 
 	init();
 	commands();
-	quit(0);
+	quit(QUIT_OK);
 	/*NOTREACHED*/
 }
 
@@ -266,7 +266,7 @@ ecalloc(count, size)
 	if (p != NULL)
 		return (p);
 	error("Cannot allocate memory", NULL_PARG);
-	quit(1);
+	quit(QUIT_ERROR);
 	/*NOTREACHED*/
 }
 

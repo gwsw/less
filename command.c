@@ -448,7 +448,7 @@ prompt()
 	 */
 	if (quit_at_eof == 2 && hit_eof && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
-		quit(0);
+		quit(QUIT_OK);
 
 	/*
 	 * Select the proper prompt and display it.
@@ -540,7 +540,7 @@ ungetcc(c)
 	if (ungotp >= ungot + sizeof(ungot))
 	{
 		error("ungetcc overflow", NULL_PARG);
-		quit(1);
+		quit(QUIT_ERROR);
 	}
 	*ungotp++ = c;
 }
@@ -638,7 +638,7 @@ multi_search(pattern, n)
 		 * Restore the file we were originally viewing.
 		 */
 		if (edit_ifile(save_ifile))
-			quit(1);
+			quit(QUIT_ERROR);
 	}
 }
 
@@ -674,7 +674,7 @@ commands()
 		{
 			psignals();
 			if (quitting)
-				quit(-1);
+				quit(QUIT_SAVED_STATUS);
 		}
 			
 		/*
@@ -964,7 +964,7 @@ commands()
 			/*
 			 * Exit.
 			 */
-			quit(0);
+			quit(QUIT_OK);
 
 /*
  * Define abbreviation for a commonly used sequence below.
@@ -1090,7 +1090,7 @@ commands()
 			 * buffers is not sufficient.
 			 */
 			if (edit_ifile(curr_ifile))
-				quit(1);
+				quit(QUIT_ERROR);
 			break;
 #else
 			error("Command not available", NULL_PARG);
@@ -1106,7 +1106,7 @@ commands()
 			if (edit_next(number))
 			{
 				if (quit_at_eof && hit_eof)
-					quit(0);
+					quit(QUIT_OK);
 				parg.p_string = (number > 1) ? "(N-th) " : "";
 				error("No %snext file", &parg);
 			}

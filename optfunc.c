@@ -227,7 +227,7 @@ opt_t(type, s)
 		if ((pos = tagsearch()) == NULL_POSITION)
 		{
 			if (edit_ifile(save_ifile))
-				quit(1);
+				quit(QUIT_ERROR);
 			break;
 		}
 		jump_loc(pos, jump_sline);
@@ -409,7 +409,7 @@ opt__V(type, s)
 	case INIT:
 		dispversion();
 		if (type == INIT)
-			quit(0);
+			quit(QUIT_OK);
 		break;
 	}
 }
@@ -526,7 +526,7 @@ opt_query(type, s)
 		init();
 		any_display = TRUE;
 		help(1);
-		quit(0);
+		quit(QUIT_OK);
 		/*NOTREACHED*/
 	}
 }

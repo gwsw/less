@@ -326,7 +326,7 @@ forward(n, force, only_last)
 		 * forward from end-of-file, go on to the next file.
 		 */
 		if (edit_next(1))
-			quit(0);
+			quit(QUIT_OK);
 		return;
 	}
 

@@ -403,7 +403,7 @@ edit_list(filelist)
 		 */
 		return (0);
 	if (edit_ifile(save_curr_ifile))
-		quit(1);
+		quit(QUIT_ERROR);
 	return (edit(good_filename));
 }
 
@@ -539,7 +539,7 @@ edit_stdin()
 #else
 		error("Missing filename (\"less -\\?\" for help)", NULL_PARG);
 #endif
-		quit(0);
+		quit(QUIT_OK);
 	}
 	return (edit("-"));
 }
@@ -628,7 +628,7 @@ loop:
 		 */
 		return;
 	case 'q':
-		quit(0);
+		quit(QUIT_OK);
 		/*NOTREACHED*/
 	default:
 		/*

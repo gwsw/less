@@ -94,7 +94,7 @@ getchr()
 			 * Don't call error() here,
 			 * because error calls getchr!
 			 */
-			quit(1);
+			quit(QUIT_ERROR);
 		}
 #endif
 		/*

@@ -105,7 +105,7 @@ ichardef(s)
 
 		default:
 			error("invalid chardef", NULL_PARG);
-			quit(1);
+			quit(QUIT_ERROR);
 			/*NOTREACHED*/
 		}
 
@@ -114,7 +114,7 @@ ichardef(s)
 			if (cp >= chardef + sizeof(chardef))
 			{
 				error("chardef longer than 256", NULL_PARG);
-				quit(1);
+				quit(QUIT_ERROR);
 				/*NOTREACHED*/
 			}
 			*cp++ = v;
@@ -149,7 +149,7 @@ icharset(name)
 	}
 
 	error("invalid charset name", NULL_PARG);
-	quit(1);
+	quit(QUIT_ERROR);
 	/*NOTREACHED*/
 }
 
