@@ -33,6 +33,7 @@ extern int jump_sline;
 extern IFILE curr_ifile;
 #if EDITOR
 extern char *editor;
+extern char *editproto;
 #endif
 
 /*
@@ -212,15 +213,17 @@ cond(c, where)
  * usually by appending something to the message being built.
  */
 	static void
-protochar(c, where)
+protochar(c, where, iseditproto)
 	int c;
 	int where;
+	int iseditproto;
 {
 	POSITION pos;
 	POSITION len;
 	int n;
 	IFILE h;
 	char *s;
+	char *escs;
 
 	switch (c)
 	{
@@ -256,6 +259,15 @@ protochar(c, where)
 #endif
 	case 'f':	/* File name */
 		s = unquote_file(get_filename(curr_ifile));
+		/*
+		 * If we are expanding editproto then we escape metachars.
+		 * This allows us to run the editor on files with funny names.
+		 */
+		if (iseditproto && (escs = esc_metachars(s)) != NULL)
+		{
+			free(s);
+			s = escs;
+		}
 		ap_str(s);
 		free(s);
 		break;
@@ -459,7 +471,7 @@ pr_expand(proto, maxwidth)
 			{
 				where = 0;
 				p = wherechar(p, &where);
-				protochar(c, where);
+				protochar(c, where, (proto == editproto));
 			}
 			break;
 		}

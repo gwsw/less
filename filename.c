@@ -438,7 +438,7 @@ metachar(c)
 /*
  * Insert a backslash before each metacharacter in a string.
  */
-	static char *
+	public char *
 esc_metachars(s)
 	char *s;
 {
@@ -495,7 +495,7 @@ esc_metachars(s)
 
 #else /* HAVE_SHELL */
 
-	static char *
+	public char *
 esc_metachars(s)
 	char *s;
 {

@@ -125,9 +125,19 @@ lsystem(cmd, donemsg)
 			p = save(shell);
 		else
 		{
-			p = (char *) ecalloc(strlen(shell) + strlen(cmd) + 7, 
-					sizeof(char));
-			sprintf(p, "%s -c \"%s\"", shell, cmd);
+			char *esccmd;
+			if ((esccmd = esc_metachars(cmd)) == NULL)
+			{
+				p = (char *) ecalloc(strlen(shell) +
+					strlen(cmd) + 7, sizeof(char));
+				sprintf(p, "%s -c \"%s\"", shell, cmd);
+			} else
+			{
+				p = (char *) ecalloc(strlen(shell) +
+					strlen(esccmd) + 5, sizeof(char));
+				sprintf(p, "%s -c %s", shell, esccmd);
+				free(esccmd);
+			}
 		}
 	}
 	if (p == NULL)
