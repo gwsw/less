@@ -34,6 +34,7 @@ static int curr;		/* Index into linebuf */
 static int column;		/* Printable length, accounting for
 				   backspaces, etc. */
 static int overstrike;		/* Next char should overstrike previous char */
+static int last_overstrike = AT_NORMAL;
 static int is_null_line;	/* There is no current line */
 static int lmargin;		/* Left margin */
 static int hilites;		/* Number of hilites in this line */
@@ -403,6 +404,8 @@ store_char(c, a, pos)
 {
 	register int w;
 
+	if (a != AT_NORMAL)
+		last_overstrike = a;
 #if HILITE_SEARCH
 	if (is_hilited(pos, pos+1, 0))
 	{
@@ -620,7 +623,17 @@ do_append(c, pos)
 			STOREC(c, AT_UNDERLINE);
 		} else if ((char)c == linebuf[curr])
 		{
-			STOREC(c, AT_BOLD);
+			/*
+			 * Overstriking a char with itself means make it bold.
+			 * But overstriking an underscore with itself is
+			 * ambiguous.  It could mean make it bold, or
+			 * it could mean make it underlined.
+			 * Use the previous overstrike to resolve it.
+			 */
+			if (c == '_' && last_overstrike != AT_NORMAL)
+				STOREC(c, last_overstrike);
+			else
+				STOREC(c, AT_BOLD);
 		} else if (c == '_')
 		{
 			if (utf_mode)
