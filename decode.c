@@ -513,7 +513,6 @@ new_lesskey(buf, len)
 			p += n;
 			break;
 		case END_SECTION:
-			done = 1;
 			return (0);
 		default:
 			/*
