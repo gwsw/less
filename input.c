@@ -69,6 +69,13 @@ forw_line(curr_pos)
 	}
 #if HILITE_SEARCH
 	if (hilite_search == OPT_ONPLUS)
+		/*
+		 * If we are ignoring EOI (command F), only prepare
+		 * one line ahead, to avoid getting stuck waiting for
+		 * slow data without displaying the data we already have.
+		 * If we're not ignoring EOI, we *could* do the same, but
+		 * for efficiency we prepare several lines ahead at once.
+		 */
 		prep_hilite(curr_pos, curr_pos + 3*size_linebuf, 
 				ignore_eoi ? 1 : -1);
 #endif
