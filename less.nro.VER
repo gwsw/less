@@ -348,8 +348,9 @@ commands may or may not be valid, depending on your particular installation.
 .PP
 .IP v
 Invokes an editor to edit the current file being viewed.
-The editor is taken from the environment variable EDITOR,
-or defaults to "vi".
+The editor is taken from the environment variable VISUAL if defined,
+or EDITOR if VISUAL is not defined,
+or defaults to "vi" if neither VISUAL nor EDITOR is defined.
 See also the discussion of LESSEDIT under the section on PROMPTS below.
 .PP
 .IP "! shell-command"
@@ -1007,7 +1008,8 @@ and a "j" means use the "target" line, as specified by the -j option.
 .IP "%B"
 Replaced by the size of the current input file.
 .IP "%E"
-Replaced by the name of the editor (from the EDITOR environment variable).
+Replaced by the name of the editor (from the VISUAL environment variable,
+or the EDITOR environment variable if VISUAL is not defined).
 See the discussion of the LESSEDIT feature below.
 .IP "%f"
 Replaced by the name of the current input file.
@@ -1185,6 +1187,8 @@ The shell used to execute the ! command, as well as to expand filenames.
 The type of terminal on which
 .I less
 is being run.
+.IP VISUAL
+The name of the editor (used for the v command).
 
 .SH "SEE ALSO"
 lesskey(1)

@@ -16,6 +16,7 @@
 * New flag -I acts like -i, but ignores case even if the search 
   pattern contains uppercase letters.
 
+* Less now checks for the environment variable VISUAL before EDITOR.
 
 ======================================================================
 

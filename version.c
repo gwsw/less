@@ -477,6 +477,8 @@
  *	v268: Get rid of four-byte header.		12/28/94
  *	v269: Close alt file before open new one.	1/2/95
  *	      Avoids multiple popen().
+ *	v270: Use VISUAL; use S_ISDIR/S_ISREG; fix	1/3/95
+ *	      config problem with Solaris POSIX regcomp.
  */
 
-char version[] = "269";
+char version[] = "270";
