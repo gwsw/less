@@ -577,7 +577,8 @@ v335   3/20/99	Add EBCDIC support (thanks to Thomas Dorner).
 		Posted to Web page.
 -----------------------------------------------------------------
 v336    4/8/99	Fix installation bugs.
+v337    4/9/99	Fix another installation bug.
 
 */
 
-char version[] = "336";
+char version[] = "337";
