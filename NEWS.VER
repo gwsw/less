@@ -1,5 +1,5 @@
 
-	Major changes between "less" versions 237 and 251
+	Major changes between "less" versions 237 and 252
 
 * Changes in line-editing keys:
   The literal key is now ^V or ^A rather than \ (backslash).
@@ -8,7 +8,7 @@
 
 * Line-editing command keys can be redefined using lesskey.
 
-* Lesskey with no input file defaults to $HOME/.lesskey.in
+* Lesskey with no input file defaults to $HOME/.lesskey
   rather than standard input.
 
 * New option -V displays version number of less.

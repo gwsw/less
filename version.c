@@ -451,6 +451,8 @@
  *	v250: Lesskey input file "-" means stdin.	11/7/94
  *	v251: Convert cfgetospeed result to ospeed.	11/9/94
  *	      (Thanks to Andrew Chernov)
+ *	v252: Change default lesskey input file from 	11/16/94
+ *	      .lesskey.in to .lesskey.
  */
 
-char version[] = "251";
+char version[] = "252";

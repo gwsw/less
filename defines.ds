@@ -109,7 +109,7 @@
  * (in the HOME directory).
  */
 #define	LESSKEYFILE		"_less"
-#define	DEF_LESSKEYINFILE	"_lesskey.in"
+#define	DEF_LESSKEYINFILE	"_lesskey"
 
 /*
  * HELPFILE is the full pathname of the help file.

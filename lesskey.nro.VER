@@ -11,7 +11,7 @@ is used to specify a set of key bindings to be used by
 .I less.
 The input file is a text file which describes the key bindings,
 If the input file is "-", standard input is read.
-If no input file is specified, $HOME/.lesskey.in is read.
+If no input file is specified, $HOME/.lesskey is read.
 The output file is a binary file which is used by 
 .I less.
 If no output file is specified, $HOME/.less is written.
