@@ -74,7 +74,7 @@
  * EDIT_PGM is the name of the (default) editor to be invoked.
  */
 #define	EDITOR		(!SECURE)
-#define	EDIT_PGM	"vi"
+#define	EDIT_PGM	"umacs"
 
 /*
  * TAGS is 1 if you wish to support tag files.
