@@ -32,7 +32,7 @@ struct charset {
 	char *desc;
 } charsets[] = {
 	{ "ascii",	NULL,       "8bcccbcc18b95.b" },
-	{ "dos",	NULL,       "8bcccbcc12bc5b95.b." },
+	{ "dos",	NULL,       "8bcccbcc12bc5b223.b" },
 	{ "ebcdic",	NULL,       "5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b." },
 	{ "iso8859",	NULL,       "8bcccbcc18b95.33b." },
 	{ "koi8-r",	NULL,       "8bcccbcc18b95.b128." },
@@ -242,10 +242,17 @@ init_charset()
 	 */
 	ilocale();
 #else
+#if MSDOS_COMPILER
+	/*
+	 * Default to "dos".
+	 */
+	(void) icharset("dos");
+#else
 	/*
 	 * Default to "latin1".
 	 */
 	(void) icharset("latin1");
+#endif
 #endif
 }
 
