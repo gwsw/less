@@ -206,8 +206,8 @@ init_cmds()
 	/*
 	 * Add the default command tables.
 	 */
-	add_fcmd_table(cmdtable, sizeof(cmdtable));
-	add_ecmd_table(edittable, sizeof(edittable));
+	add_fcmd_table((char*)cmdtable, sizeof(cmdtable));
+	add_ecmd_table((char*)edittable, sizeof(edittable));
 #if USERFILE
 	/*
 	 * Try to add the tables in the standard lesskey file "$HOME/.less".

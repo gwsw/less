@@ -848,7 +848,6 @@ search(search_type, pattern, n)
 	int n;
 {
 	POSITION pos;
-	char *line;
 
 	if (pattern == NULL || *pattern == '\0')
 	{
@@ -924,7 +923,8 @@ search(search_type, pattern, n)
 		return (-1);
 	}
 
-	n = search_range(pos, NULL_POSITION, search_type, n, &pos, NULL);
+	n = search_range(pos, NULL_POSITION, search_type, n, 
+			&pos, (POSITION*)NULL);
 	if (n != 0)
 	{
 		/*
@@ -1051,8 +1051,8 @@ prep_hilite(spos, epos)
 
 	if (epos > spos)
 	{
-		if (search_range(spos, epos, SRCH_FORW|SRCH_FIND_ALL, 
-				0, NULL, &epos) >= 0)
+		if (search_range(spos, epos, SRCH_FORW|SRCH_FIND_ALL, 0,
+				(POSITION*)NULL, &epos) >= 0)
 		{
 			if (epos == NULL_POSITION || epos > nprep_endpos)
 				nprep_endpos = epos;
@@ -1103,7 +1103,10 @@ match(pattern, buf, pfound, pend)
 regerror(s) 
 	char *s; 
 {
-	error(s, NULL_PARG);
+	PARG parg;
+
+	parg.p_string = s;
+	error("%s", &parg);
 }
 #endif
 
