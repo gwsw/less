@@ -864,7 +864,7 @@ init_compl()
  */
 	static char *
 next_compl(action, prev)
-     	int action;
+	int action;
 	char *prev;
 {
 	switch (action)

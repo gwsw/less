@@ -417,8 +417,8 @@ static int pids[_NFILE] = { 0, 0, 0, 0, 0, 0, 0, 0,
  * p o p e n
  */
 FILE *popen(name, mode)
-char     *name,
-        *mode;
+	char *name;
+	char *mode;
 {
     int          fd, fd2, fdsav, pid;
     static char  *argv[] = {NULL, NULL, NULL };
@@ -483,7 +483,7 @@ char     *name,
  * p c l o s e
  */
 int pclose(fp)
-FILE    *fp;
+	FILE *fp;
 {
     unsigned int    status;
     int             pid;

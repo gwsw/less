@@ -1311,7 +1311,7 @@ tmodes(incap, outcap, instr, outstr, def_instr, def_outstr, spp)
 #if MSDOS_COMPILER
 
 #if MSDOS_COMPILER==WIN32C
-        static void
+	static void
 _settextposition(int row, int col)
 {
 	COORD cpos;
@@ -1542,7 +1542,7 @@ add_line()
  */
 	public void
 remove_top(n)
-       int n;
+	int n;
 {
 #if MSDOS_COMPILER==WIN32C
 	SMALL_RECT rcSrc, rcClip;
@@ -1617,8 +1617,8 @@ check_winch()
 	if (con_out == INVALID_HANDLE_VALUE)
 		return;
  
-        flush();
-        GetConsoleScreenBufferInfo(con_out, &scr);
+	flush();
+	GetConsoleScreenBufferInfo(con_out, &scr);
 	size.Y = scr.srWindow.Bottom - scr.srWindow.Top + 1;
 	size.X = scr.srWindow.Right - scr.srWindow.Left + 1;
 	if (size.Y != sc_height || size.X != sc_width)
@@ -1816,15 +1816,15 @@ clear()
 #else
 	flush();
 #if MSDOS_COMPILER==WIN32C
-       /*
-        * This will clear only the currently visible rows of the NT
-        * console buffer, which means none of the precious scrollback
-        * rows are touched making for faster scrolling.  Note that, if
-        * the window has fewer columns than the console buffer (i.e.
-        * there is a horizontal scrollbar as well), the entire width
-        * of the visible rows will be cleared.
-        */
-     {
+	/*
+	 * This will clear only the currently visible rows of the NT
+	 * console buffer, which means none of the precious scrollback
+	 * rows are touched making for faster scrolling.  Note that, if
+	 * the window has fewer columns than the console buffer (i.e.
+	 * there is a horizontal scrollbar as well), the entire width
+	 * of the visible rows will be cleared.
+	 */
+    {
 	COORD topleft;
 	DWORD nchars;
 	DWORD winsz;
@@ -1839,7 +1839,7 @@ clear()
 	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
 	FillConsoleOutputCharacter(con_out, ' ', winsz, topleft, &nchars);
 	FillConsoleOutputAttribute(con_out, curr_attr, winsz, topleft, &nchars);
-     }
+    }
 #else
 	_clearscreen(_GCLEARSCREEN);
 #endif
@@ -1897,7 +1897,7 @@ clear_eol()
 	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
 	FillConsoleOutputAttribute(con_out, curr_attr,
 		scr.dwSize.X - cpos.X, cpos, &nchars);
-        FillConsoleOutputCharacter(con_out, ' ',
+	FillConsoleOutputCharacter(con_out, ' ',
 		scr.dwSize.X - cpos.X, cpos, &nchars);
 #endif
 #endif
@@ -2143,6 +2143,9 @@ putbs()
 }
 
 #if MSDOS_COMPILER==WIN32C
+/*
+ * Determine whether an input character is waiting to be read.
+ */
 	static int
 win32_kbhit(tty)
 	HANDLE tty;
@@ -2205,6 +2208,9 @@ win32_kbhit(tty)
 	return (TRUE);
 }
 
+/*
+ * Read a character from the keyboard.
+ */
 	public char
 WIN32getch(tty)
 	int tty;
