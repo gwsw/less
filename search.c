@@ -671,9 +671,10 @@ search_pos(search_type)
 	{
 		/*
 		 * Start at the beginning (or end) of the file.
-		 * (The empty_screen() case is mainly for 
+		 * The empty_screen() case is mainly for 
 		 * command line initiated searches;
-		 * for example, "+/xyz" on the command line.)
+		 * for example, "+/xyz" on the command line.
+		 * Also for multi-file (SRCH_PAST_EOF) searches.
 		 */
 		if (search_type & SRCH_FORW)
 		{
@@ -682,7 +683,10 @@ search_pos(search_type)
 		{
 			pos = ch_length();
 			if (pos == NULL_POSITION)
-				return (ch_zero());
+			{
+				(void) ch_end_seek();
+				pos = ch_length();
+			}
 			return (pos);
 		}
 	}

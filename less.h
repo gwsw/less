@@ -189,8 +189,9 @@ struct textlist
 #define	SRCH_PAST_EOF	0200	/* Search past end-of-file, into next file */
 #define	SRCH_FIRST_FILE	0400	/* Search starting at the first file */
 
-#define	SRCH_DIR(t)	((t) & 01)
-#define	SRCH_REVERSE(t)	((t) ^ 01)
+#define	SRCH_REVERSE(t)	(((t) & SRCH_FORW) ? \
+				(((t) & ~SRCH_FORW) | SRCH_BACK) : \
+				(((t) & ~SRCH_BACK) | SRCH_FORW))
 
 /* */
 #define	NO_MCA		0

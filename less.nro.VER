@@ -505,11 +505,11 @@ if a pattern contains uppercase letters, then that search does not ignore case.
 Like -i, but searches ignore case even if 
 the pattern contains uppercase letters.
 .IP -j\fIn\fP
-Specifies a line on the screen where "target" lines
-are to be positioned.
-Target lines are the object of text searches, 
-tag searches, jumps to a line number,
-jumps to a file percentage, and jumps to a marked position.
+Specifies a line on the screen where the "target" line
+is to be positioned.
+A target line is the object of a text search, 
+tag search, jump to a line number,
+jump to a file percentage, or jump to a marked position.
 The screen line is specified by a number: the top line on the screen
 is 1, the next is 2, and so on.
 The number may be negative to specify a line relative to the bottom
@@ -666,7 +666,8 @@ using the terminal's hardware boldface capability.
 Other backspaces are deleted, along with the preceding character.
 Carriage returns immediately followed by a newline are deleted.
 Other carriage returns are handled as specified by the -r option.
-Text which is overstruck or underlined can be searched for.
+Text which is overstruck or underlined can be searched for
+if neither -u nor -U is in effect.
 .IP -V
 Displays the version number of 
 .I less.
@@ -674,7 +675,7 @@ Displays the version number of
 Causes blank lines to be used to represent lines
 past the end of the file.
 By default,
-a tilde character is used.
+a tilde character (~) is used.
 .IP -x\fIn\fP
 Sets tab stops every \fIn\fP positions.
 The default for \fIn\fP is 8.
