@@ -867,6 +867,7 @@ next_compl(action, prev)
 cmd_complete(action)
 	int action;
 {
+	char *s;
 
 	if (!in_completion || action == EC_EXPAND)
 	{
@@ -934,7 +935,10 @@ cmd_complete(action)
 		{
 			if (cp > cmdbuf && cp[-1] == quote_char)
 				(void) cmd_erase();
-			if (cmd_istr(PATHNAME_SEP) != CC_OK)
+			s = lgetenv("LESSSEPARATOR");
+			if (s == NULL)
+				s = PATHNAME_SEP;
+			if (cmd_istr(s) != CC_OK)
 				goto fail;
 		}
 	}
