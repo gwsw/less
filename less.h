@@ -30,6 +30,13 @@
  */
 
 /*
+ * Defines for MSDOS_COMPILER.
+ */
+#define	MSOFTC		1	/* Microsoft C */
+#define	BORLANDC	2	/* Borland C */
+#define	WIN32C		3	/* Windows (Borland C) */
+
+/*
  * Include the file of compile-time options.
  * The <> make cc search for it in -I., not srcdir.
  */
@@ -43,13 +50,6 @@
  */
 #undef HAVE_SIGSETMASK
 #endif
-
-/*
- * Defines for MSDOS_COMPILER.
- */
-#define	MSOFTC		1	/* Microsoft C */
-#define	BORLANDC	2	/* Borland C */
-#define	WIN32C		3	/* Windows (Borland C) */
 
 /*
  * Language details.
