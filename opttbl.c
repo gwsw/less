@@ -136,18 +136,13 @@ static struct option option[] =
 		NULL
 	},
 #if USERFILE
-	{ 'k', STRING|NO_TOGGLE, 0, NULL, opt_k,
+	{ 'k', STRING|NO_TOGGLE|NO_QUERY, 0, NULL, opt_k,
 		NULL, NULL, NULL
 	},
 #endif
-#if LOGFILE
-	{ 'l', STRING|NO_TOGGLE, 0, NULL, opt_l,
+	{ 'l', STRING|NO_TOGGLE|NO_QUERY, 0, NULL, opt_l,
 		NULL, NULL, NULL
 	},
-	{ 'L', STRING, 0, NULL, opt__L,
-		NULL, NULL, NULL
-	},
-#endif
 	{ 'm', TRIPLE, OPT_OFF, &pr_type, NULL,
 		"Short prompt",
 		"Medium prompt",
@@ -166,7 +161,7 @@ static struct option option[] =
 		"Log file: ", NULL, NULL
 	},
 #endif
-	{ 'p', STRING|NO_TOGGLE, 0, NULL, opt_p,
+	{ 'p', STRING|NO_TOGGLE|NO_QUERY, 0, NULL, opt_p,
 		NULL, NULL, NULL
 	},
 	{ 'P', STRING, 0, NULL, opt__P,
@@ -193,7 +188,7 @@ static struct option option[] =
 		NULL
 	},
 #if TAGS
-	{ 't', STRING, 0, NULL, opt_t,
+	{ 't', STRING|NO_QUERY, 0, NULL, opt_t,
 		"tag: ", NULL, NULL
 	},
 	{ 'T', STRING, 0, NULL, opt__T,

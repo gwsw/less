@@ -223,6 +223,13 @@ toggle_option(c, s, how_toggle)
 		return;
 	} 
 
+	if (how_toggle == OPT_NO_TOGGLE && (o->otype & NO_QUERY))
+	{
+		parg.p_string = propt(c);
+		error("Cannot query the %s flag", &parg);
+		return;
+	} 
+
 	/*
 	 * Check for something which appears to be a do_toggle
 	 * (because the "-" command was used), but really is not.

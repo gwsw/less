@@ -133,9 +133,10 @@ opt__O(type, s)
 	force_logfile = TRUE;
 	opt_o(type, s);
 }
+#endif
 
 /*
- * Handlers for obsolete -l and -L options.
+ * Handlers for -l option.
  */
 	public void
 opt_l(type, s)
@@ -143,36 +144,24 @@ opt_l(type, s)
 	char *s;
 {
 	int err;
+	int n;
 	char *t;
 	
 	switch (type)
 	{
 	case INIT:
 		t = s;
-		(void) getnum(&t, 'l', &err);
-		if (err || *t != '\0')
+		n = getnum(&t, 'l', &err);
+		if (err || n <= 0)
 		{
-			error("The -l option is obsolete.  Use -o", NULL_PARG);
+			error("Line number is required after -l", NULL_PARG);
 			return;
 		}
 		plusoption = TRUE;
 		ungetsc(s);
 		break;
-	case QUERY:
-		error("Line number is required after -l", NULL_PARG);
-		break;
 	}
 }
-
-	/*ARGSUSED*/
-	public void
-opt__L(type, s)
-	int type;
-	char *s;
-{
-	error("The -L option is obsolete.  Use -O", NULL_PARG);
-}
-#endif
 
 #if USERFILE
 	public void
@@ -190,10 +179,6 @@ opt_k(type, s)
 			parg.p_string = s;
 			error("Cannot use lesskey file \"%s\"", &parg);
 		}
-		break;
-	case QUERY:
-	case TOGGLE:
-		error("Cannot query the -k flag", NULL_PARG);
 		break;
 	}
 }
@@ -231,9 +216,6 @@ opt_t(type, s)
 			break;
 		}
 		jump_loc(pos, jump_sline);
-		break;
-	case QUERY:
-		error("Tag is required after -t", NULL_PARG);
 		break;
 	}
 }
@@ -286,9 +268,6 @@ opt_p(type, s)
 		plusoption = TRUE;
 		ungetsc(s);
 		ungetsc("/");
-		break;
-	case QUERY:
-		error("Pattern is required after -p", NULL_PARG);
 		break;
 	}
 }
