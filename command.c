@@ -37,6 +37,7 @@
 extern int erase_char, kill_char;
 extern int sigs;
 extern int quit_at_eof;
+extern int squished;
 extern int hit_eof;
 extern int sc_width;
 extern int sc_height;
@@ -465,6 +466,13 @@ prompt()
 	 */
 	if (quit_at_eof == OPT_ONPLUS && hit_eof && 
 	    !(ch_getflags() & CH_HELPFILE) && 
+	    next_ifile(curr_ifile) == NULL_IFILE)
+		quit(QUIT_OK);
+	/*
+	 * If the -e flag is set and we've hit EOF on the last file,
+	 * and the file is squished (shorter than the screen), quit.
+	 */
+	if (quit_at_eof && squished &&
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
 

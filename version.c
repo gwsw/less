@@ -538,6 +538,7 @@ v310   4/10/96	Get rid of HELPFILE.
 v311   4/22/96	Add Windows32 support; merge doscreen.c into screen.c.
 v312   4/24/96	Don't quit after "cannot reopen" error.
 v313   4/25/96	Added horizontal scrolling.
+v314   4/26/96	Modified -e to quit on reaching end of a squished file.
 */
 
-char version[] = "313";
+char version[] = "314";

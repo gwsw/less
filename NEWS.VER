@@ -19,6 +19,9 @@
 * New command ESC-SPACE scrolls forward a full screen, even if it
   hits end-of-file.
 
+* The -e flag now causes less to exit immediately on reaching the
+  end of a "short" file: a file which completely fits on the display.
+
 * Alternate modifiers for search commands: ^N is same as !,
   ^F is same as @, and ^E is same as *.
 
