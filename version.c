@@ -558,6 +558,7 @@ v323   8/19/96	Fixes for Windows version (thanks to Simon Munton);
 v324   8/21/96	Add support for spaces in filenames (thanks to Simon Munton).
 v325   8/21/96	Add lessecho, for spaces in filenames under Unix.
 v326   8/27/96	Fix DJGPP version.
+v327   9/1/96	Reorganize lglob, make spaces in filenames work better in Unix.
 */
 
-char version[] = "326";
+char version[] = "327";
