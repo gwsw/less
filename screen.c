@@ -106,6 +106,7 @@ static int init_done = 0;
 public int auto_wrap;		/* Terminal does \r\n when write past margin */
 public int ignaw;		/* Terminal ignores \n immediately after wrap */
 public int erase_char, kill_char; /* The user's erase and line-kill chars */
+public int werase_char;		/* The user's word-erase char */
 public int sc_width, sc_height;	/* Height & width of screen */
 public int bo_s_width, bo_e_width;	/* Printing width of boldface seq */
 public int ul_s_width, ul_e_width;	/* Printing width of underline seq */
@@ -231,6 +232,11 @@ raw_mode(on)
 #endif
 		erase_char = s.c_cc[VERASE];
 		kill_char = s.c_cc[VKILL];
+#ifdef VWERASE
+		werase_char = s.c_cc[VWERASE];
+#else
+		werase_char = 0;
+#endif
 
 		/*
 		 * Set the modes to the way we want them.
@@ -320,6 +326,11 @@ raw_mode(on)
 #endif
 		erase_char = s.c_cc[VERASE];
 		kill_char = s.c_cc[VKILL];
+#ifdef VWERASE
+		werase_char = s.c_cc[VWERASE];
+#else
+		werase_char = 0;
+#endif
 
 		/*
 		 * Set the modes to the way we want them.
@@ -359,6 +370,7 @@ raw_mode(on)
 #endif
 		erase_char = s.sg_erase;
 		kill_char = s.sg_kill;
+		werase_char = 0;
 
 		/*
 		 * Set the modes to the way we want them.
@@ -561,6 +573,13 @@ get_editkeys()
 	tbuf[1] = erase_char;
 	tbuf[2] = '\0';
 	put_ecmd(tbuf, EC_W_BACKSPACE);
+
+	if (werase_char != 0)
+	{
+		tbuf[0] = werase_char;
+		tbuf[1] = '\0';
+		put_ecmd(tbuf, EC_W_BACKSPACE);
+	}
 
 	/*
 	 * Register the two tables.

@@ -465,6 +465,7 @@
  *	v258: Fixup in hilite_line if BS_SPECIAL.	12/12/94
  *	v259: Convert to autoconf 2.0.			12/12/94
  *	v260: Add SECURE define.			12/13/94
+ *	v261: Use system WERASE char as EC_W_BACKSPACE.	12/14/94
  */
 
-char version[] = "260";
+char version[] = "261";
