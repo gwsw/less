@@ -263,6 +263,41 @@ percent_pos(pos, percent)
 		return (percent * (pos / 100));
 }
 
+#if !HAVE_STRCHR
+/*
+ * strchr is used by regexp.c.
+ */
+	char *
+strchr(s, c)
+	char *s;
+	int c;
+{
+	for ( ;  *s != '\0';  s++)
+		if (*s == c)
+			return (s);
+	if (c == '\0')
+		return (s);
+	return (NULL);
+}
+#endif
+
+#if !HAVE_MEMCPY
+	VOID_POINTER
+memcpy(dst, src, len)
+	VOID_POINTER dst;
+	VOID_POINTER src;
+	int len;
+{
+	char *dstp = (char *) dst;
+	char *srcp = (char *) src;
+	int i;
+
+	for (i = 0;  i < len;  i++)
+		dstp[i] = srcp[i];
+	return (dst);
+}
+#endif
+
 #ifdef _OSK_MWC32
 
 /*

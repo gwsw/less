@@ -22,6 +22,9 @@
 * -X no longer disables keypad initialization.
   New option --no-keypad disables keypad initialization.
 
+* New prompt style set by option -Pw defines the message printed 
+  while waiting for data in the F command.
+
 * System-wide lesskey file now defaults to sysless in etc directory 
   instead of .sysless in bin directory.
   Use "configure --sysconfdir=..." to change it.
@@ -30,6 +33,8 @@
 * Windows version sets window title.
 
 * Default LESSCHARSET for MS-DOS versions is "dos".
+
+* Fix problems when viewing files with very long lines.
 
 * Fix overstriking in UTF-8 mode.
 

@@ -20,9 +20,9 @@
 #define IS_CONT(c)  (((c) & 0xC0) == 0x80)
 #define LINENUM_WIDTH   8       /* Chars to use for line number */
 
-/* Buffer which holds the current output line */
-public char linebuf[LINEBUF_SIZE];
-public int size_linebuf = sizeof(linebuf);
+public char *linebuf = NULL;	/* Buffer which holds the current output line */
+static char *attr = NULL;	/* Extension of linebuf to hold attributes */
+public int size_linebuf = 0;	/* Size of line buffer (and attr buffer) */
 
 public int cshift;		/* Current left-shift of output line buffer */
 public int hshift;		/* Desired left-shift of output line buffer */
@@ -30,7 +30,6 @@ public int tabstops[TABSTOP_MAX] = { 0 }; /* Custom tabstops */
 public int ntabstops = 1;	/* Number of tabstops */
 public int tabdefault = 8;	/* Default repeated tabstops */
 
-static char attr[LINEBUF_SIZE];	/* Extension of linebuf to hold attributes */
 static int curr;		/* Index into linebuf */
 static int column;		/* Printable length, accounting for
 				   backspaces, etc. */
@@ -69,6 +68,34 @@ init_line()
 	end_ansi_chars = lgetenv("LESSANSIENDCHARS");
 	if (end_ansi_chars == NULL || *end_ansi_chars == '\0')
 		end_ansi_chars = "m";
+	linebuf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
+	attr = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
+	size_linebuf = LINEBUF_SIZE;
+}
+
+/*
+ * Expand the line buffer.
+ */
+ 	static int
+expand_linebuf()
+{
+	int new_size = size_linebuf + LINEBUF_SIZE;
+	char *new_buf = (char *) calloc(new_size, sizeof(char));
+	char *new_attr = (char *) calloc(new_size, sizeof(char));
+	if (new_buf == NULL || new_attr == NULL)
+	{
+		if (new_attr != NULL)
+			free(new_attr);
+		if (new_buf != NULL)
+			free(new_buf);
+		return 1;
+	}
+	memcpy(new_buf, linebuf, size_linebuf * sizeof(char));
+	memcpy(new_attr, attr, size_linebuf * sizeof(char));
+	linebuf = new_buf;
+	attr = new_attr;
+	size_linebuf = new_size;
+	return 0;
 }
 
 /*
@@ -352,11 +379,15 @@ storec(c, a, pos)
 		 */
 		return (1);
 
-	if (curr >= sizeof(linebuf)-2)
+	if (curr >= size_linebuf-2)
+	{
 		/*
 		 * Won't fit in line buffer.
+		 * Try to expand it.
 		 */
-		return (1);
+		if (expand_linebuf())
+			return (1);
+	}
 
 	/*
 	 * Special handling for "magic cookie" terminals.
@@ -677,7 +708,7 @@ forw_raw_line(curr_pos, linep)
 	POSITION curr_pos;
 	char **linep;
 {
-	register char *p;
+	register int n;
 	register int c;
 	POSITION new_pos;
 
@@ -685,8 +716,7 @@ forw_raw_line(curr_pos, linep)
 		(c = ch_forw_get()) == EOI)
 		return (NULL_POSITION);
 
-	p = linebuf;
-
+	n = 0;
 	for (;;)
 	{
 		if (c == '\n' || c == EOI)
@@ -694,21 +724,22 @@ forw_raw_line(curr_pos, linep)
 			new_pos = ch_tell();
 			break;
 		}
-		if (p >= &linebuf[sizeof(linebuf)-1])
+		if (n >= size_linebuf-1)
 		{
-			/*
-			 * Overflowed the input buffer.
-			 * Pretend the line ended here.
-			 * {{ The line buffer is supposed to be big
-			 *    enough that this never happens. }}
-			 */
-			new_pos = ch_tell() - 1;
-			break;
+			if (expand_linebuf())
+			{
+				/*
+				 * Overflowed the input buffer.
+				 * Pretend the line ended here.
+				 */
+				new_pos = ch_tell() - 1;
+				break;
+			}
 		}
-		*p++ = c;
+		linebuf[n++] = c;
 		c = ch_forw_get();
 	}
-	*p = '\0';
+	linebuf[n] = '\0';
 	if (linep != NULL)
 		*linep = linebuf;
 	return (new_pos);
@@ -723,7 +754,7 @@ back_raw_line(curr_pos, linep)
 	POSITION curr_pos;
 	char **linep;
 {
-	register char *p;
+	register int n;
 	register int c;
 	POSITION new_pos;
 
@@ -731,9 +762,8 @@ back_raw_line(curr_pos, linep)
 		ch_seek(curr_pos-1))
 		return (NULL_POSITION);
 
-	p = &linebuf[sizeof(linebuf)];
-	*--p = '\0';
-
+	n = size_linebuf;
+	linebuf[--n] = '\0';
 	for (;;)
 	{
 		c = ch_back_get();
@@ -756,18 +786,32 @@ back_raw_line(curr_pos, linep)
 			new_pos = ch_zero();
 			break;
 		}
-		if (p <= linebuf)
+		if (n <= 0)
 		{
+			int old_size_linebuf = size_linebuf;
+			char *fm;
+			char *to;
+			if (expand_linebuf())
+			{
+				/*
+				 * Overflowed the input buffer.
+				 * Pretend the line ended here.
+				 */
+				new_pos = ch_tell() + 1;
+				break;
+			}
 			/*
-			 * Overflowed the input buffer.
-			 * Pretend the line ended here.
+			 * Shift the data to the end of the new linebuf.
 			 */
-			new_pos = ch_tell() + 1;
-			break;
+			for (fm = linebuf + old_size_linebuf,
+			      to = linebuf + size_linebuf;
+			     fm >= linebuf;  fm--, to--)
+				*to = *fm;
+			n = size_linebuf - old_size_linebuf;
 		}
-		*--p = c;
+		linebuf[--n] = c;
 	}
 	if (linep != NULL)
-		*linep = p;
+		*linep = &linebuf[n];
 	return (new_pos);
 }
