@@ -19,6 +19,7 @@
   Default buffer space is now 64K as documented.
   Search highlighting works properly when used with -R.
   Windows version works properly when input file contains carriage returns.
+  Clean up some compiler warnings.
 
 ======================================================================
 

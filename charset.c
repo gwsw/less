@@ -164,6 +164,7 @@ icharset(name)
 	error("invalid charset name", NULL_PARG);
 	quit(QUIT_ERROR);
 	/*NOTREACHED*/
+	return (0);
 }
 
 #if HAVE_LOCALE

@@ -265,6 +265,7 @@ main(argc, argv)
 	commands();
 	quit(QUIT_OK);
 	/*NOTREACHED*/
+	return (0);
 }
 
 /*
@@ -299,6 +300,7 @@ ecalloc(count, size)
 	error("Cannot allocate memory", NULL_PARG);
 	quit(QUIT_ERROR);
 	/*NOTREACHED*/
+	return (NULL);
 }
 
 /*
