@@ -13,7 +13,30 @@
 ======================================================================
 
 
-	Major changes between "less" versions 321 and @@VERSION@@
+	Major changes between "less" versions 330 and @@VERSION@@
+
+* Filenames from the command line are entered into the command history,
+  so UPARROW/DOWNARROW can be used to retrieve them from the :e command.
+
+* Now works correctly on Windows when using a scrolling terminal
+  window (buffer larger than display window).
+
+* On Windows, now restores the console screen on exit.  
+  Use -X to get the old behavior.
+
+* Fixed bug on Windows when CAPS-LOCK or NUM-LOCK is pressed.
+
+* Fixed bug on Windows when piping output of an interactive program.
+
+* Fixed bug in tags file processing when tags file has DOS-style
+  line terminators (CR/LF).
+
+* Fixed compilation problem on OS/2.
+
+======================================================================
+
+
+	Major changes between "less" versions 321 and 330
 
 * Now supports filenames containing spaces (in double quotes).
   New option -" can be used to change the quoting characters.
