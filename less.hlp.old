@@ -31,10 +31,10 @@
   ESC-u                Undo (toggle) search highlighting.
         ---------------------------------------------------
         Search patterns may be modified by one or more of:
-        !  search for NON-matching lines.
-        *  search multiple files.
-        ^  start search at first file (for /) or last file (for ?).
-	@  highlight matches, but don't move to first match.
+        ^N or !  search for NON-matching lines.
+        ^E or *  search multiple files.
+        ^F or @  start search at first file (for /) or last file (for ?).
+	^K       highlight matches, but don't move to first match.
         ---------------------------------------------------
   g  <  ESC-<       *  Go to first line in file (or line _N).
   G  >  ESC->       *  Go to last line in file (or line _N).
