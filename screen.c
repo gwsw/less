@@ -593,10 +593,25 @@ raw_mode(on)
  */
 static int hardcopy;
 
+	static char *
+ltget_env(capname)
+	char *capname;
+{
+	char name[16];
+
+	strcpy(name, "LESS_TERMCAP_");
+	strcat(name, capname);
+	return (lgetenv(name));
+}
+
 	static int
 ltgetflag(capname)
 	char *capname;
 {
+	char *s;
+
+	if ((s = ltget_env(capname)) != NULL)
+		return (*s != '\0' && *s != '0');
 	if (hardcopy)
 		return (0);
 	return (tgetflag(capname));
@@ -606,6 +621,10 @@ ltgetflag(capname)
 ltgetnum(capname)
 	char *capname;
 {
+	char *s;
+
+	if ((s = ltget_env(capname)) != NULL)
+		return (atoi(s));
 	if (hardcopy)
 		return (-1);
 	return (tgetnum(capname));
@@ -616,6 +635,10 @@ ltgetstr(capname, pp)
 	char *capname;
 	char **pp;
 {
+	char *s;
+
+	if ((s = ltget_env(capname)) != NULL)
+		return (s);
 	if (hardcopy)
 		return (NULL);
 	return (tgetstr(capname, pp));
