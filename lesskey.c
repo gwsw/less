@@ -181,10 +181,12 @@ char cmdsection[] = { CMD_SECTION };
 char editsection[] = { EDIT_SECTION };
 char endsection[] = { END_SECTION };
 
+int force = 0;
+char *infile = NULL;
+char *outfile = NULL ;
+
 int linenum;
 int errors;
-char *infile;
-char *outfile;
 
 	void
 parse_args(argc, argv)
@@ -196,6 +198,9 @@ parse_args(argc, argv)
 	{
 		switch (argv[0][1])
 		{
+		case 'f':
+			force = 1;
+			break;
 		case 'o':
 			outfile = &argv[0][2];
 			if (*outfile == '\0')
@@ -596,6 +601,17 @@ main(argc, argv)
 
 	if (outfile == NULL)
 		outfile = find_outfile();
+	if ((out = fopen(outfile, "r")) != NULL)
+	{
+		/* Output file already exists */
+		if (!force)
+		{
+			fprintf(stderr, "output file %s already exists: use -f to overwrite\n",
+				outfile);
+			exit(1);
+		}
+		fclose(out);
+	}
 	if ((out = fopen(outfile, "w")) == NULL)
 	{
 		perror(outfile);
