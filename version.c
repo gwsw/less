@@ -457,6 +457,7 @@
  *	-----------------------------------------------------------------
  *	v253: Fix bug when tags file has a backslash.	11/21/94
  *	v254: Fix -k option.				12/6/94
+ *	v255: Add #define EXAMINE to disable :e etc.	12/8/94
  */
 
-char version[] = "254";
+char version[] = "255";

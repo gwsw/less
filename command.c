@@ -202,9 +202,11 @@ exec_mca()
 	case A_B_BRACKET:
 		match_brac(cbuf[1], cbuf[0], 0, number);
 		break;
+#if EXAMINE
 	case A_EXAMINE:
 		edit_list(cbuf);
 		break;
+#endif
 #if SHELL_ESCAPE
 	case A_SHELL:
 		/*
@@ -1063,12 +1065,17 @@ commands()
 			break;
 
 		case A_EXAMINE:
+#if EXAMINE
 			/*
 			 * Edit a new file.  Get the filename.
 			 */
 			start_mca(A_EXAMINE, "Examine: ", ml_examine);
 			c = getcc();
 			goto again;
+#else
+			error("Command not available", NULL_PARG);
+			break;
+#endif
 			
 		case A_VISUAL:
 			/*

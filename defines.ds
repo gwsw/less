@@ -41,6 +41,11 @@
 #define	SHELL_ESCAPE	1
 
 /*
+ * EXAMINE is 1 if you wish to allow examining files by name from within less.
+ */
+#define	EXAMINE		1
+
+/*
  * TAB_COMPLETE_FILENAME is 1 if you wish to allow the TAB key
  * to complete filenames at prompts.
  */
