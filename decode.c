@@ -140,6 +140,8 @@ static unsigned char cmdtable[] =
 	CONTROL('X'),CONTROL('V'),0,	A_EXAMINE,
 	':','n',0,			A_NEXT_FILE,
 	':','p',0,			A_PREV_FILE,
+	't',0,				A_NEXT_TAG,
+	'T',0,				A_PREV_TAG,
 	':','x',0,			A_INDEX_FILE,
 	':','d',0,			A_REMOVE_FILE,
 	'-',0,				A_OPT_TOGGLE,

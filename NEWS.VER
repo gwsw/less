@@ -22,6 +22,9 @@
 * -X no longer disables keypad initialization.
   New option --no-keypad disables keypad initialization.
 
+* New commands t and T to step through multiple tag matches.
+  Added support for "global(1)" tags.
+
 * New prompt style set by option -Pw defines the message printed 
   while waiting for data in the F command.
 

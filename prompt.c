@@ -41,13 +41,13 @@ extern char *editproto;
  * These strings are expanded by pr_expand().
  */
 static constant char s_proto[] =
-  "?n?f%f .?m(file %i of %m) ..?e(END) ?x- Next\\: %x..%t";
+  "?n?f%f .?m(%T %i of %m) ..?e(END) ?x- Next\\: %x..%t";
 static constant char m_proto[] =
-  "?n?f%f .?m(file %i of %m) ..?e(END) ?x- Next\\: %x.:?pB%pB\\%:byte %bB?s/%s...%t";
+  "?n?f%f .?m(%T %i of %m) ..?e(END) ?x- Next\\: %x.:?pB%pB\\%:byte %bB?s/%s...%t";
 static constant char M_proto[] =
-  "?f%f .?n?m(file %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s/%s. .?e(END) ?x- Next\\: %x.:?pB%pB\\%..%t";
+  "?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s/%s. .?e(END) ?x- Next\\: %x.:?pB%pB\\%..%t";
 static constant char e_proto[] =
-  "?f%f .?m(file %i of %m) .?ltlines %lt-%lb?L/%L. .byte %bB?s/%s. ?e(END) :?pB%pB\\%..%t";
+  "?f%f .?m(%T %i of %m) .?ltlines %lt-%lb?L/%L. .byte %bB?s/%s. ?e(END) :?pB%pB\\%..%t";
 static constant char h_proto[] =
   "HELP -- ?eEND -- Press g to see it again:Press RETURN for more., or q when done";
 static constant char w_proto[] =
@@ -199,9 +199,9 @@ cond(c, where)
 	case 'D':	/* Same as L */
 		return (linenums && ch_length() != NULL_POSITION);
 	case 'm':	/* More than one file? */
-		return (nifile() > 1);
+		return (ntags() ? (ntags() > 1) : (nifile() > 1));
 	case 'n':	/* First prompt in a new file? */
-		return (new_file);
+		return (ntags() ? 1 : new_file);
 	case 'p':	/* Percent into file (bytes) known? */
 		return (curr_byte(where) != NULL_POSITION && 
 				ch_length() > 0);
@@ -213,6 +213,8 @@ cond(c, where)
 	case 'B':
 		return (ch_length() != NULL_POSITION);
 	case 'x':	/* Is there a "next" file? */
+		if (ntags())
+			return (0);
 		return (next_ifile(curr_ifile) != NULL_IFILE);
 	}
 	return (0);
@@ -285,7 +287,10 @@ protochar(c, where, iseditproto)
 		free(s);
 		break;
 	case 'i':	/* Index into list of files */
-		ap_int(get_index(curr_ifile));
+		if (ntags())
+			ap_int(curr_tag());
+		else
+			ap_int(get_index(curr_ifile));
 		break;
 	case 'l':	/* Current line number */
 		n = currline(where);
@@ -303,7 +308,11 @@ protochar(c, where, iseditproto)
 			ap_int(n-1);
 		break;
 	case 'm':	/* Number of files */
-		ap_int(nifile());
+		n = ntags();
+		if (n)
+			ap_int(n);
+		else
+			ap_int(nifile());
 		break;
 	case 'p':	/* Percent into file (bytes) */
 		pos = curr_byte(where);
@@ -333,6 +342,12 @@ protochar(c, where, iseditproto)
 	case 't':	/* Truncate trailing spaces in the message */
 		while (mp > message && mp[-1] == ' ')
 			mp--;
+		break;
+	case 'T':	/* Type of list */
+		if (ntags())
+			ap_str("tag");
+		else
+			ap_str("file");
 		break;
 	case 'x':	/* Name of next file */
 		h = next_ifile(curr_ifile);

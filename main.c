@@ -45,6 +45,7 @@ public char *	editproto;
 #endif
 
 #if TAGS
+extern char *	tags;
 extern char *	tagoption;
 extern int	jump_sline;
 #endif
@@ -217,7 +218,7 @@ main(argc, argv)
 	 * Select the first file to examine.
 	 */
 #if TAGS
-	if (tagoption != NULL)
+	if (tagoption != NULL || strcmp(tags, "-") == 0)
 	{
 		/*
 		 * A -t option was given.

@@ -217,6 +217,8 @@ exec_mca()
 		if (secure)
 			break;
 		edit_list(cbuf);
+		/* If tag structure is loaded then clean it up. */
+		cleantags();
 		break;
 #endif
 #if SHELL_ESCAPE
@@ -842,6 +844,7 @@ commands()
 	PARG parg;
 	IFILE old_ifile;
 	IFILE new_ifile;
+	char *tagfile;
 
 	search_type = SRCH_FORW;
 	wscroll = (sc_height + 1) / 2;
@@ -1359,6 +1362,11 @@ commands()
 			/*
 			 * Examine next file.
 			 */
+			if (ntags())
+			{
+				error("No next file", NULL_PARG);
+				break;
+			}
 			if (number <= 0)
 				number = 1;
 			if (edit_next(number))
@@ -1375,12 +1383,51 @@ commands()
 			/*
 			 * Examine previous file.
 			 */
+			if (ntags())
+			{
+				error("No previous file", NULL_PARG);
+				break;
+			}
 			if (number <= 0)
 				number = 1;
 			if (edit_prev(number))
 			{
 				parg.p_string = (number > 1) ? "(N-th) " : "";
 				error("No %sprevious file", &parg);
+			}
+			break;
+
+		case A_NEXT_TAG:
+			if (number <= 0)
+				number = 1;
+			tagfile = nexttag(number);
+			if (tagfile == NULL)
+			{
+				error("No next tag", NULL_PARG);
+				break;
+			}
+			if (edit(tagfile) == 0)
+			{
+				POSITION pos = tagsearch();
+				if (pos != NULL_POSITION)
+					jump_loc(pos, jump_sline);
+			}
+			break;
+
+		case A_PREV_TAG:
+			if (number <= 0)
+				number = 1;
+			tagfile = prevtag(number);
+			if (tagfile == NULL)
+			{
+				error("No previous tag", NULL_PARG);
+				break;
+			}
+			if (edit(tagfile) == 0)
+			{
+				POSITION pos = tagsearch();
+				if (pos != NULL_POSITION)
+					jump_loc(pos, jump_sline);
 			}
 			break;
 

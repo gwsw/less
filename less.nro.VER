@@ -287,6 +287,11 @@ Examine the first file in the command line list.
 If a number N is specified, the N-th file in the list is examined.
 .IP ":d"
 Remove the current file from the list of files.
+.IP "t"
+Go to the next tag, if there were more than one matches for the current tag.
+See the \-t option for more details about tags.
+.IP "T"
+Go to the previous tag, if there were more than one matches for the current tag.
 .IP "= or ^G or :f"
 Prints some information about the file being viewed,
 including its name
@@ -692,10 +697,11 @@ on the next line.
 .IP "-t\fItag\fP or --tag=\fItag\fP"
 The -t option, followed immediately by a TAG,
 will edit the file containing that tag.
-For this to work, there must be a file called "tags" in the
-current directory, which was previously built by the 
+For this to work, tag information must be available;
+for example, there may be a file in the current directory called "tags",
+which was previously built by 
 .I ctags
-(1) command.
+(1) or an equivalent command.
 This option may also be specified from within 
 .I less 
 (using the \- command) as a way of examining a new file.
