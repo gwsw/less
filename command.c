@@ -1206,8 +1206,8 @@ commands()
 			gomark(c);
 			break;
 
-#if PIPEC
 		case A_PIPE:
+#if PIPEC
 			start_mca(A_PIPE, "|mark: ", (void*)NULL);
 			c = getcc();
 			if (c == erase_char || c == kill_char)
@@ -1220,6 +1220,9 @@ commands()
 			start_mca(A_PIPE, "!", ml_shell);
 			c = getcc();
 			goto again;
+#else
+			error("Command not available", NULL_PARG);
+			break;
 #endif
 
 		case A_B_BRACKET:

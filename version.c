@@ -464,6 +464,7 @@
  *	      to optimize highlight repaints.
  *	v258: Fixup in hilite_line if BS_SPECIAL.	12/12/94
  *	v259: Convert to autoconf 2.0.			12/12/94
+ *	v260: Add SECURE define.			12/13/94
  */
 
-char version[] = "259";
+char version[] = "260";
