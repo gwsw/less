@@ -113,19 +113,10 @@ ap_char(c)
 ap_pos(pos)
 	POSITION pos;
 {
-	char buf[INT_STRLEN_BOUND(pos) + 1]; 
-	char *p = buf + sizeof(buf) - 1;
-	int neg = (pos < 0);
- 
-	if (neg)
-		pos = -pos;
-	*p = '\0';
-	do
-		*--p = '0' + (pos % 10);
-	while ((pos /= 10) != 0);
-	if (neg)
-		*--p = '-';
-	ap_str(p);
+	char buf[INT_STRLEN_BOUND(pos) + 2];
+
+	postoa(pos, buf);
+	ap_str(buf);
 }
 
 /*
@@ -135,22 +126,22 @@ ap_pos(pos)
 ap_linenum(linenum)
 	LINENUM linenum;
 {
-	/*
-	 * Assume sizeof(LINENUM) <= sizeof(POSITION).
-	 */
-	ap_pos((POSITION)linenum);
+	char buf[INT_STRLEN_BOUND(linenum) + 2];
+
+	linenumtoa(linenum, buf);
+	ap_str(buf);
 }
 
 /*
  * Append an integer to the end of the message.
  */
 	static void
-ap_int(n)
-	int n;
+ap_int(num)
+	int num;
 {
-	char buf[INT_STRLEN_BOUND(n) + 1];
+	char buf[INT_STRLEN_BOUND(num) + 2];
 
-	sprintf(buf, "%d", n);
+	inttoa(num, buf);
 	ap_str(buf);
 }
 

@@ -155,7 +155,7 @@ void free();
  */
 typedef off_t		POSITION;
 typedef off_t		LINENUM;
-#define LINENUM_WIDTH	11	/* Printing width of a line number */
+#define MIN_LINENUM_WIDTH  7	/* Min printing width of a line number */
 
 #define	NULL_POSITION	((POSITION)(-1))
 
@@ -412,3 +412,7 @@ struct textlist
 
 #include "funcs.h"
 
+/* Functions not included in funcs.h */
+void postoa();
+void linenumtoa();
+void inttoa();

@@ -112,13 +112,11 @@ prewind()
 	is_null_line = 0;
 	pendc = '\0';
 	lmargin = 0;
+	if (status_col)
+		lmargin += 1;
 #if HILITE_SEARCH
 	hilites = 0;
 #endif
-	if (status_col)
-		lmargin += 1;
-	if (linenums == OPT_ONPLUS)
-		lmargin += LINENUM_WIDTH+1;
 }
 
 /*
@@ -164,17 +162,22 @@ plinenum(pos)
 	 */
 	if (linenums == OPT_ONPLUS)
 	{
-		for (i = LINENUM_WIDTH-1;  i >= 0;  i--)
-		{
-			linebuf[curr+i] =
-				(i < LINENUM_WIDTH-1 && linenum == 0) ?
-					' ' : ((linenum % 10) + '0');
+		char buf[INT_STRLEN_BOUND(pos) + 2];
+		int n;
+
+		linenumtoa(linenum, buf);
+		n = strlen(buf);
+		if (n < MIN_LINENUM_WIDTH)
+			n = MIN_LINENUM_WIDTH;
+		sprintf(linebuf+curr, "%*s ", n, buf);
+		n++;  /* One space after the line number. */
+		for (i = 0; i < n; i++)
 			attr[curr+i] = AT_NORMAL;
-			linenum /= 10;
-		}
-		curr += LINENUM_WIDTH;
-		column += LINENUM_WIDTH;
+		curr += n;
+		column += n;
+		lmargin += n;
 	}
+
 	/*
 	 * Append enough spaces to bring us to the lmargin.
 	 */
@@ -648,7 +651,7 @@ do_append(c, pos)
 				{
 					if (curr <= i || !IS_CONT(linebuf[curr-i]))
 						break;
-					attr[curr-i-i] = AT_UNDERLINE;
+					attr[curr-i-1] = AT_UNDERLINE;
 				}
 			}
 			STOREC(linebuf[curr], AT_UNDERLINE);

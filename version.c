@@ -643,6 +643,7 @@ v379 11/23/02	Add -L option; fix bug with ctrl-K in lesskey files;
 		improve UTF-8 overstriking and underscore overstriking;
 		fix minor man page problems; change to autoconf 2.54.
 v380 11/24/02	Make LINENUM same as POSITION.
+v381 11/28/02	Make -N use 7 columns for line number if possible.
 */
 
-char version[] = "380";
+char version[] = "381";

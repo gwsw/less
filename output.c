@@ -400,67 +400,55 @@ putstr(s)
 
 
 /*
+ * Convert an integral type to a string.
+ */
+#define TYPE_TO_A_FUNC(funcname, type) \
+void funcname(num, buf) \
+	type num; \
+	char *buf; \
+{ \
+	int neg = (num < 0); \
+	char tbuf[INT_STRLEN_BOUND(num)+2]; \
+	register char *s = tbuf + sizeof(tbuf); \
+	if (neg) num = -num; \
+	*--s = '\0'; \
+	do { \
+		*--s = (num % 10) + '0'; \
+	} while ((num /= 10) != 0); \
+	if (neg) *--s = '-'; \
+	strcpy(buf, s); \
+}
+
+TYPE_TO_A_FUNC(postoa, POSITION)
+TYPE_TO_A_FUNC(linenumtoa, LINENUM)
+TYPE_TO_A_FUNC(inttoa, int)
+
+/*
  * Output an integer in a given radix.
  */
 	static int
-iprint_int(num, radix)
+iprint_int(num)
 	int num;
-	int radix;
 {
-	register char *s;
-	int r;
-	int neg;
 	char buf[INT_STRLEN_BOUND(num)];
 
-	neg = (num < 0);
-	if (neg)
-		num = -num;
-
-	s = buf;
-	do
-	{
-		*s++ = (num % radix) + '0';
-	} while ((num /= radix) != 0);
-
-	if (neg)
-		*s++ = '-';
-	r = s - buf;
-
-	while (s > buf)
-		putchr(*--s);
-	return (r);
+	inttoa(num, buf);
+	putstr(buf);
+	return (strlen(buf));
 }
 
 /*
  * Output a line number in a given radix.
  */
 	static int
-iprint_linenum(num, radix)
+iprint_linenum(num)
 	LINENUM num;
-	int radix;
 {
-	register char *s;
-	int r;
-	int neg;
 	char buf[INT_STRLEN_BOUND(num)];
 
-	neg = (num < 0);
-	if (neg)
-		num = -num;
-
-	s = buf;
-	do
-	{
-		*s++ = (num % radix) + '0';
-	} while ((num /= radix) != 0);
-
-	if (neg)
-		*s++ = '-';
-	r = s - buf;
-
-	while (s > buf)
-		putchr(*--s);
-	return (r);
+	linenumtoa(num, buf);
+	putstr(buf);
+	return (strlen(buf));
 }
 
 /*
@@ -497,11 +485,11 @@ less_printf(fmt, parg)
 				}
 				break;
 			case 'd':
-				col += iprint_int(parg->p_int, 10);
+				col += iprint_int(parg->p_int);
 				parg++;
 				break;
 			case 'n':
-				col += iprint_linenum(parg->p_linenum, 10);
+				col += iprint_linenum(parg->p_linenum);
 				parg++;
 				break;
 			}
