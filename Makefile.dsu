@@ -39,7 +39,7 @@ all: less lesskey
 # This is really horrible, but the command line is too long for 
 # MS-DOS if we try to link $(OBJ).
 less: $(OBJ)
-	-del lesskey.obj
+	-if exist lesskey.obj del lesskey.obj
 	$(CC) $(LDFLAGS) -o $@ *.obj $(LIBS)
 
 lesskey: lesskey.obj version.obj
