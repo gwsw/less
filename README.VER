@@ -47,14 +47,15 @@ INSTALLATION (Unix systems only):
 
 4. Type "make" and watch the fun.
 
-5. If the make succeeds, it will generate the programs "less" and
-   "lesskey" in your current directory.  Test the generated programs.
+5. If the make succeeds, it will generate the programs "less",
+   "lesskey" and "lessecho" in your current directory.  Test the 
+   generated programs.
 
 6. When satisfied that it works, if you wish to install it
    in a public place, type "make install".
 
    The default install destinations are:
-        Executables (less, lesskey) in /usr/local/bin
+        Executables (less, lesskey, lessecho) in /usr/local/bin
         Documentation (less.nro, lesskey.nro) in /usr/local/man/man1
    If you want to install any of these files elsewhere, define
    bindir and/or mandir to the appropriate directories.
