@@ -183,8 +183,8 @@ struct cmdname editnames[] =
 	"up",			EC_UP,
 	"word-backspace",	EC_W_BACKSPACE,
 	"word-delete",		EC_W_DELETE,
-	"word-left",		EC_W_RIGHT,
-	"word-right",		EC_W_LEFT,
+	"word-left",		EC_W_LEFT,
+	"word-right",		EC_W_RIGHT,
 	NULL,			0
 };
 
