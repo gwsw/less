@@ -32,6 +32,9 @@
  */
 
 #include "less.h"
+#if MSDOS_COMPILER==WIN32C
+#include "errno.h"
+#endif
 
 public int ignore_eoi;
 
@@ -207,8 +210,13 @@ fch_get()
 		return (EOI);
 	if (n < 0)
 	{
-		error("read error", NULL_PARG);
-		clear_eol();
+#if MSDOS_COMPILER==WIN32C
+		if (errno != EPIPE)
+#endif
+		{
+			error("read error", NULL_PARG);
+			clear_eol();
+		}
 		n = 0;
 	}
 

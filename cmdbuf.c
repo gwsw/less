@@ -153,7 +153,8 @@ len_cmdbuf()
  * Then position the cursor just after the char old_cp (a pointer into cmdbuf).
  */
 	static void
-cmd_repaint(char *old_cp)
+cmd_repaint(old_cp)
+	char *old_cp;
 {
 	char *p;
 
@@ -305,7 +306,6 @@ cmd_ichar(c)
 	int c;
 {
 	int col;
-	char *p;
 	char *s;
 	
 	if (strlen(cmdbuf) >= sizeof(cmdbuf)-2)

@@ -37,12 +37,6 @@ SHELL = /bin/sh
 .c.o:
 	${CC} -I. ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} $<
 
-SRC =	main.c screen.c brac.c ch.c charset.c cmdbuf.c \
-	command.c decode.c edit.c filename.c forwback.c \
-	help.c ifile.c input.c jump.c line.c linenum.c \
-	lsystem.c mark.c optfunc.c option.c opttbl.c os.c \
-	output.c position.c prompt.c search.c signal.c \
-	tags.c ttyin.c version.c  
 OBJ =	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
 	command.${O} decode.${O} edit.${O} filename.${O} forwback.${O} \
 	help.${O} ifile.${O} input.${O} jump.${O} line.${O} linenum.${O} \
@@ -96,8 +90,6 @@ config.status: ${srcdir}/configure
 ${srcdir}/configure: ${srcdir}/configure.in
 	cd ${srcdir}; autoheader; autoconf
 
-lint:
-	lint -I. ${CPPFLAGS} ${SRC}
 clean:
 	rm -f *.${O} core less lesskey
 

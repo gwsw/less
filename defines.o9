@@ -25,6 +25,11 @@
  */
 
 /* OS/9 definition file for less.  */
+/*
+ * This file has 2 sections:
+ * User preferences.
+ * Settings always true for OS-9 systems. 
+ */
 
 /* User preferences.  */
 
@@ -123,12 +128,20 @@
 #define	DEF_LESSKEYINFILE	".lesskey"
 
 
-/* Settings always true on Unix.  */
+/* Settings always true for OS-9.  */
+
+/* This is not needed; it is defined by the compiler. */
+/* #define _OSK 1 */
 
 /*
  * HAVE_SYS_TYPES_H is 1 if your system has <sys/types.h>.
  */
 #undef HAVE_SYS_TYPES_H
+
+/*
+ * Define if you have the <sgstat.h> header file.
+ */
+#define HAVE_SGSTAT_H	1
 
 /*
  * HAVE_STAT is 1 if your system has the stat() call.
@@ -211,18 +224,18 @@
 #define HAVE_FILENO 1
 
 /* Define HAVE_ERRNO if you have the errno variable */
-#define HAVE_ERRNO 1
 /* Define MUST_DEFINE_ERRNO if you have errno but it is not define 
  * in errno.h */
+#define HAVE_ERRNO 1
 #undef MUST_DEFINE_ERRNO
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
 #undef HAVE_SYS_ERRLIST
 
 /* Define HAVE_OSPEED if your termcap library has the ospeed variable */
-#undef HAVE_OSPEED
 /* Define MUST_DEFINE_OSPEED if you have ospeed but it is not defined
  * in termcap.h. */
+#undef HAVE_OSPEED
 #undef MUST_DEFINE_OSPEED
 
 /* Define HAVE_LOCALE if you have locale.h and setlocale. */
@@ -293,4 +306,3 @@
 
 /* Define if you have the <values.h> header file.  */
 #undef HAVE_VALUES_H
-

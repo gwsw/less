@@ -16,9 +16,10 @@ DISTFILES = ${SRC} regexp.c regexp.h \
 	cmd.h funcs.h less.h lesskey.h option.h position.h \
 	install.sh defines.h.in defines.h.top mkinstalldirs \
 	less.nro lesskey.nro less.man lesskey.man less.hlp \
-	Makefile.dos Makefile.bcc defines.dos doscreen.c \
+	Makefile.dos Makefile.bcc defines.dos screen.c \
 	Makefile.os2 defines.os2 \
-	Makefile.osk defines.osk
+	Makefile.os9 defines.os9 \
+	Makefile.w32 defines.w32
 
 all: help.c funcs.h ${srcdir}/configure 
 
@@ -35,6 +36,7 @@ ${srcdir}/configure: ${srcdir}/configure.in
 funcs.h: ${SRC:%=${srcdir}/%}
 	mv -f ${srcdir}/funcs.h ${srcdir}/funcs.h.old
 	awk -f ${srcdir}/mkfuncs.awk ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
+	if cmp -s funcs.h funcs.h.old; then mv funcs.h.old funcs.h; fi
 
 lint:
 	lint -I. ${CPPFLAGS} ${SRC}

@@ -17,13 +17,7 @@ LIBS = $(LIBDIR)\llibce.lib $(LIBDIR)\graphics.lib
 .c.obj:
 	$(CC) -c -I. $(CPPFLAGS) $(CFLAGS) $<
 
-SRC =	main.c doscreen.c brac.c ch.c charset.c cmdbuf.c command.c \
-	decode.c edit.c filename.c forwback.c help.c ifile.c \
-	input.c jump.c line.c linenum.c lsystem.c \
-	mark.c optfunc.c option.c opttbl.c os.c output.c \
-	position.c prompt.c search.c signal.c tags.c \
-	ttyin.c version.c
-OBJ =	main.obj doscreen.obj brac.obj ch.obj charset.obj cmdbuf.obj command.obj \
+OBJ =	main.obj screen.obj brac.obj ch.obj charset.obj cmdbuf.obj command.obj \
 	decode.obj edit.obj filename.obj forwback.obj help.obj ifile.obj \
 	input.obj jump.obj line.obj linenum.obj lsystem.obj \
 	mark.obj optfunc.obj option.obj opttbl.obj os.obj output.obj \

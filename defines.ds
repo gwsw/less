@@ -148,6 +148,11 @@
 #define HAVE_SYS_TYPES_H	1
 
 /*
+ * Define if you have the <sgstat.h> header file.
+ */
+#define HAVE_SGSTAT_H	0
+
+/*
  * HAVE_STAT is 1 if your system has the stat() call.
  */
 #define	HAVE_STAT	1
@@ -245,9 +250,9 @@
 #define HAVE_SYS_ERRLIST 1
 
 /* Define HAVE_OSPEED if your termcap library has the ospeed variable */
-#define HAVE_OSPEED 0
 /* Define MUST_DEFINE_OSPEED if you have ospeed but it is not defined
  * in termcap.h. */
+#define HAVE_OSPEED 0
 #define MUST_DEFINE_OSPEED 0
 
 /* Define HAVE_LOCALE if you have locale.h and setlocale. */

@@ -330,12 +330,6 @@ quit(status)
 {
 	static int save_status;
 
-	if (curr_ifile != NULL_IFILE && ch_getflags() & CH_HELPFILE)
-	{
-		if (edit_prev(1) == 0)
-			return;
-	}
-
 	/*
 	 * Put cursor at bottom left corner, clear the line,
 	 * reset the terminal modes, and exit.

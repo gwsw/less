@@ -40,9 +40,13 @@
 * Added -Ph to change the prompt for the help text.
   Added -Ps to change the default short prompt (same as plain -P).
 
-* Ported to Borland C compiler for MS-DOS.
+* Ported to the Borland C compiler for MS-DOS.
+
+* Ported to Windows 95 & Windows NT.
 
 * Ported to OS-9.
+
+* Ported to GNU Hurd.
 
 ======================================================================
 

@@ -4,7 +4,7 @@
 #### Start of system configuration section. ####
 
 CC = cc
-CFLAGS = -D_OSK -v=.
+CFLAGS = -v=.
 CFLAGS_COMPILE_ONLY = -eas
 LDFLAGS = -olM=24k
 LIBS = -ltermlib.l -lsys_clib.l -lunix.l

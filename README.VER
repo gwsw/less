@@ -31,7 +31,7 @@ INSTALLATION (Unix systems only):
    If you choose not to include some features in your version, you may
    wish to edit the manual page "less.nro" and the help page "less.hlp" 
    to remove the descriptions of the features which you are removing.
-   If you edit less.hlp, you should run "make -f Makefile.author help.c".
+   If you edit less.hlp, you should run "make -f Makefile.aut help.c".
 
 4. Type "make" and watch the fun.
 
@@ -92,6 +92,32 @@ INSTALLATION (MS-DOS systems only)
 
 
 =======================================================================
+INSTALLATION (Windows-95 and Windows-NT systems only)
+
+1. Move the distributed source to its own directory.
+
+2. Rename Makefile.w32 to Makefile.
+
+3. Check the Makefile to make sure the definitions look ok.
+
+4. If you wish, you may edit defines.w32 to remove some optional features.
+   If you choose not to include some features in your version, you may
+   wish to edit the manual page less.man and the help page help.c
+   to remove the descriptions of the features which you are removing.
+
+5. Type "make" and watch the fun.
+
+6. If the make succeeds, it will generate a program "less"
+   in your current directory.  Test the generated program.
+
+7. When satisfied that it works, if you wish to install it
+   in a public place, type "make install".
+   See step 6 of the Unix installation instructions for details
+   on how to change the default installation directories.
+
+
+
+=======================================================================
 INSTALLATION (OS/2 systems only)
 
 1. Move the distributed source to its own directory.
@@ -126,12 +152,11 @@ INSTALLATION (OS-9 systems only)
 
 1. Move the distributed source to its own directory.
 
-2. If you are using gcc, rename Makefile.gcc.os9 to Makefile.
-   If you are using Ultra C, rename Makefile.ult.os9 to Makefile.
+2. Rename Makefile.os9 to Makefile.
 
 3. Check the Makefile to make sure the definitions look ok.
 
-4. If you wish, you may edit defines.osk to remove some optional features.
+4. If you wish, you may edit defines.os9 to remove some optional features.
    If you choose not to include some features in your version, you may
    wish to edit the manual page less.man and the help page help.c
    to remove the descriptions of the features which you are removing.

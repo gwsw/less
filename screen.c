@@ -28,8 +28,6 @@
 /*
  * Routines which deal with the characteristics of the terminal.
  * Uses termcap to be as terminal-independent as possible.
- *
- * {{ Maybe someday this should be rewritten to use curses or terminfo. }}
  */
 
 #include "less.h"
@@ -41,6 +39,10 @@
 #else
 #if MSDOS_COMPILER==BORLANDC
 #include <conio.h>
+#else
+#if MSDOS_COMPILER==WIN32C
+#include <windows.h>
+#endif
 #endif
 #endif
 #include <time.h>
@@ -56,7 +58,7 @@
 #if HAVE_TERMIO_H
 #include <termio.h>
 #else
-#ifdef _OSK
+#if HAVE_SGSTAT_H
 #include <sgstat.h>
 #else
 #include <sgtty.h>
@@ -66,6 +68,7 @@
 #endif
 #endif
 #endif
+
 #if HAVE_TERMCAP_H
 #include <termcap.h>
 #endif
@@ -104,31 +107,46 @@
 static int flash_created = 0;
 static int videopages;
 static long msec_loops;
+#define	SETCOLORS(fg,bg)	_settextcolor(fg); _setbkcolor(bg);
 #endif
 
 #if MSDOS_COMPILER==BORLANDC
 static unsigned short *whitescreen;
 #define _settextposition(y,x)   gotoxy(x,y)
-#define _settextcolor(c)        textcolor(c)
-#define _setbkcolor(c)          textbackground(c)
 #define _clearscreen(m)         clrscr()
 #define _outtext(s)             cputs(s)
+#define	SETCOLORS(fg,bg)	textcolor(fg); textbackground(bg);
+#endif
+
+#if MSDOS_COMPILER==WIN32C
+static WORD curr_attr;
+static int pending_scancode = 0;
+static WORD *whitescreen;
+static constant COORD TOPLEFT = {0, 0};
+#define FG_COLORS       (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)
+#define BG_COLORS       (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)
+HANDLE con_in;
+HANDLE con_out;
+#define	SETCOLORS(fg,bg)	curr_attr = (fg) | (bg); \
+				SetConsoleTextAttribute(con_out, curr_attr);
 #endif
 
 #if MSDOS_COMPILER
-public int nm_fg_color = 7;	/* Color of normal text */
-public int nm_bg_color = 0;
-public int bo_fg_color = 15;	/* Color of bold text */
-public int bo_bg_color = 0;
-public int ul_fg_color = 9;	/* Color of underlined text */
-public int ul_bg_color = 0;
-public int so_fg_color = 0;	/* Color of standout text */
-public int so_bg_color = 7;
-public int bl_fg_color = 12;	/* Color of blinking text */
-public int bl_bg_color = 0;
-static int sy_fg_color;
+public int nm_fg_color;		/* Color of normal text */
+public int nm_bg_color;
+public int bo_fg_color;		/* Color of bold text */
+public int bo_bg_color;
+public int ul_fg_color;		/* Color of underlined text */
+public int ul_bg_color;
+public int so_fg_color;		/* Color of standout text */
+public int so_bg_color;
+public int bl_fg_color;		/* Color of blinking text */
+public int bl_bg_color;
+static int sy_fg_color;		/* Color of system text (before less) */
 static int sy_bg_color;
+
 #else
+
 /*
  * Strings passed to tputs() to do various terminal functions.
  */
@@ -299,7 +317,7 @@ raw_mode(on)
 #ifdef VWERASE
 		werase_char = s.c_cc[VWERASE];
 #else
-		werase_char = 0;
+		werase_char = CONTROL('W');
 #endif
 
 		/*
@@ -418,7 +436,7 @@ raw_mode(on)
 #ifdef VWERASE
 		werase_char = s.c_cc[VWERASE];
 #else
-		werase_char = 0;
+		werase_char = CONTROL('W');
 #endif
 
 		/*
@@ -460,7 +478,7 @@ raw_mode(on)
 #endif
 		erase_char = s.sg_erase;
 		kill_char = s.sg_kill;
-		werase_char = 0;
+		werase_char = CONTROL('W');
 
 		/*
 		 * Set the modes to the way we want them.
@@ -495,7 +513,7 @@ raw_mode(on)
 		save_term = s;
 		erase_char = s.sg_bspch;
 		kill_char = s.sg_dlnch;
-		werase_char = 0;
+		werase_char = CONTROL('W');
 
 		/*
 		 * Set the modes to the way we want them.
@@ -520,7 +538,8 @@ raw_mode(on)
 	LSIGNAL(SIGINT, SIG_IGN);
 #endif
 	erase_char = '\b';
-	kill_char = '\033';
+	kill_char = '\033'; /* ESC */
+	werase_char = CONTROL('W');
 #endif
 #endif
 #endif
@@ -589,6 +608,14 @@ scrsize()
 		sc_width = w.screenwidth;
 	}
 #else
+#if MSDOS_COMPILER==WIN32C
+	{
+		CONSOLE_SCREEN_BUFFER_INFO scr;
+		GetConsoleScreenBufferInfo(con_out, &scr);
+		sc_height = scr.dwSize.Y;
+		sc_width = scr.dwSize.X;
+	}
+#else
 #if OS2
 	{
 		int s[2];
@@ -620,6 +647,7 @@ scrsize()
 				sc_width = w.uw_width / w.uw_hs;
 		}
 	}
+#endif
 #endif
 #endif
 #endif
@@ -918,14 +946,60 @@ get_term()
 #if MSDOS_COMPILER
 	auto_wrap = 1;
 	ignaw = 0;
+	can_goto_line = 1;
 	/*
-	 * We could set the *_s_width, *_e_width, and *_color variables
-	 * here, but they're all initialized statically.
+	 * Set up default colors.
+	 * The xx_s_width and xx_e_width variables are initialized to 0.
 	 */
+	nm_fg_color = 7;
+	nm_bg_color = 0;
+	bo_fg_color = 15;
+	bo_bg_color = 0;
+	ul_fg_color = 9;
+	ul_bg_color = 0;
+	so_fg_color = 0;
+	so_bg_color = 7;
+	bl_fg_color = 12;
+	bl_bg_color = 0;
 #if MSDOS_COMPILER==MSOFTC
+	sy_bg_color = _getbkcolor();
+	sy_fg_color = _gettextcolor();
 	get_clock();
-#endif
 #else
+#if MSDOS_COMPILER==BORLANDC
+	struct text_info w;
+	gettextinfo(&w);
+	sy_bg_color = (w.attribute >> 4) & 0x0F;
+	sy_fg_color = (w.attribute >> 0) & 0x0F;
+#else
+#if MSDOS_COMPILER==WIN32C
+	WORD attr;
+	DWORD nread;
+	CONSOLE_SCREEN_BUFFER_INFO scr;
+
+	GetConsoleScreenBufferInfo(con_out, &scr);
+	ReadConsoleOutputAttribute(con_out, &attr, 1, scr.dwCursorPosition, &nread);
+	sy_bg_color = attr & BG_COLORS;
+	sy_fg_color = attr & FG_COLORS;
+	curr_attr = sy_bg_color | sy_fg_color;
+	con_in = GetStdHandle(STD_INPUT_HANDLE);
+	con_out = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	/* Can't use default bg colors in Windows? */
+	nm_bg_color = sy_bg_color;
+	bo_bg_color = sy_bg_color;
+	ul_bg_color = sy_bg_color;
+	bl_bg_color = sy_bg_color;
+	/* Make standout = inverse video. */
+	so_fg_color = sy_bg_color;
+	so_bg_color = sy_fg_color;
+#endif
+#endif
+#endif
+#endif
+
+#else /* !MSDOS_COMPILER */
+
 	char *sp;
 	register char *t1, *t2;
 	char *term;
@@ -1243,22 +1317,31 @@ cheaper(t1, t2, def)
 
 
 #if MSDOS_COMPILER
+
+#if MSDOS_COMPILER==WIN32C
+        static void
+_settextposition(int row, int col)
+{
+	COORD cpos;
+	cpos.X = col-1;
+	cpos.Y = row-1;
+	SetConsoleCursorPosition(con_out, cpos);
+}
+#endif
+
 /*
  * Initialize the screen to the correct color at startup.
  */
 	static void
 initcolor()
 {
-	_settextcolor(nm_fg_color);
-	_setbkcolor(nm_bg_color);
+	SETCOLORS(nm_fg_color, nm_bg_color);
 
 #if 0
 	/*
 	 * This clears the screen at startup.  This is different from
 	 * the behavior of other versions of less.  Disable it for now.
 	 */
-	int height;
-	int width;
 	char *blanks;
 	int row;
 	int col;
@@ -1266,14 +1349,12 @@ initcolor()
 	/*
 	 * Create a complete, blank screen using "normal" colors.
 	 */
-	_settextcolor(nm_fg_color);
-	_setbkcolor(nm_bg_color);
-	scrsize(&height, &width);
+	SETCOLORS(nm_fg_color, nm_bg_color);
 	blanks = (char *) ecalloc(width+1, sizeof(char));
-	for (col = 0;  col < width;  col++)
+	for (col = 0;  col < sc_width;  col++)
 		blanks[col] = ' ';
-	blanks[width] = '\0';
-	for (row = 0;  row < height;  row++)
+	blanks[sc_width] = '\0';
+	for (row = 0;  row < sc_height;  row++)
 		_outtext(blanks);
 	free(blanks);
 #endif
@@ -1292,17 +1373,6 @@ init()
 	tputs(sc_init, sc_height, putchr);
 	tputs(sc_s_keypad, sc_height, putchr);
 #else
-#if MSDOS_COMPILER==MSOFTC
-	sy_bg_color = _getbkcolor();
-	sy_fg_color = _gettextcolor();
-#else
-#if MSDOS_COMPILER==BORLANDC
-	struct text_info w;
-	gettextinfo(&w);
-	sy_bg_color = (w.attribute >> 4) & 0x0F;
-	sy_fg_color = (w.attribute >> 0) & 0x0F;
-#endif
-#endif
 	initcolor();
 	flush();
 #endif
@@ -1323,8 +1393,7 @@ deinit()
 	tputs(sc_e_keypad, sc_height, putchr);
 	tputs(sc_deinit, sc_height, putchr);
 #else
-	_setbkcolor(sy_bg_color);
-	_settextcolor(sy_fg_color);
+	SETCOLORS(sy_fg_color, sy_bg_color);
 	putstr("\n");
 #endif
 	init_done = 0;
@@ -1354,6 +1423,7 @@ add_line()
 #if !MSDOS_COMPILER
 	tputs(sc_addline, sc_height, putchr);
 #else
+	flush();
 #if MSDOS_COMPILER==MSOFTC
 	_scrolltextwindow(_GSCROLLDOWN);
 	_settextposition(1,1);
@@ -1362,6 +1432,25 @@ add_line()
 	movetext(1,1, sc_width,sc_height-1, 1,2);
 	gotoxy(1,1);
 	clreol();
+#else
+#if MSDOS_COMPILER==WIN32C
+	CHAR_INFO fillchar;
+	SMALL_RECT rcSrc, rcClip;
+	COORD new_org = {0, 1};
+
+	rcClip.Left = 0;
+	rcClip.Top = 0;
+	rcClip.Right = sc_width - 1;
+	rcClip.Bottom = sc_height - 1;
+	rcSrc.Left = 0;
+	rcSrc.Top = 0;
+	rcSrc.Right = sc_width - 1;
+	rcSrc.Bottom = sc_height - 2;
+	fillchar.Char.AsciiChar = ' ';
+	fillchar.Attributes = curr_attr;
+	ScrollConsoleScreenBuffer(con_out, &rcSrc, &rcClip, new_org, &fillchar);
+	_settextposition(1,1);
+#endif
 #endif
 #endif
 #endif
@@ -1441,6 +1530,18 @@ create_flash()
 		return;
 	for (n = 0;  n < sc_width * sc_height;  n++)
 		whitescreen[n] = 0x7020;
+#else
+#if MSDOS_COMPILER==WIN32C
+	register int n;
+
+	whitescreen = (WORD *)
+		malloc(sc_height * sc_width * sizeof(WORD));
+	if (whitescreen == NULL)
+		return;
+	/* Invert the standard colors. */
+	for (n = 0;  n < sc_width * sc_height;  n++)
+		whitescreen[n] = (sy_fg_color << 4) | (sy_bg_color >> 4);
+#endif
 #endif
 #endif
 	flash_created = 1;
@@ -1459,20 +1560,15 @@ vbell()
 	tputs(sc_visual_bell, sc_height, putchr);
 #else
 #if MSDOS_COMPILER==MSOFTC
+	/*
+	 * Create a flash screen on the second video page.
+	 * Switch to that page, then switch back.
+	 */
 	if (!flash_created)
-		/*
-		 * Create a "flash" on the second video page.
-		 */
 		create_flash();
 	if (videopages < 2)
-		/*
-		 * There is no "second video page".
-		 */
 		return;
 	_setvisualpage(1);
-	/*
-	 * Leave it displayed for 100 msec.
-	 */
 	delay(100);
 	_setvisualpage(0);
 #else
@@ -1481,24 +1577,44 @@ vbell()
 
 	/*
 	 * Get a copy of the current screen.
-	 * Display an all white screen.
+	 * Display the flash screen.
 	 * Then restore the old screen.
 	 */
 	if (!flash_created)
 		create_flash();
-
+	if (whitescreen == NULL)
+		return;
 	currscreen = (unsigned short *) 
 		malloc(sc_width * sc_height * sizeof(short));
-	if (currscreen == NULL || whitescreen == NULL)
-	{
-		beep();
+	if (currscreen == NULL)
 		return;
-	}
 	gettext(1, 1, sc_width, sc_height, currscreen);
 	puttext(1, 1, sc_width, sc_height, whitescreen);
 	delay(100);
 	puttext(1, 1, sc_width, sc_height, currscreen);
 	free(currscreen);
+#else
+#if MSDOS_COMPILER==WIN32C
+	WORD *currscreen;
+	DWORD nread;
+
+	if (!flash_created)
+		create_flash();
+	if (whitescreen == NULL)
+		return;
+	currscreen = (WORD *) 
+		malloc(sc_width * sc_height * sizeof(WORD));
+	if (currscreen == NULL)
+		return;
+	ReadConsoleOutputAttribute(con_out, currscreen, 
+				sc_height * sc_width, TOPLEFT, &nread);
+	WriteConsoleOutputAttribute(con_out, whitescreen,
+				sc_height * sc_width, TOPLEFT, &nread);
+	delay(100);
+	WriteConsoleOutputAttribute(con_out, currscreen,
+				sc_height * sc_width, cpos, &nread);
+	free(currscreen);
+#endif
 #endif
 #endif
 #endif
@@ -1513,7 +1629,11 @@ beep()
 #if !MSDOS_COMPILER
 	putchr('\7');
 #else
+#if MSDOS_COMPILER==WIN32C
+	MessageBeep(0);
+#else
 	write(1, "\7", 1);
+#endif
 #endif
 }
 
@@ -1539,7 +1659,15 @@ clear()
 	tputs(sc_clear, sc_height, putchr);
 #else
 	flush();
+#if MSDOS_COMPILER==WIN32C
+	DWORD nchars;
+	FillConsoleOutputCharacter(con_out, ' ', 
+			sc_width * sc_height, TOPLEFT, &nchars);
+	FillConsoleOutputAttribute(con_out, curr_attr, 
+			sc_width * sc_height, TOPLEFT, &nchars);
+#else
 	_clearscreen(_GCLEARSCREEN);
+#endif
 #endif
 }
 
@@ -1580,6 +1708,22 @@ clear_eol()
 #if MSDOS_COMPILER==BORLANDC
 	flush();
 	clreol();
+#else
+#if MSDOS_COMPILER==WIN32C
+	DWORD           nchars;
+	COORD           cpos;
+	CONSOLE_SCREEN_BUFFER_INFO scr;
+
+	flush();
+	GetConsoleScreenBufferInfo(con_out, &scr);
+	cpos.X = scr.dwCursorPosition.X;
+	cpos.Y = scr.dwCursorPosition.Y;
+	curr_attr = scr.wAttributes;
+	FillConsoleOutputCharacter(con_out, ' ', 
+		sc_width - cpos.X, cpos, &nchars);
+	FillConsoleOutputAttribute(con_out, curr_attr, 
+		sc_width - cpos.X, cpos, &nchars);
+#endif
 #endif
 #endif
 #endif
@@ -1613,8 +1757,7 @@ so_enter()
 	tputs(sc_s_in, 1, putchr);
 #else
 	flush();
-	_setbkcolor(so_bg_color);
-	_settextcolor(so_fg_color);
+	SETCOLORS(so_fg_color, so_bg_color);
 #endif
 }
 
@@ -1628,8 +1771,7 @@ so_exit()
 	tputs(sc_s_out, 1, putchr);
 #else
 	flush();
-	_setbkcolor(nm_bg_color);
-	_settextcolor(nm_fg_color);
+	SETCOLORS(nm_fg_color, nm_bg_color);
 #endif
 }
 
@@ -1644,8 +1786,7 @@ ul_enter()
 	tputs(sc_u_in, 1, putchr);
 #else
 	flush();
-	_setbkcolor(ul_bg_color);
-	_settextcolor(ul_fg_color);
+	SETCOLORS(ul_fg_color, ul_bg_color);
 #endif
 }
 
@@ -1659,8 +1800,7 @@ ul_exit()
 	tputs(sc_u_out, 1, putchr);
 #else
 	flush();
-	_setbkcolor(nm_bg_color);
-	_settextcolor(nm_fg_color);
+	SETCOLORS(nm_fg_color, nm_bg_color);
 #endif
 }
 
@@ -1674,8 +1814,7 @@ bo_enter()
 	tputs(sc_b_in, 1, putchr);
 #else
 	flush();
-	_setbkcolor(bo_bg_color);
-	_settextcolor(bo_fg_color);
+	SETCOLORS(bo_fg_color, bo_bg_color);
 #endif
 }
 
@@ -1689,8 +1828,7 @@ bo_exit()
 	tputs(sc_b_out, 1, putchr);
 #else
 	flush();
-	_setbkcolor(nm_bg_color);
-	_settextcolor(nm_fg_color);
+	SETCOLORS(nm_fg_color, nm_bg_color);
 #endif
 }
 
@@ -1704,8 +1842,7 @@ bl_enter()
 	tputs(sc_bl_in, 1, putchr);
 #else
 	flush();
-	_setbkcolor(bl_bg_color);
-	_settextcolor(bl_fg_color);
+	SETCOLORS(bl_fg_color, bl_bg_color);
 #endif
 }
 
@@ -1719,8 +1856,7 @@ bl_exit()
 	tputs(sc_bl_out, 1, putchr);
 #else
 	flush();
-	_setbkcolor(nm_bg_color);
-	_settextcolor(nm_fg_color);
+	SETCOLORS(nm_fg_color, nm_bg_color);
 #endif
 }
 
@@ -1752,6 +1888,21 @@ backspace()
 #else
 #if MSDOS_COMPILER==BORLANDC
 	cputs("\b");
+#else
+#if MSDOS_COMPILER==WIN32C
+        COORD cpos;
+	CONSOLE_SCREEN_BUFFER_INFO scr;
+
+        flush();
+        GetConsoleScreenBufferInfo(con_out, &scr);
+        cpos.X = scr.dwCursorPosition.X;
+        cpos.Y = scr.dwCursorPosition.Y;
+        if (cpos.X <= 0)
+                return;
+        _settextposition(cpos.Y, cpos.X-1);
+        putch(' ');
+        _settextposition(cpos.Y, cpos.X-1);
+#endif
 #endif
 #endif
 #endif
@@ -1772,7 +1923,6 @@ putbs()
 	{
 #if MSDOS_COMPILER==MSOFTC
 		struct rccoord tpos;
-	
 		tpos = _gettextposition();
 		row = tpos.row;
 		col = tpos.col;
@@ -1780,11 +1930,18 @@ putbs()
 #if MSDOS_COMPILER==BORLANDC
 		row = wherey();
 		col = wherex();
+#else
+#if MSDOS_COMPILER==WIN32C
+		CONSOLE_SCREEN_BUFFER_INFO scr;
+		GetConsoleScreenBufferInfo(con_out, &scr);
+		row = scr.dwCursorPosition.Y + 1;
+		col = scr.dwCursorPosition.X + 1;
+#endif
 #endif
 #endif
 	}
 	if (col <= 1)
 		return;
 	_settextposition(row, col-1);
-#endif
+#endif /* MSDOS_COMPILER */
 }

@@ -33,6 +33,9 @@
 #include "less.h"
 #if MSDOS_COMPILER
 #include <dos.h>
+#if MSDOS_COMPILER==WIN32C
+#include <dir.h>
+#endif
 #endif
 #ifdef _OSK
 #include <rbf.h>
@@ -542,26 +545,41 @@ lglob(filename)
 	register char *p;
 	register int len;
 	register int n;
+
+#if MSDOS_COMPILER==WIN32C
+#define	FIND_FIRST(filename,fndp)	findfirst(filename, fndp, ~0)
+#define	FIND_NEXT(fndp)			findnext(fndp)
+#define	FND_NAME			ff_name
+	struct ffblk fnd;
+	char drive[MAXDRIVE];
+	char dir[MAXDIR];
+	char fname[MAXFILE];
+	char ext[MAXEXT];
+#else
+#define	FIND_FIRST(filename,fndp)	_dos_findfirst(filename, ~0, fndp)
+#define	FIND_NEXT(fndp)			_dos_findnext(fndp)
+#define	FND_NAME			name
 	struct find_t fnd;
 	char drive[_MAX_DRIVE];
 	char dir[_MAX_DIR];
 	char fname[_MAX_FNAME];
 	char ext[_MAX_EXT];
+#endif
 	
 	filename = fexpand(filename);
 
 	if (secure)
 		return (filename);
 
-	if (_dos_findfirst(filename, ~0, &fnd) != 0)
+	if (FIND_FIRST(filename, &fnd) != 0)
 		return (filename);
-		
+
 	_splitpath(filename, drive, dir, fname, ext);
 	len = 100;
 	gfilename = (char *) ecalloc(len, sizeof(char));
 	p = gfilename;
 	do {
-		n = strlen(drive) + strlen(dir) + strlen(fnd.name);
+		n = strlen(drive) + strlen(dir) + strlen(fnd.FND_NAME);
 		while (p - gfilename + n+2 >= len)
 		{
 			len *= 2;
@@ -572,15 +590,15 @@ lglob(filename)
 			gfilename = p;
 			p = gfilename + strlen(gfilename);
 		}
-		sprintf(p, "%s%s%s", drive, dir, fnd.name);
+		sprintf(p, "%s%s%s", drive, dir, fnd.FND_NAME);
 		p += n;
 		*p++ = ' ';
-	} while (_dos_findnext(&fnd) == 0);
-	
+	} while (FIND_NEXT(&fnd) == 0);
+
 	*--p = '\0';
 	return (gfilename);
 }
-	
+
 	public char *
 open_altfile(filename)
 	char *filename;

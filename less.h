@@ -47,8 +47,9 @@
 /*
  * Defines for MSDOS_COMPILER.
  */
-#define	MSOFTC		1
-#define	BORLANDC	2
+#define	MSOFTC		1	/* Microsoft C */
+#define	BORLANDC	2	/* Borland C */
+#define	WIN32C		3	/* Windows (Borland C) */
 
 /*
  * Language details.

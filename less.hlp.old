@@ -10,10 +10,10 @@
   e  ^E  j  ^N  CR  *  Forward  one line   (or _N lines).
   y  ^Y  k  ^K  ^P  *  Backward one line   (or _N lines).
   f  ^F  ^V  SPACE  *  Forward  one window (or _N lines).
-  ESC-SPACE         *  Like SPACE, but don't stop at end-of-file.
   b  ^B  ESC-v      *  Backward one window (or _N lines).
   z                 *  Forward  one window (and set window to _N).
   w                 *  Backward one window (and set window to _N).
+  ESC-SPACE         *  Forward  one window, but don't stop at end-of-file.
   d  ^D             *  Forward  one half-window (and set half-window to _N).
   u  ^U             *  Backward one half-window (and set half-window to _N).
   F                    Forward forever; like "tail -f".
@@ -86,8 +86,8 @@
   -d            Dumb terminal.
   -e  -E        Quit at end of file.
   -f            Force open non-regular files.
-  -g            Don't highlight matches for previous search pattern.
-  -G            Highlight ALL matches for previous search pattern.
+  -g            Highlight only last match for searches.
+  -G            Don't highlight any matches for searches.
   -h [_N]        Backward scroll limit.
   -i            Ignore case in searches.
   -I            Ignore case in searches and in search patterns.
@@ -130,7 +130,7 @@
  DELETE                           ESC-x     Delete char under cursor.
  CNTL-BACKSPACE   ESC-BACKSPACE             Delete word to left of cursor.
  CNTL-DELETE      ESC-DELETE      ESC-X     Delete word under cursor.
- CNTL-U (Unix only)    ESC (MS-DOS only)    Delete entire line.
+ CNTL-U           ESC (MS-DOS only)         Delete entire line.
  UpArrow                          ESC-k     Retrieve previous command line.
  DownArrow                        ESC-j     Retrieve next command line.
  TAB                                        Complete filename & cycle.

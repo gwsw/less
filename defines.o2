@@ -138,6 +138,11 @@
 #define HAVE_SYS_TYPES_H	1
 
 /*
+ * Define if you have the <sgstat.h> header file.
+ */
+#define HAVE_SGSTAT_H	0
+
+/*
  * HAVE_STAT is 1 if your system has the stat() call.
  */
 #define	HAVE_STAT	1
@@ -218,9 +223,9 @@
 #define HAVE_FILENO 1
 
 /* Define HAVE_ERRNO if you have the errno variable */
-#define HAVE_ERRNO 1
 /* Define MUST_DEFINE_ERRNO if you have errno but it is not define 
  * in errno.h */
+#define HAVE_ERRNO 1
 #define MUST_DEFINE_ERRNO 1
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */

@@ -24,7 +24,7 @@ and the environment variable LESSKEY is set,
 the value of LESSKEY is used as the name of the output file.
 Otherwise, a standard filename is used as the name of the output file,
 which depends on the system being used:
-On Unix systems, $HOME/.less is used;
+On Unix and OS-9 systems, $HOME/.less is used;
 on MS-DOS systems, $HOME/_less is used;
 and on OS/2 systems, $HOME/less.ini is used,
 or $INIT/less.ini if $HOME is undefined.

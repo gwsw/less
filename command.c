@@ -127,17 +127,14 @@ mca_search()
 
 	if (search_type & SRCH_NO_MATCH)
 		cmd_putstr("Non-match ");
-	if (search_type & SRCH_PAST_EOF)
-		cmd_putstr("EOF-skip ");
 	if (search_type & SRCH_FIRST_FILE)
 		cmd_putstr("First-file ");
+	if (search_type & SRCH_PAST_EOF)
+		cmd_putstr("EOF-ignore ");
 	if (search_type & SRCH_NO_MOVE)
 		cmd_putstr("Keep-pos ");
 	if (search_type & SRCH_NO_REGEX)
 		cmd_putstr("Regex-off ");
-
-	if (search_type & ~(SRCH_FORW | SRCH_BACK))
-		cmd_putstr("  ");
 
 	if (search_type & SRCH_FORW)
 		cmd_putstr("/");
@@ -1026,6 +1023,17 @@ commands()
 			/*
 			 * Exit.
 			 */
+			if (curr_ifile != NULL_IFILE && 
+			    ch_getflags() & CH_HELPFILE)
+			{
+				/*
+				 * Quit while viewing the help file
+				 * just means return to viewing the
+				 * previous file.
+				 */
+				if (edit_prev(1) == 0)
+					break;
+			}
 			quit(QUIT_OK);
 			break;
 

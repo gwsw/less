@@ -30,6 +30,10 @@
  */
 
 #include "less.h"
+#if MSDOS_COMPILER==WIN32C
+#include "windows.h"
+extern HANDLE hConIn;
+#endif
 
 static int tty;
 
@@ -77,7 +81,11 @@ getchr()
 		 * In raw read, we don't see ^C so look here for it.
 		 */
 		flush();
+#if MSDOS_COMPILER==WIN32C
+		c = WIN32getch();
+#else
 		c = getch();
+#endif
 		result = 1;
 		if (c == '\003')
 			return (READ_INTR);

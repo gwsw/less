@@ -30,6 +30,9 @@
  */
 
 #include "less.h"
+#if MSDOS_COMPILER==WIN32C
+#include "windows.h"
+#endif
 
 public int errmsgs;	/* Count of messages displayed by error() */
 public int need_clr;
@@ -129,15 +132,21 @@ flush()
 	register int n;
 	register int fd;
 
+#if MSDOS_COMPILER==WIN32C
+    {
+	DWORD nwritten = 0;
+	extern HANDLE con_out;
+	*ob = '\0';
+	WriteConsole(con_out, obuf, strlen(obuf), &nwritten, NULL);
+    }
+#else
 #if MSDOS_COMPILER==MSOFTC
 	*ob = '\0';
 	_outtext(obuf);
-	ob = obuf;
 #else
 #if MSDOS_COMPILER==BORLANDC
 	*ob = '\0';
 	cputs(obuf);
-	ob = obuf;
 #else
 	n = ob - obuf;
 	if (n == 0)
@@ -145,9 +154,10 @@ flush()
 	fd = (any_display) ? 1 : 2;
 	if (write(fd, obuf, n) != n)
 		screen_trashed = 1;
+#endif
+#endif
+#endif
 	ob = obuf;
-#endif
-#endif
 }
 
 /*
