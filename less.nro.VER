@@ -947,6 +947,10 @@ latin-1 is the same as ASCII, except characters between 161 and 255 are
 treated as normal characters.
 .IP dos
 Selects a character set appropriate for MS-DOS.
+.IP koi8-r
+Selects a Russian character set.
+.IP next
+Selects a character set appropriate for NeXT computers.
 .PP
 In special cases, it may be desired to tailor
 .I less

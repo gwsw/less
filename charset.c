@@ -48,6 +48,7 @@ struct charset {
 	{ "latin1",	"8bcccbcc18b95.33b."		},
 	{ "dos",	"8bcccbcc12bc5b95.b."		},
 	{ "koi8-r",	"8bcccbcc18b95.b128."		},
+	{ "next",	"8bcccbcc18b95.bb125.bb"	},
 	{ NULL }
 };
 
@@ -278,7 +279,7 @@ prchar(c)
 		sprintf(buf, "%c", c);
 	else if (c == ESC)
 		sprintf(buf, "ESC");
-	else if (!control_char(c ^ 0100))
+	else if (c < 128 && !control_char(c ^ 0100))
 		sprintf(buf, "^%c", c ^ 0100);
 	else
 		sprintf(buf, binfmt, c);
