@@ -202,7 +202,8 @@ iprintnum(num, radix)
 	int neg;
 	char buf[10];
 
-	if (neg = (num < 0))
+	neg = (num < 0);
+	if (neg)
 		num = -num;
 
 	s = buf;
