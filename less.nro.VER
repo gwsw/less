@@ -554,7 +554,8 @@ fourth line on the screen, so searches begin at the fifth line
 on the screen.
 .IP "-J or --status-column"
 Displays a status column at the left edge of the screen.
-The status column is used only if the -w or -W option is in effect.
+The status column shows the lines that matched the current search.
+The status column is also used if the -w or -W option is in effect.
 .IP "-k\fIfilename\fP or --lesskey-file=\fIfilename\fP"
 Causes
 .I less

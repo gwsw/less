@@ -15,6 +15,8 @@
 
 	Major changes between "less" versions 358 and @@VERSION@@
 
+* Status column (enabled with -J) now shows search results.
+
 * System-wide lesskey file now defaults to etc directory instead of bin.
   Use "configure --sysconfdir=..." to change it.
 

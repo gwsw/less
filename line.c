@@ -34,6 +34,7 @@ static int column;		/* Printable length, accounting for
 static int overstrike;		/* Next char should overstrike previous char */
 static int is_null_line;	/* There is no current line */
 static int lmargin;		/* Left margin */
+static int hilites;		/* Number of hilites in this line */
 static char pendc;
 static POSITION pendpos;
 static char *end_ansi_chars;
@@ -80,6 +81,9 @@ prewind()
 	is_null_line = 0;
 	pendc = '\0';
 	lmargin = 0;
+#if HILITE_SEARCH
+	hilites = 0;
+#endif
 	if (status_col)
 		lmargin += 1;
 	if (linenums == OPT_ONPLUS)
@@ -327,11 +331,14 @@ storec(c, a, pos)
 
 #if HILITE_SEARCH
 	if (is_hilited(pos, pos+1, 0))
+	{
 		/*
 		 * This character should be highlighted.
 		 * Override the attribute passed in.
 		 */
 		a = AT_STANDOUT;
+		hilites++;
+	}
 #endif
 	if (ctldisp == OPT_ONPLUS && in_ansi_esc_seq())
 		w = 0;
@@ -595,6 +602,14 @@ pdone(endline)
 	}
 	linebuf[curr] = '\0';
 	attr[curr] = AT_NORMAL;
+
+#if HILITE_SEARCH
+	if (status_col && hilites > 0)
+	{
+		linebuf[0] = '*';
+		attr[0] = AT_STANDOUT;
+	}
+#endif
 	/*
 	 * If we are done with this line, reset the current shift.
 	 */

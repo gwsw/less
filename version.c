@@ -607,6 +607,7 @@ v360  1/17/01	Move sysless to etc.
 v361  12/4/01	Add IBM-1047 charset & EBCDIC fixes (thanks to Thomas Dorner).
 		Fix 32 bit dependencies (thanks to Paul Eggert).
 		Fix UTF-8 overstriking (thanks to Robert Brady).
+v362  12/4/01	Make status column show search targets.
 
 */
 
