@@ -106,9 +106,13 @@ main(argc, argv)
 	}
 
 #if EDITOR
-	editor = getenv("EDITOR");
+	editor = getenv("VISUAL");
 	if (editor == NULL || *editor == '\0')
-		editor = EDIT_PGM;
+	{
+		editor = getenv("EDITOR");
+		if (editor == NULL || *editor == '\0')
+			editor = EDIT_PGM;
+	}
 	editproto = getenv("LESSEDIT");
 	if (editproto == NULL || *editproto == '\0')
 		editproto = "%E ?lm+%lm. %f";
