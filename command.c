@@ -474,6 +474,15 @@ prompt()
 	}
 }
 
+	public void
+dispversion()
+{
+	PARG parg;
+
+	parg.p_string = version;
+	error("less  version %s", &parg);
+}
+
 /*
  * Get command character.
  * The character normally comes from the keyboard,
@@ -955,8 +964,7 @@ commands()
 			 * Print version number, without the "@(#)".
 			 */
 			cmd_exec();
-			parg.p_string = version+4;
-			error("%s", &parg);
+			dispversion();
 			break;
 
 		case A_QUIT:

@@ -1,5 +1,5 @@
 
-	Major changes between "less" versions 237 and 247
+	Major changes between "less" versions 237 and 249
 
 * Changes in line-editing keys:
   The literal key is now ^V or ^A rather than \ (backslash).
@@ -8,10 +8,12 @@
 
 * Line-editing command keys can be redefined using lesskey.
 
-* New lesskey option -f forces lesskey to overwrite an existing file.
-  Lesskey will no longer overwrite existing files by default.
+* Lesskey with no input file defaults to $HOME/.lesskey.in
+  rather than standard input.
 
 * New option -V displays version number of less.
+
+* New option -V displays version number of lesskey.
 
 * Help file less.hlp is now installed by default in /usr/local/share 
   rather than /usr/local/lib.

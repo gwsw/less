@@ -207,12 +207,43 @@ char cmdsection[] =	{ CMD_SECTION };
 char editsection[] =	{ EDIT_SECTION };
 char endsection[] =	{ END_SECTION };
 
-int force = 0;
 char *infile = NULL;
 char *outfile = NULL ;
 
 int linenum;
 int errors;
+
+extern char version[];
+
+/*
+ * Figure out the name of a default file (in the user's HOME directory).
+ */
+	char *
+homefile(filename)
+	char *filename;
+{
+	char *p;
+	char *pathname;
+
+	p = getenv("HOME");
+	if (p == NULL || *p == '\0')
+	{
+		fprintf(stderr, "cannot find $HOME - using current directory\n");
+		pathname = calloc(strlen(filename) + 1, sizeof(char));
+		strcpy(pathname, filename);
+	} else
+	{
+		pathname = calloc(strlen(filename) + strlen(p) + 2, sizeof(char));
+		strcpy(pathname, p);
+#if MSOFTC
+		strcat(pathname, "\\");
+#else
+		strcat(pathname, "/");
+#endif
+		strcat(pathname, filename);
+	}
+	return (pathname);
+}
 
 /*
  * Parse command line arguments.
@@ -227,9 +258,6 @@ parse_args(argc, argv)
 	{
 		switch (argv[0][1])
 		{
-		case 'f':
-			force = 1;
-			break;
 		case 'o':
 			outfile = &argv[0][2];
 			if (*outfile == '\0')
@@ -239,6 +267,9 @@ parse_args(argc, argv)
 				outfile = *(++argv);
 			}
 			break;
+		case 'V':
+			printf("lesskey  version %s\n", version);
+			exit(0);
 		default:
 			usage();
 		}
@@ -251,36 +282,7 @@ parse_args(argc, argv)
 	if (argc > 0)
 		infile = *argv;
 	else
-		infile = "-";
-}
-
-/*
- * Figure out the name of the output file.
- */
-	char *
-find_outfile()
-{
-	char *p;
-	char *filename;
-
-	p = getenv("HOME");
-	if (p == NULL || *p == '\0')
-	{
-		fprintf(stderr, "cannot find $HOME - using current directory\n");
-		filename = calloc(strlen(LESSKEYFILE) + 1, sizeof(char));
-		strcpy(filename, LESSKEYFILE);
-	} else
-	{
-		filename = calloc(strlen(LESSKEYFILE) + strlen(p) + 2, sizeof(char));
-		strcpy(filename, p);
-#if MSOFTC
-		strcat(filename, "\\");
-#else
-		strcat(filename, "/");
-#endif
-		strcat(filename, LESSKEYFILE);
-	}
-	return (filename);
+		infile = homefile(DEF_LESSKEYINFILE);
 }
 
 /*
@@ -645,18 +647,7 @@ main(argc, argv)
 	}
 
 	if (outfile == NULL)
-		outfile = find_outfile();
-	if ((out = fopen(outfile, "r")) != NULL)
-	{
-		/* Output file already exists */
-		if (!force)
-		{
-			fprintf(stderr, "output file %s already exists: use -f to overwrite\n",
-				outfile);
-			exit(1);
-		}
-		fclose(out);
-	}
+		outfile = homefile(LESSKEYFILE);
 	if ((out = fopen(outfile, "w")) == NULL)
 	{
 		perror(outfile);

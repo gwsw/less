@@ -64,8 +64,8 @@ all: less lesskey
 less: $(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
 
-lesskey: lesskey.$(O)
-	$(CC) $(LDFLAGS) -o $@ lesskey.$(O)
+lesskey: lesskey.$(O) version.$(O)
+	$(CC) $(LDFLAGS) -o $@ lesskey.$(O) version.$(O)
 
 $(OBJ): less.h defines.h funcs.h
 

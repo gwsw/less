@@ -103,10 +103,13 @@
 #define	ONLY_RETURN	0
 
 /*
- * LESSKEYFILE is the filename of the default lesskey file 
+ * LESSKEYFILE is the filename of the default lesskey output file 
+ * (in the HOME directory).
+ * DEF_LESSKEYINFILE is the filename of the default lesskey input 
  * (in the HOME directory).
  */
-#define	LESSKEYFILE	"_less"
+#define	LESSKEYFILE		"_less"
+#define	DEF_LESSKEYINFILE	"_lesskey.in"
 
 /*
  * HELPFILE is the full pathname of the help file.

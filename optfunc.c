@@ -56,7 +56,6 @@ extern int any_display;
 extern char *prproto[];
 extern char *eqproto;
 extern IFILE curr_ifile;
-extern char version[];
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -382,15 +381,12 @@ opt__V(type, s)
 	int type;
 	char *s;
 {
-	PARG parg;
-
 	switch (type)
 	{
 	case TOGGLE:
 	case QUERY:
 	case INIT:
-		parg.p_string = version+4;
-		error("%s", &parg);
+		dispversion();
 		if (type == INIT)
 			quit(0);
 		break;
