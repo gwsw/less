@@ -1,7 +1,7 @@
 # Makefile for authoring less.
 
-EMAIL = marknu@netcom.com
-HOMEPAGE = http://members.aol.com/marknudel/less
+EMAIL = markn@fog.net
+HOMEPAGE = http://www.fog.net/markn/less
 SHELL = /bin/sh
 
 srcdir = .
@@ -100,7 +100,7 @@ dist: ${DISTFILES}
 	done; \
 	cd $$REL; chmod +w ${DISTFILES_W}; cd ..; \
 	echo "Creating release/$$REL/$$REL.tar.gz"; \
-	tar -chf - $$REL | gzip -c >release/$$REL/$$REL.tar.gz; \
+	tar -cf - $$REL | gzip -c >release/$$REL/$$REL.tar.gz; \
 	echo "Creating release/$$REL/$$REL.zip"; \
 	zip -rq release/$$REL/$$REL.zip $$REL; \
 	rm -rf $$REL
