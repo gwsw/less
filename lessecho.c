@@ -39,26 +39,36 @@
 
 #include "less.h"
 
-static char *version = "$Revision$";
+static char *version = "$Revision: 1.2 $";
 
 static int quote_all = 0;
 static char openquote = '"';
 static char closequote = '"';
 
-static void
+	static void
 pr_usage()
 {
 	fprintf(stderr,
 		"usage: lessecho [-ox] [-cx] [-pn] [-dn] [-a] file ...\n");
 }
 
-static void
+	static void
 pr_version()
 {
-	printf("%s\n", version);
+	char *p;
+	char buf[10];
+	char *pbuf = buf;
+
+	for (p = version;  *p != ' ';  p++)
+		if (*p == '\0')
+			return;
+	for (p++;  *p != '$' && *p != ' ' && *p != '\0';  p++)
+		*pbuf++ = *p;
+	*pbuf = '\0';
+	printf("%s\n", buf);
 }
 
-static void
+	static void
 pr_error(s)
 	char *s;
 {
@@ -66,7 +76,7 @@ pr_error(s)
 	exit(1);
 }
 
-static long
+	static long
 lstrtol(s, radix, pend)
 	char *s;
 	int radix;
@@ -138,7 +148,23 @@ lstrtol(s, radix, pend)
 	return (n);
 }
 
-int
+
+#if !HAVE_STRCHR
+	char *
+strchr(s, c)
+	char *s;
+	int c;
+{
+	for ( ;  *s != '\0';  s++)
+		if (*s == c)
+			return (s);
+	if (c == '\0')
+		return (s);
+	return (NULL);
+}
+#endif
+
+	int
 main(argc, argv)
 	int argc;
 	char *argv[];
@@ -193,7 +219,7 @@ main(argc, argv)
 				pr_usage();
 				return (0);
 			}
-			pr_error("Invalid option letter after --");
+			pr_error("Invalid option after --");
 		default:
 			pr_error("Invalid option letter");
 		}
