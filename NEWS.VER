@@ -1,9 +1,10 @@
 
                      NEWS about less
 
-  See the "less" Web page:
+======================================================================
+
+  For the latest news about less, see the "less" Web page:
       http://members.aol.com/marknudel/less 
-  for the latest news about less.  
   You can also obtain the latest version of less there.
 
 ======================================================================
@@ -39,8 +40,8 @@
 * Command line argument "--" signals that the rest of the arguments
   are files (not option flags).
 
-* Removed help file (less.hlp).  Help text is now embedded in the
-  less executable itself.
+* Help file (less.hlp) is no longer installed.  Help text is now 
+  embedded in the less executable itself.
 
 * Added -Ph to change the prompt for the help text.
   Added -Ps to change the default short prompt (same as plain -P).
