@@ -456,6 +456,7 @@
  *		Posted to prep.ai.mit.edu
  *	-----------------------------------------------------------------
  *	v253: Fix bug when tags file has a backslash.	11/21/94
+ *	v254: Fix -k option.				12/6/94
  */
 
-char version[] = "253";
+char version[] = "254";
