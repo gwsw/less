@@ -204,9 +204,13 @@ forw(n, pos, force, only_last, nblank)
 				/*
 				 * End of file: stop here unless the top line 
 				 * is still empty, or "force" is true.
+				 * Even if force is true, stop when the last
+				 * line in the file reaches the top of screen.
 				 */
 				eof = 1;
 				if (!force && position(TOP) != NULL_POSITION)
+					break;
+				if (empty_lines(2, sc_height-1))
 					break;
 			}
 		}

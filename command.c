@@ -894,11 +894,6 @@ commands()
 			/*
 			 * Force forward one screen.
 			 */
-			if (position(BOTTOM_PLUS_ONE) == NULL_POSITION)
-			{
-				bell();
-				break;
-			}
 			if (number <= 0)
 				number = get_swindow();
 			cmd_exec();
