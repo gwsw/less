@@ -1089,11 +1089,6 @@ Selects a character set appropriate for NeXT computers.
 .IP utf-8
 Selects the UTF-8 encoding of the ISO 10646 character set.
 .PP
-If the LESSCHARSET environment variable is not set,
-the default character set is latin1.
-However, if the string "UTF-8" is found in the LC_ALL, LC_CTYPE or LANG
-environment variables, then the default character set is utf-8 instead.
-.PP
 In special cases, it may be desired to tailor
 .I less
 to use a character set other than the ones definable by LESSCHARSET.
@@ -1130,13 +1125,21 @@ to each of the possible values for LESSCHARSET:
 .br
 	next\ \ 	8bcccbcc18b95.bb125.bb
 .PP
-If neither LESSCHARSET nor LESSCHARDEF is set, 
-but your system supports the 
+If neither LESSCHARSET nor LESSCHARDEF is set,
+but the string "UTF-8" is found in the LC_ALL, LC_TYPE or LANG
+environment variables, then the default character set is utf-8.
+.PP
+If that string is not found, but your system supports the
 .I setlocale
 interface,
 .I less
 will use setlocale to determine the character set.
-setlocale is controlled by setting the LANG or LC_CTYPE environment variables.
+setlocale is controlled by setting the LANG or LC_CTYPE environment
+variables.
+.PP
+Finally, if the
+.I setlocale
+interface is also not available, the default character set is latin1.
 .PP
 Control and binary characters are displayed in standout (reverse video).
 Each such character is displayed in caret notation if possible
