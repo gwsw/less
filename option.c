@@ -140,7 +140,8 @@ scan_option(s)
 			lc = SIMPLE_IS_LOWER(optname[0]);
 			o = findopt_name(&optname, NULL, &err);
 			s = optname;
-			if (*s == '\0')
+			optname = NULL;
+			if (*s == '\0' || *s == ' ')
 			{
 				/*
 				 * The option name matches exactly.
@@ -151,7 +152,9 @@ scan_option(s)
 				/*
 				 * The option name is followed by "=value".
 				 */
-				if (o != NULL && (o->otype & OTYPE) != STRING)
+				if (o != NULL &&
+				    (o->otype & OTYPE) != STRING &&
+				    (o->otype & OTYPE) != NUMBER)
 				{
 					parg.p_string = printopt;
 					error("The %s option should not be followed by =",

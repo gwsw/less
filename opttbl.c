@@ -355,6 +355,9 @@ findopt(c)
 
 /*
  * Find an option in the option table, given its option name.
+ * p_optname is the (possibly partial) name to look for, and
+ * is updated to point after the matched name.
+ * p_oname if non-NULL is set to point to the full option name.
  */
 	public struct option *
 findopt_name(p_optname, p_oname, p_err)
@@ -373,6 +376,9 @@ findopt_name(p_optname, p_oname, p_err)
 	int ambig = 0;
 	int exact = 0;
 
+	/*
+	 * Check all options.
+	 */
 	for (o = option;  o->oletter != '\0';  o++)
 	{
 		/*
@@ -389,16 +395,24 @@ findopt_name(p_optname, p_oname, p_err)
 			{
 				len = sprefix(optname, oname->oname, uppercase);
 				if (!exact && len == maxlen)
+					/*
+					 * Already had a partial match,
+					 * and now there's another one that
+					 * matches the same length.
+					 */
 					ambig = 1;
 				else if (len > maxlen)
 				{
+					/*
+					 * Found a better match than
+					 * the one we had.
+					 */
 					maxo = o;
 					maxoname = oname;
 					maxlen = len;
 					ambig = 0;
 					exact = (len == strlen(oname->oname));
 				}
-
 				if (!(o->otype & TRIPLE))
 					break;
 			}
@@ -406,6 +420,9 @@ findopt_name(p_optname, p_oname, p_err)
 	}
 	if (ambig)
 	{
+		/*
+		 * Name matched more than one option.
+		 */
 		if (p_err != NULL)
 			*p_err = OPT_AMBIG;
 		return (NULL);
