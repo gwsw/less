@@ -528,6 +528,7 @@ v300   1/25/96	Change -U to print tabs as ^I.
 v301   1/30/96	Make hilites work in cmd F output.
 v302   1/31/96	Fix cmd F to notice window-change signals.
 v303   1/31/96	Add ESC-SPACE command.
+v304   2/1/96	Add ^R search modifier; add LESSSECURE.
 */
 
-char version[] = "303";
+char version[] = "304";

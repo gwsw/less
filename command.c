@@ -47,6 +47,7 @@ extern int wscroll;
 extern int nohelp;
 extern int top_scroll;
 extern int ignore_eoi;
+extern int secure;
 extern char *every_first_cmd;
 extern char *curr_altfilename;
 extern char version[];
@@ -203,6 +204,8 @@ exec_mca()
 		break;
 #if EXAMINE
 	case A_EXAMINE:
+		if (secure)
+			break;
 		edit_list(cbuf);
 		break;
 #endif
@@ -220,6 +223,8 @@ exec_mca()
 			shellcmd = fexpand(cbuf);
 		}
 
+		if (secure)
+			break;
 		if (shellcmd == NULL)
 			lsystem("", "!done");
 		else
@@ -228,6 +233,8 @@ exec_mca()
 #endif
 #if PIPEC
 	case A_PIPE:
+		if (secure)
+			break;
 		(void) pipe_mark(pipec, cbuf);
 		error("|done", NULL_PARG);
 		break;
@@ -1114,6 +1121,11 @@ commands()
 			/*
 			 * Edit a new file.  Get the filename.
 			 */
+			if (secure)
+			{
+				error("Command not available", NULL_PARG);
+				break;
+			}
 			start_mca(A_EXAMINE, "Examine: ", ml_examine);
 			c = getcc();
 			goto again;
@@ -1127,6 +1139,12 @@ commands()
 			 * Invoke an editor on the input file.
 			 */
 #if EDITOR
+			if (secure)
+			{
+				error("Command not available", NULL_PARG);
+				break;
+			}
+			start_mca(A_SHELL, "!", ml_shell);
 			if (strcmp(get_filename(curr_ifile), "-") == 0)
 			{
 				error("Cannot edit standard input", NULL_PARG);
@@ -1225,6 +1243,11 @@ commands()
 			 * Shell escape.
 			 */
 #if SHELL_ESCAPE
+			if (secure)
+			{
+				error("Command not available", NULL_PARG);
+				break;
+			}
 			start_mca(A_SHELL, "!", ml_shell);
 			c = getcc();
 			goto again;
@@ -1259,6 +1282,11 @@ commands()
 
 		case A_PIPE:
 #if PIPEC
+			if (secure)
+			{
+				error("Command not available", NULL_PARG);
+				break;
+			}
 			start_mca(A_PIPE, "|mark: ", (void*)NULL);
 			c = getcc();
 			if (c == erase_char || c == kill_char)

@@ -42,6 +42,7 @@ public int	any_display = FALSE;
 public int	wscroll;
 public char *	progname;
 public int	quitting;
+public int	secure;
 
 extern int	quit_at_eof;
 extern int	cbufs;
@@ -77,6 +78,7 @@ main(argc, argv)
 	char *argv[];
 {
 	IFILE ifile;
+	char *s;
 
 #ifdef __EMX__
 	_response(&argc, &argv);
@@ -84,6 +86,11 @@ main(argc, argv)
 #endif
 
 	progname = *argv++;
+
+	secure = 0;
+	s = lgetenv("LESSSECURE");
+	if (s != NULL && *s != '\0')
+		secure = 1;
 
 	/*
 	 * Process command line arguments and LESS environment arguments.

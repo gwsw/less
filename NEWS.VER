@@ -1,5 +1,5 @@
 
-  See the "less" Web page http://members.aol.com/marknudel/less 
+  See the "less" Web page, http://members.aol.com/marknudel/less 
   for the latest news about less.  You can also obtain the latest
   version of less there.
 
@@ -19,6 +19,11 @@
 * New modifier for search commands: ^K means highlight the matches
   currently on-screen, but don't move to the first match.
 
+* New modifier for search commands: ^R means don't use regular
+  expressions in the search.
+
+* Environment variable LESSSECURE will force less to run in
+  "secure" mode.
 
 ======================================================================
 

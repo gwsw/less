@@ -51,6 +51,7 @@
 #include "lesskey.h"
 
 extern int erase_char, kill_char;
+extern int secure;
 
 /*
  * Command table is ordered roughly according to expected
@@ -536,6 +537,8 @@ lesskey(filename)
 	register long n;
 	register int f;
 
+	if (secure)
+		return (1);
 	/*
 	 * Try to open the lesskey file.
 	 */

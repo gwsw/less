@@ -1192,6 +1192,34 @@ If your editor does not accept the "+linenumber" syntax, or has other
 differences in invocation syntax, the LESSEDIT variable can be 
 changed to modify this default.
 
+.SH SECURITY
+When the environment variable LESSSECURE is set to 1,
+.I less
+runs in a "secure" mode.
+This means these features are disabled:
+.RS
+.IP "!"
+the shell command
+.IP "|"
+the pipe command
+.IP ":e"
+the examine command.
+.IP "v"
+the editing command
+.IP "s  -o"
+log files
+.IP "-k"
+use of lesskey files
+.IP "-t"
+use of tags files
+.IP " "
+metacharacters in filenames, such as *
+.IP " "
+filename completion (TAB, ^L)
+.RE
+.PP
+Less can also be compiled to be permanently in "secure" mode.
+
 .SH "ENVIRONMENT VARIABLES"
 Environment variables may be specified either in the system environment
 as usual, or in a 
@@ -1233,6 +1261,9 @@ See discussion under PROMPTS.
 Name of the help file.
 .IP LESSOPEN
 Command line to invoke the (optional) input-preprocessor.
+.IP LESSSECURE
+Runs less in "secure" mode.
+See discussion under SECURITY.
 .IP LINES
 Sets the number of lines on the screen.
 Takes precedence over the number of lines specified by the TERM variable.

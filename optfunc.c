@@ -52,6 +52,7 @@ extern int plusoption;
 extern int swindow;
 extern int sc_height;
 extern int any_display;
+extern int secure;
 extern char *prproto[];
 extern char *eqproto;
 extern IFILE curr_ifile;
@@ -86,6 +87,11 @@ opt_o(type, s)
 {
 	PARG parg;
 
+	if (secure)
+	{
+		error("log file support is not available", NULL_PARG);
+		return;
+	}
 	switch (type)
 	{
 	case INIT:
@@ -200,6 +206,11 @@ opt_t(type, s)
 		/* Do the rest in main() */
 		break;
 	case TOGGLE:
+		if (secure)
+		{
+			error("tags support is not available", NULL_PARG);
+			break;
+		}
 		findtag(skipsp(s));
 		if (tagfile == NULL)
 			break;

@@ -85,6 +85,7 @@ static int ch_ungotchar = -1;
 extern int autobuf;
 extern int sigs;
 extern int cbufs;
+extern int secure;
 extern IFILE curr_ifile;
 #if LOGFILE
 extern int logfile;
@@ -209,7 +210,7 @@ fch_get()
 	/*
 	 * If we have a log file, write the new data to it.
 	 */
-	if (logfile >= 0 && n > 0)
+	if (!secure && logfile >= 0 && n > 0)
 		write(logfile, (char *) &bp->data[bp->datasize], n);
 #endif
 

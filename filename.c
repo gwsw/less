@@ -36,6 +36,7 @@
 #endif
 
 extern int force_open;
+extern int secure;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 
@@ -215,6 +216,9 @@ fcomplete(s)
 	char *s;
 {
 	char *fpat;
+
+	if (secure)
+		return (NULL);
 	/*
 	 * Complete the filename "s" by globbing "s*".
 	 */
@@ -388,6 +392,9 @@ glob(filename)
 	char *gfilename;
 
 	filename = fexpand(filename);
+
+	if (secure)
+		return (filename);
 #if OS2
 {
 	char **list;
@@ -453,6 +460,8 @@ open_altfile(filename, pf, pfd)
 	int returnfd = 0;
 	FILE *fd;
 	
+	if (secure)
+		return (NULL);
 	ch_ungetchar(-1);
 	if ((lessopen = lgetenv("LESSOPEN")) == NULL)
 		return (NULL);
@@ -525,6 +534,8 @@ close_altfile(altfilename, filename, pipefd)
 	char *lessclose;
 	FILE *fd;
 	
+	if (secure)
+		return;
 	if (pipefd != NULL)
 		pclose((FILE*) pipefd);
 	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)
@@ -551,6 +562,10 @@ glob(filename)
 	char ext[_MAX_EXT];
 	
 	filename = fexpand(filename);
+
+	if (secure)
+		return (filename);
+
 	if (_dos_findfirst(filename, ~0, &fnd) != 0)
 		return (filename);
 		
