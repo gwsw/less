@@ -498,7 +498,6 @@ findopt_name(p_optname, p_oname, p_err)
 	int maxlen = 0;
 	int ambig = 0;
 	int exact = 0;
-	char *eq;
 
 	/*
 	 * Check all options.

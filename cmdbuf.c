@@ -85,6 +85,11 @@ public void * constant ml_examine = (void *)2;
 public void * constant ml_shell = (void *)3;
 #endif
 
+/* History file */
+#define HISTFILE_FIRST_LINE      ".less-history-file:"
+#define HISTFILE_SEARCH_SECTION  ".search"
+#define HISTFILE_SHELL_SECTION   ".shell"
+
 #endif /* CMD_HISTORY */
 
 /*
@@ -1048,4 +1053,133 @@ cmd_int()
 get_cmdbuf()
 {
 	return (cmdbuf);
+}
+
+#if CMD_HISTORY
+/*
+ *
+ */
+	static char *
+histfile_name()
+{
+	char *home;
+	char *name;
+	
+	name = lgetenv("LESSHISTFILE");
+	if (name != NULL && *name != '\0')
+		return (save(name));
+	home = lgetenv("HOME");
+	name = (char *) ecalloc(strlen(home) + strlen(LESSHISTFILE) + 2, sizeof(char));
+	sprintf(name, "%s/%s", home, LESSHISTFILE);
+	return (name);
+}
+#endif /* CMD_HISTORY */
+
+/*
+ * Initialize history from a .lesshist file.
+ */
+	public void
+init_cmdhist()
+{
+#if CMD_HISTORY
+	struct mlist *ml = NULL;
+	char line[CMDBUF_SIZE];
+	char *filename;
+	FILE *f;
+	char *p;
+
+	filename = histfile_name();
+	f = fopen(filename, "r");
+	free(filename);
+	if (f == NULL)
+		return;
+	if (fgets(line, sizeof(line), f) == NULL ||
+	    strncmp(line, HISTFILE_FIRST_LINE, strlen(HISTFILE_FIRST_LINE)) != 0)
+	{
+		fclose(f);
+		return;
+	}
+	while (fgets(line, sizeof(line), f) != NULL)
+	{
+		for (p = line;  *p != '\0';  p++)
+		{
+			if (*p == '\n' || *p == '\r')
+			{
+				*p = '\0';
+				break;
+			}
+		}
+		if (strcmp(line, HISTFILE_SEARCH_SECTION) == 0)
+			ml = &mlist_search;
+#if SHELL_ESCAPE || PIPEC
+		else if (strcmp(line, HISTFILE_SHELL_SECTION) == 0)
+			ml = &mlist_shell;
+#endif
+		else if (*line == '"')
+		{
+			if (ml != NULL)
+				cmd_addhist(ml, line+1);
+		}
+	}
+	fclose(f);
+#endif /* CMD_HISTORY */
+}
+
+/*
+ *
+ */
+#if CMD_HISTORY
+	static void
+save_mlist(ml, f)
+	struct mlist *ml;
+	FILE *f;
+{
+	int histsize = 0;
+	int n;
+	char *s;
+
+	s = lgetenv("LESSHISTSIZE");
+	if (s != NULL)
+		histsize = atoi(s);
+	if (histsize == 0)
+		histsize = 100;
+
+	ml = ml->prev;
+	for (n = 0;  n < histsize;  n++)
+	{
+		if (ml->string == NULL)
+			break;
+		ml = ml->prev;
+	}
+	for (ml = ml->next;  ml->string != NULL;  ml = ml->next)
+		fprintf(f, "\"%s\n", ml->string);
+}
+#endif /* CMD_HISTORY */
+
+/*
+ *
+ */
+	public void
+save_cmdhist()
+{
+#if CMD_HISTORY
+	char *filename;
+	FILE *f;
+
+	filename = histfile_name();
+	f = fopen(filename, "w");
+	free(filename);
+	if (f == NULL)
+		return;
+
+	fprintf(f, "%s\n", HISTFILE_FIRST_LINE);
+
+	fprintf(f, "%s\n", HISTFILE_SEARCH_SECTION);
+	save_mlist(&mlist_search, f);
+
+	fprintf(f, "%s\n", HISTFILE_SHELL_SECTION);
+	save_mlist(&mlist_shell, f);
+
+	fclose(f);
+#endif /* CMD_HISTORY */
 }

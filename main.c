@@ -114,6 +114,7 @@ main(argc, argv)
 	init_prompt();
 	init_charset();
 	init_line();
+	init_cmdhist();
 	init_option();
 	s = lgetenv("LESS");
 	if (s != NULL)
@@ -369,6 +370,7 @@ quit(status)
 		save_status = status;
 	quitting = 1;
 	edit((char*)NULL);
+	save_cmdhist();
 	if (any_display && is_tty)
 		clear_bot();
 	deinit();
