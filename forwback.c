@@ -46,7 +46,6 @@ extern int quit_at_eof;
 extern int plusoption;
 extern int forw_scroll;
 extern int back_scroll;
-extern int need_clr;
 extern int ignore_eoi;
 #if TAGS
 extern char *tagoption;
