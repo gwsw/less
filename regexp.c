@@ -26,9 +26,15 @@
  * Slightly modified by David MacKenzie to undo most of the changes for TCL.
  */
 
+#include "less.h"
+#if HAVE_STDIO_H
 #include <stdio.h>
+#endif
+#if STDC_HEADERS
+#include <stdlib.h>
+#include <string.h>
+#endif
 #include "regexp.h"
-char *strchr();
 
 /*
  * The "internal use only" fields in regexp.h are present to pass info from
