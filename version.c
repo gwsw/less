@@ -518,7 +518,9 @@ v293   4/28/95	Add auto-versioning stuff to make dist.
 v294   5/12/95	Fix Borland build.
 v295   1/20/96	Fix search on squished file; add /@@.
 v296   1/23/96	Allow cmdbuf larger than screen width.
+v297   1/24/96	Don't call termcap if tgetent fails; 
+		add #defines for buffers.
 
 */
 
-char version[] = "296";
+char version[] = "297";
