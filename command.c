@@ -468,6 +468,7 @@ prompt()
 	    !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
+#if 0 /* This doesn't work well because some "te"s clear the screen. */
 	/*
 	 * If the -e flag is set and we've hit EOF on the last file,
 	 * and the file is squished (shorter than the screen), quit.
@@ -475,6 +476,7 @@ prompt()
 	if (quit_at_eof && squished &&
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
+#endif
 
 	/*
 	 * Select the proper prompt and display it.

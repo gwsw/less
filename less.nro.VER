@@ -430,10 +430,6 @@ Causes
 .I less 
 to automatically exit
 the second time it reaches end-of-file.
-Also causes 
-.I less 
-to exit immediately after displaying the file
-if only one file is specified, and it can be completely displayed on one screen.
 By default, the only way to exit 
 .I less
 is via the "q" command.
