@@ -326,7 +326,7 @@ quit(status)
 		save_status = status;
 	quitting = 1;
 	edit((char*)NULL);
-	if (any_display)
+	if (any_display && is_tty)
 		clear_bot();
 	deinit();
 	flush();
