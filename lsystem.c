@@ -189,6 +189,8 @@ lsystem(cmd, donemsg)
 		putstr(donemsg);
 		putstr("  (press RETURN)");
 		get_return();
+		putchr('\n');
+		flush();
 	}
 	init();
 	screen_trashed = 1;
