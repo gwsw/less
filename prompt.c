@@ -471,7 +471,13 @@ pr_expand(proto, maxwidth)
 			{
 				where = 0;
 				p = wherechar(p, &where);
-				protochar(c, where, (proto == editproto));
+				protochar(c, where,
+#if EDITOR
+					(proto == editproto));
+#else
+					0);
+#endif
+
 			}
 			break;
 		}
