@@ -14,7 +14,7 @@ SRC = \
 DISTFILES_W = \
 	Makefile.dos Makefile.bcc defines.dos \
 	Makefile.os2 defines.os2 \
-	Makefile.os9 defines.os9 \
+	Makefile.o9c Makefile.o9u defines.o9 \
 	Makefile.w32 defines.w32
 DISTFILES = \
 	${SRC} regexp.c regexp.h \
