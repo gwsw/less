@@ -472,6 +472,14 @@ is_hilited(pos, epos, nohide)
 {
 	struct hilite *hl;
 
+	if (start_attnpos != NULL_POSITION && 
+	    pos < end_attnpos &&
+	     (epos == NULL_POSITION || epos > start_attnpos))
+		/*
+		 * The attn line overlaps this range.
+		 */
+		return (1);
+
 	if (hilite_search == 0)
 		/*
 		 * Not doing highlighting.
@@ -484,13 +492,6 @@ is_hilited(pos, epos, nohide)
 		 */
 		return (0);
 
-	if (start_attnpos != NULL_POSITION && 
-	    pos < end_attnpos &&
-	     (epos == NULL_POSITION || epos > start_attnpos))
-		/*
-		 * The attn line overlaps this range.
-		 */
-		return (1);
 	/*
 	 * Look at each highlight and see if any part of it falls in the range.
 	 */
