@@ -461,6 +461,22 @@ findopt(c)
 }
 
 /*
+ *
+ */
+	static int
+is_optchar(c)
+	char c;
+{
+	if (SIMPLE_IS_UPPER(c))
+		return 1;
+	if (SIMPLE_IS_LOWER(c))
+		return 1;
+	if (c == '-')
+		return 1;
+	return 0;
+}
+
+/*
  * Find an option in the option table, given its option name.
  * p_optname is the (possibly partial) name to look for, and
  * is updated to point after the matched name.
@@ -477,16 +493,12 @@ findopt_name(p_optname, p_oname, p_err)
 	register struct optname *oname;
 	register int len;
 	int uppercase;
-	int optname_len;
 	struct loption *maxo = NULL;
 	struct optname *maxoname = NULL;
 	int maxlen = 0;
 	int ambig = 0;
 	int exact = 0;
 	char *eq;
-
-	eq = strchr(optname, '=');
-	optname_len = (eq != NULL) ? eq - optname : strlen(optname);
 
 	/*
 	 * Check all options.
@@ -506,8 +518,13 @@ findopt_name(p_optname, p_oname, p_err)
 			for (uppercase = 0;  uppercase <= 1;  uppercase++)
 			{
 				len = sprefix(optname, oname->oname, uppercase);
-				if (len < optname_len)
+				if (len <= 0 || is_optchar(optname[len]))
+				{
+					/*
+					 * We didn't use all of the option name.
+					 */
 					continue;
+				}
 				if (!exact && len == maxlen)
 					/*
 					 * Already had a partial match,
@@ -543,6 +560,6 @@ findopt_name(p_optname, p_oname, p_err)
 	}
 	*p_optname = optname + maxlen;
 	if (p_oname != NULL)
-		*p_oname = maxoname->oname;
+		*p_oname = maxoname == NULL ? NULL : maxoname->oname;
 	return (maxo);
 }
