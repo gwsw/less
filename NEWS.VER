@@ -13,7 +13,16 @@
 ======================================================================
 
 
-	Major changes between "less" versions 358 and @@VERSION@@
+	Major changes between "less" versions 376 and @@VERSION@@
+
+* Bug fixes:
+  Default buffer space is now 64K as documented.
+  Search highlighting works properly when used with -R.
+  Windows version works properly when input file contains carriage returns.
+
+======================================================================
+
+	Major changes between "less" versions 358 and 376
 
 * -x option can now specify multiple variable-width tab stops.
 

@@ -631,7 +631,11 @@ v375   4/7/02	Fix searching for SGR sequences; fix SECURE build;
 		add SGR support to DJGPP version (thanks to Eli Zaretskii).
 v376  6/10/02	Fix bug in overstriking mulitbyte UTF-8 characters
 		(thanks to Jungshik Shin).
-
+		Posted to Web page.
+-----------------------------------------------------------------
+v377  9/10/02	Fix bug in Windows version when file contains CR;
+		fix bug in search highlights with -R;
+		make initial buffer limit really be 64K not unlimited.
 */
 
-char version[] = "376";
+char version[] = "377";
