@@ -296,4 +296,6 @@ This NUL character should be represented as \e340 in a lesskey file.
 .SH COPYRIGHT
 Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
 .br
+This program is part of the GNU project (http://www.gnu.org).
+.br
 Comments to: @@EMAIL@@

@@ -1,5 +1,7 @@
 =========================================================================
     This is the distribution of less, version @@VERSION@@, released @@DATE@@
+    This program is part of the GNU project (http://www.gnu.org).
+    See the file COPYING for licensing information.
     Please report any problems to the author at @@EMAIL@@.
         (Please note change of email address.)
     See @@HOMEPAGE@@ for the latest info.

@@ -52,12 +52,14 @@ extern int swindow;
 extern int sc_height;
 extern int secure;
 extern int dohelp;
+extern int any_display;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
 extern char *eqproto;
 extern char *hproto;
 extern IFILE curr_ifile;
+extern char version[];
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -373,10 +375,22 @@ opt__V(type, s)
 	{
 	case TOGGLE:
 	case QUERY:
-	case INIT:
 		dispversion();
-		if (type == INIT)
-			quit(QUIT_OK);
+		break;
+	case INIT:
+		/*
+		 * Force output to stdout per GNU standard for --version output.
+		 */
+		any_display = 1;
+		putstr("less ");
+		putstr(version);
+		putstr("\nCopyright (C) 1999 Mark Nudelman\n\n");
+		putstr("less comes with NO WARRNATY, to the extent permitted by law.\n");
+		putstr("You may redistribute copies of less under the terms\n");
+		putstr("of the GNU General Public License.\n");
+		putstr("For more information about these matters,\n");
+		putstr("see the file named COPYING in the less distribution.\n");
+		quit(QUIT_OK);
 		break;
 	}
 }

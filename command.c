@@ -605,13 +605,16 @@ prompt()
 	}
 }
 
+/*
+ * Display the less version message.
+ */
 	public void
 dispversion()
 {
 	PARG parg;
 
 	parg.p_string = version;
-	error("less  version %s", &parg);
+	error("less %s", &parg);
 }
 
 /*

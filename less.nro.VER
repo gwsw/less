@@ -19,6 +19,8 @@ less \- opposite of more
 .B "     [-T \fItagsfile\fP] [-x \fItab\fP] [-y \fIlines\fP] [-[z] \fIlines\fP]"
 .br
 .B "     [+[+]\fIcmd\fP] [--] [\fIfilename\fP]..."
+.br
+(See the OPTIONS section for alternate option syntax with long option names.)
 
 .SH DESCRIPTION
 .I Less
@@ -376,11 +378,16 @@ is running, via the "\-" command.
 .PP
 Most options may be given in one of two forms: 
 either a dash followed by a single letter,
-or two dashes followed by a multicharacter option name.
-A multicharacter option name may be abbreviated as long as
+or two dashes followed by a long option name.
+A long option name may be abbreviated as long as
 the abbreviation is unambiguous.
-For example, "--quit-at-eof" may be abbreviated "--quit", but not
-"--qui", since both "--quit-at-eof" and "--quiet" begin with "--qui".
+For example, --quit-at-eof may be abbreviated --quit, but not
+--qui, since both --quit-at-eof and --quiet begin with --qui.
+Some long option names are in uppercase, such as --QUIT-AT-EOF, as
+distinct from --quit-at-eof.
+Such option names need only have their first letter capitalized;
+the remainder of the name may be in either case.
+For example, --Quit-at-eof is equivalent to --QUIT-AT-EOF.
 .PP
 Options are also taken from the environment variable "LESS".
 For example, 
@@ -494,7 +501,7 @@ This can cause
 to run somewhat faster than the default.
 .IP "-G or --HILITE-SEARCH"
 The -G option suppresses all highlighting of strings found by search commands.
-.IP "-h\fIn\fP or --scroll-back-limit=\fIn\fP"
+.IP "-h\fIn\fP or ---max-back-scroll=\fIn\fP"
 Specifies a maximum number of lines to scroll backward.
 If it is necessary to scroll backward more than \fIn\fP lines,
 the screen is repainted in a forward direction instead.
@@ -693,12 +700,12 @@ forward movement command larger than one line.
 .IP "-x\fIn\fP or --tabs=\fIn\fP"
 Sets tab stops every \fIn\fP positions.
 The default for \fIn\fP is 8.
-.IP "-X or --noinit"
+.IP "-X or --no-init"
 Disables sending the termcap initialization and deinitialization strings
 to the terminal.
 This is sometimes desirable if the deinitialization string does
 something unnecessary, like clearing the screen.
-.IP "-y\fIn\fP or --scroll-forw-limit=\fIn\fP"
+.IP "-y\fIn\fP or --max-forw-scroll=\fIn\fP"
 Specifies a maximum number of lines to scroll forward.
 If it is necessary to scroll forward more than \fIn\fP lines,
 the screen is repainted instead.
@@ -719,7 +726,7 @@ lines less than the current screen size.
 For example, if the screen is 24 lines, \fI-z-4\fP sets the 
 scrolling window to 20 lines.  If the screen is resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
-.IP "-\"\fIcc\fP or --quotes=\fIcc\fP"
+.IP -"\fIcc\fP\ or\ --quotes=\fIcc\fP
 Changes the filename quoting character.
 This may be necessary if you are trying to name a file
 which contains both spaces and quote characters.
@@ -1289,6 +1296,10 @@ LINES and COLUMNS environment variables.)
 The name of the editor (used for the v command).
 .IP HOME
 Name of the user's home directory (used to find a lesskey file on Unix systems).
+.IP "HOMEDRIVE, HOMEPATH"
+Concatenation of the HOMEDRIVE and HOMEPATH environment variables is
+the name of the user's home directory if the HOME variable is not set
+(only in the Windows version).
 .IP INIT
 Name of the user's init directory (used to find a lesskey file on OS/2 systems).
 .IP LANG
@@ -1380,9 +1391,34 @@ This causes
 to treat some binary files as ordinary, non-binary files.
 To workaround this problem, set the environment variable
 LESSCHARSET to "ascii" (or whatever character set is appropriate).
+.PP
+The MS-DOS and Windows versions sometimes display incorrect
+highlighting when lines are longer than the screen width.
+.PP
+See @@HOMEPAGE@@ for the latest list of known bugs in this
+version of less.
 
 .SH COPYRIGHT
-Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
+Copyright (C) 1999  Mark Nudelman
+.PP
+less is free software; you can redistribute it and/or modify it
+under teh terms of the GNU General Public License as published by
+the Free Software Foundation;
+either version 2, or (at your option) any later version.
+.PP
+less is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License 
+along with less; see the file COPYING.
+If not, write to the Free Software Foundation, 59 Temple Place,
+Suite 330, Boston, MA  02111-1307, USA.
+
+.SH AUTHOR
+.PP
+Mark Nudelman <@@EMAIL@@>
 .br
-Comments to: @@EMAIL@@
+Send bug reports or comments to the above address or to bug-less@gnu.org.
 

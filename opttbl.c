@@ -124,7 +124,7 @@ static struct option option[] =
 		"Highlight all matches for previous search pattern",
 	},
 #endif
-	{ 'h', "scroll-back-limit",
+	{ 'h', "max-back-scroll",
 		NUMBER, -1, &back_scroll, NULL,
 		"Backwards scroll limit: ",
 		"Backwards scroll limit is %d lines",
@@ -238,13 +238,13 @@ static struct option option[] =
 		"Tab stops every %d spaces", 
 		NULL
 	},
-	{ 'X', "noinit",
+	{ 'X', "no-init",
 		BOOL|NO_TOGGLE, OPT_OFF, &no_init, NULL,
 		"Send init/deinit strings to terminal",
 		"Don't use init/deinit strings",
 		NULL
 	},
-	{ 'y', "scroll-forw-limit",
+	{ 'y', "max-forw-scroll",
 		NUMBER, -1, &forw_scroll, NULL,
 		"Forward scroll limit: ",
 		"Forward scroll limit is %d lines",

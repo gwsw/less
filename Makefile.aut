@@ -80,6 +80,8 @@ ${srcdir}/less.nro: ${srcdir}/less.nro.VER ${srcdir}/version.c
 	${REPLACE_VERSION} ${srcdir}/less.nro.VER
 ${srcdir}/lesskey.nro: ${srcdir}/lesskey.nro.VER ${srcdir}/version.c
 	${REPLACE_VERSION} ${srcdir}/lesskey.nro.VER
+${srcdir}/less.hlp: ${srcdir}/less.hlp.VER ${srcdir}/version.c
+	${REPLACE_VERSION} ${srcdir}/less.hlp.VER
 
 ${srcdir}/less.man: ${srcdir}/less.nro
 	${NROFF} ${srcdir}/less.nro >${srcdir}/less.man
