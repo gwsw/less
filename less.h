@@ -139,7 +139,7 @@ void free();
 /*
  * Special types and constants.
  */
-typedef long		POSITION;
+typedef off_t		POSITION;
 #define PR_POSITION	"%ld"
 #define MAX_PRINT_POSITION 20
 #define MAX_PRINT_INT      10
