@@ -550,6 +550,7 @@ optstring(s, printopt, validchars)
 	char *validchars;
 {
 	register char *p;
+	PARG parg;
 
 	if (*s == '\0')
 	{
@@ -560,6 +561,16 @@ optstring(s, printopt, validchars)
 		if (*p == END_OPTION_STRING ||
 		    (validchars != NULL && strchr(validchars, *p) == NULL))
 		{
+			switch (*p)
+			{
+			case END_OPTION_STRING:
+			case ' ':  case '\t':  case '-':
+				break;
+			default:
+				parg.p_string = p;
+				error("Option string needs delimiter before %s", &parg);
+				break;
+			}
 			*p = '\0';
 			return (p+1);
 		}
