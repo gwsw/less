@@ -1107,7 +1107,7 @@ search(search_type, pattern, n)
  * Prepare hilites in a given range of the file.
  *
  * The pair (prep_startpos,prep_endpos) delimits a contiguous region
- *  of the file that has been "prepared"; that is, scanned for matches for
+ * of the file that has been "prepared"; that is, scanned for matches for
  * the current search pattern, and hilites have been created for such matches.
  * If prep_startpos == NULL_POSITION, the prep region is empty.
  * If prep_endpos == NULL_POSITION, the prep region extends to EOF.
@@ -1122,7 +1122,9 @@ prep_hilite(spos, epos, maxlines)
 	POSITION nprep_startpos = prep_startpos;
 	POSITION nprep_endpos = prep_endpos;
 	POSITION new_epos;
+	POSITION max_epos;
 	int result;
+	int i;
 /*
  * Search beyond where we're asked to search, so the prep region covers
  * more than we need.  Do one big search instead of a bunch of small ones.
@@ -1131,6 +1133,20 @@ prep_hilite(spos, epos, maxlines)
 
 	if (!prev_pattern())
 		return;
+
+	/*
+	 * If we're limited to a max number of lines, figure out the
+	 * file position we should stop at.
+	 */
+	if (maxlines < 0)
+		max_epos = NULL_POSITION;
+	else
+	{
+		max_epos = spos;
+		for (i = 0;  i < maxlines;  i++)
+			max_epos = forw_raw_line(max_epos, (char **)NULL);
+	}
+
 	/*
 	 * Find two ranges:
 	 * The range that we need to search (spos,epos); and the range that
@@ -1198,6 +1214,13 @@ prep_hilite(spos, epos, maxlines)
 		}
 	}
 
+	if (epos != NULL_POSITION && max_epos != NULL_POSITION &&
+	    epos > max_epos)
+		/*
+		 * Don't go past the max position we're allowed.
+		 */
+		epos = max_epos;
+
 	if (epos == NULL_POSITION || epos > spos)
 	{
 		result = search_range(spos, epos, SRCH_FORW|SRCH_FIND_ALL, 0,
@@ -1213,8 +1236,7 @@ prep_hilite(spos, epos, maxlines)
 #endif
 
 /*
- * We have no pattern matching function from the library.
- * We use this function to do simple pattern matching.
+ * Simple pattern matching function.
  * It supports no metacharacters like *, etc.
  */
 	static int
