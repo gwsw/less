@@ -109,6 +109,10 @@ Makefile: Makefile.in config.status
 config.status: configure
 	./config.status --recheck
 
+configure: configure.in
+	autoheader
+	autoconf
+
 lint:
 	lint -I${srcdir} ${CPPFLAGS} ${SRC}
 newfuncs:
@@ -137,3 +141,8 @@ dist: ${DISTFILES}
 	done; \
 	tar -chf - $$REL | gzip -c >release/$$REL/$$REL.tar.gz; \
 	rm -rf $$REL
+
+tagall:
+	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/v\1/' -e q version.c`; \
+	echo "tagging $$REL"; \
+	$(RCS) -N$$REL: RCS/*,v

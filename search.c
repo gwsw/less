@@ -76,6 +76,7 @@ struct hilite
 	POSITION hl_endpos;
 };
 static struct hilite hilite_anchor = { NULL };
+#define	hl_first	hl_next
 #endif
 
 /*
@@ -383,56 +384,13 @@ clr_hilite()
 	struct hilite *hl;
 	struct hilite *nexthl;
 
-	for (hl = hilite_anchor.hl_next;  hl != NULL;  hl = nexthl)
+	for (hl = hilite_anchor.hl_first;  hl != NULL;  hl = nexthl)
 	{
 		nexthl = hl->hl_next;
 		free((void*)hl);
 	}
-	hilite_anchor.hl_next = NULL;
+	hilite_anchor.hl_first = NULL;
 	prep_startpos = prep_endpos = NULL_POSITION;
-}
-
-/*
- * Add a new hilite to the hilite list.
- */
-	static void
-add_hilite(anchor, hl)
-	struct hilite *anchor;
-	struct hilite *hl;
-{
-	struct hilite *ihl;
-
-	/*
-	 * Hilites are sorted in the list; find where new one belongs.
-	 * Insert new one after ihl.
-	 */
-	for (ihl = anchor;  ihl->hl_next != NULL;  ihl = ihl->hl_next)
-	{
-		if (ihl->hl_next->hl_startpos > hl->hl_startpos)
-			break;
-	}
-
-	if (ihl != anchor && hl->hl_startpos <= ihl->hl_endpos)
-	{
-		/*
-		 * New hilite starts within existing ihl.
-		 * Just extend ihl to end at the new hilite's end.
-		 */
-		ihl->hl_endpos = MAXPOS(hl->hl_endpos, ihl->hl_endpos);
-		free(hl);
-	} else
-	{
-		/*
-		 * Add new hilite after ihl.
-		 * If new hilite ends within the one after ihl,
-		 * truncate it to end at the start of that one.
-		 */
-		if (ihl->hl_next != NULL)
-			hl->hl_endpos = MINPOS(hl->hl_endpos, 
-						ihl->hl_next->hl_startpos);
-		hl->hl_next = ihl->hl_next;
-		ihl->hl_next = hl;
-	}
 }
 
 /*
@@ -462,13 +420,53 @@ is_hilited(pos, epos, nohide)
 	/*
 	 * Look at each highlight and see if any part of it falls in the range.
 	 */
-	for (hl = hilite_anchor.hl_next;  hl != NULL;  hl = hl->hl_next)
+	for (hl = hilite_anchor.hl_first;  hl != NULL;  hl = hl->hl_next)
 	{
 		if (hl->hl_endpos > pos &&
 		    (epos == NULL_POSITION || epos > hl->hl_startpos))
 			return (1);
 	}
 	return (0);
+}
+
+/*
+ * Add a new hilite to a hilite list.
+ */
+	static void
+add_hilite(anchor, hl)
+	struct hilite *anchor;
+	struct hilite *hl;
+{
+	struct hilite *ihl;
+
+	/*
+	 * Hilites are sorted in the list; find where new one belongs.
+	 * Insert new one after ihl.
+	 */
+	for (ihl = anchor;  ihl->hl_next != NULL;  ihl = ihl->hl_next)
+	{
+		if (ihl->hl_next->hl_startpos > hl->hl_startpos)
+			break;
+	}
+
+	/*
+	 * Truncate hilite so it doesn't overlap any existing ones
+	 * above and below it.
+	 */
+	if (ihl != anchor)
+		hl->hl_startpos = MAXPOS(hl->hl_startpos, ihl->hl_endpos);
+	if (ihl->hl_next != NULL)
+		hl->hl_endpos = MINPOS(hl->hl_endpos, ihl->hl_next->hl_startpos);
+	if (hl->hl_startpos >= hl->hl_endpos)
+	{
+		/*
+		 * Hilite was truncated out of existence.
+		 */
+		free(hl);
+		return;
+	}
+	hl->hl_next = ihl->hl_next;
+	ihl->hl_next = hl;
 }
 
 /*
@@ -494,7 +492,7 @@ adj_hilite(anchor, linepos)
 	 */
 	(void) forw_raw_line(linepos, &line);
 	opos = npos = linepos;
-	hl = anchor->hl_next;
+	hl = anchor->hl_first;
 	checkstart = TRUE;
 	while (hl != NULL)
 	{
@@ -565,7 +563,7 @@ hilite_line(linepos, line, sp, ep)
 	/*
 	 * Put the hilites into a temporary list until they're adjusted.
 	 */
-	hilites.hl_next = NULL;
+	hilites.hl_first = NULL;
 	do {
 		if (ep > sp)
 		{
