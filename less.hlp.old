@@ -33,7 +33,8 @@
         Search patterns may be modified by one or more of:
         !  search for NON-matching lines.
         *  search multiple files.
-        @  start search at first file (for /) or last file (for ?).
+        ^  start search at first file (for /) or last file (for ?).
+	@  highlight matches, but don't move to first match.
         ---------------------------------------------------
   g  <  ESC-<       *  Go to first line in file (or line _N).
   G  >  ESC->       *  Go to last line in file (or line _N).

@@ -520,7 +520,9 @@ v295   1/20/96	Fix search on squished file; add /@@.
 v296   1/23/96	Allow cmdbuf larger than screen width.
 v297   1/24/96	Don't call termcap if tgetent fails; 
 		add #defines for buffers.
+v298   1/24/96	Change @@ to ^K.  
+		Add alternate search modifiers ^N, ^F, ^E.
 
 */
 
-char version[] = "297";
+char version[] = "298";

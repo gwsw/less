@@ -74,7 +74,7 @@ ${OBJ}: less.h defines.h funcs.h
 filename.${O}: filename.c
 	${CC} -c -DHELPFILE=\"${datadir}/less.hlp\" -I. ${CPPFLAGS} ${CFLAGS} ${srcdir}/filename.c
 
-install: all less.hlp less.nro installdirs
+install: all ${srcdir}/less.hlp ${srcdir}/less.nro ${srcdir}/lesskey.nro installdirs
 	${INSTALL_PROGRAM} less ${bindir}/${binprefix}less
 	${INSTALL_PROGRAM} lesskey ${bindir}/${binprefix}lesskey
 	${INSTALL_DATA} ${srcdir}/less.hlp ${datadir}/less.hlp
@@ -132,22 +132,22 @@ realclean: distclean
 
 REPLACE_VERSION = \
 	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q ${srcdir}/version.c`; \
-	echo "Stuffing version number into $@"; \
+	echo "Stuffing version number $$REL into $@"; \
 	sed -e "s/@@VERSION@@/$$REL/" >$@
 
-README: README.VER version.c
-	${REPLACE_VERSION} README.VER
-NEWS: NEWS.VER version.c
-	${REPLACE_VERSION} NEWS.VER
-less.nro: less.nro.VER version.c
-	${REPLACE_VERSION} less.nro.VER
-lesskey.nro: lesskey.nro.VER version.c
+${srcdir}/README: ${srcdir}/README.VER ${srcdir}/version.c
+	${REPLACE_VERSION} ${srcdir}/README.VER
+${srcdir}/NEWS: ${srcdir}/NEWS.VER ${srcdir}/version.c
+	${REPLACE_VERSION} ${srcdir}/NEWS.VER
+${srcdir}/less.nro: ${srcdir}/less.nro.VER ${srcdir}/version.c
+	${REPLACE_VERSION} ${srcdir}/less.nro.VER
+${srcdir}/lesskey.nro: ${srcdir}/lesskey.nro.VER ${srcdir}/version.c
 	${REPLACE_VERSION} lesskey.nro.VER
 
-less.man: less.nro
-	mkman less.nro >less.man
-lesskey.man: lesskey.nro
-	mkman lesskey.nro >lesskey.man
+${srcdir}/less.man: ${srcdir}/less.nro
+	mkman ${srcdir}/less.nro >${srcdir}/less.man
+${srcdir}/lesskey.man: ${srcdir}/lesskey.nro
+	mkman ${srcdir}/lesskey.nro >${srcdir}/lesskey.man
 
 
 dist: ${DISTFILES}

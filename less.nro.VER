@@ -186,21 +186,21 @@ Certain characters are special
 if entered at the beginning of the pattern;
 they modify the type of search rather than become part of the pattern:
 .RS
-.IP !
+.IP "^N or !"
 Search for lines which do NOT match the pattern.
-.IP *
+.IP "^E or *"
 Search multiple files.
-That is, if the search reaches the end of the current file 
+That is, if the search reaches the END of the current file 
 without finding a match,
 the search continues in the next file in the command line list.
-.IP @
-Begin the search at the first line of the first file
+.IP "^F or @"
+Begin the search at the first line of the FIRST file
 in the command line list,
 regardless of what is currently displayed on the screen
 or the settings of the -a or -j options.
-.IP @@
+.IP "^K"
 Highlight any text which matches the pattern on the current screen, 
-but don't move to the first match.
+but don't move to the first match (KEEP current position).
 .RE
 .PP
 .IP ?pattern
@@ -209,18 +209,21 @@ The search starts at the line immediately before the top line displayed.
 .sp
 Certain characters are special as in the / command:
 .RS
-.IP !
+.IP "^N or !"
 Search for lines which do NOT match the pattern.
-.IP *
+.IP "^E or *"
 Search multiple files.
 That is, if the search reaches the beginning of the current file 
 without finding a match,
 the search continues in the previous file in the command line list.
-.IP @
+.IP "^F or @"
 Begin the search at the last line of the last file
 in the command line list,
 regardless of what is currently displayed on the screen
 or the settings of the -a or -j options.
+.IP "^K"
+Highlight any text which matches the pattern on the current screen, 
+but don't move to the first match.
 .RE
 .PP
 .IP "ESC-/pattern"
@@ -1235,7 +1238,7 @@ more text than the matching string may be highlighted.
 
 
 .SH COPYRIGHT
-Copyright (c) 1984,1985,1989,1994,1995  Mark Nudelman
+Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
 .br
 Comments to: markn@3do.com
 

@@ -1,4 +1,20 @@
-	Major changes between "less" versions 290 and @@VERSION@@
+
+	Major changes between "less" versions 291 and @@VERSION@@
+
+* Command line at bottom of screen now scrolls, so it can be longer 
+  than the screen width.
+
+* New modifier for search commands: ^K means highlight the matches
+  currently on-screen, but don't move to the first match.
+
+* Alternate modifiers for search commands: ^N is same as !,
+  ^F is same as @, and ^E is same as *.
+
+
+======================================================================
+
+
+	Major changes between "less" versions 290 and 291
 
 * Less environment variables can be specified in lesskey files.
 

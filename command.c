@@ -138,16 +138,17 @@ mca_search()
 		cmd_putstr("@");
 
 	if (search_type & SRCH_NO_MOVE)
-	{
-		cmd_putstr("@");
-		cmd_putstr("@");
-	}
+		cmd_putstr("#");
 
 	if (search_type & SRCH_PAST_EOF)
 		cmd_putstr("*");
 
 	if (search_type & SRCH_NOMATCH)
 		cmd_putstr("!");
+
+	if (search_type & 
+	     (SRCH_FIRST_FILE | SRCH_NO_MOVE | SRCH_PAST_EOF | SRCH_NOMATCH))
+		cmd_putstr("  ");
 
 	if (search_type & SRCH_FORW)
 		cmd_putstr("/");
@@ -350,18 +351,18 @@ mca_char(c)
 		flag = 0;
 		switch (c)
 		{
+		case CONTROL('N'): /* NOT match */
 		case '!':
 			flag = SRCH_NOMATCH;
 			break;
+		case CONTROL('F'): /* FIRST file */
 		case '@':
-			if (search_type & SRCH_FIRST_FILE)
-			{
-				/* "@@" */
-				search_type &= ~SRCH_FIRST_FILE;
-				flag = SRCH_NO_MOVE;
-			} else
-				flag = SRCH_FIRST_FILE;
+			flag = SRCH_FIRST_FILE;
 			break;
+		case CONTROL('K'): /* KEEP position */
+			flag = SRCH_NO_MOVE;
+			break;
+		case CONTROL('E'): /* ignore END of file */
 		case '*':
 			flag = SRCH_PAST_EOF;
 			break;
