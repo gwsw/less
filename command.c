@@ -143,11 +143,13 @@ mca_search()
 	if (search_type & SRCH_PAST_EOF)
 		cmd_putstr("*");
 
-	if (search_type & SRCH_NOMATCH)
+	if (search_type & SRCH_NO_MATCH)
 		cmd_putstr("!");
 
-	if (search_type & 
-	     (SRCH_FIRST_FILE | SRCH_NO_MOVE | SRCH_PAST_EOF | SRCH_NOMATCH))
+	if (search_type & SRCH_NO_REGEX)
+		cmd_putstr("=");
+
+	if (search_type & ~(SRCH_FORW | SRCH_BACK))
 		cmd_putstr("  ");
 
 	if (search_type & SRCH_FORW)
@@ -337,7 +339,7 @@ mca_char(c)
 		 * Special case for search commands.
 		 * Certain characters as the first char of 
 		 * the pattern have special meaning:
-		 *	!  Toggle the NOMATCH flag
+		 *	!  Toggle the NO_MATCH flag
 		 *	*  Toggle the PAST_EOF flag
 		 *	@  Toggle the FIRST_FILE flag
 		 */
@@ -350,9 +352,9 @@ mca_char(c)
 		flag = 0;
 		switch (c)
 		{
-		case CONTROL('N'): /* NOT match */
-		case '!':
-			flag = SRCH_NOMATCH;
+		case CONTROL('E'): /* ignore END of file */
+		case '*':
+			flag = SRCH_PAST_EOF;
 			break;
 		case CONTROL('F'): /* FIRST file */
 		case '@':
@@ -361,9 +363,12 @@ mca_char(c)
 		case CONTROL('K'): /* KEEP position */
 			flag = SRCH_NO_MOVE;
 			break;
-		case CONTROL('E'): /* ignore END of file */
-		case '*':
-			flag = SRCH_PAST_EOF;
+		case CONTROL('R'): /* Don't use REGULAR EXPRESSIONS */
+			flag = SRCH_NO_REGEX;
+			break;
+		case CONTROL('N'): /* NOT match */
+		case '!':
+			flag = SRCH_NO_MATCH;
 			break;
 		}
 		if (flag != 0)

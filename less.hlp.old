@@ -7,9 +7,10 @@
   h  H                 Display this help.
   q  :q  :Q  ZZ        Exit.
 
-  e  ^E  j  ^N  CR  *  Forward  one line (or _N lines).
-  y  ^Y  k  ^K  ^P  *  Backward one line (or _N lines).
+  e  ^E  j  ^N  CR  *  Forward  one line   (or _N lines).
+  y  ^Y  k  ^K  ^P  *  Backward one line   (or _N lines).
   f  ^F  ^V  SPACE  *  Forward  one window (or _N lines).
+  ESC-SPACE         *  Like SPACE, but don't stop at end-of-file.
   b  ^B  ESC-v      *  Backward one window (or _N lines).
   z                 *  Forward  one window (and set window to _N).
   w                 *  Backward one window (and set window to _N).
@@ -31,10 +32,11 @@
   ESC-u                Undo (toggle) search highlighting.
         ---------------------------------------------------
         Search patterns may be modified by one or more of:
-        ^N or !  search for NON-matching lines.
-        ^E or *  search multiple files.
-        ^F or @  start search at first file (for /) or last file (for ?).
-	^K       highlight matches, but don't move to first match.
+        ^N or !  Search for NON-matching lines.
+        ^E or *  Search multiple files (pass thru END OF FILE).
+        ^F or @  Start search at FIRST file (for /) or last file (for ?).
+	^K       Highlight matches, but don't move (KEEP position).
+	^R       Don't use REGULAR EXPRESSIONS.
         ---------------------------------------------------
   g  <  ESC-<       *  Go to first line in file (or line _N).
   G  >  ESC->       *  Go to last line in file (or line _N).
@@ -118,21 +120,21 @@
         These keys can be used to edit text being entered 
         on the "command line" at the bottom of the screen.
 
- RightArrow                       ESC-l   Move cursor right one character.
- LeftArrow                        ESC-h   Move cursor left one character.
- CNTL-RightArrow  ESC-RightArrow  ESC-w   Move cursor right one word.
- CNTL-LeftArrow   ESC-LeftArrow   ESC-b   Move cursor left one word.
- HOME                             ESC-0   Move cursor to start of line.
- END                              ESC-$   Move cursor to end of line.
- BACKSPACE                                Delete char to left of cursor.
- DELETE                           ESC-x   Delete char under cursor.
- CNTL-BACKSPACE   ESC-BACKSPACE           Delete word to left of cursor.
- CNTL-DELETE      ESC-DELETE      ESC-X   Delete word under cursor.
- UpArrow                          ESC-k   Retrieve previous command line.
- DownArrow                        ESC-j   Retrieve next command line.
- TAB                                      Complete filename & cycle.
- SHIFT-TAB                        ESC-TAB Complete filename & reverse cycle.
- CNTL-L                                   Complete filename.
- CNTL-U (Unix only)    ESC (MS-DOS only)  Delete entire line.
+ RightArrow                       ESC-l     Move cursor right one character.
+ LeftArrow                        ESC-h     Move cursor left one character.
+ CNTL-RightArrow  ESC-RightArrow  ESC-w     Move cursor right one word.
+ CNTL-LeftArrow   ESC-LeftArrow   ESC-b     Move cursor left one word.
+ HOME                             ESC-0     Move cursor to start of line.
+ END                              ESC-$     Move cursor to end of line.
+ BACKSPACE                                  Delete char to left of cursor.
+ DELETE                           ESC-x     Delete char under cursor.
+ CNTL-BACKSPACE   ESC-BACKSPACE             Delete word to left of cursor.
+ CNTL-DELETE      ESC-DELETE      ESC-X     Delete word under cursor.
+ CNTL-U (Unix only)    ESC (MS-DOS only)    Delete entire line.
+ UpArrow                          ESC-k     Retrieve previous command line.
+ DownArrow                        ESC-j     Retrieve next command line.
+ TAB                                        Complete filename & cycle.
+ SHIFT-TAB                        ESC-TAB   Complete filename & reverse cycle.
+ CNTL-L                                     Complete filename, list all.
 
 

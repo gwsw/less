@@ -205,6 +205,9 @@ or the settings of the -a or -j options.
 .IP "^K"
 Highlight any text which matches the pattern on the current screen, 
 but don't move to the first match (KEEP current position).
+.IP "^R"
+Don't interpret regular expression metacharacters;
+that is, do a simple textual comparison.
 .RE
 .PP
 .IP ?pattern
@@ -226,8 +229,9 @@ in the command line list,
 regardless of what is currently displayed on the screen
 or the settings of the -a or -j options.
 .IP "^K"
-Highlight any text which matches the pattern on the current screen, 
-but don't move to the first match.
+As in forward searches.
+.IP "^R"
+As in forward searches.
 .RE
 .PP
 .IP "ESC-/pattern"

@@ -50,9 +50,8 @@ extern char *__loc1;
 #if HAVE_V8_REGCOMP
 #include "regexp.h"
 #endif
-#if NO_REGEX
+
 static int match();
-#endif
 
 extern int sigs;
 extern int how_search;
@@ -95,12 +94,11 @@ static char *cpattern = NULL;
 #if HAVE_V8_REGCOMP
 static struct regexp *regpattern = NULL;
 #endif
-#if NO_REGEX
-static char *last_pattern = NULL;
-#endif
 
 static int is_caseless;
 static int is_ucase_pattern;
+static int last_search_type;
+static char *last_pattern = NULL;
 
 /*
  * Convert text.  Perform one or more of these transformations:
@@ -243,8 +241,9 @@ undo_search()
  * Compile a search pattern, for future use by match_pattern.
  */
 	static int
-compile_pattern(pattern)
+compile_pattern(pattern, search_type)
 	char *pattern;
+	int search_type;
 {
 #if HAVE_POSIX_REGCOMP
 	regex_t *s = (regex_t *) ecalloc(1, sizeof(regex_t));
@@ -291,13 +290,14 @@ compile_pattern(pattern)
 		free(regpattern);
 	regpattern = s;
 #endif
-#if NO_REGEX
+
 	if (last_pattern != NULL)
 		free(last_pattern);
 	last_pattern = calloc(1, strlen(pattern)+1);
 	if (last_pattern != NULL)
 		strcpy(last_pattern, pattern);
-#endif
+
+	last_search_type = search_type;
 	return (0);
 }
 
@@ -341,6 +341,10 @@ match_pattern(line, sp, ep)
 	char **ep;
 {
 	int matched;
+
+	if (last_search_type & SRCH_NO_REGEX)
+		return (match(last_pattern, line, sp, ep));
+
 #if HAVE_POSIX_REGCOMP
 	regmatch_t rm;
 	matched = !regexec(regpattern, line, 1, &rm, 0);
@@ -839,8 +843,8 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 * or if we want a non-match and got one.
 		 */
 		line_match = match_pattern(line, &sp, &ep);
-		line_match = (!(search_type & SRCH_NOMATCH) && line_match) ||
-				((search_type & SRCH_NOMATCH) && !line_match);
+		line_match = (!(search_type & SRCH_NO_MATCH) && line_match) ||
+				((search_type & SRCH_NO_MATCH) && !line_match);
 		if (!line_match)
 			continue;
 		/*
@@ -882,7 +886,6 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 	}
 }
 
-int xsearch_type;
 /*
  * Search for the n-th occurrence of a specified pattern, 
  * either forward or backward.
@@ -901,7 +904,6 @@ search(search_type, pattern, n)
 	POSITION pos;
 	int ucase;
 
-xsearch_type = search_type;
 	if (pattern == NULL || *pattern == '\0')
 	{
 		/*
@@ -911,6 +913,12 @@ xsearch_type = search_type;
 		{
 			error("No previous regular expression", NULL_PARG);
 			return (-1);
+		}
+		if ((search_type & SRCH_NO_REGEX) != 
+		    (last_search_type & SRCH_NO_REGEX))
+		{
+			error("Please re-enter search pattern", NULL_PARG);
+			return -1;
 		}
 #if HILITE_SEARCH
 		if (hilite_search == OPT_ON)
@@ -940,7 +948,7 @@ xsearch_type = search_type;
 		ucase = is_ucase(pattern);
 		if (caseless == OPT_ONPLUS)
 			cvt_text(pattern, pattern, CVT_TO_LC);
-		if (compile_pattern(pattern) < 0)
+		if (compile_pattern(pattern, search_type) < 0)
 			return (-1);
 		/*
 		 * Ignore case if -I is set OR
@@ -1135,7 +1143,6 @@ prep_hilite(spos, epos, maxlines)
 }
 #endif
 
-#if NO_REGEX
 /*
  * We have no pattern matching function from the library.
  * We use this function to do simple pattern matching.
@@ -1164,7 +1171,6 @@ match(pattern, buf, pfound, pend)
 	}
 	return (0);
 }
-#endif
 
 #if HAVE_V8_REGCOMP
 /*
