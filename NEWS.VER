@@ -13,8 +13,11 @@
 	Major changes between "less" versions 321 and @@VERSION@@
 
 * Now supports filenames containing spaces (in double quotes).
+  New option -" can be used to change the quoting characters.
 
 * In filename completion, a slash is appended to a directory name.
+  If the environment variable LESSSEPARATOR is set, the value of
+  that variable, rather than a slash, is appended.
 
 * LeftArrow and RightArrow are same as ESC-[ and ESC-].
 

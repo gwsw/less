@@ -525,7 +525,6 @@ shellcmd(cmd)
 	{
 		char *scmd;
 		char *esccmd;
-		char *esc;
 
 		/*
 		 * Try to escape any metacharacters in the command.
@@ -533,9 +532,7 @@ shellcmd(cmd)
 		 * (But that doesn't work well if the command itself 
 		 * contains quotes.)
 		 */
-		esc = get_meta_escape();
-		esccmd = NULL;
-		if (*esc == '\0' || (esccmd = esc_metachars(cmd)) == NULL)
+		if ((esccmd = esc_metachars(cmd)) == NULL)
 		{
 			/*
 			 * Cannot escape the metacharacters, so use quotes.
@@ -553,10 +550,9 @@ shellcmd(cmd)
 			scmd = (char *) ecalloc(strlen(shell) + strlen(cmd) + 5,
 						sizeof(char));
 			sprintf(scmd, "%s -c %s", shell, esccmd);
+			free(esccmd);
 		}
 		fd = popen(scmd, "r");
-		if (esccmd != NULL)
-			free(esccmd);
 		free(scmd);
 	} else
 #endif
