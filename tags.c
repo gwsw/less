@@ -178,6 +178,7 @@ tagsearch()
 {
 	POSITION pos, linepos;
 	int linenum;
+	int len;
 	char *line;
 
 	/*
@@ -232,8 +233,9 @@ tagsearch()
 		 * If tagendline is set, make sure we match all
 		 * the way to end of line (no extra chars after the match).
 		 */
-		if (strncmp(tagpattern, line, strlen(tagpattern)) == 0 &&
-		    (!tagendline || line[strlen(tagpattern)] == '\0'))
+		len = strlen(tagpattern);
+		if (strncmp(tagpattern, line, len) == 0 &&
+		    (!tagendline || line[len] == '\0' || line[len] == '\r'))
 			break;
 	}
 
