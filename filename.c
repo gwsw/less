@@ -800,6 +800,40 @@ close_altfile(altfilename, filename, pipefd)
 }
 		
 /*
+ * Is the specified file a directory?
+ */
+	public int
+is_dir(filename)
+	char *filename;
+{
+	int isdir = 0;
+
+	filename = unquote_file(filename);
+#if HAVE_STAT
+{
+	int r;
+	struct stat statbuf;
+
+	r = stat(filename, &statbuf);
+	isdir = (r >= 0 && S_ISDIR(statbuf.st_mode));
+}
+#else
+#ifdef _OSK
+{
+	register int f;
+
+	f = open(filename, S_IREAD | S_IFDIR);
+	if (f >= 0)
+		close(f);
+	isdir = (f >= 0);
+}
+#endif
+#endif
+	free(filename);
+	return (isdir);
+}
+
+/*
  * Returns NULL if the file can be opened and
  * is an ordinary file, otherwise an error message
  * (if it cannot be opened or is a directory, etc.)
@@ -811,63 +845,37 @@ bad_file(filename)
 	register char *m = NULL;
 
 	filename = unquote_file(filename);
-#if HAVE_STAT
-{
-	int r;
-	struct stat statbuf;
-
-	r = stat(filename, &statbuf);
-	if (r < 0)
-	{
-		m = errno_message(filename);
-	} else if (force_open)
-	{
-		m = NULL;
-	} else if (S_ISDIR(statbuf.st_mode))
+	if (is_dir(filename))
 	{
 		static char is_dir[] = " is a directory";
+
 		m = (char *) ecalloc(strlen(filename) + sizeof(is_dir), 
 			sizeof(char));
 		strcpy(m, filename);
 		strcat(m, is_dir);
-	} else if (!S_ISREG(statbuf.st_mode))
-	{
-		static char not_reg[] = " is not a regular file";
-		m = (char *) ecalloc(strlen(filename) + sizeof(not_reg), 
-			sizeof(char));
-		strcpy(m, filename);
-		strcat(m, not_reg);
-	}
-}
-#else
-#ifdef _OSK
-{
-	register int f;
-
-	if ((f = open(filename, S_IREAD | S_IFDIR)) >= 0)
-	{
-		static char is_dir[] = " is a directory";
-		close(f);
-		if (force_open)
-			m = NULL;
-		else
-		{
-			m = (char *) ecalloc(strlen(filename) + sizeof(is_dir),
-				sizeof(char));
-			strcpy(m, filename);
-			strcat(m, is_dir);
-		}
-	} else if ((f = open(filename, S_IREAD)) >= 0)
-	{
-		close(f);
-		m = NULL;
 	} else
 	{
-		m = errno_message(filename);
+#if HAVE_STAT
+		int r;
+		struct stat statbuf;
+
+		r = stat(filename, &statbuf);
+		if (r < 0)
+		{
+			m = errno_message(filename);
+		} else if (force_open)
+		{
+			m = NULL;
+		} else if (!S_ISREG(statbuf.st_mode))
+		{
+			static char not_reg[] = " is not a regular file (use -f to see it)";
+			m = (char *) ecalloc(strlen(filename) + sizeof(not_reg),
+				sizeof(char));
+			strcpy(m, filename);
+			strcat(m, not_reg);
+		}
+#endif
 	}
-}
-#endif
-#endif
 	free(filename);
 	return (m);
 }
@@ -883,24 +891,14 @@ filesize(f)
 #if HAVE_STAT
 	struct stat statbuf;
 
-	if (fstat(f, &statbuf) < 0)
-		/*
-		 * Can't stat; try seeking to the end.
-		 */
-		return (seek_filesize(f));
-
-	return ((POSITION) statbuf.st_size);
+	if (fstat(f, &statbuf) >= 0)
+		return ((POSITION) statbuf.st_size);
 #else
 #ifdef _OSK
 	long size;
 
-	if ((size = (long)_gs_size(f)) < 0)
-		/*
-		 * Can't stat; try seeking to the end.
-		 */
-		return (seek_filesize(f));
-
-	return ((POSITION) size);
+	if ((size = (long) _gs_size(f)) >= 0)
+		return ((POSITION) size);
 #else
 	return (seek_filesize(f));
 #endif

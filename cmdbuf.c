@@ -927,6 +927,16 @@ cmd_complete(action)
 		 */
 		if (cmd_istr(tk_trial) != CC_OK)
 			goto fail;
+		/*
+		 * If it is a directory, append a slash.
+		 */
+		if (is_dir(tk_trial))
+		{
+			if (cp > cmdbuf && cp[-1] == quote_char)
+				(void) cmd_erase();
+			if (cmd_istr(PATHNAME_SEP) != CC_OK)
+				goto fail;
+		}
 	}
 	
 	return (CC_OK);
