@@ -179,10 +179,42 @@ plinenum(pos)
 }
 
 /*
- *
+ * Determine how many characters are required to shift N columns.
  */
 	static int
-utf_len(s, len)
+shift_chars(s, len)
+	char *s;
+	int len;
+{
+	char *p = s;
+
+	/*
+	 * Each char counts for one column, except ANSI color escape
+	 * sequences use no columns since they don't move the cursor.
+	 */
+	while (*p != '\0' && len > 0)
+	{
+		if (*p++ != ESC)
+		{
+			len--;
+		} else
+		{
+			while (*p != '\0')
+			{
+				if (strchr(end_ansi_chars, *p++) != NULL)
+					break;
+			}
+		}
+	}
+	return (p - s);
+}
+
+/*
+ * Determine how many characters are required to shift N columns (UTF version).
+ * {{ FIXME: what about color escape sequences in UTF mode? }}
+ */
+	static int
+utf_shift_chars(s, len)
 	char *s;
 	int len;
 {
@@ -212,28 +244,26 @@ pshift(shift)
 	int shift;
 {
 	int i;
-	int real_shift;
+	int nchars;
 
 	if (shift > column - lmargin)
 		shift = column - lmargin;
 	if (shift > curr - lmargin)
 		shift = curr - lmargin;
 
-	if (!utf_mode)
-		real_shift = shift;
+	if (utf_mode)
+		nchars = utf_shift_chars(linebuf + lmargin, shift);
 	else
+		nchars = shift_chars(linebuf + lmargin, shift);
+	if (nchars > curr)
+		nchars = curr;
+	for (i = 0;  i < curr - nchars;  i++)
 	{
-		real_shift = utf_len(linebuf + lmargin, shift);
-		if (real_shift > curr)
-			real_shift = curr;
+		linebuf[lmargin + i] = linebuf[lmargin + i + nchars];
+		attr[lmargin + i] = attr[lmargin + i + nchars];
 	}
-	for (i = 0;  i < curr - real_shift;  i++)
-	{
-		linebuf[lmargin + i] = linebuf[lmargin + i + real_shift];
-		attr[lmargin + i] = attr[lmargin + i + real_shift];
-	}
+	curr -= nchars;
 	column -= shift;
-	curr -= real_shift;
 	cshift += shift;
 }
 
@@ -471,7 +501,10 @@ pappend(c, pos)
 	 * pappending.  (Bold & underline can get messed up otherwise.)
 	 */
 	if (cshift < hshift && column > sc_width / 2)
+	{
+		linebuf[curr] = '\0';
 		pshift(hshift - cshift);
+	}
 	return (r);
 }
 

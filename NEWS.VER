@@ -38,7 +38,9 @@
 
 * Fix overstriking in UTF-8 mode.
 
-* Some fixes to eliminate 32-bit file offset dependencies.
+* Improve horizontal shifting of text using -R option with ANSI color.
+
+* Eliminate some 32-bit file offset dependencies.
 
 * Some fixes for EBCDIC systems.
 
