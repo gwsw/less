@@ -323,7 +323,8 @@ mca_char(c)
 		 */
 		if (optchar == '\0' && len_cmdbuf() == 0)
 		{
-			if ((optflag & ~OPT_NO_PROMPT) == OPT_NO_TOGGLE)
+			flag = (optflag & ~OPT_NO_PROMPT);
+			if (flag == OPT_NO_TOGGLE)
 			{
 				switch (c)
 				{
@@ -339,12 +340,14 @@ mca_char(c)
 				{
 				case '+':
 					/* "-+" = UNSET. */
-					optflag = OPT_UNSET;
+					optflag = (flag == OPT_UNSET) ?
+						OPT_TOGGLE : OPT_UNSET;
 					mca_opt_toggle();
 					return (MCA_MORE);
 				case '!':
 					/* "-!" = SET */
-					optflag = OPT_SET;
+					optflag = (flag == OPT_SET) ?
+						OPT_TOGGLE : OPT_SET;
 					mca_opt_toggle();
 					return (MCA_MORE);
 				case CONTROL('P'):
