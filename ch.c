@@ -34,6 +34,7 @@
 #include "less.h"
 #if MSDOS_COMPILER==WIN32C
 #include <errno.h>
+#include <windows.h>
 #endif
 
 public int ignore_eoi;
@@ -248,6 +249,10 @@ fch_get()
 				ierror("Waiting for data", NULL_PARG);
 #if !MSDOS_COMPILER
 	 		sleep(1);
+#else
+#if MSDOS_COMPILER==WIN32C
+			Sleep(1000);
+#endif
 #endif
 			slept = TRUE;
 		}

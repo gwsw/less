@@ -38,7 +38,7 @@
 #include <dos.h>
 #ifdef _MSC_VER
 #include <direct.h>
-#define setdisk(n) _chdrive(n)
+#define setdisk(n) _chdrive((n)+1)
 #else
 #include <dir.h>
 #endif
@@ -60,8 +60,10 @@ lsystem(cmd, donemsg)
 	char *donemsg;
 {
 	register int inp;
+#if HAVE_SHELL
 	register char *shell;
 	register char *p;
+#endif
 	IFILE save_ifile;
 #if MSDOS_COMPILER
 	char cwd[FILENAME_MAX+1];
