@@ -390,6 +390,12 @@ scrsize()
   		sc_width = 80;
 }
 
+/*
+ * Take care of the "variable" keys.
+ * Certain keys send escape sequences which differ on different terminals
+ * (such as the arrow keys, INSERT, DELETE, etc.)
+ * Construct the commands based on these keys.
+ */
 	public void
 get_editkeys()
 {
@@ -397,18 +403,23 @@ get_editkeys()
 	char *s;
 	char tbuf[40];
 
-	static char kcmdtable[400];
-	int sz_kcmdtable = 0;
-	static char kedittable[400];
-	int sz_kedittable = 0;
+	static char kfcmdtable[400];
+	int sz_kfcmdtable = 0;
+	static char kecmdtable[400];
+	int sz_kecmdtable = 0;
 
-#define	add_cmd(str,action,tbl,sz) { \
+#define	put_cmd(str,action,tbl,sz) { \
 	strcpy(tbl+sz, str);	\
 	sz += strlen(str) + 1;	\
 	tbl[sz++] = action; }
-#define	add_esc_cmd(str,action,tbl,sz) { \
+#define	put_esc_cmd(str,action,tbl,sz) { \
 	tbl[sz++] = ESC; \
-	add_cmd(str,action,tbl,sz); }
+	put_cmd(str,action,tbl,sz); }
+
+#define	put_fcmd(str,action)	put_cmd(str,action,kfcmdtable,sz_kfcmdtable)
+#define	put_ecmd(str,action)	put_cmd(str,action,kecmdtable,sz_kecmdtable)
+#define	put_esc_fcmd(str,action) put_esc_cmd(str,action,kfcmdtable,sz_kfcmdtable)
+#define	put_esc_ecmd(str,action) put_esc_cmd(str,action,kecmdtable,sz_kecmdtable)
 
 	/*
 	 * Look at some interesting keys and see what strings they send.
@@ -416,67 +427,67 @@ get_editkeys()
 	 */
 
 	/* RIGHT ARROW */
-	sp = tbuf+1;
+	sp = tbuf;
 	if ((s = tgetstr("kr", &sp)) != NULL)
 	{
-		add_cmd(s, EC_RIGHT, kedittable, sz_kedittable);
-		add_esc_cmd(s, EC_W_RIGHT, kedittable, sz_kedittable);
+		put_ecmd(s, EC_RIGHT);
+		put_esc_ecmd(s, EC_W_RIGHT);
 	}
 	
 	/* LEFT ARROW */
-	sp = tbuf+1;
+	sp = tbuf;
 	if ((s = tgetstr("kl", &sp)) != NULL)
 	{
-		add_cmd(s, EC_LEFT, kedittable, sz_kedittable);
-		add_esc_cmd(s, EC_W_LEFT, kedittable, sz_kedittable);
+		put_ecmd(s, EC_LEFT);
+		put_esc_ecmd(s, EC_W_LEFT);
 	}
 	
 	/* UP ARROW */
-	s = tbuf;
+	sp = tbuf;
 	if ((s = tgetstr("ku", &sp)) != NULL) 
 	{
-		add_cmd(s, EC_UP, kedittable, sz_kedittable);
-		add_cmd(s, A_B_LINE, kcmdtable, sz_kcmdtable);
+		put_ecmd(s, EC_UP);
+		put_fcmd(s, A_B_LINE);
 	}
 		
 	/* DOWN ARROW */
-	s = tbuf;
+	sp = tbuf;
 	if ((s = tgetstr("kd", &sp)) != NULL) 
 	{
-		add_cmd(s, EC_DOWN, kedittable, sz_kedittable);
-		add_cmd(s, A_F_LINE, kcmdtable, sz_kcmdtable);
+		put_ecmd(s, EC_DOWN);
+		put_fcmd(s, A_F_LINE);
 	}
 
 	/* PAGE UP */
-	s = tbuf;
+	sp = tbuf;
 	if ((s = tgetstr("kP", &sp)) != NULL) 
 	{
-		add_cmd(s, A_B_SCREEN, kcmdtable, sz_kcmdtable);
+		put_fcmd(s, A_B_SCREEN);
 	}
 
 	/* PAGE DOWN */
-	s = tbuf;
+	sp = tbuf;
 	if ((s = tgetstr("kN", &sp)) != NULL) 
 	{
-		add_cmd(s, A_F_SCREEN, kcmdtable, sz_kcmdtable);
+		put_fcmd(s, A_F_SCREEN);
 	}
 	
 	/* HOME */
 	sp = tbuf;
 	if ((s = tgetstr("kh", &sp)) != NULL) 
 	{
-		add_cmd(s, EC_HOME, kedittable, sz_kedittable);
+		put_ecmd(s, EC_HOME);
 	}
 
 	/* END */
 	sp = tbuf;
 	if ((s = tgetstr("@7", &sp)) != NULL) 
 	{
-		add_cmd(s, EC_END, kedittable, sz_kedittable);
+		put_ecmd(s, EC_END);
 	}
 
 	/* DELETE */
-	sp = tbuf+1;
+	sp = tbuf;
 	if ((s = tgetstr("kD", &sp)) == NULL) 
 	{
 		/* Use DEL (\177) if no "kD" termcap. */
@@ -484,20 +495,20 @@ get_editkeys()
 		tbuf[2] = '\0';
 		s = tbuf+1;
 	}
-	add_cmd(s, EC_DELETE, kedittable, sz_kedittable);
-	add_esc_cmd(s, EC_W_DELETE, kedittable, sz_kedittable);
+	put_ecmd(s, EC_DELETE);
+	put_esc_ecmd(s, EC_W_DELETE);
 		
 	/* BACKSPACE */
 	tbuf[0] = ESC;
 	tbuf[1] = erase_char;
 	tbuf[2] = '\0';
-	add_cmd(tbuf, EC_W_BACKSPACE, kedittable, sz_kedittable);
+	put_ecmd(tbuf, EC_W_BACKSPACE);
 
 	/*
 	 * Register the two tables.
 	 */
-	add_fcmd_table(kcmdtable, sz_kcmdtable);
-	add_ecmd_table(kedittable, sz_kedittable);
+	add_fcmd_table(kfcmdtable, sz_kfcmdtable);
+	add_ecmd_table(kecmdtable, sz_kecmdtable);
 }
 
 /*
