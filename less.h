@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
+ * Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,11 +139,9 @@ void free();
  * Special types and constants.
  */
 typedef long		POSITION;
-/*
- * {{ Warning: if POSITION is changed to other than "long",
- *    you may have to change some of the printfs which use "%ld"
- *    to print a variable of type POSITION. }}
- */
+#define PR_POSITION	"%ld"
+#define MAX_PRINT_POSITION 20
+#define MAX_PRINT_INT      10
 
 #define	NULL_POSITION	((POSITION)(-1))
 
