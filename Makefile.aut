@@ -31,7 +31,7 @@ DISTFILES = \
 all: help.c funcs.h ${srcdir}/configure 
 
 help.c: less.hlp mkhelp
-	mv -f ${srcdir}/help.c ${srcdir}/help.c.old
+	-mv -f ${srcdir}/help.c ${srcdir}/help.c.old
 	rm -rf help.c
 	./mkhelp < less.hlp > help.c
 	if cmp -s help.c help.c.old; then mv help.c.old help.c; fi
@@ -46,7 +46,7 @@ ${srcdir}/configure: ${srcdir}/configure.in \
 	cd ${srcdir}; autoheader; autoconf
 
 funcs.h: ${SRC:%=${srcdir}/%}
-	mv -f ${srcdir}/funcs.h ${srcdir}/funcs.h.old
+	-mv -f ${srcdir}/funcs.h ${srcdir}/funcs.h.old
 	awk -f ${srcdir}/mkfuncs.awk ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
 	if cmp -s funcs.h funcs.h.old; then mv funcs.h.old funcs.h; fi
 
@@ -84,6 +84,8 @@ ${srcdir}/less.man: ${srcdir}/less.nro
 ${srcdir}/lesskey.man: ${srcdir}/lesskey.nro
 	mkman ${srcdir}/lesskey.nro >${srcdir}/lesskey.man
 
+
+distfiles: ${DISTFILES}
 
 dist: ${DISTFILES}
 	if [ ! -d ${srcdir}/release ]; then mkdir ${srcdir}/release; fi
