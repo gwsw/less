@@ -88,7 +88,8 @@ subsequent d and u commands.
 .IP "ESC-) or RIGHTARROW"
 Scroll horizontally right N characters, default half the screen width
 (see the -# option).
-This behaves best if you also set the -S option (chop lines).
+While the text is scrolled, it acts as though the -S option
+(chop lines) were in effect.
 Note that if you wish to enter a number N, you must use ESC-), not RIGHTARROW,
 because the arrow is taken to be a line editing command
 (see the LINE EDITING section).

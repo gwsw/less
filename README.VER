@@ -106,7 +106,7 @@ INSTALLATION (MS-DOS systems only,
    Depending on your compiler, you may need to convert the source 
    to have CR-LF rather than LF as line terminators.
 
-2. If you are using Microsoft C, rename MAKEFILE.DSM to MAKEFILE.
+2. If you are using Microsoft C, rename MAKEFILE.DSU to MAKEFILE.
    If you are using Borland C, rename MAKEFILE.DSB to MAKEFILE.
    If you are using DJGPP, rename MAKEFILE.DSG to MAKEFILE.
 
