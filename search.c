@@ -37,6 +37,11 @@
 
 #if HAVE_POSIX_REGCOMP
 #include <regex.h>
+#ifdef REG_EXTENDED
+#define	REGCOMP_FLAG	REG_EXTENDED
+#else
+#define	REGCOMP_FLAG	0
+#endif
 #endif
 #if HAVE_RE_COMP
 char *re_comp();
@@ -251,7 +256,7 @@ compile_pattern(pattern, search_type)
 {
 #if HAVE_POSIX_REGCOMP
 	regex_t *s = (regex_t *) ecalloc(1, sizeof(regex_t));
-	if (regcomp(s, pattern, 0))
+	if (regcomp(s, pattern, REGCOMP_FLAG))
 	{
 		free(s);
 		error("Invalid pattern", NULL_PARG);
