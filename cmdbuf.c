@@ -469,6 +469,12 @@ cmd_edit(c)
 {
 	int action;
 	int flags;
+
+#if TAB_COMPLETE_FILENAME
+#define	not_in_completion()	in_completion = 0
+#else
+#define	not_in_completion()
+#endif
 	
 	/*
 	 * See if the char is indeed a line-editing command.
@@ -490,50 +496,50 @@ cmd_edit(c)
 	switch (action)
 	{
 	case EC_RIGHT:
-		in_completion = 0;
+		not_in_completion();
 		return (cmd_right());
 	case EC_LEFT:
-		in_completion = 0;
+		not_in_completion();
 		return (cmd_left());
 	case EC_W_RIGHT:
-		in_completion = 0;
+		not_in_completion();
 		while (*cp != '\0' && *cp != ' ')
 			cmd_right();
 		while (*cp == ' ')
 			cmd_right();
 		return (CC_OK);
 	case EC_W_LEFT:
-		in_completion = 0;
+		not_in_completion();
 		while (cp > cmdbuf && cp[-1] == ' ')
 			cmd_left();
 		while (cp > cmdbuf && cp[-1] != ' ')
 			cmd_left();
 		return (CC_OK);
 	case EC_HOME:
-		in_completion = 0;
+		not_in_completion();
 		return (cmd_home());
 	case EC_END:
-		in_completion = 0;
+		not_in_completion();
 		while (*cp != '\0')
 			cmd_right();
 		return (CC_OK);
 	case EC_INSERT:
-		in_completion = 0;
+		not_in_completion();
 		return (CC_OK);
 	case EC_BACKSPACE:
-		in_completion = 0;
+		not_in_completion();
 		return (cmd_erase());
 	case EC_LINEKILL:
-		in_completion = 0;
+		not_in_completion();
 		return (cmd_kill());
 	case EC_W_BACKSPACE:
-		in_completion = 0;
+		not_in_completion();
 		return (cmd_werase());
 	case EC_DELETE:
-		in_completion = 0;
+		not_in_completion();
 		return (cmd_delete());
 	case EC_W_DELETE:
-		in_completion = 0;
+		not_in_completion();
 		return (cmd_wdelete());
 	case EC_LITERAL:
 		literal = 1;
@@ -541,7 +547,7 @@ cmd_edit(c)
 #if CMD_HISTORY
 	case EC_UP:
 	case EC_DOWN:
-		in_completion = 0;
+		not_in_completion();
 		return (cmd_updown(action));
 #endif
 #if TAB_COMPLETE_FILENAME
@@ -551,7 +557,7 @@ cmd_edit(c)
 		return (cmd_complete(action));
 #endif
 	default:
-		in_completion = 0;
+		not_in_completion();
 		return (CC_PASS);
 	}
 }
