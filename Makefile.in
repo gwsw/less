@@ -133,16 +133,16 @@ realclean: distclean
 REPLACE_VERSION = \
 	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q version.c`; \
 	echo "Stuffing version number into $@"; \
-	sed -e "s/@@VERSION@@/$$REL/" $? >$@
+	sed -e "s/@@VERSION@@/$$REL/" >$@
 
 README: README.VER version.c
-	${REPLACE_VERSION}
+	${REPLACE_VERSION} README.VER
 NEWS: NEWS.VER version.c
-	${REPLACE_VERSION}
+	${REPLACE_VERSION} NEWS.VER
 less.nro: less.nro.VER version.c
-	${REPLACE_VERSION}
+	${REPLACE_VERSION} less.nro.VER
 lesskey.nro: lesskey.nro.VER version.c
-	${REPLACE_VERSION}
+	${REPLACE_VERSION} lesskey.nro.VER
 
 less.man: less.nro
 	mkman less.nro >less.man
