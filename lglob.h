@@ -42,7 +42,7 @@
 #define	DECL_GLOB_LIST(list)		char **list;  char **pp;
 #define	GLOB_LIST(filename,list)	list = _fnexplode(filename)
 #define	GLOB_LIST_FAILED(list)		list == NULL
-#define	SCAN_GLOB_LIST(list)		pp = list;  *pp != NULL;  pp++
+#define	SCAN_GLOB_LIST(list,p)		pp = list;  *pp != NULL;  pp++
 #define	INIT_GLOB_LIST(list,p)		p = *pp
 #define	GLOB_LIST_DONE(list)		_fnexplodefree(list)
 
