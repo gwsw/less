@@ -446,7 +446,7 @@ prompt()
 	/*
 	 * If the -E flag is set and we've hit EOF on the last file, quit.
 	 */
-	if (quit_at_eof == 2 && hit_eof && 
+	if (quit_at_eof == OPT_ONPLUS && hit_eof && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
 

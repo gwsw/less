@@ -146,7 +146,7 @@ forw(n, pos, force, only_last, nblank)
 			 *    to hit eof in the middle of this screen,
 			 *    but we don't yet know if that will happen. }}
 			 */
-			if (top_scroll == 2 || first_time)
+			if (top_scroll == OPT_ONPLUS || first_time)
 				clear();
 			home();
 			force = 1;
@@ -167,7 +167,7 @@ forw(n, pos, force, only_last, nblank)
 			force = 1;
 			if (top_scroll)
 			{
-				if (top_scroll == 2)
+				if (top_scroll == OPT_ONPLUS)
 					clear();
 				home();
 			} else if (!first_time)

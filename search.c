@@ -173,6 +173,7 @@ prev_pattern()
 /*
  * Repaint the hilites currently displayed on the screen.
  * Repaint each line which contains highlighted text.
+ * If on==0, force all hilites off.
  */
 	public void
 repaint_hilite(on)
@@ -237,6 +238,9 @@ undo_search()
 #endif
 }
 
+/*
+ * Compile a search pattern, for future use by match_pattern.
+ */
 	static int
 compile_pattern(pattern)
 	char *pattern;
@@ -295,6 +299,7 @@ compile_pattern(pattern)
 }
 
 /*
+ * Forget that we have a compiled pattern.
  */
 	static void
 uncompile_pattern()
@@ -648,7 +653,7 @@ chg_hilite()
 	clr_hilite();
 	hide_hilite = 0;
 
-	if (hilite_search == 2)
+	if (hilite_search == OPT_ONPLUS)
 		/*
 		 * Display highlights.
 		 */
@@ -918,8 +923,8 @@ search(search_type, pattern, n)
 		if (compile_pattern(pattern) < 0)
 			return (-1);
 		/*
-		 * Ignore case if -i is set AND 
-		 * the pattern is all lowercase.
+		 * Ignore case if -I is set OR
+		 * -i is set AND the pattern is all lowercase.
 		 */
 		is_ucase_pattern = ucase;
 		if (is_ucase_pattern && caseless != OPT_ONPLUS)
@@ -937,7 +942,7 @@ search(search_type, pattern, n)
 			hide_hilite = 0;
 			clr_hilite();
 		}
-		if (hilite_search == 2)
+		if (hilite_search == OPT_ONPLUS)
 		{
 			/*
 			 * Highlight any matches currently on screen,
@@ -971,7 +976,7 @@ search(search_type, pattern, n)
 		 * Search was unsuccessful.
 		 */
 #if HILITE_SEARCH
-		if (hilite_search == 1 && n > 0)
+		if (hilite_search == OPT_ON && n > 0)
 			/*
 			 * Redisplay old hilites.
 			 */
@@ -986,7 +991,7 @@ search(search_type, pattern, n)
 	jump_loc(pos, jump_sline);
 
 #if HILITE_SEARCH
-	if (hilite_search == 1)
+	if (hilite_search == OPT_ON)
 		/*
 		 * Display new hilites in the matching line.
 		 */
@@ -1000,8 +1005,8 @@ search(search_type, pattern, n)
  * Prepare hilites in a given range of the file.
  *
  * The pair (prep_startpos,prep_endpos) delimits a contiguous region
- *  of the file that has been "prepared"; that is, scanned for matches
- * for the current search pattern, and hilites created for such matches.
+ *  of the file that has been "prepared"; that is, scanned for matches for
+ * the current search pattern, and hilites have been created for such matches.
  * If prep_startpos == NULL_POSITION, the prep region is empty.
  * If prep_endpos == NULL_POSITION, the prep region extends to EOF.
  * prep_hilite asks that the range (spos,epos) be covered by the prep region.
@@ -1024,11 +1029,11 @@ prep_hilite(spos, epos)
 	/*
 	 * Find two ranges:
 	 * The range that we need to search (spos,epos); and the range that
-	 * the "prep" region now covers (nprep_startpos,nprep_endpos).
+	 * the "prep" region will then cover (nprep_startpos,nprep_endpos).
 	 */
 
 	if (prep_startpos == NULL_POSITION ||
-	    epos < prep_startpos ||
+	    (epos != NULL_POSITION && epos < prep_startpos) ||
 	    (prep_endpos != NULL_POSITION && spos > prep_endpos))
 	{
 		/*
@@ -1036,15 +1041,22 @@ prep_hilite(spos, epos)
 		 * Discard the old prep region and start a new one.
 		 */
 		clr_hilite();
+		if (epos != NULL_POSITION)
+			epos += SEARCH_MORE;
 		nprep_startpos = spos;
-		epos += SEARCH_MORE;
 		nprep_endpos = epos;
 	} else
 	{
 		/*
 		 * New range partially or completely overlaps old prep region.
 		 */
-		if (epos > prep_endpos)
+		if (epos == NULL_POSITION)
+		{
+			/*
+			 * New range goes to end of file.
+			 */
+			nprep_endpos = NULL_POSITION;
+		} else if (epos > prep_endpos)
 		{
 			/*
 			 * New range ends after old prep region.
@@ -1089,7 +1101,7 @@ prep_hilite(spos, epos)
 		}
 	}
 
-	if (epos > spos)
+	if (epos == NULL_POSITION || epos > spos)
 	{
 		if (search_range(spos, epos, SRCH_FORW|SRCH_FIND_ALL, 0,
 				(POSITION*)NULL, &epos) >= 0)

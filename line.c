@@ -90,7 +90,7 @@ plinenum(pos)
 	 * We display the line number at the start of each line
 	 * only if the -N option is set.
 	 */
-	if (linenums != 2)
+	if (linenums != OPT_ONPLUS)
 		return;
 
 	/*

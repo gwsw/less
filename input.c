@@ -67,7 +67,7 @@ forw_line(curr_pos)
 		return (NULL_POSITION);
 	}
 #if HILITE_SEARCH
-	if (hilite_search == 2)
+	if (hilite_search == OPT_ONPLUS)
 		prep_hilite(curr_pos, curr_pos + 3*size_linebuf);
 #endif
 	if (ch_seek(curr_pos))
@@ -176,7 +176,7 @@ back_line(curr_pos)
 		return (NULL_POSITION);
 	}
 #if HILITE_SEARCH
-	if (hilite_search == 2)
+	if (hilite_search == OPT_ONPLUS)
 		prep_hilite((curr_pos < 3*size_linebuf) ? 
 				0 : curr_pos - 3*size_linebuf, curr_pos);
 #endif
