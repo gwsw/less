@@ -139,9 +139,14 @@ typedef long		POSITION;
 #if MSDOS_COMPILER || OS2
 #define	OPEN_READ	(O_RDONLY|O_BINARY)
 #else
+#ifdef O_RDONLY
+#define	OPEN_READ	(O_RDONLY)
+#else
 #define	OPEN_READ	(0)
 #endif
-#if MSDOS_COMPILER || OS2
+#endif
+
+#if defined(O_WRONLY) && defined(O_APPEND)
 #define	OPEN_APPEND	(O_APPEND|O_WRONLY)
 #else
 #define	OPEN_APPEND	(1)
