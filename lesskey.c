@@ -277,13 +277,47 @@ parse_args(argc, argv)
 	int argc;
 	char **argv;
 {
+	char *arg;
+
 	outfile = NULL;
-	while (--argc > 0 && **(++argv) == '-' && argv[0][1] != '\0')
+	while (--argc > 0)
 	{
-		switch (argv[0][1])
+		arg = *++argv;
+		if (arg[0] != '-')
+			/* Arg does not start with "-"; it's not an option. */
+			break;
+		if (arg[1] == '\0')
+			/* "-" means standard input. */
+			break;
+		if (arg[1] == '-' && arg[2] == '\0')
 		{
+			/* "--" means end of options. */
+			argc--;
+			argv++;
+			break;
+		}
+		switch (arg[1])
+		{
+		case '-':
+			if (strncmp(arg, "--output", 8) == 0)
+			{
+				if (arg[8] == '\0')
+					outfile = &arg[8];
+				else if (arg[8] == '=')
+					outfile = &arg[9];
+				else
+					usage();
+				goto opt_o;
+			}
+			if (strcmp(arg, "--version") == 0)
+			{
+				goto opt_V;
+			}
+			usage();
+			break;
 		case 'o':
 			outfile = &argv[0][2];
+		opt_o:
 			if (*outfile == '\0')
 			{
 				if (--argc <= 0)
@@ -292,6 +326,7 @@ parse_args(argc, argv)
 			}
 			break;
 		case 'V':
+		opt_V:
 			printf("lesskey  version %s\n", version);
 			exit(0);
 		default:
@@ -328,13 +363,16 @@ init_tables()
 /*
  * Parse one character of a string.
  */
-	int
-tchar(pp)
+	char *
+tstr(pp)
 	char **pp;
 {
 	register char *p;
 	register char ch;
 	register int i;
+	static char buf[10];
+	static char tstr_control_k[] =
+		{ SK_SPECIAL_KEY, SK_CONTROL_K, 6, 1, 1, 1, '\0' };
 
 	p = *pp;
 	switch (*p)
@@ -354,39 +392,79 @@ tchar(pp)
 				ch = 8*ch + (*p - '0');
 			while (*++p >= '0' && *p <= '7' && ++i < 3);
 			*pp = p;
-			return (ch);
+			if (ch == CONTROL('K'))
+				return tstr_control_k;
+			buf[0] = ch;
+			buf[1] = '\0';
+			return (buf);
 		case 'b':
 			*pp = p+1;
-			return ('\b');
+			return ("\b");
 		case 'e':
 			*pp = p+1;
-			return (ESC);
+			buf[0] = ESC;
+			buf[1] = '\0';
+			return (buf);
 		case 'n':
 			*pp = p+1;
-			return ('\n');
+			return ("\n");
 		case 'r':
 			*pp = p+1;
-			return ('\r');
+			return ("\r");
 		case 't':
 			*pp = p+1;
-			return ('\t');
+			return ("\t");
+		case 'k':
+			switch (*++p)
+			{
+			case 'u': ch = SK_UP_ARROW; break;
+			case 'd': ch = SK_DOWN_ARROW; break;
+			case 'r': ch = SK_RIGHT_ARROW; break;
+			case 'l': ch = SK_LEFT_ARROW; break;
+			case 'U': ch = SK_PAGE_UP; break;
+			case 'D': ch = SK_PAGE_DOWN; break;
+			case 'h': ch = SK_HOME; break;
+			case 'e': ch = SK_END; break;
+			case 'x': ch = SK_DELETE; break;
+			}
+			*pp = p+1;
+			buf[0] = SK_SPECIAL_KEY;
+			buf[1] = ch;
+			buf[2] = 6;
+			buf[3] = 1;
+			buf[4] = 1;
+			buf[5] = 1;
+			buf[6] = '\0';
+			return (buf);
 		default:
 			/*
 			 * Backslash followed by any other char 
 			 * just means that char.
 			 */
 			*pp = p+1;
-			return (*p);
+			buf[0] = *p;
+			buf[1] = '\0';
+			if (buf[0] == CONTROL('K'))
+				return tstr_control_k;
+			return (buf);
 		}
 	case '^':
 		/*
 		 * Carat means CONTROL.
 		 */
 		*pp = p+2;
-		return (CONTROL(p[1]));
+		buf[0] = CONTROL(p[1]);
+		buf[1] = '\0';
+		if (buf[0] == CONTROL('K'))
+			return tstr_control_k;
+		return (buf);
 	}
 	*pp = p+1;
-	return (*p);
+	buf[0] = *p;
+	buf[1] = '\0';
+	if (buf[0] == CONTROL('K'))
+		return tstr_control_k;
+	return (buf);
 }
 
 /*
@@ -444,6 +522,17 @@ add_cmd_char(c)
 		exit(1);
 	}
 	*(currtable->pbuffer)++ = c;
+}
+
+/*
+ * Add a string to the output command table.
+ */
+	void
+add_cmd_str(s)
+	char *s;
+{
+	for ( ;  *s != '\0';  s++)
+		add_cmd_char(*s);
 }
 
 /*
@@ -549,7 +638,8 @@ parse_cmdline(p)
 	int cmdlen;
 	char *actname;
 	int action;
-	int c;
+	char *s;
+	char c;
 
 	/*
 	 * Parse the command string and store it in the current table.
@@ -557,11 +647,12 @@ parse_cmdline(p)
 	cmdlen = 0;
 	do
 	{
-		c = tchar(&p);
-		if (++cmdlen > MAX_CMDLEN)
+		s = tstr(&p);
+		cmdlen += strlen(s);
+		if (cmdlen > MAX_CMDLEN)
 			error("command too long");
 		else
-			add_cmd_char(c);
+			add_cmd_str(s);
 	} while (*p != ' ' && *p != '\t' && *p != '\0');
 	/*
 	 * Terminate the command string with a null byte.
@@ -605,7 +696,7 @@ parse_cmdline(p)
 		 */
 		add_cmd_char(action | A_EXTRA);
 		while (*p != '\0')
-			add_cmd_char(tchar(&p));
+			add_cmd_str(tstr(&p));
 		add_cmd_char('\0');
 	}
 }
@@ -614,12 +705,12 @@ parse_cmdline(p)
 parse_varline(p)
 	char *p;
 {
-	int c;
+	char *s;
 
 	do
 	{
-		c = tchar(&p);
-		add_cmd_char(c);
+		s = tstr(&p);
+		add_cmd_str(s);
 	} while (*p != ' ' && *p != '\t' && *p != '=' && *p != '\0');
 	/*
 	 * Terminate the variable name with a null byte.
@@ -638,8 +729,8 @@ parse_varline(p)
 	p = skipsp(p);
 	while (*p != '\0')
 	{
-		c = tchar(&p);
-		add_cmd_char(c);
+		s = tstr(&p);
+		add_cmd_str(s);
 	}
 	add_cmd_char('\0');
 }

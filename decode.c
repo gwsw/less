@@ -53,23 +53,28 @@
 extern int erase_char, kill_char;
 extern int secure;
 
+#define SK(k) \
+	SK_SPECIAL_KEY, (k), 6, 1, 1, 1
 /*
  * Command table is ordered roughly according to expected
  * frequency of use, so the common commands are near the beginning.
  */
+
 static unsigned char cmdtable[] =
 {
 	'\r',0,				A_F_LINE,
 	'\n',0,				A_F_LINE,
 	'e',0,				A_F_LINE,
 	'j',0,				A_F_LINE,
+	SK(SK_DOWN_ARROW),0,		A_F_LINE,
 	CONTROL('E'),0,			A_F_LINE,
 	CONTROL('N'),0,			A_F_LINE,
 	'k',0,				A_B_LINE,
 	'y',0,				A_B_LINE,
 	CONTROL('Y'),0,			A_B_LINE,
-	CONTROL('K'),0,			A_B_LINE,
+	SK(SK_CONTROL_K),0,		A_B_LINE,
 	CONTROL('P'),0,			A_B_LINE,
+	SK(SK_UP_ARROW),0,		A_B_LINE,
 	'J',0,				A_FF_LINE,
 	'K',0,				A_BF_LINE,
 	'Y',0,				A_BF_LINE,
@@ -81,9 +86,11 @@ static unsigned char cmdtable[] =
 	'f',0,				A_F_SCREEN,
 	CONTROL('F'),0,			A_F_SCREEN,
 	CONTROL('V'),0,			A_F_SCREEN,
+	SK(SK_PAGE_DOWN),0,		A_F_SCREEN,
 	'b',0,				A_B_SCREEN,
 	CONTROL('B'),0,			A_B_SCREEN,
 	ESC,'v',0,			A_B_SCREEN,
+	SK(SK_PAGE_UP),0,		A_B_SCREEN,
 	'z',0,				A_F_WINDOW,
 	'w',0,				A_B_WINDOW,
 	ESC,' ',0,			A_FF_SCREEN,
@@ -102,6 +109,8 @@ static unsigned char cmdtable[] =
 	ESC,']',0,			A_RSHIFT,
 	ESC,'(',0,			A_LSHIFT,
 	ESC,')',0,			A_RSHIFT,
+	SK(SK_RIGHT_ARROW),0,		A_RSHIFT,
+	SK(SK_LEFT_ARROW),0,		A_LSHIFT,
 	'{',0,				A_F_BRACKET|A_EXTRA,	'{','}',0,
 	'}',0,				A_B_BRACKET|A_EXTRA,	'{','}',0,
 	'(',0,				A_F_BRACKET|A_EXTRA,	'(',')',0,
@@ -167,24 +176,35 @@ static unsigned char cmdtable[] =
 
 static unsigned char edittable[] =
 {
-	'\t',0,	    		EC_F_COMPLETE,	/* TAB */
-	'\17',0,		EC_B_COMPLETE,	/* BACKTAB */
-	'\14',0,		EC_EXPAND,	/* CTRL-L */
-	CONTROL('V'),0,		EC_LITERAL,	/* BACKSLASH */
-	CONTROL('A'),0,		EC_LITERAL,	/* BACKSLASH */
-   	ESC,'l',0,		EC_RIGHT,	/* ESC l */
-	ESC,'h',0,		EC_LEFT,	/* ESC h */
-	ESC,'b',0,		EC_W_LEFT,	/* ESC b */
-	ESC,'w',0,		EC_W_RIGHT,	/* ESC w */
-	ESC,'i',0,		EC_INSERT,	/* ESC i */
-	ESC,'x',0,		EC_DELETE,	/* ESC x */
-	ESC,'X',0,		EC_W_DELETE,	/* ESC X */
-	ESC,'\b',0,		EC_W_BACKSPACE,	/* ESC BACKSPACE */
-	ESC,'0',0,		EC_HOME,	/* ESC 0 */
-	ESC,'$',0,		EC_END,		/* ESC $ */
-	ESC,'k',0,		EC_UP,		/* ESC k */
-	ESC,'j',0,		EC_DOWN,	/* ESC j */
-	ESC,'\t',0,		EC_B_COMPLETE	/* ESC TAB */
+	'\t',0,	    			EC_F_COMPLETE,	/* TAB */
+	'\17',0,			EC_B_COMPLETE,	/* BACKTAB */
+	ESC,'\t',0,			EC_B_COMPLETE,	/* ESC TAB */
+	CONTROL('L'),0,			EC_EXPAND,	/* CTRL-L */
+	CONTROL('V'),0,			EC_LITERAL,	/* BACKSLASH */
+	CONTROL('A'),0,			EC_LITERAL,	/* BACKSLASH */
+   	ESC,'l',0,			EC_RIGHT,	/* ESC l */
+	SK(SK_RIGHT_ARROW),0,		EC_RIGHT,	/* RIGHTARROW */
+	ESC,'h',0,			EC_LEFT,	/* ESC h */
+	SK(SK_LEFT_ARROW),0,		EC_LEFT,	/* LEFTARROW */
+	ESC,'b',0,			EC_W_LEFT,	/* ESC b */
+	ESC,SK(SK_LEFT_ARROW),0,	EC_W_LEFT,	/* ESC LEFTARROW */
+	ESC,'w',0,			EC_W_RIGHT,	/* ESC w */
+	ESC,SK(SK_RIGHT_ARROW),0,	EC_W_RIGHT,	/* ESC RIGHTARROW */
+	ESC,'i',0,			EC_INSERT,	/* ESC i */
+	SK(SK_INSERT),0,		EC_INSERT,	/* INSERT */
+	ESC,'x',0,			EC_DELETE,	/* ESC x */
+	SK(SK_DELETE),0,		EC_DELETE,	/* DELETE */
+	ESC,'X',0,			EC_W_DELETE,	/* ESC X */
+	ESC,SK(SK_DELETE),0,		EC_W_DELETE,	/* ESC DELETE */
+	ESC,'\b',0,			EC_W_BACKSPACE,	/* ESC BACKSPACE */
+	ESC,'0',0,			EC_HOME,	/* ESC 0 */
+	SK(SK_HOME),0,			EC_HOME,	/* HOME */
+	ESC,'$',0,			EC_END,		/* ESC $ */
+	SK(SK_END),0,			EC_END,		/* END */
+	ESC,'k',0,			EC_UP,		/* ESC k */
+	SK(SK_UP_ARROW),0,		EC_UP,		/* UPARROW */
+	ESC,'j',0,			EC_DOWN,	/* ESC j */
+	SK(SK_DOWN_ARROW),0,		EC_DOWN,	/* DOWNARROW */
 };
 
 /*
@@ -206,6 +226,67 @@ static struct tablelist *list_var_tables = NULL;
 
 
 /*
+ * Expand special key abbreviations in a command table.
+ */
+	static void
+expand_special_keys(table, len)
+	char *table;
+	int len;
+{
+	register char *fm;
+	register char *to;
+	register int a;
+	char *repl;
+	int klen;
+
+	for (fm = table;  fm < table + len; )
+	{
+		/*
+		 * Rewrite each command in the table with any
+		 * special key abbreviations expanded.
+		 */
+		for (to = fm;  *fm != '\0'; )
+		{
+			if (*fm != SK_SPECIAL_KEY)
+			{
+				*to++ = *fm++;
+				continue;
+			}
+			/*
+			 * After SK_SPECIAL_KEY, next byte is the type
+			 * of special key (one of the SK_* contants),
+			 * and the byte after that is the number of bytes,
+			 * N, reserved by the abbreviation (including the
+			 * SK_SPECIAL_KEY and key type bytes).
+			 * Replace all N bytes with the actual bytes
+			 * output by the special key on this terminal.
+			 */
+			repl = special_key_str(fm[1]);
+			klen = fm[2] & 0377;
+			fm += klen;
+			if (repl == NULL || strlen(repl) > klen)
+				repl = "";
+			while (*repl != '\0')
+				*to++ = *repl++;
+		}
+		*to++ = '\0';
+		/*
+		 * Fill any unused bytes between end of command and 
+		 * the action byte with A_SKIP.
+		 */
+		while (to <= fm)
+			*to++ = A_SKIP;
+		fm++;
+		a = *fm++ & 0377;
+		if (a & A_EXTRA)
+		{
+			while (*fm++ != '\0')
+				continue;
+		}
+	}
+}
+
+/*
  * Initialize the command lists.
  */
 	public void
@@ -216,7 +297,6 @@ init_cmds()
 	 */
 	add_fcmd_table((char*)cmdtable, sizeof(cmdtable));
 	add_ecmd_table((char*)edittable, sizeof(edittable));
-	get_editkeys();
 #if USERFILE
 	/*
 	 * Try to add the tables in the standard lesskey file "$HOME/.less".
@@ -226,7 +306,7 @@ init_cmds()
 }
 
 /*
- * 
+ * Add a command table.
  */
 	static int
 add_cmd_table(tlist, buf, len)
@@ -247,6 +327,7 @@ add_cmd_table(tlist, buf, len)
 	{
 		return (-1);
 	}
+	expand_special_keys(buf, len);
 	t->t_start = buf;
 	t->t_end = buf + len;
 	t->t_next = *tlist;
@@ -318,6 +399,8 @@ cmd_search(cmd, table, endtable, sp)
 			if (*p == '\0')
 			{
 				a = *++p & 0377;
+				while (a == A_SKIP)
+					a = *++p & 0377;
 				if (a == A_END_LIST)
 				{
 					/*
@@ -363,9 +446,13 @@ cmd_search(cmd, table, endtable, sp)
 				 */
 				return (A_UINVALID);
 			}
-			while (*p++ != '\0') ;
+			while (*p++ != '\0')
+				continue;
+			while (*p == A_SKIP)
+				p++;
 			if (*p & A_EXTRA)
-				while (*++p != '\0') ;
+				while (*++p != '\0')
+					continue;
 			q = cmd-1;
 		}
 	}

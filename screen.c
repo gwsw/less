@@ -821,183 +821,113 @@ delay(msec)
 #endif
 
 /*
- * Take care of the "variable" keys.
- * Certain keys send escape sequences which differ on different terminals
- * (such as the arrow keys, INSERT, DELETE, etc.)
- * Construct the commands based on these keys.
+ * Return the characters actually input by a "special" key.
  */
-	public void
-get_editkeys()
+	public char *
+special_key_str(key)
+	int key;
 {
 #if MSDOS_COMPILER
-/*
- * Table of line editting characters, for editchar() in decode.c.
- */
-static char kecmdtable[] = {
-	'\340',PCK_RIGHT,0,	EC_RIGHT,	/* RIGHTARROW */
-	'\340',PCK_LEFT,0,	EC_LEFT,	/* LEFTARROW */
-	'\340',PCK_CTL_RIGHT,0,	EC_W_RIGHT,	/* CTRL-RIGHTARROW */
-	'\340',PCK_CTL_LEFT,0,	EC_W_LEFT,	/* CTRL-LEFTARROW */
-	'\340',PCK_INSERT,0,	EC_INSERT,	/* INSERT */
-	'\340',PCK_DELETE,0,	EC_DELETE,	/* DELETE */
-	'\340',PCK_CTL_DELETE,0,EC_W_DELETE,	/* CTRL-DELETE */
-	'\177',0,		EC_W_BACKSPACE,	/* CTRL-BACKSPACE */
-	'\340',PCK_HOME,0,	EC_HOME,	/* HOME */
-	'\340',PCK_END,0,	EC_END,		/* END */
-	'\340',PCK_UP,0,	EC_UP,		/* UPARROW */
-	'\340',PCK_DOWN,0,	EC_DOWN,	/* DOWNARROW */
-	'\t',0,			EC_F_COMPLETE,	/* TAB */
-	'\17',0,		EC_B_COMPLETE,	/* BACKTAB (?) */
-	'\340',PCK_SHIFT_TAB,0,	EC_B_COMPLETE,	/* BACKTAB */
-	'\14',0,		EC_EXPAND,	/* CTRL-L */
-	'\340',PCK_CAPS_LOCK,0,	EC_NOACTION,	/* CAPS LOCK */
-	'\340',PCK_NUM_LOCK,0,	EC_NOACTION,	/* NUM LOCK */
-	0  /* Extra byte to terminate; subtracted from size, below */
-};
-static int sz_kecmdtable = sizeof(kecmdtable) -1;
-
-static char kfcmdtable[] =
-{
-	/*
-	 * PC function keys.
-	 * Note that '\0' is converted to '\340' on input.
-	 */
-	'\340',PCK_DOWN,0,	A_F_LINE,	/* DOWNARROW */
-	'\340',PCK_PAGEDOWN,0,	A_F_SCREEN,	/* PAGEDOWN */
-	'\340',PCK_UP,0,	A_B_LINE,	/* UPARROW */
-	'\340',PCK_PAGEUP,0,	A_B_SCREEN,	/* PAGEUP */
-	'\340',PCK_RIGHT,0,	A_RSHIFT,	/* RIGHTARROW */
-	'\340',PCK_LEFT,0,	A_LSHIFT,	/* LEFTARROW */
-	'\340',PCK_HOME,0,	A_GOLINE,	/* HOME */
-	'\340',PCK_END,0,	A_GOEND,	/* END */
-	'\340',PCK_F1,0,	A_HELP,		/* F1 */
-	'\340',PCK_ALT_E,0,	A_EXAMINE,	/* Alt-E */
-	'\340',PCK_CAPS_LOCK,0,	A_NOACTION,	/* CAPS LOCK */
-	'\340',PCK_NUM_LOCK,0,	A_NOACTION,	/* NUM LOCK */
-	0
-};
-static int sz_kfcmdtable = sizeof(kfcmdtable) - 1;
+	char k_right[]		= { '\340', PCK_RIGHT, 0 };
+	char k_left[]		= { '\340', PCK_LEFT, 0  };
+	char k_ctl_rightarrow[]	= { '\340', PCK_CTL_RIGHT, 0  };
+	char k_ctl_leftarrow[]	= { '\340', PCK_CTL_LEFT, 0  };
+	char k_insert[]		= { '\340', PCK_INSERT, 0  };
+	char k_delete[]		= { '\340', PCK_DELETE, 0  };
+	char k_ctl_delete[]	= { '\340', PCK_CTL_DELETE, 0  };
+	char k_ctl_backspace[]	= { '\177', 0 };
+	case k_home[]		= { '\340', PCK_HOME, 0 };
+	case k_end[]		= { '\340', PCK_END, 0 };
+	case k_up[]		= { '\340', PCK_UP, 0 };
+	case k_down[]		= { '\340', PCK_DOWN, 0 };
+	case k_backtab[]	= { '\340', PCK_SHIFT_TAB, 0 };
+	case k_pagedown[]	= { '\340', PCK_PAGEDOWN, 0 };
+	case k_pageup[]		= { '\340', PCK_PAGEUP, 0 };
+	case k_alt_e[]		= { '\340', PCK_ALT_E, 0  };
+	case k_f1[]		= { '\340', PCK_F1, 0 };
 #else
-	char *sp;
+	static char tbuf[40];
+	char *sp = tbuf;
 	char *s;
-	char tbuf[40];
+#endif
 
-	static char kfcmdtable[400];
-	int sz_kfcmdtable = 0;
-	static char kecmdtable[400];
-	int sz_kecmdtable = 0;
-
-#define	put_cmd(str,action,tbl,sz) { \
-	strcpy(tbl+sz, str);	\
-	sz += strlen(str) + 1;	\
-	tbl[sz++] = action; }
-#define	put_esc_cmd(str,action,tbl,sz) { \
-	tbl[sz++] = ESC; \
-	put_cmd(str,action,tbl,sz); }
-
-#define	put_fcmd(str,action)	put_cmd(str,action,kfcmdtable,sz_kfcmdtable)
-#define	put_ecmd(str,action)	put_cmd(str,action,kecmdtable,sz_kecmdtable)
-#define	put_esc_fcmd(str,action) put_esc_cmd(str,action,kfcmdtable,sz_kfcmdtable)
-#define	put_esc_ecmd(str,action) put_esc_cmd(str,action,kecmdtable,sz_kecmdtable)
-
-	/*
-	 * Look at some interesting keys and see what strings they send.
-	 * Create commands (both command keys and line-edit keys).
-	 */
-
-	/* RIGHT ARROW */
-	sp = tbuf;
-	if ((s = ltgetstr("kr", &sp)) != NULL)
+	switch (key)
 	{
-		put_ecmd(s, EC_RIGHT);
-		put_esc_ecmd(s, EC_W_RIGHT);
-		put_fcmd(s, A_RSHIFT);
-	}
-	
-	/* LEFT ARROW */
-	sp = tbuf;
-	if ((s = ltgetstr("kl", &sp)) != NULL)
-	{
-		put_ecmd(s, EC_LEFT);
-		put_esc_ecmd(s, EC_W_LEFT);
-		put_fcmd(s, A_LSHIFT);
-	}
-	
-	/* UP ARROW */
-	sp = tbuf;
-	if ((s = ltgetstr("ku", &sp)) != NULL) 
-	{
-		put_ecmd(s, EC_UP);
-		put_fcmd(s, A_B_LINE);
-	}
-		
-	/* DOWN ARROW */
-	sp = tbuf;
-	if ((s = ltgetstr("kd", &sp)) != NULL) 
-	{
-		put_ecmd(s, EC_DOWN);
-		put_fcmd(s, A_F_LINE);
-	}
-
-	/* PAGE UP */
-	sp = tbuf;
-	if ((s = ltgetstr("kP", &sp)) != NULL) 
-	{
-		put_fcmd(s, A_B_SCREEN);
-	}
-
-	/* PAGE DOWN */
-	sp = tbuf;
-	if ((s = ltgetstr("kN", &sp)) != NULL) 
-	{
-		put_fcmd(s, A_F_SCREEN);
-	}
-	
-	/* HOME */
-	sp = tbuf;
-	if ((s = ltgetstr("kh", &sp)) != NULL) 
-	{
-		put_ecmd(s, EC_HOME);
-	}
-
-	/* END */
-	sp = tbuf;
-	if ((s = ltgetstr("@7", &sp)) != NULL) 
-	{
-		put_ecmd(s, EC_END);
-	}
-
-	/* DELETE */
-	sp = tbuf;
-	if ((s = ltgetstr("kD", &sp)) == NULL) 
-	{
-		/* Use DEL (\177) if no "kD" termcap. */
-		tbuf[1] = '\177';
-		tbuf[2] = '\0';
-		s = tbuf+1;
-	}
-	put_ecmd(s, EC_DELETE);
-	put_esc_ecmd(s, EC_W_DELETE);
-		
-	/* BACKSPACE */
-	tbuf[0] = ESC;
-	tbuf[1] = erase_char;
-	tbuf[2] = '\0';
-	put_ecmd(tbuf, EC_W_BACKSPACE);
-
-	if (werase_char != 0)
-	{
-		tbuf[0] = werase_char;
+#if MSDOS_COMPILER
+	case SK_RIGHT_ARROW:
+		s = k_right;
+		break;
+	case SK_LEFT_ARROW:
+		s = k_left;
+		break;
+	case SK_UP_ARROW:
+		s = k_up;
+		break;
+	case SK_DOWN_ARROW:
+		s = k_down;
+		break;
+	case SK_PAGE_UP:
+		s = k_pageup;
+		break;
+	case SK_PAGE_DOWN:
+		s = k_pagedown;
+		break;
+	case SK_HOME:
+		s = k_home;
+		break;
+	case SK_END:
+		s = k_end;
+		break;
+	case SK_DELETE:
+		s = k_delete;
+		break;
+	case SK_INSERT:
+		s = k_insert;
+		break;
+#else
+	case SK_RIGHT_ARROW:
+		s = ltgetstr("kr", &sp);
+		break;
+	case SK_LEFT_ARROW:
+		s = ltgetstr("kl", &sp);
+		break;
+	case SK_UP_ARROW:
+		s = ltgetstr("ku", &sp);
+		break;
+	case SK_DOWN_ARROW:
+		s = ltgetstr("kd", &sp);
+		break;
+	case SK_PAGE_UP:
+		s = ltgetstr("kP", &sp);
+		break;
+	case SK_PAGE_DOWN:
+		s = ltgetstr("kN", &sp);
+		break;
+	case SK_HOME:
+		s = ltgetstr("kh", &sp);
+		break;
+	case SK_END:
+		s = ltgetstr("@7", &sp);
+		break;
+	case SK_DELETE:
+		s = ltgetstr("kD", &sp);
+		if (s == NULL)
+		{
+			tbuf[0] = '\177';
+			tbuf[1] = '\0';
+			s = tbuf;
+		}
+		break;
+#endif
+	case SK_CONTROL_K:
+		tbuf[0] = CONTROL('K');
 		tbuf[1] = '\0';
-		put_ecmd(tbuf, EC_W_BACKSPACE);
+		s = tbuf;
+		break;
+	default:
+		return (NULL);
 	}
-#endif /* MSDOS_COMPILER */
-
-	/*
-	 * Register the two tables.
-	 */
-	add_fcmd_table(kfcmdtable, sz_kfcmdtable);
-	add_ecmd_table(kecmdtable, sz_kecmdtable);
+	return (s);
 }
 
 /*

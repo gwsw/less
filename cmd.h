@@ -83,6 +83,9 @@
 #define	A_NOACTION		101
 #define	A_UINVALID		102
 #define	A_END_LIST		103
+#define	A_SPECIAL_KEY		104
+
+#define A_SKIP			127
 
 #define	A_EXTRA			0200
 
@@ -118,3 +121,17 @@
 
 /* Environment variable stuff */
 #define	EV_OK		01
+
+/* Special keys (keys which output different strings on different terminals) */
+#define SK_SPECIAL_KEY  CONTROL('K')
+#define SK_RIGHT_ARROW	1
+#define SK_LEFT_ARROW	2
+#define SK_UP_ARROW	3
+#define SK_DOWN_ARROW	4
+#define SK_PAGE_UP	5
+#define SK_PAGE_DOWN	6
+#define SK_HOME		7
+#define SK_END		8
+#define SK_DELETE	9
+#define SK_INSERT	10
+#define SK_CONTROL_K	20

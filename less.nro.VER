@@ -1406,8 +1406,9 @@ version of less.
 .SH COPYRIGHT
 Copyright (C) 1999  Mark Nudelman
 .PP
-less is free software; you can redistribute it and/or modify it
-under teh terms of the GNU General Public License as published by
+less is part of the GNU project and is free software;
+you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by
 the Free Software Foundation;
 either version 2, or (at your option) any later version.
 .PP
