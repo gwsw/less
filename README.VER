@@ -11,16 +11,6 @@ The formatted manual page is in less.man.
 The manual page nroff source is in less.nro.
 Major changes made since the last posted version are in NEWS.
 
-===================
-===== WARNING =====
-===================
-	The Microsoft C port for MS-DOS and the Ultra C port 
-		for OS-9 are not currently working.  
-	Until these are fixed, for MS-DOS use Borland C or DJGPP, 
-		and for OS-9 use Microware C.
-	If you have fixes for either of these ports, 
-		send them to @@EMAIL@@.
-
 =======================================================================
 INSTALLATION (Unix systems only):
 
@@ -108,7 +98,7 @@ INSTALLATION (MS-DOS systems only,
 
 
 =======================================================================
-INSTALLATION (Windows-95 and Windows-NT systems only,
+INSTALLATION (Windows-95, Windows-98 and Windows-NT systems only,
               with Borland C or Microsoft Visual C++)
 
 1. Move the distributed source to its own directory.
