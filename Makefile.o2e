@@ -35,5 +35,5 @@ lesskey.exe: lesskey.${O} version.${O}
 
 ${OBJ}: defines.h less.h
 
-defines.h: defines.os2
-	copy defines.os2 defines.h
+defines.h: defines.o2
+	copy defines.o2 defines.h

@@ -16,8 +16,12 @@
 
 * LeftArrow and RightArrow are same as ESC-[ and ESC-].
 
+* Now supports filenames containing spaces.
+
 * A "quit" command defined in a lesskey file may now have an "extra" 
   string, which is used to return an exit code from less when it quits.
+
+* Ported to Microsoft Visual C compiler for Windows.
 
 * Ported to DJGPP compiler for MS-DOS.
 

@@ -310,7 +310,11 @@
 #define HAVE_UNISTD_H 0
 
 /* Define if you have the <values.h> header file.  */
+#ifdef _MSC_VER
+#define HAVE_VALUES_H 0
+#else
 #define HAVE_VALUES_H 1
+#endif
 
 #define	popen	_popen
 #define	pclose	_pclose

@@ -36,9 +36,9 @@ less: ${OBJ}
 lesskey: lesskey.obj version.obj
 	${LD} ${LDFLAGS} ${LIBDIR}\c0x32.obj lesskey.obj version.obj, $@,,${LIBS}
 
-defines.h: defines.w32
+defines.h: defines.wn
 	-del defines.h
-	-copy defines.w32 defines.h
+	-copy defines.wn defines.h
 
 ${OBJ}: less.h defines.h funcs.h cmd.h
 

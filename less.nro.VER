@@ -264,6 +264,8 @@ The filename is inserted into the command line list of files
 so that it can be seen by subsequent :n and :p commands.
 If the filename consists of several files, they are all inserted into
 the list of files and the first one is examined.
+If the filename contains one or more spaces,
+the entire filename should be enclosed in double quotes.
 .IP "^X^V or E"
 Same as :e.
 Warning: some systems use ^V as a special literalization character.

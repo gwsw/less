@@ -37,9 +37,9 @@ less$(EXT): $(OBJ)
 lesskey$(EXT): lesskey.obj version.obj
 	$(CC) $(LDFLAGS) -e$@ lesskey.obj version.obj $(LIBS)
 
-defines.h: defines.dos
+defines.h: defines.ds
 	-del defines.h
-	-copy defines.dos defines.h
+	-copy defines.ds defines.h
 
 $(OBJ): less.h defines.h
 

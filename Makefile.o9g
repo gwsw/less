@@ -37,5 +37,5 @@ lesskey: lesskey.${O} version.${O}
 
 ${OBJ}: defines.h less.h
 
-defines.h: defines.osk
-	copy defines.os9 defines.h -rf
+defines.h: defines.o9
+	copy defines.o9 defines.h -rf

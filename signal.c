@@ -139,8 +139,6 @@ wbreak_handler(dwCtrlType)
 	case CTRL_C_EVENT:
 	case CTRL_BREAK_EVENT:
 		sigs |= S_INTERRUPT;
-		if (reading)
-			intread();
 		return (TRUE);
 	default:
 		break;

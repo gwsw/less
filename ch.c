@@ -671,7 +671,8 @@ seekable(f)
 	int f;
 {
 #if MSDOS_COMPILER
-	if (ch_file == fd0 && !isatty(fd0))
+	extern int fd0;
+	if (f == fd0 && !isatty(fd0))
 	{
 		/*
 		 * In MS-DOS, pipes are seekable.  Check for
