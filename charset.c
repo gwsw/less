@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1984,1985,1989,1994,1995,1996  Mark Nudelman
+ * Copyright (c) 1984,1985,1989,1994,1995,1996,1999  Mark Nudelman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,11 +45,12 @@ struct charset {
 	char *desc;
 } charsets[] = {
 	{ "ascii",	"8bcccbcc18b95.b"		},
-	{ "latin1",	"8bcccbcc18b95.33b."		},
 	{ "dos",	"8bcccbcc12bc5b95.b."		},
+	{ "iso8859",	"8bcccbcc18b95.33b."		},
 	{ "koi8-r",	"8bcccbcc18b95.b128."		},
+	{ "latin1",	"8bcccbcc18b95.33b."		},
 	{ "next",	"8bcccbcc18b95.bb125.bb"	},
-	{ NULL }
+	{ NULL, NULL }
 };
 
 #define	IS_BINARY_CHAR	01
