@@ -1600,7 +1600,7 @@ add_line()
  * window upward.  This is needed to stop leaking the topmost line 
  * into the scrollback buffer when we go down-one-line (in WIN32).
  */
-       public void
+	public void
 remove_top(n)
        int n;
 {
@@ -1668,7 +1668,7 @@ lower_left()
  * Check if the console size has changed and reset internals 
  * (in lieu of SIGWINCH for WIN32).
  */
-       public void
+	public void
 check_winch()
 {
 #if MSDOS_COMPILER==WIN32C
