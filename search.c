@@ -145,7 +145,7 @@ cvt_text(odst, osrc, ops)
  * Determine which conversions to perform.
  */
 	static int
-get_cvt_ops(void)
+get_cvt_ops()
 {
 	int ops = 0;
 	if (is_caseless || bs_mode == BS_SPECIAL)
