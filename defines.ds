@@ -342,7 +342,6 @@
  */
 #define videoconfig	_videoconfig
 #define rccoord		_rccoord
-#define off_t		_off_t
 #define O_RDONLY	_O_RDONLY
 #define O_WRONLY	_O_WRONLY
 #define O_APPEND	_O_APPEND
