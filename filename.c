@@ -353,11 +353,6 @@ seek_filesize(f)
 	return ((POSITION) spos);
 }
 
-#if HAVE_POPEN
-
-FILE *popen();
-
-
 /*
  * Read a string from a file.
  * Return a pointer to the string in memory.
@@ -503,6 +498,11 @@ esc_metachars(s)
 }
 
 #endif /* HAVE_SHELL */
+
+
+#if HAVE_POPEN
+
+FILE *popen();
 
 /*
  * Execute a shell command.
