@@ -146,10 +146,12 @@ forw(n, pos, force, only_last, nblank)
 			 *    to hit eof in the middle of this screen,
 			 *    but we don't yet know if that will happen. }}
 			 */
+			pos_clear();
+			add_forw_pos(pos);
+			force = 1;
 			if (top_scroll == OPT_ONPLUS || first_time)
 				clear();
 			home();
-			force = 1;
 		} else
 		{
 			clear_bot();
@@ -209,8 +211,9 @@ forw(n, pos, force, only_last, nblank)
 				eof = 1;
 				if (!force && position(TOP) != NULL_POSITION)
 					break;
-				if (empty_lines(2, sc_height-1) &&
-				    !empty_lines(0, 0))
+				if (!empty_lines(0, 0) && 
+				    !empty_lines(1, 1) &&
+				     empty_lines(2, sc_height-1))
 					break;
 			}
 		}
@@ -241,7 +244,7 @@ forw(n, pos, force, only_last, nblank)
 			squished = 1;
 			continue;
 		}
-		if (top_scroll == 1)
+		if (top_scroll == OPT_ON)
 			clear_eol();
 		put_line();
 	}
