@@ -199,9 +199,17 @@ cond(c, where)
 	case 'D':	/* Same as L */
 		return (linenums && ch_length() != NULL_POSITION);
 	case 'm':	/* More than one file? */
+#if TAGS
 		return (ntags() ? (ntags() > 1) : (nifile() > 1));
+#else
+		return (nifile() > 1);
+#endif
 	case 'n':	/* First prompt in a new file? */
+#if TAGS
 		return (ntags() ? 1 : new_file);
+#else
+		return (new_file);
+#endif
 	case 'p':	/* Percent into file (bytes) known? */
 		return (curr_byte(where) != NULL_POSITION && 
 				ch_length() > 0);
@@ -213,8 +221,10 @@ cond(c, where)
 	case 'B':
 		return (ch_length() != NULL_POSITION);
 	case 'x':	/* Is there a "next" file? */
+#if TAGS
 		if (ntags())
 			return (0);
+#endif
 		return (next_ifile(curr_ifile) != NULL_IFILE);
 	}
 	return (0);
@@ -274,9 +284,11 @@ protochar(c, where, iseditproto)
 		ap_str(get_filename(curr_ifile));
 		break;
 	case 'i':	/* Index into list of files */
+#if TAGS
 		if (ntags())
 			ap_int(curr_tag());
 		else
+#endif
 			ap_int(get_index(curr_ifile));
 		break;
 	case 'l':	/* Current line number */
@@ -295,10 +307,12 @@ protochar(c, where, iseditproto)
 			ap_int(n-1);
 		break;
 	case 'm':	/* Number of files */
+#if TAGS
 		n = ntags();
 		if (n)
 			ap_int(n);
 		else
+#endif
 			ap_int(nifile());
 		break;
 	case 'p':	/* Percent into file (bytes) */
@@ -331,9 +345,11 @@ protochar(c, where, iseditproto)
 			mp--;
 		break;
 	case 'T':	/* Type of list */
+#if TAGS
 		if (ntags())
 			ap_str("tag");
 		else
+#endif
 			ap_str("file");
 		break;
 	case 'x':	/* Name of next file */

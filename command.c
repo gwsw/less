@@ -217,8 +217,10 @@ exec_mca()
 		if (secure)
 			break;
 		edit_list(cbuf);
+#if TAGS
 		/* If tag structure is loaded then clean it up. */
 		cleantags();
+#endif
 		break;
 #endif
 #if SHELL_ESCAPE
@@ -1362,11 +1364,13 @@ commands()
 			/*
 			 * Examine next file.
 			 */
+#if TAGS
 			if (ntags())
 			{
 				error("No next file", NULL_PARG);
 				break;
 			}
+#endif
 			if (number <= 0)
 				number = 1;
 			if (edit_next(number))
@@ -1383,11 +1387,13 @@ commands()
 			/*
 			 * Examine previous file.
 			 */
+#if TAGS
 			if (ntags())
 			{
 				error("No previous file", NULL_PARG);
 				break;
 			}
+#endif
 			if (number <= 0)
 				number = 1;
 			if (edit_prev(number))
@@ -1397,6 +1403,7 @@ commands()
 			}
 			break;
 
+#if TAGS
 		case A_NEXT_TAG:
 			if (number <= 0)
 				number = 1;
@@ -1430,6 +1437,7 @@ commands()
 					jump_loc(pos, jump_sline);
 			}
 			break;
+#endif
 
 		case A_INDEX_FILE:
 			/*
