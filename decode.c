@@ -208,6 +208,7 @@ init_cmds()
 	 */
 	add_fcmd_table((char*)cmdtable, sizeof(cmdtable));
 	add_ecmd_table((char*)edittable, sizeof(edittable));
+	get_editkeys();
 #if USERFILE
 	/*
 	 * Try to add the tables in the standard lesskey file "$HOME/.less".

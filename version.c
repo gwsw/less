@@ -502,7 +502,8 @@ v285   3/7/95	Don't set # in lsystem;
 		lesskey try $HOME first.
 v286   3/7/95	Reformat change history (too much free time?).
 v287   3/8/95	Fix hilite bug if overstrike multiple chars.
+v288   3/8/95	Allow lesskey to override get_editkey keys.
 
 */
 
-char version[] = "287";
+char version[] = "288";

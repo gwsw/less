@@ -89,6 +89,7 @@ main(argc, argv)
 	 * Process command line arguments and LESS environment arguments.
 	 * Command line arguments override environment arguments.
 	 */
+	get_term();
 	init_cmds();
 	init_prompt();
 	init_charset();
@@ -188,8 +189,6 @@ main(argc, argv)
 
 	init_mark();
 	raw_mode(1);
-	get_term();
-	get_editkeys();
 	open_getchr();
 	init_signals(1);
 
