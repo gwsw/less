@@ -39,6 +39,7 @@
 
 extern int squeeze;
 extern int chopline;
+extern int quit_if_one_screen;
 extern int sigs;
 extern int ignore_eoi;
 extern POSITION start_attnpos;
@@ -112,7 +113,7 @@ forw_line(curr_pos)
 			 * End of the line.
 			 */
 			new_pos = ch_tell();
-			endline = 1;
+			endline = TRUE;
 			break;
 		}
 
@@ -133,11 +134,12 @@ forw_line(curr_pos)
 					c = ch_forw_get();
 				} while (c != '\n' && c != EOI);
 				new_pos = ch_tell();
-				endline = 1;
+				endline = TRUE;
+				quit_if_one_screen = FALSE;
 			} else
 			{
 				new_pos = ch_tell() - 1;
-				endline = 0;
+				endline = FALSE;
 			}
 			break;
 		}
@@ -275,7 +277,7 @@ back_line(curr_pos)
 		null_line();
 		return (NULL_POSITION);
 	}
-	endline = 0;
+	endline = FALSE;
     loop:
 	begin_new_pos = new_pos;
 	prewind();
@@ -293,7 +295,7 @@ back_line(curr_pos)
 		new_pos++;
 		if (c == '\n')
 		{
-			endline = 1;
+			endline = TRUE;
 			break;
 		}
 		if (pappend(c, ch_tell()-1))
@@ -305,7 +307,8 @@ back_line(curr_pos)
 			 */
 			if (chopline)
 			{
-				endline = 1;
+				endline = TRUE;
+				quit_if_one_screen = FALSE;
 				break;
 			}
 			pdone(0);

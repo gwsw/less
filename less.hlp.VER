@@ -123,6 +123,8 @@
                   Quit at end of file.
   -f  ........  --force
                   Force open non-regular files.
+  -F  ........  --quit-if-one-screen
+                  Quit if entire file fits on first screen.
   -g  ........  --hilite-search
                   Highlight only last match for searches.
   -G  ........  --HILITE-SEARCH

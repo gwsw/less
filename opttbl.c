@@ -43,6 +43,7 @@ public int pr_type;		/* Type of prompt (short, medium, long) */
 public int bs_mode;		/* How to process backspaces */
 public int know_dumb;		/* Don't complain about dumb terminals */
 public int quit_at_eof;		/* Quit after hitting end of file twice */
+public int quit_if_one_screen;	/* Quit if EOF on first screen */
 public int squeeze;		/* Squeeze multiple blank lines into one */
 public int tabstop;		/* Tab settings */
 public int back_scroll;		/* Repaint screen on backwards movement */
@@ -74,6 +75,7 @@ static struct optname d_optname      = { "dumb",                 NULL };
 static struct optname D__optname     = { "color",                NULL };
 static struct optname e_optname      = { "quit-at-eof",          NULL };
 static struct optname f_optname      = { "force",                NULL };
+static struct optname F__optname     = { "quit-if-one-screen",   NULL };
 #if HILITE_SEARCH
 static struct optname g_optname      = { "hilite-search",        NULL };
 #endif
@@ -164,6 +166,12 @@ static struct option option[] =
 		BOOL, OPT_OFF, &force_open, NULL,
 		"Open only regular files",
 		"Open even non-regular files",
+		NULL
+	},
+	{ 'F', &F__optname,
+		BOOL, OPT_OFF, &quit_if_one_screen, NULL,
+		"Don't quit if end-of-file on first screen",
+		"Quit if end-of-file on first screen",
 		NULL
 	},
 #if HILITE_SEARCH

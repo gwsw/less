@@ -37,6 +37,7 @@
 extern int erase_char, kill_char;
 extern int sigs;
 extern int quit_at_eof;
+extern int quit_if_one_screen;
 extern int squished;
 extern int hit_eof;
 extern int sc_width;
@@ -607,10 +608,11 @@ prompt()
 	/*
 	 * If the -E flag is set and we've hit EOF on the last file, quit.
 	 */
-	if (quit_at_eof == OPT_ONPLUS && hit_eof && 
-	    !(ch_getflags() & CH_HELPFILE) && 
+	if ((quit_at_eof == OPT_ONPLUS || quit_if_one_screen) &&
+	    hit_eof && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
+	quit_if_one_screen = FALSE;
 #if 0 /* This doesn't work well because some "te"s clear the screen. */
 	/*
 	 * If the -e flag is set and we've hit EOF on the last file,

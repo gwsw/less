@@ -501,6 +501,11 @@ Also suppresses the warning message when a binary file is opened.
 By default,
 .I less
 will refuse to open non-regular files.
+.IP "-F or --quit-if-one-screen"
+Causes
+.I less
+to automatically exit
+if the entire file can be displayed on the first screen.
 .IP "-g or --hilite-search"
 Normally, 
 .I less 
