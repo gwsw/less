@@ -390,8 +390,11 @@ is_ansi_end(c)
 /*
  * Append a character and attribute to the line buffer.
  */
+#define	STORE_CHAR(c,a,pos) \
+	do { if (store_char((c),(a),(pos))) return (1); else curr++; } while (0)
+
 	static int
-storec(c, a, pos)
+store_char(c, a, pos)
 	int c;
 	int a;
 	POSITION pos;
@@ -469,6 +472,38 @@ storec(c, a, pos)
 }
 
 /*
+ * Append a tab to the line buffer.
+ * Store spaces to represent the tab.
+ */
+#define	STORE_TAB(a,pos) \
+	do { if (store_tab((a),(pos))) return (1); } while (0)
+
+	static int
+store_tab(attr, pos)
+	int attr;
+	POSITION pos;
+{
+	int to_tab = column + cshift - lmargin;
+	int i;
+
+	if (ntabstops < 2 || to_tab >= tabstops[ntabstops-1])
+		to_tab = tabdefault -
+		     ((to_tab - tabstops[ntabstops-1]) % tabdefault);
+	else
+	{
+		for (i = ntabstops - 2;  i >= 0;  i--)
+			if (to_tab >= tabstops[i])
+				break;
+		to_tab = tabstops[i+1] - to_tab;
+	}
+
+	do {
+		STORE_CHAR(' ', attr, pos);
+	} while (--to_tab > 0);
+	return 0;
+}
+
+/*
  * Append a character to the line buffer.
  * Expand tabs into spaces, handle underlining, boldfacing, etc.
  * Returns 0 if ok, 1 if couldn't fit in buffer.
@@ -526,15 +561,15 @@ do_append(c, pos)
 	register char *s;
 	register int a;
 
-#define	STOREC(c,a) \
-	if (storec((c),(a),pos)) return (1); else curr++
+#define STOREC(c,a) \
+	if ((c) == '\t') STORE_TAB((a),pos); else STORE_CHAR((c),(a),pos)
 
 	if (c == '\b')
 	{
 		switch (bs_mode)
 		{
 		case BS_NORMAL:
-			STOREC(c, AT_NORMAL);
+			STORE_CHAR(c, AT_NORMAL, pos);
 			break;
 		case BS_CONTROL:
 			goto do_control_char;
@@ -563,11 +598,11 @@ do_append(c, pos)
 		} else if (utf_mode && curr > 0 && (char)c == linebuf[curr-1])
 		{
 			backc();
-			STOREC(linebuf[curr], AT_BOLD);
+			STORE_CHAR(linebuf[curr], AT_BOLD, pos);
 			overstrike = 1;
 		} else if ((char)c == linebuf[curr])
 		{
-			STOREC(linebuf[curr], AT_BOLD);
+			STOREC(c, AT_BOLD);
 		} else if (c == '_')
 		{
 			if (utf_mode)
@@ -585,8 +620,9 @@ do_append(c, pos)
 			}
 			STOREC(linebuf[curr], AT_UNDERLINE);
 		} else if (linebuf[curr] == '_')
+		{
 			STOREC(c, AT_UNDERLINE);
-		else if (control_char(c))
+		} else if (control_char(c))
 			goto do_control_char;
 		else
 			STOREC(c, AT_NORMAL);
@@ -595,29 +631,13 @@ do_append(c, pos)
 		/*
 		 * Expand a tab into spaces.
 		 */
-		int to_tab;
-		int i;
 		switch (bs_mode)
 		{
 		case BS_CONTROL:
 			goto do_control_char;
 		case BS_NORMAL:
 		case BS_SPECIAL:
-			to_tab = column + cshift - lmargin;
-			if (ntabstops < 2 || to_tab >= tabstops[ntabstops-1])
-				to_tab = tabdefault -
-				     ((to_tab - tabstops[ntabstops-1]) % tabdefault);
-			else
-			{
-				for (i = ntabstops - 2;  i >= 0;  i--)
-					if (to_tab >= tabstops[i])
-						break;
-				to_tab = tabstops[i+1] - to_tab;
-			}
-			do
-			{
-				STOREC(' ', AT_NORMAL);
-			} while (--to_tab > 0);
+			STORE_TAB(AT_NORMAL, pos);
 			break;
 		}
 	} else if (control_char(c))
@@ -628,7 +648,7 @@ do_append(c, pos)
 			/*
 			 * Output as a normal character.
 			 */
-			STOREC(c, AT_NORMAL);
+			STORE_CHAR(c, AT_NORMAL, pos);
 		} else 
 		{
 			/*
@@ -646,7 +666,7 @@ do_append(c, pos)
 				return (1);
 
 			for ( ;  *s != 0;  s++)
-				STOREC(*s, a);
+				STORE_CHAR(*s, a, pos);
 		}
 	} else
 	{
