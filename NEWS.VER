@@ -12,11 +12,13 @@
 
 	Major changes between "less" versions 321 and @@VERSION@@
 
-* Added commands ESC-( and ESC-), same as ESC-[ and ESC-].
+* Now supports filenames containing spaces.
+
+* In filename completion, a slash is appended to a directory name.
 
 * LeftArrow and RightArrow are same as ESC-[ and ESC-].
 
-* Now supports filenames containing spaces.
+* Added commands ESC-( and ESC-), same as ESC-[ and ESC-].
 
 * A "quit" command defined in a lesskey file may now have an "extra" 
   string, which is used to return an exit code from less when it quits.
