@@ -33,7 +33,7 @@
 #include "less.h"
 #if MSDOS_COMPILER
 #include <dos.h>
-#if MSDOS_COMPILER==WIN32C
+#if MSDOS_COMPILER==WIN32C && !defined(_MSC_VER)
 #include <dir.h>
 #endif
 #endif
@@ -167,8 +167,9 @@ fexpand(s)
 				 */
 				ifile = fchar_ifile(*fr);
 				if (ifile == NULL_IFILE)
-					return (save(s));
-				n += strlen(get_filename(ifile));
+					n++;
+				else
+					n += strlen(get_filename(ifile));
 			}
 			/*
 			 * Else it is the first char in a string of
@@ -199,8 +200,13 @@ fexpand(s)
 			} else if (fr[1] != *fr)
 			{
 				ifile = fchar_ifile(*fr);
-				strcpy(to, get_filename(ifile));
-				to += strlen(to);
+				if (ifile == NULL_IFILE)
+					*to++ = *fr;
+				else
+				{
+					strcpy(to, get_filename(ifile));
+					to += strlen(to);
+				}
 			}
 			break;
 		default:
@@ -229,7 +235,7 @@ fcomplete(s)
 	/*
 	 * Complete the filename "s" by globbing "s*".
 	 */
-#if MSDOS_COMPILER
+#if MSDOS_COMPILER != WIN32C
 	/*
 	 * But in DOS, we have to glob "s*.*".
 	 * But if the final component of the filename already has
@@ -240,7 +246,7 @@ fcomplete(s)
 	{
 		char *slash;
 		for (slash = s+strlen(s)-1;  slash > s;  slash--)
-			if (*slash = *PATHNAME_SEP || *slash == '/')
+			if (*slash == *PATHNAME_SEP || *slash == '/')
 				break;
 		fpat = (char *) ecalloc(strlen(s)+4, sizeof(char));
 		if (strchr(slash, '.') == NULL)
@@ -578,30 +584,52 @@ close_altfile(altfilename, filename, pipefd)
 /*
  * Define macros for the MS-DOS "find file" interfaces.
  */
-#if MSDOS_COMPILER==WIN32C
-
-#define	FIND_FIRST(filename,fndp)	findfirst(filename, fndp, ~0)
-#define	FIND_NEXT(fndp)			findnext(fndp)
-#define	FND_NAME			ff_name
-#define	DECLARE_FIND(fnd,drive,dir,fname,ext) \
-					struct ffblk fnd;	\
-					char drive[MAXDRIVE];	\
-					char dir[MAXDIR];	\
-					char fname[MAXFILE];	\
-					char ext[MAXEXT];	
-
-#else
+#if MSDOS_COMPILER!=WIN32C
 
 #define	FIND_FIRST(filename,fndp)	_dos_findfirst(filename, ~0, fndp)
-#define	FIND_NEXT(fndp)			_dos_findnext(fndp)
+#define	FIND_NEXT(handle,fndp)		_dos_findnext(fndp)
+#define	FIND_CLOSE(handle)
+#define	BAD_HANDLE(handle)		((handle) != 0)
 #define	FND_NAME			name
-#define	DECLARE_FIND(fnd,drive,dir,fname,ext) \
+#define	DECLARE_FIND(fnd,drive,dir,fname,ext,handle) \
 					struct find_t fnd;	\
 					char drive[_MAX_DRIVE];	\
 					char dir[_MAX_DIR];	\
 					char fname[_MAX_FNAME];	\
-					char ext[_MAX_EXT];	
+					char ext[_MAX_EXT];	\
+					int handle;
+#else
+#ifdef _MSC_VER
 
+#define	FIND_FIRST(filename,fndp)	_findfirst(filename, fndp)
+#define	FIND_NEXT(handle,fndp)		_findnext(handle, fndp)
+#define	FIND_CLOSE(handle)		_findclose(handle)
+#define	BAD_HANDLE(handle)		((handle) == -1)
+#define	FND_NAME			name
+#define	DECLARE_FIND(fnd,drive,dir,fname,ext,handle) \
+					struct _finddata_t fnd;	\
+					char drive[_MAX_DRIVE];	\
+					char dir[_MAX_DIR];	\
+					char fname[_MAX_FNAME];	\
+					char ext[_MAX_EXT];	\
+					long handle;
+
+#else /* Borland */
+
+#define	FIND_FIRST(filename,fndp)	findfirst(filename, fndp, ~0)
+#define	FIND_NEXT(handle,fndp)		findnext(fndp)
+#define	FIND_CLOSE(handle)
+#define	BAD_HANDLE(handle)		((handle) != 0)
+#define	FND_NAME			ff_name
+#define	DECLARE_FIND(fnd,drive,dir,fname,ext,handle) \
+					struct ffblk fnd;	\
+					char drive[MAXDRIVE];	\
+					char dir[MAXDIR];	\
+					char fname[MAXFILE];	\
+					char ext[MAXEXT];	\
+					int handle;
+
+#endif
 #endif
 	
 	public char *
@@ -612,14 +640,15 @@ lglob(filename)
 	register char *p;
 	register int len;
 	register int n;
-	DECLARE_FIND(fnd,drive,dir,fname,ext)
+	DECLARE_FIND(fnd,drive,dir,fname,ext,handle)
 	
 	filename = fexpand(filename);
 
 	if (secure)
 		return (filename);
 
-	if (FIND_FIRST(filename, &fnd) != 0)
+	handle = FIND_FIRST(filename, &fnd);
+	if (BAD_HANDLE(handle))
 		return (filename);
 
 	_splitpath(filename, drive, dir, fname, ext);
@@ -644,12 +673,13 @@ lglob(filename)
 		sprintf(p, "%s%s%s", drive, dir, fnd.FND_NAME);
 		p += n;
 		*p++ = ' ';
-	} while (FIND_NEXT(&fnd) == 0);
+	} while (FIND_NEXT(handle, &fnd) == 0);
 
 	/*
 	 * Overwrite the final trailing space with a null terminator.
 	 */
 	*--p = '\0';
+	FIND_CLOSE(handle);
 	return (gfilename);
 }
 
