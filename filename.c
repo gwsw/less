@@ -509,6 +509,15 @@ esc_metachars(s)
 	return (newstr);
 }
 
+#else /* HAVE_SHELL */
+
+	static char *
+esc_metachars(s)
+	char *s;
+{
+	return (save(s));
+}
+
 #endif /* HAVE_SHELL */
 
 /*
@@ -713,11 +722,7 @@ lglob(filename)
 	lessecho = lgetenv("LESSECHO");
 	if (lessecho == NULL || *lessecho == '\0')
 		lessecho = "lessecho";
-#if HAVE_SHELL
 	s = esc_metachars(filename);
-#else
-	s = save(filename);
-#endif
 	if (s == NULL)
 	{
 		/*
