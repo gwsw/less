@@ -46,7 +46,7 @@ struct charset {
 } charsets[] = {
 	{ "ascii",	"8bcccbcc18b95.b"		},
 	{ "latin1",	"8bcccbcc18b95.33b."		},
-	{ "dos",	"8bcccbcc12bc5b95.98b.b"	},
+	{ "dos",	"8bcccbcc12bc5b95.b."		},
 	{ "koi8-r",	"8bcccbcc18b95.b128."		},
 	{ NULL }
 };
