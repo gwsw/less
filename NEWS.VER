@@ -1,7 +1,10 @@
 
-	Major changes between "less" versions 237 and 242
+	Major changes between "less" versions 237 and 245
 
 * Lesskey now allows redefining line-editing command keys.
+
+* New lesskey option -f forces lesskey to overwrite an existing file.
+  Lesskey will no longer overwrite existing files by default.
 
 * Changes in line-editing keys:
   The literal key is now ^V or ^A rather than \ (backslash).
