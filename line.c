@@ -508,7 +508,7 @@ gline(i, ap)
 		 * If there is no current line, we pretend the line is
 		 * either "~" or "", depending on the "twiddle" flag.
 		 */
-		*ap = AT_NORMAL;
+		*ap = AT_BOLD;
 		s = (twiddle) ? "~\n" : "\n";
 		return (s[i]);
 	}
