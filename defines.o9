@@ -206,7 +206,7 @@
 #define HAVE_ERRNO 1
 /* Define MUST_DEFINE_ERRNO if you have errno but it is not define 
  * in errno.h */
-#define MUST_DEFINE_ERRNO 1
+#undef MUST_DEFINE_ERRNO
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
 #undef HAVE_SYS_ERRLIST
@@ -251,7 +251,7 @@
 #undef HAVE_FCNTL_H
 
 /* Define if you have the <limits.h> header file.  */
-#define HAVE_LIMITS_H 0
+#undef HAVE_LIMITS_H 
 
 /* Define if you have the <stdio.h> header file.  */
 #define HAVE_STDIO_H 1

@@ -3,46 +3,53 @@
 
 #### Start of system configuration section. ####
 
-# Use these values for gcc.
-CC = gcc 
-CFLAGS = -D_OSK -I. -O
-LDFLAGS = 
-LIBS = -ltermlib
-O = r
-
 # Use these values for Ultra C.
-#CC=cc
+CC = cc 
+CFLAGS = -D_OSK -v=.
+CFLAGS_COMPILE_ONLY = -eas
+LDFLAGS = -olM=24k -f=$@
+LIBS = -ltermlib.l -lsys_clib.l -lunix.l
+O = r
+HELPFILE_DEFINE = -dHELPFILE=\"/dd/sys/less.hlp\" 
+
+# Use these values for gcc.
+#CC=gcc
 #CFLAGS = -D_OSK -I. -O
-#LDFLAGS =
-#LIBS = -l=termlib.l
+#CFLAGS_COMPILE_ONLY = -c
+#LDFLAGS = -o $@
+#LIBS = -ltermlib
 #O = r
+#HELPFILE_DEFINE = -DHELPFILE=\"/dd/sys/less.hlp\" 
 
 
 #### End of system configuration section. ####
 
-.SUFFIXES: .c .$(O)
+.SUFFIXES: .c .${O}
 
 # This rule allows us to supply the necessary -D options
 # in addition to whatever the user asks for.
-.c.$(O):
-	${CC} -c ${CPPFLAGS} ${CFLAGS} $<
+.c.${O}:
+	${CC} ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} $<
 
-OBJ =	main.$(O) screen.$(O) brac.$(O) ch.$(O) charset.$(O) cmdbuf.$(O) \
-	command.$(O) decode.$(O) edit.$(O) filename.$(O) forwback.$(O) \
-	help.$(O) ifile.$(O) input.$(O) jump.$(O) line.$(O) linenum.$(O) \
-	lsystem.$(O) mark.$(O) optfunc.$(O) option.$(O) opttbl.$(O) os.$(O) \
-	output.$(O) position.$(O) prompt.$(O) search.$(O) signal.$(O) \
-	tags.$(O) ttyin.$(O) version.$(O)  regexp.$(O)
+OBJ =	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
+	command.${O} decode.${O} edit.${O} filename.${O} forwback.${O} \
+	help.${O} ifile.${O} input.${O} jump.${O} line.${O} linenum.${O} \
+	lsystem.${O} mark.${O} optfunc.${O} option.${O} opttbl.${O} os.${O} \
+	output.${O} position.${O} prompt.${O} search.${O} signal.${O} \
+	tags.${O} ttyin.${O} version.${O}  regexp.${O}
 
 all:    less lesskey
 
-less: $(OBJ)
-	$(CC) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
+less: ${OBJ}
+	${CC} ${OBJ} ${LDFLAGS} ${LIBS}
 
-lesskey: lesskey.$(O) version.$(O)
-	$(CC) lesskey.$(O) version.$(O) -o $@ $(LDFLAGS)
+lesskey: lesskey.${O} version.${O}
+	${CC} lesskey.${O} version.${O} ${LDFLAGS}
 
-$(OBJ): defines.h less.h
+${OBJ}: defines.h less.h
+
+filename.${O}: filename.c
+	${CC} ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} ${HELPFILE_DEFINE} filename.c
 
 defines.h: defines.osk
-	copy defines.osk defines.h
+	copy defines.osk defines.h -rf

@@ -61,6 +61,7 @@
 #include <signal.h>
 #endif
 
+#ifndef _OSK
 #ifndef TIOCGWINSZ
 /*
  * For the Unix PC (ATT 7300 & 3B1):
@@ -70,6 +71,7 @@
 #include <sys/signal.h>
 #ifdef SIGPHONE
 #include <sys/window.h>
+#endif
 #endif
 #endif
 

@@ -67,6 +67,7 @@ char *strchr();
  */
 
 /* definition	number	opnd?	meaning */
+#undef EOL
 #define	END	0	/* no	End of program. */
 #define	BOL	1	/* no	Match "" at beginning of line. */
 #define	EOL	2	/* no	Match "" at end of line. */
