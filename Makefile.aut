@@ -16,7 +16,7 @@ DISTFILES = ${SRC} regexp.c regexp.h \
 	cmd.h funcs.h less.h lesskey.h option.h position.h \
 	install.sh defines.h.in defines.h.top mkinstalldirs \
 	less.nro lesskey.nro less.man lesskey.man less.hlp \
-	Makefile.dos Makefile.bcc defines.dos screen.c \
+	Makefile.dos Makefile.bcc defines.dos \
 	Makefile.os2 defines.os2 \
 	Makefile.os9 defines.os9 \
 	Makefile.w32 defines.w32
@@ -24,8 +24,10 @@ DISTFILES = ${SRC} regexp.c regexp.h \
 all: help.c funcs.h ${srcdir}/configure 
 
 help.c: less.hlp mkhelp
+	mv -f ${srcdir}/help.c ${srcdir}/help.c.old
 	rm -rf help.c
 	./mkhelp < less.hlp > help.c
+	if cmp -s help.c help.c.old; then mv help.c.old help.c; fi
 
 mkhelp: mkhelp.c
 	${CC} -o mkhelp mkhelp.c
