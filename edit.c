@@ -449,7 +449,7 @@ edit_last()
  * Edit the next file in the command line (ifile) list.
  */
 	static int
-edit_next_from(h, n)
+edit_inext(h, n)
 	IFILE h;
 	int n;
 {
@@ -485,14 +485,14 @@ edit_next_from(h, n)
 edit_next(n)
 	int n;
 {
-	return edit_next_from(curr_ifile, n);
+	return edit_inext(curr_ifile, n);
 }
 
 /*
  * Edit the previous file in the command line list.
  */
 	static int
-edit_prev_from(h, n)
+edit_iprev(h, n)
 	IFILE h;
 	int n;
 {
@@ -528,7 +528,7 @@ edit_prev_from(h, n)
 edit_prev(n)
 	int n;
 {
-	return edit_prev_from(curr_ifile, n);
+	return edit_iprev(curr_ifile, n);
 }
 
 /*
@@ -578,12 +578,12 @@ reedit_ifile(save_ifile)
 	/*
 	 * If can't reopen it, open the next input file in the list.
 	 */
-	if (edit_next_from(next, 0) == 0)
+	if (next != NULL_IFILE && edit_inext(next, 0) == 0)
 		return;
 	/*
 	 * If can't open THAT one, open the previous input file in the list.
 	 */
-	if (edit_prev_from(prev, 0) == 0)
+	if (prev != NULL_IFILE && edit_iprev(prev, 0) == 0)
 		return;
 	/*
 	 * If can't even open that, we're stuck.  Just quit.
