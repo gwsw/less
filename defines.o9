@@ -54,7 +54,7 @@
  * TAB_COMPLETE_FILENAME is 1 if you wish to allow the TAB key
  * to complete filenames at prompts.
  */
-#define	TAB_COMPLETE_FILENAME	(!SECURE)
+#define	TAB_COMPLETE_FILENAME	0 /* TEMPORARILY NOT WORKING IN OS-9 */
 
 /*
  * CMD_HISTORY is 1 if you wish to allow keys to cycle through
