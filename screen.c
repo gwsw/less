@@ -103,23 +103,8 @@ static unsigned short *whitescreen;
 #define _settextposition(y,x)   gotoxy(x,y)
 #define _clearscreen(m)         clrscr()
 #define _outtext(s)             cputs(s)
-#define	SETCOLORS(fg,bg)	{ textcolor(fg); textbackground(bg); \
-				  if (bg == nm_bg_color) clreol_maybe(); }
+#define	SETCOLORS(fg,bg)	{ textcolor(fg); textbackground(bg); }
 extern int sc_height;
-	static void
-clreol_maybe()
-{
-	/*
-	 * Clear to EOL, but only if in the last display line.
-	 * This is a kludgey way to work around display problems when color
-	 * is switched at the rightmost column of the last display line.
-	 * The problem is that when the display is scrolled, the empty
-	 * line added from below inherits the colors of the last
-	 * character on the previous line.
-	 */
-	if (wherey() == sc_height)
-		clreol();
-}
 #endif
 
 #if MSDOS_COMPILER==WIN32C
@@ -209,6 +194,7 @@ public int so_s_width, so_e_width;	/* Printing width of standout seq */
 public int bl_s_width, bl_e_width;	/* Printing width of blink seq */
 public int above_mem, below_mem;	/* Memory retained above/below screen */
 public int can_goto_line;		/* Can move cursor to any line */
+public int clear_bg;		/* Clear fills with background color */
 public int missing_cap = 0;	/* Some capability is missing */
 
 static int attrmode = AT_NORMAL;
@@ -970,6 +956,7 @@ get_term()
 	auto_wrap = 1;
 	ignaw = 0;
 	can_goto_line = 1;
+	clear_bg = 1;
 	/*
 	 * Set up default colors.
 	 * The xx_s_width and xx_e_width vars are already initialized to 0.
@@ -1072,6 +1059,7 @@ get_term()
 	ignaw = ltgetflag("xn");
 	above_mem = ltgetflag("da");
 	below_mem = ltgetflag("db");
+	clear_bg = ltgetflag("ut");
 
 	/*
 	 * Assumes termcap variable "sg" is the printing width of:

@@ -31,6 +31,7 @@ extern int plusoption;
 extern int forw_scroll;
 extern int back_scroll;
 extern int ignore_eoi;
+extern int clear_bg;
 #if TAGS
 extern char *tagoption;
 #endif
@@ -238,6 +239,17 @@ forw(n, pos, force, only_last, nblank)
 		if (top_scroll == OPT_ON)
 			clear_eol();
 		put_line();
+		if (clear_bg)
+		{
+			/*
+			 * Writing the last character on the last line
+			 * of the display may have scrolled the screen.
+			 * If we were in standout mode, clear_bg terminals 
+			 * will fill the new line with the standout color.
+			 * Now we're in normal mode again, so clear the line.
+			 */
+			clear_eol();
+		}
 	}
 
 	if (ignore_eoi)
