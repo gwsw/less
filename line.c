@@ -201,7 +201,7 @@ shift_chars(s, len)
 		{
 			while (*p != '\0')
 			{
-				if (strchr(end_ansi_chars, *p++) != NULL)
+				if (is_ansi_end(*p++))
 					break;
 			}
 		}
@@ -371,10 +371,20 @@ in_ansi_esc_seq()
 	{
 		if (linebuf[i] == ESC)
 			return (1);
-		if (strchr(end_ansi_chars, linebuf[i]) != NULL)
+		if (is_ansi_end(linebuf[i]))
 			return (0);
 	}
 	return (0);
+}
+
+/*
+ * Is a character the end of an ANSI escape sequence?
+ */
+	public int
+is_ansi_end(c)
+	char c;
+{
+	return (strchr(end_ansi_chars, c) != NULL);
 }
 
 /*
