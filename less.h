@@ -153,9 +153,9 @@ typedef long		POSITION;
 #endif
 
 #if MSDOS_COMPILER || OS2
-#define	OPEN_TTYIN()	open("CON", O_BINARY|O_RDONLY)
+#define	OPEN_TTYIN()	open("CON", OPEN_READ)
 #else
-#define	OPEN_TTYIN()	open("/dev/tty", 0)
+#define	OPEN_TTYIN()	open("/dev/tty", OPEN_READ)
 #endif
 
 /*
