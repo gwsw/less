@@ -57,7 +57,6 @@ public char *	editproto;
 #endif
 
 #if TAGS
-extern char *	tagfile;
 extern char *	tagoption;
 extern int	jump_sline;
 #endif
@@ -231,9 +230,7 @@ main(argc, argv)
 			quit(QUIT_ERROR);
 		}
 		findtag(tagoption);
-		if (tagfile == NULL)
-			quit(QUIT_ERROR);
-		if (edit(tagfile))  /* Edit file which contains the tag */
+		if (edit_tagfile())  /* Edit file which contains the tag */
 			quit(QUIT_ERROR);
 		/*
 		 * Search for the line which contains the tag.

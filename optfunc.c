@@ -64,7 +64,6 @@ extern int logfile;
 #endif
 #if TAGS
 public char *tagoption = NULL;
-extern char *tagfile;
 extern char *tags;
 extern int jump_sline;
 #endif
@@ -213,16 +212,15 @@ opt_t(type, s)
 			break;
 		}
 		findtag(skipsp(s));
-		if (tagfile == NULL)
-			break;
-		save_ifile = curr_ifile;
-		if (edit(tagfile))
+		save_ifile = save_curr_ifile();
+		if (edit_tagfile())
 			break;
 		if ((pos = tagsearch()) == NULL_POSITION)
 		{
 			reedit_ifile(save_ifile);
 			break;
 		}
+		unsave_ifile(save_ifile);
 		jump_loc(pos, jump_sline);
 		break;
 	}

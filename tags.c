@@ -31,9 +31,9 @@
 
 #if TAGS
 
-public char *tagfile;
 public char *tags = "tags";
 
+static char *tagfile;
 static char *tagpattern;
 static int taglinenum;
 static int tagendline;
@@ -108,6 +108,7 @@ findtag(tag)
 		if (*p == '\0')
 			/* Pattern is missing! */
 			continue;
+		tagfile = save(tagfile);
 
 		/*
 		 * First see if it is a line number. 
@@ -145,6 +146,19 @@ findtag(tag)
 	fclose(f);
 	error("No such tag in tags file", NULL_PARG);
 	tagfile = NULL;
+}
+
+	public int
+edit_tagfile()
+{
+	int r;
+
+	if (tagfile == NULL)
+		return (1);
+	r = edit(tagfile);
+	free(tagfile);
+	tagfile = NULL;
+	return (r);
 }
 
 /*
