@@ -687,6 +687,39 @@ get_debug_term()
 #endif
 
 /*
+ * Some glue to prevent calling termcap functions if tgetent() failed.
+ */
+static int hardcopy;
+
+	static int
+ltgetflag(capname)
+	char *capname;
+{
+	if (hardcopy)
+		return (0);
+	return (tgetflag(capname));
+}
+
+	static int
+ltgetnum(capname)
+	char *capname;
+{
+	if (hardcopy)
+		return (-1);
+	return (tgetnum(capname));
+}
+
+	static char *
+ltgetstr(capname, pp)
+	char *capname;
+	char **pp;
+{
+	if (hardcopy)
+		return (NULL);
+	return tgetstr(capname, pp);
+}
+
+/*
  * Get terminal capabilities via termcap.
  */
 	public void
@@ -694,7 +727,6 @@ get_term()
 {
 	char *sp;
 	register char *t1, *t2;
-	register int hard;
 	char *term;
 	char termbuf[2048];
 
@@ -722,10 +754,11 @@ get_term()
 	 */
  	if ((term = lgetenv("TERM")) == NULL)
  		term = DEFAULT_TERM;
+	hardcopy = 0;
  	if (tgetent(termbuf, term) <= 0)
- 		strcpy(termbuf, "dumb:hc:");
-
- 	hard = tgetflag("hc");
+ 		hardcopy = 1;
+ 	if (ltgetflag("hc"))
+		hardcopy = 1;
 
 	/*
 	 * Get size of the screen.
@@ -741,10 +774,10 @@ get_term()
 	}
 #endif /* DEBUG */
 
-	auto_wrap = tgetflag("am");
-	ignaw = tgetflag("xn");
-	above_mem = tgetflag("da");
-	below_mem = tgetflag("db");
+	auto_wrap = ltgetflag("am");
+	ignaw = ltgetflag("xn");
+	above_mem = ltgetflag("da");
+	below_mem = ltgetflag("db");
 
 	/*
 	 * Assumes termcap variable "sg" is the printing width of:
@@ -752,7 +785,7 @@ get_term()
 	 * the underline sequence, the end underline sequence,
 	 * the boldface sequence, and the end boldface sequence.
 	 */
-	if ((so_s_width = tgetnum("sg")) < 0)
+	if ((so_s_width = ltgetnum("sg")) < 0)
 		so_s_width = 0;
 	so_e_width = so_s_width;
 
@@ -778,50 +811,49 @@ get_term()
 	sp = sbuf;
 
 #if HAVE_OSPEED
-	sc_pad = tgetstr("pc", &sp);
+	sc_pad = ltgetstr("pc", &sp);
 	if (sc_pad != NULL)
 		PC = *sc_pad;
 #endif
 
-	sc_s_keypad = tgetstr("ks", &sp);
+	sc_s_keypad = ltgetstr("ks", &sp);
 	if (sc_s_keypad == NULL)
 		sc_s_keypad = "";
-	sc_e_keypad = tgetstr("ke", &sp);
+	sc_e_keypad = ltgetstr("ke", &sp);
 	if (sc_e_keypad == NULL)
 		sc_e_keypad = "";
 		
-	sc_init = tgetstr("ti", &sp);
+	sc_init = ltgetstr("ti", &sp);
 	if (sc_init == NULL)
 		sc_init = "";
 
-	sc_deinit= tgetstr("te", &sp);
+	sc_deinit= ltgetstr("te", &sp);
 	if (sc_deinit == NULL)
 		sc_deinit = "";
 
-	sc_eol_clear = tgetstr("ce", &sp);
-	if (hard || sc_eol_clear == NULL || *sc_eol_clear == '\0')
+	sc_eol_clear = ltgetstr("ce", &sp);
+	if (sc_eol_clear == NULL || *sc_eol_clear == '\0')
 	{
 		cannot("clear to end of line");
 		sc_eol_clear = "";
 	}
 
-	sc_eos_clear = tgetstr("cd", &sp);
-	if (below_mem && 
-		(hard || sc_eos_clear == NULL || *sc_eos_clear == '\0'))
+	sc_eos_clear = ltgetstr("cd", &sp);
+	if (below_mem && (sc_eos_clear == NULL || *sc_eos_clear == '\0'))
 	{
 		cannot("clear to end of screen");
 		sc_eol_clear = "";
 	}
 
-	sc_clear = tgetstr("cl", &sp);
-	if (hard || sc_clear == NULL || *sc_clear == '\0')
+	sc_clear = ltgetstr("cl", &sp);
+	if (sc_clear == NULL || *sc_clear == '\0')
 	{
 		cannot("clear screen");
 		sc_clear = "\n\n";
 	}
 
-	sc_move = tgetstr("cm", &sp);
-	if (hard || sc_move == NULL || *sc_move == '\0')
+	sc_move = ltgetstr("cm", &sp);
+	if (sc_move == NULL || *sc_move == '\0')
 	{
 		/*
 		 * This is not an error here, because we don't 
@@ -833,55 +865,55 @@ get_term()
 	} else
 		can_goto_line = 1;
 
-	sc_s_in = tgetstr("so", &sp);
-	if (hard || sc_s_in == NULL)
+	sc_s_in = ltgetstr("so", &sp);
+	if (sc_s_in == NULL)
 		sc_s_in = "";
 
-	sc_s_out = tgetstr("se", &sp);
-	if (hard || sc_s_out == NULL)
+	sc_s_out = ltgetstr("se", &sp);
+	if (sc_s_out == NULL)
 		sc_s_out = "";
 
-	sc_u_in = tgetstr("us", &sp);
-	if (hard || sc_u_in == NULL)
+	sc_u_in = ltgetstr("us", &sp);
+	if (sc_u_in == NULL)
 		sc_u_in = sc_s_in;
 
-	sc_u_out = tgetstr("ue", &sp);
-	if (hard || sc_u_out == NULL)
+	sc_u_out = ltgetstr("ue", &sp);
+	if (sc_u_out == NULL)
 		sc_u_out = sc_s_out;
 
-	sc_b_in = tgetstr("md", &sp);
-	if (hard || sc_b_in == NULL)
+	sc_b_in = ltgetstr("md", &sp);
+	if (sc_b_in == NULL)
 	{
 		sc_b_in = sc_s_in;
 		sc_b_out = sc_s_out;
 	} else
 	{
-		sc_b_out = tgetstr("me", &sp);
-		if (hard || sc_b_out == NULL)
+		sc_b_out = ltgetstr("me", &sp);
+		if (sc_b_out == NULL)
 			sc_b_out = "";
 	}
 
-	sc_bl_in = tgetstr("mb", &sp);
-	if (hard || sc_bl_in == NULL)
+	sc_bl_in = ltgetstr("mb", &sp);
+	if (sc_bl_in == NULL)
 	{
 		sc_bl_in = sc_s_in;
 		sc_bl_out = sc_s_out;
 	} else
 	{
-		sc_bl_out = tgetstr("me", &sp);
-		if (hard || sc_bl_out == NULL)
+		sc_bl_out = ltgetstr("me", &sp);
+		if (sc_bl_out == NULL)
 			sc_bl_out = "";
 	}
 
-	sc_visual_bell = tgetstr("vb", &sp);
-	if (hard || sc_visual_bell == NULL)
+	sc_visual_bell = ltgetstr("vb", &sp);
+	if (sc_visual_bell == NULL)
 		sc_visual_bell = "";
 
-	if (tgetflag("bs"))
+	if (ltgetflag("bs"))
 		sc_backspace = "\b";
 	else
 	{
-		sc_backspace = tgetstr("bc", &sp);
+		sc_backspace = ltgetstr("bc", &sp);
 		if (sc_backspace == NULL || *sc_backspace == '\0')
 			sc_backspace = "\b";
 	}
@@ -890,8 +922,8 @@ get_term()
 	 * Choose between using "ho" and "cm" ("home" and "cursor move")
 	 * to move the cursor to the upper left corner of the screen.
 	 */
-	t1 = tgetstr("ho", &sp);
-	if (hard || t1 == NULL)
+	t1 = ltgetstr("ho", &sp);
+	if (t1 == NULL)
 		t1 = "";
 	if (*sc_move == '\0')
 		t2 = "";
@@ -907,8 +939,8 @@ get_term()
 	 * Choose between using "ll" and "cm"  ("lower left" and "cursor move")
 	 * to move the cursor to the lower left corner of the screen.
 	 */
-	t1 = tgetstr("ll", &sp);
-	if (hard || t1 == NULL)
+	t1 = ltgetstr("ll", &sp);
+	if (t1 == NULL)
 		t1 = "";
 	if (*sc_move == '\0')
 		t2 = "";
@@ -925,11 +957,11 @@ get_term()
 	 * Choose between using "al" or "sr" ("add line" or "scroll reverse")
 	 * to add a line at the top of the screen.
 	 */
-	t1 = tgetstr("al", &sp);
-	if (hard || t1 == NULL)
+	t1 = ltgetstr("al", &sp);
+	if (t1 == NULL)
 		t1 = "";
-	t2 = tgetstr("sr", &sp);
-	if (hard || t2 == NULL)
+	t2 = ltgetstr("sr", &sp);
+	if (t2 == NULL)
 		t2 = "";
 #if OS2
 	if (*t1 == '\0' && *t2 == '\0')
