@@ -549,7 +549,6 @@ optstring(s, p_str, printopt, validchars)
 	char *validchars;
 {
 	register char *p;
-	PARG parg;
 
 	if (*s == '\0')
 	{

@@ -64,11 +64,10 @@ extern char closequote;
 shell_unquote(str)
 	char *str;
 {
-#if SPACES_IN_FILENAMES
 	char *name;
 	char *p;
 
-	name = p = (char *) ecalloc(strlen(str), sizeof(char));
+	name = p = (char *) ecalloc(strlen(str)+1, sizeof(char));
 	if (*str == openquote)
 	{
 		str++;
@@ -95,9 +94,6 @@ shell_unquote(str)
 	}
 	*p = '\0';
 	return (name);
-#else
-	return (save(str));
-#endif
 }
 
 /*
@@ -106,16 +102,12 @@ shell_unquote(str)
 	public char *
 get_meta_escape()
 {
-#if HAVE_SHELL
 	char *s;
 
 	s = lgetenv("LESSMETAESCAPE");
 	if (s == NULL)
 		s = DEF_METAESCAPE;
 	return (s);
-#else
-	return ("");
-#endif
 }
 
 /*
@@ -124,7 +116,6 @@ get_meta_escape()
 	static char *
 metachars()
 {
-#if HAVE_SHELL
 	static char *mchars = NULL;
 
 	if (mchars == NULL)
@@ -134,9 +125,6 @@ metachars()
 			mchars = DEF_METACHARS;
 	}
 	return (mchars);
-#else
-	return ("");
-#endif
 }
 
 /*
@@ -156,7 +144,6 @@ metachar(c)
 shell_quote(s)
 	char *s;
 {
-#if HAVE_SHELL
 	char *p;
 	char *newstr;
 	int len;
@@ -225,9 +212,6 @@ shell_quote(s)
 		*p = '\0';
 	}
 	return (newstr);
-#else /* HAVE_SHELL */
-	return (save(s));
-#endif
 }
 
 /*
@@ -677,6 +661,8 @@ lglob(filename)
 	register char *p;
 	register int len;
 	register int n;
+	char *pathname;
+	char *qpathname;
 	DECL_GLOB_NAME(fnd,drive,dir,fname,ext,handle)
 	
 	GLOB_FIRST_NAME(filename, &fnd, handle);
@@ -699,7 +685,7 @@ lglob(filename)
 		if (qpathname != NULL)
 		{
 			n = strlen(qpathname);
-			while (p - gfilename + n >= len)
+			while (p - gfilename + n + 2 >= len)
 			{
 				/*
 				 * No room in current buffer.
@@ -714,8 +700,9 @@ lglob(filename)
 				p = gfilename + strlen(gfilename);
 			}
 			strcpy(p, qpathname);
-			p += n;
 			free(qpathname);
+			p += n;
+			*p++ = ' ';
 		}
 	} while (GLOB_NEXT_NAME(handle, &fnd) == 0);
 
@@ -894,8 +881,6 @@ close_altfile(altfilename, filename, pipefd)
 {
 #if HAVE_POPEN
 	char *lessclose;
-	char *gfilename;
-	char *galtfilename;
 	FILE *fd;
 	char *cmd;
 	

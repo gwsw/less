@@ -260,7 +260,7 @@ expand_special_keys(table, len)
 			repl = special_key_str(fm[1]);
 			klen = fm[2] & 0377;
 			fm += klen;
-			if (repl == NULL || strlen(repl) > klen)
+			if (repl == NULL || (int) strlen(repl) > klen)
 				repl = "\377";
 			while (*repl != '\0')
 				*to++ = *repl++;

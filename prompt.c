@@ -237,8 +237,6 @@ protochar(c, where, iseditproto)
 	POSITION len;
 	int n;
 	IFILE h;
-	char *s;
-	char *escs;
 
 	switch (c)
 	{
