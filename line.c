@@ -481,7 +481,7 @@ do_append(c, pos)
 	} else if (control_char(c))
 	{
 	do_control_char:
-		if (ctldisp != OPT_OFF)
+		if (ctldisp == OPT_ON || (ctldisp == OPT_ONPLUS && c == ESC))
 		{
 			/*
 			 * Output as a normal character.

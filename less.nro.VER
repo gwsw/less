@@ -1060,8 +1060,8 @@ BS, TAB, NL, CR, and formfeed are control characters,
 all chars with values between 32 and 126 are normal,
 and all others are binary.
 .IP iso8859
-Selects the ISO 8859/1 character set.
-This is the same as ASCII, except characters between 161 and 255 are
+Selects an ISO 8859 character set.
+This is the same as ASCII, except characters between 160 and 255 are
 treated as normal characters.
 .IP latin1
 Same as iso8859.
@@ -1074,7 +1074,7 @@ Selects a Russian character set.
 .IP next
 Selects a character set appropriate for NeXT computers.
 .IP utf-8
-Selects the UTF-8 character set.
+Selects the UTF-8 encoding of the ISO 10646 character set.
 .PP
 If the LESSCHARSET environment variable is not set,
 the default character set is latin1.
