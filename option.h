@@ -49,7 +49,7 @@ struct optname
 	struct optname *onext;  /* List of synonymous option names */
 };
 
-struct option
+struct loption
 {
 	char oletter;		/* The controlling letter (a-z) */
 	struct optname *onames; /* Long (GNU-style) option name */

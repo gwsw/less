@@ -118,7 +118,7 @@ static struct optname keypad_optname = { "no-keypad",            NULL };
  * a new value, and odesc[1], if not NULL, is the set of characters
  * that are valid in the string.
  */
-static struct option option[] =
+static struct loption option[] =
 {
 	{ 'a', &a_optname,
 		BOOL, OPT_OFF, &how_search, NULL,
@@ -155,7 +155,7 @@ static struct option option[] =
 	{ 'D', &D__optname,
 		STRING|REPAINT|NO_QUERY, 0, NULL, opt_D,
 		"color desc: ", 
-		"Ddknsu0123456789.",
+		"Ddknsu0123456789. ",
 		NULL
 	},
 #endif
@@ -302,7 +302,7 @@ static struct option option[] =
 	{ 'x', &x_optname,
 		STRING|REPAINT, 0, NULL, opt_x,
 		"Tab stops: ",
-		"0123456789,",
+		"0123456789, ",
 		NULL
 	},
 	{ 'X', &X__optname,
@@ -359,7 +359,7 @@ static struct option option[] =
 	public void
 init_option()
 {
-	register struct option *o;
+	register struct loption *o;
 
 	for (o = option;  o->oletter != '\0';  o++)
 	{
@@ -374,11 +374,11 @@ init_option()
 /*
  * Find an option in the option table, given its option letter.
  */
-	public struct option *
+	public struct loption *
 findopt(c)
 	int c;
 {
-	register struct option *o;
+	register struct loption *o;
 
 	for (o = option;  o->oletter != '\0';  o++)
 	{
@@ -396,18 +396,18 @@ findopt(c)
  * is updated to point after the matched name.
  * p_oname if non-NULL is set to point to the full option name.
  */
-	public struct option *
+	public struct loption *
 findopt_name(p_optname, p_oname, p_err)
 	char **p_optname;
 	char **p_oname;
 	int *p_err;
 {
 	char *optname = *p_optname;
-	register struct option *o;
+	register struct loption *o;
 	register struct optname *oname;
 	register int len;
 	int uppercase;
-	struct option *maxo = NULL;
+	struct loption *maxo = NULL;
 	struct optname *maxoname = NULL;
 	int maxlen = 0;
 	int ambig = 0;

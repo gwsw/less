@@ -483,10 +483,12 @@ opt_x(type, s)
 		for (i = 1;  i < TABSTOP_MAX;  )
 		{
 			int n = 0;
+			s = skipsp(s);
 			while (*s >= '0' && *s <= '9')
 				n = (10 * n) + (*s++ - '0');
 			if (n > tabstops[i-1])
 				tabstops[i++] = n;
+			s = skipsp(s);
 			if (*s++ != ',')
 				break;
 		}
