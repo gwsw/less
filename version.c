@@ -486,6 +486,8 @@
  *	v274: Ported to OS/2 (thanks to Kai Uwe Rommel)	1/6/95
  *	v275: Fix bug if toggle -G at EOF.		1/18/95
  *	v276: Fix OS/2 version.				1/30/95
+ *	v277: Add "next" charset; don't display ^X 	1/31/95
+ *	      for X > 128.
  */
 
-char version[] = "276";
+char version[] = "277";
