@@ -639,8 +639,9 @@ v377  9/10/02	Fix bug in Windows version when file contains CR;
 v378  9/30/02	Misc bug fixes and compiler warning cleanup.
 		Posted to Web page.
 -----------------------------------------------------------------
-v379 11/20/02	Add -L option; fix bug with ctrl-K in lesskey files;
-		fix minor man page problems.
+v379 11/23/02	Add -L option; fix bug with ctrl-K in lesskey files;
+		improve UTF-8 overstriking and underscore overstriking;
+		fix minor man page problems; change to autoconf 2.54.
 */
 
 char version[] = "379";
