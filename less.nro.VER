@@ -702,6 +702,10 @@ for example, there may be a file in the current directory called "tags",
 which was previously built by 
 .I ctags
 (1) or an equivalent command.
+If the environment variable LESSGLOBALTAGS is set, it is taken to be
+the name of a command compatible with 
+.I global
+(1), and that command is executed to find the tag.
 This option may also be specified from within 
 .I less 
 (using the \- command) as a way of examining a new file.
@@ -1445,6 +1449,11 @@ in filenames on Unix systems.
 .IP LESSEDIT
 Editor prototype string (used for the v command).
 See discussion under PROMPTS.
+.IP LESSGLOBALTAGS
+Name of the command used by the -t option to find global tags.
+Normally should be set to "global" if your system has the
+.I global
+(1) command.  If not set, global tags are not used.
 .IP LESSKEY
 Name of the default lesskey(1) file.
 .IP LESSKEY_SYSTEM

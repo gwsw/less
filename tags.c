@@ -479,9 +479,16 @@ findgtag(tag, type)
 #if !HAVE_POPEN
 		return;
 #else
-		/* Get suitable flag value for global(1). */
 		char command[512];
 		char *flag;
+		char *cmd = lgetenv("LESSGLOBALTAGS");
+
+		if (cmd == NULL || *cmd == '\0')
+		{
+			error("No tags file", NULL_PARG);
+			return;
+		}
+		/* Get suitable flag value for global(1). */
 		switch (type)
 		{
 		case T_GTAGS:
@@ -503,7 +510,7 @@ findgtag(tag, type)
 
 		/* Get our data from global(1). */
 		tag = esc_metachars(tag);
-		sprintf(command, "global -x%s %s", flag, tag);
+		sprintf(command, "%s -x%s %s", cmd, flag, tag);
 		free(tag);
 		fp = popen(command, "r");
 #endif
