@@ -186,7 +186,11 @@ repaint_hilite(on)
 
 	save_hide_hilite = hide_hilite;
 	if (!on)
+	{
+		if (hide_hilite)
+			return;
 		hide_hilite = 1;
+	}
 
 	if (!can_goto_line)
 	{
@@ -747,7 +751,7 @@ search_range(pos, endpos, search_type, n, plinepos, pendpos)
 			 * Reached EOF/BOF without a match.
 			 */
 			if (pendpos != NULL)
-				*pendpos = linepos;
+				*pendpos = NULL_POSITION;
 			return (n);
 		}
 
@@ -954,6 +958,13 @@ search(search_type, pattern, n)
 #if HILITE_SEARCH
 /*
  * Prepare hilites in a given range of the file.
+ *
+ * The pair (prep_startpos,prep_endpos) delimits a contiguous region
+ *  of the file that has been "prepared"; that is, scanned for matches
+ * for the current search pattern, and hilites created for such matches.
+ * If prep_startpos == NULL_POSITION, the prep region is empty.
+ * If prep_endpos == NULL_POSITION, the prep region extends to EOF.
+ * prep_hilite asks that the range (spos,epos) be covered by the prep region.
  */
 	public void
 prep_hilite(spos, epos)
@@ -966,7 +977,7 @@ prep_hilite(spos, epos)
  * Search beyond where we're asked to search, so the prep region covers
  * more than we need.  Do one big search instead of a bunch of small ones.
  */
-#define	SEARCH_MORE 2048
+#define	SEARCH_MORE (3*size_linebuf)
 
 	if (!prev_pattern())
 		return;
@@ -977,7 +988,8 @@ prep_hilite(spos, epos)
 	 */
 
 	if (prep_startpos == NULL_POSITION ||
-	    epos < prep_startpos || spos > prep_endpos)
+	    epos < prep_startpos ||
+	    (prep_endpos != NULL_POSITION && spos > prep_endpos))
 	{
 		/*
 		 * New range is not contiguous with old prep region.
@@ -1028,7 +1040,9 @@ prep_hilite(spos, epos)
 			 * Trim search to start near end of old prep region
 			 * (actually, one linebuf before end of old range).
 			 */
-			if (prep_endpos < size_linebuf)
+			if (prep_endpos == NULL_POSITION)
+				return;
+			else if (prep_endpos < size_linebuf)
 				spos = 0;
 			else 
 				spos = prep_endpos - size_linebuf;
@@ -1040,7 +1054,7 @@ prep_hilite(spos, epos)
 		if (search_range(spos, epos, SRCH_FORW|SRCH_FIND_ALL, 
 				0, NULL, &epos) >= 0)
 		{
-			if (epos > nprep_endpos)
+			if (epos == NULL_POSITION || epos > nprep_endpos)
 				nprep_endpos = epos;
 		}
 	}
