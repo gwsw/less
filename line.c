@@ -40,6 +40,7 @@ static char attr[1024];		/* Extension of linebuf to hold attributes */
 static int curr;		/* Index into linebuf */
 static int column;		/* Printable length, accounting for
 				   backspaces, etc. */
+static int lno_indent;		/* Number of chars used for line number */
 static int overstrike;		/* Next char should overstrike previous char */
 static int is_null_line;	/* There is no current line */
 static char pendc;
@@ -69,6 +70,7 @@ prewind()
 	column = 0;
 	overstrike = 0;
 	is_null_line = 0;
+	lno_indent = 0;
 	pendc = '\0';
 }
 
@@ -114,9 +116,10 @@ plinenum(pos)
 	do
 	{
 		linebuf[curr] = ' ';
-		attr[curr++] = 0;
+		attr[curr++] = AT_NORMAL;
 		column++;
 	} while ((column % tabstop) != 0);
+	lno_indent = column;
 }
 
 /*
@@ -419,7 +422,8 @@ pdone(endline)
 		if (hilite_search)
 		{
 			linebuf[curr] = '\0';
-			hlsearch(linebuf, attr, AT_STANDOUT);
+			hlsearch(linebuf + lno_indent, attr + lno_indent, 
+				AT_STANDOUT);
 		}
 	}
 #endif
