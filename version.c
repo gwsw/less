@@ -572,6 +572,9 @@ v332   4/22/97	Enter filenames from cmd line into edit history.
 -----------------------------------------------------------------
 v333    3/4/99	Changed -w to highlite new line after forward movement.
 v334    3/9/99	Avoid overflowing prompt buffer; add %d and %D.
+v335   3/20/99	Add EBCDIC support (thanks to Thomas Dorner).
+              	Use HOMEDRIVE/HOMEPATH on Windows (thanks to Preston Bannister).
+
 */
 
-char version[] = "334";
+char version[] = "335";

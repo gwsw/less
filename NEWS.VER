@@ -15,7 +15,7 @@
 
 	Major changes between "less" versions 332 and @@VERSION@@
 
-* The old -w flag (suppress tildes after end-of-file has been removed.
+* The old -w flag (suppress tildes after end-of-file) has been removed.
 
 * New -w flag highlights the first new line after a forward-screen.
 
@@ -28,7 +28,9 @@
   %d is replaced by the page number, and
   %D is replaced by the number of pages in the file.
 
-* Added charset "iso8859".
+* Added charsets "iso8859" and "ebcdic".
+
+* In Windows version, uses HOMEDRIVE and HOMEPATH if HOME is not defined.
 
 * Fixed some bugs causing incorrect display on DOS/Windows.
 
