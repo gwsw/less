@@ -44,6 +44,7 @@ static int lno_indent;		/* Number of chars used for line number */
 static int overstrike;		/* Next char should overstrike previous char */
 static int is_null_line;	/* There is no current line */
 static char pendc;
+static POSITION pendpos;
 
 static int do_append();
 
@@ -59,6 +60,9 @@ extern int ul_s_width, ul_e_width;
 extern int bl_s_width, bl_e_width;
 extern int so_s_width, so_e_width;
 extern int sc_width, sc_height;
+#if HILITE_SEARCH
+extern int hilite_search;
+#endif
 
 /*
  * Rewind the line buffer.
@@ -211,12 +215,21 @@ backc()
  * Append a character and attribute to the line buffer.
  */
 	static int
-storec(c, a)
+storec(c, a, pos)
 	int c;
 	int a;
+	POSITION pos;
 {
 	register int w;
 
+#if HILITE_SEARCH
+	if (is_hilited(pos))
+		/*
+		 * This character should be highlighted.
+		 * Override the attribute passed in.
+		 */
+		a = AT_STANDOUT;
+#endif
 	w = pwidth(c, a);
 	if (ctldisp > 0 && column + w + attr_ewidth(a) > sc_width)
 		/*
@@ -275,12 +288,13 @@ storec(c, a)
  * Returns 0 if ok, 1 if couldn't fit in buffer.
  */
 	public int
-pappend(c)
+pappend(c, pos)
 	register int c;
+	POSITION pos;
 {
 	if (pendc)
 	{
-		if (do_append(pendc))
+		if (do_append(pendc, pendpos))
 			/*
 			 * Oops.  We've probably lost the char which
 			 * was in pendc, since caller won't back up.
@@ -297,20 +311,23 @@ pappend(c)
 		 * discard the CR.
 		 */
 		pendc = c;
+		pendpos = pos;
 		return (0);
 	}
 
-	return (do_append(c));
+	return (do_append(c, pos));
 }
 
 	static int
-do_append(c)
+do_append(c, pos)
 	int c;
+	POSITION pos;
 {
 	register char *s;
 	register int a;
 
-#define	STOREC(c,a)	if (storec((c),(a))) return (1); else curr++
+#define	STOREC(c,a) \
+	if (storec((c),(a),pos)) return (1); else curr++
 
 	if (overstrike)
 	{
@@ -408,9 +425,9 @@ pdone(endline)
 		 * But discard a pending CR if we are at end of line
 		 * (that is, discard the CR in a CR/LF sequence).
 		 */
-		(void) do_append(pendc);
+		(void) do_append(pendc, pendpos);
 
-#if HILITE_SEARCH
+#if 0 /*UNRELIABLE_HILITE_SEARCH*/
 	/*
 	 * Modify the attribute for matched strings; do this before we
 	 * add a newline so that '$' will match end of line properly.

@@ -59,7 +59,11 @@ extern int jump_sline;
 extern int bs_mode;
 #if HILITE_SEARCH
 extern int hilite_search;
+static int hide_hilite;
 extern int screen_trashed;
+static POSITION hl_startpos[MAX_HILITE];
+static POSITION hl_endpos[MAX_HILITE];
+static int num_hilite;
 #endif
 
 /*
@@ -84,9 +88,6 @@ static char *last_pattern = NULL;
 
 static int is_caseless;
 static int is_ucase_pattern;
-#if HILITE_SEARCH
-static int no_hilite_search;
-#endif
 
 /*
  * Convert text.  Perform one or more of these transformations:
@@ -157,7 +158,7 @@ prev_pattern()
 }
 
 /*
- * Undo search string highlighting.
+ * Hide search string highlighting.
  */
 	public void
 undo_search()
@@ -168,7 +169,7 @@ undo_search()
 		return;
 	}
 #if HILITE_SEARCH
-	no_hilite_search = !no_hilite_search;
+	hide_hilite = !hide_hilite;
 	screen_trashed = 1;
 #endif
 }
@@ -235,27 +236,121 @@ compile_pattern(pattern)
 
 /*
  * Perform a pattern match with the previously compiled pattern.
+ * Set sp and ep to the start and end of the matched string.
  */
 	static int
-match_pattern(line)
+match_pattern(line, sp, ep)
 	char *line;
+	char **sp;
+	char **ep;
 {
+	int matched;
 #if HAVE_POSIX_REGCOMP
-	return (!regexec(regpattern, line, 0, NULL, 0));
+	regmatch_t rm;
+	matched = !regexec(regpattern, line, 1, &rm, 0);
+	if (!matched)
+		return (0);
+	*sp = line + rm.rm_so;
+	*ep = line + rm.rm_eo;
 #endif
 #if HAVE_RE_COMP
-	return (re_exec(line) == 1);
+	matched = (re_exec(line) == 1);
+	/*
+	 * re_exec doesn't seem to provide a way to get the matched string.
+	 */
+	*sp = *ep = NULL;
 #endif
 #if HAVE_REGCMP
-	return (regex(cpattern, line) != NULL);
+	*ep = regex(cpattern, line);
+	matched = (*ep != NULL);
+	if (!matched)
+		return (0);
+	*sp = __loc1;
 #endif
 #if HAVE_V8_REGCOMP
-	return (regexec(regpattern, line));
+	matched = regexec(regpattern, line);
+	if (!matched)
+		return (0);
+	*sp = regpattern->startp[0];
+	*ep = regpattern->endp[0];
 #endif
 #if NO_REGEX
-	return (match(last_pattern, line, (char*)NULL, (char*)NULL));
+	matched = match(last_pattern, line, sp, ep);
 #endif
+	return (matched);
 }
+
+#if HILITE_SEARCH
+/*
+ * Clear hilites.
+ */
+	public void
+clr_hilite()
+{
+	num_hilite = 0;
+}
+
+/*
+ * Should a character be highlighted?
+ */
+	public int
+is_hilited(pos)
+	POSITION pos;
+{
+	int i;
+
+	if (!hilite_search)
+		return (0);
+	for (i = 0;  i < num_hilite;  i++)
+	{
+		if (pos >= hl_startpos[i] && pos < hl_endpos[i])
+			return (1);
+	}
+	return (0);
+}
+
+/*
+ * Highlight all the strings in a physical line which match the current pattern.
+ */
+	static void
+hilite_line(linepos, line, sp, ep)
+	POSITION linepos;
+	char *line;
+	char *sp;
+	char *ep;
+{
+	char *searchp;
+
+	/*
+	 * sp and ep delimit the first match in the line.
+	 * Mark the corresponding file positions, then
+	 * look for further matches and mark them.
+	 */
+	num_hilite = 0;
+	searchp = line;
+	do {
+		hl_startpos[num_hilite] = linepos + (sp - line);
+		hl_endpos[num_hilite] = linepos + (ep - line);
+		num_hilite++;
+		/*
+		 * If we matched more than zero characters,
+		 * move to the first char after the string we matched.
+		 * If we matched zero, just move to the next char.
+		 */
+		if (ep > searchp)
+			searchp = ep;
+		else if (*searchp != '\0')
+			searchp++;
+		else /* end of line */
+			break;
+		if (!match_pattern(searchp, &sp, &ep))
+			/*
+			 * No more matches in the line.
+			 */
+			break;
+	} while (num_hilite < MAX_HILITE);
+}
+#endif
 
 /*
  * Change the caseless-ness of searches.  
@@ -341,6 +436,7 @@ search(search_type, pattern, n)
 	register int goforw;
 	register int want_match;
 	char *line;
+	char *sp, *ep;
 	int linenum;
 	int line_match;
 
@@ -377,14 +473,6 @@ search(search_type, pattern, n)
 		 */
 		if (compile_pattern(pattern) < 0)
 			return (-1);
-#if HILITE_SEARCH
-		/*
-		 * If our current screen *might be* displaying highlighted
-		 * search targets, we need to repaint.
-		 */
-		if (hilite_search)
-			screen_trashed = 1;
-#endif
 	}
 
 	/*
@@ -403,9 +491,9 @@ search(search_type, pattern, n)
 	}
 
 #if HILITE_SEARCH
-	if (no_hilite_search)
-		screen_trashed = 1;
-	no_hilite_search = 0;
+	/* if (hide_hilite)
+		screen_trashed = 1; */
+	hide_hilite = 0;
 #endif
 
 	linenum = find_linenum(pos);
@@ -483,20 +571,38 @@ search(search_type, pattern, n)
 		 * both true (want a match and got it),
 		 * or both false (want a non-match and got it).
 		 */
-		line_match = match_pattern(line);
+		line_match = match_pattern(line, &sp, &ep);
 		if (((want_match && line_match) || (!want_match && !line_match)) &&
 		      --n <= 0)
+		{
 			/*
 			 * Found the line.
 			 */
+#if HILITE_SEARCH
+			if (hilite_search && line_match && 
+			    sp != NULL && ep != NULL)
+				hilite_line(linepos, line, sp, ep);
+#endif
 			break;
+		}
 	}
 
+#if HILITE_SEARCH
+	if (hilite_search)
+	{
+		/*
+		 * We need to change the hilites on the screen
+		 * (add new hilites and possibly remove old hilites).
+		 * {{ We have to repaint the whole screen to do this! }}
+		 */
+		screen_trashed = 1;
+	}
+#endif
 	jump_loc(linepos, jump_sline);
 	return (0);
 }
 
-#if HILITE_SEARCH
+#if 0 /*UNRELIABLE_HILITE_SEARCH*/
 /*
  * Search for all occurrences of the previous pattern
  * within a line.  Mark all matches found.
@@ -513,9 +619,9 @@ hlsearch(line, found, marker)
 	char *buf;
 	register char *p;
 
-	if (!prev_pattern())
+	if (hide_hilite)
 		return;
-	if (no_hilite_search)
+	if (!prev_pattern())
 		return;
 
 	/*

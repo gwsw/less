@@ -95,7 +95,7 @@ forw_line(curr_pos)
 		/*
 		 * Append the char to the line and get the next char.
 		 */
-		if (pappend(c))
+		if (pappend(c, ch_tell()-1))
 		{
 			/*
 			 * The char won't fit in the line; the line
@@ -263,7 +263,7 @@ back_line(curr_pos)
 			endline = 1;
 			break;
 		}
-		if (pappend(c))
+		if (pappend(c, ch_tell()-1))
 		{
 			/*
 			 * Got a full printable line, but we haven't

@@ -319,6 +319,9 @@ edit_ifile(ifile)
 		 */
 		pos_clear();
 		clr_linenum();
+#if HILITE_SEARCH
+		clr_hilite();
+#endif
 		if (no_display && errmsgs > 0)
 		{
 			/*
