@@ -531,7 +531,7 @@ adj_hilite(linepos)
 		opos++;
 		npos++;
 		line++;
-		if (line[0] == '\b' && line[1] != '\0')
+		while (line[0] == '\b' && line[1] != '\0')
 		{
 			/*
 			 * Found a backspace.  The file position moves
