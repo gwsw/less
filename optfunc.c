@@ -53,6 +53,8 @@ extern int sc_height;
 extern int any_display;
 extern int secure;
 extern int dohelp;
+extern char openquote;
+extern char closequote;
 extern char *prproto[];
 extern char *eqproto;
 extern char *hproto;
@@ -460,6 +462,42 @@ opt_D(type, s)
 	}
 }
 #endif
+
+/*
+ * Handler for the -" option.
+ */
+	public void
+opt_quote(type, s)
+	int type;
+	register char *s;
+{
+	char buf[3];
+	PARG parg;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		if (s[1] != '\0' && s[2] != '\0')
+		{
+			error("-\" must be followed by 1 or 2 chars", NULL_PARG);
+			return;
+		}
+		openquote = s[0];
+		if (s[1] == '\0')
+			closequote = openquote;
+		else
+			closequote = s[1];
+		break;
+	case QUERY:
+		buf[0] = openquote;
+		buf[1] = closequote;
+		buf[2] = '\0';
+		parg.p_string = buf;
+		error("quotes %s", &parg);
+		break;
+	}
+}
 
 /*
  * "-?" means display a help message.

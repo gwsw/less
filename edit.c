@@ -41,7 +41,8 @@ extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
 #if SPACES_IN_FILENAMES
-extern char quote_char;
+extern char openquote;
+extern char closequote;
 #endif
 
 #if LOGFILE
@@ -78,8 +79,10 @@ init_textlist(tlist, str)
 #if SPACES_IN_FILENAMES
 		if (*s == ' ' && !quoted)
 			*s = '\0';
-		if (*s == quote_char)
-			quoted = !quoted;
+		if (!quoted && *s == openquote)
+			quoted = 1;
+		else if (quoted && *s == closequote)
+			quoted = 0;
 #else
 		if (*s == ' ')
 			*s = '\0';

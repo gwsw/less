@@ -222,6 +222,9 @@ static struct option option[] =
 		"Scroll window size is %d lines",
 		NULL
 	},
+	{ '"', STRING, 0, NULL, opt_quote,
+		"quotes: ", NULL, NULL
+	},
 	{ '?', NOVAR, 0, NULL, opt_query,
 		NULL, NULL, NULL
 	},

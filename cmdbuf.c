@@ -59,7 +59,8 @@ static int cmd_left();
 static int cmd_right();
 
 #if SPACES_IN_FILENAMES
-public char quote_char = '"';
+public char openquote = '"';
+public char closequote = '"';
 #endif
 
 #if CMD_HISTORY
@@ -772,11 +773,16 @@ delimit_word()
 	 */
 	quoted = 0;
 	for (p = cmdbuf;  p < cp;  p++)
-		if (*p == quote_char)
+	{
+		if (!quoted && *p == openquote)
 		{
+			quoted = 1;
 			word = p;
-			quoted = !quoted;
+		} else if (quoted && *p == closequote)
+		{
+			quoted = 0;
 		}
+	}
 	if (quoted)
 		return (word);
 #endif
@@ -831,7 +837,7 @@ init_compl()
 	c = *cp;
 	*cp = '\0';
 #if SPACES_IN_FILENAMES
-	if (*word == quote_char)
+	if (*word == openquote)
 		word++;
 #endif
 	tk_text = fcomplete(word);
@@ -933,7 +939,7 @@ cmd_complete(action)
 		 */
 		if (is_dir(tk_trial))
 		{
-			if (cp > cmdbuf && cp[-1] == quote_char)
+			if (cp > cmdbuf && cp[-1] == closequote)
 				(void) cmd_erase();
 			s = lgetenv("LESSSEPARATOR");
 			if (s == NULL)

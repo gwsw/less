@@ -25,37 +25,191 @@
  */
 
 /*
- * This program simply echos its arguments on standard output.
+ * lessecho [-ox] [-cx] [-pn] [-dn] [-a] file ...
+ * Simply echos its filename arguments on standard output.
  * But any argument containing spaces is enclosed in quotes.
+ *
+ * -ox	Specifies "x" to be the open quote character.
+ * -cx	Specifies "x" to be the close quote character.
+ * -pn	Specifies "n" to be the open quote character, as an integer.
+ * -dn	Specifies "n" to be the close quote character, as an integer.
+ * -a	Specifies that all arguments are to be quoted.
+ *	The default is that only arguments containing spaces are quoted.
  */
 
-#include <stdio.h>
+#include "less.h"
+
+static char *version = "$Revision$";
+
+static int quote_all = 0;
+static char openquote = '"';
+static char closequote = '"';
+
+static void
+pr_usage()
+{
+	fprintf(stderr,
+		"usage: lessecho [-ox] [-cx] [-pn] [-dn] [-a] file ...\n");
+}
+
+static void
+pr_version()
+{
+	printf("%s\n", version);
+}
+
+static void
+pr_error(s)
+	char *s;
+{
+	fprintf(stderr, "%s\n", s);
+	exit(1);
+}
+
+static long
+lstrtol(s, radix, pend)
+	char *s;
+	int radix;
+	char **pend;
+{
+	int v;
+	int neg = 0;
+	long n = 0;
+
+	/* Skip leading white space. */
+	while (*s == ' ' || *s == '\t')
+		s++;
+
+	/* Check for a leading + or -. */
+	if (*s == '-')
+	{
+		neg = 1;
+		s++;
+	} else if (*s == '+')
+	{
+		s++;
+	}
+
+	/* Determine radix if caller does not specify. */
+	if (radix == 0)
+	{
+		radix = 10;
+		if (*s == '0')
+		{
+			switch (*++s)
+			{
+			case 'x':
+				radix = 16;
+				s++;
+				break;
+			default:
+				radix = 8;
+				break;
+			}
+		}
+	}
+
+	/* Parse the digits of the number. */
+	for (;;)
+	{
+		if (*s >= '0' && *s <= '9')
+			v = *s - '0';
+		else if (*s >= 'a' && *s <= 'f')
+			v = *s - 'a' + 10;
+		else if (*s >= 'A' && *s <= 'F')
+			v = *s - 'A' + 10;
+		else
+			break;
+		if (v >= radix)
+			break;
+		n = n * radix + v;
+		s++;
+	}
+
+	if (pend != NULL)
+	{
+		/* Skip trailing white space. */
+		while (*s == ' ' || *s == '\t')
+			s++;
+		*pend = s;
+	}
+	if (neg)
+		return (-n);
+	return (n);
+}
 
 int
 main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	int i;
-	char *p;
+	char *arg;
+	char *s;
+	int no_more_options;
 
-	for (i = 1;  i < argc;  i++)
+	no_more_options = 0;
+	while (--argc > 0)
 	{
-		/* Any spaces in the word? */
-		for (p = argv[i];  *p != '\0';  p++)
-			if (*p == ' ')
+		arg = *++argv;
+		if (*arg != '-' || no_more_options)
+			break;
+		switch (*++arg)
+		{
+		case 'a':
+			quote_all = 1;
+			break;
+		case 'o':
+			openquote = *++arg;
+			break;
+		case 'c':
+			closequote = *++arg;
+			break;
+		case 'p':
+			openquote = lstrtol(++arg, 0, &s);
+			if (s == arg)
+				pr_error("Missing number after -O");
+			break;
+		case 'd':
+			closequote = lstrtol(++arg, 0, &s);
+			if (s == arg)
+				pr_error("Missing number after -C");
+			break;
+		case '?':
+			pr_usage();
+			return (0);
+		case '-':
+			if (*++arg == '\0')
+			{
+				no_more_options = 1;
 				break;
-		if (*p == '\0')
-			/* No, just print it. */
-			printf("%s", argv[i]);
-		else
-			/* Yes, print it with quotes. */
-			printf("\"%s\"", argv[i]);
+			}
+			if (strcmp(arg, "version") == 0)
+			{
+				pr_version();
+				return (0);
+			}
+			if (strcmp(arg, "help") == 0)
+			{
+				pr_usage();
+				return (0);
+			}
+			pr_error("Invalid option letter after --");
+		default:
+			pr_error("Invalid option letter");
+		}
+	}
 
-		if (i == argc-1)
-			printf("\n");
+	while (argc-- > 0)
+	{
+		arg = *argv++;
+		if (quote_all || strchr(arg, ' ') != NULL)
+			printf("%c%s%c", openquote, arg, closequote);
 		else
+			printf("%s", arg);
+		if (argc > 0)
 			printf(" ");
+		else
+			printf("\n");
 	}
 	return (0);
 }

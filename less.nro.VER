@@ -265,7 +265,8 @@ so that it can be seen by subsequent :n and :p commands.
 If the filename consists of several files, they are all inserted into
 the list of files and the first one is examined.
 If the filename contains one or more spaces,
-the entire filename should be enclosed in double quotes.
+the entire filename should be enclosed in double quotes
+(also see the -" option).
 .IP "^X^V or E"
 Same as :e.
 Warning: some systems use ^V as a special literalization character.
@@ -694,6 +695,18 @@ lines less than the current screen size.
 For example, if the screen is 24 lines, \fI-z-4\fP sets the 
 scrolling window to 20 lines.  If the screen is resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
+.IP -"
+Changes the filename quoting character.
+Followed by a single character, changes the quote character to that
+character.
+Filenames containing a space should then be surrounded by that character
+rather than by double quotes.
+Followed by two characters, changes the open quote to the first character,
+and the close quote to the second character.
+Filenames containing a space should then be preceded by the open quote
+character and followed by the close quote character.
+Note that even after the quote characters are changed, this option
+remains -" (a dash followed by a double quote).
 .IP --
 A command line argument of "--" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.

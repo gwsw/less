@@ -67,7 +67,8 @@ extern int secure;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 #if SPACES_IN_FILENAMES
-extern char quote_char;
+extern char openquote;
+extern char closequote;
 #endif
 
 /*
@@ -81,16 +82,13 @@ unquote_file(str)
 	char *name;
 	char *p;
 
-	if (strchr(str, quote_char) == NULL)
+	if (*str != openquote)
 		return (save(str));
-	name = p = (char *) ecalloc(strlen(str)+1, sizeof(char));
-	while (*str != '\0')
-	{
-		if (*str != quote_char)
-			*p++ = *str;
-		str++;
-	}
-	*p = '\0';
+	name = (char *) ecalloc(strlen(str), sizeof(char));
+	strcpy(name, str+1);
+	p = name + strlen(name) - 1;
+	if (*p == closequote)
+		*p = '\0';
 	return (name);
 #else
 	return (save(str));
@@ -427,38 +425,30 @@ readfd(fd)
  * Return a pointer to a pipe connected to the shell command's standard output.
  */
 	static FILE *
-shellcmd(cmd, s1, s2)
+shellcmd(cmd)
 	char *cmd;
-	char *s1;
-	char *s2;
 {
-	char *scmd;
-	char *shell;
 	FILE *fd;
-	int len;
-	
-	len = strlen(cmd) + 
-		(s1 == NULL ? 0 : strlen(s1)) + 
-		(s2 == NULL ? 0 : strlen(s2)) + 1;
-	scmd = (char *) ecalloc(len, sizeof(char));
-	sprintf(scmd, cmd, s1, s2);
 #if HAVE_SHELL
+	char *shell;
+
 	shell = lgetenv("SHELL");
 	if (shell != NULL && *shell != '\0')
 	{
 		/*
 		 * Read the output of <$SHELL -c "cmd">.
 		 */
-		char *scmd2;
-		scmd2 = (char *) ecalloc(strlen(shell) + strlen(scmd) + 7,
+		char *scmd;
+		scmd = (char *) ecalloc(strlen(shell) + strlen(cmd) + 7,
 					sizeof(char));
-		sprintf(scmd2, "%s -c \"%s\"", shell, scmd);
+		sprintf(scmd, "%s -c \"%s\"", shell, cmd);
+		fd = popen(scmd, "r");
 		free(scmd);
-		scmd = scmd2;
-	}
+	} else
 #endif
-	fd = popen(scmd, "r");
-	free(scmd);
+	{
+		fd = popen(cmd, "r");
+	}
 	return (fd);
 }
 
@@ -547,7 +537,7 @@ lglob(filename)
 #if SPACES_IN_FILENAMES
 		if (strchr(p, ' ') != NULL)
 			sprintf(gfilename + strlen(gfilename), "%c%s%c ",
-				quote_char, p, quote_char);
+				openquote, p, closequote);
 		else
 #endif
 			sprintf(gfilename + strlen(gfilename), "%s ", p);
@@ -610,8 +600,8 @@ lglob(filename)
 		}
 #if SPACES_IN_FILENAMES
 		if (spaces_in_file)
-			sprintf(p, "%c%s%s%s%c ", quote_char, 
-				drive, dir, fnd.GLOB_NAME, quote_char);
+			sprintf(p, "%c%s%s%s%c ", openquote, 
+				drive, dir, fnd.GLOB_NAME, closequote);
 		else
 #endif
 			sprintf(p, "%s%s%s ", drive, dir, fnd.GLOB_NAME);
@@ -634,6 +624,7 @@ lglob(filename)
 	FILE *fd;
 	char *s;
 	char *lessecho;
+	char *cmd;
 
 
 	/*
@@ -646,19 +637,26 @@ lglob(filename)
 	for (s = filename;  *s != '\0';  s++)
 	{
 		if (*s == ';' || *s == '\'' || *s == '\"' || *s == '\\')
-			return (filename);
+		{
+			free(filename);
+			return (ofilename);
+		}
 	}
 
 	lessecho = lgetenv("LESSECHO");
 	if (lessecho == NULL || *lessecho == '\0')
 		lessecho = "lessecho";
 	if (shell_esc_spaces)
-	{
 		s = esc_spaces(filename);
-		fd = shellcmd("%s %s", lessecho, s);
+	else
+		s = filename;
+	cmd = (char *) ecalloc(strlen(lessecho) + strlen(s) + 24, sizeof(char));
+	sprintf(cmd, "%s -p0x%x -d0x%x -- %s", 
+		lessecho, openquote, closequote, s);
+	fd = shellcmd(cmd);
+	if (s != filename)
 		free(s);
-	} else
-		fd = shellcmd("%s %s", lessecho, filename);
+	free(cmd);
 	if (fd == NULL)
 	{
 		/*
@@ -705,6 +703,7 @@ open_altfile(filename, pf, pfd)
 #else
 	char *lessopen;
 	char *gfilename;
+	char *cmd;
 	FILE *fd;
 #if HAVE_FILENO
 	int returnfd = 0;
@@ -731,7 +730,12 @@ open_altfile(filename, pf, pfd)
 		return (NULL);
 #endif
 	}
-	fd = shellcmd(lessopen, filename, (char*)NULL);
+
+	cmd = (char *) ecalloc(strlen(lessopen) + strlen(filename) + 2, 
+			sizeof(char));
+	sprintf(cmd, lessopen, filename);
+	fd = shellcmd(cmd);
+	free(cmd);
 	if (fd == NULL)
 	{
 		/*
@@ -787,6 +791,7 @@ close_altfile(altfilename, filename, pipefd)
 #if HAVE_POPEN
 	char *lessclose;
 	FILE *fd;
+	char *cmd;
 	
 	if (secure)
 		return;
@@ -794,7 +799,11 @@ close_altfile(altfilename, filename, pipefd)
 		pclose((FILE*) pipefd);
 	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)
 	     	return;
-	fd = shellcmd(lessclose, filename, altfilename);
+	cmd = (char *) ecalloc(strlen(lessclose) + strlen(filename) + 
+			strlen(altfilename) + 2, sizeof(char));
+	sprintf(cmd, lessclose, filename, altfilename);
+	fd = shellcmd(cmd);
+	free(cmd);
 	pclose(fd);
 #endif
 }

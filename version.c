@@ -561,6 +561,7 @@ v326   8/27/96	Fix DJGPP version.
 v327   9/1/96	Reorganize lglob, make spaces in filenames work better in Unix.
 v328   10/7/96	Append / to directory name in filename completion.
 		Fix MS-DOS and OS-9 versions.
+v329   10/11/96	Fix more MS-DOS bugs; add LESSSEPARATOR; add -" option.
 */
 
-char version[] = "328";
+char version[] = "329";
