@@ -707,7 +707,8 @@ If the environment variable LESSGLOBALTAGS is set, it is taken to be
 the name of a command compatible with 
 .I global
 (1), and that command is executed to find the tag.
-This option may also be specified from within 
+(See http://www.gnu.org/software/global/global.html).
+The -t option may also be specified from within 
 .I less 
 (using the \- command) as a way of examining a new file.
 The command ":t" is equivalent to specifying -t from within

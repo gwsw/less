@@ -21,7 +21,8 @@
   New option --no-keypad disables keypad initialization.
 
 * New commands t and T step through multiple tag matches.
-  Added support for "global(1)" tags.
+  Added support for "global(1)" tags
+  (see http://www.gnu.org/software/global/global.html).
 
 * New prompt style set by option -Pw defines the message printed 
   while waiting for data in the F command.
