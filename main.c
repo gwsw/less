@@ -174,12 +174,6 @@ main(argc, argv)
 	raw_mode(1);
 	get_term();
 	get_editkeys();
-#if USERFILE
-	/*
-	 * Try to use the lesskey file "$HOME/.less".
-	 */
-	add_hometable();
-#endif
 	open_getchr();
 	init_signals(1);
 

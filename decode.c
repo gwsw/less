@@ -203,8 +203,17 @@ static struct tablelist *list_ecmd_tables = NULL;
 	public void
 init_cmds()
 {
+	/*
+	 * Add the default command tables.
+	 */
 	add_fcmd_table(cmdtable, sizeof(cmdtable));
 	add_ecmd_table(edittable, sizeof(edittable));
+#if USERFILE
+	/*
+	 * Try to add the tables in the standard lesskey file "$HOME/.less".
+	 */
+	add_hometable();
+#endif
 }
 
 /*
@@ -218,6 +227,8 @@ add_cmd_table(tlist, buf, len)
 {
 	register struct tablelist *t;
 
+	if (len == 0)
+		return (0);
 	/*
 	 * Allocate a tablelist structure, initialize it, 
 	 * and link it into the list of tables.
@@ -235,7 +246,7 @@ add_cmd_table(tlist, buf, len)
 }
 
 /*
- * 
+ * Add a command table.
  */
 	public void
 add_fcmd_table(buf, len)
@@ -247,7 +258,7 @@ add_fcmd_table(buf, len)
 }
 
 /*
- * 
+ * Add an editing command table.
  */
 	public void
 add_ecmd_table(buf, len)
