@@ -59,7 +59,7 @@
 #else
 #if MSDOS_COMPILER==MSOFTC || MSDOS_COMPILER==BORLANDC
 
-#define	GLOB_FIRST_NAME(filename,fndp,h) h = _dos_findfirst(filename, ~FA_LABEL, fndp)
+#define	GLOB_FIRST_NAME(filename,fndp,h) h = _dos_findfirst(filename, ~A_VOLID, fndp)
 #define	GLOB_FIRST_FAILED(handle)	((handle) != 0)
 #define	GLOB_NEXT_NAME(handle,fndp)		_dos_findnext(fndp)
 #define	GLOB_NAME_DONE(handle)
