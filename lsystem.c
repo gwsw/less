@@ -369,82 +369,140 @@ pipe_data(cmd, spos, epos)
 
 #ifdef _OSK
 /*
- * Popen, and Pclose, for OS-9.
+ *    Popen, and Pclose, for OS-9.
+ *
+ *    Based on code copyright (c) 1988 by Wolfgang Ocker, Puchheim,
+ *                                        Ulli Dessauer, Germering and
+ *                                        Reimer Mellin, Muenchen
+ *                                        (W-Germany)
+ *
+ *    These functions can be copied and distributed freely for any
+ *    non-commercial purposes.  It can only be incorporated into
+ *    commercial software with the written permission of the authors.
+ *
+ *    TOP-specific code stripped out and adapted for less by M.Gregorie, 1996
+ *
+ *    address:    Wolfgang Ocker
+ *                Lochhauserstrasse 35a
+ *                D-8039 Puchheim
+ *                West Germany
+ *
+ *    e-mail:     weo@altger.UUCP, ud@altger.UUCP, ram@altger.UUCP
+ *                pyramid!tmpmbx!recco!weo
+ *                pyramid!tmpmbx!nitmar!ud
+ *                pyramid!tmpmbx!ramsys!ram
+ *
+ *                Martin Gregorie
+ *                10 Sadlers Mead
+ *                Harlow
+ *                Essex, CM18 6HG
+ *                U.K.
+ *
+ *                gregorie@logica.com
  */
-
-#define ERR      (-1)
-#define PIPEMAX  _NFILE
-#define READ     1 		/* For OS-9 */
-#define WRITE    2 		/* For OS-9 */
-#define STDIN    0 		/* For OS-9 */
-#define STDOUT   1 		/* For OS-9 */
-
-#define RESTORE  free(cmd); close(path); dup(save); close(save);
-
-static int   _pid[PIPEMAX];
-
-	FILE *
-popen(command, type)
-	char *command, *type;
+#include <strings.h>
+#include <errno.h>
+extern char **environ;
+extern char *getenv();
+extern int  os9forkc();
+static int pids[_NFILE] = { 0, 0, 0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0, 0, 0 };
+/* 
+ * p o p e n
+ */
+FILE *popen(name, mode)
+char     *name,
+        *mode;
 {
-	FILE	*_pfp;
-	char	*cmd;
-	int	l, path, pipe, pcnt, save;
-
-	path = (*type == 'w') ? STDIN : STDOUT;
-
-	if ((pipe = open("/pipe", READ+WRITE)) == ERR)
-		return (NULL);
-	pcnt = pipe;
-
-	if ((save = dup(path)) == ERR) 
-	{
-		close(pipe);
-		return (NULL);
-	}
-	close(path);
-
-	if (dup(pipe) == ERR) 
-	{
-		dup(save);
-		close(save);
-		close(pipe);
-		return (NULL);
-	}
-
-	cmd = (char*)malloc((strlen(command)+4));
-	if (cmd == NULL)
-		return(NULL);    
-	strcpy(cmd, command);
-	strcat(cmd," &");
-	l = system(cmd);
-
-	{ RESTORE }
-
-	if ((_pfp = fdopen(pipe,type)) == NULL)
-	{
-		close(pipe);
-		while (((l=wait(0)) != _pid[pcnt]) && l != ERR)
-			;
-		_pid[pcnt] = 0;
-		return (NULL);
-	}
-
-	return (_pfp);
+    int          fd, fd2, fdsav, pid;
+    static char  *argv[] = {NULL, NULL, NULL };
+    static char  cmd[200];
+    static char  cmd_path[200];
+    char         *cp;
+    char         *shell;
+    FILE         *r;
+    if ((shell = getenv("SHELL")) == NULL)
+        return(NULL);
+    cp = name;
+    while (*cp == ' ')
+        cp++;
+    strcpy(cmd_path, cp);
+    if (cp = index(cmd_path, ' '))
+        *cp++ = '\0';
+    strcpy(cmd, "ex ");
+    strcat(cmd, cmd_path);
+    if (cp)
+    {
+        strcat(cmd, " ");
+        strcat(cmd, cp);
+    }
+    argv[0] = shell;
+    argv[1] = cmd;
+    /*
+         mode is "r" (stdout) or "w" (stdin)
+    */
+    switch(mode[0])
+    {
+        case 'w':   fd = 0;
+                    break;
+        case 'r':   fd = 1;
+                    break;
+        default:    return(NULL);
+    }
+    if (fd == 1)
+        fflush(stdout);
+    fdsav = dup(fd);
+    close(fd);
+ 
+    creat("/pipe", S_IWRITE+S_IREAD);
+    pid = os9exec(os9forkc, argv[0], argv, environ, 0, 0, 3);
+    fd2 = dup(fd);
+    close(fd);
+    dup(fdsav);
+    close(fdsav);
+    if (pid > 0)
+    {
+        pids[fd2] = pid;
+        r = fdopen(fd2, mode);
+    }
+    else
+    {
+        close(fd2);
+        r = NULL;
+    }
+    return(r);
 }
 
-	int 
-pclose(stream)
-	FILE *stream;
+/*
+ * p c l o s e
+ */
+int pclose(fp)
+FILE    *fp;
 {
-	register int i;
-	int f, status;
-
-	f = fileno(stream);
-	fclose(stream);
-	while ((i = wait(&status)) != _pid[f] && i != ERR)
-		;
-	_pid[f] = 0;
-	return ((i == ERR) ? ERR : status);
+    unsigned int    status;
+    int             pid;
+    int             fd,
+                    i;
+    fd = fileno(fp);
+    if (pids[fd] == 0)
+        return(-1);
+    fflush(fp);
+    fclose(fp);
+    while ((pid = wait(&status)) != -1)
+        if (pid == pids[fd])
+            break;
+        else
+            for (i = 0; i < _NFILE; i++)
+                if (pids[i] == pid)
+                {
+                    pids[i] = 0;
+                    break;
+                }
+    if (pid == -1)
+        status = -1;
+    pids[fd] = 0;
+    return(status);
 }
 #endif /* _OSK */
