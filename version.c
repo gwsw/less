@@ -563,6 +563,8 @@ v328   10/7/96	Append / to directory name in filename completion.
 		Fix MS-DOS and OS-9 versions.
 v329   10/11/96	Fix more MS-DOS bugs; add LESSSEPARATOR; add -" option.
 		Add LESSMETACHARS, LESSMETAESCAPE.
+v330   10/21/96	Minor fixes.
+		Posted to Web page.
 */
 
-char version[] = "329";
+char version[] = "330";
