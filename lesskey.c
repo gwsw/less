@@ -694,7 +694,7 @@ main(argc, argv)
 	else if ((desc = fopen(infile, "r")) == NULL)
 	{
 		perror(infile);
-		exit(1);
+		usage();
 	}
 
 	/*
