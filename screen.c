@@ -574,7 +574,11 @@ raw_mode(on)
 	LSIGNAL(SIGINT, SIG_IGN);
 #endif
 	erase_char = '\b';
-	kill_char = '\033'; /* ESC */
+#if MSDOS_COMPILER==DJGPPC
+	kill_char = CONTROL('U');
+#else
+	kill_char = ESC;
+#endif
 	werase_char = CONTROL('W');
 #endif
 #endif
