@@ -614,7 +614,7 @@ lglob(filename)
 	 */
 	int length;
 	char *p;
-	int qfilename;
+	char *qfilename;
 	DECL_GLOB_LIST(list)
 
 	GLOB_LIST(filename, list);
