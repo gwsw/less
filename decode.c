@@ -153,6 +153,7 @@ static unsigned char cmdtable[] =
 
 	'H',0,				A_HELP,
 	'h',0,				A_HELP,
+	SK(SK_F1),0,			A_HELP,
 	'V',0,				A_VERSION,
 	'q',0,				A_QUIT,
 	'Q',0,				A_QUIT,
@@ -165,6 +166,7 @@ static unsigned char edittable[] =
 {
 	'\t',0,	    			EC_F_COMPLETE,	/* TAB */
 	'\17',0,			EC_B_COMPLETE,	/* BACKTAB */
+	SK(SK_BACKTAB),0,		EC_B_COMPLETE,	/* BACKTAB */
 	ESC,'\t',0,			EC_B_COMPLETE,	/* ESC TAB */
 	CONTROL('L'),0,			EC_EXPAND,	/* CTRL-L */
 	CONTROL('V'),0,			EC_LITERAL,	/* BACKSLASH */
@@ -186,6 +188,7 @@ static unsigned char edittable[] =
 	ESC,'X',0,			EC_W_DELETE,	/* ESC X */
 	ESC,SK(SK_DELETE),0,		EC_W_DELETE,	/* ESC DELETE */
 	SK(SK_CTL_DELETE),0,		EC_W_DELETE,	/* CTRL-DELETE */
+	SK(SK_CTL_BACKSPACE),0,		EC_W_BACKSPACE, /* CTRL-BACKSPACE */
 	ESC,'\b',0,			EC_W_BACKSPACE,	/* ESC BACKSPACE */
 	ESC,'0',0,			EC_HOME,	/* ESC 0 */
 	SK(SK_HOME),0,			EC_HOME,	/* HOME */

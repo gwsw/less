@@ -71,7 +71,6 @@ prewind()
 {
 	curr = 0;
 	column = 0;
-	cshift = 0;
 	overstrike = 0;
 	is_null_line = 0;
 	pendc = '\0';
@@ -547,6 +546,11 @@ pdone(endline)
 	}
 	linebuf[curr] = '\0';
 	attr[curr] = AT_NORMAL;
+	/*
+	 * If we are done with this line, reset the current shift.
+	 */
+	if (endline)
+		cshift = 0;
 }
 
 /*
@@ -583,6 +587,7 @@ gline(i, ap)
 null_line()
 {
 	is_null_line = 1;
+	cshift = 0;
 }
 
 /*

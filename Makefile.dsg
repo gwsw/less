@@ -8,8 +8,7 @@ VPATH = .
 CC = gcc
 AWK = gawk
 
-#CFLAGS = -O2
-CFLAGS = -g
+CFLAGS = -O2 -g
 CFLAGS_COMPILE_ONLY = -c
 #LDFLAGS = -s
 LDFLAGS = -g
@@ -31,7 +30,7 @@ OBJ =	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
 	output.${O} position.${O} prompt.${O} search.${O} signal.${O} \
 	tags.${O} ttyin.${O} version.${O}
 
-all: less lesskey
+all: less lesskey lessecho
 
 less: ${OBJ}
 	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
@@ -39,8 +38,11 @@ less: ${OBJ}
 lesskey: lesskey.${O} version.${O}
 	${CC} ${LDFLAGS} -o $@ lesskey.${O} version.${O}
 
+lessecho: lessecho.${O} version.${O}
+	${CC} ${LDFLAGS} -o $@ lessecho.${O} version.${O}
+
 defines.h: defines.ds
-	cp -f $< $@
+	update $< $@
 
 ${OBJ}: less.h defines.h funcs.h
 
@@ -54,19 +56,19 @@ TAGS:
 	etags *.c *.h
 
 newfuncs:
-	rm -f funcs.h
+	command.com /c if exist funcs.h del funcs.h
 	${AWK} -f mkfuncs.awk ${OBJ:.${O}=.c} > funcs.h
 
 clean:
-	for %f in (*.${O} less lesskey *.exe) do if exist %f del %f
+	command.com /c for %f in (*.${O} less lesskey lessecho *.exe) do if exist %f del %f
 
 mostlyclean: clean
 
 distclean: clean
-	if not exist Makefile.dsg ren Makefile Makefile.dsg
-	if not exist defines.ds ren defines.h defines.ds
-	for %f in (Makefile defines.h) do if exist %f del %f
+	command.com /c if not exist Makefile.dsg ren Makefile Makefile.dsg
+	command.com /c if not exist defines.ds ren defines.h defines.ds
+	command.com /c for %f in (Makefile defines.h) do if exist %f del %f
 
 realclean: distclean
-	if exist TAGS del TAGS
+	command.com /c if exist TAGS del TAGS
 

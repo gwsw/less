@@ -874,8 +874,17 @@ special_key_str(key)
 	case SK_CTL_RIGHT_ARROW:
 		s = k_ctl_right;
 		break;
+	case SK_CTL_BACKSPACE:
+		s = k_ctl_backspace;
+		break;
 	case SK_CTL_DELETE:
 		s = k_ctl_delete;
+		break;
+	case SK_F1:
+		s = k_f1;
+		break;
+	case SK_BACKTAB:
+		s = k_backtab;
 		break;
 #else
 	case SK_RIGHT_ARROW:
@@ -2039,6 +2048,7 @@ bl_exit()
 #endif
 }
 
+#if 0 /* No longer used */
 /*
  * Erase the character to the left of the cursor 
  * and move the cursor left.
@@ -2087,6 +2097,7 @@ backspace()
 #endif
 #endif
 }
+#endif /* 0 */
 
 /*
  * Output a plain backspace, without erasing the previous char.

@@ -122,4 +122,7 @@
 #define SK_CTL_LEFT_ARROW	11
 #define SK_CTL_RIGHT_ARROW	12
 #define SK_CTL_DELETE		13
+#define SK_F1			14
+#define SK_BACKTAB		15
+#define SK_CTL_BACKSPACE	16
 #define SK_CONTROL_K		40

@@ -13,7 +13,16 @@
 ======================================================================
 
 
-	Major changes between "less" versions 340 and @@VERSION@@
+	Major changes between "less" versions 346 and @@VERSION@@
+
+* Fix bug in horizontal scrolling of long lines.
+
+* Fixes for MS-DOS version.
+
+======================================================================
+
+
+	Major changes between "less" versions 340 and 346
 
 * The UTF-8 character set is now supported.
 

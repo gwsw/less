@@ -579,7 +579,10 @@ v345  10/29/99	Make -R pass thru ESC but not other control chars.
 		Posted to Web page.
 -----------------------------------------------------------------
 v346   11/4/99  Fix bugs in long option processing; R cmd should clear hilites.
+		Posted to Web page.
+-----------------------------------------------------------------
+v347  12/13/99	Fixes for DJGPP version (thanks to Eli Zaretskii).
 
 */
 
-char version[] = "346";
+char version[] = "347";

@@ -88,7 +88,7 @@ x	179	Very long line (files/1234); search /1234; doesn't match all.
 	185	Arrow keys don't work with -X (on some terminals?).
 	186	Last line of pipe on end of screen; doesn't say END.
 *v329	187	Add -" to change quote char.
-	188	Pass thru ANSI color escape sequences.
+*v345	188	Pass thru ANSI color escape sequences.
 	189	Correct keycodes for Windows (Simon Munton)
 x	190	Csh says "stty: TCGETS: Operation not supported on socket" 
 -		on filename completion.
