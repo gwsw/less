@@ -54,6 +54,9 @@ extern int force_open;
 extern int secure;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
+#if SPACES_IN_FILENAMES
+extern char quote_char;
+#endif
 
 /*
  * Remove quotes around a filename.
@@ -66,12 +69,12 @@ unquote_file(str)
 	char *name;
 	char *p;
 
-	if (strchr(str, '"') == NULL)
+	if (strchr(str, quote_char) == NULL)
 		return (save(str));
 	name = p = ecalloc(strlen(str)+1, sizeof(char));
 	while (*str != '\0')
 	{
-		if (*str != '"')
+		if (*str != quote_char)
 			*p++ = *str;
 		str++;
 	}
@@ -479,7 +482,8 @@ lglob(filename)
 	{
 #if SPACES_IN_FILENAMES
 		if (strchr(list[cnt], ' ') != NULL)
-			strcat(strcat(strcat(gfilename, "\""), list[cnt]), "\"");
+			sprintf(gfilename + strlen(gfilename), "%c%s%c",
+				quote_char, list[cnt], quote_char);
 		else
 #endif
 		strcat(gfilename, list[cnt]);
@@ -519,7 +523,8 @@ lglob(filename)
 			strcat(gfilename, " ");
 #if SPACES_IN_FILENAMES
 		if (strchr(*p, ' ') != NULL)
-			strcat(strcat(strcat(gfilename, "\""), *p), "\"");
+			sprintf(gfilename + strlen(gfilename), "%c%s%c",
+				quote_char, *p, quote_char);
 		else
 #endif
 		strcat(gfilename, *p);
@@ -793,7 +798,8 @@ lglob(filename)
 		}
 #if SPACES_IN_FILENAMES
 		if (spaces_in_file)
-			sprintf(p, "\"%s%s%s\"", drive, dir, fnd.FND_NAME);
+			sprintf(p, "%c%s%s%s%c", quote_char, 
+				drive, dir, fnd.FND_NAME, quote_char);
 		else
 #endif
 		sprintf(p, "%s%s%s", drive, dir, fnd.FND_NAME);

@@ -58,6 +58,10 @@ static struct textlist tk_tlist;
 static int cmd_left();
 static int cmd_right();
 
+#if SPACES_IN_FILENAMES
+public char quote_char = '"';
+#endif
+
 #if CMD_HISTORY
 /*
  * A mlist structure represents a command history.
@@ -732,7 +736,7 @@ delimit_word()
 	char *word;
 #if SPACES_IN_FILENAMES
 	char *p;
-	int quoted = 0;
+	int quoted;
 #endif
 	
 	/*
@@ -767,8 +771,14 @@ delimit_word()
 	if (cp == cmdbuf)
 		return (NULL);
 #if SPACES_IN_FILENAMES
+	/*
+	 * If we have an unbalanced quote (that is, an open quote
+	 * without a corresponding close quote), we return everything
+	 * from the open quote, including spaces.
+	 */
+	quoted = 0;
 	for (p = cmdbuf;  p < cp;  p++)
-		if (*p == '"')
+		if (*p == quote_char)
 		{
 			word = p;
 			quoted = !quoted;
@@ -826,6 +836,10 @@ init_compl()
 	 */
 	c = *cp;
 	*cp = '\0';
+#if SPACES_IN_FILENAMES
+	if (*word == quote_char)
+		word++;
+#endif
 	tk_text = fcomplete(word);
 	*cp = c;
 }
