@@ -36,6 +36,7 @@ extern char *every_first_cmd;
 extern int any_display;
 extern int force_open;
 extern int is_tty;
+extern int sigs;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -482,12 +483,13 @@ edit_last()
 
 
 /*
- * Edit the next file in the command line (ifile) list.
+ * Edit the next or previous file in the command line (ifile) list.
  */
 	static int
-edit_inext(h, n)
+edit_istep(h, n, dir)
 	IFILE h;
 	int n;
+	int dir;
 {
 	IFILE next;
 
@@ -496,7 +498,7 @@ edit_inext(h, n)
 	 */
 	for (;;)
 	{
-		next = next_ifile(h);
+		next = (dir > 0) ? next_ifile(h) : prev_ifile(h);
 		if (--n < 0)
 		{
 			if (edit_ifile(h) == 0)
@@ -509,46 +511,11 @@ edit_inext(h, n)
 			 */
 			return (1);
 		}
-		h = next;
-	} 
-	/*
-	 * Found a file that we can edit.
-	 */
-	return (0);
-}
-
-	public int
-edit_next(n)
-	int n;
-{
-	return edit_inext(curr_ifile, n);
-}
-
-/*
- * Edit the previous file in the command line list.
- */
-	static int
-edit_iprev(h, n)
-	IFILE h;
-	int n;
-{
-	IFILE next;
-
-	/*
-	 * Skip n filenames, then try to edit each filename.
-	 */
-	for (;;)
-	{
-		next = prev_ifile(h);
-		if (--n < 0)
-		{
-			if (edit_ifile(h) == 0)
-				break;
-		}
-		if (next == NULL_IFILE)
+		if (ABORT_SIGS())
 		{
 			/*
-			 * Reached beginning of the ifile list.
+			 * Interrupt breaks out, if we're in a long
+			 * list of files that can't be opened.
 			 */
 			return (1);
 		}
@@ -560,11 +527,34 @@ edit_iprev(h, n)
 	return (0);
 }
 
+	static int
+edit_inext(h, n)
+	IFILE h;
+	int n;
+{
+	return (edit_istep(h, n, 1));
+}
+
+	public int
+edit_next(n)
+	int n;
+{
+	return edit_istep(curr_ifile, n, 1);
+}
+
+	static int
+edit_iprev(h, n)
+	IFILE h;
+	int n;
+{
+	return (edit_istep(h, n, -1));
+}
+
 	public int
 edit_prev(n)
 	int n;
 {
-	return edit_iprev(curr_ifile, n);
+	return edit_istep(curr_ifile, n, -1);
 }
 
 /*
