@@ -1,0 +1,71 @@
+# Makefile for less under DJGPP v2.0 or later.
+
+#### Start of system configuration section. ####
+
+srcdir = .
+VPATH = .
+
+CC = gcc
+
+CFLAGS = -O2
+CFLAGS_COMPILE_ONLY = -c
+LDFLAGS = -s
+O=o
+
+LIBS =
+
+#### End of system configuration section. ####
+
+SUBSHELL = command >nul /c
+
+# This rule allows us to supply the necessary -D options
+# in addition to whatever the user asks for.
+.c.o:
+	${CC} -I. ${CFLAGS_COMPILE_ONLY} ${CPPFLAGS} ${CFLAGS} $<
+
+OBJ =	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
+	command.${O} decode.${O} edit.${O} filename.${O} forwback.${O} \
+	help.${O} ifile.${O} input.${O} jump.${O} line.${O} linenum.${O} \
+	lsystem.${O} mark.${O} optfunc.${O} option.${O} opttbl.${O} os.${O} \
+	output.${O} position.${O} prompt.${O} search.${O} signal.${O} \
+	tags.${O} ttyin.${O} version.${O}
+
+all: less lesskey
+
+less: ${OBJ}
+	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
+
+lesskey: lesskey.${O} version.${O}
+	${CC} ${LDFLAGS} -o $@ lesskey.${O} version.${O}
+
+defines.h: defines.ds
+	update $< $@
+
+${OBJ}: less.h defines.h funcs.h
+
+info:
+install-info:
+dvi:
+check:
+installcheck:
+
+TAGS:
+	etags *.c *.h
+
+#	command > funcs.h /c mkfuncs
+newfuncs:
+	redir -o funcs.h gawk -f mkfuncs.awk ${OBJ:.${O}=.c}
+
+clean:
+	${SUBSHELL} for %%f in (*.${O} less lesskey *.exe) do if exist %%f del %%f
+
+mostlyclean: clean
+
+distclean: clean
+	if not exist makefile.dj ren makefile makefile.dj
+	if not exist defines.ds ren defines.h defines.ds
+	${SUBSHELL} for %%f in (Makefile defines.h) do if exist %%f del %%f
+
+realclean: distclean
+	if exist TAGS del TAGS
+
