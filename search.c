@@ -346,12 +346,14 @@ match_pattern(line, sp, ep)
 		return (match(last_pattern, line, sp, ep));
 
 #if HAVE_POSIX_REGCOMP
-	regmatch_t rm;
-	matched = !regexec(regpattern, line, 1, &rm, 0);
-	if (!matched)
-		return (0);
-	*sp = line + rm.rm_so;
-	*ep = line + rm.rm_eo;
+	{
+		regmatch_t rm;
+		matched = !regexec(regpattern, line, 1, &rm, 0);
+		if (!matched)
+			return (0);
+		*sp = line + rm.rm_so;
+		*ep = line + rm.rm_eo;
+	}
 #endif
 #if HAVE_RE_COMP
 	matched = (re_exec(line) == 1);
