@@ -292,8 +292,6 @@ end_logfile()
 
 	if (logfile < 0)
 		return;
-	if (thisfile == NULL)
-		return;
 	if (!tried && ch_fsize == NULL_POSITION)
 	{
 		tried = TRUE;
@@ -320,8 +318,6 @@ sync_logfile()
 	long block;
 	long nblocks;
 
-	if (thisfile == NULL)
-		return;
 	nblocks = (ch_fpos + LBUFSIZE - 1) / LBUFSIZE;
 	for (block = 0;  block < nblocks;  block++)
 	{
@@ -374,9 +370,6 @@ ch_seek(pos)
 	long new_block;
 	POSITION len;
 
-	if (thisfile == NULL)
-		return (0);
-
 	len = ch_length();
 	if (pos < ch_zero() || (len != NULL_POSITION && pos > len))
 		return (1);
@@ -410,9 +403,6 @@ ch_seek(pos)
 ch_end_seek()
 {
 	POSITION len;
-
-	if (thisfile == NULL)
-		return (0);
 
 	if (ch_flags & CH_CANSEEK)
 		ch_fsize = filesize(ch_file);
@@ -467,8 +457,6 @@ ch_beg_seek()
 	public POSITION
 ch_length()
 {
-	if (thisfile == NULL)
-		return (NULL_POSITION);
 	if (ignore_eoi)
 		return (NULL_POSITION);
 	return (ch_fsize);
@@ -493,8 +481,6 @@ ch_forw_get()
 {
 	register int c;
 
-	if (thisfile == NULL)
-		return (EOI);
 	c = ch_get();
 	if (c == EOI)
 		return (EOI);
@@ -514,8 +500,6 @@ ch_forw_get()
 	public int
 ch_back_get()
 {
-	if (thisfile == NULL)
-		return (EOI);
 	if (ch_offset > 0)
 		ch_offset --;
 	else
@@ -566,9 +550,6 @@ ch_nbuf(want_nbufs)
 ch_flush()
 {
 	register struct buf *bp;
-
-	if (thisfile == NULL)
-		return;
 
 	ch_ungotchar = -1;
 	if (!(ch_flags & CH_CANSEEK))
@@ -741,6 +722,7 @@ ch_close()
 		 * We don't even need to keep the filestate structure.
 		 */
 		free(thisfile);
+		thisfile = NULL;
 		set_filestate(curr_ifile, NULL);
 	}
 }
