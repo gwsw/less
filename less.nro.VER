@@ -556,7 +556,7 @@ to open and interpret the named file as a
 .I lesskey
 (1) file.
 Multiple -k options may be specified.
-If the LESSKEY environment variable is set, or
+If the LESSKEY or LESSKEY_SYSTEM environment variable is set, or
 if a lesskey file is found in a standard place (see KEY BINDINGS),
 it is also used as a 
 .I lesskey
@@ -882,6 +882,12 @@ A system-wide lesskey file may also be set up to provide key bindings.
 If a key is defined in both a local lesskey file and in the
 system-wide file, key bindings in the local file take precedence over 
 those in the system-wide file.
+If the environment variable LESSKEY_SYSTEM is set,
+.I less
+uses that as the name of the system-wide lesskey file.
+Otherwise,
+.I less 
+looks in a standard place for the system-wide lesskey file:
 On Unix systems, the system-wide lesskey file is /usr/local/bin/.sysless.
 (However, if 
 .I less 
@@ -1370,6 +1376,8 @@ Editor prototype string (used for the v command).
 See discussion under PROMPTS.
 .IP LESSKEY
 Name of the default lesskey(1) file.
+.IP LESSKEY_SYSTEM
+Name of the default system-wide lesskey(1) file.
 .IP LESSMETACHARS
 List of characters which are considered "metacharacters" by the shell.
 .IP LESSMETAESCAPE

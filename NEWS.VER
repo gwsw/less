@@ -13,14 +13,21 @@
 ======================================================================
 
 
-	Major changes between "less" versions 337 and @@VERSION@@
+	Major changes between "less" versions 340 and @@VERSION@@
+
+* The UTF-8 character set is now supported.
 
 * New option -F (--quit-if-one-screen) quits if the text fits on
   the first screen.
 
+* A system-wide lesskey file is supported (LESSKEY_SYSTEM).
+
 * New escape for prompt strings: %c is replaced by column number.
 
-* A system-wide lesskey file is supported.
+* New escape for prompt strings: %P is replaced by percentage into
+  file, based on line number rather than byte offset.
+
+* HOME and END keys now jump to beginning of file or end of file.
 
 ======================================================================
 
