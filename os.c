@@ -88,7 +88,7 @@ iread(fd, buf, len)
 {
 	register int n;
 
-#if MSOFTC
+#if MSDOS_COMPILER
 	if (kbhit())
 	{
 		int c;
@@ -177,7 +177,7 @@ errno_message(filename)
 	register char *p;
 	register char *m;
 #if HAVE_ERRNO
-#if MSOFTC
+#if MSDOS_COMPILER
 	/* errno is declared in errno.h */
 #else
 	extern int errno;

@@ -231,7 +231,7 @@ fch_get()
 			 */
 			if (!slept)
 				ierror("Waiting for data", NULL_PARG);
-#if !MSOFTC
+#if !MSDOS_COMPILER
 	 		sleep(1);
 #endif
 			slept = TRUE;

@@ -510,7 +510,11 @@ v290   3/9/95	Make configure automatically.  Fix Sequent problem
 		Posted to prep.ai.mit.edu
 -----------------------------------------------------------------
 v291   3/21/95	Add #env to lesskey.  Fix MS-DOS build.
+		Posted to simtel.
+-----------------------------------------------------------------
+v292   4/24/95	Add MS-DOS support for Borland C.
+		Fix arrow keys in MS-DOS versions.
 
 */
 
-char version[] = "291";
+char version[] = "292";

@@ -134,7 +134,7 @@ scan_option(s)
 		if (o == NULL)
 		{
 			parg.p_string = propt(c);
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 			error("There is no %s flag (\"less -?\" for help)",
 				&parg);
 #else

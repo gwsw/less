@@ -39,7 +39,7 @@ static int tty;
 	public void
 open_getchr()
 {
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 	extern int fd0;
 	/*
 	 * Open a new handle to CON: in binary mode 
@@ -72,7 +72,7 @@ getchr()
 
 	do
 	{
-#if MSOFTC
+#if MSDOS_COMPILER
 		/*
 		 * In raw read, we don't see ^C so look here for it.
 		 */

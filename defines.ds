@@ -29,7 +29,7 @@
 /*
  * This file has 2 sections:
  * User preferences.
- * Settings always true for the Microsoft C compiler for MS-DOS systems. 
+ * Settings always true for MS-DOS systems. 
  */
 
 /* User preferences.  */
@@ -133,12 +133,18 @@
  */
 #define	HELPFILE	"less.hlp"
 
-/* Settings always true for the Microsoft C compiler for MS-DOS systems.  */
+/* Settings always true for MS-DOS systems.  */
 
 /*
- * Define MSOFTC if compiling under Microsoft C.
+ * Define MSDOS if compiling for MS-DOS.
+ *  1 == Microsoft C
+ *  2 == Turbo/Borland C
  */
-#define	MSOFTC		1
+#ifdef __BORLANDC__
+#define	MSDOS		BORLANDC
+#else
+#define	MSDOS		MSOFTC
+#endif
 
 /*
  * HAVE_SYS_TYPES_H is 1 if your system has <sys/types.h>.
@@ -167,7 +173,11 @@
 #define	HAVE_SHELL	0
 
 /* Define to `long' if <sys/types.h> doesn't define.  */
+#if MSDOS==MSOFTC
 /* #define	off_t	long */
+#else
+#define	off_t	long 
+#endif
 
 /* Define as the return type of signal handlers (int or void).  */
 #define RETSIGTYPE void
@@ -204,7 +214,11 @@
 #define HAVE_FILENO 1
 
 /* Define HAVE_ERRNO if you have the errno variable */
+#if MSDOS==MSOFTC
 #define HAVE_ERRNO 0
+#else
+#define HAVE_ERRNO 1
+#endif
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
 #define HAVE_SYS_ERRLIST 1
@@ -225,7 +239,11 @@
 #define HAVE_UPPER_LOWER 1
 
 /* Define if you have the _setjmp function.  */
+#if MSDOS==MSOFTC
 #define HAVE__SETJMP	0
+#else
+#define HAVE__SETJMP	1
+#endif
 
 /* Define if you have the memcpy function.  */
 #define HAVE_MEMCPY 1
@@ -276,9 +294,13 @@
 #define HAVE_UNISTD_H 0
 
 /* Define if you have the <values.h> header file.  */
+#if MSDOS==MSOFTC
 #define HAVE_VALUES_H 0
+#else
+#define HAVE_VALUES_H 1
+#endif
 
-#if _MSC_VER >= 700
+#if MSDOS == MSOFTC && _MSC_VER >= 700
 /*
  * The names of these things changed in Microsoft C version 7.0.
  */

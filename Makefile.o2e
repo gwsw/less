@@ -31,7 +31,7 @@ less.exe: $(OBJ)
 	$(CC) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
 
 lesskey.exe: lesskey.$(O) version.$(O)
-	$(CC) $(CFLAGS) lesskey.$(O) version.$(O) -o $@ $(LDFLAGS)
+	$(CC) lesskey.$(O) version.$(O) -o $@ $(LDFLAGS)
 
 $(OBJ): defines.h less.h
 

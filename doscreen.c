@@ -34,8 +34,26 @@
 #include "less.h"
 #include "cmd.h"
 
+#if MSDOS_COMPILER==MSOFTC
 #include <graph.h>
+#else
+#if MSDOS_COMPILER==BORLANDC
+#include <conio.h>
+#endif
+#endif
 #include <time.h>
+
+#if MSDOS_COMPILER==MSOFTC
+static int flash_created = 0;
+#else
+#if MSDOS_COMPILER==BORLANDC
+static unsigned short *whitescreen;
+#define _settextposition(y,x)	gotoxy(x,y)
+#define _settextcolor(c)	textcolor(c)
+#define _setbkcolor(c)		textbackground(c)
+#define _clearscreen(m)		clrscr()
+#endif
+#endif
 
 static int init_done = 0;
 static int videopages;
@@ -64,7 +82,6 @@ public int bl_bg_color = 0;
 
 static int sy_fg_color;
 static int sy_bg_color;
-static int flash_created = 0;
 
 extern int quiet;		/* If VERY_QUIET, use visual bell for bell */
 extern int know_dumb;		/* Don't complain about a dumb terminal */
@@ -103,26 +120,41 @@ scrsize(p_height, p_width)
 	int *p_height;
 	int *p_width;
 {
+	register int height;
+	register int width;
 	register char *s;
+
+#if MSDOS_COMPILER==MSOFTC
 	struct videoconfig w;
 
 	_getvideoconfig(&w);
+	height = w.numtextrows;
+	width = w.numtextcols;
+#else
+#if MSDOS_COMPILER==BORLANDC
+	struct text_info w;
 
-	if (w.numtextrows)
-		*p_height = w.numtextrows;
+	gettextinfo(&w);
+	height = w.screenheight;
+	width = w.screenwidth;
+#endif
+#endif
+	if (height)
+		*p_height = height;
 	else if ((s = lgetenv("LINES")) != NULL && *s != '\0')
 		*p_height = atoi(s);
 	if (*p_height <= 0)
 		*p_height = 24;
 		
-	if (w.numtextcols > 0)
-		*p_width = w.numtextcols;
+	if (width > 0)
+		*p_width = width;
 	else if ((s = lgetenv("COLUMNS")) != NULL)
 		*p_width = atoi(s);
 	if (*p_width <= 0)
   		*p_width = 80;
 }
 
+#if MSDOS_COMPILER==MSOFTC
 /*
  * Figure out how many empty loops it takes to delay a millisecond.
  */
@@ -151,10 +183,35 @@ get_clock()
 	msec_loops /= 1000;
 }
 
-	public void
-get_editkeys()
+/*
+ * Delay for a specified number of milliseconds.
+ */
+	static void
+dummy_func()
 {
+	static long delay_dummy = 0;
+	delay_dummy++;
 }
+
+	static void
+delay(msec)
+	int msec;
+{
+	long i;
+	
+	while (msec-- > 0)
+	{
+		for (i = 0;  i < msec_loops;  i++)
+		{
+			/*
+			 * Make it look like we're doing something here,
+			 * so the optimizer doesn't remove the whole loop.
+			 */
+			dummy_func();
+		}
+	}
+}
+#endif
 
 /*
  * Get terminal capabilities via termcap.
@@ -170,7 +227,9 @@ get_term()
 	bo_s_width = bo_e_width = 0;
 	ul_s_width = ul_e_width = 0;
 	bl_s_width = bl_e_width = 0;
+#if MSDOS_COMPILER==MSOFTC
 	get_clock();
+#endif
 }
 
 
@@ -186,6 +245,7 @@ get_term()
 	static void
 initcolor()
 {
+#if MSDOS_COMPILER==MSOFTC
 	struct videoconfig w;
 	char *blanks;
 	int row;
@@ -203,6 +263,13 @@ initcolor()
 	for (row = w.numtextrows;  row > 0;  row--)
 		_outmem(blanks, w.numtextcols);
 	free(blanks);
+#else
+#if MSDOS_COMPILER==BORLANDC
+	flush();
+	textattr(WHITE+(BLACK<<4));
+	clrscr();
+endif
+endif
 }
 
 /*
@@ -212,8 +279,18 @@ initcolor()
 init()
 {
 	/* {{ What could we take no_init (-X) to mean? }} */
+#if MSDOS_COMPILER==MSOFTC
 	sy_bg_color = _getbkcolor();
 	sy_fg_color = _gettextcolor();
+#else
+#if MSDOS_COMPILER==BORLANDC
+	struct text_info w;
+
+	gettextinfo(&w);
+	sy_bg_color = (w.attribute >> 4) & 0x0F;
+	sy_fg_color = (w.attribute >> 0) & 0x0F;
+#endif
+#endif
 	initcolor();
 	flush();
 	init_done = 1;
@@ -228,6 +305,7 @@ init()
 	static void
 create_flash()
 {
+#if MSDOS_COMPILER==MSOFTC
 	struct videoconfig w;
 	char *blanks;
 	int row, col;
@@ -252,6 +330,18 @@ create_flash()
 		free(blanks);
 		so_exit();
 	}
+#else
+#if MSDOS_COMPILER==BORLANDC
+	register int n;
+
+	whitescreen = (unsigned short *) 
+		malloc(sc_width * sc_height * sizeof(short));
+	if (whitescreen == NULL)
+		return;
+	for (n = 0;  n < sc_width * sc_height;  n++)
+		whitescreen[n] = 0x7020;
+#endif
+#endif
 	flash_created = 1;
 }
 
@@ -287,8 +377,16 @@ home()
 add_line()
 {
 	flush();
+#if MSDOS_COMPILER==MSOFTC
 	_scrolltextwindow(_GSCROLLDOWN);
 	_settextposition(1,1);
+#else
+#if MSDOS_COMPILER==BORLANDC
+	movetext(1,1, sc_width,sc_height-1, 1,2);
+	gotoxy(1,1);
+	clreol();
+#endif
+#endif
 }
 
 /*
@@ -298,7 +396,7 @@ add_line()
 lower_left()
 {
 	flush();
-	_settextposition(sc_height,1);
+	_settextposition(sc_height, 1);
 }
 
 /*
@@ -312,34 +410,6 @@ goto_line(slinenum)
 	_settextposition(slinenum, 1);
 }
 
-/*
- * Delay for a specified number of milliseconds.
- */
-	static void
-dummy_func()
-{
-	static long delay_dummy = 0;
-	delay_dummy++;
-}
-
-	static void
-delay(msec)
-	int msec;
-{
-	long i;
-	
-	while (msec-- > 0)
-	{
-		for (i = 0;  i < msec_loops;  i++)
-		{
-			/*
-			 * Make it look like we're doing something here,
-			 * so the optimizer doesn't remove the whole loop.
-			 */
-			dummy_func();
-		}
-	}
-}
 
 /*
  * Make a noise.
@@ -356,6 +426,7 @@ beep()
 	public void
 vbell()
 {
+#if MSDOS_COMPILER==MSOFTC
 	if (!flash_created)
 		/*
 		 * Create a "flash" on the second video page.
@@ -372,6 +443,29 @@ vbell()
 	 */
 	delay(100);
 	_setvisualpage(0);
+#else
+#if MSDOS_COMPILER==BORLANDC
+	unsigned short *currscreen;
+
+	/*
+	 * Get a copy of the current screen.
+	 * Display an all white screen.
+	 * Then restore the old screen.
+	 */
+	if (!flash_created)
+		create_flash();
+
+	currscreen = (unsigned short *) 
+		malloc(sc_width * sc_height * sizeof(short));
+	if (currscreen == NULL || whitescreen == NULL)
+		return;
+	gettext(1, 1, sc_width, sc_height, currscreen);
+	puttext(1, 1, sc_width, sc_height, whitescreen);
+	delay(100);
+	puttext(1, 1, sc_width, sc_height, currscreen);
+	free(currscreen);
+#endif
+#endif
 }
 
 /*
@@ -403,6 +497,7 @@ clear()
 	public void
 clear_eol()
 {
+#if MSDOS_COMPILER==MSOFTC
 	short top, left;
 	short bot, right;
 	struct rccoord tpos;
@@ -425,6 +520,12 @@ clear_eol()
 	 */
 	_settextwindow(top, left, bot, right);
 	_settextposition(tpos.row, tpos.col);
+#else
+#if MSDOS_COMPILER==BORLANDC
+	flush();
+	clreol();
+#endif
+#endif
 }
 
 /*
@@ -534,6 +635,7 @@ bl_exit()
 	public void
 backspace()
 {
+#if MSDOS_COMPILER==MSOFTC
 	struct rccoord tpos;
 	
 	/* 
@@ -546,6 +648,11 @@ backspace()
 	_settextposition(tpos.row, tpos.col-1);
 	_outtext(" ");
 	_settextposition(tpos.row, tpos.col-1);
+#else
+#if MSDOS_COMPILER==BORLANDC
+	cputs("\b");
+#endif
+#endif
 }
 
 /*
@@ -554,19 +661,32 @@ backspace()
 	public void
 putbs()
 {
-	struct rccoord tpos;
-	
+	int row, col;
+
 	flush();
-	tpos = _gettextposition();
-	if (tpos.col <= 1)
+	{
+#if MSDOS_COMPILER==MSOFTC
+		struct rccoord tpos;
+	
+		tpos = _gettextposition();
+		row = tpos.row;
+		col = tpos.col;
+#else
+#if MSDOS_COMPILER==BORLANDC
+		row = wherey();
+		col = wherex();
+#endif
+#endif
+	}
+	if (col <= 1)
 		return;
-	_settextposition(tpos.row, tpos.col-1);
+	_settextposition(row, col-1);
 }
 
 /*
  * Table of line editting characters, for editchar() in decode.c.
  */
-char edittable[] = {
+char kecmdtable[] = {
 	'\340','\115',0,	EC_RIGHT,	/* RIGHTARROW */
 	'\340','\113',0,	EC_LEFT,	/* LEFTARROW */
 	'\340','\163',0,	EC_W_LEFT,	/* CTRL-LEFTARROW */
@@ -586,10 +706,10 @@ char edittable[] = {
 	0  /* Extra byte to terminate; subtracted from size, below */
 };
 
-int sz_edittable = sizeof(edittable) -1;
+int sz_kecmdtable = sizeof(kecmdtable) -1;
 
 
-char kcmdtable[] =
+char kfcmdtable[] =
 {
 	/*
 	 * PC function keys.
@@ -605,4 +725,15 @@ char kcmdtable[] =
 	'\340','\022',0,		A_EXAMINE,		/* Alt-E */
 	0
 };
-int sz_kcmdtable = sizeof(kcmdtable) - 1;
+int sz_kfcmdtable = sizeof(kfcmdtable) - 1;
+
+	public void
+get_editkeys()
+{
+	/*
+	 * Register the two tables.
+	 */
+	add_fcmd_table(kfcmdtable, sz_kfcmdtable);
+	add_ecmd_table(kecmdtable, sz_kecmdtable);
+}
+

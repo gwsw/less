@@ -93,7 +93,7 @@ static struct option option[] =
 		"Assume dumb terminal",
 		NULL
 	},
-#if MSOFTC
+#if MSDOS_COMPILER
 	{ 'D', STRING|REPAINT, 0, NULL, opt_D,
 		"color desc: ", NULL, NULL
 	},

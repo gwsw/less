@@ -45,6 +45,12 @@
 #endif
 
 /*
+ * Defines for MSDOS_COMPILER.
+ */
+#define	MSOFTC		1
+#define	BORLANDC	2
+
+/*
  * Language details.
  */
 #if HAVE_VOID
@@ -130,18 +136,18 @@ typedef long		POSITION;
 /*
  * Flags for open()
  */
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 #define	OPEN_READ	(O_RDONLY|O_BINARY)
 #else
 #define	OPEN_READ	(0)
 #endif
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 #define	OPEN_APPEND	(O_APPEND|O_WRONLY)
 #else
 #define	OPEN_APPEND	(1)
 #endif
 
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 #define	OPEN_TTYIN()	open("CON", O_BINARY|O_RDONLY)
 #else
 #define	OPEN_TTYIN()	open("/dev/tty", 0)

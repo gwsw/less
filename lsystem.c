@@ -34,7 +34,7 @@
 #include "less.h"
 #include "position.h"
 
-#if MSOFTC
+#if MSDOS_COMPILER
 #include <dos.h>
 #endif
 
@@ -53,9 +53,6 @@ lsystem(cmd)
 	char *cmd;
 {
 	register int inp;
-#if MSOFTC || OS2
-	register int inp2;
-#endif
 	register char *shell;
 	register char *p;
 	IFILE save_ifile;

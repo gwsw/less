@@ -67,11 +67,12 @@ INSTALLATION (MS-DOS systems only)
    Make sure the source has been converted to have CR-LF rather than 
    LF as line terminators.
 
-2. Rename MAKEFILE.DOS to MAKEFILE.
+2. If you are using Microsoft C, rename MAKEFILE.DOS to MAKEFILE.
+   If you are using Borland C, rename MAKEFILE.BCC to MAKEFILE.
 
 3. Look at MAKEFILE to make sure that the definitions for CC and LIBDIR
-   are correct.  CC should be the name of your Microsoft C compiler and
-   LIBDIR should be the directory where the Microsoft C libraries
+   are correct.  CC should be the name of your C compiler and
+   LIBDIR should be the directory where the C libraries
    reside.  If these definitions need to be changed, you can either 
    modify the definitions directly in MAKEFILE, or set your environment 
    variables CC and/or LIBDIR to override the definitions in MAKEFILE.

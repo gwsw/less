@@ -66,7 +66,7 @@ extern char *tagfile;
 extern char *tags;
 extern int jump_sline;
 #endif
-#if MSOFTC
+#if MSDOS_COMPILER
 extern int nm_fg_color, nm_bg_color;
 extern int bo_fg_color, bo_bg_color;
 extern int ul_fg_color, ul_bg_color;
@@ -366,7 +366,7 @@ opt__V(type, s)
 	}
 }
 
-#if MSOFTC
+#if MSDOS_COMPILER
 /*
  *
  */

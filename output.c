@@ -129,9 +129,14 @@ flush()
 	register int n;
 	register int fd;
 
-#if MSOFTC
+#if MSDOS_COMPILER==MSOFTC
 	*ob = '\0';
 	_outtext(obuf);
+	ob = obuf;
+#else
+#if MSDOS_COMPILER==BORLANDC
+	*ob = '\0';
+	cputs(obuf);
 	ob = obuf;
 #else
 	n = ob - obuf;
@@ -141,6 +146,7 @@ flush()
 	if (write(fd, obuf, n) != n)
 		screen_trashed = 1;
 	ob = obuf;
+#endif
 #endif
 }
 
@@ -158,7 +164,7 @@ putchr(c)
 		need_clr = 0;
 		clear_bot();
 	}
-#if MSOFTC
+#if MSDOS_COMPILER
 	if (c == '\n')
 		putchr('\r');
 #endif

@@ -31,7 +31,7 @@
  */
 
 #include "less.h"
-#if MSOFTC
+#if MSDOS_COMPILER
 #include <dos.h>
 #endif
 
@@ -60,7 +60,7 @@ dirfile(dirname, filename)
 					sizeof(char));
 	if (pathname == NULL)
 		return (NULL);
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 	sprintf(pathname, "%s\\%s", dirname, filename);
 #else
 	sprintf(pathname, "%s/%s", dirname, filename);
@@ -103,7 +103,7 @@ homefile(filename)
 	if (pathname != NULL)
 		return (pathname);
 #endif
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 	/*
 	 * Look for the file anywhere on search path.
 	 */
@@ -126,7 +126,7 @@ find_helpfile()
 	
 	if ((helpfile = lgetenv("LESSHELP")) != NULL)
 		return (save(helpfile));
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 	return (homefile(HELPFILE));
 #else
 	return (save(HELPFILE));
@@ -218,7 +218,7 @@ fcomplete(s)
 	/*
 	 * Complete the filename "s" by globbing "s*".
 	 */
-#if MSOFTC
+#if MSDOS_COMPILER
 	/*
 	 * But in DOS, we have to glob "s*.*".
 	 * But if the final component of the filename already has
@@ -534,7 +534,7 @@ close_altfile(altfilename, filename, pipefd)
 }
 		
 #else
-#if MSOFTC
+#if MSDOS_COMPILER
 
 	public char *
 glob(filename)

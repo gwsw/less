@@ -230,7 +230,7 @@ mkpathname(dirname, filename)
 
 	pathname = calloc(strlen(dirname) + strlen(filename) + 2, sizeof(char));
 	strcpy(pathname, dirname);
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 	strcat(pathname, "\\");
 #else
 	strcat(pathname, "/");

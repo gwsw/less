@@ -143,7 +143,7 @@ main(argc, argv)
 	ifile = NULL_IFILE;
 	while (--argc >= 0)
 	{
-#if MSOFTC || OS2
+#if MSDOS_COMPILER || OS2
 		/*
 		 * Because the "shell" doesn't expand filename patterns,
 		 * treat each argument as a filename pattern rather than
@@ -324,7 +324,7 @@ quit(status)
 	deinit();
 	flush();
 	raw_mode(0);
-#if MSOFTC
+#if MSDOS_COMPILER
 	/* 
 	 * If we don't close 2, we get some garbage from
 	 * 2's buffer when it flushes automatically.

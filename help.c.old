@@ -61,7 +61,7 @@ help(nomsg)
 	 * Use lsystem() to invoke a new instance of less
 	 * to view the help file.
 	 */
-#if MSOFTC
+#if MSDOS_COMPILER
 	putenv("LESS=-m -H -+E -+s -PmHELP -- ?eEND -- Press g to see it again:Press RETURN for more., or q when done");
 	cmd = (char *) ecalloc(strlen(helpfile) + strlen(progname) + 3,
 				sizeof(char));
