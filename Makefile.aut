@@ -22,7 +22,7 @@ DISTFILES_W = \
 	defines.wn  Makefile.wnm Makefile.wnb
 DISTFILES = \
 	${SRC} regexp.c regexp.h \
-	INSTALL Makefile.in Makefile.aut README NEWS \
+	INSTALL Makefile.in Makefile.aut README NEWS COPYING \
 	configure configure.in acconfig.h lesskey.c lessecho.c \
 	cmd.h funcs.h lglob.h less.h lesskey.h option.h pckeys.h position.h \
 	install.sh defines.h.in defines.h.top mkinstalldirs \
