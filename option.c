@@ -145,6 +145,7 @@ scan_option(s)
 			quit(QUIT_ERROR);
 		}
 
+		str = NULL;
 		switch (o->otype & OTYPE)
 		{
 		case BOOL:

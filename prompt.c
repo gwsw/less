@@ -396,6 +396,7 @@ pr_expand(proto, maxwidth)
 				--p;
 			else
 			{
+				where = 0;
 				p = wherechar(p, &where);
 				if (!cond(c, where))
 					p = skipcond(p);
@@ -411,6 +412,7 @@ pr_expand(proto, maxwidth)
 				--p;
 			else
 			{
+				where = 0;
 				p = wherechar(p, &where);
 				protochar(c, where);
 			}
