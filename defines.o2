@@ -112,7 +112,7 @@
  * (in the HOME directory).
  */
 #define	LESSKEYFILE		"less.ini"
-#define	LESSKEYFILE_SYS		"\\sysless.ini"
+#define	LESSKEYFILE_SYS		"C:\\sysless.ini"
 #define	DEF_LESSKEYINFILE	"lesskey.ini"
 
 
