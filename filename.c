@@ -123,6 +123,8 @@ homefile(filename)
 /*
  * Expand a string, substituting any "%" with the current filename,
  * and any "#" with the previous filename.
+ * But a string of N "%"s is just replaced with N-1 "%"s.
+ * Likewise for a string of N "#"s.
  * {{ This is a lot of work just to support % and #. }}
  */
 	public char *
@@ -132,6 +134,11 @@ fexpand(s)
 	register char *fr, *to;
 	register int n;
 	register char *e;
+	IFILE ifile;
+
+#define	fchar_ifile(c) \
+	((c) == '%' ? curr_ifile : \
+	 (c) == '#' ? old_ifile : NULL_IFILE)
 
 	/*
 	 * Make one pass to see how big a buffer we 
@@ -143,20 +150,28 @@ fexpand(s)
 		switch (*fr)
 		{
 		case '%':
-			if (curr_ifile == NULL_IFILE)
-			{
-				/* error("No current file", NULL_PARG); */
-				return (save(s));
-			}
-			n += strlen(get_filename(curr_ifile));
-			break;
 		case '#':
-			if (old_ifile == NULL_IFILE)
+			if (fr > s && fr[-1] == *fr)
 			{
-				/* error("No previous file", NULL_PARG); */
-				return (save(s));
+				/*
+				 * Second (or later) char in a string
+				 * of identical chars.  Treat as normal.
+				 */
+				n++;
+			} else if (fr[1] != *fr)
+			{
+				/*
+				 * Single char (not repeated).  Treat specially.
+				 */
+				ifile = fchar_ifile(*fr);
+				if (ifile == NULL_IFILE)
+					return (save(s));
+				n += strlen(get_filename(ifile));
 			}
-			n += strlen(get_filename(old_ifile));
+			/*
+			 * Else it is the first char in a string of
+			 * identical chars.  Just discard it.
+			 */
 			break;
 		default:
 			n++;
@@ -175,12 +190,16 @@ fexpand(s)
 		switch (*fr)
 		{
 		case '%':
-			strcpy(to, get_filename(curr_ifile));
-			to += strlen(to);
-			break;
 		case '#':
-			strcpy(to, get_filename(old_ifile));
-			to += strlen(to);
+			if (fr > s && fr[-1] == *fr)
+			{
+				*to++ = *fr;
+			} else if (fr[1] != *fr)
+			{
+				ifile = fchar_ifile(*fr);
+				strcpy(to, get_filename(ifile));
+				to += strlen(to);
+			}
 			break;
 		default:
 			*to++ = *fr;

@@ -248,6 +248,11 @@ below) from the list of files in the command line is re-examined.
 A percent sign (%) in the filename is replaced by the name of the
 current file.  
 A pound sign (#) is replaced by the name of the previously examined file.
+However, two consecutive percent signs are simply 
+replaced with a single percent sign.  
+This allows you to enter a filename that contains a percent sign
+in the name.
+Similarly, two consecutive pound signs are replaced with a single pound sign.
 The filename is inserted into the command line list of files
 so that it can be seen by subsequent :n and :p commands.
 If the filename consists of several files, they are all inserted into
