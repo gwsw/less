@@ -11,9 +11,8 @@ Major changes made since the last posted version are in NEWS.
 =======================================================================
 INSTALLATION (Unix systems only):
 
-1. Move the distributed source to its own directory and 
-   unpack it by running "sh" or "unshar" on the distribution 
-   files, if you have not already done so.
+1. Move the distributed source to its own directory and unpack it,
+   if you have not already done so.  
 
 2. Type "sh configure".
    This will generate a Makefile and a defines.h.
