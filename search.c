@@ -354,6 +354,61 @@ is_hilited(pos, epos, nohide)
 }
 
 /*
+ * Adjust hl_startpos & hl_endpos to account for backspace processing.
+ */
+	static void
+adj_hlpos(linepos)
+	POSITION linepos;
+{
+	char *line;
+	int i;
+	int checkstart;
+	POSITION opos;
+	POSITION npos;
+
+	/*
+	 * Get the line again.  Look at each character.
+	 */
+	(void) forw_raw_line(linepos, &line);
+	opos = npos = linepos;
+	i = 0;
+	checkstart = 1;
+	for (;;)
+	{
+		/*
+		 * See if we need to adjust the current hl_startpos or 
+		 * hl_endpos.  After adjusting startpos[i], move to endpos[i].
+		 * After adjusting endpos[i], move to startpos[i+1].
+		 * The hl_ lists must be sorted: 
+		 * startpos[0] < endpos[0] <= startpos[1] < endpos[1] <= etc.
+		 */
+		if (checkstart && hl_startpos[i] == opos)
+		{
+			hl_startpos[i] = npos;
+			checkstart = 0;
+			continue; /* {{ not really necessary }} */
+		} else if (!checkstart && hl_endpos[i] == opos)
+		{
+			hl_endpos[i] = npos;
+			checkstart = 1;
+			if (++i >= num_hilite)
+				break;
+			continue; /* {{ necessary }} */
+		}
+		if (*line == '\0')
+			break;
+		opos++;
+		npos++;
+		line++;
+		if (line[0] == '\b' && line[1] != '\0')
+		{
+			npos += 2;
+			line += 2;
+		}
+	}
+}
+
+/*
  * Highlight all the strings in a physical line which match the current pattern.
  */
 	static void
@@ -376,9 +431,12 @@ hilite_line(linepos, line, sp, ep)
 	num_hilite = 0;
 	searchp = line;
 	do {
-		hl_startpos[num_hilite] = linepos + (sp - line);
-		hl_endpos[num_hilite] = linepos + (ep - line);
-		num_hilite++;
+		if (ep > sp)
+		{
+			hl_startpos[num_hilite] = linepos + (sp - line);
+			hl_endpos[num_hilite] = linepos + (ep - line);
+			num_hilite++;
+		}
 		/*
 		 * If we matched more than zero characters,
 		 * move to the first char after the string we matched.
@@ -390,12 +448,17 @@ hilite_line(linepos, line, sp, ep)
 			searchp++;
 		else /* end of line */
 			break;
-		if (!match_pattern(searchp, &sp, &ep))
-			/*
-			 * No more matches in the line.
-			 */
-			break;
-	} while (num_hilite < MAX_HILITE);
+	} while (num_hilite < MAX_HILITE && match_pattern(searchp, &sp, &ep));
+
+	if (bs_mode == BS_SPECIAL) 
+	{
+		/*
+		 * If there were backspaces in the original line, they
+		 * were removed, and hl_startpos/hl_endpos are not correct.
+		 * {{ This is very ugly. }}
+		 */
+		adj_hlpos(linepos);
+	}
 }
 #endif
 
@@ -408,6 +471,9 @@ chg_caseless()
 {
 	if (!is_ucase_pattern)
 		is_caseless = caseless;
+#ifdef HILITE_SEARCH
+	clr_hilite();
+#endif
 }
 
 /*

@@ -1144,6 +1144,8 @@ the new files may be entered into the list in an unexpected order.
 .PP
 In certain cases, when a pattern begins with a ^,
 more text than the matching string may be highlighted.
+If there are many matching strings in one line, 
+only the first 40 strings will be highlighted.
 
 .SH COPYRIGHT
 Copyright (c) 1984,1985,1989,1994  Mark Nudelman

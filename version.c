@@ -462,6 +462,7 @@
  *	      results (but now it is reliable).
  *	v257: Add goto_line and repaint_highlight	12/10/94
  *	      to optimize highlight repaints.
+ *	v258: Fixup in hilite_line if BS_SPECIAL.	12/12/94
  */
 
-char version[] = "257";
+char version[] = "258";
