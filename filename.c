@@ -402,6 +402,7 @@ open_altfile(filename, pf, pfd)
 	int returnfd = 0;
 	FILE *fd;
 	
+	ch_ungetchar(-1);
 	if ((lessopen = getenv("LESSOPEN")) == NULL)
 		return (NULL);
 	filename = fexpand(filename);

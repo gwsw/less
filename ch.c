@@ -553,7 +553,6 @@ ch_flush()
 {
 	register struct buf *bp;
 
-	ch_ungotchar = -1;
 	if (!(ch_flags & CH_CANSEEK))
 	{
 		/*
