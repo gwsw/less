@@ -13,7 +13,10 @@
 ======================================================================
 
 
-	Major changes between "less" versions 354 and @@VERSION@@
+	Major changes between "less" versions 358 and @@VERSION@@
+
+* System-wide lesskey file now defaults to etc directory instead of bin.
+  Use "configure --sysconfdir=..." to change it.
 
 * Windows version sets window title.
 

@@ -19,8 +19,8 @@
   ESC-SPACE         *  Forward  one window, but don't stop at end-of-file.
   d  ^D             *  Forward  one half-window (and set half-window to _N).
   u  ^U             *  Backward one half-window (and set half-window to _N).
-  ESC-(  RightArrow *  Left  8 character positions (or _N positions).
-  ESC-)  LeftArrow  *  Right 8 character positions (or _N positions).
+  ESC-(  RightArrow *  Left  one half screen width (or _N positions).
+  ESC-)  LeftArrow  *  Right one half screen width (or _N positions).
   F                    Forward forever; like "tail -f".
   r  ^R  ^L            Repaint screen.
   R                    Repaint screen, discarding buffered input.

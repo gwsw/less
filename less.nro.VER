@@ -10,7 +10,7 @@ less \- opposite of more
 .br
 .B "less --version"
 .br
-.B "less [-[+]aBcCdeEfgGiImMnNqQrsSuUVwX]"
+.B "less [-[+]aBcCdeEfFgGiIJmMnNqQrRsSuUVwWX]"
 .br
 .B "     [-b \fIbufs\fP] [-h \fIlines\fP] [-j \fIline\fP] [-k \fIkeyfile\fP]"
 .br
@@ -918,10 +918,10 @@ uses that as the name of the system-wide lesskey file.
 Otherwise,
 .I less 
 looks in a standard place for the system-wide lesskey file:
-On Unix systems, the system-wide lesskey file is /usr/local/bin/.sysless.
+On Unix systems, the system-wide lesskey file is /usr/local/etc/.sysless.
 (However, if 
 .I less 
-was built with a different binary directory than /usr/local/bin,
+was built with a different sysconf directory than /usr/local/etc,
 that directory is where the .sysless file is found.)
 On MS-DOS and Windows systems, the system-wide lesskey file is c:\\_sysless.
 On OS/2 systems, the system-wide lesskey file is c:\\sysless.ini.
