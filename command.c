@@ -1108,6 +1108,9 @@ commands()
 			{
 				ch_flush();
 				clr_linenum();
+#if HILITE_SEARCH
+				clr_hilite();
+#endif
 			}
 			/* FALLTHRU */
 		case A_REPAINT:
