@@ -130,10 +130,6 @@ lsystem(cmd, donemsg)
 	system(p);
 	free(p);
 #else
-#if OS2
-	if (*cmd == '\0')
-		cmd = "cmd.exe";
-#endif
 	system(cmd);
 #endif
 
