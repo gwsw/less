@@ -670,6 +670,7 @@ commands()
 	register int c;
 	register int action;
 	register char *cbuf;
+	int newaction;
 	int save_search_type;
 	char *s;
 	char tbuf[2];
@@ -677,6 +678,7 @@ commands()
 
 	search_type = SRCH_FORW;
 	wscroll = (sc_height + 1) / 2;
+	newaction = A_NOACTION;
 
 	for (;;)
 	{
@@ -702,77 +704,85 @@ commands()
 		prompt();
 		if (sigs)
 			continue;
-		c = getcc();
+		if (newaction == A_NOACTION)
+			c = getcc();
 
 	again:
 		if (sigs)
 			continue;
 
-		/*
-		 * If we are in a multicharacter command, call mca_char.
-		 * Otherwise we call fcmd_decode to determine the
-		 * action to be performed.
-		 */
-		if (mca)
-			switch (mca_char(c))
-			{
-			case MCA_MORE:
-				/*
-				 * Need another character.
-				 */
-				c = getcc();
-				goto again;
-			case MCA_DONE:
-				/*
-				 * Command has been handled by mca_char.
-				 * Start clean with a prompt.
-				 */
-				continue;
-			case NO_MCA:
-				/*
-				 * Not a multi-char command
-				 * (at least, not anymore).
-				 */
-				break;
-			}
-
-		/*
-		 * Decode the command character and decide what to do.
-		 */
-		if (mca)
+		if (newaction != A_NOACTION)
 		{
-			/*
-			 * We're in a multichar command.
-			 * Add the character to the command buffer
-			 * and display it on the screen.
-			 * If the user backspaces past the start 
-			 * of the line, abort the command.
-			 */
-			if (cmd_char(c) == CC_QUIT || len_cmdbuf() == 0)
-				continue;
-			cbuf = get_cmdbuf();
+			action = newaction;
+			newaction = A_NOACTION;
 		} else
 		{
 			/*
-			 * Don't use cmd_char if we're starting fresh
-			 * at the beginning of a command, because we
-			 * don't want to echo the command until we know
-			 * it is a multichar command.  We also don't
-			 * want erase_char/kill_char to be treated
-			 * as line editing characters.
+			 * If we are in a multicharacter command, call mca_char.
+			 * Otherwise we call fcmd_decode to determine the
+			 * action to be performed.
 			 */
-			tbuf[0] = c;
-			tbuf[1] = '\0';
-			cbuf = tbuf;
+			if (mca)
+				switch (mca_char(c))
+				{
+				case MCA_MORE:
+					/*
+					 * Need another character.
+					 */
+					c = getcc();
+					goto again;
+				case MCA_DONE:
+					/*
+					 * Command has been handled by mca_char.
+					 * Start clean with a prompt.
+					 */
+					continue;
+				case NO_MCA:
+					/*
+					 * Not a multi-char command
+					 * (at least, not anymore).
+					 */
+					break;
+				}
+
+			/*
+			 * Decode the command character and decide what to do.
+			 */
+			if (mca)
+			{
+				/*
+				 * We're in a multichar command.
+				 * Add the character to the command buffer
+				 * and display it on the screen.
+				 * If the user backspaces past the start 
+				 * of the line, abort the command.
+				 */
+				if (cmd_char(c) == CC_QUIT || len_cmdbuf() == 0)
+					continue;
+				cbuf = get_cmdbuf();
+			} else
+			{
+				/*
+				 * Don't use cmd_char if we're starting fresh
+				 * at the beginning of a command, because we
+				 * don't want to echo the command until we know
+				 * it is a multichar command.  We also don't
+				 * want erase_char/kill_char to be treated
+				 * as line editing characters.
+				 */
+				tbuf[0] = c;
+				tbuf[1] = '\0';
+				cbuf = tbuf;
+			}
+			s = NULL;
+			action = fcmd_decode(cbuf, &s);
+			/*
+			 * If an "extra" string was returned,
+			 * process it as a string of command characters.
+			 */
+			if (s != NULL)
+				ungetsc(s);
 		}
-		s = NULL;
-		action = fcmd_decode(cbuf, &s);
-		/*
-		 * If an "extra" string was returned,
-		 * process it as a string of command characters.
-		 */
-		if (s != NULL)
-			ungetsc(s);
 		/*
 		 * Clear the cmdbuf string.
 		 * (But not if we're in the prefix of a command,
@@ -874,15 +884,13 @@ commands()
 			hit_eof = 0;
 			while (!sigs)
 				forward(1, 0, 0);
+			ignore_eoi = 0;
 			/*
-			 * This is a kludge to get us back in "F mode"
-			 * after processing a non-abort signal (e.g.
-			 * window-change).  It fails if command "F"
-			 * is reassigned in the lesskey file.
+			 * This gets us back in "F mode" after processing 
+			 * a non-abort signal (e.g. window-change).  
 			 */
 			if (sigs && !ABORT_SIGS())
-				ungetcc('F');
-			ignore_eoi = 0;
+				newaction = A_F_FOREVER;
 			break;
 
 		case A_F_SCROLL:
