@@ -168,6 +168,7 @@ default command keys used by less:
 	^L		repaint 
 	\eeu		undo-hilite
 	g		goto-line 
+	\ekh	goto-line
 	<		goto-line 
 	\ee<		goto-line 
 	p		percent 
@@ -187,6 +188,7 @@ default command keys used by less:
 	G		goto-end 
 	\ee>		goto-end 
 	>		goto-end 
+	\eke	goto-end
 	=		status 
 	^G		status 
 	:f		status 
@@ -206,7 +208,10 @@ default command keys used by less:
 	^X^V		examine 
 	:n		next-file 
 	:p		prev-file 
+	t		next-tag
+	T		prev-tag
 	:x		index-file 
+	:d		remove-file
 	-		toggle-option 
 	:t		toggle-option t
 	s		toggle-option o
