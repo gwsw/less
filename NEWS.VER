@@ -15,6 +15,15 @@
 
 	Major changes between "less" versions 352 and @@VERSION@@
 
+* Add -# (--shift) option to set default horizontal shift distance.
+
+* Horizontal shifting does not shift line numbers if -N is in effect.
+
+======================================================================
+
+
+	Major changes between "less" versions 352 and 354
+
 * Allow space after numeric-valued command line options.
 
 * Fix problem with configuring terminal libraries on some systems.

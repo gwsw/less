@@ -594,6 +594,8 @@ v352   3/8/00	Fix scan_option NULL dereference.
 -----------------------------------------------------------------
 v353   3/20/00	Fix SECURE compile bug, allow space after numeric option.
 v354   3/23/00	Add support for PCRE; add --with-regex configure option.
+-----------------------------------------------------------------
+v355   6/28/00	Add -# option (thanks to Andy Levinson).
 */
 
-char version[] = "354";
+char version[] = "355";
