@@ -615,6 +615,9 @@ do_append(c, pos)
 			backc();
 			STORE_CHAR(linebuf[curr], AT_BOLD, pos);
 			overstrike = 1;
+		} else if (utf_mode && curr > 0 && IS_UTF8_TRAIL(c) && attr[curr-1] == AT_UNDERLINE)
+		{
+			STOREC(c, AT_UNDERLINE);
 		} else if ((char)c == linebuf[curr])
 		{
 			STOREC(c, AT_BOLD);
@@ -622,20 +625,26 @@ do_append(c, pos)
 		{
 			if (utf_mode)
 			{
-				if (curr > 0 && IS_CONT(linebuf[curr]))
-					attr[curr-1] = AT_UNDERLINE;
-				if (curr > 1 && IS_CONT(linebuf[curr-1]))
-					attr[curr-2] = AT_UNDERLINE;
-				if (curr > 2 && IS_CONT(linebuf[curr-2]))
-					attr[curr-3] = AT_UNDERLINE;
-				if (curr > 3 && IS_CONT(linebuf[curr-3]))
-					attr[curr-4] = AT_UNDERLINE;
-				if (curr > 4 && IS_CONT(linebuf[curr-4]))
-					attr[curr-5] = AT_UNDERLINE;
+				int i;
+				for (i = 0;  i < 5;  i++)
+				{
+					if (curr <= i || !IS_CONT(linebuf[curr-i]))
+						break;
+					attr[curr-i-i] = AT_UNDERLINE;
+				}
 			}
 			STOREC(linebuf[curr], AT_UNDERLINE);
 		} else if (linebuf[curr] == '_')
 		{
+			if (utf_mode)
+			{
+				if (IS_UTF8_2BYTE(c))
+					overstrike = 1;
+				else if (IS_UTF8_3BYTE(c))
+					overstrike = 2;
+				else if (IS_UTF8_4BYTE(c))
+					overstrike = 3;
+			}
 			STOREC(c, AT_UNDERLINE);
 		} else if (control_char(c))
 			goto do_control_char;
