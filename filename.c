@@ -372,12 +372,7 @@ seek_filesize(f)
 #if HAVE_POPEN
 
 FILE *popen();
-/*
- * For now, assume that all shells accept backslash to quote special chars.
- */
-int shell_can_esc = 1;
-#define	SHELL_SPECIAL_CHAR(c) \
-	((c) == ' ' || (c) == ';' || (c) == '\'' || (c) == '\"' || (c) == '\\')
+
 
 /*
  * Read a string from a file.
@@ -455,25 +450,60 @@ shellcmd(cmd)
 }
 
 /*
- * Insert a backslash before each "special" character in a string.
+ * Is this a shell metacharacter?
+ */
+	static int
+metachar(c)
+	char c;
+{
+	static char *metachars = NULL;
+
+	if (metachars == NULL)
+	{
+		metachars = lgetenv("LESSMETACHARS");
+		if (metachars == NULL)
+			metachars = DEF_METACHARS;
+	}
+	return (strchr(metachars, c) != NULL);
+}
+
+/*
+ * Insert a backslash before each metacharacter in a string.
  */
 	static char *
-esc_special_chars(s)
+esc_metachars(s)
 	char *s;
 {
 	char *p;
 	char *newstr;
 	int len;
+	char *esc;
+	int esclen;
+
+	esc = lgetenv("LESSMETAESCAPE");
+	if (esc == NULL)
+		esc = "\\";
 
 	/*
 	 * Determine how big a string we need to allocate.
 	 */
+	esclen = strlen(esc);
 	len = 1; /* Trailing null byte */
 	for (p = s;  *p != '\0';  p++)
 	{
 		len++;
-		if (SHELL_SPECIAL_CHAR(*s))
-			len++;
+		if (metachar(*p))
+		{
+			if (*esc == '\0')
+			{
+				/*
+				 * We've got a metachar, but this shell 
+				 * doesn't support escape chars.  Give up.
+				 */
+				return (NULL);
+			}
+			len += esclen;
+		}
 	}
 	/*
 	 * Allocate and construct the new string.
@@ -481,9 +511,11 @@ esc_special_chars(s)
 	newstr = p = (char *) ecalloc(len, sizeof(char));
 	while (*s != '\0')
 	{
-		
-		if (SHELL_SPECIAL_CHAR(*s))
-			*p++ = '\\';
+		if (metachar(*s))
+		{
+			strcpy(p, esc);
+			p += esclen;
+		}
 		*p++ = *s++;
 	}
 	*p = '\0';
@@ -629,38 +661,29 @@ lglob(filename)
 	char *lessecho;
 	char *cmd;
 
-	/*
-	 * Certain characters will cause problems if passed to the shell,
-	 * so we disallow them.
-	 * {{ This presumes too much knowlege about the shell, but not
-	 *    doing this can cause serious problems.  For example, do 
-	 *    "!;TAB" when the first file in the dir is named "rm". }}
-	 */
-
 	lessecho = lgetenv("LESSECHO");
 	if (lessecho == NULL || *lessecho == '\0')
 		lessecho = "lessecho";
-	if (shell_can_esc)
+	s = esc_metachars(filename);
+	if (s == NULL)
 	{
-		s = esc_special_chars(filename);
-	} else
-	{
-		for (s = filename;  *s != '\0';  s++)
-		{
-			if (SHELL_SPECIAL_CHAR(*s))
-			{
-				free(filename);
-				return (ofilename);
-			}
-		}
-		s = filename;
+		/*
+		 * There may be dangerous metachars in this name.
+		 * We can't risk passing it to the shell.
+		 * {{ For example, do "!;TAB" when the first file 
+		 *    in the dir is named "rm". }}
+		 */
+		free(filename);
+		return (ofilename);
 	}
+	/*
+	 * Invoke lessecho, and read its output (a globbed list of filenames).
+	 */
 	cmd = (char *) ecalloc(strlen(lessecho) + strlen(s) + 24, sizeof(char));
 	sprintf(cmd, "%s -p0x%x -d0x%x -- %s", 
 		lessecho, openquote, closequote, s);
 	fd = shellcmd(cmd);
-	if (s != filename)
-		free(s);
+	free(s);
 	free(cmd);
 	if (fd == NULL)
 	{
