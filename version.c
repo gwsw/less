@@ -524,6 +524,7 @@ v298   1/24/96	Change @@ to ^K.
 		Add alternate search modifiers ^N, ^F, ^E.
 v299   1/25/96	Fix percent overflow in jump_percent (thanks to Brent Wiese);
 		don't send "ti" after shell command till RETURN pressed.
+v300   1/25/96	Change -U to print tabs as ^I.
 */
 
-char version[] = "299";
+char version[] = "300";
