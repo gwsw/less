@@ -20,7 +20,7 @@
 * -X option no longer disables keypad initialization.
   New option --no-keypad disables keypad initialization.
 
-* New commands t and T to step through multiple tag matches.
+* New commands t and T step through multiple tag matches.
   Added support for "global(1)" tags.
 
 * New prompt style set by option -Pw defines the message printed 
@@ -30,6 +30,9 @@
   instead of .sysless in bin directory.
   Use "configure --sysconfdir=..." to change it.
   (For backwards compatibility, .sysless in bin is still recognized.)
+
+* Pressing RightArrow or LeftArrow while entering a number now shifts
+  the display N columns rather than editing the number itself.
 
 * Status column (enabled with -J) now shows search results.
 

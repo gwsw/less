@@ -289,7 +289,7 @@ mca_char(c)
 		 * Terminated by a non-digit.
 		 */
 		if ((c < '0' || c > '9') && 
-		  editchar(c, EC_PEEK|EC_NOHISTORY|EC_NOCOMPLETE) == A_INVALID)
+		  editchar(c, EC_PEEK|EC_NOHISTORY|EC_NOCOMPLETE|EC_NORIGHTLEFT) == A_INVALID)
 		{
 			/*
 			 * Not part of the number.
@@ -1559,7 +1559,9 @@ commands()
 			goto again;
 
 		case A_LSHIFT:
-			if (number <= 0)
+			if (number > 0)
+				shift_count = number;
+			else
 				number = (shift_count > 0) ?
 					shift_count : sc_width / 2;
 			if (number > hshift)
@@ -1569,7 +1571,9 @@ commands()
 			break;
 
 		case A_RSHIFT:
-			if (number <= 0)
+			if (number > 0)
+				shift_count = number;
+			else
 				number = (shift_count > 0) ?
 					shift_count : sc_width / 2;
 			hshift += number;

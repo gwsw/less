@@ -773,6 +773,16 @@ editchar(c, flags)
 		action = ecmd_decode(usercmd, &s);
 	} while (action == A_PREFIX);
 	
+	if (flags & EC_NORIGHTLEFT)
+	{
+		switch (action)
+		{
+		case EC_RIGHT:
+		case EC_LEFT:
+			action = A_INVALID;
+			break;
+		}
+	}
 #if CMD_HISTORY
 	if (flags & EC_NOHISTORY) 
 	{

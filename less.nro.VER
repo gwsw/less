@@ -88,14 +88,15 @@ subsequent d and u commands.
 .IP "ESC-) or RIGHTARROW"
 Scroll horizontally right N characters, default half the screen width
 (see the -# option).
+If a number N is specified, it becomes the default for future RIGHTARROW
+and LEFTARROW commands.
 While the text is scrolled, it acts as though the -S option
 (chop lines) were in effect.
-Note that if you wish to enter a number N, you must use ESC-), not RIGHTARROW,
-because the arrow is taken to be a line editing command
-(see the LINE EDITING section).
 .IP "ESC-( or LEFTARROW"
 Scroll horizontally left N characters, default half the screen width
 (see the -# option).
+If a number N is specified, it becomes the default for future RIGHTARROW
+and LEFTARROW commands.
 .IP "r or ^R or ^L"
 Repaint the screen.
 .IP R

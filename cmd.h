@@ -105,6 +105,7 @@
 #define	EC_PEEK		01
 #define	EC_NOHISTORY	02
 #define	EC_NOCOMPLETE	04
+#define	EC_NORIGHTLEFT	010
 
 /* Environment variable stuff */
 #define	EV_OK		01
