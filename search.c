@@ -62,9 +62,15 @@ extern int bs_mode;
 extern int hilite_search;
 static int hide_hilite;
 extern int screen_trashed;
-static POSITION hl_startpos[MAX_HILITE];
-static POSITION hl_endpos[MAX_HILITE];
-static int num_hilite;
+
+struct hilite
+{
+	struct hilite *hl_next;
+	POSITION hl_startpos;
+	POSITION hl_endpos;
+};
+static struct hilite *hilite_list = NULL;
+static struct hilite *hilite_tail = NULL;
 #endif
 
 /*
@@ -314,7 +320,36 @@ match_pattern(line, sp, ep)
 	public void
 clr_hilite()
 {
-	num_hilite = 0;
+	struct hilite *hl;
+	struct hilite *nexthl;
+
+	for (hl = hilite_list;  hl != NULL;  hl = nexthl)
+	{
+		nexthl = hl->hl_next;
+		free((void*)hl);
+	}
+	hilite_list = hilite_tail = NULL;
+}
+
+	public void
+add_hilite(startpos, endpos)
+	POSITION startpos;
+	POSITION endpos;
+{
+	struct hilite *hl;
+
+	hl = (struct hilite *) ecalloc(1, sizeof(struct hilite));
+	hl->hl_next = NULL;
+	hl->hl_startpos = startpos;
+	hl->hl_endpos = endpos;
+	if (hilite_tail == NULL)
+	{
+		hilite_list = hilite_tail = hl;
+	} else
+	{
+		hilite_tail->hl_next = hl;
+		hilite_tail = hl;
+	}
 }
 
 /*
@@ -327,7 +362,7 @@ is_hilited(pos, epos, nohide)
 	POSITION epos;
 	int nohide;
 {
-	int i;
+	struct hilite *hl;
 
 	if (!hilite_search)
 		/*
@@ -344,10 +379,10 @@ is_hilited(pos, epos, nohide)
 	/*
 	 * Look at each highlight and see if any part of it falls in the range.
 	 */
-	for (i = 0;  i < num_hilite;  i++)
+	for (hl = hilite_list;  hl != NULL;  hl = hl->hl_next)
 	{
-		if (hl_endpos[i] > pos &&
-		    (epos == NULL_POSITION || epos > hl_startpos[i]))
+		if (hl->hl_endpos > pos &&
+		    (epos == NULL_POSITION || epos > hl->hl_startpos))
 			return (1);
 	}
 	return (0);
@@ -361,7 +396,7 @@ adj_hlpos(linepos)
 	POSITION linepos;
 {
 	char *line;
-	int i;
+	struct hilite *hl;
 	int checkstart;
 	POSITION opos;
 	POSITION npos;
@@ -371,7 +406,7 @@ adj_hlpos(linepos)
 	 */
 	(void) forw_raw_line(linepos, &line);
 	opos = npos = linepos;
-	i = 0;
+	hl = hilite_list;
 	checkstart = 1;
 	for (;;)
 	{
@@ -382,16 +417,16 @@ adj_hlpos(linepos)
 		 * The hl_ lists must be sorted: 
 		 * startpos[0] < endpos[0] <= startpos[1] < endpos[1] <= etc.
 		 */
-		if (checkstart && hl_startpos[i] == opos)
+		if (checkstart && hl->hl_startpos == opos)
 		{
-			hl_startpos[i] = npos;
+			hl->hl_startpos = npos;
 			checkstart = 0;
 			continue; /* {{ not really necessary }} */
-		} else if (!checkstart && hl_endpos[i] == opos)
+		} else if (!checkstart && hl->hl_endpos == opos)
 		{
-			hl_endpos[i] = npos;
+			hl->hl_endpos = npos;
 			checkstart = 1;
-			if (++i >= num_hilite)
+			if ((hl = hl->hl_next) == NULL)
 				break;
 			continue; /* {{ necessary }} */
 		}
@@ -428,14 +463,11 @@ hilite_line(linepos, line, sp, ep)
 	 *    substrings of the line, may mark more than is correct
 	 *    if, for example, the pattern starts with "^". }}
 	 */
-	num_hilite = 0;
 	searchp = line;
 	do {
 		if (ep > sp)
 		{
-			hl_startpos[num_hilite] = linepos + (sp - line);
-			hl_endpos[num_hilite] = linepos + (ep - line);
-			num_hilite++;
+			add_hilite(linepos + (sp-line), linepos + (ep-line));
 		}
 		/*
 		 * If we matched more than zero characters,
@@ -448,7 +480,7 @@ hilite_line(linepos, line, sp, ep)
 			searchp++;
 		else /* end of line */
 			break;
-	} while (num_hilite < MAX_HILITE && match_pattern(searchp, &sp, &ep));
+	} while (match_pattern(searchp, &sp, &ep));
 
 	if (bs_mode == BS_SPECIAL) 
 	{
@@ -705,7 +737,7 @@ search(search_type, pattern, n)
 				 * Remove any old hilites.
 				 * Put hilites on the new matching strings.
 				 */
-				num_hilite = 0;
+				clr_hilite();
 				if (line_match && sp != NULL && ep != NULL)
 					hilite_line(linepos, line, sp, ep);
 			}
@@ -714,12 +746,15 @@ search(search_type, pattern, n)
 		}
 	}
 
+	jump_loc(linepos, jump_sline);
+
 #if HILITE_SEARCH
 	if (hilite_search)
+	{
 		repaint_hilite();
+	}
 #endif
 
-	jump_loc(linepos, jump_sline);
 	return (0);
 }
 
