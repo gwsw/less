@@ -618,7 +618,8 @@ v365 12/11/01	Fix overstriking of tabs;
 v366 12/11/01	Fixes for OS/2 (thanks to Kyosuke Tokoro).
 v367 12/13/01	Allow -D and -x options to terminate without dollar sign;
 		Right/left arrow when entering N are shift cmds, not line edit.
+v368 12/18/01	
 
 */
 
-char version[] = "367";
+char version[] = "368";
