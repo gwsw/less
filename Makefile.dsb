@@ -6,7 +6,7 @@
 CC = bcc
 LIBDIR = \bc\lib
 
-CFLAGS = -mm -O2 -w- -1- -2- -a -d -Z
+CFLAGS = -A- -mm -O2 -w- -1- -2- -a -d -Z
 LDFLAGS = -mm
 LIBS =
 EXT = .EXE
