@@ -55,7 +55,6 @@ extern int secure;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 
-#if SPACES_IN_FILENAMES
 /*
  * Remove quotes around a filename.
  */
@@ -63,26 +62,25 @@ extern IFILE old_ifile;
 unquote_file(str)
 	char *str;
 {
-	static char name[_MAX_PATH];
-	char *p = name;
+#if SPACES_IN_FILENAMES
+	char *name;
+	char *p;
 
 	if (strchr(str, '"') == NULL)
-		return str;
-
-	while (*str && (p < &name[sizeof name - 1]))
+		return (save(str));
+	name = p = ecalloc(strlen(str)+1, sizeof(char));
+	while (*str != '\0')
 	{
 		if (*str != '"')
-		{
-			*p = *str;
-			p++;
-		}
+			*p++ = *str;
 		str++;
 	}
 	*p = '\0';
-
-	return name;
-}
+	return (name);
+#else
+	return (save(str));
 #endif
+}
 
 /*
  * Return a pathname that points to a specified file in a specified directory.
@@ -94,6 +92,7 @@ dirfile(dirname, filename)
 	char *filename;
 {
 	char *pathname;
+	char *qpathname;
 	int f;
 
 	if (dirname == NULL || *dirname == '\0')
@@ -109,7 +108,8 @@ dirfile(dirname, filename)
 	/*
 	 * Make sure the file exists.
 	 */
-	f = open(UNQUOTE_FILE(pathname), OPEN_READ);
+	qpathname = unquote_file(pathname);
+	f = open(qpathname, OPEN_READ);
 	if (f < 0)
 	{
 		free(pathname);
@@ -118,6 +118,7 @@ dirfile(dirname, filename)
 	{
 		close(f);
 	}
+	free(qpathname);
 	return (pathname);
 }
 
@@ -548,7 +549,10 @@ lglob(filename)
 			return (filename);
 	}
 
-	fd = shellcmd("echo %s", filename, (char*)NULL);
+	s = lgetenv("LESSECHO");
+	if (s == NULL || *s == '\0')
+		s = "lessecho";
+	fd = shellcmd("%s %s", s, filename);
 	if (fd == NULL)
 	{
 		/*
@@ -733,6 +737,7 @@ lglob(filename)
 	char *filename;
 {
 	register char *gfilename;
+	register char *qfilename;
 	register char *p;
 	register int len;
 	register int n;
@@ -746,11 +751,15 @@ lglob(filename)
 	if (secure)
 		return (filename);
 
-	handle = FIND_FIRST(UNQUOTE_FILE(filename), &fnd);
+	qfilename = unquote_file(filename);
+	handle = FIND_FIRST(qfilename, &fnd);
 	if (BAD_HANDLE(handle))
+	{
+		free(qfilename);
 		return (filename);
+	}
 
-	_splitpath(UNQUOTE_FILE(filename), drive, dir, fname, ext);
+	_splitpath(qfilename, drive, dir, fname, ext);
 	len = 100;
 	gfilename = (char *) ecalloc(len, sizeof(char));
 	p = gfilename;
@@ -793,6 +802,7 @@ lglob(filename)
 	 */
 	*--p = '\0';
 	FIND_CLOSE(handle);
+	free(qfilename);
 	return (gfilename);
 }
 
@@ -864,9 +874,13 @@ bad_file(filename)
 	char *filename;
 {
 	register char *m;
+	int r;
 	struct stat statbuf;
 
-	if (stat(UNQUOTE_FILE(filename), &statbuf) < 0)
+	m = unquote_file(filename);
+	r = stat(m, &statbuf);
+	free(m);
+	if (r < 0)
 		return (errno_message(filename));
 
 	if (force_open)

@@ -556,6 +556,7 @@ v323   8/19/96	Fixes for Windows version (thanks to Simon Munton);
 		fix for Linux library weirdness (thanks to Jim Diamond);
 		port to DJGPP (thanks to Eli Zaretskii).
 v324   8/21/96	Add support for spaces in filenames (thanks to Simon Munton).
+v325   8/21/96	Add lessecho, for spaces in filenames under Unix.
 */
 
-char version[] = "324";
+char version[] = "325";

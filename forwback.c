@@ -209,7 +209,8 @@ forw(n, pos, force, only_last, nblank)
 				eof = 1;
 				if (!force && position(TOP) != NULL_POSITION)
 					break;
-				if (empty_lines(2, sc_height-1))
+				if (empty_lines(2, sc_height-1) &&
+				    !empty_lines(0, 0))
 					break;
 			}
 		}

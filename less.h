@@ -196,13 +196,7 @@ typedef long		POSITION;
 #define	SHELL_META_QUEST 1
 #endif
 
-#if MSDOS_COMPILER || OS2
 #define	SPACES_IN_FILENAMES 1
-#define	UNQUOTE_FILE(x)	unquote_file(x)
-#else
-#define	SPACES_IN_FILENAMES 0
-#define	UNQUOTE_FILE(x)	(x)
-#endif
 
 /*
  * An IFILE represents an input file.

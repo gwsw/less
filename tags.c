@@ -60,7 +60,10 @@ findtag(tag)
 	int err;
 	char tline[TAGLINE_SIZE];
 
-	if ((f = fopen(UNQUOTE_FILE(tags), "r")) == NULL)
+	p = unquote_file(tags);
+	f = fopen(p, "r");
+	free(p);
+	if (f == NULL)
 	{
 		error("No tags file", NULL_PARG);
 		tagfile = NULL;

@@ -250,7 +250,7 @@ edit_ifile(ifile)
 		return (0);
 	}
 
-	filename = UNQUOTE_FILE(get_filename(ifile));
+	filename = unquote_file(get_filename(ifile));
 	/*
 	 * See if LESSOPEN specifies an "alternate" file to open.
 	 */
@@ -307,6 +307,7 @@ edit_ifile(ifile)
 			free(alt_filename);
 		}
 		del_ifile(ifile);
+		free(filename);
 		/*
 		 * Re-open the current file.
 		 */
@@ -393,6 +394,7 @@ edit_ifile(ifile)
 			error("%s", &parg);
 		}
 	}
+	free(filename);
 	return (0);
 }
 
@@ -696,7 +698,7 @@ use_logfile(filename)
 	/*
 	 * {{ We could use access() here. }}
 	 */
-	filename = UNQUOTE_FILE(filename);
+	filename = unquote_file(filename);
 	exists = open(filename, OPEN_READ);
 	close(exists);
 	exists = (exists >= 0);
@@ -744,6 +746,7 @@ loop:
 		/*
 		 * Don't do anything.
 		 */
+		free(filename);
 		return;
 	case 'q':
 		quit(QUIT_OK);
@@ -763,8 +766,10 @@ loop:
 		 */
 		parg.p_string = filename;
 		error("Cannot write to \"%s\"", &parg);
+		free(filename);
 		return;
 	}
+	free(filename);
 	SET_BINARY(logfile);
 }
 
