@@ -31,7 +31,7 @@
  */
 
 #include "less.h"
-#include "glob.h"
+#include "lglob.h"
 #if MSDOS_COMPILER
 #include <dos.h>
 #if MSDOS_COMPILER==WIN32C && !defined(_MSC_VER)
@@ -51,7 +51,7 @@
 #endif
 #endif
 
-#if HAVE_SYS_STAT_H
+#if HAVE_STAT
 #include <sys/stat.h>
 #ifndef S_ISDIR
 #define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
@@ -841,6 +841,7 @@ bad_file(filename)
 }
 #else
 #ifdef _OSK
+{
 	register int f;
 
 	if ((f = open(filename, S_IREAD | S_IFDIR)) >= 0)
@@ -864,6 +865,7 @@ bad_file(filename)
 	{
 		m = errno_message(filename);
 	}
+}
 #endif
 #endif
 	free(filename);

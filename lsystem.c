@@ -36,6 +36,7 @@
 
 #if MSDOS_COMPILER
 #include <dos.h>
+#include <dir.h>
 #endif
 
 extern int screen_trashed;
@@ -57,6 +58,9 @@ lsystem(cmd, donemsg)
 	register char *shell;
 	register char *p;
 	IFILE save_ifile;
+#if MSDOS_COMPILER
+	char cwd[FILENAME_MAX+1];
+#endif
 
 	/*
 	 * Print the command which is to be executed,
@@ -71,6 +75,17 @@ lsystem(cmd, donemsg)
 		putstr(cmd);
 		putstr("\n");
 	}
+
+#if MSDOS_COMPILER
+	/*
+	 * Working directory is global on MSDOS.
+	 * The child might change the working directory, so we
+	 * must save and restore CWD across calls to `system',
+	 * or else we won't find our file when we return and
+	 * try to `reedit_ifile' it.
+	 */
+	getcwd(cwd, FILENAME_MAX);
+#endif
 
 	/*
 	 * Close the current input file.
@@ -170,6 +185,27 @@ lsystem(cmd, donemsg)
 	}
 	init();
 	screen_trashed = 1;
+
+#if MSDOS_COMPILER
+	/*
+	 * Restore the previous directory (possibly
+	 * changed by the child program we just ran).
+	 */
+	chdir(cwd);
+#if MSDOS_COMPILER != DJGPPC
+	/*
+	 * Some versions of chdir() don't change to the drive
+	 * which is part of CWD.  (DJGPP does this in chdir.)
+	 */
+	if (cwd[1] == ':')
+	{
+		if (cwd[0] >= 'a' && cwd[0] <= 'z')
+			setdisk(cwd[0] - 'a');
+		else if (cwd[0] >= 'A' && cwd[0] <= 'Z')
+			setdisk(cwd[0] - 'A');
+	}
+#endif
+#endif
 
 	/*
 	 * Reopen the current input file.

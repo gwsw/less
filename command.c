@@ -697,7 +697,6 @@ commands()
 	char *extra;
 	char tbuf[2];
 	PARG parg;
-	IFILE save_ifile;
 
 	search_type = SRCH_FORW;
 	wscroll = (sc_height + 1) / 2;
@@ -1185,14 +1184,7 @@ commands()
 			 */
 			make_display();
 			cmd_exec();
-			save_ifile = save_curr_ifile();
 			lsystem(pr_expand(editproto, 0), (char*)NULL);
-			/*
-			 * Re-edit the file, since data may have changed.
-			 * Some editors even recreate the file, so flushing
-			 * buffers is not sufficient.
-			 */
-			reedit_ifile(save_ifile);
 			break;
 #else
 			error("Command not available", NULL_PARG);

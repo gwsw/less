@@ -44,7 +44,7 @@
 #define	GLOB_LIST_FAILED(list)		list == NULL
 #define	SCAN_GLOB_LIST(list)		pp = list;  *pp != NULL;  pp++
 #define	INIT_GLOB_LIST(list,p)		p = *pp
-#define	SCAN_LIST_DONE(list)		_fnexplodefree(list)
+#define	GLOB_LIST_DONE(list)		_fnexplodefree(list)
 
 #else
 #if MSDOS_COMPILER==DJGPPC
@@ -54,7 +54,7 @@
 #define	GLOB_LIST_FAILED(list)		0
 #define	SCAN_GLOB_LIST(list,p)		i = 0;  i < list.gl_pathc;  i++
 #define	INIT_GLOB_LIST(list,p)		p = list.gl_pathv[i]
-#define	SCAN_LIST_DONE(list)		globfree(&list)
+#define	GLOB_LIST_DONE(list)		globfree(&list)
 
 #else
 #if MSDOS_COMPILER==MSOFTC || MSDOS_COMPILER==BORLANDC
