@@ -680,6 +680,27 @@ main(argc, argv)
 	FILE *out;
 	char line[200];
 
+#ifdef WIN32
+	if (getenv("HOME") == NULL)
+	{
+		/*
+		 * If there is no HOME environment variable,
+		 * try the concatenation of HOMEDRIVE + HOMEPATH.
+		 */
+		char *drive = getenv("HOMEDRIVE");
+		char *path  = getenv("HOMEPATH");
+		if (drive != NULL && path != NULL)
+		{
+			char *env = (char *) calloc(strlen(drive) + 
+					strlen(path) + 6, sizeof(char));
+			strcpy(env, "PATH=");
+			strcat(env, drive);
+			strcat(env, path);
+			putenv(env);
+		}
+	}
+#endif /* WIN32 */
+
 	/*
 	 * Process command line arguments.
 	 */
