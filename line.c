@@ -555,6 +555,11 @@ pappend(c, pos)
 	return (r);
 }
 
+#define IS_UTF8_4BYTE(c) ( ((c) & 0xf8) == 0xf0 )
+#define IS_UTF8_3BYTE(c) ( ((c) & 0xf0) == 0xe0 )
+#define IS_UTF8_2BYTE(c) ( ((c) & 0xe0) == 0xc0 )
+#define IS_UTF8_TRAIL(c) ( ((c) & 0xc0) == 0x80 )
+
 	static int
 do_append(c, pos)
 	int c;
@@ -592,12 +597,20 @@ do_append(c, pos)
 		 * or just deletion of the character in the buffer.
 		 */
 		overstrike--;
-		if (utf_mode && curr > 1 && (char)c == linebuf[curr-2])
+		if (utf_mode && IS_UTF8_4BYTE(c) && curr > 2 && (char)c == linebuf[curr-3])
 		{
 			backc();
 			backc();
+			backc();
+			STORE_CHAR(linebuf[curr], AT_BOLD, pos);
+			overstrike = 3;
+		} else if (utf_mode && (IS_UTF8_3BYTE(c) || overstrike==2 && IS_UTF8_TRAIL(c)) && curr > 1 && (char)c == linebuf[curr-2])
+		{
+			backc();
+			backc();
+			STORE_CHAR(linebuf[curr], AT_BOLD, pos);
 			overstrike = 2;
-		} else if (utf_mode && curr > 0 && (char)c == linebuf[curr-1])
+		} else if (utf_mode && curr > 0 && (IS_UTF8_2BYTE(c) || overstrike==1 && IS_UTF8_TRAIL(c)) && (char)c == linebuf[curr-1])
 		{
 			backc();
 			STORE_CHAR(linebuf[curr], AT_BOLD, pos);

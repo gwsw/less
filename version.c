@@ -629,7 +629,9 @@ v373  1/14/02	Improve handling of filenames containing shell metachars.
 v374   2/7/02	Fix memory leak; fix bug in -x argument parsing.
 v375   4/7/02	Fix searching for SGR sequences; fix SECURE build;
 		add SGR support to DJGPP version (thanks to Eli Zaretskii).
+v376  6/10/02	Fix bug in overstriking mulitbyte UTF-8 characters
+		(thanks to Jungshik Shin).
 
 */
 
-char version[] = "375";
+char version[] = "376";
