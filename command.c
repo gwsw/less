@@ -14,6 +14,9 @@
  */
 
 #include "less.h"
+#if MSDOS_COMPILER==WIN32C
+#include <windows.h>
+#endif
 #include "position.h"
 #include "option.h"
 #include "cmd.h"
@@ -608,6 +611,13 @@ prompt()
 		quit(QUIT_OK);
 #endif
 
+#if MSDOS_COMPILER==WIN32C
+	/* 
+	 * In Win32, display the file name in the window title.
+	 */
+	p = pr_expand("Less?f - %f.", 0);
+	SetConsoleTitle(p);
+#endif
 	/*
 	 * Select the proper prompt and display it.
 	 */
