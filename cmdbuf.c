@@ -533,6 +533,53 @@ cmd_updown(action)
 #endif
 
 /*
+ * Add a string to a history list.
+ */
+	public void
+cmd_addhist(mlist, cmd)
+	struct mlist *mlist;
+	char *cmd;
+{
+#if CMD_HISTORY
+	struct mlist *ml;
+	
+	/*
+	 * Don't save a trivial command.
+	 */
+	if (strlen(cmd) == 0)
+		return;
+	/*
+	 * Don't save if a duplicate of a command which is already 
+	 * in the history.
+	 * But select the one already in the history to be current.
+	 */
+	for (ml = mlist->next;  ml != mlist;  ml = ml->next)
+	{
+		if (strcmp(ml->string, cmd) == 0)
+			break;
+	}
+	if (ml == mlist)
+	{
+		/*
+		 * Did not find command in history.
+		 * Save the command and put it at the end of the history list.
+		 */
+		ml = (struct mlist *) ecalloc(1, sizeof(struct mlist));
+		ml->string = save(cmd);
+		ml->next = mlist;
+		ml->prev = mlist->prev;
+		mlist->prev->next = ml;
+		mlist->prev = ml;
+	}
+	/*
+	 * Point to the cmd just after the just-accepted command.
+	 * Thus, an UPARROW will always retrieve the previous command.
+	 */
+	mlist->curr_mp = ml->next;
+#endif
+}
+
+/*
  * Accept the command in the command buffer.
  * Add it to the currently selected history list.
  */
@@ -540,45 +587,12 @@ cmd_updown(action)
 cmd_accept()
 {
 #if CMD_HISTORY
-	struct mlist *ml;
-	
 	/*
 	 * Nothing to do if there is no currently selected history list.
 	 */
 	if (curr_mlist == NULL)
 		return;
-	/*
-	 * Don't save a trivial command.
-	 */
-	if (strlen(cmdbuf) == 0)
-		return;
-	/*
-	 * Don't save if a duplicate of a command which is already in the history.
-	 * But select the one already in the history to be current.
-	 */
-	for (ml = curr_mlist->next;  ml != curr_mlist;  ml = ml->next)
-	{
-		if (strcmp(ml->string, cmdbuf) == 0)
-			break;
-	}
-	if (ml == curr_mlist)
-	{
-		/*
-		 * Did not find command in history.
-		 * Save the command and put it at the end of the history list.
-		 */
-		ml = (struct mlist *) ecalloc(1, sizeof(struct mlist));
-		ml->string = save(cmdbuf);
-		ml->next = curr_mlist;
-		ml->prev = curr_mlist->prev;
-		curr_mlist->prev->next = ml;
-		curr_mlist->prev = ml;
-	}
-	/*
-	 * Point to the cmd just after the just-accepted command.
-	 * Thus, an UPARROW will always retrieve the previous command.
-	 */
-	curr_mlist->curr_mp = ml->next;
+	cmd_addhist(curr_mlist, cmdbuf);
 #endif
 }
 

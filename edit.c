@@ -40,6 +40,7 @@ extern int sigs;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
+extern void constant *ml_examine;
 #if SPACES_IN_FILENAMES
 extern char openquote;
 extern char closequote;
@@ -396,6 +397,7 @@ edit_ifile(ifile)
 #if HILITE_SEARCH
 		clr_hilite();
 #endif
+		cmd_addhist(ml_examine, filename);
 		if (no_display && errmsgs > 0)
 		{
 			/*
