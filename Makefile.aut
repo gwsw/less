@@ -1,6 +1,6 @@
 # Makefile for authoring less.
 
-EMAIL = lessmail@aol.com
+EMAIL = marknu@netcom.com
 HOMEPAGE = http://members.aol.com/marknudel/less
 SHELL = /bin/sh
 
