@@ -17,9 +17,7 @@
 
 * -x option can now specify multiple variable-width tab stops.
 
-* Status column (enabled with -J) now shows search results.
-
-* -X no longer disables keypad initialization.
+* -X option no longer disables keypad initialization.
   New option --no-keypad disables keypad initialization.
 
 * New commands t and T to step through multiple tag matches.
@@ -33,19 +31,21 @@
   Use "configure --sysconfdir=..." to change it.
   (For backwards compatibility, .sysless in bin is still recognized.)
 
+* Status column (enabled with -J) now shows search results.
+
 * Windows version sets window title.
 
 * Default LESSCHARSET for MS-DOS versions is now "dos".
 
 * Improved performance in reading very large files.
 
-* Fix problems when viewing files with very long lines.
+* Eliminated some dependencies on file offets being 32 bits.
 
-* Fix overstriking in UTF-8 mode, and overstriking tabs.
+* Fixed problems when viewing files with very long lines.
 
-* Improve horizontal shifting of text using -R option with ANSI color.
+* Fixed overstriking in UTF-8 mode, and overstriking tabs.
 
-* Eliminate some dependencies on file offets being 32 bits.
+* Improved horizontal shifting of text using -R option with ANSI color.
 
 * Some fixes for EBCDIC systems.
 

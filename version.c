@@ -616,7 +616,8 @@ v365 12/11/01	Fix overstriking of tabs;
 		Add support for global(1) and multiple tag matches
 		(thanks to Shigio Yamaguchi and Tim Vanderhoek).
 v366 12/11/01	Fixes for OS/2 (thanks to Kyosuke Tokoro).
+v367 12/13/01	Allow -D and -x options to terminate without dollar sign.
 
 */
 
-char version[] = "366";
+char version[] = "367";
