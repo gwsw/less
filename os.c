@@ -177,7 +177,11 @@ errno_message(filename)
 	register char *p;
 	register char *m;
 #if HAVE_ERRNO
+#if MSOFTC
+	/* errno is declared in errno.h */
+#else
 	extern int errno;
+#endif
 	p = strerror(errno);
 #else
 	p = "cannot open";

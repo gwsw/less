@@ -94,7 +94,7 @@ main(argc, argv)
 	init_prompt();
 	init_charset();
 	init_option();
-	scan_option(getenv("LESS"));
+	scan_option(lgetenv("LESS"));
 
 #if GNU_OPTIONS
 	/*
@@ -124,14 +124,14 @@ main(argc, argv)
 	}
 
 #if EDITOR
-	editor = getenv("VISUAL");
+	editor = lgetenv("VISUAL");
 	if (editor == NULL || *editor == '\0')
 	{
-		editor = getenv("EDITOR");
+		editor = lgetenv("EDITOR");
 		if (editor == NULL || *editor == '\0')
 			editor = EDIT_PGM;
 	}
-	editproto = getenv("LESSEDIT");
+	editproto = lgetenv("LESSEDIT");
 	if (editproto == NULL || *editproto == '\0')
 		editproto = "%E ?lm+%lm. %f";
 #endif

@@ -92,14 +92,14 @@ homefile(filename)
 	/*
 	 * Try $HOME/filename.
 	 */
-	pathname = dirfile(getenv("HOME"), filename);
+	pathname = dirfile(lgetenv("HOME"), filename);
 	if (pathname != NULL)
 		return (pathname);
 #if OS2
 	/*
 	 * Try $INIT/filename.
 	 */
-	pathname = dirfile(getenv("INIT"), filename);
+	pathname = dirfile(lgetenv("INIT"), filename);
 	if (pathname != NULL)
 		return (pathname);
 #endif
@@ -124,7 +124,7 @@ find_helpfile()
 {
 	register char *helpfile;
 	
-	if ((helpfile = getenv("LESSHELP")) != NULL)
+	if ((helpfile = lgetenv("LESSHELP")) != NULL)
 		return (save(helpfile));
 #if MSOFTC || OS2
 	return (homefile(HELPFILE));
@@ -360,7 +360,7 @@ shellcmd(cmd, s1, s2)
 	scmd = (char *) ecalloc(len, sizeof(char));
 	sprintf(scmd, cmd, s1, s2);
 #if HAVE_SHELL
-	shell = getenv("SHELL");
+	shell = lgetenv("SHELL");
 	if (shell != NULL && *shell != '\0')
 	{
 		/*
@@ -454,7 +454,7 @@ open_altfile(filename, pf, pfd)
 	FILE *fd;
 	
 	ch_ungetchar(-1);
-	if ((lessopen = getenv("LESSOPEN")) == NULL)
+	if ((lessopen = lgetenv("LESSOPEN")) == NULL)
 		return (NULL);
 	if (strcmp(filename, "-") == 0)
 		return (NULL);
@@ -527,7 +527,7 @@ close_altfile(altfilename, filename, pipefd)
 	
 	if (pipefd != NULL)
 		pclose((FILE*) pipefd);
-	if ((lessclose = getenv("LESSCLOSE")) == NULL)
+	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)
 	     	return;
 	fd = shellcmd(lessclose, filename, altfilename);
 	pclose(fd);

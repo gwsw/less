@@ -115,3 +115,5 @@
 #define	EC_NOHISTORY	02
 #define	EC_NOCOMPLETE	04
 
+/* Environment variable stuff */
+#define	EV_OK		01

@@ -195,6 +195,7 @@ struct tablelist
  */
 static struct tablelist *list_fcmd_tables = NULL;
 static struct tablelist *list_ecmd_tables = NULL;
+static struct tablelist *list_var_tables = NULL;
 
 
 /*
@@ -268,6 +269,18 @@ add_ecmd_table(buf, len)
 {
 	if (add_cmd_table(&list_ecmd_tables, buf, len) < 0)
 		error("Warning: some edit commands disabled", NULL_PARG);
+}
+
+/*
+ * Add an environment variable table.
+ */
+	public void
+add_var_table(buf, len)
+	char *buf;
+	int len;
+{
+	if (add_cmd_table(&list_var_tables, buf, len) < 0)
+		error("Warning: environment variables from lesskey file unavailable", NULL_PARG);
 }
 
 /*
@@ -403,7 +416,29 @@ ecmd_decode(cmd, sp)
 	return (cmd_decode(list_ecmd_tables, cmd, sp));
 }
 
+/*
+ * Get the value of an environment variable.
+ * Looks first in the lesskey file, then in the real environment.
+ */
+	public char *
+lgetenv(var)
+	char *var;
+{
+	int a;
+	char *s;
+
+	a = cmd_decode(list_var_tables, var, &s);
+	if (a == EV_OK)
+		return (s);
+	return (getenv(var));
+}
+
 #if USERFILE
+/*
+ * Get an "integer" from a lesskey file.
+ * Integers are stored in a funny format: 
+ * two bytes, low order first, in radix KRADIX.
+ */
 	static int
 gint(sp)
 	char **sp;
@@ -415,6 +450,9 @@ gint(sp)
 	return (n);
 }
 
+/*
+ * Process an old (pre-v241) lesskey file.
+ */
 	static int
 old_lesskey(buf, len)
 	char *buf;
@@ -433,6 +471,9 @@ old_lesskey(buf, len)
 	return (0);
 }
 
+/* 
+ * Process a new (post-v241) lesskey file.
+ */
 	static int
 new_lesskey(buf, len)
 	char *buf;
@@ -440,7 +481,6 @@ new_lesskey(buf, len)
 {
 	char *p;
 	register int c;
-	register int done;
 	register int n;
 
 	/*
@@ -452,8 +492,7 @@ new_lesskey(buf, len)
 	    buf[len-1] != C2_END_LESSKEY_MAGIC)
 		return (-1);
 	p = buf + 4;
-	done = 0;
-	while (!done)
+	for (;;)
 	{
 		c = *p++;
 		switch (c)
@@ -468,15 +507,21 @@ new_lesskey(buf, len)
 			add_ecmd_table(p, n);
 			p += n;
 			break;
+		case VAR_SECTION:
+			n = gint(&p);
+			add_var_table(p, n);
+			p += n;
+			break;
 		case END_SECTION:
 			done = 1;
-			break;
+			return (0);
 		default:
-			free(buf);
+			/*
+			 * Unrecognized section type.
+			 */
 			return (-1);
 		}
 	}
-	return (0);
 }
 
 /*
@@ -641,7 +686,8 @@ editchar(c, flags)
 		 * This does NOT include the original character that was 
 		 * passed in as a parameter.
 		 */
-		while (nch > 1) {
+		while (nch > 1) 
+		{
 			ungetcc(usercmd[--nch]);
 		}
 	} else

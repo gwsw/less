@@ -461,7 +461,7 @@ scrsize()
 	else
 #endif
 #endif
-	if ((s = getenv("LINES")) != NULL)
+	if ((s = lgetenv("LINES")) != NULL)
 		sc_height = atoi(s);
 	else
  		sc_height = tgetnum("li");
@@ -479,7 +479,7 @@ scrsize()
 	else
 #endif
 #endif
-	if ((s = getenv("COLUMNS")) != NULL)
+	if ((s = lgetenv("COLUMNS")) != NULL)
 		sc_width = atoi(s);
 	else
  		sc_width = tgetnum("co");
@@ -669,7 +669,7 @@ get_term()
 	/*
 	 * Make sure the termcap database is available.
 	 */
-	sp = getenv("TERMCAP");
+	sp = lgetenv("TERMCAP");
 	if (sp == NULL || *sp == '\0')
 	{
 		char *termcap;
@@ -685,7 +685,7 @@ get_term()
 	/*
 	 * Find out what kind of terminal this is.
 	 */
- 	if ((term = getenv("TERM")) == NULL)
+ 	if ((term = lgetenv("TERM")) == NULL)
  		term = DEFAULT_TERM;
  	if (tgetent(termbuf, term) <= 0)
  		strcpy(termbuf, "dumb:hc:");

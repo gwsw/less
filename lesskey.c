@@ -63,8 +63,12 @@
  *
  *	Blank lines and lines which start with # are ignored, 
  *	except for the special control lines:
+ *		#command	Signals the beginning of the command
+ *				keys section.
  *		#line-edit	Signals the beginning of the line-editing
  *				keys section.
+ *		#env		Signals the beginning of the environment
+ *				variable section.
  *		#stop		Stops command parsing in less;
  *				causes all default keys to be disabled.
  *
@@ -190,6 +194,7 @@ struct table
 
 struct table cmdtable;
 struct table edittable;
+struct table vartable;
 struct table *currtable = &cmdtable;
 
 char fileheader[] = {
@@ -205,6 +210,7 @@ char filetrailer[] = {
 };
 char cmdsection[1] =	{ CMD_SECTION };
 char editsection[1] =	{ EDIT_SECTION };
+char varsection[1] =	{ VAR_SECTION };
 char endsection[1] =	{ END_SECTION };
 
 char *infile = NULL;
@@ -308,6 +314,9 @@ init_tables()
 
 	edittable.names = editnames;
 	edittable.pbuffer = edittable.buffer;
+
+	vartable.names = NULL;
+	vartable.pbuffer = vartable.buffer;
 }
 
 /*
@@ -450,6 +459,11 @@ control_line(s)
 		currtable = &cmdtable;
 		return (1);
 	}
+	if (PREFIX(s, "#env"))
+	{
+		currtable = &vartable;
+		return (1);
+	}
 	if (PREFIX(s, "#stop"))
 	{
 		add_cmd_char('\0');
@@ -528,32 +542,14 @@ error(s)
 }
 
 
-/*
- * Parse a line from the lesskey file.
- */
 	void
-parse_line(line)
-	char *line;
-{
+parse_cmdline(p)
 	char *p;
+{
 	int cmdlen;
 	char *actname;
 	int action;
 	int c;
-
-	/*
-	 * See if it is a control line.
-	 */
-	if (control_line(line))
-		return;
-	/*
-	 * Skip leading white space.
-	 * Replace the final newline with a null byte.
-	 * Ignore blank lines and comments.
-	 */
-	p = clean_line(line);
-	if (*p == '\0')
-		return;
 
 	/*
 	 * Parse the command string and store it in the current table.
@@ -612,6 +608,69 @@ parse_line(line)
 			add_cmd_char(tchar(&p));
 		add_cmd_char('\0');
 	}
+}
+
+	void
+parse_varline(p)
+	char *p;
+{
+	int c;
+
+	do
+	{
+		c = tchar(&p);
+		add_cmd_char(c);
+	} while (*p != ' ' && *p != '\t' && *p != '=' && *p != '\0');
+	/*
+	 * Terminate the variable name with a null byte.
+	 */
+	add_cmd_char('\0');
+
+	p = skipsp(p);
+	if (*p++ != '=')
+	{
+		error("missing =");
+		return;
+	}
+
+	add_cmd_char(EV_OK|A_EXTRA);
+
+	p = skipsp(p);
+	while (*p != '\0')
+	{
+		c = tchar(&p);
+		add_cmd_char(c);
+	}
+	add_cmd_char('\0');
+}
+
+/*
+ * Parse a line from the lesskey file.
+ */
+	void
+parse_line(line)
+	char *line;
+{
+	char *p;
+
+	/*
+	 * See if it is a control line.
+	 */
+	if (control_line(line))
+		return;
+	/*
+	 * Skip leading white space.
+	 * Replace the final newline with a null byte.
+	 * Ignore blank lines and comments.
+	 */
+	p = clean_line(line);
+	if (*p == '\0')
+		return;
+
+	if (currtable == &vartable)
+		parse_varline(p);
+	else
+		parse_cmdline(p);
 }
 
 main(argc, argv)
@@ -679,6 +738,11 @@ main(argc, argv)
 	fputbytes(out, editsection, sizeof(editsection));
 	fputint(out, edittable.pbuffer - edittable.buffer);
 	fputbytes(out, (char *)edittable.buffer, edittable.pbuffer-edittable.buffer);
+
+	/* Environment variable section */
+	fputbytes(out, varsection, sizeof(varsection)); 
+	fputint(out, vartable.pbuffer - vartable.buffer);
+	fputbytes(out, (char *)vartable.buffer, vartable.pbuffer-vartable.buffer);
 
 	/* File trailer */
 	fputbytes(out, endsection, sizeof(endsection));

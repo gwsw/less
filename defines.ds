@@ -195,19 +195,19 @@
 #define HAVE_VOID 1
 
 /* Define HAVE_TIME_T if your system supports the "time_t" type. */
-#define HAVE_TIME_T 0
+#define HAVE_TIME_T 1
 
 /* Define HAVE_STRERROR if you have the strerror() function. */
-#define HAVE_STRERROR 0
+#define HAVE_STRERROR 1
 
 /* Define HAVE_FILENO if you have the fileno() macro. */
-#define HAVE_FILENO 0
+#define HAVE_FILENO 1
 
 /* Define HAVE_ERRNO if you have the errno variable */
 #define HAVE_ERRNO 0
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
-#define HAVE_SYS_ERRLIST 0
+#define HAVE_SYS_ERRLIST 1
 
 /* Define HAVE_OSPEED if your termcap library has the ospeed variable */
 #define HAVE_OSPEED 0
@@ -216,7 +216,7 @@
 #define MUST_DEFINE_OSPEED 0
 
 /* Define HAVE_LOCALE if you have locale.h and setlocale. */
-#define HAVE_LOCALE 0
+#define HAVE_LOCALE 1
 
 /* Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr */
 #define HAVE_TERMIOS_FUNCS 0
@@ -243,7 +243,7 @@
 #define HAVE_CTYPE_H 1
 
 /* Define if you have the <errno.h> header file.  */
-#define HAVE_ERRNO_H 0
+#define HAVE_ERRNO_H 1
 
 /* Define if you have the <fcntl.h> header file.  */
 #define HAVE_FCNTL_H 1
@@ -261,19 +261,38 @@
 #define HAVE_SYS_STREAM_H	0
 
 /* Define if you have the <termcap.h> header file.  */
-/* #undef HAVE_TERMCAP_H */
+#define HAVE_TERMCAP_H	0
 
 /* Define if you have the <termio.h> header file.  */
 #define HAVE_TERMIO_H	0
 
 /* Define if you have the <termios.h> header file.  */
-#define HAVE_TERMIOS_H 1
+#define HAVE_TERMIOS_H 0
 
 /* Define if you have the <time.h> header file.  */
 #define HAVE_TIME_H 1
 
 /* Define if you have the <unistd.h> header file.  */
-#define HAVE_UNISTD_H 1
+#define HAVE_UNISTD_H 0
 
 /* Define if you have the <values.h> header file.  */
 #define HAVE_VALUES_H 0
+
+#if _MSC_VER >= 700
+/*
+ * The names of these things changed in Microsoft C version 7.0.
+ */
+#define videoconfig	_videoconfig
+#define rccoord		_rccoord
+#define off_t		_off_t
+#define O_RDONLY	_O_RDONLY
+#define O_WRONLY	_O_WRONLY
+#define O_APPEND	_O_APPEND
+#define O_BINARY	_O_BINARY
+#define O_TEXT		_O_TEXT
+#define find_t		_find_t
+#define stat		_stat
+#define S_IFMT		_S_IFMT
+#define S_IFDIR		_S_IFDIR
+#define S_IFREG		_S_IFREG
+#endif

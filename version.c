@@ -507,7 +507,10 @@ v289   3/9/95	Fix adj_hilite bug when line gets processed by
 		hilite_line more than once.
 v290   3/9/95	Make configure automatically.  Fix Sequent problem
 		with incompatible sigsetmask().
+		Posted to prep.ai.mit.edu
+-----------------------------------------------------------------
+v291   3/21/95	Add #env to lesskey.  Fix MS-DOS build.
 
 */
 
-char version[] = "290";
+char version[] = "291";

@@ -6,16 +6,16 @@
 CC = cl
 LIBDIR = \msc6.0\lib
 
-CFLAGS = -O /Alfw
+CFLAGS = -O -Alfw
 LDFLAGS = -O
-LIBS = ${LIBDIR}\llibce.lib ${LIBDIR}\graphics.lib
+LIBS = $(LIBDIR)\llibce.lib $(LIBDIR)\graphics.lib
 
 #### End of system configuration section. ####
 
 # This rule allows us to supply the necessary -D options
 # in addition to whatever the user asks for.
 .c.obj:
-	${CC} -c -I. ${CPPFLAGS} ${CFLAGS} $<
+	$(CC) -c -I. $(CPPFLAGS) $(CFLAGS) $<
 
 SRC =	main.c doscreen.c brac.c ch.c charset.c cmdbuf.c command.c \
 	decode.c edit.c filename.c forwback.c help.c ifile.c \

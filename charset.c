@@ -211,19 +211,19 @@ init_charset()
 {
 	register char *s;
 
-	s = getenv("LESSBINFMT");
+	s = lgetenv("LESSBINFMT");
 	setbinfmt(s);
 	
 	/*
 	 * See if environment variable LESSCHARSET is defined.
 	 */
-	s = getenv("LESSCHARSET");
+	s = lgetenv("LESSCHARSET");
 	if (icharset(s))
 		return;
 	/*
 	 * LESSCHARSET is not defined: try LESSCHARDEF.
 	 */
-	s = getenv("LESSCHARDEF");
+	s = lgetenv("LESSCHARDEF");
 	if (s != NULL && *s != '\0')
 	{
 		ichardef(s);

@@ -49,6 +49,7 @@ public int bo_s_width, bo_e_width;	/* Printing width of boldface seq */
 public int ul_s_width, ul_e_width;	/* Printing width of underline seq */
 public int so_s_width, so_e_width;	/* Printing width of standout seq */
 public int bl_s_width, bl_e_width;	/* Printing width of blink seq */
+public int can_goto_line;		/* Can move cursor to any line */
 
 public int nm_fg_color = 7;			/* Color of normal text */
 public int nm_bg_color = 0;
@@ -69,7 +70,6 @@ extern int quiet;		/* If VERY_QUIET, use visual bell for bell */
 extern int know_dumb;		/* Don't complain about a dumb terminal */
 extern int back_scroll;
 extern int swindow;
-extern char *getenv();
 
 /*
  * Change terminal to "raw mode", or restore to "normal" mode.
@@ -110,14 +110,14 @@ scrsize(p_height, p_width)
 
 	if (w.numtextrows)
 		*p_height = w.numtextrows;
-	else if ((s = getenv("LINES")) != NULL && *s != '\0')
+	else if ((s = lgetenv("LINES")) != NULL && *s != '\0')
 		*p_height = atoi(s);
 	if (*p_height <= 0)
 		*p_height = 24;
 		
 	if (w.numtextcols > 0)
 		*p_width = w.numtextcols;
-	else if ((s = getenv("COLUMNS")) != NULL)
+	else if ((s = lgetenv("COLUMNS")) != NULL)
 		*p_width = atoi(s);
 	if (*p_width <= 0)
   		*p_width = 80;
@@ -181,6 +181,31 @@ get_term()
 
 
 /*
+ * Initialize the screen to the correct color at startup.
+ */
+	static void
+initcolor()
+{
+	struct videoconfig w;
+	char *blanks;
+	int row;
+	int col;
+	
+	/*
+	 * Create a complete, blank screen using "normal" colors.
+	 */
+	_settextcolor(nm_fg_color);
+	_setbkcolor(nm_bg_color);
+	_getvideoconfig(&w);
+	blanks = (char *) ecalloc(w.numtextcols, sizeof(char));
+	for (col = 0;  col < w.numtextcols;  col++)
+		blanks[col] = ' ';
+	for (row = w.numtextrows;  row > 0;  row--)
+		_outmem(blanks, w.numtextcols);
+	free(blanks);
+}
+
+/*
  * Initialize terminal
  */
 	public void
@@ -189,6 +214,7 @@ init()
 	/* {{ What could we take no_init (-X) to mean? }} */
 	sy_bg_color = _getbkcolor();
 	sy_fg_color = _gettextcolor();
+	initcolor();
 	flush();
 	init_done = 1;
 }
@@ -273,6 +299,17 @@ lower_left()
 {
 	flush();
 	_settextposition(sc_height,1);
+}
+
+/*
+ * Goto a specific line on the screen.
+ */
+	public void
+goto_line(slinenum)
+	int slinenum;
+{
+	flush();
+	_settextposition(slinenum, 1);
 }
 
 /*

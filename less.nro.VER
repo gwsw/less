@@ -113,10 +113,6 @@ standard input, rather than a file, is being read.)
 .IP "p or %"
 Go to a position N percent into the file.
 N should be between 0 and 100.
-(This works if standard input is being read, but only if
-.I less
-has already read to the end of the file.
-It is always fast, but not always useful.)
 .PP
 .IP "{"
 If a left curly bracket appears in the top line displayed
@@ -1164,6 +1160,10 @@ differences in invocation syntax, the LESSEDIT variable can be
 changed to modify this default.
 
 .SH "ENVIRONMENT VARIABLES"
+Environment variables may be specified either in the system environment
+as usual, or in a 
+.I lesskey
+(1) file.
 .IP COLUMNS
 Sets the number of columns on the screen.
 Takes precedence over the number of columns specified by the TERM variable.

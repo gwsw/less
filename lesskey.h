@@ -18,6 +18,7 @@
 
 #define	CMD_SECTION		'c'
 #define	EDIT_SECTION		'e'
+#define	VAR_SECTION		'v'
 #define	END_SECTION		'x'
 
 #define	C0_END_LESSKEY_MAGIC	'E'

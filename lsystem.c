@@ -110,7 +110,7 @@ lsystem(cmd)
 	 */
 #if HAVE_SHELL
 	p = NULL;
-	if ((shell = getenv("SHELL")) != NULL && *shell != '\0')
+	if ((shell = lgetenv("SHELL")) != NULL && *shell != '\0')
 	{
 		if (*cmd == '\0')
 			p = save(shell);
