@@ -598,6 +598,8 @@ v354   3/23/00	Add support for PCRE; add --with-regex configure option.
 v355   6/28/00	Add -# option (thanks to Andy Levinson).
 v356   7/5/00	Add -J option.
 v357   7/6/00	Support sigprocmask.
+-----------------------------------------------------------------
+v358   7/8/00	Fix problems with #stop in lesskey file.
 */
 
-char version[] = "357";
+char version[] = "358";
