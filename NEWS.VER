@@ -51,6 +51,8 @@
 
 * Improved horizontal shifting of text using -R option with ANSI color.
 
+* Improved handling of filenames containing shell metacharacters.
+
 * Some fixes for EBCDIC systems.
 
 * Some fixes for OS/2 systems.
