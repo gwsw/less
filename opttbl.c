@@ -155,7 +155,7 @@ static struct loption option[] =
 	{ 'D', &D__optname,
 		STRING|REPAINT|NO_QUERY, 0, NULL, opt_D,
 		"color desc: ", 
-		"Ddknsu0123456789. ",
+		"Ddknsu0123456789.",
 		NULL
 	},
 #endif
@@ -302,7 +302,7 @@ static struct loption option[] =
 	{ 'x', &x_optname,
 		STRING|REPAINT, 0, NULL, opt_x,
 		"Tab stops: ",
-		"0123456789, ",
+		"0123456789,",
 		NULL
 	},
 	{ 'X', &X__optname,

@@ -224,6 +224,8 @@ scan_option(s)
 			 * All processing of STRING options is done by 
 			 * the handling function.
 			 */
+			while (*s == ' ')
+				s++;
 			s = optstring(s, &str, printopt, o->odesc[1]);
 			break;
 		case NUMBER:
