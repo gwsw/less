@@ -373,9 +373,11 @@ seek_filesize(f)
 
 FILE *popen();
 /*
- * Assume that all shells accept backslash as a way to quote spaces.
+ * For now, assume that all shells accept backslash to quote special chars.
  */
-int shell_esc_spaces = 1;
+int shell_can_esc = 1;
+#define	SHELL_SPECIAL_CHAR(c) \
+	((c) == ' ' || (c) == ';' || (c) == '\'' || (c) == '\"' || (c) == '\\')
 
 /*
  * Read a string from a file.
@@ -453,10 +455,10 @@ shellcmd(cmd)
 }
 
 /*
- * Insert a backslash before each space character in a string.
+ * Insert a backslash before each "special" character in a string.
  */
 	static char *
-esc_spaces(s)
+esc_special_chars(s)
 	char *s;
 {
 	char *p;
@@ -470,7 +472,7 @@ esc_spaces(s)
 	for (p = s;  *p != '\0';  p++)
 	{
 		len++;
-		if (*s == ' ')
+		if (SHELL_SPECIAL_CHAR(*s))
 			len++;
 	}
 	/*
@@ -479,7 +481,8 @@ esc_spaces(s)
 	newstr = p = (char *) ecalloc(len, sizeof(char));
 	while (*s != '\0')
 	{
-		if (*s == ' ')
+		
+		if (SHELL_SPECIAL_CHAR(*s))
 			*p++ = '\\';
 		*p++ = *s++;
 	}
@@ -626,7 +629,6 @@ lglob(filename)
 	char *lessecho;
 	char *cmd;
 
-
 	/*
 	 * Certain characters will cause problems if passed to the shell,
 	 * so we disallow them.
@@ -634,22 +636,25 @@ lglob(filename)
 	 *    doing this can cause serious problems.  For example, do 
 	 *    "!;TAB" when the first file in the dir is named "rm". }}
 	 */
-	for (s = filename;  *s != '\0';  s++)
-	{
-		if (*s == ';' || *s == '\'' || *s == '\"' || *s == '\\')
-		{
-			free(filename);
-			return (ofilename);
-		}
-	}
 
 	lessecho = lgetenv("LESSECHO");
 	if (lessecho == NULL || *lessecho == '\0')
 		lessecho = "lessecho";
-	if (shell_esc_spaces)
-		s = esc_spaces(filename);
-	else
+	if (shell_can_esc)
+	{
+		s = esc_special_chars(filename);
+	} else
+	{
+		for (s = filename;  *s != '\0';  s++)
+		{
+			if (SHELL_SPECIAL_CHAR(*s))
+			{
+				free(filename);
+				return (ofilename);
+			}
+		}
 		s = filename;
+	}
 	cmd = (char *) ecalloc(strlen(lessecho) + strlen(s) + 24, sizeof(char));
 	sprintf(cmd, "%s -p0x%x -d0x%x -- %s", 
 		lessecho, openquote, closequote, s);
