@@ -94,7 +94,7 @@ static struct option option[] =
 		NULL
 	},
 #if MSDOS_COMPILER
-	{ 'D', STRING|REPAINT, 0, NULL, opt_D,
+	{ 'D', STRING|REPAINT|NO_QUERY, 0, NULL, opt_D,
 		"color desc: ", NULL, NULL
 	},
 #endif
