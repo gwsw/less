@@ -54,6 +54,7 @@
 #define	OPT_TOGGLE	1
 #define	OPT_UNSET	2
 #define	OPT_SET		3
+#define OPT_NO_PROMPT	0100
 
 /* Error code from findopt_name */
 #define OPT_AMBIG       1

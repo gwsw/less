@@ -259,8 +259,12 @@ toggle_option(c, s, how_toggle)
 {
 	register struct option *o;
 	register int num;
+	int no_prompt;
 	int err;
 	PARG parg;
+
+	no_prompt = (how_toggle & OPT_NO_PROMPT);
+	how_toggle &= ~OPT_NO_PROMPT;
 
 	/*
 	 * Look up the option letter in the option table.
@@ -403,31 +407,34 @@ toggle_option(c, s, how_toggle)
 		chg_hilite();
 #endif
 
-	/*
-	 * Print a message describing the new setting.
-	 */
-	switch (o->otype & OTYPE)
+	if (!no_prompt)
 	{
-	case BOOL:
-	case TRIPLE:
 		/*
-		 * Print the odesc message.
+		 * Print a message describing the new setting.
 		 */
-		error(o->odesc[*(o->ovar)], NULL_PARG);
-		break;
-	case NUMBER:
-		/*
-		 * The message is in odesc[1] and has a %d for 
-		 * the value of the variable.
-		 */
-		parg.p_int = *(o->ovar);
-		error(o->odesc[1], &parg);
-		break;
-	case STRING:
-		/*
-		 * Message was already printed by the handling function.
-		 */
-		break;
+		switch (o->otype & OTYPE)
+		{
+		case BOOL:
+		case TRIPLE:
+			/*
+			 * Print the odesc message.
+			 */
+			error(o->odesc[*(o->ovar)], NULL_PARG);
+			break;
+		case NUMBER:
+			/*
+			 * The message is in odesc[1] and has a %d for 
+			 * the value of the variable.
+			 */
+			parg.p_int = *(o->ovar);
+			error(o->odesc[1], &parg);
+			break;
+		case STRING:
+			/*
+			 * Message was already printed by the handling function.
+			 */
+			break;
+		}
 	}
 
 	if (how_toggle != OPT_NO_TOGGLE && (o->otype & REPAINT))
