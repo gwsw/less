@@ -91,12 +91,28 @@ getchr()
 			return (READ_INTR);
 #else
 #if OS2
+	{
+		static int scan = -1;
 		flush();
-		while (_read_kbd(0, 0, 0) != -1)
-			continue;
-		if ((c = _read_kbd(0, 1, 0)) == -1)
-			return (READ_INTR);
+		if (scan >= 0)
+		{
+			c = scan;
+			scan = -1;
+		} else
+		{
+			if ((c = _read_kbd(0, 1, 0)) == -1)
+				return (READ_INTR);
+			if (c == '\0')
+			{
+				/*
+				 * Zero is usually followed by another byte,
+				 * since certain keys send two bytes.
+				 */
+				scan = _read_kbd(0, 0, 0);
+			}
+		}
 		result = 1;
+	}
 #else
 		result = iread(tty, &c, sizeof(char));
 		if (result == READ_INTR)
