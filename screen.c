@@ -135,7 +135,8 @@ static constant COORD TOPLEFT = {0, 0};
 #define FG_COLORS       (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)
 #define BG_COLORS       (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)
 HANDLE con_out;
-#define	SETCOLORS(fg,bg)	curr_attr = (WORD)((fg) | (bg)); \
+#define	MAKEATTR(fg,bg)		((WORD)((fg)|((bg)<<4)))
+#define	SETCOLORS(fg,bg)	curr_attr = MAKEATTR(fg,bg); \
 				SetConsoleTextAttribute(con_out, curr_attr);
 #endif
 
@@ -991,22 +992,29 @@ get_term()
 #else
 #if MSDOS_COMPILER==WIN32C
     {
-	WORD attr;
 	DWORD nread;
 	CONSOLE_SCREEN_BUFFER_INFO scr;
 
 	con_out = GetStdHandle(STD_OUTPUT_HANDLE);
-	GetConsoleScreenBufferInfo(con_out, &scr);
-	ReadConsoleOutputAttribute(con_out, &attr, 1, scr.dwCursorPosition, &nread);
-	sy_bg_color = attr & BG_COLORS;
-	sy_fg_color = attr & FG_COLORS;
-	curr_attr = (WORD)(sy_bg_color | sy_fg_color);
 
-	/* Can't use the default bg colors in Windows? */
+	GetConsoleScreenBufferInfo(con_out, &scr);
+	ReadConsoleOutputAttribute(con_out, &curr_attr, 
+					1, scr.dwCursorPosition, &nread);
+	sy_bg_color = (curr_attr & BG_COLORS) >> 4; /* normalize */
+	sy_fg_color = curr_attr & FG_COLORS;
+
+	/*
+	 * If we use the default bg colors, for some as-yet-undetermined 
+	 * reason, when you scroll the text colors get messed up in what 
+	 * seems to be a random manner. Portions of text will be in 
+	 * nm_bg_color but the remainder of that line (which was fine 
+	 * before the scroll) will now appear in sy_bg_color. Too strange!
+	 */
 	nm_bg_color = sy_bg_color;
 	bo_bg_color = sy_bg_color;
 	ul_bg_color = sy_bg_color;
 	bl_bg_color = sy_bg_color;
+
 	/* Make standout = inverse video. */
 	so_fg_color = sy_bg_color;
 	so_bg_color = sy_fg_color;
@@ -1340,8 +1348,8 @@ tmodes(incap, outcap, instr, outstr, def_instr, def_outstr, spp)
 _settextposition(int row, int col)
 {
 	COORD cpos;
-	cpos.X = (short)col-1;
-	cpos.Y = (short)row-1;
+	cpos.X = (short)(col-1);
+	cpos.Y = (short)(row-1);
 	SetConsoleCursorPosition(con_out, cpos);
 }
 #endif
@@ -1457,13 +1465,14 @@ add_line()
 
 	rcClip.Left = 0;
 	rcClip.Top = 0;
-	rcClip.Right = sc_width - 1;
-	rcClip.Bottom = sc_height - 1;
+	rcClip.Right = (short)(sc_width - 1);
+	rcClip.Bottom = (short)(sc_height - 1);
 	rcSrc.Left = 0;
 	rcSrc.Top = 0;
-	rcSrc.Right = sc_width - 1;
-	rcSrc.Bottom = sc_height - 2;
+	rcSrc.Right = (short)(sc_width - 1);
+	rcSrc.Bottom = (short)(sc_height - 2);
 	fillchar.Char.AsciiChar = ' ';
+	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
 	fillchar.Attributes = curr_attr;
 	ScrollConsoleScreenBuffer(con_out, &rcSrc, &rcClip, new_org, &fillchar);
 	_settextposition(1,1);
@@ -1558,7 +1567,7 @@ create_flash()
 		return;
 	/* Invert the standard colors. */
 	for (n = 0;  n < sc_width * sc_height;  n++)
-		whitescreen[n] = (sy_fg_color << 4) | (sy_bg_color >> 4);
+		whitescreen[n] = (WORD)((nm_fg_color << 4) | nm_bg_color);
 #endif
 #endif
 #endif
@@ -1680,6 +1689,7 @@ clear()
 #if MSDOS_COMPILER==WIN32C
     {
 	DWORD nchars;
+	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
 	FillConsoleOutputCharacter(con_out, ' ', 
 			sc_width * sc_height, TOPLEFT, &nchars);
 	FillConsoleOutputAttribute(con_out, curr_attr, 
@@ -1735,13 +1745,14 @@ clear_eol()
 	CONSOLE_SCREEN_BUFFER_INFO scr;
 
 	flush();
+	memset(&scr, 0, sizeof(scr));
 	GetConsoleScreenBufferInfo(con_out, &scr);
 	cpos.X = scr.dwCursorPosition.X;
 	cpos.Y = scr.dwCursorPosition.Y;
-	curr_attr = scr.wAttributes;
-	FillConsoleOutputCharacter(con_out, ' ', 
+	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
+	FillConsoleOutputAttribute(con_out, curr_attr,
 		sc_width - cpos.X, cpos, &nchars);
-	FillConsoleOutputAttribute(con_out, curr_attr, 
+	FillConsoleOutputCharacter(con_out, ' ',
 		sc_width - cpos.X, cpos, &nchars);
 #endif
 #endif
@@ -1972,7 +1983,7 @@ win32_kbhit(tty)
 	HANDLE tty;
 {
 	INPUT_RECORD ip;
-	DWORD in, read;
+	DWORD read;
 
 	if (keyCount > 0)
 		return TRUE;
@@ -2009,7 +2020,7 @@ win32_kbhit(tty)
 WIN32getch(tty)
 	int tty;
 {
-	int ascii, scan;
+	int ascii;
 
 	if (pending_scancode)
 	{
@@ -2021,13 +2032,12 @@ WIN32getch(tty)
 		continue;
 	keyCount --;
 	ascii = currentKey.ascii;
-	scan = currentKey.scan;
 	/*
 	 * On PC's, the extended keys return a 2 byte sequence beginning 
 	 * with '00', so if the ascii code is 00, the next byte will be 
 	 * the lsb of the scan code.
 	 */
 	pending_scancode = (ascii == 0x00);
-	return (ascii);
+	return ((char)ascii);
 }
 #endif
