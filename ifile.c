@@ -44,6 +44,7 @@ struct ifile {
 	struct ifile *h_next;		/* Links for command line list */
 	struct ifile *h_prev;
 	char *h_filename;		/* Name of the file */
+	void *h_filestate;		/* File state (used in ch.c) */
 	int h_index;			/* Index within command line list */
 	int h_opened;			/* Only need one bit */
 	struct scrpos h_scrpos;		/* Saved position within the file */
@@ -303,4 +304,31 @@ opened(ifile)
 	return (int_ifile(ifile)->h_opened);
 }
 
+	public void *
+get_filestate(ifile)
+	IFILE ifile;
+{
+	return (int_ifile(ifile)->h_filestate);
+}
 
+	public void
+set_filestate(ifile, filestate)
+	IFILE ifile;
+	void *filestate;
+{
+	int_ifile(ifile)->h_filestate = filestate;
+}
+
+	public void
+if_dump()
+{
+	register struct ifile *p;
+
+	for (p = anchor.h_next;  p != &anchor;  p = p->h_next)
+	{
+		printf("%x: %d. <%s> pos %d,%x\n", 
+			p, p->h_index, p->h_filename, 
+			p->h_scrpos.ln, p->h_scrpos.pos);
+		ch_dump(p->h_filestate);
+	}
+}

@@ -45,7 +45,6 @@
 #include "option.h"
 
 extern int nbufs;
-extern int ispipe;
 extern int cbufs;
 extern int pr_type;
 extern int nohelp;
@@ -94,7 +93,7 @@ opt_o(type, s)
 		namelogfile = s;
 		break;
 	case TOGGLE:
-		if (!ispipe)
+		if (!ch_ispipe())
 		{
 			error("Input is not a pipe", NULL_PARG);
 			return;

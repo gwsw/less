@@ -493,7 +493,7 @@ lesskey(filename)
 	/*
 	 * Try to open the lesskey file.
 	 */
-	f = open(filename, 0);
+	f = open(filename, OPEN_READ);
 	if (f < 0)
 		return (1);
 

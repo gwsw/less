@@ -105,6 +105,20 @@ typedef long		POSITION;
 #define	NULL_POSITION	((POSITION)(-1))
 
 /*
+ * Flags for open()
+ */
+#if MSOFTC
+#define	OPEN_READ	(O_RDONLY|O_BINARY)
+#else
+#define	OPEN_READ	(0)
+#endif
+#if MSOFTC
+#define	OPEN_APPEND	(O_APPEND|O_WRONLY)
+#else
+#define	OPEN_APPEND	(1)
+#endif
+
+/*
  * An IFILE represents an input file.
  */
 #define	IFILE		VOID_POINTER

@@ -33,11 +33,13 @@
 
 #include "less.h"
 
-public int file = -1;		/* File descriptor of the input file */
 public int ignore_eoi;
 
 /*
  * Pool of buffers holding the most recently used blocks of the input file.
+ * The buffer pool is kept as a doubly-linked circular list,
+ * in order from most- to least-recently used.
+ * The circular list is anchored by the file state "thisfile".
  */
 #define LBUFSIZE	1024
 struct buf {
@@ -48,21 +50,16 @@ struct buf {
 };
 
 /*
- * The buffer pool is kept as a doubly-linked circular list,
- * in order from most- to least-recently used.
- * The circular list is anchored by the file state "thisfile".
- *
  * The file state is maintained in a filestate structure.
- * There are two such structures, one used when input is a pipe
- * and the other when input is an ordinary file.
- * This is so that we can leave a pipe, look and other files,
- * and return to the pipe without losing buffered data.
- * Buffered data can be reconstructed for a non-pipe file by
- * simply re-reading the file, but a pipe cannot be re-read.
+ * A pointer to the filestate is kept in the ifile structure.
  */
-
 struct filestate {
-	struct buf *next, *prev;   /* Must be first to match struct buf */
+	/* -- Following members must match struct buf */
+	struct buf *buf_next, *buf_prev;
+	long buf_block;
+	/* -- End of struct buf copy */
+	int file;
+	int flags;
 	POSITION fpos;
 	int nbufs;
 	long block;
@@ -70,26 +67,27 @@ struct filestate {
 	POSITION fsize;
 };
 
+/* filestate flags */
+#define	CAN_SEEK	001
+#define	KEEP_OPEN	002
+
 #define	END_OF_CHAIN	((struct buf *)thisfile)
-#define	buf_head	thisfile->next
-#define	buf_tail	thisfile->prev
+#define	ch_bufhead	thisfile->buf_next
+#define	ch_buftail	thisfile->buf_prev
 #define	ch_nbufs	thisfile->nbufs
 #define	ch_block	thisfile->block
 #define	ch_offset	thisfile->offset
 #define	ch_fpos		thisfile->fpos
 #define	ch_fsize	thisfile->fsize
-
-static struct filestate pipefile =
-	{ (struct buf *)&pipefile, (struct buf *)&pipefile };
-
-static struct filestate nonpipefile = 
-	{ (struct buf *)&nonpipefile, (struct buf *)&nonpipefile };
+#define	ch_flags	thisfile->flags
+#define	ch_file		thisfile->file
 
 static struct filestate *thisfile;
 
-extern int ispipe;
 extern int autobuf;
 extern int sigs;
+extern int cbufs;
+extern IFILE curr_ifile;
 #if LOGFILE
 extern int logfile;
 extern char *namelogfile;
@@ -104,9 +102,9 @@ static int ch_addbuf();
  * than fch_get (the function), in the usual case 
  * that the block desired is at the head of the chain.
  */
-#define	ch_get()   ((ch_block == buf_head->block && \
-		     ch_offset < buf_head->datasize) ? \
-			buf_head->data[ch_offset] : fch_get())
+#define	ch_get()   ((ch_block == ch_bufhead->block && \
+		     ch_offset < ch_bufhead->datasize) ? \
+			ch_bufhead->data[ch_offset] : fch_get())
 	int
 fch_get()
 {
@@ -121,7 +119,7 @@ fch_get()
 	/*
 	 * Look for a buffer holding the desired block.
 	 */
-	for (bp = buf_head;  bp != END_OF_CHAIN;  bp = bp->next)
+	for (bp = ch_bufhead;  bp != END_OF_CHAIN;  bp = bp->next)
 		if (bp->block == ch_block)
 		{
 			if (ch_offset >= bp->datasize)
@@ -136,16 +134,25 @@ fch_get()
 	 * Take the least recently used buffer 
 	 * and read the desired block into it.
 	 * If the LRU buffer has data in it, 
-	 * and autobuf is true, and input is a pipe, 
-	 * then try to allocate a new buffer first.
+	 * then maybe allocate a new buffer.
 	 */
-	if (autobuf && ispipe && buf_tail->block != (long)(-1))
-		if (ch_addbuf(1))
-			/*
-			 * Allocation failed: turn off autobuf.
-			 */
-			autobuf = 0;
-	bp = buf_tail;
+	if (ch_buftail == END_OF_CHAIN || ch_buftail->block != (long)(-1))
+	{
+		/*
+		 * There is no empty buffer to use.
+		 * Allocate a new buffer if:
+		 * 1. We can't seek on this file and -b is not in effect; or
+		 * 2. We haven't allocated the max buffers for this file yet.
+		 */
+		if ((autobuf && !(ch_flags & CAN_SEEK)) ||
+		    (cbufs == -1 || ch_nbufs < cbufs))
+			if (ch_addbuf())
+				/*
+				 * Allocation failed: turn off autobuf.
+				 */
+				autobuf = 0;
+	}
+	bp = ch_buftail;
 	bp->block = ch_block;
 	bp->datasize = 0;
 
@@ -164,9 +171,9 @@ fch_get()
 		 * If input is a pipe, we're in trouble (can't seek on a pipe).
 		 * Some data has been lost: just return "?".
 		 */
-		if (ispipe)
+		if (!(ch_flags & CAN_SEEK))
 			return ('?');
-		if (lseek(file, (off_t)pos, 0) == BAD_LSEEK)
+		if (lseek(ch_file, (off_t)pos, 0) == BAD_LSEEK)
 		{
  			error("seek error", NULL_PARG);
  			quit(1);
@@ -179,7 +186,7 @@ fch_get()
 	 * If we read less than a full block, that's ok.
 	 * We use partial block and pick up the rest next time.
 	 */
-	n = iread(file, &bp->data[bp->datasize], 
+	n = iread(ch_file, &bp->data[bp->datasize], 
 		(unsigned int)(LBUFSIZE - bp->datasize));
 	if (n == READ_INTR)
 		return (EOI);
@@ -225,7 +232,7 @@ fch_get()
 	}
 
     found:
-	if (buf_head != bp)
+	if (ch_bufhead != bp)
 	{
 		/*
 		 * Move the buffer to the head of the buffer chain.
@@ -234,10 +241,10 @@ fch_get()
 		bp->next->prev = bp->prev;
 		bp->prev->next = bp->next;
 
-		bp->next = buf_head;
+		bp->next = ch_bufhead;
 		bp->prev = END_OF_CHAIN;
-		buf_head->prev = bp;
-		buf_head = bp;
+		ch_bufhead->prev = bp;
+		ch_bufhead = bp;
 	}
 
 	if (ch_offset >= bp->datasize)
@@ -284,17 +291,32 @@ end_logfile()
 sync_logfile()
 {
 	register struct buf *bp;
+	int warned = 0;
 	long block;
 	long last_block;
 
 	last_block = (ch_fpos + LBUFSIZE - 1) / LBUFSIZE;
 	for (block = 0;  block <= last_block;  block++)
-		for (bp = buf_head;  bp != END_OF_CHAIN;  bp = bp->next)
+	{
+		for (bp = ch_bufhead;  ;  bp = bp->next)
+		{
+			if (bp == END_OF_CHAIN)
+			{
+				if (!warned)
+				{
+					error("Warning: log file is incomplete",
+						NULL_PARG);
+					warned = 1;
+				}
+				break;
+			}
 			if (bp->block == block)
 			{
 				write(logfile, (char *) bp->data, bp->datasize);
 				break;
 			}
+		}
+	}
 }
 
 #endif
@@ -308,7 +330,7 @@ buffered(block)
 {
 	register struct buf *bp;
 
-	for (bp = buf_head;  bp != END_OF_CHAIN;  bp = bp->next)
+	for (bp = ch_bufhead;  bp != END_OF_CHAIN;  bp = bp->next)
 		if (bp->block == block)
 			return (1);
 	return (0);
@@ -330,7 +352,7 @@ ch_seek(pos)
 		return (1);
 
 	new_block = pos / LBUFSIZE;
-	if (ispipe && pos != ch_fpos && !buffered(new_block))
+	if (!(ch_flags & CAN_SEEK) && pos != ch_fpos && !buffered(new_block))
 		return (1);
 	/*
 	 * Set read pointer.
@@ -348,8 +370,8 @@ ch_end_seek()
 {
 	POSITION len;
 
-	if (!ispipe)
-		ch_fsize = filesize(file);
+	if (ch_flags & CAN_SEEK)
+		ch_fsize = filesize(ch_file);
 
 	len = ch_length();
 	if (len != NULL_POSITION)
@@ -384,7 +406,7 @@ ch_beg_seek()
 	 * Can't get to position 0.
 	 * Look thru the buffers for the one closest to position 0.
 	 */
-	firstbp = bp = buf_head;
+	firstbp = bp = ch_bufhead;
 	if (bp == END_OF_CHAIN)
 		return (1);
 	while ((bp = bp->next) != END_OF_CHAIN)
@@ -432,11 +454,6 @@ ch_forw_get()
 		ch_offset++;
 	else
 	{
-#if __ZOFFSET /* NOT WORKING */
-		if (ch_fsize != NULL_POSITION && 
-		    tellpos(ch_block+1, 0) >= ch_fsize)
-			return (EOI);
-#endif
 		ch_block ++;
 		ch_offset = 0;
 	}
@@ -453,14 +470,9 @@ ch_back_get()
 		ch_offset --;
 	else
 	{
-#if __ZOFFSET /* NOT WORKING */
-		if (tellpos(ch_block-1, LBUFSIZE-1) < ch_zero())
-			return (EOI);
-#else
 		if (ch_block <= 0)
 			return (EOI);
-#endif
-		if (ispipe && !buffered(ch_block-1))
+		if (!(ch_flags & CAN_SEEK) && !buffered(ch_block-1))
 			return (EOI);
 		ch_block--;
 		ch_offset = LBUFSIZE-1;
@@ -478,30 +490,34 @@ ch_nbuf(want_nbufs)
 {
 	PARG parg;
 
-	if (ch_nbufs < want_nbufs && ch_addbuf(want_nbufs - ch_nbufs))
+	while (ch_nbufs < want_nbufs)
 	{
-		/*
-		 * Cannot allocate enough buffers.
-		 * If we don't have ANY, then quit.
-		 * Otherwise, just report the error and return.
-		 */
-		parg.p_int = want_nbufs - ch_nbufs;
-		error("Cannot allocate %d buffers", &parg);
-		if (ch_nbufs == 0)
-			quit(1);
+		if (ch_addbuf())
+		{
+			/*
+			 * Cannot allocate enough buffers.
+			 * If we don't have ANY, then quit.
+			 * Otherwise, just report the error and return.
+			 */
+			parg.p_int = want_nbufs - ch_nbufs;
+			error("Cannot allocate %d buffers", &parg);
+			if (ch_nbufs == 0)
+				quit(1);
+			break;
+		}
 	}
 	return (ch_nbufs);
 }
 
 /*
- * Flush any saved file state, including buffer contents.
+ * Flush (discard) any saved file state, including buffer contents.
  */
 	public void
 ch_flush()
 {
 	register struct buf *bp;
 
-	if (ispipe)
+	if (!(ch_flags & CAN_SEEK))
 	{
 		/*
 		 * If input is a pipe, we don't flush buffer contents,
@@ -514,22 +530,22 @@ ch_flush()
 	/*
 	 * Initialize all the buffers.
 	 */
-	for (bp = buf_head;  bp != END_OF_CHAIN;  bp = bp->next)
+	for (bp = ch_bufhead;  bp != END_OF_CHAIN;  bp = bp->next)
 		bp->block = (long)(-1);
 
 	/*
 	 * Figure out the size of the file, if we can.
 	 */
-	ch_fsize = filesize(file);
+	ch_fsize = filesize(ch_file);
 
 	/*
 	 * Seek to a known position: the beginning of the file.
 	 */
 	ch_fpos = 0;
-	ch_block = ch_fpos / LBUFSIZE;
-	ch_offset = ch_fpos % LBUFSIZE;
+	ch_block = 0; /* ch_fpos / LBUFSIZE; */
+	ch_offset = 0; /* ch_fpos % LBUFSIZE; */
 
-	if (lseek(file, (off_t)0, 0) == BAD_LSEEK)
+	if (lseek(ch_file, (off_t)0, 0) == BAD_LSEEK)
 	{
 		/*
 		 * Warning only; even if the seek fails for some reason,
@@ -541,198 +557,156 @@ ch_flush()
 }
 
 /*
- * Allocate some new buffers.
- * The buffers are added to the tail of the buffer chain.
+ * Allocate a new buffer.
+ * The buffer is added to the tail of the buffer chain.
  */
 	static int
-ch_addbuf(nnew)
-	int nnew;
+ch_addbuf()
 {
 	register struct buf *bp;
-	register struct buf *newbufs;
 
 	/*
-	 * We don't have enough buffers.  
-	 * Allocate some new ones.
+	 * Allocate and initialize a new buffer and link it 
+	 * onto the tail of the buffer list.
 	 */
-	newbufs = (struct buf *) calloc(nnew, sizeof(struct buf));
-	if (newbufs == NULL)
+	bp = (struct buf *) calloc(1, sizeof(struct buf));
+	if (bp == NULL)
 		return (1);
-
-	/*
-	 * Initialize the new buffers and link them together.
-	 * Link them all onto the tail of the buffer list.
-	 */
-	ch_nbufs += nnew;
-	for (bp = &newbufs[0];  bp < &newbufs[nnew];  bp++)
-	{
-		bp->next = bp + 1;
-		bp->prev = bp - 1;
-		bp->block = (long)(-1);
-	}
-	newbufs[nnew-1].next = END_OF_CHAIN;
-	newbufs[0].prev = buf_tail;
-	buf_tail->next = &newbufs[0];
-	buf_tail = &newbufs[nnew-1];
+	ch_nbufs++;
+	bp->block = (long)(-1);
+	bp->next = END_OF_CHAIN;
+	bp->prev = ch_buftail;
+	ch_buftail->next = bp;
+	ch_buftail = bp;
 	return (0);
 }
 
 /*
- * Use the pipe file state.
+ * Delete all buffers for this file.
  */
-	public void
-ch_pipe()
+	static void
+ch_delbufs()
 {
-	thisfile = &pipefile;
+	register struct buf *bp;
+
+	while (ch_bufhead != END_OF_CHAIN)
+	{
+		bp = ch_bufhead;
+		bp->next->prev = bp->prev;;
+		bp->prev->next = bp->next;
+		free(bp);
+	}
+	ch_nbufs = 0;
 }
 
 /*
- * Use the non-pipe file state.
+ * Initialize file state for a new file.
  */
 	public void
-ch_nonpipe()
+ch_init(f, keepopen)
+	int f;
+	int keepopen;
 {
-	thisfile = &nonpipefile;
-}
-
-#if 0
-/* TESTING */
-
-extern VOID_POINTER memchr();
-extern char linebuf[];
-extern int size_linebuf;
-
-/*
- * Analogous to forw_line(), but deals with "raw lines":
- * lines which are not split for screen width.
- * {{ This is supposed to be more efficient than forw_line(). }}
- */
-	public POSITION
-forw_raw_line(curr_pos, linep)
-	POSITION curr_pos;
-	char **linep;
-{
-	register char *p;
-	register int bc;
-	register int avail;
-	register int space;
-	register char *q;
-
-	if (curr_pos == NULL_POSITION || ch_seek(curr_pos) || fch_get() == EOI)
-		return (NULL_POSITION);
-
-	p = linebuf;
-	space = size_linebuf - 1;
-
-	do
+	/*
+	 * See if we already have a filestate for this file.
+	 */
+	thisfile = get_filestate(curr_ifile);
+	if (thisfile == NULL)
 	{
 		/*
-		 * avail = bytes available in data buffer.
-		 * space = space left in line buffer.
-		 * bc    = byte count to move from data buffer to line buffer.
+		 * Allocate and initialize a new filestate.
 		 */
-		bc = avail = buf_head->datasize - ch_offset;
-		if (avail <= 0)
-			break;
+		thisfile = (struct filestate *) 
+				calloc(1, sizeof(struct filestate));
+		thisfile->buf_next = thisfile->buf_prev = END_OF_CHAIN;
+		thisfile->buf_block = (long)(-1);
+		thisfile->nbufs = 0;
+		thisfile->flags = 0;
+		thisfile->fpos = 0;
+		thisfile->block = 0;
+		thisfile->offset = 0;
+		thisfile->file = -1;
+		thisfile->fsize = NULL_POSITION;
+		if (keepopen)
+			ch_flags |= KEEP_OPEN;
 		/*
-		 * Find the next newline in data buffer.
+		 * Try to seek; set CAN_SEEK if it works.
 		 */
-		q = (char *) memchr((char *) &buf_head->data[ch_offset], '\n', avail);
-		if (q != NULL)
-		{
-			/*
-			 * Found a newline.
-			 * Copy data buffer to line buffer and we're done.
-			 */
-			bc = q - (char *) &buf_head->data[ch_offset];
-			if (bc > space)
-				bc = space;
-			memcpy(p, (char *) &buf_head->data[ch_offset], bc);
-			p += bc;
-			ch_offset += bc + 1;
-			if (ch_offset >= LBUFSIZE)
-			{
-				ch_offset = 0;
-				ch_block++;
-			}
-			break;
-		} 
-		/*
-		 * Didn't find a newline.
-		 * Copy data buffer to line buffer,
-		 * get the next data buffer and try again.
-		 */
-		bc = avail;
-		if (bc > space)
-			bc = space;
-		memcpy(p, (char *) &buf_head->data[ch_offset], bc);
-		space -= bc;
-		p += bc;
-		ch_offset = 0;
-		ch_block++; 
-	} while (fch_get() != EOI && space > 0);
-
-	*p = '\0';
-	if (linep != NULL)
-		*linep = linebuf;
-	return (ch_tell());
+		if (lseek(f, (off_t)1, 0) != BAD_LSEEK)
+			ch_flags |= CAN_SEEK;
+		set_filestate(curr_ifile, thisfile);
+	}
+	if (thisfile->file == -1)
+		thisfile->file = f;
+	ch_flush();
 }
 
 /*
- * Analogous to back_line(), but deals with "raw lines".
- * {{ This is supposed to be more efficient than back_line(). }}
+ * Close a filestate.
  */
-	public POSITION
-back_raw_line(curr_pos, linep)
-	POSITION curr_pos;
-	char **linep;
+	public void
+ch_close()
 {
-	register char *p;
-	register char *q;	/* scratch pointer */
-	register i;		/* scratch index */
-	register int bc;	/* byte count to transfer */
-	register int space;	/* space left in linebuf */
-	
-	if (curr_pos == NULL_POSITION || curr_pos <= (POSITION)1 ||
-		ch_seek(curr_pos-2) || ch_get() == EOI)
-		return (NULL_POSITION);
+	int keepstate = 0;
 
-	p = &linebuf[size_linebuf];
-	*--p = '\0';
-	space = size_linebuf - 1;
-
-	do {
-		bc = ch_offset + 1;
-		if (bc > space)
-			bc = space;
+	if (ch_flags & CAN_SEEK)
+	{
 		/*
-		 * Find the previous newline in data buffer.
+		 * We can seek, so we don't need to keep buffers around.
 		 */
-		q = (char *) &buf_head->data[ch_offset] + 1;
-		for (i = bc;  i > 0;  i--)
-			if ((*--p = *--q) == '\n')
-			{
-				/*
-				 * Found a newline.
-				 * We're done.
-				 */
-				p++;
-				ch_offset -= bc - i;
-				ch_seek(ch_tell() + 1);
-				goto done;
-			}
+		ch_delbufs();
+	} else
+		keepstate = 1;
+	if (!(ch_flags & KEEP_OPEN))
+	{
 		/*
-		 * Didn't find a newline.
+		 * We don't need to keep the file descriptor open
+		 * (because we can re-open it.)
 		 */
-		bc--;
-		ch_offset -= bc;
-		space -= bc;
-	} while (space > 0 && ch_block > 0 && ch_seek(ch_tell() - 1) == 0 && 
-		 fch_get() != EOI);
-
-    done:
-	if (linep != NULL)
-		*linep = p;
-	return (ch_tell());
+		close(ch_file);
+		ch_file = -1;
+	} else
+		keepstate = 1;
+	if (!keepstate)
+	{
+		/*
+		 * We don't even need to keep the filestate structure.
+		 */
+		free(thisfile);
+		set_filestate(curr_ifile, NULL);
+	}
 }
-#endif
+
+	public int
+ch_ispipe()
+{
+	return (!(ch_flags & CAN_SEEK));
+}
+
+	public void
+ch_dump(struct filestate *fs)
+{
+	struct buf *bp;
+	unsigned char *s;
+
+	if (fs == NULL)
+	{
+		printf(" --no filestate\n");
+		return;
+	}
+	printf(" file %d, flags %x, fpos %x, fsize %x, blk/off %x/%x\n",
+		fs->file, fs->flags, fs->fpos, 
+		fs->fsize, fs->block, fs->offset);
+	printf(" %d bufs:\n", fs->nbufs);
+	for (bp = fs->buf_next; bp != (struct buf *)fs;  bp = bp->next)
+	{
+		printf("%x: blk %x, size %x \"",
+			bp, bp->block, bp->datasize);
+		for (s = bp->data;  s < bp->data + 30;  s++)
+			if (*s >= ' ' && *s < 0x7F)
+				printf("%c", *s);
+			else
+				printf(".");
+		printf("\"\n");
+	}
+}

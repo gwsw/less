@@ -365,11 +365,14 @@ glob(filename)
 }
 
 	public char *
-open_altfile(filename)
+open_altfile(filename, pf, pfd)
 	char *filename;
+	int *pf;
+	void **pfd;
 {
 	char *lessopen;
 	char *gfilename;
+	int returnfd = 0;
 	FILE *fd;
 	
 	if ((lessopen = getenv("LESSOPEN")) == NULL)
@@ -377,6 +380,11 @@ open_altfile(filename)
 	filename = fexpand(filename);
 	if (filename == NULL)
 		return (NULL);
+	if (*lessopen == '|')
+	{
+		lessopen++;
+		returnfd = 1;
+	}
 	fd = shellcmd(lessopen, filename, (char*)NULL);
 	if (fd == NULL)
 	{
@@ -386,6 +394,21 @@ open_altfile(filename)
 		return (NULL);
 	}
 	free(filename);
+#if HAVE_FILENO
+	if (returnfd)
+	{
+		int f = fileno(fd);
+		char c;
+
+		if (read(f, &c, 1) == 1 && c == '0')
+		{
+			read(f, &c, 1);
+			*pfd = (void *) fd;
+			*pf = fileno(fd);
+			return ("-");
+		}
+	}
+#endif
 	gfilename = readfd(fd);
 	pclose(fd);
 	if (*gfilename == '\0')
@@ -394,13 +417,16 @@ open_altfile(filename)
 }
 
 	public void
-close_altfile(altfilename, filename)
+close_altfile(altfilename, filename, pipefd)
 	char *altfilename;
 	char *filename;
+	void *pipefd;
 {
 	char *lessclose;
 	FILE *fd;
 	
+	if (pipefd != NULL)
+		pclose((FILE*)pipefd);
 	if ((lessclose = getenv("LESSCLOSE")) == NULL)
 	     	return;
 	fd = shellcmd(lessclose, filename, altfilename);

@@ -32,13 +32,10 @@
 #endif
 
 public int fd0 = 0;
-#define	ISPIPE(fd)	((fd)==fd0)
 
-extern int ispipe;
 extern int new_file;
 extern int errmsgs;
 extern int quit_at_eof;
-extern int file;
 extern int cbufs;
 extern char *every_first_cmd;
 extern int any_display;
@@ -55,6 +52,7 @@ extern char *namelogfile;
 #endif
 
 static char *curr_altfilename = NULL;
+static void *curr_altpipe;
 
 
 /*
@@ -130,7 +128,9 @@ back_textlist(tlist, prev)
 	return (s);
 }
 
-
+/*
+ * Close the current input file.
+ */
 	static void
 close_file()
 {
@@ -149,20 +149,17 @@ close_file()
 		lastmark();
 	}
 	/*
-	 * Close the current file, unless it is a pipe.
+	 * Close the file descriptor, unless it is a pipe.
 	 */
-	if (!ISPIPE(file))
-	{
-		close(file);
-		file = -1;
-	}
+	ch_close();
 	/*
 	 * If we opened a file using an alternate name,
 	 * do special stuff to close it.
 	 */
 	if (curr_altfilename != NULL)
 	{
-		close_altfile(curr_altfilename, get_filename(curr_ifile));
+		close_altfile(curr_altfilename, get_filename(curr_ifile),
+			curr_altpipe);
 		free(curr_altfilename);
 		curr_altfilename = NULL;
 	}
@@ -190,9 +187,11 @@ edit_ifile(ifile)
 	int f;
 	int answer;
 	int no_display;
+	int keepopen;
 	char *filename;
 	char *open_filename;
 	char *alt_filename;
+	void *alt_pipe;
 	PARG parg;
 		
 	if (ifile == NULL_IFILE)
@@ -214,40 +213,57 @@ edit_ifile(ifile)
 		return (0);
 	}
 	filename = get_filename(ifile);
-	alt_filename = open_altfile(filename);
+	/*
+	 * See if LESSOPEN specifies an "alternate" file to open.
+	 */
+	alt_pipe = NULL;
+	alt_filename = open_altfile(filename, &f, &alt_pipe);
 	open_filename = (alt_filename != NULL) ? alt_filename : filename;
-	
-	if (strcmp(open_filename, "-") == 0)
+
+	keepopen = 0;
+	if (alt_pipe != NULL)
+	{
+		/*
+		 * f has been set to the file descriptor of the alternate
+		 * file in the call to open_altfile above.
+		 */
+		;
+	} else if (strcmp(open_filename, "-") == 0)
 	{
 		/* 
 		 * Use standard input.
 		 */
 		f = fd0;
+		keepopen = 1;
 	} else if ((parg.p_string = bad_file(open_filename)) != NULL)
 	{
+		/*
+		 * It looks like a bad file.  Don't try to open it.
+		 */
 		error("%s", &parg);
 		free(parg.p_string);
 	    err1:
 		if (alt_filename != NULL)
 		{
-			close_altfile(alt_filename, filename);
+			close_altfile(alt_filename, filename, alt_pipe);
 			free(alt_filename);
 		}
 		del_ifile(ifile);
 		return (1);
-	}
-#if MSOFTC
-	else if ((f = open(open_filename, O_RDONLY|O_BINARY)) < 0)
-#else
-	else if ((f = open(open_filename, 0)) < 0)
-#endif
+	} else if ((f = open(open_filename, OPEN_READ)) < 0)
 	{
+		/*
+		 * Got an error trying to open it.
+		 */
 		parg.p_string = errno_message(filename);
 		error("%s", &parg);
 		free(parg.p_string);
 	    	goto err1;
 	} else if (!force_open && !opened(ifile) && bin_file(f))
 	{
+		/*
+		 * Looks like a binary file.  Ask user if we should proceed.
+		 */
 		parg.p_string = filename;
 		answer = query("\"%s\" may be a binary file.  See it anyway? ",
 			&parg);
@@ -258,17 +274,16 @@ edit_ifile(ifile)
 		}
 	}
 
-	ispipe = ISPIPE(f);
 #if LOGFILE
 {
 	char *s;
 	
 	/*
-	 *
+	 * End any open logfile, start a new one.
 	 */
 	s = namelogfile;
 	end_logfile();
-	if (f >= 0 && ispipe && s != NULL && is_tty)
+	if (f >= 0 && s != NULL && is_tty)
 		use_logfile(s);
 }
 #endif
@@ -287,19 +302,12 @@ edit_ifile(ifile)
 	 * Get the saved position for the file.
 	 */
 	curr_ifile = ifile;
-	file = f;
 	curr_altfilename = alt_filename;
+	curr_altpipe = alt_pipe;
 	set_open(curr_ifile); /* File has been opened */
 	get_pos(curr_ifile, &initial_scrpos);
-
-	if (ispipe)
-		ch_pipe();
-	else
-		ch_nonpipe();
-	(void) ch_nbuf(cbufs);
-	ch_flush();
-
 	new_file = 1;
+	ch_init(f, keepopen);
 
 	if (every_first_cmd != NULL)
 		ungetsc(every_first_cmd);
@@ -518,6 +526,9 @@ edit_index(n)
 	return (edit_ifile(h));
 }
 
+/*
+ * Edit standard input.
+ */
 	public int
 edit_stdin()
 {
@@ -562,16 +573,19 @@ use_logfile(filename)
 	register int answer;
 	PARG parg;
 
+	if (!ch_ispipe())
+		return;
+
 	/*
 	 * {{ We could use access() here. }}
 	 */
-	exists = open(filename, 0);
+	exists = open(filename, OPEN_READ);
 	close(exists);
 	exists = (exists >= 0);
 
 	/*
 	 * Decide whether to overwrite the log file or append to it.
-	 * (If it doesn't exist we "overwrite" it.
+	 * If it doesn't exist we "overwrite" it.
 	 */
 	if (!exists || force_logfile)
 	{
@@ -601,11 +615,7 @@ loop:
 		/*
 		 * Append: open the file and seek to the end.
 		 */
-#if MSOFTC
-		logfile = open(filename, O_APPEND|O_WRONLY);
-#else
-		logfile = open(filename, 1);
-#endif
+		logfile = open(filename, OPEN_APPEND);
 		if (lseek(logfile, (off_t)0, 2) == BAD_LSEEK)
 		{
 			close(logfile);
@@ -624,7 +634,7 @@ loop:
 		/*
 		 * Eh?
 		 */
-		answer = query("Overwrite, Append, or Don't log? ", NULL_PARG);
+		answer = query("Overwrite, Append, or Don't log? (Type \"O\", \"A\", \"D\" or \"q\") ", NULL_PARG);
 		goto loop;
 	}
 

@@ -35,7 +35,6 @@
 #include "cmd.h"
 
 extern int erase_char, kill_char;
-extern int ispipe;
 extern int sigs;
 extern int quit_at_eof;
 extern int hit_eof;
@@ -887,9 +886,11 @@ commands()
 			 * Flush buffers, then repaint screen.
 			 * Don't flush the buffers on a pipe!
 			 */
-			ch_flush();
-			if (!ispipe)
+			if (!ch_ispipe())
+			{
+				ch_flush();
 				clr_linenum();
+			}
 			/* FALLTHRU */
 		case A_REPAINT:
 			/*

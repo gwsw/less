@@ -415,20 +415,22 @@ thus skipping all lines displayed on the screen.
 By default, searches start at the second line on the screen
 (or after the last found line; see the -j option).
 .IP -b\fIn\fP
-Causes
+Specifies the number of buffers
 .I less
-to use a non-standard number of buffers.
-Buffers are 1K, and by default 10 buffers are used
-(except if data in coming from standard input; see the -B option).
+will use for each file.
+Buffers are 1K, and by default 10 buffers are used for each file
+(except if the file is a pipe; see the -B option).
 The number \fIn\fP specifies a different number of buffers to use.
 .IP -B
-Disables automatic allocation of buffers,
-so that only the default number of buffers are used.
-If more data is read than will fit in the buffers, the oldest
-data is discarded.
-By default, when data is coming from standard input,
-buffers are allocated automatically as needed
-to avoid loss of data.
+By default, when data is read from a pipe,
+buffers are allocated automatically as needed.
+If a large amount of data is read from the pipe, this can cause
+a large amount of memory to be allocated.
+The -B option disables this automatic allocation of buffers for pipes,
+so that only the number of buffers specified by the -b option are used.
+Warning: use of -B can result in erroneous display, since only the
+most recently viewed part of the file is kept in memory; 
+any earlier data is lost.
 .IP -c
 Causes full screen repaints to be painted from the top line down.
 By default,
@@ -833,21 +835,21 @@ which was output by LESSOPEN.
 For example, on many Unix systems, these two scripts will allow you
 to keep files in compressed format, but still let
 .I less
-view them directly (by giving 
-.I less 
-the name of the file without the .Z suffix):
+view them directly:
 .PP
 lessopen.sh:
 .br
 	#! /bin/sh
 .br
-	if [ -f "$1.Z" ]; then
+	case "$1" in
 .br
-		uncompress -c $1.Z >$1.tmp
+	*.Z)	uncompress -c $1 >$1.tmp
 .br
 		echo $1.tmp
 .br
-	fi
+		;;
+.br
+	esac
 .PP
 lessclose.sh:
 .br
@@ -861,6 +863,37 @@ LESSCLOSE="lessclose.sh\ %s\ %s".
 More complex LESSOPEN and LESSCLOSE scripts may be written
 to also accept the filename either with or without the .Z suffix,
 or to accept other types of compressed files, and so on.
+.PP
+It is also possible to set up the input preprocessor to
+pipe the file data directly to 
+.I less,
+rather than putting the data into a replacement file.
+An input preprocessor that works this way is called an input pipe.
+To use an input pipe, use an input preprocessor that writes the entire file
+data on its standard output, rather than the name of a replacement file.
+Make the first character in the LESSOPEN environment variable a 
+vertical bar (|) to signify that the input preprocessor is an input pipe.
+.PP
+For example, on many Unix systems, this script will work like the
+previous example scripts:
+.PP
+lesspipe.sh:
+.br
+	!# /bin/sh
+.br
+	case "$1" in
+.br
+	*.Z)	echo "0"; uncompress -c $1.Z 
+.br
+		;;
+.br
+	esac
+.br
+.PP
+To use this script, put it where it can be executed and set
+LESSOPEN="|lesspipe.sh %s".
+When an input pipe is used, a LESSCLOSE postprocessor can be used,
+but it is usually not necessary.
 
 .SH "NATIONAL CHARACTER SETS"
 There are three types of characters in the input file:

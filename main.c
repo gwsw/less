@@ -32,7 +32,6 @@
 #include "less.h"
 #include "position.h"
 
-public int	ispipe;
 public char *	every_first_cmd = NULL;
 public int	new_file;
 public int	is_tty;
@@ -44,8 +43,6 @@ public int	wscroll;
 public char *	progname;
 public int	quitting;
 
-extern int	file;
-extern int	fd0;
 extern int	quit_at_eof;
 extern int	cbufs;
 extern int	errmsgs;

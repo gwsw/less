@@ -470,6 +470,7 @@
  *	v263: Reimplement/optimize -G flag behavior.	12/20/94
  *	v264: Allow EXTRA string after line-edit cmd	12/23/94
  *	      in lesskey file.
+ *	v265: Add LESSOPEN=|cmd syntax.			12/24/94
  */
 
-char version[] = "264";
+char version[] = "265";
