@@ -565,6 +565,9 @@ v329   10/11/96	Fix more MS-DOS bugs; add LESSSEPARATOR; add -" option.
 		Add LESSMETACHARS, LESSMETAESCAPE.
 v330   10/21/96	Minor fixes.
 		Posted to Web page.
+-----------------------------------------------------------------
+v331   4/22/97	Various Windows fixes (thanks to Gurusamy Sarathy).
+v332   4/22/97	Enter filenames from cmd line into edit history.
 */
 
-char version[] = "330";
+char version[] = "332";
