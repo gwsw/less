@@ -123,9 +123,9 @@ cvt_text(odst, osrc, ops)
 
 	for (src = osrc, dst = odst;  *src != '\0';  src++, dst++)
 	{
-		if ((ops & CVT_TO_LC) && isupper(*src))
+		if ((ops & CVT_TO_LC) && isupper((unsigned char) *src))
 			/* Convert uppercase to lowercase. */
-			*dst = tolower(*src);
+			*dst = tolower((unsigned char) *src);
 		else if ((ops & CVT_BS) && *src == '\b' && dst > odst)
 			/* Delete BS and preceding char. */
 			dst -= 2;
@@ -146,7 +146,7 @@ is_ucase(s)
 	register char *p;
 
 	for (p = s;  *p != '\0';  p++)
-		if (isupper(*p))
+		if (isupper((unsigned char) *p))
 			return (1);
 	return (0);
 }
