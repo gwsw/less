@@ -106,7 +106,9 @@ main(argc, argv)
 	init_charset();
 	init_line();
 	init_option();
-	scan_option(save(lgetenv("LESS")));
+	s = lgetenv("LESS");
+	if (s != NULL)
+		scan_option(save(s));
 
 #define	isoptstring(s)	(((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
 	while (argc > 0 && (isoptstring(*argv) || isoptpending()))

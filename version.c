@@ -588,6 +588,9 @@ v349   1/24/00	Fix minor DJGPP bugs; check environment vars for UTF-8;
 		add --with-editor (thanks to Eli, Markus Kuhn, Thomas Schoepf).
 v350   3/1/00	Fix clear-while-standout bug.
 v351   3/5/00	Change -M and = prompts to show top & bottom line number.
+		Posted to Web page.
+-----------------------------------------------------------------
+v352   3/8/00	Fix scan_option NULL dereference.
 */
 
-char version[] = "351";
+char version[] = "352";
