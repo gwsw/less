@@ -60,9 +60,6 @@ extern int ul_s_width, ul_e_width;
 extern int bl_s_width, bl_e_width;
 extern int so_s_width, so_e_width;
 extern int sc_width, sc_height;
-#if HILITE_SEARCH
-extern int hilite_search;
-#endif
 
 /*
  * Rewind the line buffer.
@@ -427,24 +424,6 @@ pdone(endline)
 		 */
 		(void) do_append(pendc, pendpos);
 
-#if 0 /*UNRELIABLE_HILITE_SEARCH*/
-	/*
-	 * Modify the attribute for matched strings; do this before we
-	 * add a newline so that '$' will match end of line properly.
-	 * {{ If a matched string is broken at the end of the line,
-	 *    we won't mark it.  This is difficlt to fix. }}
-	 */
-	{
-		extern int hilite_search;
-		if (hilite_search)
-		{
-			linebuf[curr] = '\0';
-			hlsearch(linebuf + lno_indent, attr + lno_indent, 
-				AT_STANDOUT);
-		}
-	}
-#endif
-  
 	/*
 	 * Add a newline if necessary,
 	 * and append a '\0' to the end of the line.

@@ -164,6 +164,7 @@ prev_pattern()
 #endif
 }
 
+#if HILITE_SEARCH
 /*
  * Repaint the hilites currently displayed on the screen.
  * Repaint each line which contains highlighted text.
@@ -174,6 +175,13 @@ repaint_hilite()
 	int slinenum;
 	POSITION pos;
 	POSITION epos;
+	extern int can_goto_line;
+
+	if (!can_goto_line)
+	{
+		repaint();
+		return;
+	}
 
 	for (slinenum = TOP;  slinenum < TOP + sc_height-1;  slinenum++)
 	{
@@ -181,6 +189,10 @@ repaint_hilite()
 		if (pos == NULL_POSITION)
 			continue;
 		epos = position(slinenum+1);
+		/*
+		 * If any character in the line is highlighted, 
+		 * repaint the line.
+		 */
 		if (is_hilited(pos, epos, 1))
 		{
 			(void) forw_line(pos);
@@ -189,6 +201,7 @@ repaint_hilite()
 		}
 	}
 }
+#endif
 
 /*
  * Hide search string highlighting.
@@ -315,7 +328,7 @@ match_pattern(line, sp, ep)
 
 #if HILITE_SEARCH
 /*
- * Clear hilites.
+ * Clear the hilite list.
  */
 	public void
 clr_hilite()
@@ -331,6 +344,9 @@ clr_hilite()
 	hilite_list = hilite_tail = NULL;
 }
 
+/*
+ * Add a new hilite to the hilite list.
+ */
 	public void
 add_hilite(startpos, endpos)
 	POSITION startpos;
@@ -364,7 +380,7 @@ is_hilited(pos, epos, nohide)
 {
 	struct hilite *hl;
 
-	if (!hilite_search)
+	if (hilite_search == 0)
 		/*
 		 * Not doing highlighting.
 		 */
@@ -392,7 +408,7 @@ is_hilited(pos, epos, nohide)
  * Adjust hl_startpos & hl_endpos to account for backspace processing.
  */
 	static void
-adj_hlpos(linepos)
+adj_hilite(linepos)
 	POSITION linepos;
 {
 	char *line;
@@ -402,13 +418,15 @@ adj_hlpos(linepos)
 	POSITION npos;
 
 	/*
-	 * Get the line again.  Look at each character.
+	 * Get the raw line again.  Look at each character.
 	 */
 	(void) forw_raw_line(linepos, &line);
 	opos = npos = linepos;
-	hl = hilite_list;
+	for (hl = hilite_list;  hl != NULL;  hl = hl->hl_next)
+		if (hl->hl_startpos >= linepos)
+			break;
 	checkstart = 1;
-	for (;;)
+	while (hl != NULL)
 	{
 		/*
 		 * See if we need to adjust the current hl_startpos or 
@@ -426,8 +444,7 @@ adj_hlpos(linepos)
 		{
 			hl->hl_endpos = npos;
 			checkstart = 1;
-			if ((hl = hl->hl_next) == NULL)
-				break;
+			hl = hl->hl_next;
 			continue; /* {{ necessary }} */
 		}
 		if (*line == '\0')
@@ -444,7 +461,8 @@ adj_hlpos(linepos)
 }
 
 /*
- * Highlight all the strings in a physical line which match the current pattern.
+ * Make a hilite for each string in a physical line which matches 
+ * the current pattern.
  */
 	static void
 hilite_line(linepos, line, sp, ep)
@@ -455,6 +473,8 @@ hilite_line(linepos, line, sp, ep)
 {
 	char *searchp;
 
+	if (sp == NULL || ep == NULL)
+		return;
 	/*
 	 * sp and ep delimit the first match in the line.
 	 * Mark the corresponding file positions, then
@@ -467,6 +487,11 @@ hilite_line(linepos, line, sp, ep)
 	do {
 		if (ep > sp)
 		{
+			/*
+			 * Assume that each char position in the "line"
+			 * buffer corresponds to one char position in the file.
+			 * This is not quite true; we need to adjust later.
+			 */
 			add_hilite(linepos + (sp-line), linepos + (ep-line));
 		}
 		/*
@@ -489,7 +514,7 @@ hilite_line(linepos, line, sp, ep)
 		 * were removed, and hl_startpos/hl_endpos are not correct.
 		 * {{ This is very ugly. }}
 		 */
-		adj_hlpos(linepos);
+		adj_hilite(linepos);
 	}
 }
 #endif
@@ -504,16 +529,27 @@ chg_caseless()
 	if (!is_ucase_pattern)
 		is_caseless = caseless;
 #ifdef HILITE_SEARCH
-	clr_hilite();
+	chg_hilite();
 #endif
 }
+
+#ifdef HILITE_SEARCH
+	public void
+chg_hilite()
+{
+	hide_hilite = 1;
+	repaint_hilite();
+	clr_hilite();
+	hide_hilite = 0;
+}
+#endif
 
 /*
  * Figure out where to start a search.
  */
 	static POSITION
-search_pos(goforw)
-	int goforw;
+search_pos(search_type)
+	int search_type;
 {
 	POSITION pos;
 	int linenum;
@@ -526,7 +562,7 @@ search_pos(goforw)
 		 * command line initiated searches;
 		 * for example, "+/xyz" on the command line.)
 		 */
-		if (goforw)
+		if (search_type & SRCH_FORW)
 		{
 			return (ch_zero());
 		} else
@@ -542,7 +578,7 @@ search_pos(goforw)
 		/*
 		 * Search does not include current screen.
 		 */
-		if (goforw)
+		if (search_type & SRCH_FORW)
 			linenum = BOTTOM_PLUS_ONE;
 		else
 			linenum = TOP;
@@ -556,10 +592,159 @@ search_pos(goforw)
 		 */
 		linenum = adjsline(jump_sline);
 		pos = position(linenum);
-		if (goforw)
+		if (search_type & SRCH_FORW)
 			pos = forw_raw_line(pos, (char **)NULL);
 	}
 	return (pos);
+}
+
+/*
+ * Search a subset of the file, specified by start/end position.
+ */
+	static int
+search_range(pos, endpos, search_type, n, plinepos)
+	POSITION pos;
+	POSITION endpos;
+	int search_type;
+	int n;
+	POSITION *plinepos;
+{
+	char *line;
+	int linenum;
+	char *sp, *ep;
+	int line_match;
+	POSITION linepos, oldpos;
+
+	linenum = find_linenum(pos);
+	oldpos = pos;
+	for (;;)
+	{
+		/*
+		 * Get lines until we find a matching one or until
+		 * we hit end-of-file (or beginning-of-file if we're 
+		 * going backwards), or until we hit the end position.
+		 */
+		if (ABORT_SIGS())
+		{
+			/*
+			 * A signal aborts the search.
+			 */
+			return (-1);
+		}
+
+		if (endpos != NULL_POSITION && pos >= endpos)
+		{
+			/*
+			 * Reached end position without a match.
+			 */
+			return (n);
+		}
+
+		if (search_type & SRCH_FORW)
+		{
+			/*
+			 * Read the next line, and save the 
+			 * starting position of that line in linepos.
+			 */
+			linepos = pos;
+			pos = forw_raw_line(pos, &line);
+			if (linenum != 0)
+				linenum++;
+		} else
+		{
+			/*
+			 * Read the previous line and save the
+			 * starting position of that line in linepos.
+			 */
+			pos = back_raw_line(pos, &line);
+			linepos = pos;
+			if (linenum != 0)
+				linenum--;
+		}
+
+		if (pos == NULL_POSITION)
+		{
+			/*
+			 * Reached EOF/BOF without a match.
+			 */
+			return (n);
+		}
+
+		/*
+		 * If we're using line numbers, we might as well
+		 * remember the information we have now (the position
+		 * and line number of the current line).
+		 * Don't do it for every line because it slows down
+		 * the search.  Remember the line number only if
+		 * we're "far" from the last place we remembered it.
+		 */
+		if (linenums && abs((int)(pos - oldpos)) > 1024)
+		{
+			add_lnum(linenum, pos);
+			oldpos = pos;
+		}
+
+		/*
+		 * If it's a caseless search, convert the line to lowercase.
+		 * If we're doing backspace processing, delete backspaces.
+		 */
+		if (is_caseless || bs_mode == BS_SPECIAL)
+		{
+			int ops = 0;
+			if (is_caseless) 
+				ops |= CVT_TO_LC;
+			if (bs_mode == BS_SPECIAL)
+				ops |= CVT_BS;
+			cvt_text(line, line, ops);
+		}
+
+		/*
+		 * Test the next line to see if we have a match.
+		 * We are successful if we either want a match and got one,
+		 * or if we want a non-match and got one.
+		 */
+		line_match = match_pattern(line, &sp, &ep);
+		line_match = (!(search_type & SRCH_NOMATCH) && line_match) ||
+				((search_type & SRCH_NOMATCH) && !line_match);
+		if (!line_match)
+			continue;
+		/*
+		 * Got a match.
+		 */
+		if (search_type & SRCH_FIND_ALL)
+		{
+#if HILITE_SEARCH
+			/*
+			 * We are supposed to find all matches in the range.
+			 * Just add the matches in this line to the 
+			 * hilite list and keep searching.
+			 */
+			if (line_match)
+				hilite_line(linepos, line, sp, ep);
+#endif
+		} else if (--n <= 0)
+		{
+			/*
+			 * Found the one match we're looking for.
+			 * Return it.
+			 */
+#if HILITE_SEARCH
+			if (hilite_search == 1)
+			{
+				/*
+				 * Clear the hilite list and add only
+				 * the matches in this one line.
+				 */
+				clr_hilite();
+				if (line_match)
+					hilite_line(linepos, line, sp, ep);
+			}
+#endif
+			if (plinepos != NULL)
+				*plinepos = linepos;
+			return (0);
+		}
+	}
 }
 
 /*
@@ -577,19 +762,8 @@ search(search_type, pattern, n)
 	char *pattern;
 	int n;
 {
-	POSITION pos, linepos, oldpos;
-	register int goforw;
-	register int want_match;
+	POSITION pos;
 	char *line;
-	char *sp, *ep;
-	int linenum;
-	int line_match;
-
-	/*
-	 * Extract flags and type of search.
-	 */
-	goforw = (SRCH_DIR(search_type) == SRCH_FORW);
-	want_match = !(search_type & SRCH_NOMATCH);
 
 	if (pattern == NULL || *pattern == '\0')
 	{
@@ -623,7 +797,7 @@ search(search_type, pattern, n)
 	/*
 	 * Figure out where to start the search.
 	 */
-	pos = search_pos(goforw);
+	pos = search_pos(search_type);
 	if (pos == NULL_POSITION)
 	{
 		/*
@@ -638,230 +812,72 @@ search(search_type, pattern, n)
 #if HILITE_SEARCH
 	if (hilite_search)
 	{
+		/*
+		 * Hide current hilites on the screen, because they may change.
+		 */
 		hide_hilite = 1;
 		repaint_hilite();
 		hide_hilite = 0;
 	}
 #endif
 
-	linenum = find_linenum(pos);
-	oldpos = pos;
-	for (;;)
+	n = search_range(pos, NULL_POSITION, search_type, n, &pos);
+	if (n != 0)
 	{
 		/*
-		 * Get lines until we find a matching one or 
-		 * until we hit end-of-file (or beginning-of-file 
-		 * if we're going backwards).
+		 * Search was unsuccessful.
 		 */
-		if (ABORT_SIGS())
-			/*
-			 * A signal aborts the search.
-			 */
-			return (-1);
-
-		if (goforw)
-		{
-			/*
-			 * Read the next line, and save the 
-			 * starting position of that line in linepos.
-			 */
-			linepos = pos;
-			pos = forw_raw_line(pos, &line);
-			if (linenum != 0)
-				linenum++;
-		} else
-		{
-			/*
-			 * Read the previous line and save the
-			 * starting position of that line in linepos.
-			 */
-			pos = back_raw_line(pos, &line);
-			linepos = pos;
-			if (linenum != 0)
-				linenum--;
-		}
-
-		if (pos == NULL_POSITION)
-		{
-			/*
-			 * We hit EOF/BOF without a match.
-			 */
 #if HILITE_SEARCH
-			if (hilite_search)
-				repaint_hilite();
+		repaint_hilite();
 #endif
-			return (n);
-		}
-
-		/*
-		 * If we're using line numbers, we might as well
-		 * remember the information we have now (the position
-		 * and line number of the current line).
-		 * Don't do it for every line because it slows down
-		 * the search.  Remember the line number only if
-		 * we're "far" from the last place we remembered it.
-		 */
-		if (linenums && abs((int)(pos - oldpos)) > 1024)
-		{
-			add_lnum(linenum, pos);
-			oldpos = pos;
-		}
-
-		if (is_caseless || bs_mode == BS_SPECIAL)
-		{
-			int ops = 0;
-			if (is_caseless) 
-				ops |= CVT_TO_LC;
-			if (bs_mode == BS_SPECIAL)
-				ops |= CVT_BS;
-			cvt_text(line, line, ops);
-		}
-
-		/*
-		 * Test the next line to see if we have a match.
-		 * We are successful if want_match and line_match are
-		 * both true (want a match and got it),
-		 * or both false (want a non-match and got it).
-		 */
-		line_match = match_pattern(line, &sp, &ep);
-		if (((want_match && line_match) || (!want_match && !line_match)) &&
-		      --n <= 0)
-		{
-			/*
-			 * Found the line.
-			 */
-#if HILITE_SEARCH
-			if (hilite_search)
-			{
-				/*
-				 * Remove any old hilites.
-				 * Put hilites on the new matching strings.
-				 */
-				clr_hilite();
-				if (line_match && sp != NULL && ep != NULL)
-					hilite_line(linepos, line, sp, ep);
-			}
-#endif
-			break;
-		}
+		return (n);
 	}
 
-	jump_loc(linepos, jump_sline);
-
+	/*
+	 * Go to the matching line.
+	 */
+	jump_loc(pos, jump_sline);
 #if HILITE_SEARCH
-	if (hilite_search)
+	if (hilite_search == 1)
 	{
+		/*
+		 * Display the hilites in the matching line.
+		 */
 		repaint_hilite();
 	}
 #endif
-
 	return (0);
 }
 
-#if 0 /*UNRELIABLE_HILITE_SEARCH*/
+#if HILITE_SEARCH
 /*
- * Search for all occurrences of the previous pattern
- * within a line.  Mark all matches found.
- * "Marking" a match is done by copying "marker" into the chars whose
- * positions in the "found" string are equal to the positions of
- * the matching string in the "line" string.
+ * Highlight all strings currently displayed which match the current pattern.
  */
 	public void
-hlsearch(line, found, marker)
-	char *line;
-	char *found;
-	int marker;
+screen_hilite()
 {
-	char *buf;
-	register char *p;
+	struct scrpos scrpos;
 
-	if (hide_hilite)
-		return;
 	if (!prev_pattern())
 		return;
-
 	/*
-	 * If the last search was caseless, convert 
-	 * uppercase from the input line to lowercase
-	 * in a temporary buffer.
+	 * Get the range of file positions displayed on the screen.
 	 */
-	buf = line;
-	if (is_caseless)
-	{
-		/*
-		 * {{ Yikes, a calloc for every line displayed (with -i)!
-		 *    Is this worth optimizing? }}
-		 */
-		buf = save(line);
-		cvt_text(buf, line, CVT_TO_LC);
-	}
-
-	{
-		/*
-		 * Now depending on what type of pattern matching function
-		 * we have, define the macro NEXT_MATCH(p).
-		 * This will look for the first match in "p";
-		 * if it finds one it sets sp and ep to the start and 
-		 * end of the matching string and returns 1.
-		 * If there is no match, it returns 0.
-		 */
-
-#if HAVE_POSIX_REGCOMP
-regmatch_t rm;
-#define	NEXT_MATCH(p)	(!regexec(regpattern,p,1,&rm,0))
-#define	sp		(p+rm.rm_so)
-#define	ep		(p+rm.rm_eo)
-#endif
-
-#if HAVE_RE_COMP
-@@@ Sorry, re_comp does not support HILITE_SEARCH.
-@@@ Either undefine HILITE_SEARCH, or use the regexp.c that is 
-@@@ distributed with "less" (and set HAVE_V8_REGCOMP).
-#endif
-
-#if HAVE_REGCMP
-#define	sp		__loc1
-char *ep;
-#define	NEXT_MATCH(p)	(ep = regex(cpattern, p))
-#endif
-
-#if HAVE_V8_REGCOMP
-#define	sp		(regpattern->startp[0])
-#define	ep		(regpattern->endp[0])
-#define	NEXT_MATCH(p)	(regexec(regpattern, p))
-#endif
-
-#if NO_REGEX
-char *sp, *ep;
-#define	NEXT_MATCH(p)	(match(last_pattern,p,&sp,&ep))
-#endif
-
-		for (p = buf;  NEXT_MATCH(p);  )
-		{
-			register char *fsp = &found[sp-buf];
-			register char *fep = &found[ep-buf];
-
-			while (fsp < fep)
-				*fsp++ = marker;
-			
-			/*
-			 * Move past current match to see if there
-			 * are any more matches.  (But don't loop 
-			 * forever if we matched zero characters.)
-			 */
-			if (ep > p)
-				p = ep;
-			else if (*p != '\0')
-				p++;
-			else
-				break;
-		}
-	}
-
-	if (buf != line)
-		free(buf);
+	get_scrpos(&scrpos);
+	if (scrpos.pos == NULL_POSITION)
+		return;
+	/*
+	 * Clear the hilite list.
+	 * Search the subset of the file which is currently displayed
+	 * and add all matches to the hilite list.
+	 * Then display the hilites.
+	 */
+	clr_hilite();
+	(void) search_range(scrpos.pos, position(BOTTOM_PLUS_ONE), 
+		SRCH_FORW|SRCH_FIND_ALL, 0, NULL);
+	repaint_hilite();
 }
-#endif /* HILITE_SEARCH */
+#endif
 
 #if NO_REGEX
 /*

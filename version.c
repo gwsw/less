@@ -466,6 +466,7 @@
  *	v259: Convert to autoconf 2.0.			12/12/94
  *	v260: Add SECURE define.			12/13/94
  *	v261: Use system WERASE char as EC_W_BACKSPACE.	12/14/94
+ *	v262: Add -g/-G flag and screen_hilite.		12/16/94
  */
 
-char version[] = "261";
+char version[] = "262";

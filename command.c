@@ -127,15 +127,10 @@ in_mca()
 	static void
 mca_search()
 {
-	switch (SRCH_DIR(search_type))
-	{
-	case SRCH_FORW:
+	if (search_type & SRCH_FORW)
 		mca = A_F_SEARCH;
-		break;
-	case SRCH_BACK:
+	else
 		mca = A_B_SEARCH;
-		break;
-	}
 
 	clear_bot();
 
@@ -148,15 +143,10 @@ mca_search()
 	if (search_type & SRCH_NOMATCH)
 		cmd_putstr("!");
 
-	switch (SRCH_DIR(search_type))
-	{
-	case SRCH_FORW:
+	if (search_type & SRCH_FORW)
 		cmd_putstr("/");
-		break;
-	case SRCH_BACK:
+	else
 		cmd_putstr("?");
-		break;
-	}
 #if CMD_HISTORY
 	set_mlist(ml_search);
 #endif
@@ -593,7 +583,7 @@ multi_search(pattern, n)
 		 * Start at the first (or last) file 
 		 * in the command line list.
 		 */
-		if (SRCH_DIR(search_type) == SRCH_FORW)
+		if (search_type & SRCH_FORW)
 			nomore = edit_first();
 		else
 			nomore = edit_last();
@@ -627,10 +617,10 @@ multi_search(pattern, n)
 		/*
 		 * Move on to the next file.
 		 */
-		if (SRCH_DIR(search_type) == SRCH_BACK)
-			nomore = edit_prev(1);
-		else
+		if (search_type & SRCH_FORW)
 			nomore = edit_next(1);
+		else
+			nomore = edit_prev(1);
 		if (nomore)
 			break;
 		changed_file = 1;

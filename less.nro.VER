@@ -1142,10 +1142,14 @@ If the :e command is used to name more than one file,
 and one of the named files has been viewed previously,
 the new files may be entered into the list in an unexpected order.
 .PP
+On certain older terminals (the so-called "magic cookie" terminals),
+search highlighting will cause an erroneous display.
+On such terminals, search highlighting is disabled by default 
+to avoid possible problems.
+.PP
 In certain cases, when a pattern begins with a ^,
 more text than the matching string may be highlighted.
-If there are many matching strings in one line, 
-only the first 40 strings will be highlighted.
+
 
 .SH COPYRIGHT
 Copyright (c) 1984,1985,1989,1994  Mark Nudelman

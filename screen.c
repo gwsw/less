@@ -113,7 +113,7 @@ public int ul_s_width, ul_e_width;	/* Printing width of underline seq */
 public int so_s_width, so_e_width;	/* Printing width of standout seq */
 public int bl_s_width, bl_e_width;	/* Printing width of blink seq */
 public int above_mem, below_mem;	/* Memory retained above/below screen */
-public int can_goto;			/* Can move cursor to any line */
+public int can_goto_line;		/* Can move cursor to any line */
 
 static char *cheaper();
 
@@ -131,6 +131,10 @@ extern int know_dumb;		/* Don't complain about a dumb terminal */
 extern int back_scroll;
 extern int swindow;
 extern int no_init;
+#if HILITE_SEARCH
+extern int hilite_search;
+#endif
+
 extern char *tgetstr();
 extern char *tgoto();
 
@@ -679,6 +683,18 @@ get_term()
 	ul_s_width = ul_e_width = so_s_width;
 	bl_s_width = bl_e_width = so_s_width;
 
+#if HILITE_SEARCH
+	if (so_s_width > 0 || so_e_width > 0)
+		/*
+		 * Disable highlighting by default on magic cookie terminals.
+		 * Turning on highlighting might change the displayed width
+		 * of a line, causing the display to get messed up.
+		 * The user can turn it back on with -g, 
+		 * but she won't like the results.
+		 */
+		hilite_search = 0;
+#endif
+
 	/*
 	 * Get various string-valued capabilities.
 	 */
@@ -736,9 +752,9 @@ get_term()
 		 * We need it only if we don't have home or lower-left.
 		 */
 		sc_move = "";
-		can_goto = 0;
+		can_goto_line = 0;
 	} else
-		can_goto = 1;
+		can_goto_line = 1;
 
 	sc_s_in = tgetstr("so", &sp);
 	if (hard || sc_s_in == NULL)
