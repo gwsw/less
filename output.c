@@ -129,59 +129,40 @@ flush()
 		char *op;
 		DWORD nwritten = 0;
 		CONSOLE_SCREEN_BUFFER_INFO scr;
-		DWORD nchars;
-		COORD cpos;
+		int row;
+		int col;
 		int olen;
-		int len;
 		extern HANDLE con_out;
-		extern int nm_fg_color;
-		extern int nm_bg_color;
-#define	MAKEATTR(fg,bg)		((WORD)((fg)|((bg)<<4)))
 
 		olen = ob - obuf;
 		/*
 		 * There is a bug in Win32 WriteConsole() if we're
-		 * writing in the last cell whith a different color.
-		 * To avoid color problems, in the bottom line,
-		 * we scroll the screen, with scroll_up(), and then
-		 * we write only up to the char that causes the scroll,
-		 * (a newline or a char in the last column). Then we write
-		 * the rest using the same algorithm.
+		 * writing in the last cell with a different color.
+		 * To avoid color problems in the bottom line,
+		 * we scroll the screen manually, before writing.
 		 */
-		for (op = obuf;  olen > 0;  )
+		GetConsoleScreenBufferInfo(con_out, &scr);
+		col = scr.dwCursorPosition.X;
+		row = scr.dwCursorPosition.Y;
+		for (op = obuf;  op < obuf + olen;  op++)
 		{
-			GetConsoleScreenBufferInfo(con_out, &scr);
-			/* Find the next newline. */
-			p = strchr(op, '\n');
-			if (p == NULL &&
-			    scr.dwCursorPosition.X + olen >= sc_width)
+			if (*op == '\n')
 			{
-				/*
-				 * No newline, but writing in the 
-				 * last column causes scrolling.
-				 */
-				p = op + sc_width - scr.dwCursorPosition.X - 1;
-			}
-			if (scr.dwCursorPosition.Y != scr.srWindow.Bottom ||
-			    p == NULL)
-			{
-				/*
-				 * Write the entire buffer.
-				 */
-				len = olen;
+				col = 0;
+				row++;
 			} else
 			{
-				/*
-				 * Manually scroll up one line first, then
-				 * write only up to the scrolling char.
-				 */
-				len = p - op + 1;
-				win32_scroll_up(1);
+				col++;
+				if (col >= sc_width)
+				{
+					col = 0;
+					row++;
+				}
 			}
-			WriteConsole(con_out, op, len, &nwritten, NULL);
-			op += len;
-			olen -= len;
 		}
+		if (row > scr.srWindow.Bottom)
+			win32_scroll_up(row - scr.srWindow.Bottom);
+		WriteConsole(con_out, obuf, olen, &nwritten, NULL);
 		ob = obuf;
 		return;
 	}

@@ -1469,9 +1469,13 @@ deinit()
 	tputs(sc_e_keypad, sc_height, putchr);
 	tputs(sc_deinit, sc_height, putchr);
 #else
+	/* Restore system colors. */
 	SETCOLORS(sy_fg_color, sy_bg_color);
 #if MSDOS_COMPILER==WIN32C
 	win32_deinit_term();
+#else
+	/* Need clreol to make SETCOLORS take effect. */
+	clreol();
 #endif
 #endif
 	init_done = 0;
@@ -1547,6 +1551,7 @@ add_line()
 #endif
 }
 
+#if 0
 /*
  * Remove the n topmost lines and scroll everything below it in the 
  * window upward.  This is needed to stop leaking the topmost line 
@@ -1600,8 +1605,39 @@ remove_top(n)
 	goto_line(sc_height - n - 1);
 #endif
 }
+#endif
 
 #if MSDOS_COMPILER==WIN32C
+/*
+ * Clear the screen.
+ */
+	static void
+win32_clear()
+{
+	/*
+	 * This will clear only the currently visible rows of the NT
+	 * console buffer, which means none of the precious scrollback
+	 * rows are touched making for faster scrolling.  Note that, if
+	 * the window has fewer columns than the console buffer (i.e.
+	 * there is a horizontal scrollbar as well), the entire width
+	 * of the visible rows will be cleared.
+	 */
+	COORD topleft;
+	DWORD nchars;
+	DWORD winsz;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+	/* get the number of cells in the current buffer */
+	GetConsoleScreenBufferInfo(con_out, &csbi);
+	winsz = csbi.dwSize.X * (csbi.srWindow.Bottom - csbi.srWindow.Top + 1);
+	topleft.X = 0;
+	topleft.Y = csbi.srWindow.Top;
+
+	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
+	FillConsoleOutputCharacter(con_out, ' ', winsz, topleft, &nchars);
+	FillConsoleOutputAttribute(con_out, curr_attr, winsz, topleft, &nchars);
+}
+
 /*
  * Remove the n topmost lines and scroll everything below it in the 
  * window upward.
@@ -1610,19 +1646,26 @@ remove_top(n)
 win32_scroll_up(n)
 	int n;
 {
-	extern int sc_height;
-	extern HANDLE con_out;
-	extern int nm_fg_color;
-	extern int nm_bg_color;
 	SMALL_RECT rcSrc, rcClip;
 	CHAR_INFO fillchar;
+	COORD topleft;
 	COORD new_org;
-	CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */
-#define	MAKEATTR(fg,bg)		((WORD)((fg)|((bg)<<4)))
+	DWORD nchars;
+	DWORD size;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
 
+	if (n <= 0)
+		return;
+
+	if (n >= sc_height - 1)
+	{
+		win32_clear();
+		_settextposition(1,1);
+		return;
+	}
+
+	/* Get the extent of what will remain visible after scrolling. */
 	GetConsoleScreenBufferInfo(con_out, &csbi);
-
-	/* Get the extent of all-visible-rows-but-the-last. */
 	rcSrc.Left    = csbi.srWindow.Left;
 	rcSrc.Top     = csbi.srWindow.Top + n;
 	rcSrc.Right   = csbi.srWindow.Right;
@@ -1634,17 +1677,29 @@ win32_scroll_up(n)
 	rcClip.Right  = rcSrc.Right;
 	rcClip.Bottom = rcSrc.Bottom ;
 
-	/* Move the source window up n rows. */
+	/* Move the source text to the top of the screen. */
 	new_org.X = rcSrc.Left;
-	new_org.Y = rcSrc.Top - n;
+	new_org.Y = 0;
 
 	/* Fill the right character and attributes. */
 	fillchar.Char.AsciiChar = ' ';
 	fillchar.Attributes = MAKEATTR(nm_fg_color, nm_bg_color);
 
+	/* Scroll the window. */
+	SetConsoleTextAttribute(con_out, fillchar.Attributes);
 	ScrollConsoleScreenBuffer(con_out, &rcSrc, &rcClip, new_org, &fillchar);
 
-	/* Position cursor n lines up. */
+	/* Clear remaining lines at bottom. */
+	topleft.X = csbi.dwCursorPosition.X;
+	topleft.Y = rcSrc.Bottom - n;
+	size = (n * csbi.dwSize.X) + (rcSrc.Right - topleft.X);
+	FillConsoleOutputCharacter(con_out, ' ', size, topleft,
+		&nchars);
+	FillConsoleOutputAttribute(con_out, fillchar.Attributes, size, topleft,
+		&nchars);
+	SetConsoleTextAttribute(con_out, curr_attr);
+
+	/* Move cursor n lines up from where it was. */
 	csbi.dwCursorPosition.Y -= n;
 	SetConsoleCursorPosition(con_out, csbi.dwCursorPosition);
 }
@@ -1877,30 +1932,7 @@ clear()
 #else
 	flush();
 #if MSDOS_COMPILER==WIN32C
-	/*
-	 * This will clear only the currently visible rows of the NT
-	 * console buffer, which means none of the precious scrollback
-	 * rows are touched making for faster scrolling.  Note that, if
-	 * the window has fewer columns than the console buffer (i.e.
-	 * there is a horizontal scrollbar as well), the entire width
-	 * of the visible rows will be cleared.
-	 */
-    {
-	COORD topleft;
-	DWORD nchars;
-	DWORD winsz;
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-
-	/* get the number of cells in the current buffer */
-	GetConsoleScreenBufferInfo(con_out, &csbi);
-	winsz = csbi.dwSize.X * (csbi.srWindow.Bottom - csbi.srWindow.Top + 1);
-	topleft.X = 0;
-	topleft.Y = csbi.srWindow.Top;
-
-	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
-	FillConsoleOutputCharacter(con_out, ' ', winsz, topleft, &nchars);
-	FillConsoleOutputAttribute(con_out, curr_attr, winsz, topleft, &nchars);
-    }
+	win32_clear();
 #else
 	_clearscreen(_GCLEARSCREEN);
 #endif

@@ -602,7 +602,7 @@ v357   7/6/00	Support sigprocmask.
 v358   7/8/00	Fix problems with #stop in lesskey file.
 		Posted to Web page.
 -----------------------------------------------------------------
-v359  9/10/00	
+v359  9/10/00	Fixes for Win32 display problems (thanks to Maurizio Vairani).
 
 */
 
