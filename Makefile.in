@@ -96,8 +96,7 @@ clean:
 mostlyclean: clean
 
 distclean: clean
-	rm -f Makefile config.status config.log config.cache defines.h stamp-h \
-		README NEWS less.nro lesskey.nro  less.man lesskey.man
+	rm -f Makefile config.status config.log config.cache defines.h stamp-h
 
 realclean: distclean
 	rm -f TAGS
