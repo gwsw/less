@@ -718,7 +718,13 @@ commands()
 			if (quitting)
 				quit(QUIT_SAVED_STATUS);
 		}
-			
+
+		/*
+		 * See if window size changed, for systems that don't
+		 * generate SIGWINCH.
+		 */
+		check_winch();
+
 		/*
 		 * Display prompt and accept a character.
 		 */

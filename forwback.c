@@ -155,6 +155,11 @@ forw(n, pos, force, only_last, nblank)
 		} else
 		{
 			clear_bot();
+			/*
+			 * Remove the top n lines and scroll the rest
+			 * upward, leaving cursor at first new blank line.
+			 */
+			remove_top(n);
 		}
 
 		if (pos != position(BOTTOM_PLUS_ONE) || empty_screen())

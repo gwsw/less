@@ -132,10 +132,19 @@ static int keyCount = 0;
 static WORD curr_attr;
 static int pending_scancode = 0;
 static WORD *whitescreen;
-static constant COORD TOPLEFT = {0, 0};
+
+static HANDLE con_out_save = INVALID_HANDLE_VALUE; /* previous console */
+static HANDLE con_out_ours = INVALID_HANDLE_VALUE; /* our own */
+HANDLE con_out = INVALID_HANDLE_VALUE;             /* current console */
+
+#if 1
+extern int quitting;
+static void win32_init_term();
+static void win32_deinit_term();
+#endif
+
 #define FG_COLORS       (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)
 #define BG_COLORS       (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)
-HANDLE con_out;
 #define	MAKEATTR(fg,bg)		((WORD)((fg)|((bg)<<4)))
 #define	SETCOLORS(fg,bg)	curr_attr = MAKEATTR(fg,bg); \
 				SetConsoleTextAttribute(con_out, curr_attr);
@@ -223,6 +232,8 @@ extern int no_back_scroll;
 extern int swindow;
 extern int no_init;
 extern int sigs;
+extern int wscroll;
+extern int screen_trashed;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -650,9 +661,11 @@ ltgetstr(capname, pp)
 scrsize()
 {
 	register char *s;
-	int n;
 	int sys_height;
 	int sys_width;
+#if !MSDOS_COMPILER
+	int n;
+#endif
 
 #define	DEF_SC_WIDTH	80
 #if MSDOS_COMPILER
@@ -684,8 +697,8 @@ scrsize()
 	{
 		CONSOLE_SCREEN_BUFFER_INFO scr;
 		GetConsoleScreenBufferInfo(con_out, &scr);
-		sys_height = scr.dwSize.Y;
-		sys_width = scr.dwSize.X;
+		sys_height = scr.srWindow.Bottom - scr.srWindow.Top + 1;
+		sys_width = scr.srWindow.Right - scr.srWindow.Left + 1;
 	}
 #else
 #if OS2
@@ -1004,13 +1017,13 @@ get_term()
 	 */
 	nm_fg_color = 7;
 	nm_bg_color = 0;
-	bo_fg_color = 15;
+	bo_fg_color = 11;
 	bo_bg_color = 0;
 	ul_fg_color = 9;
 	ul_bg_color = 0;
-	so_fg_color = 0;
-	so_bg_color = 7;
-	bl_fg_color = 12;
+	so_fg_color = 15;
+	so_bg_color = 9;
+	bl_fg_color = 15;
 	bl_bg_color = 0;
 #if MSDOS_COMPILER==MSOFTC
 	sy_bg_color = _getbkcolor();
@@ -1030,8 +1043,12 @@ get_term()
 	DWORD nread;
 	CONSOLE_SCREEN_BUFFER_INFO scr;
 
-	con_out = GetStdHandle(STD_OUTPUT_HANDLE);
-
+	con_out_save = con_out = GetStdHandle(STD_OUTPUT_HANDLE);
+	/*
+	 * Always open stdin in binary. Note this *must* be done
+	 * before any file operations have been done on fd0.
+	 */
+	SET_BINARY(0);
 	GetConsoleScreenBufferInfo(con_out, &scr);
 	ReadConsoleOutputAttribute(con_out, &curr_attr, 
 					1, scr.dwCursorPosition, &nread);
@@ -1359,8 +1376,11 @@ tmodes(incap, outcap, instr, outstr, def_instr, def_outstr, spp)
 _settextposition(int row, int col)
 {
 	COORD cpos;
-	cpos.X = (short)(col-1);
-	cpos.Y = (short)(row-1);
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+	GetConsoleScreenBufferInfo(con_out, &csbi);
+	cpos.X = csbi.srWindow.Left + (col - 1);
+	cpos.Y = csbi.srWindow.Top + (row - 1);
 	SetConsoleCursorPosition(con_out, cpos);
 }
 #endif
@@ -1396,6 +1416,59 @@ initcolor()
 }
 #endif
 
+#if MSDOS_COMPILER==WIN32C
+
+/*
+ * Termcap-like init with a private win32 console.
+ */
+	static void
+win32_init_term()
+{
+	CONSOLE_SCREEN_BUFFER_INFO scr;
+	COORD size;
+
+	if (con_out_save == INVALID_HANDLE_VALUE)
+		return;
+
+	GetConsoleScreenBufferInfo(con_out_save, &scr);
+
+	if (con_out_ours == INVALID_HANDLE_VALUE)
+	{
+		/*
+		 * Create our own screen buffer, so that we
+		 * may restore the original when done.
+		 */
+		con_out_ours = CreateConsoleScreenBuffer(
+			GENERIC_WRITE | GENERIC_READ,
+			FILE_SHARE_WRITE | FILE_SHARE_READ,
+			(LPSECURITY_ATTRIBUTES) NULL,
+			CONSOLE_TEXTMODE_BUFFER,
+			(LPVOID) NULL);
+	}
+
+	size.X = scr.srWindow.Right - scr.srWindow.Left + 1;
+	size.Y = scr.srWindow.Bottom - scr.srWindow.Top + 1;
+	SetConsoleScreenBufferSize(con_out_ours, size);
+	SetConsoleActiveScreenBuffer(con_out_ours);
+	con_out = con_out_ours;
+}
+
+/*
+ * Restore the startup console.
+ */
+static void
+win32_deinit_term()
+{
+	if (con_out_save == INVALID_HANDLE_VALUE)
+		return;
+	if (quitting)
+		(void) CloseHandle(con_out_ours);
+	SetConsoleActiveScreenBuffer(con_out_save);
+	con_out = con_out_save;
+}
+
+#endif
+
 /*
  * Initialize terminal
  */
@@ -1403,11 +1476,21 @@ initcolor()
 init()
 {
 	if (no_init)
+	{
+#if MSDOS_COMPILER==WIN32C
+		/* no_init or not, never trash win32 console colors. */
+		initcolor();
+		flush();
+#endif
 		return;
+	}
 #if !MSDOS_COMPILER
 	tputs(sc_init, sc_height, putchr);
 	tputs(sc_s_keypad, sc_height, putchr);
 #else
+#if MSDOS_COMPILER==WIN32C
+	win32_init_term();
+#endif
 	initcolor();
 	flush();
 #endif
@@ -1421,7 +1504,14 @@ init()
 deinit()
 {
 	if (no_init)
+	{
+#if MSDOS_COMPILER==WIN32C
+		/* no_init or not, never trash win32 console colors. */
+		SETCOLORS(sy_fg_color, sy_bg_color);
+#endif
 		return;
+	}
+
 	if (!init_done)
 		return;
 #if !MSDOS_COMPILER
@@ -1429,7 +1519,9 @@ deinit()
 	tputs(sc_deinit, sc_height, putchr);
 #else
 	SETCOLORS(sy_fg_color, sy_bg_color);
-	putstr("\n");
+#if MSDOS_COMPILER==WIN32C
+	win32_deinit_term();
+#endif
 #endif
 	init_done = 0;
 }
@@ -1472,16 +1564,25 @@ add_line()
     {
 	CHAR_INFO fillchar;
 	SMALL_RECT rcSrc, rcClip;
-	COORD new_org = {0, 1};
+	COORD new_org;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
 
-	rcClip.Left = 0;
-	rcClip.Top = 0;
-	rcClip.Right = (short)(sc_width - 1);
-	rcClip.Bottom = (short)(sc_height - 1);
-	rcSrc.Left = 0;
-	rcSrc.Top = 0;
-	rcSrc.Right = (short)(sc_width - 1);
-	rcSrc.Bottom = (short)(sc_height - 2);
+	GetConsoleScreenBufferInfo(con_out,&csbi);
+
+	/* Get the extent of all-visible-rows-but-the-last. */
+	rcSrc.Left = csbi.srWindow.Left;
+	rcSrc.Top = csbi.srWindow.Top;
+	rcSrc.Right = csbi.srWindow.Right;
+	rcSrc.Bottom = csbi.srWindow.Bottom - 1;
+
+	/* The clip rectangle is the same as the source. */
+	rcClip = rcSrc;
+
+	/* Move the top left corner of the source window down one row. */
+	new_org.X = rcSrc.Left;
+	new_org.Y = rcSrc.Top + 1;
+
+	/* Fill the right character and attributes. */
 	fillchar.Char.AsciiChar = ' ';
 	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
 	fillchar.Attributes = curr_attr;
@@ -1491,6 +1592,61 @@ add_line()
 #endif
 #endif
 #endif
+#endif
+}
+
+/*
+ * Remove the n topmost lines and scroll everything below it in the 
+ * window upward.  This is needed to stop leaking the topmost line 
+ * into the scrollback buffer when we go down-one-line (in WIN32).
+ */
+       public void
+remove_top(n)
+       int n;
+{
+#if MSDOS_COMPILER==WIN32C
+	SMALL_RECT rcSrc, rcClip;
+	CHAR_INFO fillchar;
+	COORD new_org;
+	CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */
+
+	if (n >= sc_height - 1)
+	{
+		clear();
+		home();
+		return;
+	}
+
+	flush();
+
+	GetConsoleScreenBufferInfo(con_out, &csbi);
+
+	/* Get the extent of all-visible-rows-but-the-last. */
+	rcSrc.Left = csbi.srWindow.Left;
+	rcSrc.Top = csbi.srWindow.Top + n;
+	rcSrc.Right = csbi.srWindow.Right;
+	rcSrc.Bottom = csbi.srWindow.Bottom;
+
+	/* Get the clip rectangle. */
+	rcClip.Left = rcSrc.Left;
+	rcClip.Top = csbi.srWindow.Top;
+	rcClip.Right = rcSrc.Right;
+	rcClip.Bottom = rcSrc.Bottom - 1;
+
+	/* Move the source window up n rows. */
+	new_org.X = rcSrc.Left;
+	new_org.Y = rcSrc.Top - n;
+
+	/* Fill the right character and attributes. */
+	fillchar.Char.AsciiChar = ' ';
+	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
+	fillchar.Attributes = curr_attr;
+
+	ScrollConsoleScreenBuffer(con_out, &rcSrc, &rcClip,
+	new_org, &fillchar);
+
+	/* Position cursor on first blank line. */
+	goto_line(sc_height - n - 1);
 #endif
 }
 
@@ -1505,6 +1661,37 @@ lower_left()
 #else
 	flush();
 	_settextposition(sc_height, 1);
+#endif
+}
+
+/*
+ * Check if the console size has changed and reset internals 
+ * (in lieu of SIGWINCH for WIN32).
+ */
+       public void
+check_winch()
+{
+#if MSDOS_COMPILER==WIN32C
+	CONSOLE_SCREEN_BUFFER_INFO scr;
+	COORD size;
+
+	if (con_out == INVALID_HANDLE_VALUE)
+		return;
+ 
+        flush();
+        GetConsoleScreenBufferInfo(con_out, &scr);
+	size.Y = scr.srWindow.Bottom - scr.srWindow.Top + 1;
+	size.X = scr.srWindow.Right - scr.srWindow.Left + 1;
+	if (size.Y != sc_height || size.X != sc_width)
+	{
+		sc_height = size.Y;
+		sc_width = size.X;
+		if (!no_init && con_out_ours == con_out)
+			SetConsoleScreenBufferSize(con_out, size);
+		pos_init();
+		wscroll = (sc_height + 1) / 2;
+		screen_trashed = 1;
+	}
 #endif
 }
 
@@ -1627,8 +1814,7 @@ vbell()
 		return;
 	currscreen = (unsigned short *) 
 		malloc(sc_width * sc_height * sizeof(short));
-	if (currscreen == NULL)
-		return;
+	if (currscreen == NULL) return;
 	gettext(1, 1, sc_width, sc_height, currscreen);
 	puttext(1, 1, sc_width, sc_height, whitescreen);
 	delay(100);
@@ -1636,25 +1822,14 @@ vbell()
 	free(currscreen);
 #else
 #if MSDOS_COMPILER==WIN32C
-	WORD *currscreen;
-	DWORD nread;
+	/* paint screen with an inverse color */
+	clear();
 
-	if (!flash_created)
-		create_flash();
-	if (whitescreen == NULL)
-		return;
-	currscreen = (WORD *) 
-		malloc(sc_width * sc_height * sizeof(WORD));
-	if (currscreen == NULL)
-		return;
-	ReadConsoleOutputAttribute(con_out, currscreen, 
-				sc_height * sc_width, TOPLEFT, &nread);
-	WriteConsoleOutputAttribute(con_out, whitescreen,
-				sc_height * sc_width, TOPLEFT, &nread);
+	/* leave it displayed for 100 msec. */
 	Sleep(100);
-	WriteConsoleOutputAttribute(con_out, currscreen,
-				sc_height * sc_width, TOPLEFT, &nread);
-	free(currscreen);
+
+	/* restore with a redraw */
+	repaint();
 #endif
 #endif
 #endif
@@ -1702,14 +1877,30 @@ clear()
 #else
 	flush();
 #if MSDOS_COMPILER==WIN32C
-    {
+       /*
+        * This will clear only the currently visible rows of the NT
+        * console buffer, which means none of the precious scrollback
+        * rows are touched making for faster scrolling.  Note that, if
+        * the window has fewer columns than the console buffer (i.e.
+        * there is a horizontal scrollbar as well), the entire width
+        * of the visible rows will be cleared.
+        */
+     {
+	COORD topleft;
 	DWORD nchars;
+	DWORD winsz;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+	/* get the number of cells in the current buffer */
+	GetConsoleScreenBufferInfo(con_out, &csbi);
+	winsz = csbi.dwSize.X * (csbi.srWindow.Bottom - csbi.srWindow.Top + 1);
+	topleft.X = 0;
+	topleft.Y = csbi.srWindow.Top;
+
 	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
-	FillConsoleOutputCharacter(con_out, ' ', 
-			sc_width * sc_height, TOPLEFT, &nchars);
-	FillConsoleOutputAttribute(con_out, curr_attr, 
-			sc_width * sc_height, TOPLEFT, &nchars);
-    }
+	FillConsoleOutputCharacter(con_out, ' ', winsz, topleft, &nchars);
+	FillConsoleOutputAttribute(con_out, curr_attr, winsz, topleft, &nchars);
+     }
 #else
 	_clearscreen(_GCLEARSCREEN);
 #endif
@@ -1766,9 +1957,9 @@ clear_eol()
 	cpos.Y = scr.dwCursorPosition.Y;
 	curr_attr = MAKEATTR(nm_fg_color, nm_bg_color);
 	FillConsoleOutputAttribute(con_out, curr_attr,
-		sc_width - cpos.X, cpos, &nchars);
-	FillConsoleOutputCharacter(con_out, ' ',
-		sc_width - cpos.X, cpos, &nchars);
+		scr.dwSize.X - cpos.X, cpos, &nchars);
+        FillConsoleOutputCharacter(con_out, ' ',
+		scr.dwSize.X - cpos.X, cpos, &nchars);
 #endif
 #endif
 #endif
@@ -1955,18 +2146,19 @@ backspace()
 	cputs("\b");
 #else
 #if MSDOS_COMPILER==WIN32C
-        COORD cpos;
+	COORD cpos;
+	DWORD cChars;
 	CONSOLE_SCREEN_BUFFER_INFO scr;
 
-        flush();
-        GetConsoleScreenBufferInfo(con_out, &scr);
-        cpos.X = scr.dwCursorPosition.X;
-        cpos.Y = scr.dwCursorPosition.Y;
-        if (cpos.X <= 0)
-                return;
-        _settextposition(cpos.Y, cpos.X-1);
-        putch(' ');
-        _settextposition(cpos.Y, cpos.X-1);
+	flush();
+	GetConsoleScreenBufferInfo(con_out, &scr);
+	cpos = scr.dwCursorPosition;
+	if (cpos.X <= 0)
+		return;
+	cpos.X--;
+	SetConsoleCursorPosition(con_out, cpos);
+	FillConsoleOutputCharacter(con_out, (TCHAR)' ', 1, cpos, &cChars);
+	SetConsoleCursorPosition(con_out, cpos);
 #endif
 #endif
 #endif
@@ -1999,8 +2191,8 @@ putbs()
 #if MSDOS_COMPILER==WIN32C
 		CONSOLE_SCREEN_BUFFER_INFO scr;
 		GetConsoleScreenBufferInfo(con_out, &scr);
-		row = scr.dwCursorPosition.Y + 1;
-		col = scr.dwCursorPosition.X + 1;
+		row = scr.dwCursorPosition.Y - scr.srWindow.Top + 1;
+		col = scr.dwCursorPosition.X - scr.srWindow.Left + 1;
 #endif
 #endif
 #endif

@@ -51,8 +51,8 @@ open_getchr()
 	memset(&sa, 0, sizeof(SECURITY_ATTRIBUTES));
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 	sa.bInheritHandle = TRUE;
-	tty = (int) CreateFile("CONIN$", GENERIC_READ | GENERIC_WRITE,
-			FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, 
+	tty = (int) CreateFile("CONIN$", GENERIC_READ,
+			FILE_SHARE_READ, &sa, 
 			OPEN_EXISTING, 0L, NULL);
 	GetConsoleMode((HANDLE)tty, &console_mode);
 	/* Make sure we get Ctrl+C events. */

@@ -133,6 +133,9 @@ flush()
 	register int n;
 	register int fd;
 
+	n = ob - obuf;
+	if (n == 0)
+		return;
 #if MSDOS_COMPILER==WIN32C
 	if (is_tty && any_display)
         {
@@ -145,7 +148,7 @@ flush()
 
 		*ob = '\0';
 		GetConsoleScreenBufferInfo(con_out, &scr);
-		if (scr.dwCursorPosition.Y != scr.dwSize.Y - 1 ||
+		if (scr.dwCursorPosition.Y != scr.srWindow.Bottom ||
 		    (p = strchr(obuf, '\n')) == NULL)
 		{
 			WriteConsole(con_out, obuf, strlen(obuf), 
@@ -195,9 +198,6 @@ flush()
 #endif
 #endif
 #endif
-	n = ob - obuf;
-	if (n == 0)
-		return;
 	fd = (any_display) ? 1 : 2;
 	if (write(fd, obuf, n) != n)
 		screen_trashed = 1;
@@ -357,7 +357,7 @@ error(fmt, parg)
 
 	errmsgs++;
 
-	if (any_display)
+	if (any_display && is_tty)
 	{
 		clear_bot();
 		so_enter();
@@ -366,7 +366,7 @@ error(fmt, parg)
 
 	col += iprintf(fmt, parg);
 
-	if (!any_display)
+	if (!(any_display && is_tty))
 	{
 		putchr('\n');
 		return;
@@ -424,13 +424,13 @@ query(fmt, parg)
 	register int c;
 	int col = 0;
 
-	if (any_display)
+	if (any_display && is_tty)
 		clear_bot();
 
 	(void) iprintf(fmt, parg);
 	c = getchr();
 
-	if (!any_display)
+	if (!(any_display && is_tty))
 	{
 		putchr('\n');
 		return (c);
