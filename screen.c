@@ -104,7 +104,6 @@
 #endif
 
 #if MSDOS_COMPILER==MSOFTC
-static int flash_created = 0;
 static int videopages;
 static long msec_loops;
 #define	SETCOLORS(fg,bg)	_settextcolor(fg); _setbkcolor(bg);
@@ -144,6 +143,8 @@ public int bl_fg_color;		/* Color of blinking text */
 public int bl_bg_color;
 static int sy_fg_color;		/* Color of system text (before less) */
 static int sy_bg_color;
+
+static int flash_created = 0;
 
 #else
 
@@ -657,8 +658,10 @@ scrsize()
 		;
 	else if ((s = lgetenv("LINES")) != NULL)
 		sc_height = atoi(s);
+#if !MSDOS_COMPILER
 	else
  		sc_height = ltgetnum("li");
+#endif
 	if (sc_height <= 0)
 		sc_height = 24;
 
@@ -666,8 +669,10 @@ scrsize()
 		;
 	else if ((s = lgetenv("COLUMNS")) != NULL)
 		sc_width = atoi(s);
+#if !MSDOS_COMPILER
 	else
  		sc_width = ltgetnum("co");
+#endif
  	if (sc_width <= 0)
   		sc_width = 80;
 }
@@ -967,12 +972,15 @@ get_term()
 	get_clock();
 #else
 #if MSDOS_COMPILER==BORLANDC
+    {
 	struct text_info w;
 	gettextinfo(&w);
 	sy_bg_color = (w.attribute >> 4) & 0x0F;
 	sy_fg_color = (w.attribute >> 0) & 0x0F;
+    }
 #else
 #if MSDOS_COMPILER==WIN32C
+    {
 	WORD attr;
 	DWORD nread;
 	CONSOLE_SCREEN_BUFFER_INFO scr;
@@ -994,9 +1002,11 @@ get_term()
 
 	con_in = GetStdHandle(STD_INPUT_HANDLE);
 	con_out = GetStdHandle(STD_OUTPUT_HANDLE);
+    }
 #endif
 #endif
 #endif
+	scrsize();
 
 #else /* !MSDOS_COMPILER */
 
