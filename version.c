@@ -481,6 +481,8 @@
  *	      config problem with Solaris POSIX regcomp.
  *	v271: Don't quit on read error.			1/4/95
  *	v272: Get rid of -L.				1/5/95
+ *	v273: Fix ch_ungetchar bug; don't call		1/6/95
+ *	      LESSOPEN on a pipe.
  */
 
-char version[] = "272";
+char version[] = "273";
