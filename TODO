@@ -108,6 +108,17 @@ x	193	Is setlocale() right about "binary" chars 0-31?
 	203	Windows MSC highlights too much on line wrap.
 *v340	204	F while search pattern active doesn't go to end of long line.
 *v340	205	-G suppress -W hiliting.
-	206	Support UTF-8.
+*v343	206	Support UTF-8.
 *v342	207	Should check entire page before saying "Nothing to search".
 *v342	208	Should not set '' mark in help file.
+*v343	209	Search for a pattern ending in $ doesn't work with CRLF lines.
+	210	F cmd follow file descriptor or file name.
+	211	Cannot open a file that starts / ends with double quotes.
+	212	less -N with redirected output doesn't produce line numbers.
+*v343	213	lesskey doesn't work with CRLF lines.
+*v343	214	Support HOME/END commands.
+*v343	215	Change default LESSCHARSET to latin1.
+*v343	216	Prompt escape to do percent in file based on lines not bytes.
+
+
+

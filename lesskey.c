@@ -486,7 +486,7 @@ clean_line(s)
 	register int i;
 
 	s = skipsp(s);
-	for (i = 0;  s[i] != '\n' && s[i] != '\0';  i++)
+	for (i = 0;  s[i] != '\n' && s[i] != '\r' && s[i] != '\0';  i++)
 		if (s[i] == '#' && (i == 0 || s[i-1] != '\\'))
 			break;
 	s[i] = '\0';

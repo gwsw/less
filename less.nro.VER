@@ -1162,7 +1162,10 @@ Replaced by the line number of the last line in the input file.
 .IP "%m"
 Replaced by the total number of input files.
 .IP "%p\fIX\fP"
-Replaced by the percent into the current input file.
+Replaced by the percent into the current input file, based on byte offsets.
+The line used is determined by the \fIX\fP as with the %b option.
+.IP "%P\fIX\fP"
+Replaced by the percent into the current input file, based on line numbers.
 The line used is determined by the \fIX\fP as with the %b option.
 .IP "%s"
 Same as %B.
@@ -1211,7 +1214,10 @@ True if there is more than one input file.
 .IP "?n"
 True if this is the first prompt in a new input file.
 .IP "?p\fIX\fP"
-True if the percent into the current input file
+True if the percent into the current input file, based on byte offsets,
+of the specified line is known.
+.IP "?P\fIX\fP"
+True if the percent into the current input file, based on line numbers,
 of the specified line is known.
 .IP "?s"
 Same as "?B".
@@ -1438,21 +1444,24 @@ version of less.
 .SH COPYRIGHT
 Copyright (C) 1999  Mark Nudelman
 .PP
-less is part of the GNU project and is free software;
-you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation;
-either version 2, or (at your option) any later version.
+less is part of the GNU project and is free software.
+You can redistribute it and/or modify it
+under the terms of either
+(1) the GNU General Public License as published by
+the Free Software Foundation; or (2) the Less License.
+See the file README in the less distribution for more details
+regarding redistribution.
+You should have received a copy of the GNU General Public License 
+along with the source for less; see the file COPYING.
+If not, write to the Free Software Foundation, 59 Temple Place,
+Suite 330, Boston, MA  02111-1307, USA.
+You should also have received a copy of the Less License;
+see the file LICENSE.
 .PP
 less is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU General Public License for more details.
-.PP
-You should have received a copy of the GNU General Public License 
-along with less; see the file COPYING.
-If not, write to the Free Software Foundation, 59 Temple Place,
-Suite 330, Boston, MA  02111-1307, USA.
 
 .SH AUTHOR
 .PP

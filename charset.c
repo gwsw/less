@@ -228,9 +228,9 @@ init_charset()
 	ilocale();
 #else
 	/*
-	 * Default to "ascii".
+	 * Default to "latin1".
 	 */
-	(void) icharset("ascii");
+	(void) icharset("latin1");
 #endif
 }
 

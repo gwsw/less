@@ -164,6 +164,8 @@ cond(c, where)
 	char c;
 	int where;
 {
+	POSITION len;
+
 	switch (c)
 	{
 	case 'a':	/* Anything in the message yet? */
@@ -186,9 +188,13 @@ cond(c, where)
 		return (nifile() > 1);
 	case 'n':	/* First prompt in a new file? */
 		return (new_file);
-	case 'p':	/* Percent into file known? */
+	case 'p':	/* Percent into file (bytes) known? */
 		return (curr_byte(where) != NULL_POSITION && 
 				ch_length() > 0);
+	case 'P':	/* Percent into file (lines) known? */
+		return (currline(where) != 0 &&
+				(len = ch_length()) > 0 &&
+				find_linenum(len) != 0);
 	case 's':	/* Size of file known? */
 	case 'B':
 		return (ch_length() != NULL_POSITION);
@@ -274,13 +280,22 @@ protochar(c, where)
 	case 'm':	/* Number of files */
 		ap_int(nifile());
 		break;
-	case 'p':	/* Percent into file */
+	case 'p':	/* Percent into file (bytes) */
 		pos = curr_byte(where);
 		len = ch_length();
 		if (pos != NULL_POSITION && len > 0)
 			ap_int(percentage(pos,len));
 		else
 			ap_quest();
+		break;
+	case 'P':	/* Percent into file (lines) */
+		pos = (POSITION) currline(where);
+		if (pos == 0 ||
+		    (len = ch_length()) == NULL_POSITION || len == ch_zero() ||
+		    (n = find_linenum(len)) <= 0)
+			ap_quest();
+		else
+			ap_int(percentage(pos, (POSITION)n));
 		break;
 	case 's':	/* Size of file */
 	case 'B':
@@ -379,7 +394,7 @@ wherechar(p, wp)
 {
 	switch (*p)
 	{
-	case 'b': case 'd': case 'l': case 'p':
+	case 'b': case 'd': case 'l': case 'p': case 'P':
 		switch (*++p)
 		{
 		case 't':   *wp = TOP;			break;

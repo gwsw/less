@@ -85,6 +85,7 @@ static unsigned char cmdtable[] =
 	CONTROL('L'),0,			A_REPAINT,
 	ESC,'u',0,			A_UNDO_SEARCH,
 	'g',0,				A_GOLINE,
+	SK(SK_HOME),0,			A_GOLINE,
 	'<',0,				A_GOLINE,
 	ESC,'<',0,			A_GOLINE,
 	'p',0,				A_PERCENT,
@@ -106,6 +107,7 @@ static unsigned char cmdtable[] =
 	'G',0,				A_GOEND,
 	ESC,'>',0,			A_GOEND,
 	'>',0,				A_GOEND,
+	SK(SK_END),0,			A_GOEND,
 	'P',0,				A_GOPOS,
 
 	'0',0,				A_DIGIT,

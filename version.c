@@ -572,7 +572,9 @@ v340   4/21/99	Add regexec2.  Fix Windows build.
 v341    5/6/99  Add -F option; %c & ?c prompt escapes.
 		(Thanks to Michele ...)
 v342   7/22/99  Add system-wide lesskey file; allow GPL or Less License.
+v343   9/23/99	Support UTF-8 (Thanks to Robert Brady).
+		Add %P and ?P in prompts.
 
 */
 
-char version[] = "342";
+char version[] = "343";

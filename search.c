@@ -98,6 +98,7 @@ static char *last_pattern = NULL;
  */
 #define	CVT_TO_LC	01	/* Convert upper-case to lower-case */
 #define	CVT_BS		02	/* Do backspace processing */
+#define	CVT_CRLF	04	/* Remove CR after LF */
 
 	static void
 cvt_text(odst, osrc, ops)
@@ -120,6 +121,8 @@ cvt_text(odst, osrc, ops)
 			/* Just copy. */
 			*dst = *src;
 	}
+	if ((ops & CVT_CRLF) && dst > odst && dst[-1] == '\r')
+		dst--;
 	*dst = '\0';
 }
 
@@ -914,7 +917,12 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 				ops |= CVT_TO_LC;
 			if (bs_mode == BS_SPECIAL)
 				ops |= CVT_BS;
+			if (bs_mode != BS_CONTROL)
+				ops |= CVT_CRLF;
 			cvt_text(line, line, ops);
+		} else if (bs_mode != BS_CONTROL)
+		{
+			cvt_text(line, line, CVT_CRLF);
 		}
 
 		/*
