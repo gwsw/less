@@ -66,6 +66,13 @@ open_getchr()
 	 fd0 = dup(0);
 	 close(0);
 	 tty = OPEN_TTYIN();
+#if MSDOS_COMPILER==DJGPPC
+	/*
+	 * Setting stdin to binary causes Ctrl-C to not
+	 * raise SIGINT.  We must undo that side-effect.
+	 */
+	(void) __djgpp_set_ctrl_c(1);
+#endif
 #else
 	/*
 	 * Try /dev/tty.
@@ -103,7 +110,7 @@ getchr()
 
 	do
 	{
-#if MSDOS_COMPILER
+#if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
 		/*
 		 * In raw read, we don't see ^C so look here for it.
 		 */

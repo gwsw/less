@@ -162,7 +162,7 @@ main(argc, argv)
 		ifile = get_ifile(FAKE_HELPFILE, ifile);
 	while (argc-- > 0)
 	{
-#if MSDOS_COMPILER || OS2
+#if (MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC) || OS2
 		/*
 		 * Because the "shell" doesn't expand filename patterns,
 		 * treat each argument as a filename pattern rather than
@@ -192,6 +192,7 @@ main(argc, argv)
 		 * Output is not a tty.
 		 * Just copy the input file(s) to output.
 		 */
+		SET_BINARY(1);
 		if (nifile() == 0)
 		{
 			if (edit_stdin() == 0)
@@ -342,7 +343,7 @@ quit(status)
 	deinit();
 	flush();
 	raw_mode(0);
-#if MSDOS_COMPILER
+#if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
 	/* 
 	 * If we don't close 2, we get some garbage from
 	 * 2's buffer when it flushes automatically.

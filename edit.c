@@ -267,14 +267,17 @@ edit_ifile(ifile)
 		 */
 		f = fd0;
 		chflags |= CH_KEEPOPEN;
-#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==WIN32C
 		/*
 		 * Must switch stdin to BINARY mode.
 		 */
-		setmode(f, O_BINARY);
-#endif
-#if MSDOS_COMPILER==MSOFTC
-		_setmode(f, _O_BINARY);
+		SET_BINARY(f);
+#if MSDOS_COMPILER==DJGPPC
+		/*
+		 * Setting stdin to binary by default causes
+		 * Ctrl-C to not raise SIGINT.  We must undo
+		 * that side-effect.
+		 */
+		__djgpp_set_ctrl_c(1);
 #endif
 	} else if (strcmp(open_filename, FAKE_HELPFILE) == 0)
 	{
@@ -714,12 +717,14 @@ loop:
 		 * Overwrite: create the file.
 		 */
 		logfile = creat(filename, 0644);
+		SET_BINARY(logfile);
 		break;
 	case 'A': case 'a':
 		/*
 		 * Append: open the file and seek to the end.
 		 */
 		logfile = open(filename, OPEN_APPEND);
+		SET_BINARY(logfile);
 		if (lseek(logfile, (off_t)0, 2) == BAD_LSEEK)
 		{
 			close(logfile);

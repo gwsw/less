@@ -34,11 +34,15 @@
 #include "cmd.h"
 
 #if MSDOS_COMPILER
+#include "pckeys.h"
 #if MSDOS_COMPILER==MSOFTC
 #include <graph.h>
 #else
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 #include <conio.h>
+#if MSDOS_COMPILER==DJGPPC
+#include <pc.h>
+#endif
 #else
 #if MSDOS_COMPILER==WIN32C
 #include <windows.h>
@@ -112,7 +116,7 @@ static long msec_loops;
 #define	SETCOLORS(fg,bg)	_settextcolor(fg); _setbkcolor(bg);
 #endif
 
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 static unsigned short *whitescreen;
 #define _settextposition(y,x)   gotoxy(x,y)
 #define _clearscreen(m)         clrscr()
@@ -632,7 +636,7 @@ scrsize()
 		sc_width = w.numtextcols;
 	}
 #else
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	{
 		struct text_info w;
 		gettextinfo(&w);
@@ -694,7 +698,11 @@ scrsize()
  		sc_height = ltgetnum("li");
 #endif
 	if (sc_height <= 0)
+#if MSDOS_COMPILER
+		sc_height = 25;
+#else
 		sc_height = 24;
+#endif
 
 	if (sc_width > 0)
 		;
@@ -781,21 +789,21 @@ get_editkeys()
  * Table of line editting characters, for editchar() in decode.c.
  */
 static char kecmdtable[] = {
-	'\340','\115',0,	EC_RIGHT,	/* RIGHTARROW */
-	'\340','\113',0,	EC_LEFT,	/* LEFTARROW */
-	'\340','\163',0,	EC_W_LEFT,	/* CTRL-LEFTARROW */
-	'\340','\164',0,	EC_W_RIGHT,	/* CTRL-RIGHTARROW */
-	'\340','\122',0,	EC_INSERT,	/* INSERT */
-	'\340','\123',0,	EC_DELETE,	/* DELETE */
-	'\340','\223',0,	EC_W_DELETE,	/* CTRL-DELETE */
+	'\340',PCK_RIGHT,0,	EC_RIGHT,	/* RIGHTARROW */
+	'\340',PCK_LEFT,0,	EC_LEFT,	/* LEFTARROW */
+	'\340',PCK_CTL_RIGHT,0,	EC_W_RIGHT,	/* CTRL-RIGHTARROW */
+	'\340',PCK_CTL_LEFT,0,	EC_W_LEFT,	/* CTRL-LEFTARROW */
+	'\340',PCK_INSERT,0,	EC_INSERT,	/* INSERT */
+	'\340',PCK_DELETE,0,	EC_DELETE,	/* DELETE */
+	'\340',PCK_CTL_DELETE,0,EC_W_DELETE,	/* CTRL-DELETE */
 	'\177',0,		EC_W_BACKSPACE,	/* CTRL-BACKSPACE */
-	'\340','\107',0,	EC_HOME,	/* HOME */
-	'\340','\117',0,	EC_END,		/* END */
-	'\340','\110',0,	EC_UP,		/* UPARROW */
-	'\340','\120',0,	EC_DOWN,	/* DOWNARROW */
+	'\340',PCK_HOME,0,	EC_HOME,	/* HOME */
+	'\340',PCK_END,0,	EC_END,		/* END */
+	'\340',PCK_UP,0,	EC_UP,		/* UPARROW */
+	'\340',PCK_DOWN,0,	EC_DOWN,	/* DOWNARROW */
 	'\t',0,			EC_F_COMPLETE,	/* TAB */
 	'\17',0,		EC_B_COMPLETE,	/* BACKTAB (?) */
-	'\340','\17',0,		EC_B_COMPLETE,	/* BACKTAB */
+	'\340',PCK_SHIFT_TAB,0,	EC_B_COMPLETE,	/* BACKTAB */
 	'\14',0,		EC_EXPAND,	/* CTRL-L */
 	0  /* Extra byte to terminate; subtracted from size, below */
 };
@@ -807,16 +815,16 @@ static char kfcmdtable[] =
 	 * PC function keys.
 	 * Note that '\0' is converted to '\340' on input.
 	 */
-	'\340','\120',0,	A_F_LINE,	/* DOWNARROW */
-	'\340','\121',0,	A_F_SCREEN,	/* PAGEDOWN */
-	'\340','\110',0,	A_B_LINE,	/* UPARROW */
-	'\340','\111',0,	A_B_SCREEN,	/* PAGEUP */
-	'\340','\115',0,	A_RSHIFT,	/* RIGHTARROW */
-	'\340','\113',0,	A_LSHIFT,	/* LEFTARROW */
-	'\340','\107',0,	A_GOLINE,	/* HOME */
-	'\340','\117',0,	A_GOEND,	/* END */
-	'\340','\073',0,	A_HELP,		/* F1 */
-	'\340','\022',0,	A_EXAMINE,	/* Alt-E */
+	'\340',PCK_DOWN,0,	A_F_LINE,	/* DOWNARROW */
+	'\340',PCK_PAGEDOWN,0,	A_F_SCREEN,	/* PAGEDOWN */
+	'\340',PCK_UP,0,	A_B_LINE,	/* UPARROW */
+	'\340',PCK_PAGEUP,0,	A_B_SCREEN,	/* PAGEUP */
+	'\340',PCK_RIGHT,0,	A_RSHIFT,	/* RIGHTARROW */
+	'\340',PCK_LEFT,0,	A_LSHIFT,	/* LEFTARROW */
+	'\340',PCK_HOME,0,	A_GOLINE,	/* HOME */
+	'\340',PCK_END,0,	A_GOEND,	/* END */
+	'\340',PCK_F1,0,	A_HELP,		/* F1 */
+	'\340',PCK_ALT_E,0,	A_EXAMINE,	/* Alt-E */
 	0
 };
 static int sz_kfcmdtable = sizeof(kfcmdtable) - 1;
@@ -1006,7 +1014,7 @@ get_term()
 	sy_fg_color = _gettextcolor();
 	get_clock();
 #else
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
     {
 	struct text_info w;
 	gettextinfo(&w);
@@ -1027,6 +1035,7 @@ get_term()
 	sy_bg_color = (curr_attr & BG_COLORS) >> 4; /* normalize */
 	sy_fg_color = curr_attr & FG_COLORS;
 
+#if 0
 	/*
 	 * If we use the default bg colors, for some as-yet-undetermined 
 	 * reason, when you scroll the text colors get messed up in what 
@@ -1042,6 +1051,7 @@ get_term()
 	/* Make standout = inverse video. */
 	so_fg_color = sy_bg_color;
 	so_bg_color = sy_fg_color;
+#endif
     }
 #endif
 #endif
@@ -1476,7 +1486,7 @@ add_line()
 	_scrolltextwindow(_GSCROLLDOWN);
 	_settextposition(1,1);
 #else
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	movetext(1,1, sc_width,sc_height-1, 1,2);
 	gotoxy(1,1);
 	clreol();
@@ -1610,6 +1620,9 @@ vbell()
 		return;
 	tputs(sc_visual_bell, sc_height, putchr);
 #else
+#if MSDOS_COMPILER==DJGPPC
+	ScreenVisualBell();
+#else
 #if MSDOS_COMPILER==MSOFTC
 	/*
 	 * Create a flash screen on the second video page.
@@ -1665,6 +1678,7 @@ vbell()
 	WriteConsoleOutputAttribute(con_out, currscreen,
 				sc_height * sc_width, TOPLEFT, &nread);
 	free(currscreen);
+#endif
 #endif
 #endif
 #endif
@@ -1759,7 +1773,7 @@ clear_eol()
 	_settextwindow(top, left, bot, right);
 	_settextposition(tpos.row, tpos.col);
 #else
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	flush();
 	clreol();
 #else
@@ -1793,7 +1807,26 @@ clear_bot()
 {
 	lower_left();
 #if MSDOS_COMPILER
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
+	{
+		unsigned char save_attr;
+		struct text_info txinfo;
+
+		/*
+		 * Clear bottom, but with the background color of the text
+		 * window, not with background of stand-out color, so the the
+		 * bottom line stays stand-out only to the extent of prompt.
+		 */
+		gettextinfo(&txinfo);
+		save_attr = txinfo.attribute;
+		lower_left();
+		textbackground(nm_bg_color);
+		clear_eol();
+		textbackground(save_attr >> 4);
+	}
+#else
 	clear_eol();
+#endif
 #else
 	if (below_mem)
 		tputs(sc_eos_clear, 1, putchr);
@@ -1941,7 +1974,7 @@ backspace()
 	_outtext(" ");
 	_settextposition(tpos.row, tpos.col-1);
 #else
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	cputs("\b");
 #else
 #if MSDOS_COMPILER==WIN32C
@@ -1982,7 +2015,7 @@ putbs()
 		row = tpos.row;
 		col = tpos.col;
 #else
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 		row = wherey();
 		col = wherex();
 #else
@@ -2010,60 +2043,58 @@ win32_kbhit(tty)
 	DWORD read;
 
 	if (keyCount > 0)
-		return TRUE;
+		return (TRUE);
 
-	currentKey.scan = 0;
 	currentKey.ascii = 0;
+	currentKey.scan = 0;
 
-	for (;;)
+	/*
+	 * Wait for a real key-down event, but
+	 * ignore SHIFT and CONTROL key events.
+	 */
+	do
 	{
 		PeekConsoleInput(tty, &ip, 1, &read);
 		if (read == 0)
-			return FALSE;
+			return (FALSE);
 		ReadConsoleInput(tty, &ip, 1, &read);
- 
-		if (ip.EventType == KEY_EVENT &&
-		    ip.Event.KeyEvent.bKeyDown == TRUE &&
-		    ip.Event.KeyEvent.wVirtualScanCode != 0)
-		{
-			/* Filter out SHIFT and CONTROL key events */
-			if (ip.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
-			    ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL ||
-			    ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU)
-				continue;
-			
-			currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
-			currentKey.scan = ip.Event.KeyEvent.wVirtualScanCode;
-			keyCount = ip.Event.KeyEvent.wRepeatCount;
+	} while (ip.EventType != KEY_EVENT ||
+		ip.Event.KeyEvent.bKeyDown != TRUE ||
+		ip.Event.KeyEvent.wVirtualScanCode == 0 ||
+		ip.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
+		ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL ||
+		ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU);
+		
+	currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
+	currentKey.scan = ip.Event.KeyEvent.wVirtualScanCode;
+	keyCount = ip.Event.KeyEvent.wRepeatCount;
 
-			if (ip.Event.KeyEvent.dwControlKeyState & 
-				(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
-			{
-				switch (currentKey.scan)
-				{
-				case 0x12:     /* letter 'E' */
-					currentKey.ascii = 0;
-					break;
-				}
-			} else if (ip.Event.KeyEvent.dwControlKeyState & 
-				(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
-			{
-				switch (currentKey.scan)
-				{
-				case 0x4d: /* right arrow */
-					currentKey.scan = '\164';
-					break;
-				case 0x4b: /* left arrow */
-					currentKey.scan = '\163';
-					break;
-				case 0x53: /* delete */
-					currentKey.scan = '\223';
-					break;
-				}
-			}
-			return TRUE;
+	if (ip.Event.KeyEvent.dwControlKeyState & 
+		(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
+	{
+		switch (currentKey.scan)
+		{
+		case PCK_ALT_E:     /* letter 'E' */
+			currentKey.ascii = 0;
+			break;
+		}
+	} else if (ip.Event.KeyEvent.dwControlKeyState & 
+		(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
+	{
+		switch (currentKey.scan)
+		{
+		case PCK_RIGHT: /* right arrow */
+			currentKey.scan = PCK_CTL_RIGHT;
+			break;
+		case PCK_LEFT: /* left arrow */
+			currentKey.scan = PCK_CTL_LEFT;
+			break;
+		case PCK_DELETE: /* delete */
+			currentKey.scan = PCK_CTL_DELETE;
+			break;
 		}
 	}
+	return (TRUE);
 }
 
 	public char

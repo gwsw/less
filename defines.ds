@@ -93,13 +93,21 @@
  * This will generally work if your system provides the "popen" function
  * and the "echo" shell command.
  */
+#ifdef __DJGPP__
+#define	GLOB		1
+#else
 #define	GLOB		0
+#endif
 
 /*
  * PIPEC is 1 if you wish to have the "|" command
  * which allows the user to pipe data into a shell command.
  */
+#ifdef __DJGPP__
+#define	PIPEC		(!SECURE)
+#else
 #define	PIPEC		0
+#endif
 
 /*
  * LOGFILE is 1 if you wish to allow the -l option (to create log files).
@@ -133,13 +141,15 @@
 
 /*
  * Define MSDOS_COMPILER if compiling for MS-DOS.
- *  MSOFTC == Microsoft C
- *  BORLANDC == Turbo/Borland C
  */
+#ifdef __DJGPP__
+#define	MSDOS_COMPILER		DJGPPC
+#else
 #ifdef __BORLANDC__
 #define	MSDOS_COMPILER		BORLANDC
 #else
 #define	MSDOS_COMPILER		MSOFTC
+#endif
 #endif
 
 /*
@@ -222,7 +232,11 @@
 /* #undef HAVE_RE_COMP */
 /* #undef HAVE_REGCMP */
 /* #undef HAVE_V8_REGCOMP */
+#if MSDOS_COMPILER==DJGPPC
+#define	HAVE_POSIX_REGCOMP 1
+#else
 #define NO_REGEX 1
+#endif
 
 /* Define HAVE_VOID if your compiler supports the "void" type. */
 #define HAVE_VOID 1
@@ -240,9 +254,9 @@
 #define HAVE_FILENO 1
 
 /* Define HAVE_ERRNO if you have the errno variable */
-/* Define MUST_DEFINE_ERRNO if you have errno but it is not define 
+/* Define MUST_DEFINE_ERRNO if you have errno but it is not defined
  * in errno.h */
-#if MSDOS_COMPILER==MSOFTC
+#if MSDOS_COMPILER==MSOFTC || MSDOS_COMPILER==DJGPPC
 #define HAVE_ERRNO 1
 #define MUST_DEFINE_ERRNO 0
 #else
@@ -269,7 +283,7 @@
 #define HAVE_UPPER_LOWER 1
 
 /* Define if you have the _setjmp function.  */
-#if MSDOS_COMPILER==MSOFTC
+#if MSDOS_COMPILER==MSOFTC || MSDOS_COMPILER==DJGPPC
 #define HAVE__SETJMP	0
 #else
 #define HAVE__SETJMP	1
@@ -327,7 +341,11 @@
 #define HAVE_TIME_H 1
 
 /* Define if you have the <unistd.h> header file.  */
+#if MSDOS_COMPILER==DJGPPC
+#define HAVE_UNISTD_H 1
+#else
 #define HAVE_UNISTD_H 0
+#endif
 
 /* Define if you have the <values.h> header file.  */
 #if MSDOS_COMPILER==MSOFTC

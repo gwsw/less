@@ -552,6 +552,9 @@ v321   7/18/96	Minor fixes.
 -----------------------------------------------------------------
 v322   8/13/96	Fix bug in shell escape from help file; add support for 
 		Microsoft Visual C under Windows; numerous small fixes.
+v323   8/19/96	Fixes for Windows version (thanks to Simon Munton);
+		fix for Linux library weirdness (thanks to Jim Diamond);
+		port to DJGPP (thanks to Eli Zaretskii).
 */
 
-char version[] = "322";
+char version[] = "323";

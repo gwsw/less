@@ -135,14 +135,45 @@ flush()
 
 #if MSDOS_COMPILER==WIN32C
 	if (is_tty && any_display)
-	{
+        {
+		char *p;
 		DWORD nwritten = 0;
+		CONSOLE_SCREEN_BUFFER_INFO scr;
+		DWORD nchars;
+		COORD cpos;
 		extern HANDLE con_out;
+
 		*ob = '\0';
-		WriteConsole(con_out, obuf, strlen(obuf), &nwritten, NULL);
+		GetConsoleScreenBufferInfo(con_out, &scr);
+		if (scr.dwCursorPosition.Y != scr.dwSize.Y - 1 ||
+		    (p = strchr(obuf, '\n')) == NULL)
+		{
+			WriteConsole(con_out, obuf, strlen(obuf), 
+					&nwritten, NULL);
+		} else
+		{
+			/*
+			 * To avoid color problems, if we're writing a
+			 * newline at the bottom of the screen, we write
+			 * only up to the newline, then fill the bottom
+			 * line with the correct attribute, then write
+			 * the rest.  When Windows-95 scrolls, it takes the
+			 * attributes for the new line from the first char 
+			 * of the (previously) bottom line.
+			 */
+			WriteConsole(con_out, obuf, p - obuf + 1, 
+					&nwritten, NULL);
+			cpos.X = 0;
+			cpos.Y = scr.dwCursorPosition.Y;
+			FillConsoleOutputAttribute(con_out, scr.wAttributes,
+						sc_width, cpos, &nchars);
+			WriteConsole(con_out, p + 1, strlen(p + 1), 
+					&nwritten, NULL);
+		}
 		ob = obuf;
 		return;
-	}
+        }
+
 #else
 #if MSDOS_COMPILER==MSOFTC
 	if (is_tty && any_display)
@@ -153,7 +184,7 @@ flush()
 		return;
 	}
 #else
-#if MSDOS_COMPILER==BORLANDC
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	if (is_tty && any_display)
 	{
 		*ob = '\0';
@@ -180,8 +211,6 @@ flush()
 putchr(c)
 	int c;
 {
-	if (ob >= &obuf[sizeof(obuf)-1])
-		flush();
 	if (need_clr)
 	{
 		need_clr = 0;
@@ -196,6 +225,12 @@ putchr(c)
 		putchr(0x0A);
 #endif
 #endif
+	/*
+	 * Some versions of flush() write to *ob, so we must flush
+	 * when we are still one char from the end of obuf.
+	 */
+	if (ob >= &obuf[sizeof(obuf)-1])
+		flush();
 	*ob++ = c;
 	return (c);
 }

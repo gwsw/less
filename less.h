@@ -34,7 +34,8 @@
  */
 #define	MSOFTC		1	/* Microsoft C */
 #define	BORLANDC	2	/* Borland C */
-#define	WIN32C		3	/* Windows (Borland C) */
+#define	WIN32C		3	/* Windows (Borland C or Microsoft C) */
+#define	DJGPPC		4	/* DJGPP C */
 
 /*
  * Include the file of compile-time options.
@@ -93,7 +94,7 @@
 #include <modes.h>
 #include <strings.h>
 #endif
-#if MSDOS_COMPILER==WIN32C
+#if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==DJGPPC
 #include <io.h>
 #endif
 
@@ -178,6 +179,17 @@ typedef long		POSITION;
 #else
 #define	OPEN_TTYIN()	open("/dev/tty", OPEN_READ)
 #endif
+
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==DJGPPC
+#define	SET_BINARY(f)	setmode(f, O_BINARY)
+#else
+#if MSDOS_COMPILER==MSOFTC
+#define	SET_BINARY(f)	_setmode(f, _O_BINARY);
+#else
+#define	SET_BINARY(f)
+#endif
+#endif
+
 
 #if MSDOS_COMPILER || OS2 || _OSK
 #define	SHELL_META_QUEST 0

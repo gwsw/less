@@ -63,6 +63,15 @@ u_interrupt(type)
 #endif
 	LSIGNAL(SIGINT, u_interrupt);
 	sigs |= S_INTERRUPT;
+#if MSDOS_COMPILER==DJGPPC
+	/*
+	 * If a keyboard has been hit, it must be Ctrl-C
+	 * (as opposed to Ctrl-Break), so consume it.
+	 * (Otherwise, Less will beep when it sees Ctrl-C from keyboard.)
+	 */
+	if (kbhit())
+		getkey();
+#endif
 	if (reading)
 		intread();
 }

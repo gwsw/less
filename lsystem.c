@@ -84,6 +84,9 @@ lsystem(cmd, donemsg)
 	deinit();
 	flush();	/* Make sure the deinit chars get out */
 	raw_mode(0);
+#if MSDOS_COMPILER==WIN32C
+	close_getchr();
+#endif
 
 	/*
 	 * Restore signals to their defaults.
@@ -132,7 +135,17 @@ lsystem(cmd, donemsg)
 	system(p);
 	free(p);
 #else
+#if MSDOS_COMPILER==DJGPPC
+	/*
+	 * We don't need to catch signals of the child (it
+	 * also makes trouble with some DPMI servers).
+	 */
+	__djgpp_exception_toggle();
+  	system(cmd);
+	__djgpp_exception_toggle();
+#else
 	system(cmd);
+#endif
 #endif
 
 #if HAVE_DUP
@@ -144,6 +157,9 @@ lsystem(cmd, donemsg)
 	close(inp);
 #endif
 
+#if MSDOS_COMPILER==WIN32C
+	open_getchr();
+#endif
 	init_signals(1);
 	raw_mode(1);
 	if (donemsg != NULL)
@@ -257,6 +273,9 @@ pipe_data(cmd, spos, epos)
 	flush();
 	raw_mode(0);
 	init_signals(0);
+#if MSDOS_COMPILER==WIN32C
+	close_getchr();
+#endif
 #ifdef SIGPIPE
 	LSIGNAL(SIGPIPE, SIG_IGN);
 #endif
@@ -290,6 +309,9 @@ pipe_data(cmd, spos, epos)
 
 #ifdef SIGPIPE
 	LSIGNAL(SIGPIPE, SIG_DFL);
+#endif
+#if MSDOS_COMPILER==WIN32C
+	open_getchr();
 #endif
 	init_signals(1);
 	raw_mode(1);

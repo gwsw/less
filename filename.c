@@ -36,6 +36,12 @@
 #if MSDOS_COMPILER==WIN32C && !defined(_MSC_VER)
 #include <dir.h>
 #endif
+#if MSDOS_COMPILER==DJGPPC
+#include <glob.h>
+#include <dir.h>
+#include <limits.h>
+#define _MAX_PATH	PATH_MAX
+#endif
 #endif
 #ifdef _OSK
 #include <rbf.h>
@@ -114,7 +120,17 @@ homefile(filename)
 	 * Look for the file anywhere on search path.
 	 */
 	pathname = (char *) calloc(_MAX_PATH, sizeof(char));
-	_searchenv(filename, "PATH", pathname);
+#if MSDOS_COMPILER==DJGPPC
+	{
+		char *res = searchpath(filename);
+		if (res == 0)
+			*pathname = '\0';
+		else
+			strcpy(pathname, res);
+	}
+#else
+  	_searchenv(filename, "PATH", pathname);
+#endif
 	if (*pathname != '\0')
 		return (pathname);
 	free(pathname);
@@ -235,7 +251,7 @@ fcomplete(s)
 	/*
 	 * Complete the filename "s" by globbing "s*".
 	 */
-#if MSDOS_COMPILER != WIN32C
+#if MSDOS_COMPILER && MSDOS_COMPILER != WIN32C && MSDOS_COMPILER != DJGPPC
 	/*
 	 * But in DOS, we have to glob "s*.*".
 	 * But if the final component of the filename already has
@@ -431,6 +447,34 @@ lglob(filename)
 	_fnexplodefree(list);
 }
 #else
+#if MSDOS_COMPILER==DJGPPC
+{
+	size_t cnt;
+	size_t length;
+	glob_t glob_results;
+	char **p;
+
+	glob(filename, GLOB_NOCHECK, 0, &glob_results);
+
+	/* How much space do we need?  */
+	for (p = glob_results.gl_pathv, cnt = glob_results.gl_pathc;
+	     cnt > 0;  p++, cnt--)
+		length += strlen(*p) + 1;
+
+	/* Allocate the space and generate the list.  */
+	gfilename = (char *) ecalloc(length, sizeof(char));
+	for (p = glob_results.gl_pathv, cnt = glob_results.gl_pathc;
+	     cnt > 0;  p++, cnt--)
+	{
+		strcat(gfilename, *p);
+		if (cnt > 1)
+			strcat(gfilename, " ");
+	}
+
+	free(filename);
+	globfree(&glob_results);
+}
+#else
 {
 	FILE *fd;
 	char *s;
@@ -471,6 +515,7 @@ lglob(filename)
 	}
 	free(filename);
 }
+#endif
 #endif
 	return (gfilename);
 }
