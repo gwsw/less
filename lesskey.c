@@ -243,15 +243,13 @@ homefile(filename)
 	char *p;
 	char *pathname;
 
-#if OS2
-	if ((p = getenv("INIT")) != NULL && *p != '\0')
-		pathname = mkpathname(p, filename);
-	else
-#endif
 	if ((p = getenv("HOME")) != NULL && *p != '\0')
-	{
 		pathname = mkpathname(p, filename);
-	} else
+#if OS2
+	else if ((p = getenv("INIT")) != NULL && *p != '\0')
+		pathname = mkpathname(p, filename);
+#endif
+	else
 	{
 		fprintf(stderr, "cannot find $HOME - using current directory\n");
 		pathname = mkpathname(".", filename);

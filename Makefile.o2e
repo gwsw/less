@@ -3,8 +3,8 @@
 
 #### Start of system configuration section. ####
 
-CC = gcc
-CFLAGS = -I. -Zomf -O
+CC = gcc -Zomf
+CFLAGS = -I. -O
 LDFLAGS = -s -Zcrtdll -Zstack 512
 LIBS = -ltermcap
 O = obj
@@ -16,7 +16,7 @@ O = obj
 # This rule allows us to supply the necessary -D options
 # in addition to whatever the user asks for.
 .c.$(O):
-	${CC} -c -I. ${CPPFLAGS} ${CFLAGS} $<
+	${CC} -c ${CPPFLAGS} ${CFLAGS} $<
 
 OBJ =	main.$(O) screen.$(O) brac.$(O) ch.$(O) charset.$(O) cmdbuf.$(O) \
 	command.$(O) decode.$(O) edit.$(O) filename.$(O) forwback.$(O) \

@@ -500,6 +500,8 @@
  *	v283: Fix homefile; make OS2 look in $HOME.	3/2/95
  *	v284: Error if "v" on LESSOPENed file;		3/2/95
  *	      "%" figures out file size on pipe.
+ *	v285: Don't set # in lsystem; 			3/7/95
+ *	      lesskey try $HOME first.
  */
 
-char version[] = "284";
+char version[] = "285";

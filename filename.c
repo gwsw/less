@@ -156,12 +156,17 @@ fexpand(s)
 		switch (*fr)
 		{
 		case '%':
+			if (curr_ifile == NULL_IFILE)
+			{
+				/* error("No current file", NULL_PARG); */
+				return (save(s));
+			}
 			n += strlen(get_filename(curr_ifile));
 			break;
 		case '#':
 			if (old_ifile == NULL_IFILE)
 			{
-				error("No previous file", NULL_PARG);
+				/* error("No previous file", NULL_PARG); */
 				return (save(s));
 			}
 			n += strlen(get_filename(old_ifile));

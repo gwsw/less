@@ -223,9 +223,10 @@ edit_ifile(ifile)
 	{
 		/*
 		 * No new file to open.
+		 * (Don't set old_ifile, because if you call edit_ifile(NULL),
+		 *  you're supposed to have saved curr_ifile yourself,
+		 *  and you'll restore it if necessary.)
 		 */
-		if (was_curr_ifile != NULL_IFILE)
-			old_ifile = was_curr_ifile;
 		return (0);
 	}
 
