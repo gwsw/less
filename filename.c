@@ -157,7 +157,7 @@ fexpand(s)
 			if (old_ifile == NULL_IFILE)
 			{
 				error("No previous file", NULL_PARG);
-				return (NULL);
+				return (save(s));
 			}
 			n += strlen(get_filename(old_ifile));
 			break;
@@ -230,7 +230,7 @@ fcomplete(s)
 	sprintf(fpat, "%s*", s);
 #endif
 	s = glob(fpat);
-	if (s != NULL && strcmp(s,fpat) == 0)
+	if (strcmp(s,fpat) == 0)
 	{
 		/*
 		 * The filename didn't expand.
@@ -378,8 +378,6 @@ glob(filename)
 	char *gfilename;
 
 	filename = fexpand(filename);
-	if (filename == NULL)
-		return (NULL);
 #if OS2
 {
 	char **list;
@@ -417,11 +415,14 @@ glob(filename)
 		 */
 		return (filename);
 	}
-	free(filename);
 	gfilename = readfd(fd);
 	pclose(fd);
 	if (*gfilename == '\0')
-		return (NULL);
+	{
+		free(gfilename);
+		return (filename);
+	}
+	free(filename);
 }
 #endif
 	return (gfilename);
@@ -537,8 +538,6 @@ glob(filename)
 	char ext[_MAX_EXT];
 	
 	filename = fexpand(filename);
-	if (filename == NULL)
-		return (NULL);
 	if (_dos_findfirst(filename, ~0, &fnd) != 0)
 		return (filename);
 		

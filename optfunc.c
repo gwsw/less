@@ -59,7 +59,6 @@ extern IFILE curr_ifile;
 extern char *namelogfile;
 extern int force_logfile;
 extern int logfile;
-extern char *glob();
 #endif
 #if TAGS
 public char *tagoption = NULL;
@@ -105,8 +104,6 @@ opt_o(type, s)
 		}
 		s = skipsp(s);
 		namelogfile = glob(s);
-		if (namelogfile == NULL)
-			namelogfile = save(s);
 		use_logfile(namelogfile);
 		sync_logfile();
 		break;
@@ -238,8 +235,6 @@ opt__T(type, s)
 	case TOGGLE:
 		s = skipsp(s);
 		tags = glob(s);
-		if (tags == NULL)
-			tags = save(s);
 		break;
 	case QUERY:
 		parg.p_string = tags;

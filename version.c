@@ -493,6 +493,8 @@
  *	-----------------------------------------------------------------
  *	v279: Add GNU options --help, --version.	2/22/95
  *	      Minor config fixes.
+ *	v280: Clean up calls to glob(); don't set #	2/24/95
+ *	      if we can't open the new file.
  */
 
-char version[] = "279";
+char version[] = "280";

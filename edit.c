@@ -192,6 +192,7 @@ edit_ifile(ifile)
 	char *open_filename;
 	char *alt_filename;
 	void *alt_pipe;
+	IFILE was_curr_ifile;
 	PARG parg;
 		
 	if (ifile == curr_ifile)
@@ -212,17 +213,21 @@ edit_ifile(ifile)
 #if LOGFILE
 	end_logfile();
 #endif
+	was_curr_ifile = curr_ifile;
 	if (curr_ifile != NULL_IFILE)
 	{
-		old_ifile = curr_ifile;
 		close_file();
 	}
 
 	if (ifile == NULL_IFILE)
+	{
 		/*
 		 * No new file to open.
 		 */
+		if (was_curr_ifile != NULL_IFILE)
+			old_ifile = was_curr_ifile;
 		return (0);
+	}
 
 	filename = get_filename(ifile);
 	/*
@@ -268,7 +273,7 @@ edit_ifile(ifile)
 		/*
 		 * Re-open the current file.
 		 */
-		(void) edit_ifile(old_ifile);
+		(void) edit_ifile(was_curr_ifile);
 		return (1);
 	} else if ((f = open(open_filename, OPEN_READ)) < 0)
 	{
@@ -298,6 +303,8 @@ edit_ifile(ifile)
 	 * Get the new ifile.
 	 * Get the saved position for the file.
 	 */
+	if (was_curr_ifile != NULL_IFILE)
+		old_ifile = was_curr_ifile;
 	curr_ifile = ifile;
 	curr_altfilename = alt_filename;
 	curr_altpipe = alt_pipe;
@@ -377,21 +384,14 @@ edit_list(filelist)
 	while ((filename = forw_textlist(&tl_files, filename)) != NULL)
 	{
 		gfilelist = glob(filename);
-		if (gfilelist == NULL)
+		init_textlist(&tl_gfiles, gfilelist);
+		gfilename = NULL;
+		while ((gfilename = forw_textlist(&tl_gfiles, gfilename)) != NULL)
 		{
-			if (edit(filename) == 0 && good_filename == NULL)
+			if (edit(gfilename) == 0 && good_filename == NULL)
 				good_filename = get_filename(curr_ifile);
-		} else
-		{
-			init_textlist(&tl_gfiles, gfilelist);
-			gfilename = NULL;
-			while ((gfilename = forw_textlist(&tl_gfiles, gfilename)) != NULL)
-			{
-				if (edit(gfilename) == 0 && good_filename == NULL)
-					good_filename = get_filename(curr_ifile);
-			}
-			free(gfilelist);
 		}
+		free(gfilelist);
 	}
 	/*
 	 * Edit the first valid filename in the list.

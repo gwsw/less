@@ -208,8 +208,6 @@ exec_mca()
 			if (shellcmd != NULL)
 				free(shellcmd);
 			shellcmd = fexpand(cbuf);
-			if (shellcmd == NULL)
-				break;
 		}
 
 		if (shellcmd == NULL)

@@ -154,8 +154,6 @@ main(argc, argv)
 		char *filename;
 		
 		gfilename = glob(*argv++);
-		if (gfilename == NULL)
-			continue;
 		init_textlist(&tlist, gfilename);
 		filename = NULL;
 		while ((filename = forw_textlist(&tlist, filename)) != NULL)
