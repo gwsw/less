@@ -364,7 +364,23 @@ do_append(c, pos)
 #define	STOREC(c,a) \
 	if (storec((c),(a),pos)) return (1); else curr++
 
-	if (overstrike)
+	if (c == '\b')
+	{
+		switch (bs_mode)
+		{
+		case BS_NORMAL:
+			STOREC(c, AT_NORMAL);
+			break;
+		case BS_CONTROL:
+			goto do_control_char;
+		case BS_SPECIAL:
+			if (curr == 0)
+				break;
+			backc();
+			overstrike = 1;
+			break;
+		}
+	} else if (overstrike)
 	{
 		/*
 		 * Overstrike the character at the current position
@@ -384,22 +400,6 @@ do_append(c, pos)
 			goto do_control_char;
 		else
 			STOREC(c, AT_NORMAL);
-	} else if (c == '\b')
-	{
-		switch (bs_mode)
-		{
-		case BS_NORMAL:
-			STOREC(c, AT_NORMAL);
-			break;
-		case BS_CONTROL:
-			goto do_control_char;
-		case BS_SPECIAL:
-			if (curr == 0)
-				break;
-			backc();
-			overstrike = 1;
-			break;
-		}
 	} else if (c == '\t') 
 	{
 		/*
