@@ -902,15 +902,24 @@ search(search_type, pattern, n)
 			return (-1);
 		}
 #if HILITE_SEARCH
-		if (hilite_search == 1)
+		if (hilite_search == OPT_ON)
 		{
 			/*
 			 * Erase the highlights currently on screen.
 			 * If the search fails, we'll redisplay them later.
 			 */
 			repaint_hilite(0);
-			hide_hilite = 0;
 		}
+		if (hilite_search == OPT_ONPLUS && hide_hilite)
+		{
+			/*
+			 * Highlight any matches currently on screen,
+			 * before we actually start the search.
+			 */
+			hide_hilite = 0;
+			hilite_screen();
+		}
+		hide_hilite = 0;
 #endif
 	} else
 	{
