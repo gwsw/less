@@ -397,7 +397,7 @@ glob(filename)
 	list = _fnexplode(filename);
 	if (list == NULL)
 		return (filename);
-	length = 0;
+	length = 1; /* Room for trailing null byte */
 	for (cnt = 0;  list[cnt] != NULL;  cnt++)
 	  	length += strlen(list[cnt]) + 1;
 	gfilename = (char *) ecalloc(length, sizeof(char));
