@@ -591,6 +591,8 @@ v351   3/5/00	Change -M and = prompts to show top & bottom line number.
 		Posted to Web page.
 -----------------------------------------------------------------
 v352   3/8/00	Fix scan_option NULL dereference.
+-----------------------------------------------------------------
+v353   3/20/00	Fix SECURE compile bug, allow space after numeric option.
 */
 
-char version[] = "352";
+char version[] = "353";

@@ -13,7 +13,18 @@
 ======================================================================
 
 
-	Major changes between "less" versions 346 and @@VERSION@@
+	Major changes between "less" versions 352 and @@VERSION@@
+
+* Allow space after numeric-valued command line options.
+
+* Fix problem with configuring terminal libraries on some systems.
+
+* Fix bug compiling with SECURE = 1.
+
+======================================================================
+
+
+	Major changes between "less" versions 346 and 352
 
 * Enable UTF-8 if "UTF-8" appears in locale-related environment variables.
 
