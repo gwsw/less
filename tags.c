@@ -245,7 +245,6 @@ findctag(tag)
 	register char *tag;
 {
 	char *p;
-	char *q;
 	register FILE *f;
 	register int taglen;
 	register int taglinenum;
@@ -456,10 +455,7 @@ findgtag(tag, type)
 	char *tag;		/* tag to load */
 	int type;		/* tags type */
 {
-	char command[512];
-	char *flag;
 	char buf[256];
-	int status;
 	FILE *fp;
 	struct tag *tp;
 
@@ -484,6 +480,8 @@ findgtag(tag, type)
 		return;
 #else
 		/* Get suitable flag value for global(1). */
+		char command[512];
+		char *flag;
 		switch (type)
 		{
 		case T_GTAGS:
