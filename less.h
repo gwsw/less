@@ -94,8 +94,14 @@
 #include <modes.h>
 #include <strings.h>
 #endif
-#if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==DJGPPC
+#if MSDOS_COMPILER==WIN32C
 #include <io.h>
+#endif
+#if MSDOS_COMPILER==DJGPPC
+#include <io.h>
+#include <sys/exceptn.h>
+#include <conio.h>
+#include <pc.h>
 #endif
 
 #if !STDC_HEADERS
