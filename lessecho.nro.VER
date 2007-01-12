@@ -1,4 +1,4 @@
-.TH LESSECHO 1 @@VERSION@@: @@DATE@@"
+.TH LESSECHO 1 "Version @@VERSION@@: @@DATE@@"
 .SH NAME
 lessecho \- expand metacharacters
 .SH SYNOPSIS
