@@ -56,7 +56,7 @@ static int getentry();
  *
  * Use either pattern or line number.
  * findgtag() always uses line number, so pattern is always NULL.
- * findctag() usually either pattern (in which case line number is 0),
+ * findctag() uses either pattern (in which case line number is 0),
  * or line number (in which case pattern is NULL).
  */
 struct taglist {
@@ -75,10 +75,10 @@ struct tag {
 static struct tag *curtag;
 
 #define TAG_INS(tp) \
-	(tp)->next = taglist.tl_first; \
-	(tp)->prev = TAG_END; \
-	taglist.tl_first->prev = (tp); \
-	taglist.tl_first = (tp);
+	(tp)->next = TAG_END; \
+	(tp)->prev = taglist.tl_last; \
+	taglist.tl_last->next = (tp); \
+	taglist.tl_last = (tp);
 
 #define TAG_RM(tp) \
 	(tp)->next->prev = (tp)->prev; \

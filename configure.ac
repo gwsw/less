@@ -256,11 +256,7 @@ AC_MSG_CHECKING(for sys_errlist)
 AC_TRY_LINK(, [extern char *sys_errlist[]; static char **x; x = sys_errlist;], 
   [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_SYS_ERRLIST)], [AC_MSG_RESULT(no)])
 
-AC_MSG_CHECKING(for sigset_t)
-AC_TRY_LINK([
-#include <signal.h>
-], [sigset_t s; s = 0;],
-  [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_SIGSET_T)], [AC_MSG_RESULT(no)])
+AC_CHECK_TYPES([sigset_t],,,[#include <signal.h>])
 
 AC_MSG_CHECKING(for sigemptyset)
 AC_TRY_LINK([

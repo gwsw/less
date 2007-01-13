@@ -668,6 +668,12 @@ v392  10/14/05	Fix line wrapping bug.
 v393  10/19/05	Allow multiple attributes per char; fix bold+underline bug
 		(thanks again to Charles Levert).
 v394  11/8/05	Fix prompt bug; fix compile problem in Windows build.
+-----------------------------------------------------------------
+v395  1/12/07	Update Unicode tables (thanks to Charles Levert);
+		don't chmod if LESSHISTFILE = /dev/null;
+		make -f work for directories; support DESTDIR in Makefile;
+		fix setset_t detection in configure; 
+		make "t" cmd traverse tags in correct order
 */
 
-char version[] = "394";
+char version[] = "395";

@@ -966,7 +966,7 @@ bad_file(filename)
 	register char *m = NULL;
 
 	filename = shell_unquote(filename);
-	if (is_dir(filename))
+	if (!force_open && is_dir(filename))
 	{
 		static char is_a_dir[] = " is a directory";
 

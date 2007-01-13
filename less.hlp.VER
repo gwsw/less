@@ -148,7 +148,7 @@
   -m  -M  ....  --long-prompt  --LONG-PROMPT
                   Set prompt style.
   -n  -N  ....  --line-numbers  --LINE-NUMBERS
-                  Use line numbers.
+                  Don't use line numbers.
   -o [_f_i_l_e]  .  --log-file=[_f_i_l_e]
                   Copy to log file (standard input only).
   -O [_f_i_l_e]  .  --LOG-FILE=[_f_i_l_e]

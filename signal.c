@@ -153,13 +153,12 @@ init_signals(on)
 #endif
 #ifdef SIGWINCH
 		(void) LSIGNAL(SIGWINCH, winch);
-#else
+#endif
 #ifdef SIGWIND
 		(void) LSIGNAL(SIGWIND, winch);
 #endif
 #ifdef SIGQUIT
 		(void) LSIGNAL(SIGQUIT, SIG_IGN);
-#endif
 #endif
 	} else
 	{

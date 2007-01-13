@@ -13,7 +13,23 @@
 ======================================================================
 
 
-	Major changes between "less" versions 382 and @@VERSION@@
+	Major changes between "less" versions 394 and @@VERSION@@
+
+* Allow "/dev/null" as synomym for "-" in LESSHISTFILE.
+
+* Make -f work for directories.
+
+* Support DESTDIR in Makefile.
+
+* Make "t" cmd traverse tags in the correct order.
+
+* Fix configure bugs.
+
+* Update Unicode character tables.
+
+======================================================================
+
+	Major changes between "less" versions 382 and 394
 
 * Add history file to save search and shell command history between
   invocations of less.

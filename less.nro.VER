@@ -515,6 +515,8 @@ Also suppresses the warning message when a binary file is opened.
 By default,
 .I less
 will refuse to open non-regular files.
+Note that some operating systems will not allow directories
+to be read, even if \-f is set.
 .IP "\-F or \-\-quit-if-one-screen"
 Causes
 .I less
@@ -1509,7 +1511,7 @@ Normally should be set to "global" if your system has the
 Name of the history file used to remember search commands and
 shell commands between invocations of 
 .I less.
-If set to "\-", a history file is not used.
+If set to "\-" or "/dev/null", a history file is not used.
 The default is "$HOME/.lesshst" on Unix systems, "$HOME/_lesshst" on
 DOS and Windows systems, or "$HOME/lesshst.ini" or "$INIT/lesshst.ini" 
 on OS/2 systems.

@@ -1309,7 +1309,7 @@ histfile_name()
 	name = lgetenv("LESSHISTFILE");
 	if (name != NULL && *name != '\0')
 	{
-		if (strcmp(name, "-") == 0)
+		if (strcmp(name, "-") == 0 || strcmp(name, "/dev/null") == 0)
 			/* $LESSHISTFILE == "-" means don't use a history file. */
 			return (NULL);
 		return (save(name));
