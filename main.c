@@ -125,9 +125,7 @@ main(argc, argv)
 	 */
 	for (s = argv[0] + strlen(argv[0]);  s > argv[0];  s--)
 	{
-		if (s[-1] == '/')
-			break;
-		if (s[-1] == '\\')
+		if (s[-1] == PATHNAME_SEP[0])
 			break;
 	}
 	if (strcmp(s, "more") == 0)
