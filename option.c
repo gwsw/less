@@ -29,6 +29,8 @@ static char *optstring();
 static int flip_triple();
 
 extern int screen_trashed;
+extern int less_is_more;
+extern int quit_at_eof;
 extern char *every_first_cmd;
 
 /* 
@@ -131,6 +133,10 @@ scan_option(s)
 			 */
 			s--;
 			optc = 'z';
+			break;
+		case 'n':
+			if (less_is_more)
+				optc = 'z';
 			break;
 		}
 
@@ -630,4 +636,16 @@ getnum(sp, printopt, errp)
 	if (neg)
 		n = -n;
 	return (n);
+}
+
+/*
+ * Get the value of the -e flag.
+ */
+	public int
+get_quit_at_eof()
+{
+	if (!less_is_more)
+		return quit_at_eof;
+	/* When less_is_more is set, the -e flag semantics are different. */
+	return quit_at_eof ? OPT_ON : OPT_ONPLUS;
 }

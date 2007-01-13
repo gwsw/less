@@ -26,7 +26,6 @@ extern int sigs;
 extern int top_scroll;
 extern int quiet;
 extern int sc_width, sc_height;
-extern int quit_at_eof;
 extern int plusoption;
 extern int forw_scroll;
 extern int back_scroll;
@@ -324,7 +323,7 @@ forward(n, force, only_last)
 {
 	POSITION pos;
 
-	if (quit_at_eof && hit_eof && !(ch_getflags() & CH_HELPFILE))
+	if (get_quit_at_eof() && hit_eof && !(ch_getflags() & CH_HELPFILE))
 	{
 		/*
 		 * If the -e flag is set and we're trying to go

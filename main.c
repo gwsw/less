@@ -32,6 +32,7 @@ public char *	progname;
 public int	quitting;
 public int	secure;
 public int	dohelp;
+public int	less_is_more;
 
 #if LOGFILE
 public int	logfile = -1;
@@ -56,6 +57,8 @@ static char consoleTitle[256];
 
 extern int	missing_cap;
 extern int	know_dumb;
+extern int	quit_if_one_screen;
+extern int	pr_type;
 
 
 /*
@@ -111,12 +114,28 @@ main(argc, argv)
 	is_tty = isatty(1);
 	get_term();
 	init_cmds();
-	init_prompt();
 	init_charset();
 	init_line();
 	init_cmdhist();
 	init_option();
-	s = lgetenv("LESS");
+
+	/*
+	 * If the name of the executable program is "more",
+	 * act like LESS_IS_MORE is set.
+	 */
+	for (s = argv[0] + strlen(argv[0]);  s > argv[0];  s--)
+	{
+		if (s[-1] == '/')
+			break;
+		if (s[-1] == '\\')
+			break;
+	}
+	if (strcmp(s, "more") == 0)
+		less_is_more = 1;
+
+	init_prompt();
+
+	s = lgetenv(less_is_more ? "MORE" : "LESS");
 	if (s != NULL)
 		scan_option(save(s));
 
@@ -140,6 +159,9 @@ main(argc, argv)
 		nopendopt();
 		quit(QUIT_OK);
 	}
+
+	if (less_is_more && get_quit_at_eof())
+		quit_if_one_screen = TRUE;
 
 #if EDITOR
 	editor = lgetenv("VISUAL");

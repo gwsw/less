@@ -37,7 +37,6 @@ extern int sc_height;
 extern int secure;
 extern int dohelp;
 extern int any_display;
-extern int less_is_more;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
@@ -55,6 +54,7 @@ extern int logfile;
 public char *tagoption = NULL;
 extern char *tags;
 extern int jump_sline;
+extern int less_is_more;
 #endif
 #if MSDOS_COMPILER
 extern int nm_fg_color, nm_bg_color;
@@ -267,7 +267,7 @@ opt_p(type, s)
 		 * In "more" mode, the -p argument is a command,
 		 * not a search string, so we don't need a slash.
 		 */
-		if (!less_is_more);
+		if (!less_is_more)
 			ungetsc("/");
 		break;
 	}

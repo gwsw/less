@@ -23,7 +23,6 @@
 
 extern int erase_char, erase2_char, kill_char;
 extern int sigs;
-extern int quit_at_eof;
 extern int quit_if_one_screen;
 extern int squished;
 extern int hit_eof;
@@ -606,7 +605,7 @@ prompt()
 	 * {{ Relying on "first prompt" to detect a single-screen file
 	 * fails if +G is used, for example. }}
 	 */
-	if ((quit_at_eof == OPT_ONPLUS || quit_if_one_screen) &&
+	if ((get_quit_at_eof() == OPT_ONPLUS || quit_if_one_screen) &&
 	    hit_eof && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
@@ -616,7 +615,7 @@ prompt()
 	 * If the -e flag is set and we've hit EOF on the last file,
 	 * and the file is squished (shorter than the screen), quit.
 	 */
-	if (quit_at_eof && squished &&
+	if (get_quit_at_eof() && squished &&
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
 #endif
@@ -1386,7 +1385,7 @@ commands()
 				number = 1;
 			if (edit_next((int) number))
 			{
-				if (quit_at_eof && hit_eof && 
+				if (get_quit_at_eof() && hit_eof && 
 				    !(ch_getflags() & CH_HELPFILE))
 					quit(QUIT_OK);
 				parg.p_string = (number > 1) ? "(N-th) " : "";

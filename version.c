@@ -674,6 +674,7 @@ v395  1/12/07	Update Unicode tables (thanks to Charles Levert);
 		make -f work for directories; support DESTDIR in Makefile;
 		fix setset_t detection in configure; 
 		make "t" cmd traverse tags in correct order
+v396  1/13/07	Add compatibility with POSIX more.
 */
 
-char version[] = "395";
+char version[] = "396";

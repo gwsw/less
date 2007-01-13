@@ -806,7 +806,7 @@ By default, any forward movement causes scrolling.
 Changes the default scrolling window size to \fIn\fP lines.
 The default is one screenful.
 The z and w commands can also be used to change the window size.
-The "z" may be omitted for compatibility with
+The "z" may be omitted for compatibility with some versions of 
 .I more.
 If the number
 .I n
@@ -1446,6 +1446,36 @@ filename completion (TAB, ^L)
 .PP
 Less can also be compiled to be permanently in "secure" mode.
 
+.SH "COMPATIBILITY WITH MORE"
+If the environment variable LESS_IS_MORE is set to 1,
+or if the program is invoked via a file link named "more",
+.I less
+behaves (mostly) in conformance with the POSIX "more" command specification.
+In this mode, less behaves differently in these ways:
+.PP
+The \-e option works differently.
+If the \-e option is not set, 
+.I less
+behaves as if the \-E option were set.
+If the \-e option is set, 
+.I less
+behaves as if the \-e and \-F options were set.
+.PP
+The \-m option works differently.
+If the \-m option is not set, the medium prompt is used,
+and it is prefixed with the string "--More--".
+If the \-m option is set, the short prompt is used.
+.PP
+The \-n option acts like the \-z option.
+The normal behavior of the \-n option is unavailable in this mode.
+.PP
+The parameter to the \-p option is taken to be a 
+.I less
+command rather than a search pattern.
+.PP
+The LESS environment variable is ignored,
+and the MORE environment variable is used in its place.
+
 .SH "ENVIRONMENT VARIABLES"
 Environment variables may be specified either in the system environment
 as usual, or in a 
@@ -1538,6 +1568,10 @@ See discussion under SECURITY.
 String to be appended to a directory name in filename completion.
 .IP LESSUTFBINFMT
 Format for displaying non-printable Unicode code points.
+.IP LESS_IS_MORE
+Emulate the 
+.I more
+(1) command.
 .IP LINES
 Sets the number of lines on the screen.
 Takes precedence over the number of lines specified by the TERM variable.
