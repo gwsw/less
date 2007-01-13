@@ -529,6 +529,12 @@ AH_TOP([
 #define	PATHNAME_SEP	"/"
 
 /*
+ * The value returned from tgetent on success.
+ * Some HP-UX systems return 0 on success.
+ */
+#define TGETENT_OK  1
+
+/*
  * HAVE_SYS_TYPES_H is 1 if your system has <sys/types.h>.
  */
 #define HAVE_SYS_TYPES_H	1

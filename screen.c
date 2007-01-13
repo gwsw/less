@@ -1127,7 +1127,7 @@ get_term()
  	if ((term = lgetenv("TERM")) == NULL)
  		term = DEFAULT_TERM;
 	hardcopy = 0;
- 	if (tgetent(termbuf, term) <= 0)
+ 	if (tgetent(termbuf, term) != TGETENT_OK)
  		hardcopy = 1;
  	if (ltgetflag("hc"))
 		hardcopy = 1;
