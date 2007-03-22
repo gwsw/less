@@ -102,8 +102,9 @@ repaint()
  * Jump to a specified percentage into the file.
  */
 	public void
-jump_percent(percent)
+jump_percent(percent, fraction)
 	int percent;
+	long fraction;
 {
 	POSITION pos, len;
 
@@ -121,7 +122,7 @@ jump_percent(percent)
 		error("Don't know length of file", NULL_PARG);
 		return;
 	}
-	pos = percent_pos(len, percent);
+	pos = percent_pos(len, percent, fraction);
 	if (pos >= len)
 		pos = len-1;
 

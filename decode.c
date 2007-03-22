@@ -120,6 +120,7 @@ static unsigned char cmdtable[] =
 	'7',0,				A_DIGIT,
 	'8',0,				A_DIGIT,
 	'9',0,				A_DIGIT,
+	'.',0,				A_DIGIT,
 
 	'=',0,				A_STAT,
 	CONTROL('G'),0,			A_STAT,

@@ -295,6 +295,10 @@ struct textlist
 
 #define	READ_INTR	(-2)
 
+/* A fraction is represented by an int n; the fraction is n/NUM_FRAC_DENOM */
+#define NUM_FRAC_DENOM			1000000
+#define NUM_LOG_FRAC_DENOM		6
+
 /* How quiet should we be? */
 #define	NOT_QUIET	0	/* Ring bell at eof and for errors */
 #define	LITTLE_QUIET	1	/* Ring bell only for errors */

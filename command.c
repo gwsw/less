@@ -62,6 +62,7 @@ static char *shellcmd = NULL;	/* For holding last shell command for "!!" */
 static int mca;			/* The multicharacter command (action) */
 static int search_type;		/* The previous type of search */
 static LINENUM number;		/* The number typed by the user */
+static long fraction;		/* The fractional part of the number */
 static char optchar;
 static int optflag;
 static int optgetname;
@@ -290,14 +291,14 @@ mca_char(c)
 		 * Entering digits of a number.
 		 * Terminated by a non-digit.
 		 */
-		if ((c < '0' || c > '9') && 
+		if (!((c >= '0' && c <= '9') || c == '.') && 
 		  editchar(c, EC_PEEK|EC_NOHISTORY|EC_NOCOMPLETE|EC_NORIGHTLEFT) == A_INVALID)
 		{
 			/*
 			 * Not part of the number.
 			 * Treat as a normal command character.
 			 */
-			number = cmd_int();
+			number = cmd_int(&fraction);
 			mca = 0;
 			cmd_accept();
 			return (NO_MCA);
@@ -1160,11 +1161,17 @@ commands()
 			 * Go to a specified percentage into the file.
 			 */
 			if (number < 0)
+			{
 				number = 0;
+				fraction = 0;
+			}
 			if (number > 100)
+			{
 				number = 100;
+				fraction = 0;
+			}
 			cmd_exec();
-			jump_percent((int) number);
+			jump_percent((int) number, fraction);
 			break;
 
 		case A_GOEND:
