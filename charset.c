@@ -322,12 +322,14 @@ set_charset()
 	}
 
 #if HAVE_LOCALE
+#ifdef CODESET
 	/*
 	 * Try using the codeset name as the charset name.
 	 */
 	s = nl_langinfo(CODESET);
 	if (icharset(s, 1))
 		return;
+#endif
 #endif
 
 #if HAVE_STRSTR
