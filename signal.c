@@ -34,6 +34,7 @@ extern int linenums;
 extern int wscroll;
 extern int reading;
 extern int quit_on_intr;
+extern long jump_sline_fraction;
 
 /*
  * Interrupt signal handler.
@@ -241,6 +242,7 @@ psignals()
 		if (sc_width != old_width || sc_height != old_height)
 		{
 			wscroll = (sc_height + 1) / 2;
+			calc_jump_sline();
 			screen_trashed = 1;
 		}
 	}

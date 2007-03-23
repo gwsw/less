@@ -676,6 +676,7 @@ v395  1/12/07	Update Unicode tables (thanks to Charles Levert);
 		make "t" cmd traverse tags in correct order
 v396  1/13/07	Add compatibility with POSIX more.
 v397  3/21/07	Allow decimal point in number for % command.
+		Allow decimal point in number for -j option.
 */
 
 char version[] = "397";

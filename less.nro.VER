@@ -555,11 +555,17 @@ is to be positioned.
 A target line is the object of a text search, 
 tag search, jump to a line number,
 jump to a file percentage, or jump to a marked position.
-The screen line is specified by a number: the top line on the screen
+The screen line may be specified by a number: the top line on the screen
 is 1, the next is 2, and so on.
 The number may be negative to specify a line relative to the bottom
 of the screen: the bottom line on the screen is \-1, the second
 to the bottom is \-2, and so on.
+Alternately, the screen line may be specified as a fraction of the height
+of the screen, starting with a decimal point: .5 is in the middle of the
+screen, .3 is three tenths down from the first line, and so on.
+If the line is specified as a fraction, the actual line number
+is recalculated if the terminal window is resized, so that the
+target line remains at the specified fraction of the screen height.
 If the \-j option is used, searches begin at the line immediately
 after the target line.
 For example, if "\-j4" is used, the target line is the

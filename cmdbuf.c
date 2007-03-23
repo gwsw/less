@@ -1278,41 +1278,19 @@ cmd_char(c)
 cmd_int(frac)
 	long *frac;
 {
-	register char *p;
+	char *p;
 	LINENUM n = 0;
+	int err;
 
 	for (p = cmdbuf;  *p >= '0' && *p <= '9';  p++)
 		n = (n * 10) + (*p - '0');
 	*frac = 0;
 	if (*p++ == '.')
-		*frac = get_fraction(p);
-	return (n);
-}
-
-/*
- * Return the fractional part of a number (the part after the decimal point).
- * The fraction is represented as parts per NUM_FRAC_DENOM.
- * That is, if "n" is returned, the fraction intended is n/NUM_FRAC_DENOM.
- */
-	public long
-get_fraction(s)
-	char *s;
-{
-	long frac = 0;
-	int fraclen = 0;
-
-	for ( ;  *s >= '0' && *s <= '9';  s++)
 	{
-		frac = (frac * 10) + (*s - '0');
-		fraclen++;
+		*frac = getfraction(&p, NULL, &err);
+		/* {{ do something if err is set? }} */
 	}
-	if (fraclen > NUM_LOG_FRAC_DENOM)
-		while (fraclen-- > NUM_LOG_FRAC_DENOM)
-			frac /= 10;
-	else
-		while (fraclen++ < NUM_LOG_FRAC_DENOM)
-			frac *= 10;
-	return (frac);
+	return (n);
 }
 
 /*
