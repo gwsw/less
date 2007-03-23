@@ -123,7 +123,7 @@ main(argc, argv)
 	 * If the name of the executable program is "more",
 	 * act like LESS_IS_MORE is set.
 	 */
-	for (s = argv[0] + strlen(argv[0]);  s > argv[0];  s--)
+	for (s = progname + strlen(progname);  s > progname;  s--)
 	{
 		if (s[-1] == PATHNAME_SEP[0])
 			break;
