@@ -74,6 +74,7 @@ iread(fd, buf, len)
 {
 	register int n;
 
+start:
 #if MSDOS_COMPILER==WIN32C
 	if (ABORT_SIGS())
 		return (READ_INTR);
@@ -156,7 +157,25 @@ iread(fd, buf, len)
 #endif
 	reading = 0;
 	if (n < 0)
+	{
+#if HAVE_ERRNO
+		/*
+		 * Certain values of errno indicate we should just retry the read.
+		 */
+#if MUST_DEFINE_ERRNO
+		extern int errno;
+#endif
+#ifdef EINTR
+		if (errno == EINTR)
+			goto start;
+#endif
+#ifdef EAGAIN
+		if (errno == EAGAIN)
+			goto start;
+#endif
+#endif
 		return (-1);
+	}
 	return (n);
 }
 
