@@ -120,6 +120,8 @@ standard input, rather than a file, is being read.)
 .IP "p or %"
 Go to a position N percent into the file.
 N should be between 0 and 100, and may contain a decimal point.
+.IP "P"
+Go to the line containing byte offset N in the file.
 .IP "{"
 If a left curly bracket appears in the top line displayed
 on the screen,
