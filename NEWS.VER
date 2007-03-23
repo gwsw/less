@@ -21,7 +21,7 @@
 
 * Make n command fetch previous pattern from history file on first search.
 
-* Add compatibility with POSIX more.
+* Better compatibility with POSIX more specification.
 
 * Don't move to bottom of screen on first page.
 
