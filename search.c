@@ -54,6 +54,7 @@ extern int jump_sline;
 extern int bs_mode;
 extern int ctldisp;
 extern int status_col;
+extern void * constant ml_search;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 #if HILITE_SEARCH
@@ -1109,6 +1110,44 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 	}
 }
 
+ /*
+ * search for a pattern in history. If found, compile that pattern.
+ */
+	static int 
+hist_pattern(search_type) 
+	int search_type;
+{
+#if CMD_HISTORY
+	char *pattern;
+
+	set_mlist(ml_search, 0);
+	pattern = cmd_lastpattern();
+	if (pattern == NULL)
+		return (0);
+
+	if (caseless == OPT_ONPLUS)
+		cvt_text(pattern, pattern, CVT_TO_LC);
+
+	if (compile_pattern(pattern, search_type) < 0)
+		return (0);
+
+	is_ucase_pattern = is_ucase(pattern);
+	if (is_ucase_pattern && caseless != OPT_ONPLUS)
+		is_caseless = 0;
+	else
+		is_caseless = caseless;
+
+#if HILITE_SEARCH
+	if (hilite_search == OPT_ONPLUS && !hide_hilite)
+		hilite_screen();
+#endif
+
+	return (1);
+#else /* CMD_HISTORY */
+	return (0);
+#endif /* CMD_HISTORY */
+}
+
 /*
  * Search for the n-th occurrence of a specified pattern, 
  * either forward or backward.
@@ -1132,7 +1171,7 @@ search(search_type, pattern, n)
 		/*
 		 * A null pattern means use the previously compiled pattern.
 		 */
-		if (!prev_pattern())
+		if (!prev_pattern() && !hist_pattern(search_type))
 		{
 			error("No previous regular expression", NULL_PARG);
 			return (-1);

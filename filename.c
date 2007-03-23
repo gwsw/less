@@ -470,7 +470,8 @@ bin_file(f)
 {
 	int i;
 	int n;
-	unsigned char data[64];
+	int bin_count = 0;
+	unsigned char data[256];
 
 	if (!seekable(f))
 		return (0);
@@ -479,8 +480,12 @@ bin_file(f)
 	n = read(f, data, sizeof(data));
 	for (i = 0;  i < n;  i++)
 		if (binary_char(data[i]))
-			return (1);
-	return (0);
+			bin_count++;
+	/*
+	 * Call it a binary file if there are more than 5 binary characters
+	 * in the first 256 bytes of the file.
+	 */
+	return (bin_count > 5);
 }
 
 /*

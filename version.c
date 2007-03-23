@@ -675,8 +675,10 @@ v395  1/12/07	Update Unicode tables (thanks to Charles Levert);
 		fix setset_t detection in configure; 
 		make "t" cmd traverse tags in correct order
 v396  1/13/07	Add compatibility with POSIX more.
-v397  3/21/07	Allow decimal point in number for % command.
-		Allow decimal point in number for -j option.
+v397  3/21/07	Allow decimal point in number for % command;
+		Allow decimal point in number for -j option;
+		Allow n command to fetch last search pattern from history
+		(thanks to arno).
 */
 
 char version[] = "397";

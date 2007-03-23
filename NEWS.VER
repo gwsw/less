@@ -17,6 +17,10 @@
 
 * Allow decimal point in number for % (percent) command.
 
+* Allow decimal point in number for -j option (fraction of screen height).
+
+* Make n command fetch previous pattern from history file on first search.
+
 * Add compatibility with POSIX more.
 
 * Allow "/dev/null" as synomym for "-" in LESSHISTFILE.
@@ -653,3 +657,4 @@
 * Lesskey files may now include characters after the action as
   extra input to be parsed after the action; for example:
   "toggle-option X" to toggle a specific option X.
+

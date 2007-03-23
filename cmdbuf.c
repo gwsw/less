@@ -1302,6 +1302,17 @@ get_cmdbuf()
 	return (cmdbuf);
 }
 
+/*
+ * Return the last (most recent) string in the current command history.
+ */
+	public char *
+cmd_lastpattern()
+{
+	if (curr_mlist == NULL)
+		return (NULL);
+	return (curr_mlist->curr_mp->prev->string);
+}
+
 #if CMD_HISTORY
 /*
  * Get the name of the history file.
