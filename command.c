@@ -53,6 +53,7 @@ extern char *editproto;
 #endif
 extern int screen_trashed;	/* The screen has been overwritten */
 extern int shift_count;
+extern int oldbot;
 
 static char ungot[UNGOT_SIZE];
 static char *ungotp = NULL;
@@ -83,7 +84,8 @@ static void multi_search();
 cmd_exec()
 {
 	clear_attn();
-	lower_left();
+	if (oldbot)
+		lower_left();
 	flush();
 }
 

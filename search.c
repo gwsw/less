@@ -64,6 +64,7 @@ extern int size_linebuf;
 extern int squished;
 extern int can_goto_line;
 static int hide_hilite;
+static int oldbot;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
 
@@ -266,6 +267,8 @@ repaint_hilite(on)
 			put_line();
 		}
 	}
+	if (!oldbot)
+		lower_left();
 	hide_hilite = save_hide_hilite;
 }
 

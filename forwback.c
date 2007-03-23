@@ -32,6 +32,7 @@ extern int back_scroll;
 extern int ignore_eoi;
 extern int clear_bg;
 extern int final_attr;
+extern int oldbot;
 #if TAGS
 extern char *tagoption;
 #endif
@@ -76,7 +77,7 @@ eof_check()
  * of the screen; this can happen when we display a short file
  * for the first time.
  */
-	static void
+	public void
 squish_check()
 {
 	if (!squished)
@@ -308,6 +309,8 @@ back(n, pos, force, only_last)
 		eof_bell();
 	else if (do_repaint)
 		repaint();
+	else if (!oldbot)
+		lower_left();
 	(void) currline(BOTTOM);
 }
 

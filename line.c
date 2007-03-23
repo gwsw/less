@@ -59,6 +59,7 @@ extern int bl_s_width, bl_e_width;
 extern int so_s_width, so_e_width;
 extern int sc_width, sc_height;
 extern int utf_mode;
+extern int oldbot;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 
@@ -1025,7 +1026,7 @@ pdone(endline)
 	 * Add a newline if necessary,
 	 * and append a '\0' to the end of the line.
 	 */
-	if (column < sc_width || !auto_wrap || ignaw || ctldisp == OPT_ON)
+	if (column < sc_width || !auto_wrap || (oldbot && ignaw) || ctldisp == OPT_ON)
 	{
 		linebuf[curr] = '\n';
 		attr[curr] = AT_NORMAL;

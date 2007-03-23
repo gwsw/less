@@ -679,6 +679,7 @@ v397  3/21/07	Allow decimal point in number for % command;
 		Allow decimal point in number for -j option;
 		Allow n command to fetch last search pattern from history
 		(thanks to arno).
+v398  3/22/07	Avoid gratuitous movement to bottom of screen.
 */
 
-char version[] = "397";
+char version[] = "398";

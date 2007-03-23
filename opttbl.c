@@ -50,6 +50,7 @@ public int shift_count;		/* Number of positions to shift horizontally */
 public int status_col;		/* Display a status column */
 public int use_lessopen;	/* Use the LESSOPEN filter */
 public int quit_on_intr;	/* Quit on interrupt */
+public int oldbot;		/* Old bottom of screen behavior */
 #if HILITE_SEARCH
 public int hilite_search;	/* Highlight matched search patterns? */
 #endif
@@ -111,6 +112,7 @@ static struct optname tilde_optname  = { "tilde",                NULL };
 static struct optname query_optname  = { "help",                 NULL };
 static struct optname pound_optname  = { "shift",                NULL };
 static struct optname keypad_optname = { "no-keypad",            NULL };
+static struct optname oldbot_optname = { "old-bot",              NULL };
 
 
 /*
@@ -425,6 +427,14 @@ static struct loption option[] =
 		{
 			"Use keypad mode",
 			"Don't use keypad mode",
+			NULL
+		}
+	},
+	{ '.', &oldbot_optname,
+		BOOL, OPT_OFF, &oldbot, NULL,
+		{
+			"Use new bottom of screen behavior",
+			"Use old bottom of screen behavior",
 			NULL
 		}
 	},

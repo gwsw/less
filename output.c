@@ -28,6 +28,7 @@ extern int so_s_width, so_e_width;
 extern int screen_trashed;
 extern int any_display;
 extern int is_tty;
+extern int oldbot;
 
 #if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;
@@ -522,6 +523,8 @@ error(fmt, parg)
 
 	if (any_display && is_tty)
 	{
+		if (!oldbot)
+			squish_check();
 		at_exit();
 		clear_bot();
 		at_enter(AT_STANDOUT);

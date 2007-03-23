@@ -163,6 +163,7 @@ static char
 	*sc_home,		/* Cursor home */
 	*sc_addline,		/* Add line, scroll down following lines */
 	*sc_lower_left,		/* Cursor to last line, first column */
+	*sc_return,		/* Cursor to beginning of current line */
 	*sc_move,		/* General cursor positioning */
 	*sc_clear,		/* Clear screen */
 	*sc_eol_clear,		/* Clear to end of line */
@@ -232,6 +233,7 @@ extern int wscroll;
 extern int screen_trashed;
 extern int tty;
 extern int top_scroll;
+extern int oldbot;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -1283,6 +1285,13 @@ get_term()
 	sc_lower_left = cheaper(t1, t2, "\r");
 
 	/*
+	 * Get carriage return string.
+	 */
+	sc_return = ltgetstr("cr", &sp);
+	if (sc_return == NULL)
+		sc_return = "\r";
+
+	/*
 	 * Choose between using "al" or "sr" ("add line" or "scroll reverse")
 	 * to add a line at the top of the screen.
 	 */
@@ -2108,7 +2117,11 @@ clear_bot()
 	 * the mode while we do the clear.  Some terminals fill the
 	 * cleared area with the current attribute.
 	 */
-	lower_left();
+	if (oldbot)
+		lower_left();
+	else
+		tputs(sc_return, 1, putchr);
+
 	if (attrmode == AT_NORMAL)
 		clear_eol_bot();
 	else
