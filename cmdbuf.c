@@ -68,22 +68,23 @@ struct mlist
 	struct mlist *prev;
 	struct mlist *curr_mp;
 	char *string;
+	int modified;
 };
 
 /*
  * These are the various command histories that exist.
  */
 struct mlist mlist_search =  
-	{ &mlist_search,  &mlist_search,  &mlist_search,  NULL };
+	{ &mlist_search,  &mlist_search,  &mlist_search,  NULL, 0 };
 public void * constant ml_search = (void *) &mlist_search;
 
 struct mlist mlist_examine = 
-	{ &mlist_examine, &mlist_examine, &mlist_examine, NULL };
+	{ &mlist_examine, &mlist_examine, &mlist_examine, NULL, 0 };
 public void * constant ml_examine = (void *) &mlist_examine;
 
 #if SHELL_ESCAPE || PIPEC
 struct mlist mlist_shell =   
-	{ &mlist_shell,   &mlist_shell,   &mlist_shell,   NULL };
+	{ &mlist_shell,   &mlist_shell,   &mlist_shell,   NULL, 0 };
 public void * constant ml_shell = (void *) &mlist_shell;
 #endif
 
@@ -767,6 +768,7 @@ cmd_accept()
 	if (curr_mlist == NULL)
 		return;
 	cmd_addhist(curr_mlist, cmdbuf);
+	curr_mlist->modified = 1;
 #endif
 }
 
@@ -1446,6 +1448,8 @@ save_cmdhist()
 
 	filename = histfile_name();
 	if (filename == NULL)
+		return;
+	if (!mlist_search.modified && !mlist_shell.modified)
 		return;
 	f = fopen(filename, "w");
 	free(filename);
