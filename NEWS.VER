@@ -37,7 +37,11 @@
 
 * Make "t" cmd traverse tags in the correct order.
 
+* Don't rewrite history file if it has not changed.
+
 * Fix configure bugs.
+
+* Fix bug when filename contains certain shell metacharacters such as "$".
 
 * Update Unicode character tables.
 
@@ -663,4 +667,5 @@
 * Lesskey files may now include characters after the action as
   extra input to be parsed after the action; for example:
   "toggle-option X" to toggle a specific option X.
+
 
