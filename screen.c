@@ -233,7 +233,9 @@ extern int wscroll;
 extern int screen_trashed;
 extern int tty;
 extern int top_scroll;
+#ifdef NEWBOT
 extern int oldbot;
+#endif
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -2117,10 +2119,14 @@ clear_bot()
 	 * the mode while we do the clear.  Some terminals fill the
 	 * cleared area with the current attribute.
 	 */
+#ifdef NEWBOT
 	if (oldbot)
 		lower_left();
 	else
 		tputs(sc_return, 1, putchr);
+#else
+	lower_left();
+#endif
 
 	if (attrmode == AT_NORMAL)
 		clear_eol_bot();

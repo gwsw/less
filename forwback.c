@@ -32,7 +32,9 @@ extern int back_scroll;
 extern int ignore_eoi;
 extern int clear_bg;
 extern int final_attr;
+#ifdef NEWBOT
 extern int oldbot;
+#endif
 #if TAGS
 extern char *tagoption;
 #endif
@@ -309,8 +311,10 @@ back(n, pos, force, only_last)
 		eof_bell();
 	else if (do_repaint)
 		repaint();
+#ifdef NEWBOT
 	else if (!oldbot)
 		lower_left();
+#endif
 	(void) currline(BOTTOM);
 }
 
