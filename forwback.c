@@ -21,6 +21,7 @@ public int hit_eof;	/* Keeps track of how many times we hit end of file */
 public int screen_trashed;
 public int squished;
 public int no_back_scroll = 0;
+public int forw_prompt;
 
 extern int sigs;
 extern int top_scroll;
@@ -32,9 +33,7 @@ extern int back_scroll;
 extern int ignore_eoi;
 extern int clear_bg;
 extern int final_attr;
-#ifdef NEWBOT
 extern int oldbot;
-#endif
 #if TAGS
 extern char *tagoption;
 #endif
@@ -246,6 +245,7 @@ forw(n, pos, force, only_last, nblank)
 			 */
 			clear_eol();
 		}
+		forw_prompt = 1;
 	}
 
 	if (ignore_eoi)
@@ -311,10 +311,8 @@ back(n, pos, force, only_last)
 		eof_bell();
 	else if (do_repaint)
 		repaint();
-#ifdef NEWBOT
 	else if (!oldbot)
 		lower_left();
-#endif
 	(void) currline(BOTTOM);
 }
 

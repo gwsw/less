@@ -21,6 +21,7 @@
 public int errmsgs;	/* Count of messages displayed by error() */
 public int need_clr;
 public int final_attr;
+public int at_prompt;
 
 extern int sigs;
 extern int sc_width;
@@ -28,9 +29,7 @@ extern int so_s_width, so_e_width;
 extern int screen_trashed;
 extern int any_display;
 extern int is_tty;
-#ifdef NEWBOT
 extern int oldbot;
-#endif
 
 #if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;
@@ -375,6 +374,7 @@ putchr(c)
 	if (ob >= &obuf[sizeof(obuf)-1])
 		flush();
 	*ob++ = c;
+	at_prompt = 0;
 	return (c);
 }
 
@@ -525,10 +525,8 @@ error(fmt, parg)
 
 	if (any_display && is_tty)
 	{
-#ifdef NEWBOT
 		if (!oldbot)
 			squish_check();
-#endif
 		at_exit();
 		clear_bot();
 		at_enter(AT_STANDOUT);

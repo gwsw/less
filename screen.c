@@ -233,9 +233,7 @@ extern int wscroll;
 extern int screen_trashed;
 extern int tty;
 extern int top_scroll;
-#ifdef NEWBOT
 extern int oldbot;
-#endif
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -1812,6 +1810,21 @@ lower_left()
 }
 
 /*
+ * Move cursor to left position of current line.
+ */
+	public void
+line_left()
+{
+#if !MSDOS_COMPILER
+	tputs(sc_return, 1, putchr);
+#else
+	struct rccoord tpos = _gettextposition();
+	flush();
+	_settextposition(tpos.row, 1);
+#endif
+}
+
+/*
  * Check if the console size has changed and reset internals 
  * (in lieu of SIGWINCH for WIN32).
  */
@@ -2119,14 +2132,10 @@ clear_bot()
 	 * the mode while we do the clear.  Some terminals fill the
 	 * cleared area with the current attribute.
 	 */
-#ifdef NEWBOT
 	if (oldbot)
 		lower_left();
 	else
-		tputs(sc_return, 1, putchr);
-#else
-	lower_left();
-#endif
+		line_left();
 
 	if (attrmode == AT_NORMAL)
 		clear_eol_bot();

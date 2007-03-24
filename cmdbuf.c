@@ -125,12 +125,11 @@ cmd_reset()
 }
 
 /*
- * Clear command line on display.
+ * Clear command line.
  */
 	public void
 clear_cmd()
 {
-	clear_bot();
 	cmd_col = prompt_col = 0;
 	cmd_mbc_buf_len = 0;
 }

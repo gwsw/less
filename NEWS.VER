@@ -23,6 +23,11 @@
 
 * Better compatibility with POSIX more specification.
 
+* Don't move to bottom of screen on first page.
+
+* Don't output extraneous newlines, so copy & pasting lines from the
+  output works better.
+
 * Allow "/dev/null" as synomym for "-" in LESSHISTFILE to indicate
   that no history file should be used.
 

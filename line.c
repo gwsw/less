@@ -59,9 +59,7 @@ extern int bl_s_width, bl_e_width;
 extern int so_s_width, so_e_width;
 extern int sc_width, sc_height;
 extern int utf_mode;
-#ifdef NEWBOT
 extern int oldbot;
-#endif
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 
@@ -997,6 +995,8 @@ pflushmbc()
 pdone(endline)
 	int endline;
 {
+	int nl;
+
 	(void) pflushmbc();
 
 	if (pendc && (pendc != '\r' || !endline))
@@ -1028,11 +1028,11 @@ pdone(endline)
 	 * Add a newline if necessary,
 	 * and append a '\0' to the end of the line.
 	 */
-#ifdef NEWBOT
-	if (column < sc_width || !auto_wrap || (oldbot && ignaw) || ctldisp == OPT_ON)
-#else
-	if (column < sc_width || !auto_wrap || ignaw || ctldisp == OPT_ON)
-#endif
+	if (!oldbot)
+		nl = (column < sc_width || !auto_wrap || endline || ctldisp == OPT_ON);
+	else
+		nl = (column < sc_width || !auto_wrap || ignaw || ctldisp == OPT_ON);
+	if (nl)
 	{
 		linebuf[curr] = '\n';
 		attr[curr] = AT_NORMAL;

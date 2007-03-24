@@ -53,9 +53,8 @@ extern char *editproto;
 #endif
 extern int screen_trashed;	/* The screen has been overwritten */
 extern int shift_count;
-#ifdef NEWBOT
 extern int oldbot;
-#endif
+extern int forw_prompt;
 
 static char ungot[UNGOT_SIZE];
 static char *ungotp = NULL;
@@ -78,7 +77,7 @@ static char pipec;
 static void multi_search();
 
 /*
- * Move the cursor to lower left before executing a command.
+ * Move the cursor to start of prompt line before executing a command.
  * This looks nicer if the command takes a long time before
  * updating the screen.
  */
@@ -86,10 +85,7 @@ static void multi_search();
 cmd_exec()
 {
 	clear_attn();
-#ifdef NEWBOT
-	if (oldbot)
-#endif
-		lower_left();
+	line_left();
 	flush();
 }
 
@@ -104,6 +100,7 @@ start_mca(action, prompt, mlist, cmdflags)
 	int cmdflags;
 {
 	mca = action;
+	clear_bot();
 	clear_cmd();
 	cmd_putstr(prompt);
 	set_mlist(mlist, cmdflags);
@@ -126,6 +123,7 @@ mca_search()
 	else
 		mca = A_B_SEARCH;
 
+	clear_bot();
 	clear_cmd();
 
 	if (search_type & SRCH_NO_MATCH)
@@ -161,6 +159,7 @@ mca_opt_toggle()
 	dash = (flag == OPT_NO_TOGGLE) ? "_" : "-";
 
 	mca = A_OPT_TOGGLE;
+	clear_bot();
 	clear_cmd();
 	cmd_putstr(dash);
 	if (optgetname)
@@ -637,7 +636,20 @@ prompt()
 	/*
 	 * Select the proper prompt and display it.
 	 */
+	/*
+	 * If the previous action was a forward movement, 
+	 * don't clear the bottom line of the display;
+	 * just print the prompt since the forward movement guarantees 
+	 * that we're in the right position to display the prompt.
+	 * Clearing the line could cause a problem: for example, if the last
+	 * line displayed ended at the right screen edge without a newline,
+	 * then clearing would clear the last displayed line rather than
+	 * the prompt line.
+	 */
+	if (!forw_prompt)
+		clear_bot();
 	clear_cmd();
+	forw_prompt = 0;
 	p = pr_string();
 	if (p == NULL || *p == '\0')
 		putchr(':');
@@ -647,6 +659,7 @@ prompt()
 		putstr(p);
 		at_exit();
 	}
+	clear_eol();
 }
 
 /*

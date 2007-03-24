@@ -8,6 +8,7 @@
  * contact the author, see the README file.
  */
 
+#define NEWBOT 1
 
 /*
  * Standard include file for "less".

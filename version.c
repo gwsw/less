@@ -680,7 +680,9 @@ v397  3/21/07	Allow decimal point in number for % command;
 		Allow n command to fetch last search pattern from history
 		(thanks to arno).
 v398  3/22/07	Don't rewrite history file if not necessary;
-		fix bug when filenames contain "$".
+		fix bug when filenames contain "$";
+		don't move to bottom of screen at startup;
+		don't output extraneous newlines.
 */
 
 char version[] = "398";
