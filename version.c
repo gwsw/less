@@ -683,6 +683,8 @@ v398  3/22/07	Don't rewrite history file if not necessary;
 		fix bug when filenames contain "$".
 v399  3/22/07	Don't move to bottom of screen at startup;
 		don't output extraneous newlines.
+v400  3/23/07	Allow search to find pattern after null byte (PCRE and no-regex)
+		(thanks to Michael Constant).
 */
 
-char version[] = "399";
+char version[] = "400";

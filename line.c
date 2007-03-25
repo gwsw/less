@@ -1100,9 +1100,10 @@ null_line()
  * {{ This is supposed to be more efficient than forw_line(). }}
  */
 	public POSITION
-forw_raw_line(curr_pos, linep)
+forw_raw_line(curr_pos, linep, line_lenp)
 	POSITION curr_pos;
 	char **linep;
+	int *line_lenp;
 {
 	register int n;
 	register int c;
@@ -1138,6 +1139,8 @@ forw_raw_line(curr_pos, linep)
 	linebuf[n] = '\0';
 	if (linep != NULL)
 		*linep = linebuf;
+	if (line_lenp != NULL)
+		*line_lenp = n;
 	return (new_pos);
 }
 
@@ -1146,9 +1149,10 @@ forw_raw_line(curr_pos, linep)
  * {{ This is supposed to be more efficient than back_line(). }}
  */
 	public POSITION
-back_raw_line(curr_pos, linep)
+back_raw_line(curr_pos, linep, line_lenp)
 	POSITION curr_pos;
 	char **linep;
+	int *line_lenp;
 {
 	register int n;
 	register int c;
@@ -1209,5 +1213,7 @@ back_raw_line(curr_pos, linep)
 	}
 	if (linep != NULL)
 		*linep = &linebuf[n];
+	if (line_lenp != NULL)
+		*line_lenp = size_linebuf - 1 - n;
 	return (new_pos);
 }

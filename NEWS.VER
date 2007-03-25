@@ -31,6 +31,9 @@
 * Allow "/dev/null" as synomym for "-" in LESSHISTFILE to indicate
   that no history file should be used.
 
+* Search can now find text which follows a null byte, if the PCRE
+  library is used, or if no-regex searching (ctrl-R) is used.
+
 * Make -f work for directories.
 
 * Support DESTDIR in Makefile.

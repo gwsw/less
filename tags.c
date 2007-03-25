@@ -418,7 +418,7 @@ ctagsearch()
 		 * starting position of that line in linepos.
 		 */
 		linepos = pos;
-		pos = forw_raw_line(pos, &line);
+		pos = forw_raw_line(pos, &line, (int *)NULL);
 		if (linenum != 0)
 			linenum++;
 
