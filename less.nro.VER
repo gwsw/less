@@ -1627,11 +1627,6 @@ more text than the matching string may be highlighted.
 (This problem does not occur when less is compiled to use the POSIX
 regular expression package.)
 .PP
-When viewing text containing ANSI color escape sequences using the \-R option,
-searching will not find text containing an embedded escape sequence.
-Also, search highlighting may change the color of some of the text
-which follows the highlighted text.
-.PP
 On some systems,
 .I setlocale
 claims that ASCII characters 0 thru 31 are control characters 

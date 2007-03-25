@@ -21,7 +21,7 @@
 
 * Make n command fetch previous pattern from history file on first search.
 
-* Better compatibility with POSIX more specification.
+* Don't rewrite history file if it has not changed.
 
 * Don't move to bottom of screen on first page.
 
@@ -36,22 +36,25 @@
 * Search can now find text which follows a null byte, if the PCRE
   library is used, or if no-regex searching (ctrl-R) is used.
 
-* Make -f work for directories.
+* Better compatibility with POSIX more specification.
 
-* Support DESTDIR in Makefile.
+* Make -f work for directories.
 
 * Make "t" cmd traverse tags in the correct order.
 
-* Don't rewrite history file if it has not changed.
+* Fix bug when filename contains certain shell metacharacters such as "$".
+
+* Allow a few binary characters in the input file before warning
+  that the file is binary.
 
 * Don't warn that file is binary if it merely contains ANSI color sequences
   and -R is in effect.
 
-* Fix configure bugs.
-
-* Fix bug when filename contains certain shell metacharacters such as "$".
-
 * Update Unicode character tables.
+
+* Support DESTDIR in Makefile.
+
+* Fix configure bugs.
 
 ======================================================================
 
