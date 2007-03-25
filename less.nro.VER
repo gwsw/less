@@ -1642,7 +1642,7 @@ This manual is too long.
 See @@HOMEPAGE@@ for the latest list of known bugs in less.
 
 .SH COPYRIGHT
-Copyright (C) 1984-2005  Mark Nudelman
+Copyright (C) 1984-2007  Mark Nudelman
 .PP
 less is part of the GNU project and is free software.
 You can redistribute it and/or modify it
