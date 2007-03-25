@@ -28,6 +28,8 @@
 * Don't output extraneous newlines, so copy & pasting lines from the
   output works better.
 
+* The -c option has been made identical with the -C option.
+
 * Allow "/dev/null" as synomym for "-" in LESSHISTFILE to indicate
   that no history file should be used.
 
@@ -670,5 +672,6 @@
 * Lesskey files may now include characters after the action as
   extra input to be parsed after the action; for example:
   "toggle-option X" to toggle a specific option X.
+
 
 

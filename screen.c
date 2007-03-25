@@ -2213,7 +2213,10 @@ at_exit()
 at_switch(attr)
 	int attr;
 {
-	if (apply_at_specials(attr) != attrmode)
+	int new_attrmode = apply_at_specials(attr);
+	int ignore_modes = AT_ANSI;
+
+	if ((new_attrmode & ~ignore_modes) != (attrmode & ~ignore_modes))
 	{
 		at_exit();
 		at_enter(attr);

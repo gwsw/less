@@ -136,8 +136,7 @@ forw(n, pos, force, only_last, nblank)
 			pos_clear();
 			add_forw_pos(pos);
 			force = 1;
-			if (top_scroll == OPT_ONPLUS || (first_time && top_scroll != OPT_ON))
-				clear();
+			clear();
 			home();
 		} else
 		{
@@ -156,8 +155,7 @@ forw(n, pos, force, only_last, nblank)
 			force = 1;
 			if (top_scroll)
 			{
-				if (top_scroll == OPT_ONPLUS)
-					clear();
+				clear();
 				home();
 			} else if (!first_time)
 			{
@@ -231,9 +229,16 @@ forw(n, pos, force, only_last, nblank)
 			squished = 1;
 			continue;
 		}
-		if (top_scroll == OPT_ON)
-			clear_eol();
 		put_line();
+#if 0
+		/* {{ 
+		 * Can't call clear_eol here.  The cursor might be at end of line
+		 * on an ignaw terminal, so clear_eol would clear the last char
+		 * of the current line instead of all of the next line.
+		 * If we really need to do this on clear_bg terminals, we need
+		 * to find a better way.
+		 * }}
+		 */
 		if (clear_bg && apply_at_specials(final_attr) != AT_NORMAL)
 		{
 			/*
@@ -245,6 +250,7 @@ forw(n, pos, force, only_last, nblank)
 			 */
 			clear_eol();
 		}
+#endif
 		forw_prompt = 1;
 	}
 

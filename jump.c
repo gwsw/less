@@ -281,7 +281,7 @@ jump_loc(pos, sline)
 			}
 		}
 		lastmark();
-		if (top_scroll != OPT_ON)
+		if (!top_scroll)
 			clear();
 		else
 			home();

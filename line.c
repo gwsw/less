@@ -1027,9 +1027,18 @@ pdone(endline)
 	/*
 	 * Add a newline if necessary,
 	 * and append a '\0' to the end of the line.
+	 * We output a newline if we're not at the right edge of the screen,
+	 * or if the terminal doesn't auto wrap,
+	 * or if this is really the end of the line AND the terminal ignores
+	 * a newline at the right edge.
+	 * (In the last case we don't want to output a newline if the terminal 
+	 * doesn't ignore it since that would produce an extra blank line.
+	 * But we do want to output a newline if the terminal ignores it in case
+	 * the next line is blank.  In that case the single newline output for
+	 * that blank line would be ignored!)
 	 */
 	if (!oldbot)
-		nl = (column < sc_width || !auto_wrap || endline || ctldisp == OPT_ON);
+		nl = (column < sc_width || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON);
 	else
 		nl = (column < sc_width || !auto_wrap || ignaw || ctldisp == OPT_ON);
 	if (nl)

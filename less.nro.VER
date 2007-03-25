@@ -480,7 +480,8 @@ Causes full screen repaints to be painted from the top line down.
 By default,
 full screen repaints are done by scrolling from the bottom of the screen.
 .IP "\-C or \-\-CLEAR-SCREEN"
-The \-C option is like \-c, but the screen is cleared before it is repainted.
+Same as \-c, for compatibility with older versions of 
+.I less.
 .IP "\-d or \-\-dumb"
 The \-d option suppresses the error message
 normally displayed if the terminal is dumb;
@@ -1608,14 +1609,17 @@ The = command and prompts (unless changed by \-P)
 report the line numbers of the lines at the top and bottom of the screen,
 but the byte and percent of the line after the one at the bottom of the screen.
 .PP
-If the :e command is used to name more than one file,
-and one of the named files has been viewed previously,
-the new files may be entered into the list in an unexpected order.
-.PP
 On certain older terminals (the so-called "magic cookie" terminals),
 search highlighting will cause an erroneous display.
 On such terminals, search highlighting is disabled by default 
 to avoid possible problems.
+.PP
+When searching in a binary file, text which follows a null byte 
+may not be found.
+This problem does not occur when searching with regular expressions turned
+off via ^R, and also does not occur when
+.I less
+is compiled to use the PCRE regular expression library.
 .PP
 In certain cases, when search highlighting is enabled and 
 a search pattern begins with a ^,

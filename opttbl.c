@@ -158,7 +158,7 @@ static struct loption option[] =
 		TRIPLE, OPT_OFF, &top_scroll, NULL,
 		{
 			"Repaint by scrolling from bottom of screen",
-			"Repaint by clearing each line",
+			"Repaint by painting from top of screen",
 			"Repaint by painting from top of screen"
 		}
 	},
