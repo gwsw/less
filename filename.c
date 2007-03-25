@@ -51,6 +51,7 @@
 extern int force_open;
 extern int secure;
 extern int use_lessopen;
+extern int ctldisp;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 #if SPACES_IN_FILENAMES
@@ -479,8 +480,15 @@ bin_file(f)
 		return (0);
 	n = read(f, data, sizeof(data));
 	for (i = 0;  i < n;  i++)
-		if (binary_char(data[i]))
+	{
+		char c = data[i];
+		if (ctldisp == OPT_ONPLUS && c == ESC)
+		{
+			while (++i < n && is_ansi_middle(data[i]))
+				continue;
+		} else if (binary_char(c))
 			bin_count++;
+	}
 	/*
 	 * Call it a binary file if there are more than 5 binary characters
 	 * in the first 256 bytes of the file.
