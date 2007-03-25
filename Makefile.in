@@ -26,6 +26,7 @@ bindir = @bindir@
 binprefix = 
 
 sysconfdir = @sysconfdir@
+datarootdir = @datarootdir@
 
 mandir = @mandir@
 manext = 1
