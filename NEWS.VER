@@ -44,6 +44,9 @@
 
 * Don't rewrite history file if it has not changed.
 
+* Don't warn that file is binary if it merely contains ANSI color sequences
+  and -R is in effect.
+
 * Fix configure bugs.
 
 * Fix bug when filename contains certain shell metacharacters such as "$".
