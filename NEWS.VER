@@ -42,8 +42,6 @@
 
 * Make "t" cmd traverse tags in the correct order.
 
-* Fix bug when filename contains certain shell metacharacters such as "$".
-
 * Allow a few binary characters in the input file before warning
   that the file is binary.
 
@@ -53,6 +51,10 @@
 * Update Unicode character tables.
 
 * Support DESTDIR in Makefile.
+
+* Fix bug when filename contains certain shell metacharacters such as "$".
+
+* Fix bug when resizing the window while waiting for input from a pipe.
 
 * Fix configure bugs.
 
