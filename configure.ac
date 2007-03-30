@@ -64,7 +64,7 @@ if test "x$TERMLIBS" = x; then
   fi
 fi
 
-dnl -- Try ncursesw.
+# -- Try ncursesw.
 if test "x$TERMLIBS" = x; then
   if test $have_ncursesw = yes; then
     TERMLIBS="-lncursesw"
@@ -154,7 +154,7 @@ LIBS="$LIBS $TERMLIBS"
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h sys/ptem.h])
+AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
@@ -227,7 +227,29 @@ AC_TRY_COMPILE([#include <time.h>], [time_t t = 0;],
 
 # Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([fsync memcpy popen _setjmp sigprocmask sigsetmask snprintf stat strchr strstr system fchmod])
+AC_CHECK_FUNCS([fsync popen _setjmp sigprocmask sigsetmask snprintf stat system fchmod])
+
+# AC_CHECK_FUNCS may not work for inline functions, so test these separately.
+AC_MSG_CHECKING(for memcpy)
+AC_TRY_LINK([
+#if HAVE_STRING_H
+#include <string.h>
+#endif], [memcpy(0,0,0);],
+  [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_MEMCPY)], [AC_MSG_RESULT(no)])
+
+AC_MSG_CHECKING(for strchr)
+AC_TRY_LINK([
+#if HAVE_STRING_H
+#include <string.h>
+#endif], [strchr("x",'x');],
+  [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STRCHR)], [AC_MSG_RESULT(no)])
+
+AC_MSG_CHECKING(for strstr)
+AC_TRY_LINK([
+#if HAVE_STRING_H
+#include <string.h>
+#endif], [strstr("x","x");],
+  [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STRSTR)], [AC_MSG_RESULT(no)])
 
 # Some systems have termios.h but not the corresponding functions.
 AC_CHECK_FUNC(tcgetattr, AC_DEFINE(HAVE_TERMIOS_FUNCS))
@@ -570,6 +592,15 @@ AH_TOP([
  * HAVE_DUP is 1 if your system has the dup() call.
  */
 #define	HAVE_DUP	1
+
+/* Define to 1 if you have the memcpy() function. */
+#define HAVE_MEMCPY 1
+
+/* Define to 1 if you have the strchr() function. */
+#define HAVE_STRCHR 1
+
+/* Define to 1 if you have the strstr() function. */
+#define HAVE_STRSTR 1
 
 /*
  * Sizes of various buffers.
