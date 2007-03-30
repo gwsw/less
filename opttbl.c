@@ -233,7 +233,9 @@ static struct loption option[] =
 	{ 'j', &j_optname,
 		STRING, 0, NULL, opt_j,
 		{
-			"Target line: ", NULL, NULL
+			"Target line: ",
+			"0123456789.",
+			NULL
 		}
 	},
 	{ 'J', &J__optname,

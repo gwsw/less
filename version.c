@@ -687,7 +687,8 @@ v400  3/23/07	Allow search to find pattern after null byte (PCRE and no-regex)
 		(thanks to Michael Constant).
 -----------------------------------------------------------------
 v401  3/24/07	Minor documentation fixes.
-v402  3/30/07	Fix autoconf bug when memcpy etc are inline.
+v402  3/30/07	Fix autoconf bug when memcpy etc are inline;
+		fix bug in terminating number following -j option.
 */
 
 char version[] = "402";
