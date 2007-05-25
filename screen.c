@@ -1818,9 +1818,21 @@ line_left()
 #if !MSDOS_COMPILER
 	tputs(sc_return, 1, putchr);
 #else
-	struct rccoord tpos = _gettextposition();
+	int row;
 	flush();
-	_settextposition(tpos.row, 1);
+#if MSDOS_COMPILER==WIN32C
+	{
+		CONSOLE_SCREEN_BUFFER_INFO scr;
+		GetConsoleScreenBufferInfo(con_out, &scr);
+		row = scr.dwCursorPosition.Y - scr.srWindow.Top + 1;
+	}
+#else
+	{
+		struct rccoord tpos = _gettextposition();
+		row = tpos.row;
+	}
+#endif
+	_settextposition(row, 1);
 #endif
 }
 

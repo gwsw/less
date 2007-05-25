@@ -689,6 +689,7 @@ v400  3/23/07	Allow search to find pattern after null byte (PCRE and no-regex)
 v401  3/24/07	Minor documentation fixes.
 v402  3/30/07	Fix autoconf bug when memcpy etc are inline;
 		fix bug in terminating number following -j option.
+v403  5/25/07	Fix Windows build.
 */
 
-char version[] = "402";
+char version[] = "403";
