@@ -135,7 +135,7 @@ cvt_text(odst, osrc, lenp, ops)
 		else if ((ops & CVT_BS) && *src == '\b' && dst > odst)
 			/* Delete BS and preceding char. */
 			dst--;
-		else if ((ops & CVT_ANSI) && *src == ESC)
+		else if ((ops & CVT_ANSI) && IS_CSI_START(*src))
 		{
 			/* Skip to end of ANSI escape sequence. */
 			while (src + 1 != src_end)
@@ -677,7 +677,7 @@ adj_hilite_ansi(cvt_ops, line, line_len, npos)
 	char *line_end = *line + line_len;
 
 	if (cvt_ops & CVT_ANSI)
-		while (**line == ESC)
+		while (IS_CSI_START(**line))
 		{
 			/*
 			 * Found an ESC.  The file position moves
