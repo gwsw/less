@@ -15,6 +15,7 @@
 
 #include "less.h"
 #include "position.h"
+#include "charset.h"
 
 #define	MINPOS(a,b)	(((a) < (b)) ? (a) : (b))
 #define	MAXPOS(a,b)	(((a) > (b)) ? (a) : (b))
@@ -118,24 +119,31 @@ cvt_text(odst, osrc, lenp, ops)
 	int *lenp;
 	int ops;
 {
-	register char *dst;
-	register char *src;
+	char *dst;
+	char *src;
 	register char *src_end;
+	LWCHAR ch;
 
 	if (lenp != NULL)
 		src_end = osrc + *lenp;
 	else
 		src_end = osrc + strlen(osrc);
 
-	for (src = osrc, dst = odst;  src < src_end;  src++)
+	for (src = osrc, dst = odst;  src < src_end;  )
 	{
-		if ((ops & CVT_TO_LC) && IS_UPPER(*src))
+		ch = step_char(&src, +1, src_end);
+		if ((ops & CVT_TO_LC) && IS_UPPER(ch))
+		{
 			/* Convert uppercase to lowercase. */
-			*dst++ = TO_LOWER(*src);
-		else if ((ops & CVT_BS) && *src == '\b' && dst > odst)
+			put_wchar(&dst, TO_LOWER(ch));
+		} else if ((ops & CVT_BS) && ch == '\b' && dst > odst)
+		{
 			/* Delete BS and preceding char. */
-			dst--;
-		else if ((ops & CVT_ANSI) && IS_CSI_START(*src))
+			do {
+				dst--;
+			} while (dst > odst &&
+				!IS_ASCII_OCTET(*dst) && !IS_UTF8_LEAD(*dst));
+		} else if ((ops & CVT_ANSI) && IS_CSI_START(ch))
 		{
 			/* Skip to end of ANSI escape sequence. */
 			while (src + 1 != src_end)
@@ -143,7 +151,7 @@ cvt_text(odst, osrc, lenp, ops)
 					break;
 		} else 
 			/* Just copy. */
-			*dst++ = *src;
+			put_wchar(&dst, ch);
 	}
 	if ((ops & CVT_CRLF) && dst > odst && dst[-1] == '\r')
 		dst--;
