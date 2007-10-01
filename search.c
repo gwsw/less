@@ -188,14 +188,18 @@ get_cvt_ops()
  * Are there any uppercase letters in this string?
  */
 	static int
-is_ucase(s)
-	char *s;
+is_ucase(str)
+	char *str;
 {
-	register char *p;
+	char *str_end = str + strlen(str);
+	LWCHAR ch;
 
-	for (p = s;  *p != '\0';  p++)
-		if (IS_UPPER(*p))
+	while (str < str_end)
+	{
+		ch = step_char(&str, +1, str_end);
+		if (IS_UPPER(ch))
 			return (1);
+	}
 	return (0);
 }
 

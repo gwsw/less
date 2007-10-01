@@ -694,6 +694,7 @@ v404  6/5/07	Fix display bug with F command and long lines.
 v405  6/17/07	Fix display bug when using -w option.
 v406  6/17/07	Fix secure build.
 v407  8/16/07	Fix bugs; support CSI chars.
+v408  10/1/07	Fix bug in -i with non-ASCII chars.
 */
 
-char version[] = "407";
+char version[] = "408";
