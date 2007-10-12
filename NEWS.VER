@@ -23,6 +23,8 @@
 
 * Fix configure bug on systems which don't support langinfo.h.
 
+* Fix crash when searching text containing certain invalid UTF-8 sequences.
+
 ======================================================================
 
 	Major changes between "less" versions 394 and 406
@@ -692,6 +694,7 @@
 * Lesskey files may now include characters after the action as
   extra input to be parsed after the action; for example:
   "toggle-option X" to toggle a specific option X.
+
 
 
 
