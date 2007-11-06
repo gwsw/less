@@ -721,35 +721,8 @@ add_hilite(anchor, hl)
 	ihl->hl_next = hl;
 }
 
-	static void
-adj_hilite_ansi(cvt_ops, line, line_len, npos)
-	int cvt_ops;
-	char **line;
-	int line_len;
-	POSITION *npos;
-{
-	char *line_end = *line + line_len;
-
-	if (cvt_ops & CVT_ANSI)
-		while (IS_CSI_START(**line))
-		{
-			/*
-			 * Found an ESC.  The file position moves
-			 * forward past the entire ANSI escape sequence.
-			 */
-			(*line)++;
-			(*npos)++;
-			while (*line < line_end)
-			{
-				(*npos)++;
-				if (!is_ansi_middle(*(*line)++))
-					break;
-			}
-		}
-}
-
 /*
- * Adjust hl_startpos & hl_endpos to account for backspace processing.
+ * Adjust hl_startpos & hl_endpos to account for processing by cvt_text.
  */
 	static void
 adj_hilite(anchor, linepos, cvt_ops)
@@ -758,18 +731,21 @@ adj_hilite(anchor, linepos, cvt_ops)
 	int cvt_ops;
 {
 	char *line;
+	char *oline;
 	int line_len;
 	char *line_end;
 	struct hilite *hl;
 	int checkstart;
 	POSITION opos;
 	POSITION npos;
+	LWCHAR ch;
+	int ncwidth;
 
 	/*
 	 * The line was already scanned and hilites were added (in hilite_line).
 	 * But it was assumed that each char position in the line 
 	 * correponds to one char position in the file.
-	 * This may not be true if there are backspaces in the line.
+	 * This may not be true if cvt_text modified the line.
 	 * Get the raw line again.  Look at each character.
 	 */
 	(void) forw_raw_line(linepos, &line, &line_len);
@@ -800,31 +776,43 @@ adj_hilite(anchor, linepos, cvt_ops)
 		}
 		if (line == line_end)
 			break;
-		adj_hilite_ansi(cvt_ops, &line, line_end - line, &npos);
-		opos++;
-		npos++;
-		line++;
-		if (cvt_ops & CVT_BS)
+
+		/* Get the next char from the line. */
+		oline = line;
+		ch = step_char(&line, +1, line_end);
+		ncwidth = line - oline;
+		npos += ncwidth;
+
+		/* Figure out how this char was processed by cvt_text. */
+		if ((cvt_ops & CVT_BS) && ch == '\b')
 		{
-			while (*line == '\b')
+			/* Skip the backspace and the following char. */
+			oline = line;
+			ch = step_char(&line, +1, line_end);
+			ncwidth = line - oline;
+			npos += ncwidth;
+		} else if ((cvt_ops & CVT_TO_LC) && IS_UPPER(ch))
+		{
+			/* Converted uppercase to lower.
+			 * Note that this may have changed the number of bytes 
+			 * that the character occupies. */
+			char dbuf[6];
+			char *dst = dbuf;
+			put_wchar(&dst, TO_LOWER(ch));
+			opos += dst - dbuf;
+		} else if ((cvt_ops & CVT_ANSI) && IS_CSI_START(ch))
+		{
+			/* Skip to end of ANSI escape sequence. */
+			while (line < line_end)
 			{
 				npos++;
-				line++;
-				adj_hilite_ansi(cvt_ops, &line, line_end - line, &npos);
-				if (line == line_end)
-				{
-					--npos;
-					--line;
+				if (!is_ansi_middle(*++line))
 					break;
-				}
-				/*
-				 * Found a backspace.  The file position moves
-				 * forward by 2 relative to the processed line
-				 * which was searched in hilite_line.
-				 */
-				npos++;
-				line++;
 			}
+		} else 
+		{
+			/* Ordinary unprocessed character. */
+			opos += ncwidth;
 		}
 	}
 }

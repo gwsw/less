@@ -698,6 +698,7 @@ v408  10/1/07	Fix bug in -i with non-ASCII chars.
 v409  10/12/07	Fix crash when viewing text with invalid UTF-8 sequences.
 v411  11/6/07	Fix case-insensitive searching with non-ASCII text.
 v412  11/6/07	Use symbolic SEEK constants.
+v413  11/6/07	Fix search highlight bug with non-ASCII text.
 */
 
-char version[] = "412";
+char version[] = "413";
