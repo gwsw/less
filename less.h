@@ -71,6 +71,9 @@
 #if HAVE_CTYPE_H
 #include <ctype.h>
 #endif
+#if HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
 #if HAVE_LIMITS_H
 #include <limits.h>
 #endif
@@ -125,16 +128,23 @@ void free();
 #undef IS_SPACE
 #undef IS_DIGIT
 
-#if !HAVE_UPPER_LOWER
-#define	IS_UPPER(c)	ASCII_IS_UPPER(c)
-#define	IS_LOWER(c)	ASCII_IS_LOWER(c)
-#define	TO_UPPER(c)	ASCII_TO_UPPER(c)
-#define	TO_LOWER(c)	ASCII_TO_LOWER(c)
+#if HAVE_WCTYPE
+#define	IS_UPPER(c)	iswupper(c)
+#define	IS_LOWER(c)	iswlower(c)
+#define	TO_UPPER(c)	towupper(c)
+#define	TO_LOWER(c)	towlower(c)
 #else
+#if HAVE_UPPER_LOWER
 #define	IS_UPPER(c)	isupper((unsigned char) (c))
 #define	IS_LOWER(c)	islower((unsigned char) (c))
 #define	TO_UPPER(c)	toupper((unsigned char) (c))
 #define	TO_LOWER(c)	tolower((unsigned char) (c))
+#else
+#define	IS_UPPER(c)	ASCII_IS_UPPER(c)
+#define	IS_LOWER(c)	ASCII_IS_LOWER(c)
+#define	TO_UPPER(c)	ASCII_TO_UPPER(c)
+#define	TO_LOWER(c)	ASCII_TO_LOWER(c)
+#endif
 #endif
 
 #ifdef isspace

@@ -23,6 +23,7 @@ AC_PROG_INSTALL
 AC_SYS_LARGEFILE
 
 # Checks for general libraries.
+AC_CHECK_LIB(tinfo, tgoto, [have_tinfo=yes], [have_tinfo=no])
 AC_CHECK_LIB(xcurses, initscr, [have_xcurses=yes], [have_xcurses=no])
 AC_CHECK_LIB(ncursesw, initscr, [have_ncursesw=yes], [have_ncursesw=no])
 AC_CHECK_LIB(ncurses, initscr, [have_ncurses=yes], [have_ncurses=no])
@@ -51,6 +52,20 @@ fi
 fi
 
 if test $curses_broken = 0; then
+
+# -- Try tinfo.
+if test "x$TERMLIBS" = x; then
+  if test $have_tinfo = yes; then
+    TERMLIBS="-ltinfo"
+    SAVE_LIBS=$LIBS
+    LIBS="$LIBS $TERMLIBS"
+    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+      [termok=yes], [termok=no])
+    LIBS=$SAVE_LIBS
+    if test $termok = no; then TERMLIBS=""; fi
+  fi
+fi
+
 # -- Try xcurses.
 if test "x$TERMLIBS" = x; then
   if test $have_xcurses = yes; then
@@ -154,7 +169,7 @@ LIBS="$LIBS $TERMLIBS"
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h])
+AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h wctype.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
@@ -204,6 +219,8 @@ AH_TEMPLATE([HAVE_TERMIOS_FUNCS],
 	[Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr.])
 AH_TEMPLATE([HAVE_UPPER_LOWER],
 	[Define HAVE_UPPER_LOWER if you have isupper, islower, toupper, tolower.])
+AH_TEMPLATE([HAVE_WCTYPE],
+	[Define HAVE_WCTYPE if you have iswupper, iswlower, towupper, towlower.])
 AH_TEMPLATE([HAVE_SIGSET_T],
 	[Define HAVE_SIGSET_T you have the sigset_t type.])
 AH_TEMPLATE([HAVE_SIGEMPTYSET],
@@ -307,12 +324,17 @@ AC_TRY_LINK([#include <locale.h>
 #include <ctype.h>
 #include <langinfo.h>], [setlocale(LC_CTYPE,""); isprint(0); iscntrl(0);],
   [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_LOCALE)], [AC_MSG_RESULT(no)])
+
 AC_MSG_CHECKING(for ctype functions)
 AC_TRY_LINK([
 #if HAVE_CTYPE_H
 #include <ctype.h>
 #endif], [static int x; x = isupper(x); x = tolower(x); x = toupper(x);],
   [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_UPPER_LOWER)], [AC_MSG_RESULT(no)])
+
+AC_MSG_CHECKING(for Unicode ctype functions)
+AC_TRY_LINK([#include <wctype.h>], [iswlower(0); iswupper(0); towlower(0); towupper(0);],
+  [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_WCTYPE)], [AC_MSG_RESULT(no)])
 
 # Checks for external variable ospeed in the termcap library.
 have_ospeed=no
