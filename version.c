@@ -696,7 +696,7 @@ v406  6/17/07	Fix secure build.
 v407  8/16/07	Fix bugs; support CSI chars.
 v408  10/1/07	Fix bug in -i with non-ASCII chars.
 v409  10/12/07	Fix crash when viewing text with invalid UTF-8 sequences.
-v410  11/5/07	Fix case-insensitive searching with non-ASCII text.
+v411  11/6/07	Fix case-insensitive searching with non-ASCII text.
 */
 
-char version[] = "410";
+char version[] = "411";
