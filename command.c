@@ -552,6 +552,21 @@ mca_char(c)
 }
 
 /*
+ * Discard any buffered file data.
+ */
+	static void
+clear_buffers()
+{
+	if (!(ch_getflags() & CH_CANSEEK))
+		return;
+	ch_flush();
+	clr_linenum();
+#if HILITE_SEARCH
+	clr_hilite();
+#endif
+}
+
+/*
  * Make sure the screen is displayed.
  */
 	static void
@@ -577,6 +592,8 @@ make_display()
 		int save_top_scroll;
 		save_top_scroll = top_scroll;
 		top_scroll = 1;
+		if (screen_trashed == 2)
+			reopen_curr_ifile();
 		repaint();
 		top_scroll = save_top_scroll;
 	}
@@ -1148,14 +1165,7 @@ commands()
 			 * Flush buffers, then repaint screen.
 			 * Don't flush the buffers on a pipe!
 			 */
-			if (ch_getflags() & CH_CANSEEK)
-			{
-				ch_flush();
-				clr_linenum();
-#if HILITE_SEARCH
-				clr_hilite();
-#endif
-			}
+			clear_buffers();
 			/* FALLTHRU */
 		case A_REPAINT:
 			/*
@@ -1257,7 +1267,8 @@ commands()
 /*
  * Define abbreviation for a commonly used sequence below.
  */
-#define	DO_SEARCH()	if (number <= 0) number = 1;	\
+#define	DO_SEARCH() \
+			if (number <= 0) number = 1;	\
 			mca_search();			\
 			cmd_exec();			\
 			multi_search((char *)NULL, (int) number);

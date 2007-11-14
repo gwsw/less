@@ -10,6 +10,9 @@
 
 
 #include "less.h"
+#if HAVE_STAT
+#include <sys/stat.h>
+#endif
 
 public int fd0 = 0;
 
@@ -34,6 +37,11 @@ extern char closequote;
 extern int logfile;
 extern int force_logfile;
 extern char *namelogfile;
+#endif
+
+#if HAVE_STAT_INO
+public dev_t curr_ino;
+public ino_t curr_dev;
 #endif
 
 char *curr_altfilename = NULL;
@@ -178,6 +186,9 @@ close_file()
 		curr_altfilename = NULL;
 	}
 	curr_ifile = NULL_IFILE;
+#if HAVE_STAT_INO
+	curr_ino = curr_dev = 0;
+#endif
 }
 
 /*
@@ -360,7 +371,6 @@ edit_ifile(ifile)
 			}
 		}
 	}
-	free(qopen_filename);
 
 	/*
 	 * Get the new ifile.
@@ -385,10 +395,23 @@ edit_ifile(ifile)
 		if (namelogfile != NULL && is_tty)
 			use_logfile(namelogfile);
 #endif
+#if HAVE_STAT_INO
+		{
+			struct stat statbuf;
+			int r = stat(qopen_filename, &statbuf);
+			if (r == 0)
+			{
+				curr_ino = statbuf.st_ino;
+				curr_dev = statbuf.st_dev;
+			}
+else abort();
+		}
+#endif
 		if (every_first_cmd != NULL)
 			ungetsc(every_first_cmd);
 	}
 
+	free(qopen_filename);
 	no_display = !any_display;
 	flush();
 	any_display = TRUE;
@@ -655,6 +678,14 @@ reedit_ifile(save_ifile)
 	 * If can't even open that, we're stuck.  Just quit.
 	 */
 	quit(QUIT_ERROR);
+}
+
+	public void
+reopen_curr_ifile()
+{
+	IFILE save_ifile = save_curr_ifile();
+	close_file();
+	reedit_ifile(save_ifile);
 }
 
 /*

@@ -474,6 +474,9 @@ struct textlist
 #define	QUIT_ERROR	1
 #define	QUIT_SAVED_STATUS (-1)
 
+#define FOLLOW_DESC     0
+#define FOLLOW_NAME     1
+
 /* filestate flags */
 #define	CH_CANSEEK	001
 #define	CH_KEEPOPEN	002

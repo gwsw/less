@@ -21,6 +21,12 @@
 #include <windows.h>
 #endif
 
+#if HAVE_STAT_INO
+#include <sys/stat.h>
+extern dev_t curr_ino;
+extern ino_t curr_dev;
+#endif
+
 typedef POSITION BLOCKNUM;
 
 public int ignore_eoi;
@@ -98,6 +104,8 @@ static int maxbufs = -1;
 extern int autobuf;
 extern int sigs;
 extern int secure;
+extern int screen_trashed;
+extern int follow_mode;
 extern constant char helpdata[];
 extern constant int size_helpdata;
 extern IFILE curr_ifile;
@@ -276,6 +284,28 @@ fch_get()
 #endif
 #endif
 			slept = TRUE;
+
+#if HAVE_STAT_INO
+			if (follow_mode == FOLLOW_NAME)
+			{
+				struct stat st;
+				int r = stat(get_filename(curr_ifile), &st);
+				long diff = 0;
+				if (r == 0)
+				{
+					diff = st.st_ino - curr_ino;
+					if (diff == 0)
+						diff = st.st_dev - curr_dev;
+				}
+				if (diff)
+				{
+					/* screen_trashed=2 makes make_display 
+					 * reopen the file. */
+					screen_trashed = 2;
+					return (EOI);
+				}
+			}
+#endif
 		}
 		if (sigs)
 			return (EOI);
