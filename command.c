@@ -589,13 +589,20 @@ make_display()
 			jump_loc(initial_scrpos.pos, initial_scrpos.ln);
 	} else if (screen_trashed)
 	{
-		int save_top_scroll;
-		save_top_scroll = top_scroll;
+		int save_top_scroll = top_scroll;
+		int save_ignore_eoi = ignore_eoi;
 		top_scroll = 1;
+		ignore_eoi = 0;
 		if (screen_trashed == 2)
+		{
+			/* Special case used by ignore_eoi: re-open the input file
+			 * and jump to the end of the file. */
 			reopen_curr_ifile();
+			jump_forw();
+		}
 		repaint();
 		top_scroll = save_top_scroll;
+		ignore_eoi = save_ignore_eoi;
 	}
 }
 
@@ -1126,7 +1133,10 @@ commands()
 			ignore_eoi = 1;
 			hit_eof = 0;
 			while (!sigs)
+			{
+				make_display();
 				forward(1, 0, 0);
+			}
 			ignore_eoi = 0;
 			/*
 			 * This gets us back in "F mode" after processing 
