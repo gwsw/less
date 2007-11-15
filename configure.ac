@@ -339,7 +339,7 @@ AC_TRY_LINK([
 #endif], [static int x; x = isupper(x); x = tolower(x); x = toupper(x);],
   [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_UPPER_LOWER)], [AC_MSG_RESULT(no)])
 
-AC_MSG_CHECKING(for Unicode ctype functions)
+AC_MSG_CHECKING(for wctype functions)
 AC_TRY_LINK([#include <wctype.h>], [iswlower(0); iswupper(0); towlower(0); towupper(0);],
   [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_WCTYPE)], [AC_MSG_RESULT(no)])
 
