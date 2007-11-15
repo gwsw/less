@@ -855,8 +855,9 @@ its name change.
 If \-\-follow-name is specified, during an F command
 .I less
 will periodically attempt to reopen the file by name.
-If the reopen succeeds, which means that a new file has been created 
-with the same name as the original (now renamed) file, 
+If the reopen succeeds and the file is a different file from the original
+(which means that a new file has been created 
+with the same name as the original (now renamed) file),
 .I less
 will display the contents of that new file.
 .IP \-\-
