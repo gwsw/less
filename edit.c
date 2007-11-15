@@ -40,8 +40,8 @@ extern char *namelogfile;
 #endif
 
 #if HAVE_STAT_INO
-public dev_t curr_ino;
-public ino_t curr_dev;
+public dev_t curr_dev;
+public ino_t curr_ino;
 #endif
 
 char *curr_altfilename = NULL;
@@ -396,6 +396,7 @@ edit_ifile(ifile)
 			use_logfile(namelogfile);
 #endif
 #if HAVE_STAT_INO
+		/* Remember the i-number and device of the opened file. */
 		{
 			struct stat statbuf;
 			int r = stat(qopen_filename, &statbuf);
@@ -404,7 +405,6 @@ edit_ifile(ifile)
 				curr_ino = statbuf.st_ino;
 				curr_dev = statbuf.st_dev;
 			}
-else abort();
 		}
 #endif
 		if (every_first_cmd != NULL)

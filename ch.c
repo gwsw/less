@@ -23,8 +23,8 @@
 
 #if HAVE_STAT_INO
 #include <sys/stat.h>
-extern dev_t curr_ino;
-extern ino_t curr_dev;
+extern dev_t curr_dev;
+extern ino_t curr_ino;
 #endif
 
 typedef POSITION BLOCKNUM;
@@ -288,19 +288,16 @@ fch_get()
 #if HAVE_STAT_INO
 			if (follow_mode == FOLLOW_NAME)
 			{
+				/* See whether the file's i-number has changed.
+				 * If so, force the file to be closed and
+				 * reopened. */
 				struct stat st;
 				int r = stat(get_filename(curr_ifile), &st);
-				long diff = 0;
-				if (r == 0)
+				if (r == 0 && (st.st_ino != curr_ino ||
+					st.st_dev != curr_dev))
 				{
-					diff = st.st_ino - curr_ino;
-					if (diff == 0)
-						diff = st.st_dev - curr_dev;
-				}
-				if (diff)
-				{
-					/* screen_trashed=2 makes make_display 
-					 * reopen the file. */
+					/* screen_trashed=2 causes
+					 * make_display to reopen the file. */
 					screen_trashed = 2;
 					return (EOI);
 				}
