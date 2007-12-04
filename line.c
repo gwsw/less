@@ -601,6 +601,8 @@ store_char(ch, a, rep, pos)
 		if (!is_ansi_end(ch) && !is_ansi_middle(ch)) {
 			/* Remove whole unrecognized sequence.  */
 			do {
+				if (curr == 0)
+					break;
 				--curr;
 			} while (!IS_CSI_START(linebuf[curr]));
 			return 0;

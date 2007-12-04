@@ -52,6 +52,7 @@ extern int force_open;
 extern int secure;
 extern int use_lessopen;
 extern int ctldisp;
+extern int utf_mode;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 #if SPACES_IN_FILENAMES
