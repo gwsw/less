@@ -167,8 +167,9 @@ cvt_text(odst, osrc, lenp, ops)
 		} else if ((ops & CVT_ANSI) && IS_CSI_START(ch))
 		{
 			/* Skip to end of ANSI escape sequence. */
-			while (src + 1 != src_end)
-				if (!is_ansi_middle(*++src))
+			src++;  /* skip the CSI start char */
+			while (src < src_end)
+				if (!is_ansi_middle(*src++))
 					break;
 		} else 
 			/* Just copy. */
@@ -806,10 +807,12 @@ adj_hilite(anchor, linepos, cvt_ops)
 		} else if ((cvt_ops & CVT_ANSI) && IS_CSI_START(ch))
 		{
 			/* Skip to end of ANSI escape sequence. */
+			line++;  /* skip the CSI start char */
+			npos++;
 			while (line < line_end)
 			{
 				npos++;
-				if (!is_ansi_middle(*++line))
+				if (!is_ansi_middle(*line++))
 					break;
 			}
 		} else 
