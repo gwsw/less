@@ -1596,6 +1596,7 @@ commands()
 			if (c == erase_char || c == erase2_char ||
 			    c == kill_char || c == '\n' || c == '\r')
 				break;
+			cmd_exec();
 			gomark(c);
 			break;
 
