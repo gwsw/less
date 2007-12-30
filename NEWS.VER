@@ -13,7 +13,21 @@
 ======================================================================
 
 
-	Major changes between "less" versions 409 and @@VERSION@@
+	Major changes between "less" versions 416 and @@VERSION@@
+
+* Makefile now uses EXEEXT feature of autoconf.
+
+* Fix search bug when using -R and text contains ANSI color escape sequences.
+
+* Fix crash when using -r with UTF-8 text containing 0x9B bytes.
+
+* Fix display bug when using ' command to move less than one page forward.
+
+* Update GPL to version 3.
+
+======================================================================
+
+	Major changes between "less" versions 409 and 416
 
 * New --follow-name option makes F command follow the name of a file
   rather than the file descriptor if an open file is renamed.
