@@ -31,7 +31,7 @@ extern int any_display;
 extern int is_tty;
 extern int oldbot;
 
-#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
+#if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;
 extern int nm_fg_color, nm_bg_color;
 extern int bo_fg_color, bo_bg_color;
@@ -102,53 +102,7 @@ flush()
 	n = ob - obuf;
 	if (n == 0)
 		return;
-#if MSDOS_COMPILER==WIN32C
-	if (is_tty && any_display)
-	{
-		char *op;
-		DWORD nwritten = 0;
-		CONSOLE_SCREEN_BUFFER_INFO scr;
-		int row;
-		int col;
-		int olen;
-		extern HANDLE con_out;
 
-		olen = ob - obuf;
-		/*
-		 * There is a bug in Win32 WriteConsole() if we're
-		 * writing in the last cell with a different color.
-		 * To avoid color problems in the bottom line,
-		 * we scroll the screen manually, before writing.
-		 */
-		GetConsoleScreenBufferInfo(con_out, &scr);
-		col = scr.dwCursorPosition.X;
-		row = scr.dwCursorPosition.Y;
-		for (op = obuf;  op < obuf + olen;  op++)
-		{
-			if (*op == '\n')
-			{
-				col = 0;
-				row++;
-			} else if (*op == '\r')
-			{
-				col = 0;
-			} else
-			{
-				col++;
-				if (col >= sc_width)
-				{
-					col = 0;
-					row++;
-				}
-			}
-		}
-		if (row > scr.srWindow.Bottom)
-			win32_scroll_up(row - scr.srWindow.Bottom);
-		WriteConsole(con_out, obuf, olen, &nwritten, NULL);
-		ob = obuf;
-		return;
-	}
-#else
 #if MSDOS_COMPILER==MSOFTC
 	if (is_tty && any_display)
 	{
@@ -158,12 +112,12 @@ flush()
 		return;
 	}
 #else
-#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
+#if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	if (is_tty && any_display)
 	{
 		*ob = '\0';
 		if (ctldisp != OPT_ONPLUS)
-			cputs(obuf);
+			WIN32textout(obuf, ob - obuf);
 		else
 		{
 			/*
@@ -173,42 +127,35 @@ flush()
 			 * the -D command-line option.
 			 */
 			char *anchor, *p, *p_next;
-			int buflen = ob - obuf;
-			unsigned char fg, bg, norm_attr;
+			unsigned char fg, bg;
 			/*
 			 * Only dark colors mentioned here, so that
 			 * bold has visible effect.
 			 */
+#if MSDOS_COMPILER==WIN32C
+			static int screen_color[] = {
+				0, /* BLACK */
+				FOREGROUND_RED,
+				FOREGROUND_GREEN,
+				FOREGROUND_RED|FOREGROUND_GREEN,
+				FOREGROUND_BLUE, 
+				FOREGROUND_BLUE|FOREGROUND_RED,
+				FOREGROUND_BLUE|FOREGROUND_GREEN,
+				FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_RED
+			};
+#else
 			static enum COLORS screen_color[] = {
 				BLACK, RED, GREEN, BROWN,
 				BLUE, MAGENTA, CYAN, LIGHTGRAY
 			};
+#endif
 
 			/* Normal text colors are used as baseline. */
-			bg = nm_bg_color & 0xf;
-			fg = nm_fg_color & 0xf;
-			norm_attr = (bg << 4) | fg;
 			for (anchor = p_next = obuf;
-			     (p_next = memchr (p_next, ESC,
-					       buflen - (p_next - obuf)))
-			       != NULL; )
+			     (p_next = memchr(p_next, ESC, ob - p_next)) != NULL; )
 			{
 				p = p_next;
-
-				/*
-				 * Handle the null escape sequence
-				 * (ESC-[m), which is used to restore
-				 * the original color.
-				 */
-				if (p[1] == '[' && is_ansi_end(p[2]))
-				{
-					textattr(norm_attr);
-					p += 3;
-					anchor = p_next = p;
-					continue;
-				}
-
-				if (p[1] == '[')	/* "Esc-[" sequence */
+				if (p[1] == '[')  /* "Esc-[" sequence */
 				{
 					/*
 					 * If some chars seen since
@@ -218,19 +165,37 @@ flush()
 					 */
 					if (p > anchor)
 					{
-						*p = '\0';
-						cputs (anchor);
-						*p = ESC;
+						WIN32textout(anchor, p - anchor);
 						anchor = p;
 					}
-					p += 2;
+					p += 2;  /* Skip the "ESC-[" */
+					if (is_ansi_end(*p))
+					{
+						/*
+						 * Handle the null escape sequence
+						 * (ESC-[m), which is used to restore
+						 * the original color.
+						 */
+						p++;
+						WIN32setcolors(nm_fg_color, nm_bg_color);
+						anchor = p_next = p;
+						continue;
+					}
+
 					p_next = p;
+
+					/*
+					 * Select foreground/background colors
+					 * based on the escape sequence. 
+					 */
+					fg = nm_fg_color;
+					bg = nm_bg_color;
 					while (!is_ansi_end(*p))
 					{
 						char *q;
 						long code = strtol(p, &q, 10);
 
-						if (!*q)
+						if (*q == '\0')
 						{
 							/*
 							 * Incomplete sequence.
@@ -243,10 +208,9 @@ flush()
 							return;
 						}
 
-						if (q == p
-						    || code > 49 || code < 0
-						    || (!is_ansi_end(*q)
-							&& *q != ';'))
+						if (q == p ||
+						    code > 49 || code < 0 ||
+						    (!is_ansi_end(*q) && *q != ';'))
 						{
 							p_next = q;
 							break;
@@ -256,11 +220,21 @@ flush()
 
 						switch (code)
 						{
+						default:
+						/* case 0:  all attrs off */
+						/* case 22: bold off */
+						/* case 23: italic off */
+						/* case 24: underline off */
+						/* case 27: inverse off */
+							fg = nm_fg_color;
+							bg = nm_bg_color;
+							break;
 						case 1:	/* bold on */
 							fg = bo_fg_color;
 							bg = bo_bg_color;
 							break;
 						case 3:	/* italic on */
+						case 7: /* inverse on */
 							fg = so_fg_color;
 							bg = so_bg_color;
 							break;
@@ -268,15 +242,13 @@ flush()
 							fg = ul_fg_color;
 							bg = ul_bg_color;
 							break;
+						case 5: /* slow blink on */
+						case 6: /* fast blink on */
+							fg = bl_fg_color;
+							bg = bl_bg_color;
+							break;
 						case 8:	/* concealed on */
 							fg = (bg & 7) | 8;
-							break;
-						case 0:	/* all attrs off */
-						case 22:/* bold off */
-						case 23:/* italic off */
-						case 24:/* underline off */
-							fg = nm_fg_color;
-							bg = nm_bg_color;
 							break;
 						case 30: case 31: case 32:
 						case 33: case 34: case 35:
@@ -299,9 +271,9 @@ flush()
 					}
 					if (is_ansi_end(*p) && p > p_next)
 					{
-						bg &= 15;
-						fg &= 15;
-						textattr ((bg << 4)| fg);
+						fg &= 0xf;
+						bg &= 0xf;
+						WIN32setcolors(fg, bg);
 						p_next = anchor = p + 1;
 					} else
 						break;
@@ -310,12 +282,11 @@ flush()
 			}
 
 			/* Output what's left in the buffer.  */
-			cputs (anchor);
+			WIN32textout(anchor, ob - anchor);
 		}
 		ob = obuf;
 		return;
 	}
-#endif
 #endif
 #endif
 	fd = (any_display) ? 1 : 2;

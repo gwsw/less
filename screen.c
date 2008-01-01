@@ -2469,3 +2469,32 @@ WIN32getch(tty)
 	return ((char)ascii);
 }
 #endif
+
+#if MSDOS_COMPILER
+/*
+ */
+	public void
+WIN32setcolors(fg, bg)
+	int fg;
+	int bg;
+{
+	SETCOLORS(fg, bg);
+}
+
+/*
+ */
+	public void
+WIN32textout(text, len)
+	char *text;
+	int len;
+{
+#if MSDOS_COMPILER==WIN32C
+	WriteConsole(con_out, text, len, NULL, NULL);
+#else
+	char c = text[len];
+	text[len] = '\0';
+	cputs(text);
+	text[len] = c;
+#endif
+}
+#endif
