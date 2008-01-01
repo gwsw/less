@@ -704,7 +704,8 @@ v415  11/14/07	Add --follow-name option.
 v416  11/22/07	Fix crash when searching text with invalid UTF-8 sequences.
 v417  12/4/07	Don't support single-char CSI in UTF-8 mode;
 		fix bug with -R and invalid CSI sequences;
-		fix bug searching text with SGR sequences with -r.
+		fix bug searching text with SGR sequences with -r;
+		emulate SGR sequences in WIN32 build.
 */
 
 char version[] = "417";
