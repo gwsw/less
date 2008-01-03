@@ -128,12 +128,9 @@ flush()
 			 */
 			char *anchor, *p, *p_next;
 			unsigned char fg, bg;
-			/*
-			 * Only dark colors mentioned here, so that
-			 * bold has visible effect.
-			 */
 #if MSDOS_COMPILER==WIN32C
-			static int screen_color[] = {
+			/* Screen colors used by 3x and 4x SGR commands. */
+			static unsigned char screen_color[] = {
 				0, /* BLACK */
 				FOREGROUND_RED,
 				FOREGROUND_GREEN,
@@ -150,38 +147,35 @@ flush()
 			};
 #endif
 
-			/* Normal text colors are used as baseline. */
 			for (anchor = p_next = obuf;
 			     (p_next = memchr(p_next, ESC, ob - p_next)) != NULL; )
 			{
 				p = p_next;
-				if (p[1] == '[')  /* "Esc-[" sequence */
+				if (p + 2 < ob && p[1] == '[')  /* "ESC-[" sequence */
 				{
-					/*
-					 * If some chars seen since
-					 * the last escape sequence,
-					 * write it out to the screen
-					 * using current text attributes.
-					 */
 					if (p > anchor)
 					{
-						WIN32textout(anchor, p - anchor);
+						/*
+						 * If some chars seen since
+						 * the last escape sequence,
+						 * write them out to the screen.
+						 */
+						WIN32textout(anchor, p-anchor);
 						anchor = p;
 					}
 					p += 2;  /* Skip the "ESC-[" */
 					if (is_ansi_end(*p))
 					{
 						/*
-						 * Handle the null escape sequence
-						 * (ESC-[m), which is used to restore
-						 * the original color.
+						 * Handle null escape sequence
+						 * "ESC[m", which restores
+						 * the normal color.
 						 */
 						p++;
-						WIN32setcolors(nm_fg_color, nm_bg_color);
 						anchor = p_next = p;
+						WIN32setcolors(nm_fg_color, nm_bg_color);
 						continue;
 					}
-
 					p_next = p;
 
 					/*
@@ -203,6 +197,8 @@ flush()
 							 * in the buffer.
 							 */
 							int slop = q - anchor;
+							/* {{ overlapping 
+							 *  strcpy bufs ? }} */
 							strcpy(obuf, anchor);
 							ob = &obuf[slop];
 							return;
@@ -269,14 +265,12 @@ flush()
 						}
 						p = q;
 					}
-					if (is_ansi_end(*p) && p > p_next)
-					{
-						fg &= 0xf;
-						bg &= 0xf;
-						WIN32setcolors(fg, bg);
-						p_next = anchor = p + 1;
-					} else
+					if (!is_ansi_end(*p) || p == p_next)
 						break;
+					fg &= 0xf;
+					bg &= 0xf;
+					WIN32setcolors(fg, bg);
+					p_next = anchor = p + 1;
 				} else
 					p_next++;
 			}
