@@ -151,7 +151,7 @@ flush()
 			     (p_next = memchr(p_next, ESC, ob - p_next)) != NULL; )
 			{
 				p = p_next;
-				if (p + 2 < ob && p[1] == '[')  /* "ESC-[" sequence */
+				if (p[1] == '[')  /* "ESC-[" sequence */
 				{
 					if (p > anchor)
 					{
@@ -197,8 +197,7 @@ flush()
 							 * in the buffer.
 							 */
 							int slop = q - anchor;
-							/* {{ overlapping 
-							 *  strcpy bufs ? }} */
+							/* {{ strcpy args overlap! }} */
 							strcpy(obuf, anchor);
 							ob = &obuf[slop];
 							return;
