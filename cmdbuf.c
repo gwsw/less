@@ -662,12 +662,14 @@ set_mlist(mlist, cmdflags)
 	void *mlist;
 	int cmdflags;
 {
+#if CMD_HISTORY
 	curr_mlist = (struct mlist *) mlist;
 	curr_cmdflags = cmdflags;
 
 	/* Make sure the next up-arrow moves to the last string in the mlist. */
 	if (curr_mlist != NULL)
 		curr_mlist->curr_mp = curr_mlist;
+#endif
 }
 
 #if CMD_HISTORY
@@ -1303,6 +1305,7 @@ get_cmdbuf()
 	return (cmdbuf);
 }
 
+#if CMD_HISTORY
 /*
  * Return the last (most recent) string in the current command history.
  */
@@ -1313,6 +1316,7 @@ cmd_lastpattern()
 		return (NULL);
 	return (curr_mlist->curr_mp->prev->string);
 }
+#endif
 
 #if CMD_HISTORY
 /*
