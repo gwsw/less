@@ -600,11 +600,12 @@ store_char(ch, a, rep, pos)
 	{
 		if (!is_ansi_end(ch) && !is_ansi_middle(ch)) {
 			/* Remove whole unrecognized sequence.  */
+			char *p = &linebuf[curr];
+			LWCHAR bch;
 			do {
-				if (curr == 0)
-					break;
-				--curr;
-			} while (!IS_CSI_START(linebuf[curr]));
+				bch = step_char(&p, -1, linebuf);
+			} while (p > linebuf && !IS_CSI_START(bch));
+			curr = p - linebuf;
 			return 0;
 		}
 		a = AT_ANSI;	/* Will force re-AT_'ing around it.  */

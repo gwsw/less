@@ -707,6 +707,8 @@ v417  12/31/07	Don't support single-char CSI in UTF-8 mode;
 		fix bug searching text with SGR sequences with -r;
 		emulate SGR sequences in WIN32 build.
 v418  12/31/07	Clean up.
+-----------------------------------------------------------------
+v419  1/16/08	Make CSI char 0x9B work in UTF-8 mode (thanks to Colin Watson).
 */
 
-char version[] = "418";
+char version[] = "419";

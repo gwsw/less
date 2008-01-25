@@ -159,7 +159,7 @@ void free();
 #define IS_DIGIT(c)	((c) >= '0' && (c) <= '9')
 #endif
 
-#define IS_CSI_START(c)	((c) == ESC || (!utf_mode && ((unsigned char)(c)) == CSI))
+#define IS_CSI_START(c)	(((LWCHAR)(c)) == ESC || (((LWCHAR)(c)) == CSI))
 
 #ifndef NULL
 #define	NULL	0
