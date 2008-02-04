@@ -25,7 +25,6 @@ extern int erase_char, erase2_char, kill_char;
 extern int sigs;
 extern int quit_if_one_screen;
 extern int squished;
-extern int hit_eof;
 extern int sc_width;
 extern int sc_height;
 extern int swindow;
@@ -630,25 +629,20 @@ prompt()
 	bottompos = position(BOTTOM_PLUS_ONE);
 
 	/*
-	 * If we've hit EOF on the last file, and the -E flag is set
-	 * (or -F is set and this is the first prompt), then quit.
-	 * {{ Relying on "first prompt" to detect a single-screen file
-	 * fails if +G is used, for example. }}
+	 * If we've hit EOF on the last file and the -E flag is set, quit.
 	 */
-	if ((get_quit_at_eof() == OPT_ONPLUS || quit_if_one_screen) &&
-	    hit_eof && !(ch_getflags() & CH_HELPFILE) && 
+	if (get_quit_at_eof() == OPT_ONPLUS &&
+	    eof_displayed() && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
-	quit_if_one_screen = FALSE;
-#if 0 /* This doesn't work well because some "te"s clear the screen. */
+
 	/*
-	 * If the -e flag is set and we've hit EOF on the last file,
-	 * and the file is squished (shorter than the screen), quit.
+	 * If the entire file is displayed and the -F flag is set, quit.
 	 */
-	if (get_quit_at_eof() && squished &&
+	if (quit_if_one_screen &&
+	    entire_file_displayed() && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
-#endif
 
 #if MSDOS_COMPILER==WIN32C
 	/* 
@@ -1131,7 +1125,6 @@ commands()
 			cmd_exec();
 			jump_forw();
 			ignore_eoi = 1;
-			hit_eof = 0;
 			while (!sigs)
 			{
 				make_display();
@@ -1432,7 +1425,7 @@ commands()
 				number = 1;
 			if (edit_next((int) number))
 			{
-				if (get_quit_at_eof() && hit_eof && 
+				if (get_quit_at_eof() && eof_displayed() && 
 				    !(ch_getflags() & CH_HELPFILE))
 					quit(QUIT_OK);
 				parg.p_string = (number > 1) ? "(N-th) " : "";

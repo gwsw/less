@@ -16,7 +16,6 @@
 #include "less.h"
 #include "position.h"
 
-extern int hit_eof;
 extern int jump_sline;
 extern int squished;
 extern int screen_trashed;
@@ -250,7 +249,6 @@ jump_loc(pos, sline)
 			}
 		}
 		lastmark();
-		hit_eof = 0;
 		squished = 0;
 		screen_trashed = 0;
 		forw(sc_height-1, pos, 1, 0, sline-nline);
