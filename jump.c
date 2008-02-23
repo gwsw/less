@@ -37,6 +37,12 @@ jump_forw()
 		error("Cannot seek to end of file", NULL_PARG);
 		return;
 	}
+	/* 
+	 * Note; lastmark will be called later by jump_loc, but it fails
+	 * because the position table has been cleared by pos_clear below.
+	 * So call it here before calling pos_clear.
+	 */
+	lastmark();
 	/*
 	 * Position the last line in the file at the last screen line.
 	 * Go back one line from the end of the file
