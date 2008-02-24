@@ -199,8 +199,10 @@ jump_loc(pos, sline)
 			forw(nline, position(BOTTOM_PLUS_ONE), 1, 0, 0);
 		else
 			back(-nline, position(TOP), 1, 0);
+#if HILITE_SEARCH
 		if (show_attn)
 			repaint_hilite(1);
+#endif
 		return;
 	}
 
@@ -238,8 +240,10 @@ jump_loc(pos, sline)
 				 * that we can just scroll there after all.
 				 */
 				forw(sc_height-sline+nline-1, bpos, 1, 0, 0);
+#if HILITE_SEARCH
 				if (show_attn)
 					repaint_hilite(1);
+#endif
 				return;
 			}
 			pos = back_line(pos);
@@ -286,8 +290,10 @@ jump_loc(pos, sline)
 				 * that we can just scroll there after all.
 				 */
 				back(nline+1, tpos, 1, 0);
+#if HILITE_SEARCH
 				if (show_attn)
 					repaint_hilite(1);
+#endif
 				return;
 			}
 		}

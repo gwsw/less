@@ -198,6 +198,7 @@ get_forw_line:
 
 	pdone(endline);
 
+#if HILITE_SEARCH
 	if (is_filtered(base_pos))
 	{
 		/*
@@ -210,6 +211,7 @@ get_forw_line:
 
 	if (status_col && is_hilited(base_pos, ch_tell()-1, 1, NULL))
 		set_status_col('*');
+#endif
 
 	if (squeeze && blankline)
 	{
@@ -398,14 +400,20 @@ get_back_line:
 
 	pdone(endline);
 
+#if HILITE_SEARCH
 	if (is_filtered(base_pos))
 	{
+		/*
+		 * We don't want to display this line.
+		 * Get the previous line.
+		 */
 		curr_pos = begin_new_pos;
 		goto get_back_line;
 	}
 
 	if (status_col && is_hilited(base_pos, ch_tell()-1, 1, NULL))
 		set_status_col('*');
+#endif
 
 	return (begin_new_pos);
 }

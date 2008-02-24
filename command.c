@@ -83,7 +83,9 @@ static void multi_search();
 	static void
 cmd_exec()
 {
+#if HILITE_SEARCH
 	clear_attn();
+#endif
 	clear_bot();
 	flush();
 }
@@ -117,9 +119,12 @@ in_mca()
 	static void
 mca_search()
 {
+#if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
 		mca = A_FILTER;
-	else if (search_type & SRCH_FORW)
+	else 
+#endif
+	if (search_type & SRCH_FORW)
 		mca = A_F_SEARCH;
 	else
 		mca = A_B_SEARCH;
@@ -138,9 +143,12 @@ mca_search()
 	if (search_type & SRCH_NO_REGEX)
 		cmd_putstr("Regex-off ");
 
+#if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
 		cmd_putstr("&/");
-	else if (search_type & SRCH_FORW)
+	else 
+#endif
+	if (search_type & SRCH_FORW)
 		cmd_putstr("/");
 	else
 		cmd_putstr("?");
@@ -198,9 +206,11 @@ exec_mca()
 	case A_B_SEARCH:
 		multi_search(cbuf, (int) number);
 		break;
+#if HILITE_SEARCH
 	case A_FILTER:
 		set_filter_pattern(cbuf, search_type);
 		break;
+#endif
 	case A_FIRSTCMD:
 		/*
 		 * Skip leading spaces or + signs in the string.
@@ -1313,10 +1323,15 @@ commands()
 			goto again;
 
 		case A_FILTER:
+#if HILITE_SEARCH
 			search_type = SRCH_FORW | SRCH_FILTER;
 			mca_search();
 			c = getcc();
 			goto again;
+#else
+			error("Command not available", NULL_PARG);
+			break;
+#endif
 
 		case A_AGAIN_SEARCH:
 			/*
