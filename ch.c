@@ -153,38 +153,41 @@ fch_get()
 				/*
 				 * Need more data in this buffer.
 				 */
-				goto read_more;
+				break;
 			goto found;
 		}
 	}
-	/*
-	 * Block is not in a buffer.  
-	 * Take the least recently used buffer 
-	 * and read the desired block into it.
-	 * If the LRU buffer has data in it, 
-	 * then maybe allocate a new buffer.
-	 */
-	if (ch_buftail == END_OF_CHAIN || ch_buftail->block != -1)
+	if (bp == END_OF_HCHAIN(h))
 	{
 		/*
-		 * There is no empty buffer to use.
-		 * Allocate a new buffer if:
-		 * 1. We can't seek on this file and -b is not in effect; or
-		 * 2. We haven't allocated the max buffers for this file yet.
+		 * Block is not in a buffer.  
+		 * Take the least recently used buffer 
+		 * and read the desired block into it.
+		 * If the LRU buffer has data in it, 
+		 * then maybe allocate a new buffer.
 		 */
-		if ((autobuf && !(ch_flags & CH_CANSEEK)) ||
-		    (maxbufs < 0 || ch_nbufs < maxbufs))
-			if (ch_addbuf())
-				/*
-				 * Allocation failed: turn off autobuf.
-				 */
-				autobuf = OPT_OFF;
+		if (ch_buftail == END_OF_CHAIN || ch_buftail->block != -1)
+		{
+			/*
+			 * There is no empty buffer to use.
+			 * Allocate a new buffer if:
+			 * 1. We can't seek on this file and -b is not in effect; or
+			 * 2. We haven't allocated the max buffers for this file yet.
+			 */
+			if ((autobuf && !(ch_flags & CH_CANSEEK)) ||
+				(maxbufs < 0 || ch_nbufs < maxbufs))
+				if (ch_addbuf())
+					/*
+					 * Allocation failed: turn off autobuf.
+					 */
+					autobuf = OPT_OFF;
+		}
+		bp = ch_buftail;
+		HASH_RM(bp); /* Remove from old hash chain. */
+		bp->block = ch_block;
+		bp->datasize = 0;
+		HASH_INS(bp, h); /* Insert into new hash chain. */
 	}
-	bp = ch_buftail;
-	HASH_RM(bp); /* Remove from old hash chain. */
-	bp->block = ch_block;
-	bp->datasize = 0;
-	HASH_INS(bp, h); /* Insert into new hash chain. */
 
     read_more:
 	pos = (ch_block * LBUFSIZE) + bp->datasize;

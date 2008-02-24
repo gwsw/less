@@ -35,7 +35,6 @@ static int overstrike;		/* Next char should overstrike previous char */
 static int last_overstrike = AT_NORMAL;
 static int is_null_line;	/* There is no current line */
 static int lmargin;		/* Left margin */
-static int line_matches;	/* Number of search matches in this line */
 static char pendc;
 static POSITION pendpos;
 static char *end_ansi_chars;
@@ -162,9 +161,6 @@ prewind()
 	lmargin = 0;
 	if (status_col)
 		lmargin += 1;
-#if HILITE_SEARCH
-	line_matches = 0;
-#endif
 }
 
 /*
@@ -592,7 +588,6 @@ store_char(ch, a, rep, pos)
 			if (a != AT_ANSI)
 				a |= AT_HILITE;
 		}
-		line_matches += matches;
 	}
 #endif
 
@@ -1069,14 +1064,17 @@ pdone(endline)
 	}
 	linebuf[curr] = '\0';
 	attr[curr] = AT_NORMAL;
+}
 
-#if HILITE_SEARCH
-	if (status_col && line_matches > 0)
-	{
-		linebuf[0] = '*';
-		attr[0] = AT_NORMAL|AT_HILITE;
-	}
-#endif
+/*
+ *
+ */
+	public void
+set_status_col(c)
+	char c;
+{
+	linebuf[0] = c;
+	attr[0] = AT_NORMAL|AT_HILITE;
 }
 
 /*

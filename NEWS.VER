@@ -13,7 +13,16 @@
 ======================================================================
 
 
-	Major changes between "less" versions 416 and @@VERSION@@
+	Major changes between "less" versions 418 and @@VERSION@@
+
+* Status column now displays a search match, even if the matched
+  string is scrolled off screen because -S is in effect.
+
+* Fix bug in '' (quote, quote) command after G command.
+
+======================================================================
+
+	Major changes between "less" versions 416 and 418
 
 * Color escape sequences are now supported in WIN32 build.
 

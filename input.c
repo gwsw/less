@@ -76,6 +76,9 @@ forw_line(curr_pos)
 		return (NULL_POSITION);
 	}
 
+	/*
+	 * Step back to the beginning of the line.
+	 */
 	base_pos = curr_pos;
 	for (;;)
 	{
@@ -95,6 +98,9 @@ forw_line(curr_pos)
 		--base_pos;
 	}
 
+	/*
+	 * Read forward again to the position we should start at.
+	 */
  	prewind();
 	plinenum(base_pos);
 	(void) ch_seek(base_pos);
@@ -119,6 +125,9 @@ forw_line(curr_pos)
 	(void) pflushmbc();
 	pshift_all();
 
+	/*
+	 * Read the first character to display.
+	 */
 	c = ch_forw_get();
 	if (c == EOI)
 	{
@@ -127,6 +136,9 @@ forw_line(curr_pos)
 	}
 	blankline = (c == '\n' || c == '\r');
 
+	/*
+	 * Read each character in the line and append to the line buffer.
+	 */
 	for (;;)
 	{
 		if (ABORT_SIGS())
@@ -181,7 +193,11 @@ forw_line(curr_pos)
 		}
 		c = ch_forw_get();
 	}
+
 	pdone(endline);
+
+	if (status_col && is_hilited(base_pos, ch_tell()-1, 1, NULL))
+		set_status_col('*');
 
 	if (squeeze && blankline)
 	{
