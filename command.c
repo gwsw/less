@@ -691,8 +691,11 @@ prompt()
 	forw_prompt = 0;
 	p = pr_string();
 	if (p == NULL || *p == '\0')
+	{
+		if (is_filtering())
+			putchr('&');
 		putchr(':');
-	else
+	} else
 	{
 		at_enter(AT_STANDOUT);
 		putstr(p);
