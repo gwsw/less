@@ -616,15 +616,16 @@ match_pattern(pattern, line, line_len, sp, ep, notbol, search_type)
 		regmatch_t rm;
 		int flags = (notbol) ? REG_NOTBOL : 0;
 		matched = !regexec(spattern, line, 1, &rm, flags);
-		if (!matched)
-			return (0);
+		if (matched)
+		{
 #ifndef __WATCOMC__
-		*sp = line + rm.rm_so;
-		*ep = line + rm.rm_eo;
+			*sp = line + rm.rm_so;
+			*ep = line + rm.rm_eo;
 #else
-		*sp = rm.rm_sp;
-		*ep = rm.rm_ep;
+			*sp = rm.rm_sp;
+			*ep = rm.rm_ep;
 #endif
+		}
 	}
 #endif
 #if HAVE_PCRE
@@ -633,10 +634,11 @@ match_pattern(pattern, line, line_len, sp, ep, notbol, search_type)
 		int ovector[3];
 		matched = pcre_exec(spattern, NULL, line, line_len,
 			0, flags, ovector, 3) >= 0;
-		if (!matched)
-			return (0);
-		*sp = line + ovector[0];
-		*ep = line + ovector[1];
+		if (matched)
+		{
+			*sp = line + ovector[0];
+			*ep = line + ovector[1];
+		}
 	}
 #endif
 #if HAVE_RE_COMP
@@ -649,9 +651,8 @@ match_pattern(pattern, line, line_len, sp, ep, notbol, search_type)
 #if HAVE_REGCMP
 	*ep = regex(spattern, line);
 	matched = (*ep != NULL);
-	if (!matched)
-		return (0);
-	*sp = __loc1;
+	if (matched)
+		*sp = __loc1;
 #endif
 #if HAVE_V8_REGCOMP
 #if HAVE_REGEXEC2
@@ -659,10 +660,11 @@ match_pattern(pattern, line, line_len, sp, ep, notbol, search_type)
 #else
 	matched = regexec(spattern, line);
 #endif
-	if (!matched)
-		return (0);
-	*sp = spattern->startp[0];
-	*ep = spattern->endp[0];
+	if (matched)
+	{
+		*sp = spattern->startp[0];
+		*ep = spattern->endp[0];
+	}
 #endif
 #if NO_REGEX
 	matched = match(last_pattern, strlen(last_pattern), line, line_len, sp, ep);
