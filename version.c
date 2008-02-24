@@ -709,6 +709,7 @@ v417  12/31/07	Don't support single-char CSI in UTF-8 mode;
 v418  12/31/07	Clean up.
 -----------------------------------------------------------------
 v419  1/16/08	Make CSI char 0x9B work in UTF-8 mode (thanks to Colin Watson).
+v420  2/24/08	Add & command; fix -F option; fix '' after G.
 */
 
-char version[] = "419";
+char version[] = "420";

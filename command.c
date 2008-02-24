@@ -117,7 +117,9 @@ in_mca()
 	static void
 mca_search()
 {
-	if (search_type & SRCH_FORW)
+	if (search_type & SRCH_FILTER)
+		mca = A_FILTER;
+	else if (search_type & SRCH_FORW)
 		mca = A_F_SEARCH;
 	else
 		mca = A_B_SEARCH;
@@ -136,7 +138,9 @@ mca_search()
 	if (search_type & SRCH_NO_REGEX)
 		cmd_putstr("Regex-off ");
 
-	if (search_type & SRCH_FORW)
+	if (search_type & SRCH_FILTER)
+		cmd_putstr("&/");
+	else if (search_type & SRCH_FORW)
 		cmd_putstr("/");
 	else
 		cmd_putstr("?");
@@ -193,6 +197,9 @@ exec_mca()
 	case A_F_SEARCH:
 	case A_B_SEARCH:
 		multi_search(cbuf, (int) number);
+		break;
+	case A_FILTER:
+		set_filter_pattern(cbuf, search_type);
 		break;
 	case A_FIRSTCMD:
 		/*
@@ -466,6 +473,7 @@ mca_char(c)
 
 	case A_F_SEARCH:
 	case A_B_SEARCH:
+	case A_FILTER:
 		/*
 		 * Special case for search commands.
 		 * Certain characters as the first char of 
@@ -485,14 +493,17 @@ mca_char(c)
 		{
 		case CONTROL('E'): /* ignore END of file */
 		case '*':
-			flag = SRCH_PAST_EOF;
+			if (mca != A_FILTER)
+				flag = SRCH_PAST_EOF;
 			break;
 		case CONTROL('F'): /* FIRST file */
 		case '@':
-			flag = SRCH_FIRST_FILE;
+			if (mca != A_FILTER)
+				flag = SRCH_FIRST_FILE;
 			break;
 		case CONTROL('K'): /* KEEP position */
-			flag = SRCH_NO_MOVE;
+			if (mca != A_FILTER)
+				flag = SRCH_NO_MOVE;
 			break;
 		case CONTROL('R'): /* Don't use REGULAR EXPRESSIONS */
 			flag = SRCH_NO_REGEX;
@@ -1297,6 +1308,12 @@ commands()
 			search_type = SRCH_BACK;
 			if (number <= 0)
 				number = 1;
+			mca_search();
+			c = getcc();
+			goto again;
+
+		case A_FILTER:
+			search_type = SRCH_FORW | SRCH_FILTER;
 			mca_search();
 			c = getcc();
 			goto again;

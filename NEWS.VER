@@ -15,8 +15,14 @@
 
 	Major changes between "less" versions 418 and @@VERSION@@
 
+* New "&" command allows filtering of lines based on a pattern.
+
 * Status column now displays a search match, even if the matched
   string is scrolled off screen because -S is in effect.
+
+* Improve behavior of -F option.
+
+* Allow CSI character (0x9B) to work in UTF-8 mode.
 
 * Fix bug in '' (quote, quote) command after G command.
 

@@ -256,6 +256,18 @@ turn highlighting back on.
 Any search command will also turn highlighting back on.
 (Highlighting can also be disabled by toggling the \-G option;
 in that case search commands do not turn highlighting back on.)
+.IP "\&pattern"
+Filter lines containing the pattern.
+That is, lines which match the pattern are not displayed.
+If pattern is empty, any filtering is turned off, and all lines are displayed.
+.sp
+Certain characters are special as in the / command:
+.RS
+.IP "^N or !"
+Filter lines which do NOT match the pattern.
+.IP "^R"
+Don't interpret regular expression metacharacters;
+that is, do a simple textual comparison.
 .IP ":e [filename]"
 Examine a new file.
 If the filename is missing, the "current" file (see the :n and :p commands
