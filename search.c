@@ -1243,6 +1243,9 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 			add_lnum(linenum, pos);
 		oldpos = pos;
 
+		if (is_filtered(linepos))
+			continue;
+
 		/*
 		 * If it's a caseless search, convert the line to lowercase.
 		 * If we're doing backspace processing, delete backspaces.

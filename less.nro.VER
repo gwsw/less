@@ -256,11 +256,12 @@ turn highlighting back on.
 Any search command will also turn highlighting back on.
 (Highlighting can also be disabled by toggling the \-G option;
 in that case search commands do not turn highlighting back on.)
-.IP "\&pattern"
+.IP "&pattern"
 Filter lines containing the pattern.
 That is, lines which match the pattern are not displayed.
 If pattern is empty, any filtering is turned off, and all lines are displayed.
-While filtering is in effect, the default prompt changes to "\&:"
+While filtering is in effect, an ampersand is displayed at the
+beginning of the prompt,
 to remind you that some lines in the file may be hidden.
 .sp
 Certain characters are special as in the / command:

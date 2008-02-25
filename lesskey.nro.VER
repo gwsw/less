@@ -200,6 +200,7 @@ default command keys used by less:
 	\een		repeat-search-all 
 	N		reverse-search 
 	\eeN		reverse-search-all 
+	&		filter
 	m		set-mark 
 	'		goto-mark 
 	^X^X		goto-mark 
