@@ -208,6 +208,7 @@ exec_mca()
 		break;
 #if HILITE_SEARCH
 	case A_FILTER:
+		search_type ^= SRCH_NO_MATCH;
 		set_filter_pattern(cbuf, search_type);
 		break;
 #endif

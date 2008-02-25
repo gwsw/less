@@ -257,17 +257,17 @@ Any search command will also turn highlighting back on.
 (Highlighting can also be disabled by toggling the \-G option;
 in that case search commands do not turn highlighting back on.)
 .IP "&pattern"
-Filter lines containing the pattern.
-That is, lines which match the pattern are not displayed.
+Display only lines which match the pattern;
+lines which do not match the pattern are not displayed.
 If pattern is empty, any filtering is turned off, and all lines are displayed.
 While filtering is in effect, an ampersand is displayed at the
 beginning of the prompt,
-to remind you that some lines in the file may be hidden.
+as a reminder that some lines in the file may be hidden.
 .sp
 Certain characters are special as in the / command:
 .RS
 .IP "^N or !"
-Filter lines which do NOT match the pattern.
+Display only lines which do NOT match the pattern.
 .IP "^R"
 Don't interpret regular expression metacharacters;
 that is, do a simple textual comparison.
