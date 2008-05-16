@@ -1550,7 +1550,8 @@ init()
 		 */
 		for (i = 1; i < sc_height; i++)
 			putchr('\n');
-	}
+	} else
+		line_left();
 #else
 #if MSDOS_COMPILER==WIN32C
 	if (!no_init)

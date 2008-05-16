@@ -24,6 +24,9 @@
 
 * Allow CSI character (0x9B) to work in UTF-8 mode.
 
+* Output carriage return at startup in case terminal doesn't default
+  to column 1.
+
 * Fix bug in '' (quote, quote) command after G command.
 
 ======================================================================
