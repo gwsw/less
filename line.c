@@ -1045,7 +1045,7 @@ pdone(endline)
 		attr[curr] = AT_NORMAL;
 		curr++;
 	} 
-	else if (ignaw && !auto_wrap && column >= sc_width)
+	else if ((!auto_wrap || ignaw) && column >= sc_width)
 	{
 		/*
 		 * Big horrible kludge.
