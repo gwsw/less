@@ -712,6 +712,7 @@ v419  1/16/08	Make CSI char 0x9B work in UTF-8 mode (thanks to Colin Watson).
 v420  2/24/08	Add & command; fix -F option; fix '' after G.
 v421  2/24/08	Ignore filtered lines when searching.
 v422  3/2/08	Output CR at startup.
+v423  5/27/08	Clean up.
 */
 
-char version[] = "422";
+char version[] = "423";
