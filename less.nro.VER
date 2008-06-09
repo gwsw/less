@@ -257,8 +257,8 @@ Any search command will also turn highlighting back on.
 (Highlighting can also be disabled by toggling the \-G option;
 in that case search commands do not turn highlighting back on.)
 .IP "&pattern"
-Filter lines which match the pattern;
-that is, lines which match the pattern are not displayed.
+Display only lines which match the pattern;
+lines which do not match the pattern are not displayed.
 If pattern is empty (if you type & immediately followed by ENTER),
 any filtering is turned off, and all lines are displayed.
 While filtering is in effect, an ampersand is displayed at the
