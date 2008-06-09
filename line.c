@@ -1053,13 +1053,12 @@ pdone(endline)
 		 * the state where a full screen width of characters have been 
 		 * output but the cursor is sitting on the right edge instead
 		 * of at the start of the next line.  
-		 * So after we output a full line, we output an extra 
-		 * space and backspace to force the cursor to the 
+		 * So after we output a full line, we force the cursor to the 
 		 * beginning of the next line, like a sane terminal.
 		 */
-		linebuf[curr] = ' '; 
+		linebuf[curr] = '\r'; 
 		attr[curr++] = AT_NORMAL;
-		linebuf[curr] = '\b'; 
+		linebuf[curr] = '\n'; 
 		attr[curr++] = AT_NORMAL;
 	}
 	linebuf[curr] = '\0';
