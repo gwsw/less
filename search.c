@@ -410,7 +410,7 @@ compile_pattern2(pattern, search_type, comp_pattern)
 #endif
 #if HAVE_PCRE
 		pcre *comp;
-		pcre *pcomp = (pcre *) comp_pattern;
+		pcre **pcomp = (pcre **) comp_pattern;
 		const char *errstring;
 		int erroffset;
 		PARG parg;
@@ -736,6 +736,9 @@ is_filtered(pos)
 	POSITION pos;
 {
 	struct hilite *hl;
+
+	if (ch_getflags() & CH_HELPFILE)
+		return (0);
 
 	/*
 	 * Look at each filter and see if the start position
@@ -1661,6 +1664,8 @@ set_filter_pattern(pattern, search_type)
 	public int
 is_filtering()
 {
+	if (ch_getflags() & CH_HELPFILE)
+		return (0);
 	return !is_null_pattern(filter_pattern);
 }
 #endif
