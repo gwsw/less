@@ -713,6 +713,7 @@ v420  2/24/08	Add & command; fix -F option; fix '' after G.
 v421  2/24/08	Ignore filtered lines when searching.
 v422  3/2/08	Output CR at startup.
 v423  5/27/08	Clean up.
+v424  6/16/08	Fix compile bug with pcre; don't filter help file.
 */
 
-char version[] = "423";
+char version[] = "424";
