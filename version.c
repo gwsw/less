@@ -714,6 +714,7 @@ v421  2/24/08	Ignore filtered lines when searching.
 v422  3/2/08	Output CR at startup.
 v423  5/27/08	Clean up.
 v424  6/16/08	Fix compile bug with pcre; don't filter help file.
+v425  7/14/08	Fix non-ANSI code in list handling in ch.c.
 */
 
-char version[] = "424";
+char version[] = "425";

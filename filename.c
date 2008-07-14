@@ -470,7 +470,6 @@ fcomplete(s)
 bin_file(f)
 	int f;
 {
-	int i;
 	int n;
 	int bin_count = 0;
 	char data[256];

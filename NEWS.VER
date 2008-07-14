@@ -29,6 +29,8 @@
 
 * Fix bug in '' (quote, quote) command after G command.
 
+* Fix non-ANSI-compliant code that caused problems with some compilers.
+
 ======================================================================
 
 	Major changes between "less" versions 416 and 418
