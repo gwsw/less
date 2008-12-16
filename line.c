@@ -58,7 +58,6 @@ extern int bl_s_width, bl_e_width;
 extern int so_s_width, so_e_width;
 extern int sc_width, sc_height;
 extern int utf_mode;
-extern int oldbot;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 
@@ -990,8 +989,9 @@ pflushmbc()
  * Terminate the line in the line buffer.
  */
 	public void
-pdone(endline)
+pdone(endline, nextc)
 	int endline;
+	int nextc;
 {
 	int nl;
 
@@ -1035,30 +1035,29 @@ pdone(endline)
 	 * the next line is blank.  In that case the single newline output for
 	 * that blank line would be ignored!)
 	 */
-	if (!oldbot)
-		nl = (column < sc_width || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON);
-	else
-		nl = (column < sc_width || !auto_wrap || ignaw || ctldisp == OPT_ON);
-	if (nl)
+	if (column < sc_width || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
 	{
 		linebuf[curr] = '\n';
 		attr[curr] = AT_NORMAL;
 		curr++;
 	} 
-	else if ((!auto_wrap || ignaw) && column >= sc_width)
+	else if (ignaw && column >= sc_width)
 	{
 		/*
-		 * Big horrible kludge.
-		 * No-wrap terminals are too hard to deal with when they get in
-		 * the state where a full screen width of characters have been 
-		 * output but the cursor is sitting on the right edge instead
-		 * of at the start of the next line.  
-		 * So after we output a full line, we force the cursor to the 
-		 * beginning of the next line, like a sane terminal.
+		 * Terminals with "ignaw" don't wrap until they *really* need
+		 * to, i.e. when the character *after* the last one to fit on a
+		 * line is output. But they are too hard to deal with when they
+		 * get in the state where a full screen width of characters
+		 * have been output but the cursor is sitting on the right edge
+		 * instead of at the start of the next line.
+		 * So we nudge them into wrapping by outputting the next
+		 * character plus a backspace. (This wouldn't be right for
+		 * "!auto_wrap" terminals, but they always end up in the 
+		 * branch above.)
 		 */
-		linebuf[curr] = '\r'; 
+		linebuf[curr] = nextc;
 		attr[curr++] = AT_NORMAL;
-		linebuf[curr] = '\n'; 
+		linebuf[curr] = '\b'; 
 		attr[curr++] = AT_NORMAL;
 	}
 	linebuf[curr] = '\0';
