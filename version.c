@@ -715,7 +715,9 @@ v422  3/2/08    Output CR at startup.
 v423  5/27/08   Clean up.
 v424  6/16/08   Fix compile bug with pcre; don't filter help file.
 v425  7/14/08   Fix non-ANSI code in list handling in ch.c.
-v426  10/27/08  Fix ignaw terminal handling (thanks to Per Hedeland).
+v426  10/27/08  Fix ignaw terminal handling (thanks to Per Hedeland);
+                fix binary file detection in UTF-8 mode.
+
 */
 
 char version[] = "426";
