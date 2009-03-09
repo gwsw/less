@@ -31,6 +31,10 @@
 
 * Fix non-ANSI-compliant code that caused problems with some compilers.
 
+* Fix binary file detection in UTF-8 mode.
+
+* Fix display problems with long lines on "ignaw" terminals.
+
 ======================================================================
 
 	Major changes between "less" versions 416 and 418
