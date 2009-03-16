@@ -515,7 +515,9 @@ being set: n=normal, s=standout, d=bold, u=underlined, k=blink.
 \fIcolor\fP is a pair of numbers separated by a period.  
 The first number selects the foreground color and the second selects 
 the background color of the text.
-A single number \fIN\fP is the same as \fIN.0\fP.
+A single number \fIN\fP is the same as \fIN.M\fP,
+where \fIM\fP is the normal background color.
+
 .IP "\-e or \-\-quit-at-eof"
 Causes 
 .I less 

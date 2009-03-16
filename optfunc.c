@@ -472,14 +472,14 @@ colordesc(s, fg_color, bg_color)
 		return;
 	}
 	if (*s != '.')
-		bg = 0;
+		bg = nm_bg_color;
 	else
 	{
 		s++;
 		bg = getnum(&s, "D", &err);
 		if (err)
 		{
-			error("Missing fg color in -D", NULL_PARG);
+			error("Missing bg color in -D", NULL_PARG);
 			return;
 		}
 	}
