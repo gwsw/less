@@ -717,7 +717,7 @@ v424  6/16/08   Fix compile bug with pcre; don't filter help file.
 v425  7/14/08   Fix non-ANSI code in list handling in ch.c.
 v426  10/27/08  Fix ignaw terminal handling (thanks to Per Hedeland);
                 fix binary file detection in UTF-8 mode.
-
+v427  3/16/09   A few Win32 fixes (thanks to Jason Hood).
 */
 
-char version[] = "426";
+char version[] = "427";

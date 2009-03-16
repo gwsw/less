@@ -27,6 +27,8 @@
 * Output carriage return at startup in case terminal doesn't default
   to column 1.
 
+* The -D option with one number means use the normal background color.
+
 * Fix bug in '' (quote, quote) command after G command.
 
 * Fix non-ANSI-compliant code that caused problems with some compilers.
