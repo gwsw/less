@@ -1469,8 +1469,19 @@ save_cmdhist()
 	if (f == NULL)
 		return;
 #if HAVE_FCHMOD
+{
 	/* Make history file readable only by owner. */
-	fchmod(fileno(f), 0600);
+	int do_chmod = 1;
+#if HAVE_STAT
+	struct stat statbuf;
+	int r = fstat(fileno(f), &statbuf);
+	if (r < 0 || !S_ISREG(statbuf.st_mode))
+		/* Don't chmod if not a regular file. */
+		do_chmod = 0;
+#endif
+	if (do_chmod)
+		fchmod(fileno(f), 0600);
+}
 #endif
 
 	fprintf(f, "%s\n", HISTFILE_FIRST_LINE);
