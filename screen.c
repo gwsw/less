@@ -1788,7 +1788,7 @@ win32_scroll_up(n)
 
 	/* Move the source text to the top of the screen. */
 	new_org.X = rcSrc.Left;
-	new_org.Y = 0;
+	new_org.Y = rcClip.top;
 
 	/* Fill the right character and attributes. */
 	fillchar.Char.AsciiChar = ' ';
@@ -2490,7 +2490,8 @@ WIN32textout(text, len)
 	int len;
 {
 #if MSDOS_COMPILER==WIN32C
-	WriteConsole(con_out, text, len, NULL, NULL);
+	DWORD written;
+	WriteConsole(con_out, text, len, &written, NULL);
 #else
 	char c = text[len];
 	text[len] = '\0';
