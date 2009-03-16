@@ -128,6 +128,7 @@ flush()
 			 */
 			char *anchor, *p, *p_next;
 			unsigned char fg, bg;
+			static unsigned char at;
 #if MSDOS_COMPILER==WIN32C
 			/* Screen colors used by 3x and 4x SGR commands. */
 			static unsigned char screen_color[] = {
@@ -216,34 +217,37 @@ flush()
 						switch (code)
 						{
 						default:
-						/* case 0:  all attrs off */
-						/* case 22: bold off */
-						/* case 23: italic off */
-						/* case 24: underline off */
-						/* case 27: inverse off */
+						/* case 0: all attrs off */
 							fg = nm_fg_color;
 							bg = nm_bg_color;
+							at = 0;
 							break;
 						case 1:	/* bold on */
-							fg = bo_fg_color;
-							bg = bo_bg_color;
+							at |= 1;
 							break;
 						case 3:	/* italic on */
 						case 7: /* inverse on */
-							fg = so_fg_color;
-							bg = so_bg_color;
+							at |= 2;
 							break;
 						case 4:	/* underline on */
-							fg = ul_fg_color;
-							bg = ul_bg_color;
+							at |= 4;
 							break;
 						case 5: /* slow blink on */
 						case 6: /* fast blink on */
-							fg = bl_fg_color;
-							bg = bl_bg_color;
+							at |= 8;
 							break;
 						case 8:	/* concealed on */
 							fg = (bg & 7) | 8;
+							break;
+						case 22: /* bold off */
+							at &= ~1;
+							break;
+						case 23: /* italic off */
+						case 27: /* inverse off */
+							at &= ~2;
+							break;
+						case 24: /* underline off */
+							at &= ~4;
 							break;
 						case 30: case 31: case 32:
 						case 33: case 34: case 35:
@@ -266,6 +270,23 @@ flush()
 					}
 					if (!is_ansi_end(*p) || p == p_next)
 						break;
+					if (at & 1)
+					{
+							fg = bo_fg_color;
+							bg = bo_bg_color;
+					} else if (at & 2)
+					{
+							fg = so_fg_color;
+							bg = so_bg_color;
+					} else if (at & 4)
+					{
+							fg = ul_fg_color;
+							bg = ul_bg_color;
+					} else if (at & 8)
+					{
+							fg = bl_fg_color;
+							bg = bl_bg_color;
+					}
 					fg &= 0xf;
 					bg &= 0xf;
 					WIN32setcolors(fg, bg);
