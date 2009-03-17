@@ -12,8 +12,19 @@
 
 ======================================================================
 
+	Major changes between "less" versions 424 and @@VERSION@@
 
-	Major changes between "less" versions 418 and @@VERSION@@
+* The -D option with one number now means use the normal background color.
+
+* Fix non-ANSI-compliant code that caused problems with some compilers.
+
+* Fix binary file detection in UTF-8 mode.
+
+* Fix display problems with long lines on "ignaw" terminals.
+
+======================================================================
+
+	Major changes between "less" versions 418 and 424
 
 * New "&" command allows filtering of lines based on a pattern.
 
@@ -27,15 +38,7 @@
 * Output carriage return at startup in case terminal doesn't default
   to column 1.
 
-* The -D option with one number means use the normal background color.
-
 * Fix bug in '' (quote, quote) command after G command.
-
-* Fix non-ANSI-compliant code that caused problems with some compilers.
-
-* Fix binary file detection in UTF-8 mode.
-
-* Fix display problems with long lines on "ignaw" terminals.
 
 ======================================================================
 
