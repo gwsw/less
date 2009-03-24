@@ -540,7 +540,7 @@ add_cmd_str(s)
 control_line(s)
 	char *s;
 {
-#define	PREFIX(str,pat)	(strncmp(str,pat,strlen(pat)-1) == 0)
+#define	PREFIX(str,pat)	(strncmp(str,pat,strlen(pat)) == 0)
 
 	if (PREFIX(s, "#line-edit"))
 	{
