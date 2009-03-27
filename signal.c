@@ -60,6 +60,7 @@ u_interrupt(type)
 #endif
 	if (reading)
 		intread();
+	bell();
 }
 
 #ifdef SIGTSTP
@@ -251,24 +252,5 @@ psignals()
 	{
 		if (quit_on_intr)
 			quit(QUIT_OK);
-		bell();
-		/*
-		 * {{ You may wish to replace the bell() with 
-		 *    error("Interrupt", NULL_PARG); }}
-		 */
-
-		/*
-		 * If we were interrupted while in the "calculating 
-		 * line numbers" loop, turn off line numbers.
-		 */
-		if (lnloop)
-		{
-			lnloop = 0;
-			if (linenums == 2)
-				screen_trashed = 1;
-			linenums = 0;
-			error("Line numbers turned off", NULL_PARG);
-		}
-
 	}
 }

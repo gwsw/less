@@ -22,6 +22,8 @@
 
 * Fix display problems with long lines on "ignaw" terminals.
 
+* Fix problem interrupting the line number calculation for initial prompt.
+
 ======================================================================
 
 	Major changes between "less" versions 418 and 424
