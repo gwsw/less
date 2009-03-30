@@ -14,7 +14,12 @@
 
 	Major changes between "less" versions 424 and @@VERSION@@
 
+* LESSOPEN pipe will now be used on standard input, if the LESSOPEN
+  environment variable begins with "|-".
+
 * The -D option with one number now means use the normal background color.
+
+* Don't change permissions on history file if it is not a regular file.
 
 * Fix non-ANSI-compliant code that caused problems with some compilers.
 
@@ -23,6 +28,8 @@
 * Fix display problems with long lines on "ignaw" terminals.
 
 * Fix problem interrupting the line number calculation for initial prompt.
+
+* Fix SGR emulation when dealing with multiple attributes (eg. bold+underline).
 
 ======================================================================
 
