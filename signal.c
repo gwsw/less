@@ -44,6 +44,7 @@ extern long jump_sline_fraction;
 u_interrupt(type)
 	int type;
 {
+	bell();
 #if OS2
 	LSIGNAL(SIGINT, SIG_ACK);
 #endif
@@ -59,8 +60,7 @@ u_interrupt(type)
 		getkey();
 #endif
 	if (reading)
-		intread();
-	bell();
+		intread(); /* May longjmp */
 }
 
 #ifdef SIGTSTP
