@@ -1146,6 +1146,14 @@ but it is usually not necessary since there is no replacement file
 to clean up.
 In this case, the replacement file name passed to the LESSCLOSE
 postprocessor is "\-".
+.PP
+For compatibility with previous versions of
+.I less,
+the input pipe is not used if
+.I less
+is viewing standard input.  
+However, if the character after the vertical bar is a dash (\-),
+the input pipe is used on standard input as well as other files.
 
 .SH "NATIONAL CHARACTER SETS"
 There are three types of characters in the input file:

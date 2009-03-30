@@ -831,20 +831,27 @@ open_altfile(filename, pf, pfd)
 	ch_ungetchar(-1);
 	if ((lessopen = lgetenv("LESSOPEN")) == NULL)
 		return (NULL);
-	if (strcmp(filename, "-") == 0)
-		return (NULL);
 	if (*lessopen == '|')
 	{
 		/*
 		 * If LESSOPEN starts with a |, it indicates 
 		 * a "pipe preprocessor".
 		 */
-#if HAVE_FILENO
-		lessopen++;
-		returnfd = 1;
-#else
+#if !HAVE_FILENO
 		error("LESSOPEN pipe is not supported", NULL_PARG);
 		return (NULL);
+#else
+		lessopen++;
+		returnfd = 1;
+		if (*lessopen == '-') {
+			/*
+			 * Lessopen preprocessor will accept "-" as a filename.
+			 */
+			lessopen++;
+		} else {
+			if (strcmp(filename, "-") == 0)
+				return (NULL);
+		}
 #endif
 	}
 
