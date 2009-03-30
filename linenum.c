@@ -247,7 +247,7 @@ longish()
  * a lengthy line number calculation.
  */
 	static void
-turnoff_linenums()
+abort_long()
 {
 	if (linenums == OPT_ONPLUS)
 		/*
@@ -325,7 +325,7 @@ find_linenum(pos)
 			 */
 			cpos = forw_raw_line(cpos, (char **)NULL, (int *)NULL);
 			if (ABORT_SIGS()) {
-				turnoff_linenums();
+				abort_long();
 				return (0);
 			}
 			if (cpos == NULL_POSITION)
@@ -357,7 +357,7 @@ find_linenum(pos)
 			 */
 			cpos = back_raw_line(cpos, (char **)NULL, (int *)NULL);
 			if (ABORT_SIGS()) {
-				turnoff_linenums();
+				abort_long();
 				return (0);
 			}
 			if (cpos == NULL_POSITION)
@@ -414,7 +414,9 @@ find_pos(linenum)
 			 * Allow a signal to abort this loop.
 			 */
 			cpos = forw_raw_line(cpos, (char **)NULL, (int *)NULL);
-			if (ABORT_SIGS() || cpos == NULL_POSITION)
+			if (ABORT_SIGS())
+				return (NULL_POSITION);
+			if (cpos == NULL_POSITION)
 				return (NULL_POSITION);
 		}
 	} else
@@ -430,7 +432,9 @@ find_pos(linenum)
 			 * Allow a signal to abort this loop.
 			 */
 			cpos = back_raw_line(cpos, (char **)NULL, (int *)NULL);
-			if (ABORT_SIGS() || cpos == NULL_POSITION)
+			if (ABORT_SIGS())
+				return (NULL_POSITION);
+			if (cpos == NULL_POSITION)
 				return (NULL_POSITION);
 		}
 	}
