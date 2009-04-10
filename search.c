@@ -859,6 +859,8 @@ adj_hilite(anchor, linepos, cvt_ops)
 	int checkstart;
 	POSITION opos;
 	POSITION npos;
+	POSITION hl_opos;
+	POSITION hl_npos;
 	LWCHAR ch;
 	int ncwidth;
 
@@ -873,8 +875,12 @@ adj_hilite(anchor, linepos, cvt_ops)
 	line_end = line + line_len;
 	opos = npos = linepos;
 	hl = anchor->hl_first;
+    if (hl == NULL)
+        return;
+    hl_opos = hl_npos = hl->hl_startpos;
 	checkstart = TRUE;
-	while (hl != NULL)
+
+	while (hl != NULL && line < line_end)
 	{
 		/*
 		 * See if we need to adjust the current hl_startpos or 
@@ -883,22 +889,6 @@ adj_hilite(anchor, linepos, cvt_ops)
 		 * The hilite list must be sorted thus: 
 		 * startpos[0] < endpos[0] <= startpos[1] < endpos[1] <= etc.
 		 */
-		if (checkstart && hl->hl_startpos == opos)
-		{
-			hl->hl_startpos = npos;
-			checkstart = FALSE;
-			continue; /* {{ not really necessary }} */
-		} else if (!checkstart && hl->hl_endpos == opos)
-		{
-			hl->hl_endpos = npos;
-			checkstart = TRUE;
-			hl = hl->hl_next;
-			continue; /* {{ necessary }} */
-		}
-		if (line == line_end)
-			break;
-
-		/* Get the next char from the line. */
 		oline = line;
 		ch = step_char(&line, +1, line_end);
 		ncwidth = line - oline;
@@ -937,6 +927,32 @@ adj_hilite(anchor, linepos, cvt_ops)
 			/* Ordinary unprocessed character. */
 			opos += ncwidth;
 		}
+
+        if (opos == hl_opos) {
+            /* Adjust highlight position. */
+            hl_npos = npos;
+        }
+        if (opos > hl_opos)
+        {
+            /*
+             * We've moved past the highlight position; store the
+             * adjusted highlight position and move to the next highlight.
+             */
+            if (checkstart)
+            {
+                hl->hl_startpos = hl_npos;
+                hl_opos = hl->hl_endpos;
+                checkstart = FALSE;
+            } else
+            {
+                hl->hl_endpos = hl_npos;
+                hl = hl->hl_next;
+                if (hl != NULL)
+                    hl_opos = hl->hl_startpos;
+                checkstart = TRUE;
+            }
+            hl_npos = npos;
+        }
 	}
 }
 
