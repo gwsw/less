@@ -31,6 +31,8 @@
 
 * Fix SGR emulation when dealing with multiple attributes (eg. bold+underline).
 
+* Fix highlight bug when searching for underlined/overstruck text.
+
 ======================================================================
 
 	Major changes between "less" versions 418 and 424
