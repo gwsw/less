@@ -843,16 +843,16 @@ open_altfile(filename, pf, pfd)
 #else
 		lessopen++;
 		returnfd = 1;
-		if (*lessopen == '-') {
-			/*
-			 * Lessopen preprocessor will accept "-" as a filename.
-			 */
-			lessopen++;
-		} else {
-			if (strcmp(filename, "-") == 0)
-				return (NULL);
-		}
 #endif
+	}
+	if (*lessopen == '-') {
+		/*
+		 * Lessopen preprocessor will accept "-" as a filename.
+		 */
+		lessopen++;
+	} else {
+		if (strcmp(filename, "-") == 0)
+			return (NULL);
 	}
 
 	len = strlen(lessopen) + strlen(filename) + 2;

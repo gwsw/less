@@ -1149,11 +1149,19 @@ postprocessor is "\-".
 .PP
 For compatibility with previous versions of
 .I less,
-the input pipe is not used if
+the input preprocessor or pipe is not used if
 .I less
 is viewing standard input.  
-However, if the character after the vertical bar is a dash (\-),
-the input pipe is used on standard input as well as other files.
+However, if the first character of LESSOPEN is a dash (\-),
+the input preprocessor is used on standard input as well as other files.
+In this case, the dash is not considered to be part of 
+the preprocessor command.
+If standard input is being viewed, the input preprocessor is passed
+a file name consisting of a single dash.
+Similarly, if the first two characters of LESSOPEN are vertical bar and dash
+(|\-), the input pipe is used on standard input as well as other files.
+Again, in this case the dash is not considered to be part of 
+the input pipe command.
 
 .SH "NATIONAL CHARACTER SETS"
 There are three types of characters in the input file:

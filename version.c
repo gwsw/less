@@ -720,6 +720,8 @@ v426  10/27/08  Fix ignaw terminal handling (thanks to Per Hedeland);
 v427  3/16/09   A few Win32 fixes (thanks to Jason Hood).
 v428  3/30/09   Add "|-" syntax to LESSOPEN.
 v429  4/10/09   Fix search highlighting bug with underlined text.
+-----------------------------------------------------------------
+v430  4/22/09   Don't pass "-" to non-pipe LESSOPEN unless it starts with "-".
 */
 
-char version[] = "429";
+char version[] = "430";
