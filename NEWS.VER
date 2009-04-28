@@ -16,6 +16,8 @@
 
 * Don't pass "-" to non-pipe LESSOPEN unless it starts with "-".
 
+* Allow a fraction as the argument to the -# (--shift) option.
+
 ======================================================================
 
 	Major changes between "less" versions 424 and 429

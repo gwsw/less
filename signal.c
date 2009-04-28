@@ -244,6 +244,7 @@ psignals()
 		{
 			wscroll = (sc_height + 1) / 2;
 			calc_jump_sline();
+			calc_shift_count();
 			screen_trashed = 1;
 		}
 	}

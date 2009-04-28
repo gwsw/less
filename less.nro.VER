@@ -864,6 +864,13 @@ Specifies the default number of positions to scroll horizontally
 in the RIGHTARROW and LEFTARROW commands.
 If the number specified is zero, it sets the default number of
 positions to one half of the screen width.
+Alternately, the number may be specified as a fraction of the width
+of the screen, starting with a decimal point: .5 is half of the
+screen width, .3 is three tenths of the screen width, and so on.
+If the number is specified as a fraction, the actual number of 
+scroll positions is recalculated if the terminal window is resized, 
+so that the actual scroll remains at the specified fraction 
+of the screen width.
 .IP "\-\-no-keypad"
 Disables sending the keypad initialization and deinitialization strings
 to the terminal.
