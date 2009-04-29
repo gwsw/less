@@ -932,7 +932,7 @@ adj_hilite(anchor, linepos, cvt_ops)
             /* Adjust highlight position. */
             hl_npos = npos;
         }
-        if (opos > hl_opos)
+        if (opos > hl_opos || line >= line_end)
         {
             /*
              * We've moved past the highlight position; store the
