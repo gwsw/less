@@ -722,6 +722,7 @@ v428  3/30/09   Add "|-" syntax to LESSOPEN.
 v429  4/10/09   Fix search highlighting bug with underlined text.
 -----------------------------------------------------------------
 v430  4/22/09   Don't pass "-" to non-pipe LESSOPEN unless it starts with "-".
+v431  4/29/09   Fix highlight bug when match is at end of line.
 */
 
-char version[] = "430";
+char version[] = "431";

@@ -18,6 +18,8 @@
 
 * Allow a fraction as the argument to the -# (--shift) option.
 
+* Fix highlight bug when underlined/overstruck text matches at end of line.
+
 ======================================================================
 
 	Major changes between "less" versions 424 and 429
