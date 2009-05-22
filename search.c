@@ -938,18 +938,19 @@ adj_hilite(anchor, linepos, cvt_ops)
              * We've moved past the highlight position; store the
              * adjusted highlight position and move to the next highlight.
              */
-            if (checkstart)
-            {
-                hl->hl_startpos = hl_npos;
-                hl_opos = hl->hl_endpos;
-                checkstart = FALSE;
-            } else
+            if (!checkstart)
             {
                 hl->hl_endpos = hl_npos;
                 hl = hl->hl_next;
                 if (hl != NULL)
                     hl_opos = hl->hl_startpos;
                 checkstart = TRUE;
+            }
+            if (checkstart && hl != NULL)
+            {
+                hl->hl_startpos = hl_npos;
+                hl_opos = hl->hl_endpos;
+                checkstart = FALSE;
             }
             hl_npos = npos;
         }
