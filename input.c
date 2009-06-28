@@ -196,7 +196,7 @@ get_forw_line:
 		c = ch_forw_get();
 	}
 
-	pdone(endline, c);
+	pdone(endline, 1);
 
 #if HILITE_SEARCH
 	if (is_filtered(base_pos))
@@ -398,7 +398,7 @@ get_back_line:
 		}
 	} while (new_pos < curr_pos);
 
-	pdone(endline, ch_forw_get());
+	pdone(endline, 0);
 
 #if HILITE_SEARCH
 	if (is_filtered(base_pos))
