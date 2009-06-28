@@ -167,7 +167,8 @@ cvt_text(odst, osrc, chpos, lenp, ops)
 		{
 			/* Convert uppercase to lowercase. */
 			put_wchar(&dst, TO_LOWER(ch));
-			if (chpos != NULL) chpos[dst_pos] = src_pos;
+			if (chpos != NULL)
+				chpos[dst_pos] = src_pos;
 		} else if ((ops & CVT_BS) && ch == '\b' && dst > odst)
 		{
 			/* Delete backspace and preceding char. */
@@ -186,7 +187,8 @@ cvt_text(odst, osrc, chpos, lenp, ops)
 		{
 			/* Just copy. */
 			put_wchar(&dst, ch);
-			if (chpos != NULL) chpos[dst_pos] = src_pos;
+			if (chpos != NULL)
+				chpos[dst_pos] = src_pos;
 		}
 	}
 	if ((ops & CVT_CRLF) && dst > odst && dst[-1] == '\r')
@@ -194,6 +196,8 @@ cvt_text(odst, osrc, chpos, lenp, ops)
 	*dst = '\0';
 	if (lenp != NULL)
 		*lenp = dst - odst;
+	if (chpos != NULL)
+		chpos[dst - odst] = src - osrc;
 }
 
 /*
