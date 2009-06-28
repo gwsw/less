@@ -20,6 +20,8 @@
 
 * Fix highlight bug when underlined/overstruck text matches at end of line.
 
+* Fix non-regex searches with ctrl-R.
+
 ======================================================================
 
 	Major changes between "less" versions 424 and 429
