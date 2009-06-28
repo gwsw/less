@@ -163,13 +163,7 @@ cvt_text(odst, osrc, chpos, lenp, ops)
 		int src_pos = src - osrc;
 		int dst_pos = dst - odst;
 		ch = step_char(&src, +1, src_end);
-		if ((ops & CVT_TO_LC) && IS_UPPER(ch))
-		{
-			/* Convert uppercase to lowercase. */
-			put_wchar(&dst, TO_LOWER(ch));
-			if (chpos != NULL)
-				chpos[dst_pos] = src_pos;
-		} else if ((ops & CVT_BS) && ch == '\b' && dst > odst)
+		if ((ops & CVT_BS) && ch == '\b' && dst > odst)
 		{
 			/* Delete backspace and preceding char. */
 			do {
@@ -185,9 +179,19 @@ cvt_text(odst, osrc, chpos, lenp, ops)
 					break;
 		} else
 		{
-			/* Just copy. */
+			/* Just copy the char to the destination buffer. */
+			if ((ops & CVT_TO_LC) && IS_UPPER(ch))
+				ch = TO_LOWER(ch);
 			put_wchar(&dst, ch);
-			if (chpos != NULL)
+			/*
+			 * Record the original position of the char.
+			 * But if we've already recorded a position
+			 * for this char (due to a backspace), leave
+			 * it alone; if multiple source chars map to
+			 * one destination char, we want the position
+			 * of the first one.
+			 */
+			if (chpos != NULL && chpos[dst_pos] == 0)
 				chpos[dst_pos] = src_pos;
 		}
 	}
@@ -1135,6 +1139,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		cvt_len = cvt_length(line_len, cvt_ops);
 		cline = (char *) ecalloc(1, cvt_len);
 		chpos = (int *) ecalloc(sizeof(int), cvt_len);
+		memset(chpos, 0, cvt_len * sizeof(int));
 		cvt_text(cline, line, chpos, &line_len, cvt_ops);
 
 #if HILITE_SEARCH
