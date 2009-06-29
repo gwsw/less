@@ -993,8 +993,6 @@ pdone(endline, forw)
 	int endline;
 	int forw;
 {
-	int nl;
-
 	(void) pflushmbc();
 
 	if (pendc && (pendc != '\r' || !endline))

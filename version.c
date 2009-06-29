@@ -725,6 +725,7 @@ v430  4/22/09   Don't pass "-" to non-pipe LESSOPEN unless it starts with "-".
 v431  4/29/09   Fix highlight bug when match is at end of line.
 v432  6/27/09   Better fix for highlight bugs; 
                 fix new problems with ignaw terminals.
+v433  6/28/09   Cleanup search code.
 */
 
-char version[] = "432";
+char version[] = "433";

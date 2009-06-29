@@ -488,6 +488,12 @@ struct textlist
 
 #define	FAKE_HELPFILE	"@/\\less/\\help/\\file/\\@"
 
+/* Flags for cvt_text */
+#define	CVT_TO_LC	01	/* Convert upper-case to lower-case */
+#define	CVT_BS		02	/* Do backspace processing */
+#define	CVT_CRLF	04	/* Remove CR after LF */
+#define	CVT_ANSI	010	/* Remove ANSI escape sequences */
+
 #include "funcs.h"
 
 /* Functions not included in funcs.h */
