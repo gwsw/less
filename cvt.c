@@ -29,11 +29,9 @@ cvt_length(len, ops)
 		/*
 		 * Just copying a string in UTF-8 mode can cause it to grow 
 		 * in length.
-		 * Six output bytes for one input byte is the worst case
-		 * (and unfortunately is far more than is needed in any 
-		 * non-pathological situation, so this is very wasteful).
+		 * Four output bytes for one input byte is the worst case.
 		 */
-		len *= 6;
+		len *= 4;
 	return (len + 1);
 }
 

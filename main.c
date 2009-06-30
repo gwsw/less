@@ -118,6 +118,7 @@ main(argc, argv)
 	init_line();
 	init_cmdhist();
 	init_option();
+	init_search();
 
 	/*
 	 * If the name of the executable program is "more",

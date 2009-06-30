@@ -15,29 +15,34 @@
 #else
 #define	REGCOMP_FLAG	0
 #endif
-#define DEFINE_PATTERN(name)  regex_t *name = NULL
+#define DEFINE_PATTERN(name)  regex_t *name
+#define CLEAR_PATTERN(name)   name = NULL
 #endif
 
 #if HAVE_PCRE
 #include <pcre.h>
-#define DEFINE_PATTERN(name)  pcre *name = NULL;
+#define DEFINE_PATTERN(name)  pcre *name
+#define CLEAR_PATTERN(name)   name = NULL
 #endif
 
 #if HAVE_RE_COMP
 char *re_comp();
 int re_exec();
-#define DEFINE_PATTERN(name)  int name = 0;
+#define DEFINE_PATTERN(name)  int name
+#define CLEAR_PATTERN(name)   name = 0
 #endif
 
 #if HAVE_REGCMP
 char *regcmp();
 char *regex();
 extern char *__loc1;
-#define DEFINE_PATTERN(name)  char *name = NULL;
+#define DEFINE_PATTERN(name)  char *name
+#define CLEAR_PATTERN(name)   name = NULL
 #endif
 
 #if HAVE_V8_REGCOMP
 #include "regexp.h"
-#define DEFINE_PATTERN(name)  struct regexp *name = NULL;
+#define DEFINE_PATTERN(name)  struct regexp *name
+#define CLEAR_PATTERN(name)   name = NULL
 #endif
 

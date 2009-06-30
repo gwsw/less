@@ -62,16 +62,63 @@ static struct hilite filter_anchor = { NULL, NULL_POSITION, NULL_POSITION };
  * These are the static variables that represent the "remembered"
  * search pattern and filter pattern.
  */
-static DEFINE_PATTERN(search_pattern);
-static char *last_search_pattern = NULL;
-static int last_search_type;
-
-static DEFINE_PATTERN(filter_pattern);
-static char *last_filter_pattern = NULL;
-static int last_filter_type;
+struct pattern_info {
+	DEFINE_PATTERN(comp);
+	char* text;
+	int search_type;
+};
+	
+static struct pattern_info search_info;
+static struct pattern_info filter_info;
 
 /*
- * Determine which conversions to perform.
+ * Compile and save a search pattern.
+ */
+	static int
+set_pattern(info, pattern, search_type)
+	struct pattern_info *info;
+	char *pattern;
+	int search_type;
+{
+	if (pattern == NULL)
+		CLEAR_PATTERN(search_info.comp);
+	else if (compile_pattern(pattern, search_type, &info->comp) < 0)
+		return -1;
+	if (info->text != NULL)
+		free(info->text);
+	info->text = NULL;
+	if (pattern != NULL)
+	{
+		info->text = (char *) ecalloc(1, strlen(pattern)+1);
+		strcpy(info->text, pattern);
+	}
+	info->search_type = search_type;
+	return 0;
+}
+
+/*
+ * Discard a saved pattern.
+ */
+	static void
+clear_pattern(info)
+	struct pattern_info *info;
+{
+	uncompile_pattern(&info->comp);
+	info->text = NULL;
+}
+
+/*
+ * Initialize static variables.
+ */
+	public void
+init_search()
+{
+	set_pattern(&search_info, NULL, 0);
+	set_pattern(&filter_info, NULL, 0);
+}
+
+/*
+ * Determine which text conversions to perform before pattern matching.
  */
 	static int
 get_cvt_ops()
@@ -114,58 +161,14 @@ is_ucase(str)
 }
 
 /*
- * Save a search pattern.
- */
-	static void
-save_search_pattern(search_type, pattern)
-	int search_type;
-	char *pattern;
-{
-	if (last_search_pattern != NULL)
-		free(last_search_pattern);
-	last_search_pattern = (char *) ecalloc(1, strlen(pattern)+1);
-	strcpy(last_search_pattern, pattern);
-	last_search_type = search_type;
-}
-
-/*
- * Save a filter pattern.
- */
-	static void
-save_filter_pattern(search_type, pattern)
-	int search_type;
-	char *pattern;
-{
-	if (last_filter_pattern != NULL)
-		free(last_filter_pattern);
-	last_filter_pattern = (char *) ecalloc(1, strlen(pattern)+1);
-	strcpy(last_filter_pattern, pattern);
-	last_filter_type = search_type;
-}
-
-/*
  * Is there a previous (remembered) search pattern?
  */
 	static int
 prev_search_pattern()
 {
-	if (last_search_type & SRCH_NO_REGEX)
-		return (last_search_pattern != NULL);
-	return (!is_null_pattern(search_pattern));
-}
-
-	static void
-uncompile_search_pattern()
-{
-	uncompile_pattern(&search_pattern);
-	last_search_pattern = NULL;
-}
-
-	static void
-uncompile_filter_pattern()
-{
-	uncompile_pattern(&filter_pattern);
-	last_filter_pattern = NULL;
+	if (search_info.search_type & SRCH_NO_REGEX)
+		return (search_info.text != NULL);
+	return (!is_null_pattern(search_info.comp));
 }
 
 #if HILITE_SEARCH
@@ -207,23 +210,9 @@ repaint_hilite(on)
 		if (pos == NULL_POSITION)
 			continue;
 		epos = position(slinenum+1);
-#if 0
-		/*
-		 * If any character in the line is highlighted, 
-		 * repaint the line.
-		 *
-		 * {{ This doesn't work -- if line is drawn with highlights
-		 * which should be erased (e.g. toggle -i with status column),
-		 * we must redraw the line even if it has no highlights.
-		 * For now, just repaint every line. }}
-		 */
-		if (is_hilited(pos, epos, 1, NULL))
-#endif
-		{
-			(void) forw_line(pos);
-			goto_line(slinenum);
-			put_line();
-		}
+		(void) forw_line(pos);
+		goto_line(slinenum);
+		put_line();
 	}
 	if (!oldbot)
 		lower_left();
@@ -513,8 +502,8 @@ hilite_line(linepos, line, line_len, chpos, sp, ep, cvt_ops)
 			searchp++;
 		else /* end of line */
 			break;
-	} while (match_pattern(search_pattern, last_search_pattern,
-			searchp, line_end - searchp, &sp, &ep, 1, last_search_type));
+	} while (match_pattern(search_info.comp, search_info.text,
+			searchp, line_end - searchp, &sp, &ep, 1, search_info.search_type));
 }
 #endif
 
@@ -536,7 +525,7 @@ chg_caseless()
 		 * Pattern did have uppercase.
 		 * Discard the pattern; we can't change search caselessness now.
 		 */
-		uncompile_search_pattern();
+		clear_pattern(&search_info);
 }
 
 #if HILITE_SEARCH
@@ -742,7 +731,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 * the search.  Remember the line number only if
 		 * we're "far" from the last place we remembered it.
 		 */
-		if (linenums && abs((int)(pos - oldpos)) > 1024)
+		if (linenums && abs((int)(pos - oldpos)) > 2048)
 			add_lnum(linenum, pos);
 		oldpos = pos;
 
@@ -765,10 +754,10 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 * If so, add an entry to the filter list.
 		 */
 		if ((search_type & SRCH_FIND_ALL) &&
-			!is_null_pattern(filter_pattern))
+			!is_null_pattern(filter_info.comp))
 		{
-			int line_filter = match_pattern(filter_pattern, last_filter_pattern,
-				cline, line_len, &sp, &ep, 0, last_filter_type);
+			int line_filter = match_pattern(filter_info.comp, filter_info.text,
+				cline, line_len, &sp, &ep, 0, filter_info.search_type);
 			if (line_filter)
 			{
 				struct hilite *hl = (struct hilite *)
@@ -787,8 +776,8 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 */
 		if (prev_search_pattern())
 		{
-			line_match = match_pattern(search_pattern, last_search_pattern,
-				cline, line_len, &sp, &ep, 0, search_type);
+			line_match = match_pattern(search_info.comp, search_info.text,
+				cline, line_len, &sp, &ep, 0, search_type); //FIXME search_info.search_type
 			if (line_match)
 			{
 				/*
@@ -849,9 +838,8 @@ hist_pattern(search_type)
 	if (pattern == NULL)
 		return (0);
 
-	if (compile_pattern(pattern, search_type, &search_pattern) < 0)
+	if (set_pattern(&search_info, pattern, search_type) < 0)
 		return (0);
-	save_search_pattern(search_type, pattern); /* ? */
 
 	is_ucase_pattern = is_ucase(pattern);
 	if (is_ucase_pattern && caseless != OPT_ONPLUS)
@@ -898,7 +886,8 @@ search(search_type, pattern, n)
 			return (-1);
 		}
 		if ((search_type & SRCH_NO_REGEX) != 
-		    (last_search_type & SRCH_NO_REGEX))
+		      (search_info.search_type & SRCH_NO_REGEX) &&
+			!hist_pattern(search_type))
 		{
 			error("Please re-enter search pattern", NULL_PARG);
 			return -1;
@@ -928,9 +917,8 @@ search(search_type, pattern, n)
 		/*
 		 * Compile the pattern.
 		 */
-		if (compile_pattern(pattern, search_type, &search_pattern) < 0)
+		if (set_pattern(&search_info, pattern, search_type) < 0)
 			return (-1);
-		save_search_pattern(search_type, pattern);
 		/*
 		 * Ignore case if -I is set OR
 		 * -i is set AND the pattern is all lowercase.
@@ -1138,7 +1126,7 @@ prep_hilite(spos, epos, maxlines)
 	if (epos == NULL_POSITION || epos > spos)
 	{
 		int search_type = SRCH_FORW | SRCH_FIND_ALL;
-		search_type |= (last_search_type & SRCH_NO_REGEX);
+		search_type |= (search_info.search_type & SRCH_NO_REGEX);
 		result = search_range(spos, epos, search_type, 0,
 				maxlines, (POSITION*)NULL, &new_epos);
 		if (result < 0)
@@ -1160,12 +1148,9 @@ set_filter_pattern(pattern, search_type)
 {
 	clr_filter();
 	if (pattern == NULL || *pattern == '\0')
-		uncompile_filter_pattern();
+		clear_pattern(&filter_info);
 	else
-	{
-		compile_pattern(pattern, search_type, &filter_pattern);
-		save_filter_pattern(search_type, pattern);
-	}
+		(void) set_pattern(&filter_info, pattern, search_type);
 	screen_trashed = 1;
 }
 
@@ -1177,7 +1162,7 @@ is_filtering()
 {
 	if (ch_getflags() & CH_HELPFILE)
 		return (0);
-	return !is_null_pattern(filter_pattern);
+	return !is_null_pattern(filter_info.comp);
 }
 #endif
 
