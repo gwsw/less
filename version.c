@@ -727,6 +727,7 @@ v432  6/27/09   Better fix for highlight bugs;
                 fix new problems with ignaw terminals.
 v433  6/28/09   Cleanup search code.
 v434  6/29/09   More cleanup.
+v435  7/04/09   Fix bugs with non-regex filtering.
 */
 
-char version[] = "434";
+char version[] = "435";

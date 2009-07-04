@@ -164,11 +164,12 @@ is_ucase(str)
  * Is there a previous (remembered) search pattern?
  */
 	static int
-prev_search_pattern()
+prev_pattern(info)
+	struct pattern_info *info;
 {
-	if (search_info.search_type & SRCH_NO_REGEX)
-		return (search_info.text != NULL);
-	return (!is_null_pattern(search_info.comp));
+	if (info->search_type & SRCH_NO_REGEX)
+		return (info->text != NULL);
+	return (!is_null_pattern(info->comp));
 }
 
 #if HILITE_SEARCH
@@ -272,7 +273,7 @@ clear_attn()
 	public void
 undo_search()
 {
-	if (!prev_search_pattern())
+	if (!prev_pattern(&search_info))
 	{
 		error("No previous regular expression", NULL_PARG);
 		return;
@@ -753,9 +754,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 * Check to see if the line matches the filter pattern.
 		 * If so, add an entry to the filter list.
 		 */
-		if ((search_type & SRCH_FIND_ALL) &&
-			!is_null_pattern(filter_info.comp))
-		{
+		if ((search_type & SRCH_FIND_ALL) && prev_pattern(&filter_info)) {
 			int line_filter = match_pattern(filter_info.comp, filter_info.text,
 				cline, line_len, &sp, &ep, 0, filter_info.search_type);
 			if (line_filter)
@@ -774,7 +773,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 * We are successful if we either want a match and got one,
 		 * or if we want a non-match and got one.
 		 */
-		if (prev_search_pattern())
+		if (prev_pattern(&search_info))
 		{
 			line_match = match_pattern(search_info.comp, search_info.text,
 				cline, line_len, &sp, &ep, 0, search_type); //FIXME search_info.search_type
@@ -880,7 +879,7 @@ search(search_type, pattern, n)
 		/*
 		 * A null pattern means use the previously compiled pattern.
 		 */
-		if (!prev_search_pattern() && !hist_pattern(search_type))
+		if (!prev_pattern(&search_info) && !hist_pattern(search_type))
 		{
 			error("No previous regular expression", NULL_PARG);
 			return (-1);
@@ -1032,7 +1031,7 @@ prep_hilite(spos, epos, maxlines)
  */
 #define	SEARCH_MORE (3*size_linebuf)
 
-	if (!prev_search_pattern() && !is_filtering())
+	if (!prev_pattern(&search_info) && !is_filtering())
 		return;
 
 	/*
@@ -1162,7 +1161,7 @@ is_filtering()
 {
 	if (ch_getflags() & CH_HELPFILE)
 		return (0);
-	return !is_null_pattern(filter_info.comp);
+	return prev_pattern(&filter_info);
 }
 #endif
 
