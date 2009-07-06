@@ -41,7 +41,6 @@ extern int size_linebuf;
 extern int squished;
 extern int can_goto_line;
 static int hide_hilite;
-static int oldbot;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
 static int is_caseless;
@@ -63,7 +62,7 @@ static struct hilite filter_anchor = { NULL, NULL_POSITION, NULL_POSITION };
  * search pattern and filter pattern.
  */
 struct pattern_info {
-	DEFINE_PATTERN(comp);
+	DEFINE_PATTERN(compiled);
 	char* text;
 	int search_type;
 };
@@ -81,9 +80,10 @@ set_pattern(info, pattern, search_type)
 	int search_type;
 {
 	if (pattern == NULL)
-		CLEAR_PATTERN(search_info.comp);
-	else if (compile_pattern(pattern, search_type, &info->comp) < 0)
+		CLEAR_PATTERN(search_info.compiled);
+	else if (compile_pattern(pattern, search_type, &info->compiled) < 0)
 		return -1;
+	/* Pattern compiled successfully; save the text too. */
 	if (info->text != NULL)
 		free(info->text);
 	info->text = NULL;
@@ -103,18 +103,32 @@ set_pattern(info, pattern, search_type)
 clear_pattern(info)
 	struct pattern_info *info;
 {
-	uncompile_pattern(&info->comp);
+	if (info->text != NULL)
+		free(info->text);
 	info->text = NULL;
+	uncompile_pattern(&info->compiled);
 }
 
 /*
- * Initialize static variables.
+ * Initialize saved pattern to nothing.
+ */
+	static void
+init_pattern(info)
+	struct pattern_info *info;
+{
+	CLEAR_PATTERN(info->compiled);
+	info->text = NULL;
+	info->search_type = 0;
+}
+
+/*
+ * Initialize search variables.
  */
 	public void
 init_search()
 {
-	set_pattern(&search_info, NULL, 0);
-	set_pattern(&filter_info, NULL, 0);
+	init_pattern(&search_info);
+	init_pattern(&filter_info);
 }
 
 /*
@@ -169,7 +183,7 @@ prev_pattern(info)
 {
 	if (info->search_type & SRCH_NO_REGEX)
 		return (info->text != NULL);
-	return (!is_null_pattern(info->comp));
+	return (!is_null_pattern(info->compiled));
 }
 
 #if HILITE_SEARCH
@@ -215,8 +229,7 @@ repaint_hilite(on)
 		goto_line(slinenum);
 		put_line();
 	}
-	if (!oldbot)
-		lower_left();
+	lower_left(); // if !oldbot
 	hide_hilite = save_hide_hilite;
 }
 
@@ -503,7 +516,7 @@ hilite_line(linepos, line, line_len, chpos, sp, ep, cvt_ops)
 			searchp++;
 		else /* end of line */
 			break;
-	} while (match_pattern(search_info.comp, search_info.text,
+	} while (match_pattern(search_info.compiled, search_info.text,
 			searchp, line_end - searchp, &sp, &ep, 1, search_info.search_type));
 }
 #endif
@@ -755,7 +768,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 * If so, add an entry to the filter list.
 		 */
 		if ((search_type & SRCH_FIND_ALL) && prev_pattern(&filter_info)) {
-			int line_filter = match_pattern(filter_info.comp, filter_info.text,
+			int line_filter = match_pattern(filter_info.compiled, filter_info.text,
 				cline, line_len, &sp, &ep, 0, filter_info.search_type);
 			if (line_filter)
 			{
@@ -775,7 +788,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 */
 		if (prev_pattern(&search_info))
 		{
-			line_match = match_pattern(search_info.comp, search_info.text,
+			line_match = match_pattern(search_info.compiled, search_info.text,
 				cline, line_len, &sp, &ep, 0, search_type); //FIXME search_info.search_type
 			if (line_match)
 			{
@@ -1149,7 +1162,7 @@ set_filter_pattern(pattern, search_type)
 	if (pattern == NULL || *pattern == '\0')
 		clear_pattern(&filter_info);
 	else
-		(void) set_pattern(&filter_info, pattern, search_type);
+		set_pattern(&filter_info, pattern, search_type);
 	screen_trashed = 1;
 }
 
