@@ -728,6 +728,7 @@ v432  6/27/09   Better fix for highlight bugs;
 v433  6/28/09   Cleanup search code.
 v434  6/29/09   More cleanup.
 v435  7/04/09   Fix bugs with non-regex filtering.
+v436  7/05/09   Fix memory leak.
 */
 
-char version[] = "435";
+char version[] = "436";
