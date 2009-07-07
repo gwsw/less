@@ -898,8 +898,7 @@ search(search_type, pattern, n)
 			return (-1);
 		}
 		if ((search_type & SRCH_NO_REGEX) != 
-		      (search_info.search_type & SRCH_NO_REGEX) &&
-			!hist_pattern(search_type))
+		      (search_info.search_type & SRCH_NO_REGEX))
 		{
 			error("Please re-enter search pattern", NULL_PARG);
 			return -1;
