@@ -427,7 +427,7 @@ static struct loption option[] =
 			NULL
 		}
 	},
-	{ '.', &keypad_optname,
+	{ OLETTER_NONE, &keypad_optname,
 		BOOL|NO_TOGGLE, OPT_OFF, &no_keypad, NULL,
 		{
 			"Use keypad mode",
@@ -435,7 +435,7 @@ static struct loption option[] =
 			NULL
 		}
 	},
-	{ '.', &oldbot_optname,
+	{ OLETTER_NONE, &oldbot_optname,
 		BOOL, OPT_OFF, &oldbot, NULL,
 		{
 			"Use new bottom of screen behavior",
@@ -443,11 +443,11 @@ static struct loption option[] =
 			NULL
 		}
 	},
-	{ '.', &follow_optname,
+	{ OLETTER_NONE, &follow_optname,
 		BOOL, FOLLOW_DESC, &follow_mode, NULL,
 		{
-			"F command Follows file descriptor",
-			"F command Follows file name",
+			"F command follows file descriptor",
+			"F command follows file name",
 			NULL
 		}
 	},

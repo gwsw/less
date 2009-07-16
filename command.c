@@ -64,7 +64,8 @@ static int mca;			/* The multicharacter command (action) */
 static int search_type;		/* The previous type of search */
 static LINENUM number;		/* The number typed by the user */
 static long fraction;		/* The fractional part of the number */
-static char optchar;
+static struct loption *curropt;
+static int opt_lower;
 static int optflag;
 static int optgetname;
 static POSITION bottompos;
@@ -226,8 +227,8 @@ exec_mca()
 			every_first_cmd = save(cbuf);
 		break;
 	case A_OPT_TOGGLE:
-		toggle_option(optchar, cbuf, optflag);
-		optchar = '\0';
+		toggle_option(curropt, opt_lower, cbuf, optflag);
+		curropt = NULL;
 		break;
 	case A_F_BRACKET:
 		match_brac(cbuf[0], cbuf[1], 1, (int) number);
@@ -280,6 +281,117 @@ exec_mca()
 }
 
 /*
+ * Is a character an erase or kill char?
+ */
+	static int
+is_erase_char(c)
+	int c;
+{
+	return (c == erase_char || c == erase2_char || c == kill_char);
+}
+
+/*
+ * Handle the first option char (after the initial dash).
+ */
+	static int
+mca_opt_first_char(c)
+{
+	int flag = (optflag & ~OPT_NO_PROMPT);
+	if (flag == OPT_NO_TOGGLE)
+	{
+		switch (c)
+		{
+		case '_':
+			/* "__" = long option name. */
+			optgetname = TRUE;
+			mca_opt_toggle();
+			return (MCA_MORE);
+		}
+	} else
+	{
+		switch (c)
+		{
+		case '+':
+			/* "-+" = UNSET. */
+			optflag = (flag == OPT_UNSET) ?
+				OPT_TOGGLE : OPT_UNSET;
+			mca_opt_toggle();
+			return (MCA_MORE);
+		case '!':
+			/* "-!" = SET */
+			optflag = (flag == OPT_SET) ?
+				OPT_TOGGLE : OPT_SET;
+			mca_opt_toggle();
+			return (MCA_MORE);
+		case CONTROL('P'):
+			optflag ^= OPT_NO_PROMPT;
+			mca_opt_toggle();
+			return (MCA_MORE);
+		case '-':
+			/* "--" = long option name. */
+			optgetname = TRUE;
+			mca_opt_toggle();
+			return (MCA_MORE);
+		}
+	}
+	/* Char was not handled here. */
+	return (NO_MCA);
+}
+
+/*
+ * Add a char to a long option name.
+ * See if we've got a match for an option name yet.
+ * If so, display the complete name and stop 
+ * accepting chars until user hits RETURN.
+ */
+	static int
+mca_opt_char(c)
+	int c;
+{
+	char *p;
+	char *oname;
+
+	if (curropt != NULL)
+	{
+		/*
+		 * Already have a match for the name.
+		 * Don't accept anything but erase/kill.
+		 */
+		if (is_erase_char(c))
+			return (MCA_DONE);
+		return (MCA_MORE);
+	}
+	/*
+	 * Add char to cmd buffer and try to match
+	 * the option name.
+	 */
+	if (cmd_char(c) == CC_QUIT)
+		return (MCA_DONE);
+	p = get_cmdbuf();
+	opt_lower = ASCII_IS_LOWER(p[0]);
+	curropt = findopt_name(&p, &oname, NULL);
+	if (curropt != NULL)
+	{
+		/*
+		 * Got a match.
+		 * Remember the option and
+		 * display the full option name.
+		 */
+		cmd_reset();
+		mca_opt_toggle();
+		for (p = oname;  *p != '\0';  p++)
+		{
+			c = *p;
+			if (!opt_lower && ASCII_IS_LOWER(c))
+				c = ASCII_TO_UPPER(c);
+			if (cmd_char(c) != CC_OK)
+				return (MCA_DONE);
+		}
+	}
+	return (MCA_MORE);
+}
+
+/*
  * Add a character to a multi-character command.
  */
 	static int
@@ -294,6 +406,7 @@ mca_char(c)
 	switch (mca)
 	{
 	case 0:
+	default:
 		/*
 		 * Not in a multicharacter command.
 		 */
@@ -329,157 +442,59 @@ mca_char(c)
 
 	case A_OPT_TOGGLE:
 		/*
-		 * Special case for the TOGGLE_OPTION command.
-		 * If the option letter which was entered is a
-		 * single-char option, execute the command immediately,
-		 * so user doesn't have to hit RETURN.
-		 * If the first char is + or -, this indicates
-		 * OPT_UNSET or OPT_SET respectively, instead of OPT_TOGGLE.
-		 * "--" begins inputting a long option name.
+		 * This may be a short option (single char),
+		 * or one char of a long option name,
+		 * or one char of the option parameter.
 		 */
-		if (optchar == '\0' && len_cmdbuf() == 0)
+		if (curropt == NULL && len_cmdbuf() == 0)
 		{
-			flag = (optflag & ~OPT_NO_PROMPT);
-			if (flag == OPT_NO_TOGGLE)
-			{
-				switch (c)
-				{
-				case '_':
-					/* "__" = long option name. */
-					optgetname = TRUE;
-					mca_opt_toggle();
-					return (MCA_MORE);
-				}
-			} else
-			{
-				switch (c)
-				{
-				case '+':
-					/* "-+" = UNSET. */
-					optflag = (flag == OPT_UNSET) ?
-						OPT_TOGGLE : OPT_UNSET;
-					mca_opt_toggle();
-					return (MCA_MORE);
-				case '!':
-					/* "-!" = SET */
-					optflag = (flag == OPT_SET) ?
-						OPT_TOGGLE : OPT_SET;
-					mca_opt_toggle();
-					return (MCA_MORE);
-				case CONTROL('P'):
-					optflag ^= OPT_NO_PROMPT;
-					mca_opt_toggle();
-					return (MCA_MORE);
-				case '-':
-					/* "--" = long option name. */
-					optgetname = TRUE;
-					mca_opt_toggle();
-					return (MCA_MORE);
-				}
-			}
+			int ret = mca_opt_first_char(c);
+			if (ret != NO_MCA)
+				return (ret);
 		}
 		if (optgetname)
 		{
-			/*
-			 * We're getting a long option name.
-			 * See if we've matched an option name yet.
-			 * If so, display the complete name and stop 
-			 * accepting chars until user hits RETURN.
-			 */
-			struct loption *o;
-			char *oname;
-			int lc;
-
-			if (c == '\n' || c == '\r')
+			/* We're getting a long option name.  */
+			if (c != '\n' && c != '\r')
+			    return mca_opt_char(c);
+			if (curropt == NULL)
 			{
-				/*
-				 * When the user hits RETURN, make sure
-				 * we've matched an option name, then
-				 * pretend he just entered the equivalent
-				 * option letter.
-				 */
-				if (optchar == '\0')
-				{
-					parg.p_string = get_cmdbuf();
-					error("There is no --%s option", &parg);
-					return (MCA_DONE);
-				}
-				optgetname = FALSE;
-				cmd_reset();
-				c = optchar;
-			} else
-			{
-				if (optchar != '\0')
-				{
-					/*
-					 * Already have a match for the name.
-					 * Don't accept anything but erase/kill.
-					 */
-					if (c == erase_char ||
-					    c == erase2_char ||
-					    c == kill_char)
-						return (MCA_DONE);
-					return (MCA_MORE);
-				}
-				/*
-				 * Add char to cmd buffer and try to match
-				 * the option name.
-				 */
-				if (cmd_char(c) == CC_QUIT)
-					return (MCA_DONE);
-				p = get_cmdbuf();
-				lc = ASCII_IS_LOWER(p[0]);
-				o = findopt_name(&p, &oname, NULL);
-				if (o != NULL)
-				{
-					/*
-					 * Got a match.
-					 * Remember the option letter and
-					 * display the full option name.
-					 */
-					optchar = o->oletter;
-					if (!lc && ASCII_IS_LOWER(optchar))
-						optchar = ASCII_TO_UPPER(optchar);
-					cmd_reset();
-					mca_opt_toggle();
-					for (p = oname;  *p != '\0';  p++)
-					{
-						c = *p;
-						if (!lc && ASCII_IS_LOWER(c))
-							c = ASCII_TO_UPPER(c);
-						if (cmd_char(c) != CC_OK)
-							return (MCA_DONE);
-					}
-				}
-				return (MCA_MORE);
+				parg.p_string = get_cmdbuf();
+				error("There is no --%s option", &parg);
+				return (MCA_DONE);
 			}
+			optgetname = FALSE;
+			cmd_reset();
 		} else
 		{
-			if (c == erase_char || c == erase2_char || c == kill_char)
-				break;
-			if (optchar != '\0')
-				/* We already have the option letter. */
-				break;
+		    if (is_erase_char(c))
+			    break;
+		    if (curropt != NULL)
+				/* We're getting the option parameter. */
+			    break; 
+		    curropt = findopt(c);
+		    if (curropt == NULL)
+		    {
+			    parg.p_string = propt(c);
+			    error("There is no %s option", &parg);
+			    return (MCA_DONE);
+		    }
 		}
-
-		optchar = c;
+		/*
+		 * If the option which was entered does not take a 
+		 * parameter, toggle the option immediately,
+		 * so user doesn't have to hit RETURN.
+		 */
 		if ((optflag & ~OPT_NO_PROMPT) != OPT_TOGGLE ||
-		    single_char_option(c))
+			!opt_has_param(curropt))
 		{
-			toggle_option(c, "", optflag);
+			toggle_option(curropt, ASCII_IS_LOWER(c), "", optflag);
 			return (MCA_DONE);
 		}
 		/*
-		 * Display a prompt appropriate for the option letter.
+		 * Display a prompt appropriate for the option parameter.
 		 */
-		if ((p = opt_prompt(c)) == NULL)
-		{
-			buf[0] = '-';
-			buf[1] = c;
-			buf[2] = '\0';
-			p = buf;
-		}
-		start_mca(A_OPT_TOGGLE, p, (void*)NULL, 0);
+		start_mca(A_OPT_TOGGLE, opt_prompt(curropt), (void*)NULL, 0);
 		return (MCA_MORE);
 
 	case A_F_SEARCH:
@@ -927,7 +942,7 @@ commands()
 		mca = 0;
 		cmd_accept();
 		number = 0;
-		optchar = '\0';
+		curropt = NULL;
 
 		/*
 		 * See if any signals need processing.
