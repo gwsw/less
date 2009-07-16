@@ -369,13 +369,15 @@ AC_ARG_WITH(secure,
   AC_DEFINE(SECURE_COMPILE, 1), AC_DEFINE(SECURE_COMPILE, 0))
 
 # Should we use floating point?
+AC_MSG_CHECKING(for floating point)
 AC_ARG_WITH(no-float,
   [  --with-no-float  Do not use floating point],
   WANT_NO_FLOAT=1, WANT_NO_FLOAT=0)
 if test $WANT_NO_FLOAT = 0; then
-  AC_MSG_CHECKING(for floating point)
-  AC_TRY_COMPILE(, [double foo = 1.5;], 
+  AC_TRY_LINK(, [double f1 = 12.5; double f2 = f1*f1/2.5;], 
     [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_FLOAT)], [AC_MSG_RESULT(no)])
+else
+  AC_MSG_RESULT(disabled by user)
 fi
 
 # Checks for regular expression functions.
