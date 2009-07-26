@@ -331,3 +331,5 @@
 
 #define	popen	_popen
 #define	pclose	_pclose
+
+#pragma warning(disable:4996)

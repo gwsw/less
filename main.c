@@ -406,7 +406,7 @@ quit(status)
 	 */
 	close(2);
 #endif
-#if WIN32
+#ifdef WIN32
 	SetConsoleTitle(consoleTitle);
 #endif
 	close_getchr();
