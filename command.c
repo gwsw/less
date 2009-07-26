@@ -55,8 +55,6 @@ extern int shift_count;
 extern int oldbot;
 extern int forw_prompt;
 
-static char ungot[UNGOT_SIZE];
-static char *ungotp = NULL;
 #if SHELL_ESCAPE
 static char *shellcmd = NULL;	/* For holding last shell command for "!!" */
 #endif
@@ -73,6 +71,13 @@ static int save_hshift;
 #if PIPEC
 static char pipec;
 #endif
+
+struct ungot {
+	struct ungot *ug_next;
+	char ug_char;
+};
+static struct ungot* ungot;
+static int ungot_some;
 
 static void multi_search();
 
@@ -676,7 +681,7 @@ prompt()
 {
 	register char *p;
 
-	if (ungotp != NULL && ungotp > ungot)
+	if (ungot_some)
 	{
 		/*
 		 * No prompt necessary if commands are from 
@@ -766,22 +771,30 @@ dispversion()
 	public int
 getcc()
 {
-	if (ungotp == NULL)
+	char c;
+
+	if (!ungot_some)
 		/*
 		 * Normal case: no ungotten chars, so get one from the user.
 		 */
 		return (getchr());
 
-	if (ungotp > ungot)
+	if (ungot != NULL)
+	{
 		/*
 		 * Return the next ungotten char.
 		 */
-		return (*--ungotp);
+		struct ungot *ug = ungot;
+		char c = ug->ug_char;
+		ungot = ug->ug_next;
+		free(ug);
+		return (c);
+	}
 
 	/*
 	 * We have just run out of ungotten chars.
 	 */
-	ungotp = NULL;
+	ungot_some = FALSE;
 	if (len_cmdbuf() == 0 || !empty_screen())
 		return (getchr());
 	/*
@@ -818,14 +831,12 @@ getcc()
 ungetcc(c)
 	int c;
 {
-	if (ungotp == NULL)
-		ungotp = ungot;
-	if (ungotp >= ungot + sizeof(ungot))
-	{
-		error("ungetcc overflow", NULL_PARG);
-		quit(QUIT_ERROR);
-	}
-	*ungotp++ = c;
+	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
+
+	ug->ug_char = c;
+	ug->ug_next = ungot;
+	ungot = ug;
+	ungot_some = TRUE;
 }
 
 /*
