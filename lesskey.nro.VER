@@ -13,7 +13,7 @@ lesskey \- specify key bindings for less
 .I Lesskey
 is used to specify a set of key bindings to be used by 
 .I less.
-The input file is a text file which describes the key bindings,
+The input file is a text file which describes the key bindings.
 If the input file is "-", standard input is read.
 If no input file is specified, a standard filename is used
 as the name of the input file, which depends on the system being used:
@@ -349,11 +349,6 @@ is run, and specifies the character set to be "latin1":
 less(1)
 
 .SH WARNINGS
-It is not possible to specify special keys, such as uparrow, 
-in a keyboard-independent manner.
-The only way to specify such keys is to specify the escape sequence
-which a particular keyboard sends when such a key is pressed.
-.PP
 On MS-DOS and OS/2 systems, certain keys send a sequence of characters
 which start with a NUL character (0).
 This NUL character should be represented as \e340 in a lesskey file.

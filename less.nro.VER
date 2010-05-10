@@ -1290,7 +1290,6 @@ The remainder of LESSBINFMT is a string which may include one
 printf-style escape sequence (a % followed by x, X, o, d, etc.).
 For example, if LESSBINFMT is "*u[%x]", binary characters
 are displayed in underlined hexadecimal surrounded by brackets.
-The default if no LESSBINFMT is specified is "*s<%X>".
 The default if no LESSBINFMT is specified is "*s<%02X>".
 Warning: the result of expanding the character via LESSBINFMT must
 be less than 31 characters.
@@ -1689,11 +1688,9 @@ See the GNU General Public License for more details.
 .PP
 Mark Nudelman <@@EMAIL@@>
 .br
+Send bug reports or comments to the above address or to bug-less@gnu.org.
+.br
 See @@HOMEPAGE@@/bugs.html for the latest list of known bugs in less.
-.br
-Send bug reports or comments to the above address or to 
-.br
-bug-less@gnu.org.
 .br
 For more information, see the less homepage at 
 .br
