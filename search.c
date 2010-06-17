@@ -229,7 +229,7 @@ repaint_hilite(on)
 		goto_line(slinenum);
 		put_line();
 	}
-	lower_left(); // if !oldbot
+	lower_left();
 	hide_hilite = save_hide_hilite;
 }
 
@@ -789,7 +789,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		if (prev_pattern(&search_info))
 		{
 			line_match = match_pattern(search_info.compiled, search_info.text,
-				cline, line_len, &sp, &ep, 0, search_type); //FIXME search_info.search_type
+				cline, line_len, &sp, &ep, 0, search_type);
 			if (line_match)
 			{
 				/*

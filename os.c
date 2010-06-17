@@ -250,7 +250,7 @@ errno_message(filename)
 	return (m);
 }
 
-//#define HAVE_FLOAT 0
+/* #define HAVE_FLOAT 0 */
 
 	static POSITION
 muldiv(val, num, den)
