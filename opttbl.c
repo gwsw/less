@@ -237,7 +237,7 @@ static struct loption option[] =
 		STRING, 0, NULL, opt_j,
 		{
 			"Target line: ",
-			"0123456789.",
+			"0123456789.-",
 			NULL
 		}
 	},
