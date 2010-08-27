@@ -32,7 +32,6 @@ public char *	progname;
 public int	quitting;
 public int	secure;
 public int	dohelp;
-public int	less_is_more;
 
 #if LOGFILE
 public int	logfile = -1;
@@ -55,6 +54,7 @@ extern int	jump_sline;
 static char consoleTitle[256];
 #endif
 
+extern int	less_is_more;
 extern int	missing_cap;
 extern int	know_dumb;
 extern int	quit_if_one_screen;
