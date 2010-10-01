@@ -71,6 +71,25 @@ static struct pattern_info search_info;
 static struct pattern_info filter_info;
 
 /*
+ * Are there any uppercase letters in this string?
+ */
+	static int
+is_ucase(str)
+	char *str;
+{
+	char *str_end = str + strlen(str);
+	LWCHAR ch;
+
+	while (str < str_end)
+	{
+		ch = step_char(&str, +1, str_end);
+		if (IS_UPPER(ch))
+			return (1);
+	}
+	return (0);
+}
+
+/*
  * Compile and save a search pattern.
  */
 	static int
@@ -93,6 +112,16 @@ set_pattern(info, pattern, search_type)
 		strcpy(info->text, pattern);
 	}
 	info->search_type = search_type;
+
+    /*
+     * Ignore case if -I is set OR
+     * -i is set AND the pattern is all lowercase.
+     */
+    is_ucase_pattern = is_ucase(pattern);
+    if (is_ucase_pattern && caseless != OPT_ONPLUS)
+        is_caseless = 0;
+    else
+        is_caseless = caseless;
 	return 0;
 }
 
@@ -153,25 +182,6 @@ get_cvt_ops()
 	if (ctldisp == OPT_ONPLUS)
 		ops |= CVT_ANSI;
 	return (ops);
-}
-
-/*
- * Are there any uppercase letters in this string?
- */
-	static int
-is_ucase(str)
-	char *str;
-{
-	char *str_end = str + strlen(str);
-	LWCHAR ch;
-
-	while (str < str_end)
-	{
-		ch = step_char(&str, +1, str_end);
-		if (IS_UPPER(ch))
-			return (1);
-	}
-	return (0);
 }
 
 /*
@@ -853,12 +863,6 @@ hist_pattern(search_type)
 	if (set_pattern(&search_info, pattern, search_type) < 0)
 		return (0);
 
-	is_ucase_pattern = is_ucase(pattern);
-	if (is_ucase_pattern && caseless != OPT_ONPLUS)
-		is_caseless = 0;
-	else
-		is_caseless = caseless;
-
 #if HILITE_SEARCH
 	if (hilite_search == OPT_ONPLUS && !hide_hilite)
 		hilite_screen();
@@ -930,15 +934,6 @@ search(search_type, pattern, n)
 		 */
 		if (set_pattern(&search_info, pattern, search_type) < 0)
 			return (-1);
-		/*
-		 * Ignore case if -I is set OR
-		 * -i is set AND the pattern is all lowercase.
-		 */
-		is_ucase_pattern = is_ucase(pattern);
-		if (is_ucase_pattern && caseless != OPT_ONPLUS)
-			is_caseless = 0;
-		else
-			is_caseless = caseless;
 #if HILITE_SEARCH
 		if (hilite_search)
 		{
