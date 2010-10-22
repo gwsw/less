@@ -400,6 +400,7 @@ fexpand(s)
 	return (e);
 }
 
+
 #if TAB_COMPLETE_FILENAME
 
 /*
@@ -1057,3 +1058,22 @@ shell_coption()
 {
 	return ("-c");
 }
+
+/*
+ * Return last component of a pathname.
+ */
+	public char *
+last_component(name)
+	char *name;
+{
+	char *slash;
+
+	for (slash = name + strlen(name);  slash > name; )
+	{
+		--slash;
+		if (*slash == *PATHNAME_SEP || *slash == '/')
+			return (slash + 1);
+	}
+	return (name);
+}
+

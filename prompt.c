@@ -303,6 +303,9 @@ protochar(c, where, iseditproto)
 	case 'f':	/* File name */
 		ap_str(get_filename(curr_ifile));
 		break;
+	case 'F':	/* Last component of file name */
+		ap_str(last_component(get_filename(curr_ifile)));
+		break;
 	case 'i':	/* Index into list of files */
 #if TAGS
 		if (ntags())

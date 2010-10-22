@@ -1346,6 +1346,8 @@ or the EDITOR environment variable if VISUAL is not defined).
 See the discussion of the LESSEDIT feature below.
 .IP "%f"
 Replaced by the name of the current input file.
+.IP "%F"
+Replaced by the last component of the name of the current input file.
 .IP "%i"
 Replaced by the index of the current file in the list of
 input files.
