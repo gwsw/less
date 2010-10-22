@@ -113,15 +113,15 @@ set_pattern(info, pattern, search_type)
 	}
 	info->search_type = search_type;
 
-    /*
-     * Ignore case if -I is set OR
-     * -i is set AND the pattern is all lowercase.
-     */
-    is_ucase_pattern = is_ucase(pattern);
-    if (is_ucase_pattern && caseless != OPT_ONPLUS)
-        is_caseless = 0;
-    else
-        is_caseless = caseless;
+	/*
+	 * Ignore case if -I is set OR
+	 * -i is set AND the pattern is all lowercase.
+	 */
+	is_ucase_pattern = is_ucase(pattern);
+	if (is_ucase_pattern && caseless != OPT_ONPLUS)
+		is_caseless = 0;
+	else
+		is_caseless = caseless;
 	return 0;
 }
 
