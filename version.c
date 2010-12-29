@@ -732,6 +732,9 @@ v436  7/05/09   Fix memory leak.
 -----------------------------------------------------------------
 v437  7/14/09   Fix bug in handling some long option names;
                 make percentage calculation more accurate.
+v438  12/29/10  Fix bugs with -i/-I and & filtering; 
+                exit with status 2 on ctrl-C with -K.
+
 */
 
-char version[] = "437";
+char version[] = "438";
