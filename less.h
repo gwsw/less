@@ -473,6 +473,7 @@ struct textlist
 
 #define	QUIT_OK		0
 #define	QUIT_ERROR	1
+#define	QUIT_INTERRUPT	2
 #define	QUIT_SAVED_STATUS (-1)
 
 #define FOLLOW_DESC     0

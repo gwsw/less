@@ -252,6 +252,6 @@ psignals()
 	if (tsignals & S_INTERRUPT)
 	{
 		if (quit_on_intr)
-			quit(QUIT_OK);
+			quit(QUIT_INTERRUPT);
 	}
 }

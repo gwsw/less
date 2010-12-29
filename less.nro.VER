@@ -613,7 +613,8 @@ file.
 .IP "\-K or \-\-quit-on-intr"
 Causes
 .I less
-to exit immediately when an interrupt character (usually ^C) is typed.
+to exit immediately (with status 2)
+when an interrupt character (usually ^C) is typed.
 Normally, an interrupt character causes
 .I less
 to stop whatever it is doing and return to its command prompt.
