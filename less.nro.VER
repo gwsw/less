@@ -10,7 +10,7 @@ less \- opposite of more
 .br
 .B "less \-\-version"
 .br
-.B "less [\-[+]aBcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX~]"
+.B "less [\-[+]aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX~]"
 .br
 .B "     [\-b \fIspace\fP] [\-h \fIlines\fP] [\-j \fIline\fP] [\-k \fIkeyfile\fP]"
 .br
@@ -65,7 +65,7 @@ Like SPACE, but if N is specified, it becomes the new window size.
 .IP "ESC-SPACE"
 Like SPACE, but scrolls a full screenful, even if it reaches
 end-of-file in the process.
-.IP "RETURN or ^N or e or ^E or j or ^J"
+.IP "ENTER or RETURN or ^N or e or ^E or j or ^J"
 Scroll forward N lines, default 1.
 The entire N lines are displayed, even if N is more than the screen size.
 .IP "d or ^D"
@@ -178,7 +178,7 @@ Search forward in the file for the N-th line containing the pattern.
 N defaults to 1.
 The pattern is a regular expression, as recognized by
 the regular expression library supplied by your system.
-The search starts at the second line displayed
+The search starts at the first line displayed
 (but see the \-a and \-j options, which change this).
 .sp
 Certain characters are special
@@ -333,7 +333,7 @@ the current setting is printed and nothing is changed.
 .IP \-\-
 Like the \- command, but takes a long option name (see OPTIONS below)
 rather than a single option letter.
-You must press RETURN after typing the option name.
+You must press ENTER or RETURN after typing the option name.
 A ^P immediately after the second dash suppresses printing of a 
 message describing the new setting, as in the \- command.
 .IP \-+
@@ -363,7 +363,7 @@ The setting of the option is not changed.
 (Double underscore.)
 Like the _ (underscore) command, but takes a long option name
 rather than a single option letter.
-You must press RETURN after typing the option name.
+You must press ENTER or RETURN after typing the option name.
 .IP +cmd
 Causes the specified cmd to be executed each time a new file is examined.
 For example, +G causes 
@@ -465,11 +465,25 @@ This option displays a summary of the commands accepted by
 (Depending on how your shell interprets the question mark,
 it may be necessary to quote the question mark, thus: "\-\e?".)
 .IP "\-a or \-\-search-skip-screen"
-Causes searches to start after the last line
-displayed on the screen, 
+By default, forward searches start just after the "target" line and
+backwards searches start just before the "target" line.
+The target line is the first line displayed on the screen 
+unless changed by the \-j option.
+The \-a option causes forward searches to instead start 
+after the last line displayed on the screen, 
+and backward searches to start before
+the first line displayed on the screen,
 thus skipping all lines displayed on the screen.
-By default, searches start at the second line on the screen
-(or after the last found line; see the \-j option).
+.IP "\-A or \-\-SEARCH-SKIP-SCREEN"
+Causes searches for which a pattern is explicitly specified 
+to start at the first line displayed on the screen,
+thus including the entire displayed screen in the search.
+If no pattern is specified (as with the "n" or "N" commands,
+or if the "/" command is executed with no pattern argument),
+then forward searches start after the target line as usual.
+Similarly, \-A causes backward searches for which a pattern
+is specified to start at the last line displayed on the screen,
+thus including the entire displayed screen in the search.
 .IP "\-b\fIn\fP or \-\-buffers=\fIn\fP"
 Specifies the amount of buffer space
 .I less
@@ -590,7 +604,8 @@ is recalculated if the terminal window is resized, so that the
 target line remains at the specified fraction of the screen height.
 If any form of the \-j option is used, 
 forward searches begin at the line immediately after the target line,
-and backward searches begin at the target line.
+and backward searches begin at the target line,
+unless changed by \-a or \-A.
 For example, if "\-j4" is used, the target line is the
 fourth line on the screen, so forward searches begin at the fifth line
 on the screen.

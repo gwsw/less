@@ -112,6 +112,8 @@
                   Display help (from command line).
   -a  ........  --search-skip-screen
                   Forward search skips current screen.
+  -A  ........  --SEARCH-SKIP-SCREEN
+                  Forward search always skips target line.
   -b [_N]  ....  --buffers=[_N]
                   Number of buffers.
   -B  ........  --auto-buffers

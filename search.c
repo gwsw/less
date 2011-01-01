@@ -609,7 +609,7 @@ search_pos(search_type)
 		 */
 		if (search_type & SRCH_FORW)
 		{
-			return (ch_zero());
+			pos = ch_zero();
 		} else
 		{
 			pos = ch_length();
@@ -618,10 +618,8 @@ search_pos(search_type)
 				(void) ch_end_seek();
 				pos = ch_length();
 			}
-			return (pos);
 		}
-	}
-	if (how_search)
+	} else if (how_search == OPT_ON)
 	{
 		/*
 		 * Search does not include current screen.
@@ -631,7 +629,17 @@ search_pos(search_type)
 		else
 			linenum = TOP;
 		pos = position(linenum);
-	} else
+	} else if (how_search == OPT_ONPLUS && !(search_type & SRCH_AFTER_TARGET))
+	{
+		/*
+		 * Search includes all of displayed screen.
+		 */
+		if (search_type & SRCH_FORW)
+			linenum = TOP;
+		else
+			linenum = BOTTOM_PLUS_ONE;
+		pos = position(linenum);
+	} else 
 	{
 		/*
 		 * Search includes current screen.
@@ -640,24 +648,28 @@ search_pos(search_type)
 		 */
 		linenum = adjsline(jump_sline);
 		pos = position(linenum);
-		if (search_type & SRCH_FORW)
-		{
-			pos = forw_raw_line(pos, (char **)NULL, (int *)NULL);
-			while (pos == NULL_POSITION)
-			{
-				if (++linenum >= sc_height)
-					break;
-				pos = position(linenum);
-			}
-		} else 
-		{
-			while (pos == NULL_POSITION)
-			{
-				if (--linenum < 0)
-					break;
-				pos = position(linenum);
-			}
-		}
+		if (search_type & SRCH_FORW) 
+			pos = forw_raw_line(pos, (char **)NULL, (int *)NULL); /* plus one */
+	}
+	/*
+	 * If the line is empty, look around for a plausible starting place.
+	 */
+	if (search_type & SRCH_FORW) 
+	{
+	    while (pos == NULL_POSITION)
+	    {
+	        if (++linenum >= sc_height)
+	            break;
+	        pos = position(linenum);
+	    }
+	} else 
+	{
+	    while (pos == NULL_POSITION)
+	    {
+	        if (--linenum < 0)
+	            break;
+	        pos = position(linenum);
+	    }
 	}
 	return (pos);
 }
@@ -896,6 +908,7 @@ search(search_type, pattern, n)
 		/*
 		 * A null pattern means use the previously compiled pattern.
 		 */
+		search_type |= SRCH_AFTER_TARGET;
 		if (!prev_pattern(&search_info) && !hist_pattern(search_type))
 		{
 			error("No previous regular expression", NULL_PARG);
@@ -929,6 +942,17 @@ search(search_type, pattern, n)
 #endif
 	} else
 	{
+		if (hilite_search == OPT_ONPLUS && 
+		    search_info.text != NULL && 
+		    strcmp(pattern, search_info.text) == 0)
+		{
+			/*
+			 * We're currently highlighting the pattern.
+			 * We don't need to search the whole screen. 
+			 */
+			search_type |= SRCH_AFTER_TARGET;
+		}
+ 
 		/*
 		 * Compile the pattern.
 		 */
