@@ -942,17 +942,6 @@ search(search_type, pattern, n)
 #endif
 	} else
 	{
-		if (hilite_search == OPT_ONPLUS && 
-		    search_info.text != NULL && 
-		    strcmp(pattern, search_info.text) == 0)
-		{
-			/*
-			 * We're currently highlighting the pattern.
-			 * We don't need to search the whole screen. 
-			 */
-			search_type |= SRCH_AFTER_TARGET;
-		}
- 
 		/*
 		 * Compile the pattern.
 		 */
