@@ -735,7 +735,8 @@ v437  7/14/09   Fix bug in handling some long option names;
 v438  12/29/10  Fix bugs with -i/-I and & filtering; 
                 exit with status 2 on ctrl-C with -K.
 v439  12/31/10  Add -A option.
+v440  1/5/11    Fix bug displaying prompt after = command.
 
 */
 
-char version[] = "439";
+char version[] = "440";
