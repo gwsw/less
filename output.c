@@ -532,6 +532,7 @@ error(fmt, parg)
 
 	get_return();
 	lower_left();
+    clear_eol();
 
 	if (col >= sc_width)
 		/*

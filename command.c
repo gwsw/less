@@ -76,8 +76,8 @@ struct ungot {
 	struct ungot *ug_next;
 	char ug_char;
 };
-static struct ungot* ungot;
-static int ungot_some;
+static struct ungot* ungot = NULL;
+static int unget_end = 0;
 
 static void multi_search();
 
@@ -681,7 +681,7 @@ prompt()
 {
 	register char *p;
 
-	if (ungot_some)
+	if (ungot != NULL)
 	{
 		/*
 		 * No prompt necessary if commands are from 
@@ -773,54 +773,59 @@ getcc()
 {
 	char c;
 
-	if (!ungot_some)
+    if (unget_end) 
+    {
+        /*
+         * We have just run out of ungotten chars.
+         */
+        unget_end = 0;
+        if (len_cmdbuf() == 0 || !empty_screen())
+            return (getchr());
+        /*
+         * Command is incomplete, so try to complete it.
+         */
+        switch (mca)
+        {
+        case A_DIGIT:
+            /*
+             * We have a number but no command.  Treat as #g.
+             */
+            return ('g');
+
+        case A_F_SEARCH:
+        case A_B_SEARCH:
+            /*
+             * We have "/string" but no newline.  Add the \n.
+             */
+            return ('\n'); 
+
+        default:
+            /*
+             * Some other incomplete command.  Let user complete it.
+             */
+            return (getchr());
+        }
+    }
+
+	if (ungot == NULL)
+    {
 		/*
 		 * Normal case: no ungotten chars, so get one from the user.
 		 */
 		return (getchr());
+    }
 
-	if (ungot != NULL)
-	{
-		/*
-		 * Return the next ungotten char.
-		 */
-		struct ungot *ug = ungot;
-		char c = ug->ug_char;
-		ungot = ug->ug_next;
-		free(ug);
-		return (c);
-	}
-
-	/*
-	 * We have just run out of ungotten chars.
-	 */
-	ungot_some = FALSE;
-	if (len_cmdbuf() == 0 || !empty_screen())
-		return (getchr());
-	/*
-	 * Command is incomplete, so try to complete it.
-	 */
-	switch (mca)
-	{
-	case A_DIGIT:
-		/*
-		 * We have a number but no command.  Treat as #g.
-		 */
-		return ('g');
-
-	case A_F_SEARCH:
-	case A_B_SEARCH:
-		/*
-		 * We have "/string" but no newline.  Add the \n.
-		 */
-		return ('\n'); 
-
-	default:
-		/*
-		 * Some other incomplete command.  Let user complete it.
-		 */
-		return (getchr());
-	}
+    /*
+     * Return the next ungotten char.
+     */
+    {
+        struct ungot *ug = ungot;
+        char c = ug->ug_char;
+        ungot = ug->ug_next;
+        free(ug);
+        unget_end = (ungot == NULL);
+        return (c);
+    }
 }
 
 /*
@@ -836,7 +841,6 @@ ungetcc(c)
 	ug->ug_char = c;
 	ug->ug_next = ungot;
 	ungot = ug;
-	ungot_some = TRUE;
 }
 
 /*
