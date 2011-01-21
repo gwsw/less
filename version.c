@@ -736,7 +736,9 @@ v438  12/29/10  Fix bugs with -i/-I and & filtering;
                 exit with status 2 on ctrl-C with -K.
 v439  12/31/10  Add -A option.
 v440  1/5/11    Fix bug displaying prompt after = command.
+v441  1/21/11   Fix semi-infinite loop if no newlines in file;
+                make new -A behavior the default.
 
 */
 
-char version[] = "440";
+char version[] = "441";

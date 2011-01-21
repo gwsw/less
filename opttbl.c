@@ -133,11 +133,11 @@ static struct optname follow_optname = { "follow-name",          NULL };
 static struct loption option[] =
 {
 	{ 'a', &a_optname,
-		TRIPLE, OPT_OFF, &how_search, NULL,
+		TRIPLE, OPT_ONPLUS, &how_search, NULL,
 		{
 			"Search includes displayed screen",
 			"Search skips displayed screen",
-            "Search includes all of displayed screen"
+			"Search includes all of displayed screen"
 		}
 	},
 

@@ -403,116 +403,116 @@ mca_opt_nonfirst_char(c)
 mca_opt_char(c)
 	int c;
 {
-    PARG parg;
+	PARG parg;
 
-    /*
-     * This may be a short option (single char),
-     * or one char of a long option name,
-     * or one char of the option parameter.
-     */
-    if (curropt == NULL && len_cmdbuf() == 0)
-    {
-        int ret = mca_opt_first_char(c);
-        if (ret != NO_MCA)
-            return (ret);
-    }
-    if (optgetname)
-    {
-        /* We're getting a long option name.  */
-        if (c != '\n' && c != '\r')
-            return (mca_opt_nonfirst_char(c));
-        if (curropt == NULL)
-        {
-            parg.p_string = get_cmdbuf();
-            error("There is no --%s option", &parg);
-            return (MCA_DONE);
-        }
-        optgetname = FALSE;
-        cmd_reset();
-    } else
-    {
-        if (is_erase_char(c))
-            return (NO_MCA);
-        if (curropt != NULL)
-            /* We're getting the option parameter. */
-            return (NO_MCA);
-        curropt = findopt(c);
-        if (curropt == NULL)
-        {
-            parg.p_string = propt(c);
-            error("There is no %s option", &parg);
-            return (MCA_DONE);
-        }
-    }
-    /*
-     * If the option which was entered does not take a 
-     * parameter, toggle the option immediately,
-     * so user doesn't have to hit RETURN.
-     */
-    if ((optflag & ~OPT_NO_PROMPT) != OPT_TOGGLE ||
-        !opt_has_param(curropt))
-    {
-        toggle_option(curropt, ASCII_IS_LOWER(c), "", optflag);
-        return (MCA_DONE);
-    }
-    /*
-     * Display a prompt appropriate for the option parameter.
-     */
-    start_mca(A_OPT_TOGGLE, opt_prompt(curropt), (void*)NULL, 0);
-    return (MCA_MORE);
+	/*
+	 * This may be a short option (single char),
+	 * or one char of a long option name,
+	 * or one char of the option parameter.
+	 */
+	if (curropt == NULL && len_cmdbuf() == 0)
+	{
+		int ret = mca_opt_first_char(c);
+		if (ret != NO_MCA)
+			return (ret);
+	}
+	if (optgetname)
+	{
+		/* We're getting a long option name.  */
+		if (c != '\n' && c != '\r')
+			return (mca_opt_nonfirst_char(c));
+		if (curropt == NULL)
+		{
+			parg.p_string = get_cmdbuf();
+			error("There is no --%s option", &parg);
+			return (MCA_DONE);
+		}
+		optgetname = FALSE;
+		cmd_reset();
+	} else
+	{
+		if (is_erase_char(c))
+			return (NO_MCA);
+		if (curropt != NULL)
+			/* We're getting the option parameter. */
+			return (NO_MCA);
+		curropt = findopt(c);
+		if (curropt == NULL)
+		{
+			parg.p_string = propt(c);
+			error("There is no %s option", &parg);
+			return (MCA_DONE);
+		}
+	}
+	/*
+	 * If the option which was entered does not take a 
+	 * parameter, toggle the option immediately,
+	 * so user doesn't have to hit RETURN.
+	 */
+	if ((optflag & ~OPT_NO_PROMPT) != OPT_TOGGLE ||
+	    !opt_has_param(curropt))
+	{
+		toggle_option(curropt, ASCII_IS_LOWER(c), "", optflag);
+		return (MCA_DONE);
+	}
+	/*
+	 * Display a prompt appropriate for the option parameter.
+	 */
+	start_mca(A_OPT_TOGGLE, opt_prompt(curropt), (void*)NULL, 0);
+	return (MCA_MORE);
 }
 
 /*
  * Handle a char of a search command.
  */
-    static int
+	static int
 mca_search_char(c)
-    int c;
+	int c;
 {
-    int flag = 0;
+	int flag = 0;
 
-    /*
-     * Certain characters as the first char of 
-     * the pattern have special meaning:
-     *	!  Toggle the NO_MATCH flag
-     *	*  Toggle the PAST_EOF flag
-     *	@  Toggle the FIRST_FILE flag
-     */
-    if (len_cmdbuf() > 0)
-        return (NO_MCA);
+	/*
+	 * Certain characters as the first char of 
+	 * the pattern have special meaning:
+	 *	!  Toggle the NO_MATCH flag
+	 *	*  Toggle the PAST_EOF flag
+	 *	@  Toggle the FIRST_FILE flag
+	 */
+	if (len_cmdbuf() > 0)
+		return (NO_MCA);
 
-    switch (c)
-    {
-    case CONTROL('E'): /* ignore END of file */
-    case '*':
-        if (mca != A_FILTER)
-            flag = SRCH_PAST_EOF;
-        break;
-    case CONTROL('F'): /* FIRST file */
-    case '@':
-        if (mca != A_FILTER)
-            flag = SRCH_FIRST_FILE;
-        break;
-    case CONTROL('K'): /* KEEP position */
-        if (mca != A_FILTER)
-            flag = SRCH_NO_MOVE;
-        break;
-    case CONTROL('R'): /* Don't use REGULAR EXPRESSIONS */
-        flag = SRCH_NO_REGEX;
-        break;
-    case CONTROL('N'): /* NOT match */
-    case '!':
-        flag = SRCH_NO_MATCH;
-        break;
-    }
+	switch (c)
+	{
+	case CONTROL('E'): /* ignore END of file */
+	case '*':
+		if (mca != A_FILTER)
+			flag = SRCH_PAST_EOF;
+		break;
+	case CONTROL('F'): /* FIRST file */
+	case '@':
+		if (mca != A_FILTER)
+			flag = SRCH_FIRST_FILE;
+		break;
+	case CONTROL('K'): /* KEEP position */
+		if (mca != A_FILTER)
+			flag = SRCH_NO_MOVE;
+		break;
+	case CONTROL('R'): /* Don't use REGULAR EXPRESSIONS */
+		flag = SRCH_NO_REGEX;
+		break;
+	case CONTROL('N'): /* NOT match */
+	case '!':
+		flag = SRCH_NO_MATCH;
+		break;
+	}
 
-    if (flag != 0)
-    {
-        search_type ^= flag;
-        mca_search();
-        return (MCA_MORE);
-    }
-    return (NO_MCA);
+	if (flag != 0)
+	{
+		search_type ^= flag;
+		mca_search();
+		return (MCA_MORE);
+	}
+	return (NO_MCA);
 }
 
 /*
@@ -562,22 +562,22 @@ mca_char(c)
 		break;
 
 	case A_OPT_TOGGLE:
-        ret = mca_opt_char(c);
-        if (ret != NO_MCA)
-            return (ret);
-        break;
+		ret = mca_opt_char(c);
+		if (ret != NO_MCA)
+			return (ret);
+		break;
 
 	case A_F_SEARCH:
 	case A_B_SEARCH:
 	case A_FILTER:
-        ret = mca_search_char(c);
-        if (ret != NO_MCA)
-            return (ret);
+		ret = mca_search_char(c);
+		if (ret != NO_MCA)
+			return (ret);
 		break;
 
 	default:
-        /* Other multicharacter command. */
-        break;
+		/* Other multicharacter command. */
+		break;
 	}
 
 	/*
@@ -773,59 +773,59 @@ getcc()
 {
 	char c;
 
-    if (unget_end) 
-    {
-        /*
-         * We have just run out of ungotten chars.
-         */
-        unget_end = 0;
-        if (len_cmdbuf() == 0 || !empty_screen())
-            return (getchr());
-        /*
-         * Command is incomplete, so try to complete it.
-         */
-        switch (mca)
-        {
-        case A_DIGIT:
-            /*
-             * We have a number but no command.  Treat as #g.
-             */
-            return ('g');
+	if (unget_end) 
+	{
+		/*
+		 * We have just run out of ungotten chars.
+		 */
+		unget_end = 0;
+		if (len_cmdbuf() == 0 || !empty_screen())
+			return (getchr());
+		/*
+		 * Command is incomplete, so try to complete it.
+		 */
+		switch (mca)
+		{
+		case A_DIGIT:
+			/*
+			 * We have a number but no command.  Treat as #g.
+			 */
+			return ('g');
 
-        case A_F_SEARCH:
-        case A_B_SEARCH:
-            /*
-             * We have "/string" but no newline.  Add the \n.
-             */
-            return ('\n'); 
+		case A_F_SEARCH:
+		case A_B_SEARCH:
+			/*
+			 * We have "/string" but no newline.  Add the \n.
+			 */
+			return ('\n'); 
 
-        default:
-            /*
-             * Some other incomplete command.  Let user complete it.
-             */
-            return (getchr());
-        }
-    }
+		default:
+			/*
+			 * Some other incomplete command.  Let user complete it.
+			 */
+			return (getchr());
+		}
+	}
 
 	if (ungot == NULL)
-    {
+	{
 		/*
 		 * Normal case: no ungotten chars, so get one from the user.
 		 */
 		return (getchr());
-    }
+	}
 
-    /*
-     * Return the next ungotten char.
-     */
-    {
-        struct ungot *ug = ungot;
-        char c = ug->ug_char;
-        ungot = ug->ug_next;
-        free(ug);
-        unget_end = (ungot == NULL);
-        return (c);
-    }
+	/*
+	 * Return the next ungotten char.
+	 */
+	{
+		struct ungot *ug = ungot;
+		char c = ug->ug_char;
+		ungot = ug->ug_next;
+		free(ug);
+		unget_end = (ungot == NULL);
+		return (c);
+	}
 }
 
 /*

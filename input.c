@@ -181,6 +181,11 @@ get_forw_line:
 			{
 				do
 				{
+					if (ABORT_SIGS())
+					{
+						null_line();
+						return (NULL_POSITION);
+					}
 					c = ch_forw_get();
 				} while (c != '\n' && c != EOI);
 				new_pos = ch_tell();

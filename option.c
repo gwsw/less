@@ -35,7 +35,7 @@ extern char *every_first_cmd;
 /*
  * Return a printable description of an option.
  */
-    static char *
+	static char *
 opt_desc(o)
 	struct loption *o;
 {
