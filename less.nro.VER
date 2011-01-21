@@ -465,25 +465,24 @@ This option displays a summary of the commands accepted by
 (Depending on how your shell interprets the question mark,
 it may be necessary to quote the question mark, thus: "\-\e?".)
 .IP "\-a or \-\-search-skip-screen"
-By default, forward searches start just after the "target" line and
-backwards searches start just before the "target" line.
-The target line is the first line displayed on the screen 
-unless changed by the \-j option.
-The \-a option causes forward searches to instead start 
-after the last line displayed on the screen, 
-and backward searches to start before
-the first line displayed on the screen,
+By default, forward searches start at the top of the displayed screen
+and backwards searches start at the bottom of the displayed screen
+(except for repeated searches invoked by the n or N commands,
+which start after or before the "target" line respectively;
+see the \-j option for more about the target line).
+The \-a option causes forward searches to instead start at
+the bottom of the screen
+and backward searches to start at the top of the screen,
 thus skipping all lines displayed on the screen.
 .IP "\-A or \-\-SEARCH-SKIP-SCREEN"
-Causes searches for which a pattern is explicitly specified 
-to start at the first line displayed on the screen,
-thus including the entire displayed screen in the search.
-If no pattern is specified (as with the "n" or "N" commands,
-or if the "/" command is executed with no pattern argument),
-then forward searches start after the target line as usual.
-Similarly, \-A causes backward searches for which a pattern
-is specified to start at the last line displayed on the screen,
-thus including the entire displayed screen in the search.
+Causes all forward searches (not just non-repeated searches) 
+to start just after the target line, and all backward searches 
+to start just before the target line.
+Thus, forward searches will skip part of the displayed screen
+(from the first line up to and including the target line).
+Similarly backwards searches will skip the displayed screen
+from the last line up to and including the target line.
+This was the default behavior in less versions prior to 441.
 .IP "\-b\fIn\fP or \-\-buffers=\fIn\fP"
 Specifies the amount of buffer space
 .I less

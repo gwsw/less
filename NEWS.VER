@@ -14,9 +14,12 @@
 
 	Major changes between "less" versions 436 and @@VERSION@@
 
-* Add -A option to change search behavior such that when a search is 
-  given an explicit pattern, the entire displayed screen is included
-  in the search and not just the portion after the target line.
+* Change search behavior such that when a search is given an explicit 
+  pattern, the entire displayed screen is included in the search and 
+  not just the portion after the target line.
+
+* Add -A option to change search behavior to the old way: only
+  the portion of the screen after the target line is searched.
 
 * Add %F formatting to prompt strings, replaced by the last component
   of the input file.
