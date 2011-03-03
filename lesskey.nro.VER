@@ -311,6 +311,7 @@ default line-editing keys used by less:
 	\eek		up
 	\eku		up
 	\eej		down
+	^G		abort
 .fi
 .sp
 

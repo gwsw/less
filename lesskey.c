@@ -166,6 +166,7 @@ struct cmdname editnames[] =
 	{ "insert",		EC_INSERT },
 	{ "invalid",		EC_UINVALID },
 	{ "kill-line",		EC_LINEKILL },
+	{ "abort",		EC_ABORT },
 	{ "left",		EC_LEFT },
 	{ "literal",		EC_LITERAL },
 	{ "right",		EC_RIGHT },

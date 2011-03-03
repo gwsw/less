@@ -738,7 +738,9 @@ v439  12/31/10  Add -A option.
 v440  1/5/11    Fix bug displaying prompt after = command.
 v441  1/21/11   Fix semi-infinite loop if no newlines in file;
                 make new -A behavior the default.
+-----------------------------------------------------------------
+v442  3/2/11    Add ctrl-G line edit command.
 
 */
 
-char version[] = "441";
+char version[] = "442";

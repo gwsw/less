@@ -857,6 +857,10 @@ cmd_edit(c)
 	case EC_LINEKILL:
 		not_in_completion();
 		return (cmd_kill());
+	case EC_ABORT:
+		not_in_completion();
+		(void) cmd_kill();
+		return (CC_QUIT);
 	case EC_W_BACKSPACE:
 		not_in_completion();
 		return (cmd_werase());

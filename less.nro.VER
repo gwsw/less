@@ -985,6 +985,8 @@ Delete the entire command line,
 or cancel the command if the command line is empty.
 If you have changed your line-kill character in Unix to something
 other than ^U, that character is used instead of ^U.
+.IP "^G"
+Delete the entire command line and return to the main prompt.
 
 .SH "KEY BINDINGS"
 You may define your own 
