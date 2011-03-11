@@ -619,38 +619,46 @@ search_pos(search_type)
 				pos = ch_length();
 			}
 		}
-	} else if (how_search == OPT_ON)
-	{
-		/*
-		 * Search does not include current screen.
-		 */
-		if (search_type & SRCH_FORW)
-			linenum = BOTTOM_PLUS_ONE;
-		else
-			linenum = TOP;
-		pos = position(linenum);
-	} else if (how_search == OPT_ONPLUS && !(search_type & SRCH_AFTER_TARGET))
-	{
-		/*
-		 * Search includes all of displayed screen.
-		 */
-		if (search_type & SRCH_FORW)
-			linenum = TOP;
-		else
-			linenum = BOTTOM_PLUS_ONE;
-		pos = position(linenum);
+		linenum = 0;
 	} else 
 	{
-		/*
-		 * Search includes current screen.
-		 * It starts at the jump target (if searching backwards),
-		 * or at the jump target plus one (if forwards).
-		 */
-		linenum = adjsline(jump_sline);
+		int add_one = 0;
+
+		if (how_search == OPT_ON)
+		{
+			/*
+			 * Search does not include current screen.
+			 */
+			if (search_type & SRCH_FORW)
+				linenum = BOTTOM_PLUS_ONE;
+			else
+				linenum = TOP;
+		} else if (how_search == OPT_ONPLUS && !(search_type & SRCH_AFTER_TARGET))
+		{
+			/*
+			 * Search includes all of displayed screen.
+			 */
+			if (search_type & SRCH_FORW)
+				linenum = TOP;
+			else
+				linenum = BOTTOM_PLUS_ONE;
+		} else 
+		{
+			/*
+			 * Search includes the part of current screen beyond the jump target.
+			 * It starts at the jump target (if searching backwards),
+			 * or at the jump target plus one (if forwards).
+			 */
+			linenum = jump_sline;
+			if (search_type & SRCH_FORW) 
+			    add_one = 1;
+		}
+		linenum = adjsline(linenum);
 		pos = position(linenum);
-		if (search_type & SRCH_FORW) 
-			pos = forw_raw_line(pos, (char **)NULL, (int *)NULL); /* plus one */
+		if (add_one)
+			pos = forw_raw_line(pos, (char **)NULL, (int *)NULL);
 	}
+
 	/*
 	 * If the line is empty, look around for a plausible starting place.
 	 */
