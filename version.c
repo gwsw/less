@@ -740,6 +740,7 @@ v441  1/21/11   Fix semi-infinite loop if no newlines in file;
                 make new -A behavior the default.
 -----------------------------------------------------------------
 v442  3/2/11    Add ctrl-G line edit command.
+                Fix search bug.
 
 */
 
