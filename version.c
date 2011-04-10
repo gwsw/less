@@ -739,9 +739,9 @@ v440  1/5/11    Fix bug displaying prompt after = command.
 v441  1/21/11   Fix semi-infinite loop if no newlines in file;
                 make new -A behavior the default.
 -----------------------------------------------------------------
-v442  3/2/11    Add ctrl-G line edit command.
-                Fix search bug.
-
+v442  3/2/11    Fix search bug.
+                Add ctrl-G line edit command.
+v443  4/9/11    Fix Windows build.
 */
 
-char version[] = "442";
+char version[] = "443";
