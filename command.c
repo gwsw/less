@@ -771,8 +771,6 @@ dispversion()
 	public int
 getcc()
 {
-	char c;
-
 	if (unget_end) 
 	{
 		/*
