@@ -24,6 +24,8 @@
 * Add %F formatting to prompt strings, replaced by the last component
   of the input file.
 
+* Control-G while editing a command exits the command.
+
 * Less now exits with status 2 if control-C is pressed and -K is in effect.
 
 * Fix "ungetc overflow" when passing long commands via the -p option.
