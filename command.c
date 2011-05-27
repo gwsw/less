@@ -839,6 +839,7 @@ ungetcc(c)
 	ug->ug_char = c;
 	ug->ug_next = ungot;
 	ungot = ug;
+	unget_end = 0;
 }
 
 /*
