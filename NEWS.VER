@@ -12,7 +12,16 @@
 
 ======================================================================
 
-	Major changes between "less" versions 436 and @@VERSION@@
+	Major changes between "less" versions 443 and @@VERSION@@
+
+* Fix bug in unget handling that can cause strange effects on the
+  command line.
+
+* Remove vestiges of obsolete -l option that can cause a crash.
+
+======================================================================
+
+	Major changes between "less" versions 436 and 443
 
 * Change search behavior such that when a search is given an explicit 
   pattern, the entire displayed screen is included in the search and 
