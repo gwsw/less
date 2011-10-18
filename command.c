@@ -102,8 +102,8 @@ cmd_exec()
 	static void
 start_mca(action, prompt, mlist, cmdflags)
 	int action;
-	char *prompt;
-	void *mlist;
+	constant char *prompt;
+	constant void *mlist;
 	int cmdflags;
 {
 	mca = action;

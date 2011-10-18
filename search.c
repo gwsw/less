@@ -533,7 +533,6 @@ hilite_line(linepos, line, line_len, chpos, sp, ep, cvt_ops)
 {
 	char *searchp;
 	char *line_end = line + line_len;
-	struct hilite *hl;
 
 	if (sp == NULL || ep == NULL)
 		return;
