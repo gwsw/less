@@ -98,15 +98,8 @@ cvt_text(odst, osrc, chpos, lenp, ops)
 			if ((ops & CVT_TO_LC) && IS_UPPER(ch))
 				ch = TO_LOWER(ch);
 			put_wchar(&dst, ch);
-			/*
-			 * Record the original position of the char.
-			 * But if we've already recorded a position
-			 * for this char (due to a backspace), leave
-			 * it alone; if multiple source chars map to
-			 * one destination char, we want the position
-			 * of the first one.
-			 */
-			if (chpos != NULL && chpos[dst_pos] < 0)
+			/* Record the original position of the char. */
+			if (chpos != NULL)
 				chpos[dst_pos] = src_pos;
 		}
 	}

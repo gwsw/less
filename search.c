@@ -476,6 +476,47 @@ add_hilite(anchor, hl)
 }
 
 /*
+ * Hilight every character in a range of displayed characters.
+ */
+	static void
+create_hilites(linepos, start_index, end_index, chpos)
+	POSITION linepos;
+	int start_index;
+	int end_index;
+	int *chpos;
+{
+	struct hilite *hl;
+	int i;
+
+	/* Start the first hilite. */
+	hl = (struct hilite *) ecalloc(1, sizeof(struct hilite));
+	hl->hl_startpos = linepos + chpos[start_index];
+
+	/*
+	 * Step through the displayed chars.
+	 * If the source position (before cvt) of the char is one more
+	 * than the source pos of the previous char (the usual case),
+	 * just increase the size of the current hilite by one.
+	 * Otherwise (there are backspaces or something involved),
+	 * finish the current hilite and start a new one.
+	 */
+	for (i = start_index+1;  i <= end_index;  i++)
+	{
+		if (chpos[i] != chpos[i-1] + 1 || i == end_index)
+		{
+			hl->hl_endpos = linepos + chpos[i-1] + 1;
+			add_hilite(&hilite_anchor, hl);
+			/* Start new hilite unless this is the last char. */
+			if (i < end_index)
+			{
+				hl = (struct hilite *) ecalloc(1, sizeof(struct hilite));
+				hl->hl_startpos = linepos + chpos[i];
+			}
+		}
+	}
+}
+
+/*
  * Make a hilite for each string in a physical line which matches 
  * the current pattern.
  * sp,ep delimit the first match already found.
@@ -508,13 +549,7 @@ hilite_line(linepos, line, line_len, chpos, sp, ep, cvt_ops)
 	 */
 	searchp = line;
 	do {
-		if (ep > sp)
-		{
-			hl = (struct hilite *) ecalloc(1, sizeof(struct hilite));
-			hl->hl_startpos = linepos + chpos[sp-line];
-			hl->hl_endpos = linepos + chpos[ep-line];
-			add_hilite(&hilite_anchor, hl);
-		}
+		create_hilites(linepos, sp-line, ep-line, chpos);
 		/*
 		 * If we matched more than zero characters,
 		 * move to the first char after the string we matched.
