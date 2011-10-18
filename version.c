@@ -743,6 +743,9 @@ v442  3/2/11    Fix search bug.
                 Add ctrl-G line edit command.
 v443  4/9/11    Fix Windows build.
 v444  6/8/11    Fix ungetc bug; remove vestiges of obsolete -l option.
+-----------------------------------------------------------------
+v445  10/16/11  Fix hilite bug in backwards scroll with -J.
+                Fix hilite bug with backspaces.
 */
 
-char version[] = "444";
+char version[] = "445";

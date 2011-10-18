@@ -12,7 +12,17 @@
 
 ======================================================================
 
-	Major changes between "less" versions 443 and @@VERSION@@
+	Major changes between "less" versions 444 and @@VERSION@@
+
+* Fix bug highlighting text which is discontiguous in the file 
+  (due to backspace processing).
+
+* Fix bug in status column when when scrolling backwards with 
+  -J and -S in effect.
+
+======================================================================
+
+	Major changes between "less" versions 443 and 444
 
 * Fix bug in unget handling that can cause strange effects on the
   command line.
