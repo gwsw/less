@@ -35,6 +35,24 @@ extern int hilite_search;
 extern int size_linebuf;
 #endif
 
+
+/*
+ * Read input until end of line.
+ */
+	static int
+skip_eol()
+{
+	int c;
+
+	do
+	{
+		if (ABORT_SIGS())
+			return (-1);
+		c = ch_forw_get();
+	} while (c != '\n' && c != EOI);
+	return (0);
+}
+
 /*
  * Get the next line.
  * A "current" position is passed and a "new" position is returned.
@@ -179,15 +197,11 @@ get_forw_line:
 			 */
 			if (chopline || hshift > 0)
 			{
-				do
+				if (skip_eol() < 0)
 				{
-					if (ABORT_SIGS())
-					{
-						null_line();
-						return (NULL_POSITION);
-					}
-					c = ch_forw_get();
-				} while (c != '\n' && c != EOI);
+					null_line();
+					return (NULL_POSITION);
+				}
 				new_pos = ch_tell();
 				endline = TRUE;
 				quit_if_one_screen = FALSE;
@@ -388,6 +402,11 @@ get_back_line:
 			 */
 			if (chopline || hshift > 0)
 			{
+				if (skip_eol() < 0)
+				{
+					null_line();
+					return (NULL_POSITION);
+				}
 				endline = TRUE;
 				quit_if_one_screen = FALSE;
 				break;
