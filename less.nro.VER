@@ -1669,7 +1669,9 @@ LINES and COLUMNS environment variables.)
 .IP MORE
 Options which are passed to
 .I less
-automatically when less is in more-compatible mode.
+automatically when running in 
+.I more
+compatible mode.
 .IP PATH
 User's search path (used to find a lesskey file 
 on MS-DOS and OS/2 systems).
