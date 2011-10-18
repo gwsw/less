@@ -805,7 +805,7 @@ the overstruck text is printed
 using the terminal's hardware boldface capability.
 Other backspaces are deleted, along with the preceding character.
 Carriage returns immediately followed by a newline are deleted.
-other carriage returns are handled as specified by the \-r option.
+Other carriage returns are handled as specified by the \-r option.
 Text which is overstruck or underlined can be searched for
 if neither \-u nor \-U is in effect.
 .IP "\-V or \-\-version"
@@ -1666,6 +1666,10 @@ Takes precedence over the number of lines specified by the TERM variable.
 (But if you have a windowing system which supports TIOCGWINSZ or WIOCGETD,
 the window system's idea of the screen size takes precedence over the
 LINES and COLUMNS environment variables.)
+.IP MORE
+Options which are passed to
+.I less
+automatically when less is in more-compatible mode.
 .IP PATH
 User's search path (used to find a lesskey file 
 on MS-DOS and OS/2 systems).
