@@ -751,7 +751,7 @@ pappend(c, pos)
 {
 	int r;
 
-	if (c == '\r' && bs_mode == BS_SPECIAL)
+	if (c == '\r' && bs_mode != BS_CONTROL)
 	{
 		if (mbc_buf_len > 0)  /* utf_mode must be on. */
 		{
