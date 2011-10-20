@@ -174,6 +174,7 @@ flush()
 						 */
 						p++;
 						anchor = p_next = p;
+						at = 0;
 						WIN32setcolors(nm_fg_color, nm_bg_color);
 						continue;
 					}
@@ -272,20 +273,25 @@ flush()
 						break;
 					if (at & 1)
 					{
-							fg = bo_fg_color;
-							bg = bo_bg_color;
+#if MSDOS_COMPILER==WIN32C
+						fg |= FOREGROUND_INTENSITY;
+						bg |= BACKGROUND_INTENSITY;
+#else
+						fg = bo_fg_color;
+						bg = bo_bg_color;
+#endif
 					} else if (at & 2)
 					{
-							fg = so_fg_color;
-							bg = so_bg_color;
+						fg = so_fg_color;
+						bg = so_bg_color;
 					} else if (at & 4)
 					{
-							fg = ul_fg_color;
-							bg = ul_bg_color;
+						fg = ul_fg_color;
+						bg = ul_bg_color;
 					} else if (at & 8)
 					{
-							fg = bl_fg_color;
-							bg = bl_bg_color;
+						fg = bl_fg_color;
+						bg = bl_bg_color;
 					}
 					fg &= 0xf;
 					bg &= 0xf;
