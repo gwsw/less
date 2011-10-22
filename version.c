@@ -746,7 +746,6 @@ v444  6/8/11    Fix ungetc bug; remove vestiges of obsolete -l option.
 -----------------------------------------------------------------
 v445  10/19/11  Fix hilite bug in backwards scroll with -J.
                 Fix hilite bug with backspaces.
-                Improve handling when CR is used to overstrike.
 		Fix bugs handling SGR sequences in Win32 (thanks to Eric Lee).
 */
 

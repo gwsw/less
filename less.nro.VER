@@ -804,8 +804,8 @@ are treated specially:
 the overstruck text is printed 
 using the terminal's hardware boldface capability.
 Other backspaces are deleted, along with the preceding character.
-Carriage returns are deleted and any following text overstrikes
-the beginning of the line.
+Carriage returns immediately followed by a newline are deleted.
+Other carriage returns are handled as specified by the \-r option.
 Text which is overstruck or underlined can be searched for
 if neither \-u nor \-U is in effect.
 .IP "\-V or \-\-version"

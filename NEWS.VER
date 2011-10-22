@@ -14,9 +14,6 @@
 
 	Major changes between "less" versions 444 and @@VERSION@@
 
-* Carriage returns embedded in a line are handled as cursor movement
-  commands (like backspace) when -u and -U are not in effect.
-
 * Fix bug highlighting text which is discontiguous in the file 
   (due to backspace processing).
 

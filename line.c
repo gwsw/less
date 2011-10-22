@@ -29,13 +29,13 @@ public int ntabstops = 1;	/* Number of tabstops */
 public int tabdefault = 8;	/* Default repeated tabstops */
 
 static int curr;		/* Index into linebuf */
-static int line_end;		/* Index of last char +1 in linebuf */
 static int column;		/* Printable length, accounting for
 				   backspaces, etc. */
 static int overstrike;		/* Next char should overstrike previous char */
 static int last_overstrike = AT_NORMAL;
 static int is_null_line;	/* There is no current line */
 static int lmargin;		/* Left margin */
+static char pendc;
 static POSITION pendpos;
 static char *end_ansi_chars;
 static char *mid_ansi_chars;
@@ -150,25 +150,16 @@ is_ascii_char(ch)
 prewind()
 {
 	curr = 0;
-	line_end = 0;
 	column = 0;
 	cshift = 0;
 	overstrike = 0;
 	last_overstrike = AT_NORMAL;
 	mbc_buf_len = 0;
 	is_null_line = 0;
+	pendc = '\0';
 	lmargin = 0;
 	if (status_col)
 		lmargin += 1;
-}
-
-	static void
-set_curr(c)
-	int c;
-{
-	curr = c;
-	if (curr > line_end)
-		line_end = curr;
 }
 
 /*
@@ -205,7 +196,7 @@ plinenum(pos)
 			attr[curr] = AT_NORMAL|AT_HILITE;
 		else
 			attr[curr] = AT_NORMAL;
-		set_curr(curr+1);
+		curr++;
 		column++;
 	}
 	/*
@@ -225,7 +216,7 @@ plinenum(pos)
 		n++;  /* One space after the line number. */
 		for (i = 0; i < n; i++)
 			attr[curr+i] = AT_NORMAL;
-		set_curr(curr + n);
+		curr += n;
 		column += n;
 		lmargin += n;
 	}
@@ -236,8 +227,7 @@ plinenum(pos)
 	while (column < lmargin)
 	{
 		linebuf[curr] = ' ';
-		attr[curr] = AT_NORMAL;
-		set_curr(curr+1);
+		attr[curr++] = AT_NORMAL;
 		column++;
 	}
 }
@@ -356,7 +346,7 @@ pshift(shift)
 		linebuf[to] = linebuf[from];
 		attr[to++] = attr[from++];
 	}
-	set_curr(to);
+	curr = to;
 	column -= shifted;
 	cshift += shifted;
 }
@@ -501,7 +491,7 @@ backc()
 	       && column > lmargin
 	       && (!(attr[curr - 1] & (AT_ANSI|AT_BINARY))))
 	{
-		set_curr(p - linebuf);
+		curr = p - linebuf;
 		prev_ch = step_char(&p, -1, linebuf + lmargin);
 		width = pwidth(ch, attr[curr], prev_ch);
 		column -= width;
@@ -609,7 +599,7 @@ store_char(ch, a, rep, pos)
 			do {
 				bch = step_char(&p, -1, linebuf);
 			} while (p > linebuf && !IS_CSI_START(bch));
-			set_curr(p - linebuf);
+			curr = p - linebuf;
 			return 0;
 		}
 		a = AT_ANSI;	/* Will force re-AT_'ing around it.  */
@@ -656,7 +646,7 @@ store_char(ch, a, rep, pos)
 	{
 		linebuf[curr] = *rep++;
 		attr[curr] = a;
-		set_curr(curr+1);
+		curr++;
 	}
 	column += w;
 	return (0);
@@ -751,7 +741,18 @@ pappend(c, pos)
 {
 	int r;
 
-	if (c == '\r' && bs_mode != BS_CONTROL)
+	if (pendc)
+	{
+		if (do_append(pendc, NULL, pendpos))
+			/*
+			 * Oops.  We've probably lost the char which
+			 * was in pendc, since caller won't back up.
+			 */
+			return (1);
+		pendc = '\0';
+	}
+
+	if (c == '\r' && bs_mode == BS_SPECIAL)
 	{
 		if (mbc_buf_len > 0)  /* utf_mode must be on. */
 		{
@@ -763,7 +764,13 @@ pappend(c, pos)
 				return (mbc_buf_index);
 		}
 
-		curr = 0;
+		/*
+		 * Don't put the CR into the buffer until we see 
+		 * the next char.  If the next char is a newline,
+		 * discard the CR.
+		 */
+		pendc = c;
+		pendpos = pos;
 		return (0);
 	}
 
@@ -988,6 +995,14 @@ pdone(endline, forw)
 {
 	(void) pflushmbc();
 
+	if (pendc && (pendc != '\r' || !endline))
+		/*
+		 * If we had a pending character, put it in the buffer.
+		 * But discard a pending CR if we are at end of line
+		 * (that is, discard the CR in a CR/LF sequence).
+		 */
+		(void) do_append(pendc, NULL, pendpos);
+
 	/*
 	 * Make sure we've shifted the line, if we need to.
 	 */
@@ -1000,9 +1015,8 @@ pdone(endline, forw)
 		char *p = "\033[m";
 		for ( ;  *p != '\0';  p++)
 		{
-			linebuf[line_end] = *p;
-			attr[line_end] = AT_ANSI;
-			line_end++;
+			linebuf[curr] = *p;
+			attr[curr++] = AT_ANSI;
 		}
 	}
 
@@ -1021,9 +1035,9 @@ pdone(endline, forw)
 	 */
 	if (column < sc_width || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
 	{
-		linebuf[line_end] = '\n';
-		attr[line_end] = AT_NORMAL;
-		line_end++;
+		linebuf[curr] = '\n';
+		attr[curr] = AT_NORMAL;
+		curr++;
 	} 
 	else if (ignaw && column >= sc_width && forw)
 	{
@@ -1041,15 +1055,13 @@ pdone(endline, forw)
 		 * char on the next line.  We don't need to do this "nudge" 
 		 * at the top of the screen anyway.
 		 */
-		linebuf[line_end] = ' ';
-		attr[line_end] = AT_NORMAL;
-		line_end++;
-		linebuf[line_end] = '\b'; 
-		attr[line_end] = AT_NORMAL;
-		line_end++;
+		linebuf[curr] = ' ';
+		attr[curr++] = AT_NORMAL;
+		linebuf[curr] = '\b'; 
+		attr[curr++] = AT_NORMAL;
 	}
-	linebuf[line_end] = '\0';
-	attr[line_end] = AT_NORMAL;
+	linebuf[curr] = '\0';
+	attr[curr] = AT_NORMAL;
 }
 
 /*
