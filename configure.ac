@@ -30,11 +30,9 @@ AC_CHECK_LIB(ncurses, initscr, [have_ncurses=yes], [have_ncurses=no])
 AC_CHECK_LIB(curses, initscr, [have_curses=yes], [have_curses=no])
 AC_CHECK_LIB(termcap, tgetent, [have_termcap=yes], [have_termcap=no])
 AC_CHECK_LIB(termlib, tgetent, [have_termlib=yes], [have_termlib=no])
-# Regular expressions (regcmp) are in -lgen on Solaris 2,
-# and in -lintl on SCO Unix.
-AC_CHECK_LIB(gen, regcmp)
-AC_CHECK_LIB(intl, regcmp)
-AC_CHECK_LIB(PW, regcmp)
+# Regular expressions (regcmp) are in -lgen on Solaris 2, (but in libc
+# at least on Solaris 10 (2.10)) and in -lintl on SCO Unix.
+AC_SEARCH_LIBS([regcmp], [gen intl PW])
 
 # Checks for terminal libraries
 AC_MSG_CHECKING([for working terminal libraries])
