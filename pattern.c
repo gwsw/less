@@ -28,6 +28,20 @@ compile_pattern2(pattern, search_type, comp_pattern)
 {
 	if ((search_type & SRCH_NO_REGEX) == 0)
 	{
+#if HAVE_GNU_REGEX
+	struct re_pattern_buffer *comp = (struct re_pattern_buffer *) ecalloc(1, sizeof (struct 
+	struct re_pattern_buffer **pcomp = (struct re_pattern_buffer **) comp_pattern;
+	re_set_syntax(RE_SYNTAX_POSIX_EXTENDED);
+	if (re_compile_pattern(pattern, strlen(pattern), comp))
+	{
+		free(comp);
+		error("Invalid pattern", NULL_PARG);
+		return (-1);
+	}
+	if (*pcomp != NULL)
+		regfree(*pcomp);
+	*pcomp = comp;
+#endif
 #if HAVE_POSIX_REGCOMP
 		regex_t *comp = (regex_t *) ecalloc(1, sizeof(regex_t));
 		regex_t **pcomp = (regex_t **) comp_pattern;
@@ -130,6 +144,12 @@ compile_pattern(pattern, search_type, comp_pattern)
 uncompile_pattern(pattern)
 	void **pattern;
 {
+#if HAVE_GNU_REGEX
+	struct re_pattern_buffer **pcomp = (struct re_pattern_buffer **) pattern;
+	if (*pcomp != NULL)
+		regfree(*pcomp);
+	*pcomp = NULL;
+#endif
 #if HAVE_POSIX_REGCOMP
 	regex_t **pcomp = (regex_t **) pattern;
 	if (*pcomp != NULL)
@@ -167,6 +187,9 @@ uncompile_pattern(pattern)
 is_null_pattern(pattern)
 	void *pattern;
 {
+#if HAVE_GNU_REGEX
+	return (pattern == NULL);
+#endif
 #if HAVE_POSIX_REGCOMP
 	return (pattern == NULL);
 #endif
@@ -236,6 +259,9 @@ match_pattern(pattern, tpattern, line, line_len, sp, ep, notbol, search_type)
 	int search_type;
 {
 	int matched;
+#if HAVE_GNU_REGEX
+	struct re_pattern_buffer *spattern = (struct re_pattern_buffer *) pattern;
+#endif
 #if HAVE_POSIX_REGCOMP
 	regex_t *spattern = (regex_t *) pattern;
 #endif
@@ -256,6 +282,23 @@ match_pattern(pattern, tpattern, line, line_len, sp, ep, notbol, search_type)
 		matched = match(tpattern, strlen(tpattern), line, line_len, sp, ep);
 	else
 	{
+#if HAVE_GNU_REGEX
+	{
+		struct re_registers search_regs;
+		regoff_t *starts = (regoff_t *) ecalloc(1, sizeof (regoff_t));
+		regoff_t *ends = (regoff_t *) ecalloc(1, sizeof (regoff_t));
+		spattern->not_bol = notbol;
+		re_set_registers(spattern, &search_regs, 1, starts, ends);
+		matched = re_search(spattern, line, line_len, 0, line_len, &search_regs) >= 0;
+		if (matched)
+		{
+			*sp = line + search_regs.start[0];
+			*ep = line + search_regs.end[0];
+		}
+		free(starts);
+		free(ends);
+	}
+#endif
 #if HAVE_POSIX_REGCOMP
 	{
 		regmatch_t rm;

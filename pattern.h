@@ -8,6 +8,13 @@
  * contact the author, see the README file.
  */
 
+#if HAVE_GNU_REGEX
+#define __USE_GNU 1
+#include <regex.h>
+#define DEFINE_PATTERN(name)  struct re_pattern_buffer *name
+#define CLEAR_PATTERN(name)   name = NULL
+#endif
+
 #if HAVE_POSIX_REGCOMP
 #include <regex.h>
 #ifdef REG_EXTENDED
