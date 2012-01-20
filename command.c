@@ -680,7 +680,7 @@ make_display()
 	static void
 prompt()
 {
-	register char *p;
+	register constant char *p;
 
 	if (ungot != NULL)
 	{

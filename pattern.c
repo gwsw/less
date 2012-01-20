@@ -58,7 +58,7 @@ compile_pattern2(pattern, search_type, comp_pattern)
 #if HAVE_PCRE
 		pcre *comp;
 		pcre **pcomp = (pcre **) comp_pattern;
-		const char *errstring;
+		constant char *errstring;
 		int erroffset;
 		PARG parg;
 		comp = pcre_compile(pattern, 0,
