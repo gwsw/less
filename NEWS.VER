@@ -14,6 +14,9 @@
 
 	Major changes between "less" versions 444 and @@VERSION@@
 
+* When up/down arrow is used on the command line immediately after
+  typing text, the next command starting with that text is found.
+
 * Fix bug highlighting text which is discontiguous in the file 
   (due to backspace processing).
 
