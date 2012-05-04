@@ -963,8 +963,12 @@ Delete the word to the left of the cursor.
 Delete the word under the cursor.
 .IP "UPARROW [ ESC-k ]"
 Retrieve the previous command line.
+If you first enter some text and then press UPARROW,
+it will retrieve the previous command which begins with that text.
 .IP "DOWNARROW [ ESC-j ]"
 Retrieve the next command line.
+If you first enter some text and then press DOWNARROW,
+it will retrieve the next command which begins with that text.
 .IP "TAB"
 Complete the partial filename to the left of the cursor.
 If it matches more than one filename, the first match
