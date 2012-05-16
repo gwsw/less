@@ -748,6 +748,7 @@ v445  10/19/11  Fix hilite bug in backwards scroll with -J.
                 Fix hilite bug with backspaces.
                 Fix bugs handling SGR sequences in Win32 (thanks to Eric Lee).
                 Add support for GNU regex (thanks to Reuben Thomas).
+v446  5/15/12   Up/down arrows in cmd editing search for matching cmd.
 */
 
-char version[] = "445";
+char version[] = "446";
