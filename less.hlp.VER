@@ -170,7 +170,7 @@
   -s  ........  --squeeze-blank-lines
                   Squeeze multiple blank lines.
   -S  ........  --chop-long-lines
-                  Chop long lines.
+                  Chop (truncate) long lines rather than wrapping.
   -t [_t_a_g]  ..  --tag=[_t_a_g]
                   Find a tag.
   -T [_t_a_g_s_f_i_l_e] --tag-file=[_t_a_g_s_f_i_l_e]

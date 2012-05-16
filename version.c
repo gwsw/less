@@ -746,8 +746,8 @@ v444  6/8/11    Fix ungetc bug; remove vestiges of obsolete -l option.
 -----------------------------------------------------------------
 v445  10/19/11  Fix hilite bug in backwards scroll with -J.
                 Fix hilite bug with backspaces.
-		Fix bugs handling SGR sequences in Win32 (thanks to Eric Lee).
-		Add support for GNU regex (thanks to Reuben Thomas).
+                Fix bugs handling SGR sequences in Win32 (thanks to Eric Lee).
+                Add support for GNU regex (thanks to Reuben Thomas).
 */
 
 char version[] = "445";

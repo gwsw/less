@@ -761,10 +761,10 @@ This is useful when viewing
 output.
 .IP "\-S or \-\-chop-long-lines"
 Causes lines longer than the screen width to be
-chopped rather than folded.
+chopped (truncated) rather than wrapped.
 That is, the portion of a long line that does not fit in
 the screen width is not shown.
-The default is to fold long lines; that is, display the remainder
+The default is to wrap long lines; that is, display the remainder
 on the next line.
 .IP "\-t\fItag\fP or \-\-tag=\fItag\fP"
 The \-t option, followed immediately by a TAG,
