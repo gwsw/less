@@ -832,7 +832,7 @@ open_altfile(filename, pf, pfd)
 	ch_ungetchar(-1);
 	if ((lessopen = lgetenv("LESSOPEN")) == NULL)
 		return (NULL);
-	if (*lessopen == '|')
+	while (*lessopen == '|')
 	{
 		/*
 		 * If LESSOPEN starts with a |, it indicates 
@@ -843,7 +843,7 @@ open_altfile(filename, pf, pfd)
 		return (NULL);
 #else
 		lessopen++;
-		returnfd = 1;
+		returnfd++;
 #endif
 	}
 	if (*lessopen == '-') {
@@ -883,9 +883,18 @@ open_altfile(filename, pf, pfd)
 		if (read(f, &c, 1) != 1)
 		{
 			/*
-			 * Pipe is empty.  This means there is no alt file.
+			 * Pipe is empty.
+			 * If more than 1 pipe char was specified,
+			 * the exit status tells whether the file itself 
+			 * is empty, or if there is no alt file.
+			 * If only one pipe char, just assume no alt file.
 			 */
-			pclose(fd);
+			int status = pclose(fd);
+			if (returnfd > 1 && status == 0) {
+				*pfd = NULL;
+				*pf = -1;
+				return (save(FAKE_EMPTYFILE));
+			}
 			return (NULL);
 		}
 		ch_ungetchar(c);

@@ -582,6 +582,8 @@ ch_length()
 		return (NULL_POSITION);
 	if (ch_flags & CH_HELPFILE)
 		return (size_helpdata);
+	if (ch_flags & CH_NODATA)
+		return (0);
 	return (ch_fsize);
 }
 

@@ -1162,13 +1162,32 @@ lesspipe.sh:
 .br
 	*.Z)	uncompress \-c $1  2>/dev/null
 .br
+	*)	exit 1
+.br
 		;;
 .br
 	esac
 .br
+	exit $?
+.br
 .PP
 To use this script, put it where it can be executed and set
 LESSOPEN="|lesspipe.sh %s".
+.PP
+Note that a preprocessor cannot output an empty file, since that
+is interpreted as meaning there is no replacement, and 
+the original file is used.
+To avoid this, if LESSOPEN starts with two vertical bars,
+the exit status of the script becomes meaningful.
+If the exit status is zero, the output is considered to be 
+replacement text, even if it empty.
+If the exit status is nonzero, any output is ignored and the
+original file is used.
+For compatibility with previous versions of
+.I less,
+if LESSOPEN starts with only one vertical bar, the exit status
+of the preprocessor is ignored.
+.PP
 When an input pipe is used, a LESSCLOSE postprocessor can be used,
 but it is usually not necessary since there is no replacement file
 to clean up.
@@ -1187,7 +1206,8 @@ the preprocessor command.
 If standard input is being viewed, the input preprocessor is passed
 a file name consisting of a single dash.
 Similarly, if the first two characters of LESSOPEN are vertical bar and dash
-(|\-), the input pipe is used on standard input as well as other files.
+(|\-) or two vertical bars and a dash (||\-), 
+the input pipe is used on standard input as well as other files.
 Again, in this case the dash is not considered to be part of 
 the input pipe command.
 

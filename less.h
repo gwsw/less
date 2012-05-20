@@ -485,10 +485,13 @@ struct textlist
 #define	CH_KEEPOPEN	002
 #define	CH_POPENED	004
 #define	CH_HELPFILE	010
+#define	CH_NODATA  	020	/* Special case for zero length files */
+
 
 #define	ch_zero()	((POSITION)0)
 
 #define	FAKE_HELPFILE	"@/\\less/\\help/\\file/\\@"
+#define FAKE_EMPTYFILE	"@/\\less/\\empty/\\file/\\@"
 
 /* Flags for cvt_text */
 #define	CVT_TO_LC	01	/* Convert upper-case to lower-case */

@@ -310,6 +310,10 @@ edit_ifile(ifile)
 		 */
 		__djgpp_set_ctrl_c(1);
 #endif
+	} else if (strcmp(open_filename, FAKE_EMPTYFILE) == 0)
+	{
+		f = -1;
+		chflags |= CH_NODATA;
 	} else if (strcmp(open_filename, FAKE_HELPFILE) == 0)
 	{
 		f = -1;
