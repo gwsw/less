@@ -807,6 +807,27 @@ lglob(filename)
 }
 
 /*
+ * Return number of %s escapes in a string.
+ * Return a large number if there are any other % escapes besides %s.
+ */
+	static int
+num_pct_s(lessopen)
+	char *lessopen;
+{
+	int num;
+
+	for (num = 0;; num++)
+	{
+		lessopen = strchr(lessopen, '%');
+		if (lessopen == NULL)
+			break;
+		if (*++lessopen != 's')
+			return (999);
+	}
+	return (num);
+}
+
+/*
  * See if we should open a "replacement file" 
  * instead of the file we're about to open.
  */
@@ -854,6 +875,11 @@ open_altfile(filename, pf, pfd)
 	} else {
 		if (strcmp(filename, "-") == 0)
 			return (NULL);
+	}
+	if (num_pct_s(lessopen) > 1)
+	{
+		error("Invalid LESSOPEN variable", NULL_PARG);
+		return (NULL);
 	}
 
 	len = strlen(lessopen) + strlen(filename) + 2;
@@ -944,6 +970,11 @@ close_altfile(altfilename, filename, pipefd)
 	}
 	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)
 	     	return;
+	if (num_pct_s(lessclose) > 2) 
+	{
+		error("Invalid LESSCLOSE variable");
+		return;
+	}
 	len = strlen(lessclose) + strlen(filename) + strlen(altfilename) + 2;
 	cmd = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF2(cmd, len, lessclose, filename, altfilename);
