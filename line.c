@@ -587,9 +587,9 @@ store_char(ch, a, rep, pos)
 			 */
 			if (a != AT_ANSI)
 			{
-				if (last_hilite != NULL_POSITION &&
-				    pos > last_hilite)
-				    	last_hilite = pos;
+				if (highest_hilite != NULL_POSITION &&
+				    pos > highest_hilite)
+				    	highest_hilite = pos;
 				a |= AT_HILITE;
 			}
 		}
