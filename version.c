@@ -749,6 +749,7 @@ v445  10/19/11  Fix hilite bug in backwards scroll with -J.
                 Fix bugs handling SGR sequences in Win32 (thanks to Eric Lee).
                 Add support for GNU regex (thanks to Reuben Thomas).
 v446  5/15/12   Up/down arrows in cmd editing search for matching cmd.
+v447  5/21/12   Add ESC-F command, two-pipe LESSOPEN syntax.
 */
 
-char version[] = "446";
+char version[] = "447";
