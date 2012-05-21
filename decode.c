@@ -79,6 +79,7 @@ static unsigned char cmdtable[] =
 	'w',0,				A_B_WINDOW,
 	ESC,' ',0,			A_FF_SCREEN,
 	'F',0,				A_F_FOREVER,
+	ESC,'F',0,			A_F_UNTIL_HILITE,
 	'R',0,				A_FREPAINT,
 	'r',0,				A_REPAINT,
 	CONTROL('R'),0,			A_REPAINT,

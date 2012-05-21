@@ -14,12 +14,17 @@
 
 	Major changes between "less" versions 444 and @@VERSION@@
 
+* Add ESC-F command to keep reading data until a pattern is found.
+
 * When up/down arrow is used on the command line immediately after
   typing text, the next command starting with that text is found.
 
 * Add support for GNU regex.
 
 * Fix bugs handling SGR sequences in Win32.
+
+* Fix possible crashes caused by malformed LESSOPEN or 
+  LESSCLOSE variables.
 
 * Fix bug highlighting text which is discontiguous in the file 
   (due to backspace processing).

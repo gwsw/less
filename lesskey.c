@@ -112,6 +112,7 @@ struct cmdname cmdnames[] =
 	{ "flush-repaint",        A_FREPAINT },
 	{ "forw-bracket",         A_F_BRACKET },
 	{ "forw-forever",         A_F_FOREVER },
+	{ "forw-until-hilite",    A_F_UNTIL_HILITE },
 	{ "forw-line",            A_F_LINE },
 	{ "forw-line-force",      A_FF_LINE },
 	{ "forw-screen",          A_F_SCREEN },

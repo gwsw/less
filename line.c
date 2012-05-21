@@ -27,6 +27,7 @@ public int hshift;		/* Desired left-shift of output line buffer */
 public int tabstops[TABSTOP_MAX] = { 0 }; /* Custom tabstops */
 public int ntabstops = 1;	/* Number of tabstops */
 public int tabdefault = 8;	/* Default repeated tabstops */
+public POSITION highest_hilite;	/* Pos of last hilite in file found so far */
 
 static int curr;		/* Index into linebuf */
 static int column;		/* Printable length, accounting for
@@ -585,7 +586,12 @@ store_char(ch, a, rep, pos)
 			 * Override the attribute passed in.
 			 */
 			if (a != AT_ANSI)
+			{
+				if (last_hilite != NULL_POSITION &&
+				    pos > last_hilite)
+				    	last_hilite = pos;
 				a |= AT_HILITE;
+			}
 		}
 	}
 #endif
