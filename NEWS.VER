@@ -15,6 +15,8 @@
 
 * Add ESC-F command to keep reading data until a pattern is found.
 
+* Use exit code of LESSOPEN script if LESSOPEN starts with "||".
+
 * When up/down arrow is used on the command line immediately after
   typing text, the next command starting with that text is found.
 
