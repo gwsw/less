@@ -162,7 +162,7 @@ default command keys used by less:
 	w		back-window 
 	\ee\e40		forw-screen-force
 	F		forw-forever 
-	\eF		forw-until-hilite
+	\eeF		forw-until-hilite
 	R		repaint-flush 
 	r		repaint 
 	^R		repaint 
