@@ -1491,11 +1491,17 @@ save_cmdhist()
 		modified = 1;
 #endif
 	if (!modified)
+	{
+		free(filename);
 		return;
+	}
 	f = fopen(filename, "w");
 	free(filename);
 	if (f == NULL)
+	{
+		free(filename);
 		return;
+	}
 #if HAVE_FCHMOD
 {
 	/* Make history file readable only by owner. */
@@ -1524,4 +1530,5 @@ save_cmdhist()
 
 	fclose(f);
 #endif /* CMD_HISTORY */
+	free(filename);
 }
