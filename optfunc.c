@@ -473,7 +473,30 @@ opt__V(type, s)
 		any_display = 1;
 		putstr("less ");
 		putstr(version);
-		putstr("\nCopyright (C) 1984-2011 Mark Nudelman\n\n");
+		putstr(" (");
+#if HAVE_GNU_REGEX
+		putstr("GNU ");
+#endif
+#if HAVE_POSIX_REGCOMP
+		putstr("POSIX ");
+#endif
+#if HAVE_PCRE
+		putstr("PCRE ");
+#endif
+#if HAVE_RE_COMP
+		putstr("BSD ");
+#endif
+#if HAVE_REGCMP
+		putstr("V8 ");
+#endif
+#if HAVE_V8_REGCOMP
+		putstr("Spencer V8 ");
+#endif
+#if !HAVE_GNU_REGEX && !HAVE_POSIX_REGCOMP && !HAVE_PCRE && !HAVE_RE_COMP && !HAVE_REGCMP && !HAVE_V8_REGCOMP
+		putstr("no ");
+#endif
+		putstr("regular expressions)\n");
+		putstr("Copyright (C) 1984-2012 Mark Nudelman\n\n");
 		putstr("less comes with NO WARRANTY, to the extent permitted by law.\n");
 		putstr("For information about the terms of redistribution,\n");
 		putstr("see the file named README in the less distribution.\n");
