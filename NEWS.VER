@@ -28,10 +28,10 @@
   LESSCLOSE variables.
 
 * Fix bug highlighting text which is discontiguous in the file 
-  (due to backspace processing).
+  due to backspace processing.
 
-* Fix bug in status column when when scrolling backwards with 
-  -J and -S in effect.
+* Fix bug in displaying status column when when scrolling backwards 
+  with -J and -S in effect.
 
 ======================================================================
 
