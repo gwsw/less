@@ -88,7 +88,7 @@ INSTALLATION (Unix systems only):
    bindir and/or mandir to the appropriate directories.
 
 If you have any problems building or running "less", suggestions, 
-complaints, etc., you may mail to the author at @@EMAIL@@.
+complaints, etc., you may mail to @@EMAIL@@.
 
 Note to hackers: comments noting possible improvements are enclosed
 in double curly brackets {{ like this }}.
