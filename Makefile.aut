@@ -34,6 +34,14 @@ DISTFILES = \
 
 all: help.c funcs.h ${srcdir}/configure 
 
+release: .FORCE
+	${MAKE} -f Makefile.aut tagall 
+	${MAKE} -f Makefile.aut all 
+	${MAKE} -f Makefile.aut clean 
+	${MAKE} -f Makefile.aut dist
+
+.FORCE:
+
 help.c: less.hlp mkhelp
 	-mv -f ${srcdir}/help.c ${srcdir}/help.c.old
 	rm -rf help.c
@@ -104,8 +112,7 @@ dist: ${DISTFILES}
 	echo "Preparing $$REL"; \
 	rm -rf $$REL; mkdir $$REL; \
 	for file in ${DISTFILES}; do \
-	  cp -p $$file $$REL; \
-	  chmod -w $$REL/$$file; \
+	  ./add_copyright $$file $$REL; \
 	done; \
 	cd $$REL; chmod +w ${DISTFILES_W}; cd ..; \
 	echo "Creating release/$$REL/$$REL.tar.gz"; \
