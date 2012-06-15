@@ -742,6 +742,7 @@ v445  10/19/11  Fix hilite bug in backwards scroll with -J.
                 Add support for GNU regex (thanks to Reuben Thomas).
 v446  5/15/12   Up/down arrows in cmd editing search for matching cmd.
 v447  5/21/12   Add ESC-F command, two-pipe LESSOPEN syntax.
+v448  6/15 /12  Print name of regex library in version message.
 */
 
-char version[] = "447";
+char version[] = "448";
