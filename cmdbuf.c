@@ -1481,9 +1481,6 @@ save_cmdhist()
 	FILE *f;
 	int modified = 0;
 
-	filename = histfile_name();
-	if (filename == NULL)
-		return;
 	if (mlist_search.modified)
 		modified = 1;
 #if SHELL_ESCAPE || PIPEC
@@ -1491,17 +1488,14 @@ save_cmdhist()
 		modified = 1;
 #endif
 	if (!modified)
-	{
-		free(filename);
 		return;
-	}
+	filename = histfile_name();
+	if (filename == NULL)
+		return;
 	f = fopen(filename, "w");
 	free(filename);
 	if (f == NULL)
-	{
-		free(filename);
 		return;
-	}
 #if HAVE_FCHMOD
 {
 	/* Make history file readable only by owner. */
@@ -1530,5 +1524,4 @@ save_cmdhist()
 
 	fclose(f);
 #endif /* CMD_HISTORY */
-	free(filename);
 }
