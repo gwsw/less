@@ -408,7 +408,7 @@ get_back_line:
 		goto get_back_line;
 	}
 
-	if (status_col && is_hilited(base_pos, ch_tell()-1, 1, NULL))
+	if (status_col && curr_pos > 0 && is_hilited(base_pos, curr_pos-1, 1, NULL))
 		set_status_col('*');
 #endif
 
