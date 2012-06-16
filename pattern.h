@@ -45,3 +45,7 @@ extern char *__loc1;
 #define CLEAR_PATTERN(name)   name = NULL
 #endif
 
+#if NO_REGEX
+#define DEFINE_PATTERN(name)  
+#define CLEAR_PATTERN(name)   
+#endif

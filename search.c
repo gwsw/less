@@ -58,6 +58,12 @@ struct pattern_info {
 	char* text;
 	int search_type;
 };
+
+#if NO_REGEX
+#define info_compiled(info) ((void*)0)
+#else
+#define info_compiled(info) ((info)->compiled)
+#endif
 	
 static struct pattern_info search_info;
 static struct pattern_info filter_info;
@@ -90,10 +96,12 @@ set_pattern(info, pattern, search_type)
 	char *pattern;
 	int search_type;
 {
+#if !NO_REGEX
 	if (pattern == NULL)
-		CLEAR_PATTERN(search_info.compiled);
+		CLEAR_PATTERN(info->compiled);
 	else if (compile_pattern(pattern, search_type, &info->compiled) < 0)
 		return -1;
+#endif
 	/* Pattern compiled successfully; save the text too. */
 	if (info->text != NULL)
 		free(info->text);
@@ -127,7 +135,9 @@ clear_pattern(info)
 	if (info->text != NULL)
 		free(info->text);
 	info->text = NULL;
+#if !NO_REGEX
 	uncompile_pattern(&info->compiled);
+#endif
 }
 
 /*
@@ -183,9 +193,11 @@ get_cvt_ops()
 prev_pattern(info)
 	struct pattern_info *info;
 {
-	if (info->search_type & SRCH_NO_REGEX)
-		return (info->text != NULL);
-	return (!is_null_pattern(info->compiled));
+#if !NO_REGEX
+	if ((info->search_type & SRCH_NO_REGEX) == 0)
+		return (!is_null_pattern(info->compiled));
+#endif
+	return (info->text != NULL);
 }
 
 #if HILITE_SEARCH
@@ -552,7 +564,7 @@ hilite_line(linepos, line, line_len, chpos, sp, ep, cvt_ops)
 			searchp++;
 		else /* end of line */
 			break;
-	} while (match_pattern(search_info.compiled, search_info.text,
+	} while (match_pattern(info_compiled(search_info), search_info.text,
 			searchp, line_end - searchp, &sp, &ep, 1, search_info.search_type));
 }
 #endif
@@ -824,7 +836,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 * If so, add an entry to the filter list.
 		 */
 		if ((search_type & SRCH_FIND_ALL) && prev_pattern(&filter_info)) {
-			int line_filter = match_pattern(filter_info.compiled, filter_info.text,
+			int line_filter = match_pattern(info_compiled(filter_info), filter_info.text,
 				cline, line_len, &sp, &ep, 0, filter_info.search_type);
 			if (line_filter)
 			{
@@ -844,7 +856,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 */
 		if (prev_pattern(&search_info))
 		{
-			line_match = match_pattern(search_info.compiled, search_info.text,
+			line_match = match_pattern(info_compiled(search_info), search_info.text,
 				cline, line_len, &sp, &ep, 0, search_type);
 			if (line_match)
 			{
