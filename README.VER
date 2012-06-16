@@ -52,6 +52,7 @@ INSTALLATION (Unix systems only):
         regcomp        Use the V8-compatible regcomp.
         regcomp-local  Use Henry Spencer's V8-compatible regcomp
                        (source is supplied with less).
+        none           No regular expressions, only simple string matching.
    --with-secure
      Builds a "secure" version of less, with some features disabled
 	 to prevent users from viewing other files, accessing shell

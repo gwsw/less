@@ -388,7 +388,7 @@ AC_MSG_CHECKING(for regcomp)
 # Select a regular expression library.
 WANT_REGEX=auto
 AC_ARG_WITH(regex,
-  [  --with-regex={auto,gnu,pcre,posix,regcmp,re_comp,regcomp,regcomp-local}  Select a regular expression library  [auto]],
+  [  --with-regex={auto,gnu,pcre,posix,regcmp,re_comp,regcomp,regcomp-local,none}  Select a regular expression library  [auto]],
   WANT_REGEX="$withval")
 
 if test $have_regex = no; then
@@ -463,6 +463,12 @@ fi
 if test $have_regex = no; then
 if test $WANT_REGEX = auto -o $WANT_REGEX = re_comp; then
 AC_MSG_RESULT(using re_comp); AC_CHECK_FUNC(re_comp, AC_DEFINE(HAVE_RE_COMP) have_regex=yes)
+fi
+fi
+
+if test $have_regex = no; then
+if test $WANT_REGEX = auto -o $WANT_REGEX = none; then
+AC_MSG_RESULT(using no regex); have_regex=yes;
 fi
 fi
 
