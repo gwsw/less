@@ -30,7 +30,7 @@
 * Fix bug highlighting text which is discontiguous in the file 
   due to backspace processing.
 
-* Fix bug in displaying status column when when scrolling backwards 
+* Fix bug in displaying status column when scrolling backwards 
   with -J and -S in effect.
 
 ======================================================================
