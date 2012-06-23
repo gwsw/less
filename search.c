@@ -564,7 +564,7 @@ hilite_line(linepos, line, line_len, chpos, sp, ep, cvt_ops)
 			searchp++;
 		else /* end of line */
 			break;
-	} while (match_pattern(info_compiled(search_info), search_info.text,
+	} while (match_pattern(info_compiled(&search_info), search_info.text,
 			searchp, line_end - searchp, &sp, &ep, 1, search_info.search_type));
 }
 #endif
@@ -836,7 +836,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 * If so, add an entry to the filter list.
 		 */
 		if ((search_type & SRCH_FIND_ALL) && prev_pattern(&filter_info)) {
-			int line_filter = match_pattern(info_compiled(filter_info), filter_info.text,
+			int line_filter = match_pattern(info_compiled(&filter_info), filter_info.text,
 				cline, line_len, &sp, &ep, 0, filter_info.search_type);
 			if (line_filter)
 			{
@@ -856,7 +856,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		 */
 		if (prev_pattern(&search_info))
 		{
-			line_match = match_pattern(info_compiled(search_info), search_info.text,
+			line_match = match_pattern(info_compiled(&search_info), search_info.text,
 				cline, line_len, &sp, &ep, 0, search_type);
 			if (line_match)
 			{
