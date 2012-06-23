@@ -55,8 +55,8 @@ INSTALLATION (Unix systems only):
         none           No regular expressions, only simple string matching.
    --with-secure
      Builds a "secure" version of less, with some features disabled
-	 to prevent users from viewing other files, accessing shell
-	 commands, etc.
+     to prevent users from viewing other files, accessing shell
+     commands, etc.
 
 
 3. It is a good idea to look over the generated Makefile and defines.h

@@ -22,6 +22,9 @@
 
 * Add support for GNU regex.
 
+* Add configure option --with-regex=none and fix compile errors
+  when compiling with no regex library.
+
 * Fix bugs handling SGR sequences in Win32.
 
 * Fix possible crashes caused by malformed LESSOPEN or 
