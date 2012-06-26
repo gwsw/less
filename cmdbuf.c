@@ -1367,20 +1367,15 @@ histfile_name()
 		return (save(name));
 	}
 
-	/* Next try XDG_CACHE_HOME. */
-	home = lgetenv("XDG_CACHE_HOME");
+	/* Otherwise, file is in $HOME. */
+	home = lgetenv("HOME");
 	if (home == NULL || *home == '\0')
 	{
-		/* Otherwise, file is in $HOME. */
-		home = lgetenv("HOME");
+#if OS2
+		home = lgetenv("INIT");
 		if (home == NULL || *home == '\0')
-		{
-	#if OS2
-			home = lgetenv("INIT");
-			if (home == NULL || *home == '\0')
-	#endif
-				return (NULL);
-		}
+#endif
+			return (NULL);
 	}
 	len = strlen(home) + strlen(LESSHISTFILE) + 2;
 	name = (char *) ecalloc(len, sizeof(char));
