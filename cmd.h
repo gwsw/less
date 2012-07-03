@@ -1,7 +1,7 @@
 /*@@copyright@@*/
 
 
-#define	MAX_USERCMD		500
+#define	MAX_USERCMD		1000
 #define	MAX_CMDLEN		16
 
 #define	A_B_LINE		2
