@@ -744,6 +744,7 @@ v446  5/15/12   Up/down arrows in cmd editing search for matching cmd.
 v447  5/21/12   Add ESC-F command, two-pipe LESSOPEN syntax.
 v448  6/15/12   Print name of regex library in version message.
 v449  6/23/12   Allow config option --with-regex=none.
+v450  7/4/12    Fix EOF bug with ESC-F.
 */
 
-char version[] = "449";
+char version[] = "450";
