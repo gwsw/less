@@ -1080,7 +1080,11 @@ init_compl()
 		tk_text = fcomplete(word);
 	} else
 	{
+#if MDSDOS_COMPILER
+		char *qword = NULL;
+#else
 		char *qword = shell_quote(word+1);
+#endif
 		if (qword == NULL)
 			tk_text = fcomplete(word+1);
 		else
