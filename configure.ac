@@ -383,7 +383,7 @@ fi
 # Checks for regular expression functions.
 have_regex=no
 have_posix_regex=unknown
-AC_MSG_CHECKING(for regcomp)
+supported_regex=""
 
 # Select a regular expression library.
 WANT_REGEX=auto
@@ -395,6 +395,7 @@ if test $have_regex = no; then
 if test $WANT_REGEX = auto -o $WANT_REGEX = posix; then
 # Some versions of Solaris have a regcomp() function, but it doesn't work!
 # So we run a test program.  If we're cross-compiling, do it the old way.
+AC_MSG_CHECKING(for POSIX regcomp)
 AC_TRY_RUN([
 #include <sys/types.h>
 #include <regex.h>
@@ -409,16 +410,16 @@ if (rm.rm_sp != text + 1) exit(1); /* check for correct offset */
 exit(0); }],
   have_posix_regex=yes, have_posix_regex=no, have_posix_regex=unknown)
 if test $have_posix_regex = yes; then
-  AC_MSG_RESULT(using POSIX regcomp)
-  AC_DEFINE(HAVE_POSIX_REGCOMP)
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_POSIX_REGCOMP) supported_regex="$supported_regex posix"
   have_regex=yes
 elif test $have_posix_regex = unknown; then
   AC_TRY_LINK([
 #include <sys/types.h>
 #include <regex.h>],
   [regex_t *r; regfree(r);],
-  AC_MSG_RESULT(using POSIX regcomp)
-  AC_DEFINE(HAVE_POSIX_REGCOMP) have_regex=yes)
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_POSIX_REGCOMP) have_regex=yes; supported_regex="$supported_regex posix")
 else
   AC_MSG_RESULT(no)
 fi
@@ -426,55 +427,61 @@ fi
 fi
 
 if test $have_regex = no; then
-if test $WANT_REGEX = auto -o $WANT_REGEX = gnu; then
-AC_CHECK_LIB(c, re_compile_pattern, 
-[AC_MSG_RESULT(using gnu); AC_DEFINE(HAVE_GNU_REGEX) have_regex=yes], [])
+if test $WANT_REGEX = auto -o $WANT_REGEX = pcre; then
+AC_CHECK_LIB(pcre, pcre_compile, 
+[AC_DEFINE(HAVE_PCRE) LIBS="$LIBS -lpcre" have_regex=yes; supported_regex="$supported_regex pcre"], [])
 fi
 fi
 
 if test $have_regex = no; then
-if test $WANT_REGEX = auto -o $WANT_REGEX = pcre; then
-AC_CHECK_LIB(pcre, pcre_compile, 
-[AC_MSG_RESULT(using pcre); AC_DEFINE(HAVE_PCRE) LIBS="$LIBS -lpcre" have_regex=yes], [])
+if test $WANT_REGEX = auto -o $WANT_REGEX = gnu; then
+AC_CHECK_LIB(c, re_compile_pattern, 
+[AC_DEFINE(HAVE_GNU_REGEX) have_regex=yes; supported_regex="$supported_regex gnu"], [])
 fi
 fi
 
 if test $have_regex = no; then
 if test $WANT_REGEX = auto -o $WANT_REGEX = regcmp; then
 AC_CHECK_FUNC(regcmp, 
-AC_MSG_RESULT(using regcmp); AC_DEFINE(HAVE_REGCMP) have_regex=yes)
+[AC_DEFINE(HAVE_REGCMP) have_regex=yes; supported_regex="$supported_regex regcmp"],[])
 fi
 fi
 
 if test $have_regex = no; then
 if test $WANT_REGEX = auto -o $WANT_REGEX = regcomp; then
+AC_MSG_CHECKING(for V8 regcomp)
 AC_TRY_LINK([
 #include "regexp.h"], [regcomp("");],
-AC_MSG_RESULT(using V8 regcomp); AC_DEFINE(HAVE_V8_REGCOMP) have_regex=yes)
+[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_V8_REGCOMP) have_regex=yes; supported_regex="$supported_regex regcomp"],[AC_MSG_RESULT(no)])
 fi
 fi
 
 if test $have_regex = no && test -f ${srcdir}/regexp.c; then
 if test $WANT_REGEX = auto -o $WANT_REGEX = regcomp-local; then
-AC_MSG_RESULT(using V8 regcomp -- local source); AC_DEFINE(HAVE_V8_REGCOMP) AC_DEFINE(HAVE_REGEXEC2) REGEX_O='regexp.$(O)' AC_SUBST(REGEX_O) have_regex=yes
+AC_MSG_RESULT(using V8 regcomp -- local source); AC_DEFINE(HAVE_V8_REGCOMP) 
+supported_regex="$supported_regex regcomp-local"
+AC_DEFINE(HAVE_REGEXEC2) REGEX_O='regexp.$(O)' AC_SUBST(REGEX_O) have_regex=yes
 fi
 fi
 
 if test $have_regex = no; then
 if test $WANT_REGEX = auto -o $WANT_REGEX = re_comp; then
-AC_MSG_RESULT(using re_comp); AC_CHECK_FUNC(re_comp, AC_DEFINE(HAVE_RE_COMP) have_regex=yes)
+AC_MSG_CHECKING(for re_comp)
+AC_CHECK_FUNC(re_comp,
+[AC_DEFINE(HAVE_RE_COMP) have_regex=yes; supported_regex="$supported_regex re_comp"],[])
 fi
 fi
 
 if test $have_regex = no; then
 if test $WANT_REGEX = auto -o $WANT_REGEX = none; then
-AC_MSG_RESULT(using no regex); have_regex=yes;
+AC_MSG_RESULT(using no regex)
+else
+AC_MSG_WARN(cannot find regular expression library)
 fi
+AC_DEFINE(NO_REGEX) supported_regex="$supported_regex none"
 fi
 
-if test $have_regex = no; then
-AC_MSG_RESULT(cannot find regular expression library); AC_DEFINE(NO_REGEX)
-fi
+AC_MSG_RESULT(regular expression library: $supported_regex)
 
 AC_ARG_WITH(editor,
   [  --with-editor=PROGRAM   use PROGRAM as the default editor [vi]],
