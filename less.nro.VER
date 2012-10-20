@@ -456,12 +456,17 @@ to its default value on the command line by beginning the command
 line option with "\-+".
 .sp
 For options like \-P or \-D which take a following string,
-a dollar sign ($) must be used to signal the end of the string.
-For example, to set two \-D options on MS-DOS, you must have
-a dollar sign between them, like this:
+a dollar sign ($) may be used to signal the end of the option
+string if there are more options following it.
+For example, to set two \-D options on MS-DOS, 
+you can separate them with a dollar sign, like this:
 .sp
-LESS="-Dn9.1$-Ds4.1"
+LESS="Dn9.1$Ds4.1"
 .sp
+If no dollar sign is present, an option string ends when
+a space, tab or dash is found.
+Any of these characters can be included in an option string
+by preceding it with a backslash.
 .IP "\-? or \-\-help"
 This option displays a summary of the commands accepted by
 .I less

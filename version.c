@@ -748,6 +748,7 @@ v450  7/4/12    Fix EOF bug with ESC-F.
 v451  7/20/12   Fix typo.
 -----------------------------------------------------------------
 v452 10/19/12   Fix --with-regex=none, fix "stty 0", fix Win32.
+                Don't quit if errors in cmd line options.
 */
 
 char version[] = "452";
