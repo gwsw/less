@@ -17,6 +17,8 @@
 
 * Don't quit if syntax errors are found in command line options.
 
+* Increase sizes of some internal buffers.
+
 * Fix configure bug with --with-regex=none.
 
 * Fix crash with "stty rows 0".
