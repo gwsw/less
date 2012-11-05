@@ -750,6 +750,7 @@ v451  7/20/12   Fix typo.
 v452 10/19/12   Fix --with-regex=none, fix "stty 0", fix Win32.
                 Don't quit if errors in cmd line options.
 v453 10/27/12   Increase buffer sizes.
+v454 11/5/12    Fix typo.
 */
 
-char version[] = "453";
+char version[] = "454";
