@@ -142,7 +142,7 @@ scan_option(s)
 			if (s == NULL)
 				return;
 			if (*str == '+')
-				every_first_cmd = save(++str);
+				every_first_cmd = save(str+1);
 			else
 				ungetsc(str);
 			free(str);
