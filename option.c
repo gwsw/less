@@ -578,7 +578,6 @@ optstring(s, p_str, printopt, validchars)
 		} else 
 		{
 			if (*p == END_OPTION_STRING || 
-			    *p == ' ' || *p == '\t' ||  *p == '-' ||
 			    (validchars != NULL && strchr(validchars, *p) == NULL))
 				/* End of option string. */
 				break;
