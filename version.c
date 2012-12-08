@@ -753,6 +753,7 @@ v453 10/27/12   Increase buffer sizes.
 v454 11/5/12    Fix typo.
 v455 11/5/12    Fix typo.
 v456 11/8/12    Fix option string incompatibility.
+v457 12/8/12    Use new option string syntax only after --use-backslash.
 */
 
-char version[] = "456";
+char version[] = "457";
