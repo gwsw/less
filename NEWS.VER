@@ -26,6 +26,8 @@
 
 * Fix Win32 attribute display bug.
 
+* Fix display bug when using up/down arrow on the command line.
+
 ======================================================================
 
 	Major changes between "less" versions 444 and 451
