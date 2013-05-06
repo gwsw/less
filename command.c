@@ -771,7 +771,7 @@ getcc()
 		 * We have just run out of ungotten chars.
 		 */
 		unget_end = 0;
-		if (len_cmdbuf() == 0 || !empty_screen())
+		if (len_cmdbuf() == 0)
 			return (getchr());
 		/*
 		 * Command is incomplete, so try to complete it.

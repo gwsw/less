@@ -755,6 +755,8 @@ v455  11/5/12   Fix typo.
 v456  11/8/12   Fix option string incompatibility.
 v457  12/8/12   Use new option string syntax only after --use-backslash.
 v458  4/4/13    Fix display bug in using up/down in cmd buffer.
+-----------------------------------------------------------------
+v459  5/6/13    Fix ++ bug.
 */
 
-char version[] = "458";
+char version[] = "459";
