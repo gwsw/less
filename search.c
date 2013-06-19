@@ -1236,12 +1236,16 @@ is_filtering()
  * This function is called by the V8 regcomp to report 
  * errors in regular expressions.
  */
+public int reg_show_error = 1;
+
 	void 
 regerror(s) 
 	char *s; 
 {
 	PARG parg;
 
+	if (!reg_show_error)
+		return;
 	parg.p_string = s;
 	error("%s", &parg);
 }

@@ -629,6 +629,7 @@ mca_char(c)
 			forw_prompt = 0;
 		} else if (len_cmdbuf() > 0)
 		{
+		    /* Remember this position for later erase_char. */
 		    struct mark *m = &searchstack[len_cmdbuf()-1];
 		    struct scrpos scrpos;
 		    get_scrpos(&scrpos);
@@ -636,10 +637,10 @@ mca_char(c)
 		    m->m_ifile = curr_ifile;
 		}
 		cbuf = get_cmdbuf();
-		if (len_cmdbuf() > 0)
-			multi_search(cbuf, (int) number, 1);
-		else
+		if (len_cmdbuf() == 0)
 			undo_search();
+		else if (valid_pattern(cbuf))
+			multi_search(cbuf, (int) number, 1);
 		same_pos_bell = 1;
 		/* Repaint search prompt and pattern. */
 		mca_search();

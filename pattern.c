@@ -13,10 +13,11 @@ extern int caseless;
  * Compile a search pattern, for future use by match_pattern.
  */
 	static int
-compile_pattern2(pattern, search_type, comp_pattern)
+compile_pattern2(pattern, search_type, comp_pattern, show_error)
 	char *pattern;
 	int search_type;
 	void **comp_pattern;
+	int show_error;
 {
 	if (search_type & SRCH_NO_REGEX)
 		return (0);
@@ -30,7 +31,8 @@ compile_pattern2(pattern, search_type, comp_pattern)
 	if (re_compile_pattern(pattern, strlen(pattern), comp))
 	{
 		free(comp);
-		error("Invalid pattern", NULL_PARG);
+		if (show_error)
+			error("Invalid pattern", NULL_PARG);
 		return (-1);
 	}
 	if (*pcomp != NULL)
@@ -43,7 +45,8 @@ compile_pattern2(pattern, search_type, comp_pattern)
 	if (regcomp(comp, pattern, REGCOMP_FLAG))
 	{
 		free(comp);
-		error("Invalid pattern", NULL_PARG);
+		if (show_error)
+			error("Invalid pattern", NULL_PARG);
 		return (-1);
 	}
 	if (*pcomp != NULL)
@@ -61,7 +64,8 @@ compile_pattern2(pattern, search_type, comp_pattern)
 	if (comp == NULL)
 	{
 		parg.p_string = (char *) errstring;
-		error("%s", &parg);
+		if (show_error)
+			error("%s", &parg);
 		return (-1);
 	}
 	*pcomp = comp;
@@ -71,7 +75,8 @@ compile_pattern2(pattern, search_type, comp_pattern)
 	int *pcomp = (int *) comp_pattern;
 	if ((parg.p_string = re_comp(pattern)) != NULL)
 	{
-		error("%s", &parg);
+		if (show_error)
+			error("%s", &parg);
 		return (-1);
 	}
 	*pcomp = 1;
@@ -81,7 +86,8 @@ compile_pattern2(pattern, search_type, comp_pattern)
 	char **pcomp = (char **) comp_pattern;
 	if ((comp = regcmp(pattern, 0)) == NULL)
 	{
-		error("Invalid pattern", NULL_PARG);
+		if (show_error)
+			error("Invalid pattern", NULL_PARG);
 		return (-1);
 	}
 	if (pcomp != NULL)
@@ -91,7 +97,10 @@ compile_pattern2(pattern, search_type, comp_pattern)
 #if HAVE_V8_REGCOMP
 	struct regexp *comp;
 	struct regexp **pcomp = (struct regexp **) comp_pattern;
-	if ((comp = regcomp(pattern)) == NULL)
+	reg_show_error = show_error;
+	comp = regcomp(pattern);
+	reg_show_error = 1;
+	if (comp == NULL)
 	{
 		/*
 		 * regcomp has already printed an error message 
@@ -126,7 +135,7 @@ compile_pattern(pattern, search_type, comp_pattern)
 		cvt_pattern = (char*) ecalloc(1, cvt_length(strlen(pattern), CVT_TO_LC));
 		cvt_text(cvt_pattern, pattern, (int *)NULL, (int *)NULL, CVT_TO_LC);
 	}
-	result = compile_pattern2(cvt_pattern, search_type, comp_pattern);
+	result = compile_pattern2(cvt_pattern, search_type, comp_pattern, 1);
 	if (cvt_pattern != pattern)
 		free(cvt_pattern);
 	return (result);
@@ -173,6 +182,24 @@ uncompile_pattern(pattern)
 		free(*pcomp);
 	*pcomp = NULL;
 #endif
+}
+
+/*
+ * Can a pattern be successfully compiled?
+ */
+	public int
+valid_pattern(pattern)
+	char *pattern;
+{
+	void *comp_pattern;
+	int result;
+
+	CLEAR_PATTERN(comp_pattern);
+	result = compile_pattern2(pattern, 0, &comp_pattern, 0);
+	if (result != 0)
+		return (0);
+	uncompile_pattern(&comp_pattern);
+	return (1);
 }
 
 /*
