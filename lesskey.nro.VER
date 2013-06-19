@@ -376,6 +376,6 @@ Suite 330, Boston, MA  02111-1307, USA.
 
 .SH AUTHOR
 .PP
-Mark Nudelman <@@EMAIL@@>
+Mark Nudelman
 .br
-Send bug reports or comments to bug-less@gnu.org.
+Send bug reports or comments to @@EMAIL@@.

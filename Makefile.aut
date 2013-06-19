@@ -1,6 +1,6 @@
 # Makefile for authoring less.
 
-EMAIL = markn@greenwoodsoftware.com
+EMAIL = bug-less@gnu.org
 HOMEPAGE = http://www.greenwoodsoftware.com/less
 SHELL = /bin/sh
 RCS = rcs
