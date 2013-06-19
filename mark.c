@@ -8,14 +8,6 @@ extern int sc_height;
 extern int jump_sline;
 
 /*
- * A mark is an ifile (input file) plus a position within the file.
- */
-struct mark {
-	IFILE m_ifile;
-	struct scrpos m_scrpos;
-};
-
-/*
  * The table of marks.
  * Each mark is identified by a lowercase or uppercase letter.
  * The final one is lmark, for the "last mark"; addressed by the apostrophe.
