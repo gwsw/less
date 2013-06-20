@@ -104,12 +104,12 @@ ${srcdir}/lesskey.man: ${srcdir}/lesskey.nro
 ${srcdir}/lessecho.man: ${srcdir}/lessecho.nro
 	${NROFF} ${srcdir}/lessecho.nro >${srcdir}/lessecho.man
 
-compose.uni: UnicodeData.txt
-	./mkutable -f2 Mn Me -- UnicodeData.txt > $@
-ubin.uni: UnicodeData.txt
-	./mkutable -f2 Cc Cs -- UnicodeData.txt > $@
-wide.uni: EastAsianWidth.txt
-	./mkutable -f1 W -- EastAsianWidth.txt > $@
+compose.uni: unicode/UnicodeData.txt
+	./mkutable -f2 Mn Me -- unicode/UnicodeData.txt > $@
+ubin.uni: unicode/UnicodeData.txt
+	./mkutable -f2 Cc Cf Cs Co Zl Zp -- unicode/UnicodeData.txt > $@
+wide.uni: unicode/EastAsianWidth.txt
+	./mkutable -f1 W -- unicode/EastAsianWidth.txt > $@
 
 distfiles: ${DISTFILES}
 

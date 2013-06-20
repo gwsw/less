@@ -572,7 +572,7 @@ utf_bin_count(data, len)
 			do {
 				++data;
 				--len;
-			} while (!IS_UTF8_LEAD(*data));
+			} while (len > 0 && !IS_UTF8_LEAD(*data));
 		}
 	}
 	return (bin_count);
@@ -727,25 +727,31 @@ step_char(pp, dir, limit)
 
 /*
  * Unicode characters data
+ * Actual data is in the generated *.uni files.
  */
 
-#define DECLARE_RANGE_TABLE(name) \
-    struct wchar_range_table name = { a_##name, sizeof(a_##name)/sizeof(*a_##name) }
+#define DECLARE_RANGE_TABLE_START(name) \
+    static struct wchar_range name##_array[] = {
+#define DECLARE_RANGE_TABLE_END(name) \
+    }; struct wchar_range_table name##_table = { name##_array, sizeof(name##_array)/sizeof(*name##_array) };
 
-static struct wchar_range a_composing_table[] = {
+DECLARE_RANGE_TABLE_START(compose)
 #include "compose.uni"
-};
-DECLARE_RANGE_TABLE(composing_table);
+DECLARE_RANGE_TABLE_END(compose)
 
-static struct wchar_range a_ubin_table[] = {
+DECLARE_RANGE_TABLE_START(ubin)
 #include "ubin.uni"
-};
-DECLARE_RANGE_TABLE(ubin_table);
+DECLARE_RANGE_TABLE_END(ubin)
 
-static struct wchar_range a_wide_table[] = {
+DECLARE_RANGE_TABLE_START(wide)
 #include "wide.uni"
+DECLARE_RANGE_TABLE_END(wide)
+
+/* comb_table is special pairs, not ranges. */
+static struct wchar_range comb_table[] = {
+	{0x0644,0x0622}, {0x0644,0x0623}, {0x0644,0x0625}, {0x0644,0x0627},
 };
-DECLARE_RANGE_TABLE(wide_table);
+
 
 	static int
 is_in_table(ch, table)
@@ -781,7 +787,7 @@ is_in_table(ch, table)
 is_composing_char(ch)
 	LWCHAR ch;
 {
-	return is_in_table(ch, &composing_table);
+	return is_in_table(ch, &compose_table);
 }
 
 /*
@@ -803,13 +809,6 @@ is_wide_char(ch)
 {
 	return is_in_table(ch, &wide_table);
 }
-
-/*
- * Special pairs, not ranges.
- */
-static struct wchar_range comb_table[] = {
-	{0x0644,0x0622}, {0x0644,0x0623}, {0x0644,0x0625}, {0x0644,0x0627},
-};
 
 /*
  * Is a character a UTF-8 combining character?
