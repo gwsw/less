@@ -14,12 +14,14 @@ SRC = \
 	help.c ifile.c input.c jump.c line.c linenum.c \
 	lsystem.c mark.c optfunc.c option.c opttbl.c os.c \
 	output.c pattern.c position.c prompt.c search.c signal.c \
-	tags.c ttyin.c version.c  
+	tags.c ttyin.c version.c
 DISTFILES_W = \
 	defines.ds  Makefile.dsb Makefile.dsg Makefile.dsu \
 	defines.o2  Makefile.o2e \
 	defines.o9  Makefile.o9c Makefile.o9u \
 	defines.wn  Makefile.wnm Makefile.wnb
+UNICODE_FILES = \
+	composing_table.unicode ubin_table.unicode wide_table.unicode
 DISTFILES = \
 	${SRC} regexp.c regexp.h \
 	COPYING INSTALL LICENSE Makefile.in Makefile.aut NEWS README \
@@ -30,9 +32,10 @@ DISTFILES = \
 	less.nro less.man lesskey.nro lesskey.man lessecho.nro lessecho.man \
 	less.hlp \
 	mkfuncs.awk mkhelp.c \
+	mkutable $(UNICODE_FILES) \
 	${DISTFILES_W}
 
-all: help.c funcs.h ${srcdir}/configure 
+all: help.c funcs.h $(UNICODE_FILES) ${srcdir}/configure 
 
 release: .FORCE
 	${MAKE} -f Makefile.aut tagall 
@@ -101,6 +104,12 @@ ${srcdir}/lesskey.man: ${srcdir}/lesskey.nro
 ${srcdir}/lessecho.man: ${srcdir}/lessecho.nro
 	${NROFF} ${srcdir}/lessecho.nro >${srcdir}/lessecho.man
 
+composing_table.unicode: UnicodeData.txt
+	./mkutable -f2 Mn Me -- UnicodeData.txt > $@
+ubin_table.unicode: UnicodeData.txt
+	./mkutable -f2 Cc Cs -- UnicodeData.txt > $@
+wide_table.unicode: EastAsianWidth.txt
+	./mkutable -f1 W -- EastAsianWidth.txt > $@
 
 distfiles: ${DISTFILES}
 

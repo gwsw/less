@@ -312,6 +312,17 @@ struct textlist
 	char *endstring;
 };
 
+struct wchar_range
+{
+	LWCHAR first, last;
+};
+
+struct wchar_range_table 
+{
+	struct wchar_range *table;
+	int count;
+};
+
 #define	EOI		(-1)
 
 #define	READ_INTR	(-2)
