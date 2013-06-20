@@ -733,17 +733,17 @@ step_char(pp, dir, limit)
     struct wchar_range_table name = { a_##name, sizeof(a_##name)/sizeof(*a_##name) }
 
 static struct wchar_range a_composing_table[] = {
-#include "composing_table.unicode"
+#include "compose.uni"
 };
 DECLARE_RANGE_TABLE(composing_table);
 
 static struct wchar_range a_ubin_table[] = {
-#include "ubin_table.unicode"
+#include "ubin.uni"
 };
 DECLARE_RANGE_TABLE(ubin_table);
 
 static struct wchar_range a_wide_table[] = {
-#include "wide_table.unicode"
+#include "wide.uni"
 };
 DECLARE_RANGE_TABLE(wide_table);
 

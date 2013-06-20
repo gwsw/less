@@ -21,7 +21,7 @@ DISTFILES_W = \
 	defines.o9  Makefile.o9c Makefile.o9u \
 	defines.wn  Makefile.wnm Makefile.wnb
 UNICODE_FILES = \
-	composing_table.unicode ubin_table.unicode wide_table.unicode
+	compose.uni ubin.uni wide.uni
 DISTFILES = \
 	${SRC} regexp.c regexp.h \
 	COPYING INSTALL LICENSE Makefile.in Makefile.aut NEWS README \
@@ -104,11 +104,11 @@ ${srcdir}/lesskey.man: ${srcdir}/lesskey.nro
 ${srcdir}/lessecho.man: ${srcdir}/lessecho.nro
 	${NROFF} ${srcdir}/lessecho.nro >${srcdir}/lessecho.man
 
-composing_table.unicode: UnicodeData.txt
+compose.uni: UnicodeData.txt
 	./mkutable -f2 Mn Me -- UnicodeData.txt > $@
-ubin_table.unicode: UnicodeData.txt
+ubin.uni: UnicodeData.txt
 	./mkutable -f2 Cc Cs -- UnicodeData.txt > $@
-wide_table.unicode: EastAsianWidth.txt
+wide.uni: EastAsianWidth.txt
 	./mkutable -f1 W -- EastAsianWidth.txt > $@
 
 distfiles: ${DISTFILES}
