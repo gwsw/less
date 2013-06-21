@@ -459,36 +459,15 @@ prutfchar(ch)
 		else
 			SNPRINTF1(buf, sizeof(buf), binfmt, (char) ch);
 	} else if (is_ubin_char(ch))
-		SNPRINTF1(buf, sizeof(buf), utfbinfmt, ch);
-	else
 	{
-		int len;
+		SNPRINTF1(buf, sizeof(buf), utfbinfmt, ch);
+	} else
+	{
+		char *p = buf;
 		if (ch >= 0x80000000)
-		{
-			len = 3;
-			ch = 0xFFFD;
-		} else
-		{
-			len =   (ch < 0x80) ? 1
-			      : (ch < 0x800) ? 2
-			      : (ch < 0x10000) ? 3
-			      : (ch < 0x200000) ? 4
-			      : (ch < 0x4000000) ? 5
-			      : 6;
-		}
-		buf[len] = '\0';
-		if (len == 1)
-			*buf = (char) ch;
-		else
-		{
-			*buf = ((1 << len) - 1) << (8 - len);
-			while (--len > 0)
-			{
-				buf[len] = (char) (0x80 | (ch & 0x3F));
-				ch >>= 6;
-			}
-			*buf |= ch;
-		}
+			ch = 0xFFFD; /* REPLACEMENT CHARACTER */
+		put_wchar(&p, ch);
+		*p = '\0';
 	}
 	return (buf);
 }
@@ -517,7 +496,7 @@ utf_len(ch)
 }
 
 /*
- * Is a UTF-8 character well-formed?
+ * Does the parameter point to the lead byte of a well-formed UTF-8 character?
  */
 	public int
 is_utf8_well_formed(s)
@@ -551,7 +530,7 @@ is_utf8_well_formed(s)
 }
 
 /*
- * Return number of non-well-formed UTF-8 chars in a buffer.
+ * Return number of invalid UTF-8 sequences found in a buffer.
  */
 	public int
 utf_bin_count(data, len)
@@ -568,6 +547,7 @@ utf_bin_count(data, len)
 			len -= clen;
 		} else
 		{
+			/* Skip to next lead byte. */
 			bin_count++;
 			do {
 				++data;
