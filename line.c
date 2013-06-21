@@ -741,6 +741,8 @@ pappend(c, pos)
 
 	if (pendc)
 	{
+		if (c == '\r' && pendc == '\r')
+			return (0);
 		if (do_append(pendc, NULL, pendpos))
 			/*
 			 * Oops.  We've probably lost the char which
