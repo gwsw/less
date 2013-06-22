@@ -759,6 +759,7 @@ v458  4/4/13    Fix display bug in using up/down in cmd buffer.
 v459  5/6/13    Fix ++ bug.
 v460  6/19/13   Implement incremental search (thanks to Matt McClure).
                 Automate construction of Unicode tables.
+v461  6/21/13   Collapse multiple CRs before LF.
 */
 
-char version[] = "460";
+char version[] = "461";

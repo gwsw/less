@@ -15,6 +15,8 @@
 
 * Add -Y option for incremental search.
 
+* Multiple CRs before LF are treated like one CR (the CRs are hidden).
+
 * Fix bug with ++ commands.
 
 ======================================================================
