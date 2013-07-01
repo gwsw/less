@@ -27,6 +27,7 @@ extern int top_scroll;
 extern int ignore_eoi;
 extern int secure;
 extern int hshift;
+extern int bs_mode;
 extern int show_attn;
 extern POSITION highest_hilite;
 extern char *every_first_cmd;
@@ -63,6 +64,7 @@ static int optflag;
 static int optgetname;
 static POSITION bottompos;
 static int save_hshift;
+static int save_bs_mode;
 static struct mark searchstack[CMDBUF_SIZE];
 #if PIPEC
 static char pipec;
@@ -1403,6 +1405,7 @@ commands()
 				 * previous file.
 				 */
 				hshift = save_hshift;
+				bs_mode = save_bs_mode;
 				if (edit_prev(1) == 0)
 					break;
 			}
@@ -1506,6 +1509,8 @@ commands()
 			cmd_exec();
 			save_hshift = hshift;
 			hshift = 0;
+			save_bs_mode = bs_mode;
+			bs_mode = BS_SPECIAL;
 			(void) edit(FAKE_HELPFILE);
 			break;
 
