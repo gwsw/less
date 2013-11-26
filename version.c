@@ -760,6 +760,7 @@ v459  5/6/13    Fix ++ bug.
 v460  6/19/13   Implement incremental search (thanks to Matt McClure).
                 Automate construction of Unicode tables.
 v461  6/21/13   Collapse multiple CRs before LF.
+v462  11/26/13  Don't overwrite history file, just append to it.
 */
 
-char version[] = "461";
+char version[] = "462";
