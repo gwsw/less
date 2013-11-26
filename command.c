@@ -1050,7 +1050,6 @@ commands()
 	IFILE old_ifile;
 	IFILE new_ifile;
 	char *tagfile;
-	int until_hilite = 0;
 
 	search_type = SRCH_FORW;
 	wscroll = (sc_height + 1) / 2;
