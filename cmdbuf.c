@@ -737,7 +737,7 @@ cmd_updown(action)
 #endif
 
 /*
- * Add a string to a history list.
+ * Add a string to an mlist.
  */
 	public void
 cmd_addhist(mlist, cmd, modified)
@@ -1400,7 +1400,6 @@ histfile_name()
 	SNPRINTF2(name, len, "%s/%s", home, LESSHISTFILE);
 	return (name);
 }
-#endif /* CMD_HISTORY */
 
 /*
  * Read a .lesshst file and call a callback for each line in the file.
@@ -1412,7 +1411,6 @@ read_cmdhist2(action, uparam, skip_search, skip_shell)
 	int skip_search;
 	int skip_shell;
 {
-#if CMD_HISTORY
 	struct mlist *ml = NULL;
 	char line[CMDBUF_SIZE];
 	char *filename;
@@ -1468,7 +1466,6 @@ read_cmdhist2(action, uparam, skip_search, skip_shell)
 		}
 	}
 	fclose(f);
-#endif /* CMD_HISTORY */
 }
 
 	static void
@@ -1481,20 +1478,24 @@ read_cmdhist(action, uparam, skip_search, skip_shell)
 	(*action)(uparam, NULL, NULL); /* signal end of file */
 }
 
-/*
- * Initialize history from a .lesshist file.
- */
 	static void
 addhist_init(void *uparam, struct mlist *ml, char *string)
 {
-	if (ml != NULL && string != NULL)
-		cmd_addhist(ml, string, 0);
+	if (ml == NULL || string == NULL)
+		return;
+	cmd_addhist(ml, string, 0);
 }
+#endif /* CMD_HISTORY */
 
+/*
+ * Initialize history from a .lesshist file.
+ */
 	public void
 init_cmdhist()
 {
+#if CMD_HISTORY
 	read_cmdhist(&addhist_init, NULL, 0, 0);
+#endif /* CMD_HISTORY */
 }
 
 /*
@@ -1517,25 +1518,19 @@ write_mlist_header(ml, f)
 /*
  * Write all modified entries in an mlist to the history file.
  */
-	static int
+	static void
 write_mlist(ml, f)
 	struct mlist *ml;
 	FILE *f;
 {
-	int written = 0;
-
-	ml = ml->prev;
-	while (ml->string != NULL)
-		ml = ml->prev;
 	for (ml = ml->next;  ml->string != NULL;  ml = ml->next)
 	{
 		if (!ml->modified)
 			continue;
 		fprintf(f, "\"%s\n", ml->string);
-		++written;
+		ml->modified = 0;
 	}
-	ml->modified = 0; /* entire list is now unmodified */
-	return written;
+	ml->modified = 0; /* entire mlist is now unmodified */
 }
 
 /*
@@ -1674,8 +1669,8 @@ save_cmdhist()
 		skip_shell = mlist_size(&mlist_shell) - histsize;
 #endif
 		fprintf(fout, "%s\n", HISTFILE_FIRST_LINE);
-		ctx.mlist = NULL;
 		ctx.fout = fout;
+		ctx.mlist = NULL;
 		read_cmdhist(copy_hist, &ctx, skip_search, skip_shell);
 		fclose(fout);
 		rename(tempname, histname);
