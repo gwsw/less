@@ -740,9 +740,10 @@ cmd_updown(action)
  * Add a string to a history list.
  */
 	public void
-cmd_addhist(mlist, cmd)
+cmd_addhist(mlist, cmd, modified)
 	struct mlist *mlist;
 	char *cmd;
+	int modified;
 {
 #if CMD_HISTORY
 	struct mlist *ml;
@@ -766,6 +767,7 @@ cmd_addhist(mlist, cmd)
 		 */
 		ml = (struct mlist *) ecalloc(1, sizeof(struct mlist));
 		ml->string = save(cmd);
+		ml->modified = modified;
 		ml->next = mlist;
 		ml->prev = mlist->prev;
 		mlist->prev->next = ml;
@@ -792,7 +794,7 @@ cmd_accept()
 	 */
 	if (curr_mlist == NULL)
 		return;
-	cmd_addhist(curr_mlist, cmdbuf);
+	cmd_addhist(curr_mlist, cmdbuf, 1);
 	curr_mlist->modified = 1;
 #endif
 }
@@ -1352,6 +1354,18 @@ cmd_lastpattern()
 
 #if CMD_HISTORY
 /*
+ */
+	static int
+mlist_size(ml)
+	struct mlist *ml;
+{
+	int size = 0;
+	for (ml = ml->next;  ml->string != NULL;  ml = ml->next)
+		++size;
+	return size;
+}
+
+/*
  * Get the name of the history file.
  */
 	static char *
@@ -1389,10 +1403,14 @@ histfile_name()
 #endif /* CMD_HISTORY */
 
 /*
- * Initialize history from a .lesshist file.
+ * Read a .lesshst file and call a callback for each line in the file.
  */
-	public void
-init_cmdhist()
+	static void
+read_cmdhist2(action, uparam, skip_search, skip_shell)
+	void (*action)(void*,struct mlist*,char*);
+	void *uparam;
+	int skip_search;
+	int skip_shell;
 {
 #if CMD_HISTORY
 	struct mlist *ml = NULL;
@@ -1400,6 +1418,7 @@ init_cmdhist()
 	char *filename;
 	FILE *f;
 	char *p;
+	int *skip = NULL;
 
 	filename = histfile_name();
 	if (filename == NULL)
@@ -1425,84 +1444,172 @@ init_cmdhist()
 			}
 		}
 		if (strcmp(line, HISTFILE_SEARCH_SECTION) == 0)
+		{
 			ml = &mlist_search;
-		else if (strcmp(line, HISTFILE_SHELL_SECTION) == 0)
+			skip = &skip_search;
+		} else if (strcmp(line, HISTFILE_SHELL_SECTION) == 0)
 		{
 #if SHELL_ESCAPE || PIPEC
 			ml = &mlist_shell;
+			skip = &skip_shell;
 #else
 			ml = NULL;
+			skip = NULL;
 #endif
 		} else if (*line == '"')
 		{
 			if (ml != NULL)
-				cmd_addhist(ml, line+1);
+			{
+				if (skip != NULL && *skip > 0)
+					--(*skip);
+				else
+					(*action)(uparam, ml, line+1);
+			}
 		}
 	}
 	fclose(f);
 #endif /* CMD_HISTORY */
 }
 
+	static void
+read_cmdhist(action, uparam, skip_search, skip_shell)
+	void (*action)(void*,struct mlist*,char*);
+	void *uparam;
+	int skip_search;
+{
+	read_cmdhist2(action, uparam, skip_search, skip_shell);
+	(*action)(uparam, NULL, NULL); /* signal end of file */
+}
+
 /*
- *
+ * Initialize history from a .lesshist file.
+ */
+	static void
+addhist_init(void *uparam, struct mlist *ml, char *string)
+{
+	if (ml != NULL && string != NULL)
+		cmd_addhist(ml, string, 0);
+}
+
+	public void
+init_cmdhist()
+{
+	read_cmdhist(&addhist_init, NULL, 0, 0);
+}
+
+/*
+ * Write the header for a section of the history file.
  */
 #if CMD_HISTORY
 	static void
-save_mlist(ml, f)
+write_mlist_header(ml, f)
 	struct mlist *ml;
 	FILE *f;
 {
-	int histsize = 0;
-	int n;
-	char *s;
+	if (ml == &mlist_search)
+		fprintf(f, "%s\n", HISTFILE_SEARCH_SECTION);
+#if SHELL_ESCAPE || PIPEC
+	else if (ml == &mlist_shell)
+		fprintf(f, "%s\n", HISTFILE_SHELL_SECTION);
+#endif
+}
 
-	s = lgetenv("LESSHISTSIZE");
-	if (s != NULL)
-		histsize = atoi(s);
-	if (histsize == 0)
-		histsize = 100;
+/*
+ * Write all modified entries in an mlist to the history file.
+ */
+	static int
+write_mlist(ml, f)
+	struct mlist *ml;
+	FILE *f;
+{
+	int written = 0;
 
 	ml = ml->prev;
-	for (n = 0;  n < histsize;  n++)
-	{
-		if (ml->string == NULL)
-			break;
+	while (ml->string != NULL)
 		ml = ml->prev;
-	}
 	for (ml = ml->next;  ml->string != NULL;  ml = ml->next)
+	{
+		if (!ml->modified)
+			continue;
 		fprintf(f, "\"%s\n", ml->string);
+		++written;
+	}
+	ml->modified = 0; /* entire list is now unmodified */
+	return written;
+}
+
+/*
+ * Make a temp name in the same directory as filename.
+ */
+	static char *
+make_tempname(filename)
+	char *filename;
+{
+	char lastch;
+	char *tempname = ecalloc(1, strlen(filename)+1);
+	strcpy(tempname, filename);
+	lastch = tempname[strlen(tempname)-1];
+	tempname[strlen(tempname)-1] = (lastch == '~') ? '=' : '~';
+	return tempname;
+}
+
+struct save_ctx
+{
+	struct mlist *mlist;
+	FILE *fout;
+};
+
+/*
+ * Copy entries from the saved history file to a new file.
+ * At the end of each mlist, append any new entries
+ * created during this session.
+ */
+	static void
+copy_hist(void *uparam, struct mlist *ml, char *string)
+{
+	struct save_ctx *ctx = (struct save_ctx *) uparam;
+
+	if (ml != ctx->mlist) {
+		/* We're changing mlists. */
+		if (ctx->mlist)
+			/* Append any new entries to the end of the current mlist. */
+			write_mlist(ctx->mlist, ctx->fout);
+		/* Write the header for the new mlist. */
+		ctx->mlist = ml;
+		write_mlist_header(ctx->mlist, ctx->fout);
+	}
+	if (string != NULL)
+	{
+		/* Copy the entry. */
+		fprintf(ctx->fout, "\"%s\n", string);
+	}
+	if (ml == NULL) /* End of file */
+	{
+		/* Write any sections that were not in the original file. */
+		if (mlist_search.modified)
+		{
+			write_mlist_header(&mlist_search, ctx->fout);
+			write_mlist(&mlist_search, ctx->fout);
+		}
+#if SHELL_ESCAPE || PIPEC
+		if (mlist_shell.modified)
+		{
+			write_mlist_header(&mlist_shell, ctx->fout);
+			write_mlist(&mlist_shell, ctx->fout);
+		}
+#endif
+	}
 }
 #endif /* CMD_HISTORY */
 
 /*
- *
+ * Make a file readable only by its owner.
  */
-	public void
-save_cmdhist()
-{
-#if CMD_HISTORY
-	char *filename;
+	static void
+make_file_private(f)
 	FILE *f;
-	int modified = 0;
-
-	if (mlist_search.modified)
-		modified = 1;
-#if SHELL_ESCAPE || PIPEC
-	if (mlist_shell.modified)
-		modified = 1;
-#endif
-	if (!modified)
-		return;
-	filename = histfile_name();
-	if (filename == NULL)
-		return;
-	f = fopen(filename, "w");
-	free(filename);
-	if (f == NULL)
-		return;
-#if HAVE_FCHMOD
 {
-	/* Make history file readable only by owner. */
+#if HAVE_FCHMOD
 	int do_chmod = 1;
 #if HAVE_STAT
 	struct stat statbuf;
@@ -1513,19 +1620,67 @@ save_cmdhist()
 #endif
 	if (do_chmod)
 		fchmod(fileno(f), 0600);
+#endif
 }
-#endif
 
-	fprintf(f, "%s\n", HISTFILE_FIRST_LINE);
-
-	fprintf(f, "%s\n", HISTFILE_SEARCH_SECTION);
-	save_mlist(&mlist_search, f);
-
+/*
+ * Does the history file need to be updated?
+ */
+	static int
+histfile_modified()
+{
+	if (mlist_search.modified)
+		return 1;
 #if SHELL_ESCAPE || PIPEC
-	fprintf(f, "%s\n", HISTFILE_SHELL_SECTION);
-	save_mlist(&mlist_shell, f);
+	if (mlist_shell.modified)
+		return 1;
 #endif
+	return 0;
+}
 
-	fclose(f);
+/*
+ * Update the .lesshst file.
+ */
+	public void
+save_cmdhist()
+{
+#if CMD_HISTORY
+	char *histname;
+	char *tempname;
+	int skip_search;
+	int skip_shell;
+	struct save_ctx ctx;
+	char *s;
+	FILE *fout = NULL;
+	int histsize = 0;
+
+	if (!histfile_modified())
+		return;
+	histname = histfile_name();
+	if (histname == NULL)
+		return;
+	tempname = make_tempname(histname);
+	fout = fopen(tempname, "w");
+	if (fout != NULL)
+	{
+		make_file_private(fout);
+		s = lgetenv("LESSHISTSIZE");
+		if (s != NULL)
+			histsize = atoi(s);
+		if (histsize <= 0)
+			histsize = 100;
+		skip_search = mlist_size(&mlist_search) - histsize;
+#if SHELL_ESCAPE || PIPEC
+		skip_shell = mlist_size(&mlist_shell) - histsize;
+#endif
+		fprintf(fout, "%s\n", HISTFILE_FIRST_LINE);
+		ctx.mlist = NULL;
+		ctx.fout = fout;
+		read_cmdhist(copy_hist, &ctx, skip_search, skip_shell);
+		fclose(fout);
+		rename(tempname, histname);
+	}
+	free(tempname);
+	free(histname);
 #endif /* CMD_HISTORY */
 }
