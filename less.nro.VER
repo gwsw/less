@@ -611,12 +611,15 @@ If the line is specified as a fraction, the actual line number
 is recalculated if the terminal window is resized, so that the
 target line remains at the specified fraction of the screen height.
 If any form of the \-j option is used, 
-forward searches begin at the line immediately after the target line,
-and backward searches begin at the target line,
+repeated forward searches (invoked with "n" or "N")
+begin at the line immediately after the target line,
+and repeated backward searches begin at the target line,
 unless changed by \-a or \-A.
 For example, if "\-j4" is used, the target line is the
 fourth line on the screen, so forward searches begin at the fifth line
 on the screen.
+However nonrepeated searches (invoked with "/" or "?")
+always begin at the start or end of the current screen respectively.
 .IP "\-J or \-\-status-column"
 Displays a status column at the left edge of the screen.
 The status column shows the lines that matched the current search.
