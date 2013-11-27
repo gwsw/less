@@ -496,7 +496,7 @@ opt__V(type, s)
 		putstr("no ");
 #endif
 		putstr("regular expressions)\n");
-		putstr("Copyright (C) 1984-2012 Mark Nudelman\n\n");
+		putstr("@@copyright_oneline@@\n\n");
 		putstr("less comes with NO WARRANTY, to the extent permitted by law.\n");
 		putstr("For information about the terms of redistribution,\n");
 		putstr("see the file named README in the less distribution.\n");
