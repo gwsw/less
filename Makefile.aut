@@ -19,13 +19,14 @@ DISTFILES_W = \
 	defines.ds  Makefile.dsb Makefile.dsg Makefile.dsu \
 	defines.o2  Makefile.o2e \
 	defines.o9  Makefile.o9c Makefile.o9u \
-	defines.wn  Makefile.wnm Makefile.wnb
+	defines.wn  Makefile.wnm Makefile.wnb \
+	configure 
 UNICODE_FILES = \
 	compose.uni ubin.uni wide.uni
 DISTFILES = \
 	${SRC} regexp.c regexp.h \
 	COPYING INSTALL LICENSE Makefile.in Makefile.aut NEWS README \
-	configure configure.ac lesskey.c lessecho.c scrsize.c \
+	configure.ac lesskey.c lessecho.c scrsize.c \
 	charset.h cmd.h funcs.h lglob.h less.h lesskey.h option.h \
 	pckeys.h pattern.h position.h \
 	install.sh defines.h.in mkinstalldirs \
