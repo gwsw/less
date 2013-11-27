@@ -51,6 +51,7 @@ extern int forw_prompt;
 extern int same_pos_bell;
 #ifdef LESS_INCREMENTAL_SEARCH
 extern int incremental_search;
+static struct mark searchstack[CMDBUF_SIZE];
 #endif /* LESS_INCREMENTAL_SEARCH */
 
 #if SHELL_ESCAPE
@@ -67,7 +68,6 @@ static int optgetname;
 static POSITION bottompos;
 static int save_hshift;
 static int save_bs_mode;
-static struct mark searchstack[CMDBUF_SIZE];
 #if PIPEC
 static char pipec;
 #endif
