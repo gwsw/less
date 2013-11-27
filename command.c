@@ -48,8 +48,10 @@ extern int screen_trashed;	/* The screen has been overwritten */
 extern int shift_count;
 extern int oldbot;
 extern int forw_prompt;
-extern int incremental_search;
 extern int same_pos_bell;
+#ifdef LESS_INCREMENTAL_SEARCH
+extern int incremental_search;
+#endif /* LESS_INCREMENTAL_SEARCH */
 
 #if SHELL_ESCAPE
 static char *shellcmd = NULL;	/* For holding last shell command for "!!" */
@@ -612,6 +614,7 @@ mca_char(c)
 		return (MCA_DONE);
 	}
 
+#ifdef LESS_INCREMENTAL_SEARCH
 	if (incremental_search && (mca == A_F_SEARCH || mca == A_B_SEARCH))
 	{
 		/*
@@ -648,6 +651,7 @@ mca_char(c)
 		mca_search();
 		cmd_putstr(cbuf);
 	}
+#endif /* LESS_INCREMENTAL_SEARCH */
 
 	/*
 	 * Need another character.
@@ -899,10 +903,10 @@ ungetsc(s)
  * If SRCH_PAST_EOF is set, continue the search thru multiple files.
  */
 	static void
-multi_search(pattern, n, incremental)
+multi_search(pattern, n, silent)
 	char *pattern;
 	int n;
-	int incremental;
+	int silent;
 {
 	register int nomore;
 	IFILE save_ifile;
@@ -977,7 +981,7 @@ multi_search(pattern, n, incremental)
 	 * Didn't find it.
 	 * Print an error message if we haven't already.
 	 */
-	if (n > 0 && !incremental)
+	if (n > 0 && !silent)
 		error("Pattern not found", NULL_PARG);
 
 	if (changed_file)

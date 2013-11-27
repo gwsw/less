@@ -189,8 +189,6 @@
                   Don't use termcap init/deinit strings.
   -y [_N]  ....  --max-forw-scroll=[_N]
                   Forward scroll limit.
-  -Y  ........  --incremental-search
-                  Jump to search result after each char is typed.
   -z [_N]  ....  --window=[_N]
                   Set size of window.
   -" [_c[_c]]  .  --quotes=[_c[_c]]

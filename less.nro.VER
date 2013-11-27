@@ -10,7 +10,7 @@ less \- opposite of more
 .br
 .B "less \-\-version"
 .br
-.B "less [\-[+]aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWXY~]"
+.B "less [\-[+]aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX~]"
 .br
 .B "     [\-b \fIspace\fP] [\-h \fIlines\fP] [\-j \fIline\fP] [\-k \fIkeyfile\fP]"
 .br
@@ -855,9 +855,6 @@ the screen is repainted instead.
 The \-c or \-C option may be used to repaint from the top of
 the screen if desired.
 By default, any forward movement causes scrolling.
-.IP "\-Y or \-\-incremental-search"
-Jumps to the next search result after each character of the
-pattern is typed.
 .IP "\-[z]\fIn\fP or \-\-window=\fIn\fP"
 Changes the default scrolling window size to \fIn\fP lines.
 The default is one screenful.
