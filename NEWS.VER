@@ -22,6 +22,8 @@
 
 * Fix bug with ++ commands.
 
+* Automate construction of Unicode tables from Unicode database.
+
 ======================================================================
 
 	Major changes between "less" versions 451 and 458
