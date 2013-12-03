@@ -1544,7 +1544,7 @@ make_tempname(filename)
 	char *tempname = ecalloc(1, strlen(filename)+1);
 	strcpy(tempname, filename);
 	lastch = tempname[strlen(tempname)-1];
-	tempname[strlen(tempname)-1] = (lastch == '~') ? '=' : '~';
+	tempname[strlen(tempname)-1] = (lastch == 'Q') ? 'Z' : 'Q';
 	return tempname;
 }
 
