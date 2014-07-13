@@ -49,10 +49,6 @@ extern int shift_count;
 extern int oldbot;
 extern int forw_prompt;
 extern int same_pos_bell;
-#ifdef LESS_INCREMENTAL_SEARCH
-extern int incremental_search;
-static struct mark searchstack[CMDBUF_SIZE];
-#endif /* LESS_INCREMENTAL_SEARCH */
 
 #if SHELL_ESCAPE
 static char *shellcmd = NULL;	/* For holding last shell command for "!!" */
@@ -613,45 +609,6 @@ mca_char(c)
 		exec_mca();
 		return (MCA_DONE);
 	}
-
-#ifdef LESS_INCREMENTAL_SEARCH
-	if (incremental_search && (mca == A_F_SEARCH || mca == A_B_SEARCH))
-	{
-		/*
-		 * Special case for incremental search.
-		 * Run multi_search with incremental=1
-		 * and repaint prompt after each char in search.
-		 * Don't ring the same-position bell while typing.
-		 */
-		same_pos_bell = 0;
-		if (is_erase_char(c))
-		{
-			/* Return to previous incremental search position. */
-			struct mark *m = &searchstack[len_cmdbuf()];
-			if (edit_ifile(m->m_ifile))
-				return (MCA_DONE);
-			jump_loc(m->m_scrpos.pos, m->m_scrpos.ln);
-			forw_prompt = 0;
-		} else if (len_cmdbuf() > 0)
-		{
-		    /* Remember this position for later erase_char. */
-		    struct mark *m = &searchstack[len_cmdbuf()-1];
-		    struct scrpos scrpos;
-		    get_scrpos(&scrpos);
-		    m->m_scrpos = scrpos;
-		    m->m_ifile = curr_ifile;
-		}
-		cbuf = get_cmdbuf();
-		if (len_cmdbuf() == 0)
-			undo_search();
-		else if (valid_pattern(cbuf))
-			multi_search(cbuf, (int) number, 1);
-		same_pos_bell = 1;
-		/* Repaint search prompt and pattern. */
-		mca_search();
-		cmd_putstr(cbuf);
-	}
-#endif /* LESS_INCREMENTAL_SEARCH */
 
 	/*
 	 * Need another character.
@@ -1281,6 +1238,8 @@ commands()
 			/*
 			 * Forward forever, ignoring EOF.
 			 */
+			if (show_attn)
+				set_attnpos(bottompos);
 			newaction = forw_loop(0);
 			break;
 
