@@ -354,18 +354,25 @@ opt_p(type, s)
 	{
 	case INIT:
 		/*
-		 * Unget a search command for the specified string.
-		 * {{ This won't work if the "/" command is
-		 *    changed or invalidated by a .lesskey file. }}
+		 * Unget a command for the specified string.
 		 */
-		plusoption = TRUE;
-		ungetsc(s);
-		/*
-		 * In "more" mode, the -p argument is a command,
-		 * not a search string, so we don't need a slash.
-		 */
-		if (!less_is_more)
+		if (less_is_more)
+		{
+			/*
+			 * In "more" mode, the -p argument is a command,
+			 * not a search string, so we don't need a slash.
+			 */
+			every_first_cmd = save(s);
+		} else
+		{
+			plusoption = TRUE;
+			ungetsc(s);
+			 /*
+			  * {{ This won't work if the "/" command is
+			  *    changed or invalidated by a .lesskey file. }}
+			  */
 			ungetsc("/");
+		}
 		break;
 	}
 }
