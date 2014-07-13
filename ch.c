@@ -47,7 +47,7 @@ struct buf {
  * The file state is maintained in a filestate structure.
  * A pointer to the filestate is kept in the ifile structure.
  */
-#define	BUFHASH_SIZE	64
+#define	BUFHASH_SIZE	1024
 struct filestate {
 	struct bufnode buflist;
 	struct bufnode hashtbl[BUFHASH_SIZE];
