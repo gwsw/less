@@ -432,19 +432,22 @@ set_attnpos(pos)
 		{
 			c = ch_forw_get();
 			if (c == EOI)
-				return;
-			if (c != '\n' && c != '\r')
 				break;
+			if (c == '\n' || c == '\r')
+			{
+				(void) ch_back_get();
+				break;
+			}
 			pos++;
+		}
+		end_attnpos = pos;
+		for (;;)
+		{
+			c = ch_back_get();
+			if (c == EOI || c == '\n' || c == '\r')
+				break;
+			pos--;
 		}
 	}
 	start_attnpos = pos;
-	for (;;)
-	{
-		c = ch_forw_get();
-		pos++;
-		if (c == EOI || c == '\n' || c == '\r')
-			break;
-	}
-	end_attnpos = pos;
 }
