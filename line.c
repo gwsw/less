@@ -28,7 +28,7 @@ static int overstrike;		/* Next char should overstrike previous char */
 static int last_overstrike = AT_NORMAL;
 static int is_null_line;	/* There is no current line */
 static int lmargin;		/* Left margin */
-static char pendc;
+static LWCHAR pendc;
 static POSITION pendpos;
 static char *end_ansi_chars;
 static char *mid_ansi_chars;
@@ -690,7 +690,7 @@ store_tab(attr, pos)
 
 	static int
 store_prchar(c, pos)
-	char c;
+	LWCHAR c;
 	POSITION pos;
 {
 	char *s;
@@ -734,7 +734,7 @@ flush_mbc_buf(pos)
  */
 	public int
 pappend(c, pos)
-	char c;
+	unsigned char c;
 	POSITION pos;
 {
 	int r;
@@ -776,7 +776,7 @@ pappend(c, pos)
 
 	if (!utf_mode)
 	{
-		r = do_append((LWCHAR) c, NULL, pos);
+		r = do_append(c, NULL, pos);
 	} else
 	{
 		/* Perform strict validation in all possible cases. */
@@ -786,7 +786,7 @@ pappend(c, pos)
 			mbc_buf_index = 1;
 			*mbc_buf = c;
 			if (IS_ASCII_OCTET(c))
-				r = do_append((LWCHAR) c, NULL, pos);
+				r = do_append(c, NULL, pos);
 			else if (IS_UTF8_LEAD(c))
 			{
 				mbc_buf_len = utf_len(c);
@@ -880,8 +880,14 @@ do_append(ch, rep, pos)
 		 * or just deletion of the character in the buffer.
 		 */
 		overstrike = utf_mode ? -1 : 0;
-		/* To be correct, this must be a base character.  */
-		prev_ch = get_wchar(linebuf + curr);
+		if (utf_mode)
+		{
+			/* To be correct, this must be a base character.  */
+			prev_ch = get_wchar(linebuf + curr);
+		} else
+		{
+			prev_ch = (unsigned char) linebuf[curr];
+		}
 		a = attr[curr];
 		if (ch == prev_ch)
 		{
