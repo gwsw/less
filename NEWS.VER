@@ -15,6 +15,11 @@
 
 * Don't overwrite history file; just append to it.
 
+* In more-compatible mode, make the -p option apply to every file opened,
+  not just the first one.
+
+* In more-compatible mode, change the -e option to work like -E, not -EF.
+
 * Treat multiple CRs before LF are like one CR (all the CRs are hidden).
 
 * Ignore -u/-U setting while viewing help file, so that 

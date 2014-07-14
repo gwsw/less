@@ -12,13 +12,13 @@ less \- opposite of more
 .br
 .B "less [\-[+]aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX~]"
 .br
-.B "     [\-b \fIspace\fP] [\-h \fIlines\fP] [\-j \fIline\fP] [\-k \fIkeyfile\fP]"
+.B "     [\-b \fIspace\/\fP] [\-h \fIlines\/\fP] [\-j \fIline\/\fP] [\-k \fIkeyfile\/\fP]"
 .br
-.B "     [\-{oO} \fIlogfile\fP] [\-p \fIpattern\fP] [\-P \fIprompt\fP] [\-t \fItag\fP]"
+.B "     [\-{oO} \fIlogfile\/\fP] [\-p \fIpattern\/\fP] [\-P \fIprompt\/\fP] [\-t \fItag\/\fP]"
 .br
-.B "     [\-T \fItagsfile\fP] [\-x \fItab\fP,...] [\-y \fIlines\fP] [\-[z] \fIlines\fP]"
+.B "     [\-T \fItagsfile\/\fP] [\-x \fItab\/\fP,...] [\-y \fIlines\/\fP] [\-[z] \fIlines\/\fP]"
 .br
-.B "     [\-# \fIshift\fP] [+[+]\fIcmd\fP] [\-\-] [\fIfilename\fP]..."
+.B "     [\-# \fIshift\/\fP] [+[+]\fIcmd\/\fP] [\-\-] [\fIfilename\/\fP]..."
 .br
 (See the OPTIONS section for alternate option syntax with long option names.)
 
@@ -1427,6 +1427,9 @@ Same as %B.
 .IP "%t"
 Causes any trailing spaces to be removed.
 Usually used at the end of the string, but may appear anywhere.
+.IP "%T"
+Normally expands to the word "file".
+However if viewing files via a tags list using the \-t option, it expands to the word "tag".
 .IP "%x"
 Replaced by the name of the next input file in the list.
 .PP
@@ -1503,7 +1506,7 @@ Notice how each question mark has a matching period,
 and how the % after the %pt
 is included literally by escaping it with a backslash.
 .sp
-?n?f%f\ .?m(file\ %i\ of\ %m)\ ..?e(END)\ ?x-\ Next\e:\ %x..%t
+?n?f%f\ .?m(%T %i of %m)\ ..?e(END)\ ?x-\ Next\e:\ %x..%t";
 .sp
 This prints the filename if this is the first prompt in a file,
 followed by the "file N of N" message if there is more
@@ -1517,17 +1520,17 @@ the other two prompts (\-m and \-M respectively).
 Each is broken into two lines here for readability only.
 .nf
 .sp
-?n?f%f\ .?m(file\ %i\ of\ %m)\ ..?e(END)\ ?x-\ Next\e:\ %x.:
+?n?f%f\ .?m(%T\ %i\ of\ %m)\ ..?e(END)\ ?x-\ Next\e:\ %x.:
 	?pB%pB\e%:byte\ %bB?s/%s...%t
 .sp
-?f%f\ .?n?m(file\ %i\ of\ %m)\ ..?ltlines\ %lt-%lb?L/%L.\ :
+?f%f\ .?n?m(%T\ %i\ of\ %m)\ ..?ltlines\ %lt-%lb?L/%L.\ :
 	byte\ %bB?s/%s.\ .?e(END)\ ?x-\ Next\e:\ %x.:?pB%pB\e%..%t
 .sp
 .fi
 And here is the default message produced by the = command:
 .nf
 .sp
-?f%f\ .?m(file\ %i\ of\ %m)\ .?ltlines\ %lt-%lb?L/%L.\ .
+?f%f\ .?m(%T\ %i\ of\ %m)\ .?ltlines\ %lt-%lb?L/%L.\ .
 	byte\ %bB?s/%s.\ ?e(END)\ :?pB%pB\e%..%t
 .fi
 .PP
@@ -1585,10 +1588,10 @@ In this mode, less behaves differently in these ways:
 The \-e option works differently.
 If the \-e option is not set,
 .I less
-behaves as if the \-E option were set.
+behaves as if the \-e option were set.
 If the \-e option is set,
 .I less
-behaves as if the \-e and \-F options were set.
+behaves as if the \-E option were set.
 .PP
 The \-m option works differently.
 If the \-m option is not set, the medium prompt is used,

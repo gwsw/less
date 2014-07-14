@@ -762,6 +762,7 @@ v460  6/19/13   Preliminary implementation of incremental search
                 Automate construction of Unicode tables.
 v461  6/21/13   Collapse multiple CRs before LF.
 v462  11/26/13  Don't overwrite history file, just append to it.
+v463  7/13/14   Misc. fixes.
 */
 
-char version[] = "462";
+char version[] = "463";
