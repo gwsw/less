@@ -36,6 +36,7 @@ extern char *prproto[];
 extern char *eqproto;
 extern char *hproto;
 extern char *wproto;
+extern char *every_first_cmd;
 extern IFILE curr_ifile;
 extern char version[];
 extern int jump_sline;

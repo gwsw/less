@@ -59,6 +59,7 @@
 #define	A_PREV_TAG		54
 #define	A_FILTER		55
 #define	A_F_UNTIL_HILITE	56
+#define	A_GOEND_BUF		57
 
 #define	A_INVALID		100
 #define	A_NOACTION		101

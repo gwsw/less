@@ -121,6 +121,9 @@ Go to line N in the file, default the end of the file.
 (Warning: this may be slow if N is large,
 or if N is not specified and
 standard input, rather than a file, is being read.)
+.IP "ESC-G"
+Same as G, except if no number N is specified and the input is standard input,
+goes to the last line which is currently buffered.
 .IP "p or %"
 Go to a position N percent into the file.
 N should be between 0 and 100, and may contain a decimal point.

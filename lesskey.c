@@ -113,6 +113,7 @@ struct cmdname cmdnames[] =
 	{ "forw-search",          A_F_SEARCH },
 	{ "forw-window",          A_F_WINDOW },
 	{ "goto-end",             A_GOEND },
+	{ "goto-end-buffered",    A_GOEND_BUF },
 	{ "goto-line",            A_GOLINE },
 	{ "goto-mark",            A_GOMARK },
 	{ "help",                 A_HELP },

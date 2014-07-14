@@ -190,6 +190,7 @@ default command keys used by less:
 	\ee>		goto-end 
 	>		goto-end 
 	\eke	goto-end
+	\eeG		goto-end-buffered
 	=		status 
 	^G		status 
 	:f		status 

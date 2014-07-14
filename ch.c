@@ -529,6 +529,32 @@ ch_end_seek()
 }
 
 /*
+ * Seek to the last position in the file that is currently buffered.
+ */
+	public int
+ch_end_buffer_seek()
+{
+	register struct buf *bp;
+	register struct bufnode *bn;
+	POSITION buf_pos;
+	POSITION end_pos;
+
+	if (thisfile == NULL || (ch_flags & CH_CANSEEK))
+		return (ch_end_seek());
+
+	end_pos = 0;
+	FOR_BUFS(bn)
+	{
+		bp = bufnode_buf(bn);
+		buf_pos = (bp->block * LBUFSIZE) + bp->datasize;
+		if (buf_pos > end_pos)
+			end_pos = buf_pos;
+	}
+
+	return (ch_seek(end_pos));
+}
+
+/*
  * Seek to the beginning of the file, or as close to it as we can get.
  * We may not be able to seek there if input is a pipe and the
  * beginning of the pipe is no longer buffered.

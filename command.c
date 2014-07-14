@@ -966,7 +966,7 @@ forw_loop(until_hilite)
 		return (A_NOACTION);
 
 	cmd_exec();
-	jump_forw();
+	jump_forw_buffered();
 	curr_len = ch_length();
 	highest_hilite = until_hilite ? curr_len : NULL_POSITION;
 	ignore_eoi = 1;
@@ -1321,6 +1321,17 @@ commands()
 			cmd_exec();
 			if (number <= 0)
 				jump_forw();
+			else
+				jump_back(number);
+			break;
+
+		case A_GOEND_BUF:
+			/*
+			 * Go to line N, default last buffered byte.
+			 */
+			cmd_exec();
+			if (number <= 0)
+				jump_forw_buffered();
 			else
 				jump_back(number);
 			break;

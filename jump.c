@@ -54,6 +54,20 @@ jump_forw()
 }
 
 /*
+ * Jump to the last buffered line in the file.
+ */
+	public void
+jump_forw_buffered()
+{
+	if (ch_end_buffer_seek())
+	{
+		error("Cannot seek to end of buffers", NULL_PARG);
+		return;
+	}
+	jump_line_loc(ch_tell(), sc_height-1);
+}
+
+/*
  * Jump to line n in the file.
  */
 	public void
