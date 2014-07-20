@@ -53,6 +53,7 @@ get_forw_line:
 	}
 #if HILITE_SEARCH
 	if (hilite_search == OPT_ONPLUS || is_filtering() || status_col)
+	{
 		/*
 		 * If we are ignoring EOI (command F), only prepare
 		 * one line ahead, to avoid getting stuck waiting for
@@ -62,6 +63,8 @@ get_forw_line:
 		 */
 		prep_hilite(curr_pos, curr_pos + 3*size_linebuf, 
 				ignore_eoi ? 1 : -1);
+		curr_pos = next_unfiltered(curr_pos);
+	}
 #endif
 	if (ch_seek(curr_pos))
 	{

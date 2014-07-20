@@ -288,6 +288,9 @@ jump_loc(pos, sline)
 				 */
 				break;
 			}
+#if HILITE_SEARCH
+			pos = next_unfiltered(pos);
+#endif
 			if (pos >= tpos)
 			{
 				/* 

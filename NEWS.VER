@@ -29,6 +29,8 @@
 
 * Fix bug with ++ commands.
 
+* Fix bugs and improve performance in ampersand filtering.
+
 * Automate construction of Unicode tables from Unicode database.
 
 ======================================================================
