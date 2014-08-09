@@ -765,6 +765,7 @@ v462  11/26/13  Don't overwrite history file, just append to it.
 v463  7/13/14   Misc. fixes.
 v464  7/19/14   Fix bugs & improve performance in & filtering
                 (thanks to John Sullivan).
+v465  8/9/14    More fixes from John Sullivan.
 */
 
-char version[] = "464";
+char version[] = "465";
