@@ -564,6 +564,32 @@ next_unfiltered(pos)
 }
 
 /*
+ * If pos is hidden, return the previous position which isn't or 0 if
+ * we're filtered right to the beginning, otherwise just return pos.
+ */
+	public POSITION
+prev_unfiltered(pos)
+	POSITION pos;
+{
+	struct hilite_node *n;
+
+	if (ch_getflags() & CH_HELPFILE)
+		return (pos);
+
+	n = hlist_find(&filter_anchor, pos);
+	while (n != NULL && pos >= n->r.hl_startpos)
+	{
+		pos = n->r.hl_startpos;
+		if (pos == 0)
+			break;
+		pos--;
+		n = n->prev;
+	}
+	return (pos);
+}
+
+
+/*
  * Should any characters in a specified range be highlighted?
  * If nohide is nonzero, don't consider hide_hilite.
  */
@@ -1524,6 +1550,12 @@ prep_hilite(spos, epos, maxlines)
 		return;
 
 	/*
+	 * Make sure our prep region always starts at the beginning of
+	 * a line. (search_range takes care of the end boundary below.)
+	 */
+	spos = back_raw_line(spos+1, (char **)NULL, (int *)NULL);
+
+	/*
 	 * If we're limited to a max number of lines, figure out the
 	 * file position we should stop at.
 	 */
@@ -1615,12 +1647,48 @@ prep_hilite(spos, epos, maxlines)
 	{
 		int search_type = SRCH_FORW | SRCH_FIND_ALL;
 		search_type |= (search_info.search_type & SRCH_NO_REGEX);
-		result = search_range(spos, epos, search_type, 0,
-				maxlines, (POSITION*)NULL, &new_epos);
-		if (result < 0)
-			return;
-		if (prep_endpos == NULL_POSITION || new_epos > prep_endpos)
-			nprep_endpos = new_epos;
+		for (;;) 
+		{
+			result = search_range(spos, epos, search_type, 0, maxlines, (POSITION*)NULL, &new_epos);
+			if (result < 0)
+				return;
+			if (prep_endpos == NULL_POSITION || new_epos > prep_endpos)
+				nprep_endpos = new_epos;
+
+			/*
+			 * Check both ends of the resulting prep region to
+			 * make sure they're not filtered. If they are,
+			 * keep going at least one more line until we find
+			 * something that isn't filtered, or hit the end.
+			 */
+			if (prep_endpos == NULL_POSITION || nprep_endpos > prep_endpos)
+			{
+				if (new_epos >= nprep_endpos && is_filtered(new_epos-1))
+				{
+					spos = nprep_endpos;
+					epos = forw_raw_line(nprep_endpos, (char **)NULL, (int *)NULL);
+					if (epos == NULL_POSITION)
+						break;
+					maxlines = 1;
+					continue;
+				}
+			}
+
+			if (prep_startpos == NULL_POSITION || nprep_startpos < prep_startpos)
+			{
+				if (nprep_startpos > 0 && is_filtered(nprep_startpos))
+				{
+					epos = nprep_startpos;
+					spos = back_raw_line(nprep_startpos, (char **)NULL, (int *)NULL);
+					if (spos == NULL_POSITION)
+						break;
+					nprep_startpos = spos;
+					maxlines = 1;
+					continue;
+				}
+			}
+			break;
+		}
 	}
 	prep_startpos = nprep_startpos;
 	prep_endpos = nprep_endpos;
