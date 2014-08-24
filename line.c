@@ -71,7 +71,7 @@ init_line()
 
 	mid_ansi_chars = lgetenv("LESSANSIMIDCHARS");
 	if (mid_ansi_chars == NULL || *mid_ansi_chars == '\0')
-		mid_ansi_chars = "0123456789;[?!\"'#%()*+ ";
+		mid_ansi_chars = "0123456789:;[?!\"'#%()*+ ";
 
 	linebuf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
 	attr = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
