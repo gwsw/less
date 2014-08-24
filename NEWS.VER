@@ -27,6 +27,8 @@
 * Ignore -u/-U setting while viewing help file, so that 
   underline and bold chars are displayed correctly.
 
+* Improve detection of "binary" files in UTF-8 mode.
+
 * Fix bug with ++ commands.
 
 * Fix bugs and improve performance in ampersand filtering.

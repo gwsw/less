@@ -757,15 +757,14 @@ v457  12/8/12   Use new option string syntax only after --use-backslash.
 v458  4/4/13    Fix display bug in using up/down in cmd buffer.
 -----------------------------------------------------------------
 v459  5/6/13    Fix ++ bug.
-v460  6/19/13   Preliminary implementation of incremental search
-                (thanks to Matt McClure).
-                Automate construction of Unicode tables.
+v460  6/19/13   Automate construction of Unicode tables.
 v461  6/21/13   Collapse multiple CRs before LF.
 v462  11/26/13  Don't overwrite history file, just append to it.
 v463  7/13/14   Misc. fixes.
 v464  7/19/14   Fix bugs & improve performance in & filtering
                 (thanks to John Sullivan).
 v465  8/9/14    More fixes from John Sullivan.
+v466  8/23/14   Add colon to LESSANSIMIDCHARS.
 */
 
-char version[] = "465";
+char version[] = "466";
