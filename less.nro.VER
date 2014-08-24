@@ -1651,7 +1651,7 @@ Characters which may end an ANSI color escape sequence
 .IP LESSANSIMIDCHARS
 Characters which may appear between the ESC character and the
 end character in an ANSI color escape sequence
-(default "0123456789;[?!"'#%()*+\ ".
+(default "0123456789:;[?!"'#%()*+\ ".
 .IP LESSBINFMT
 Format for displaying non-printable, non-control characters.
 .IP LESSCHARDEF
