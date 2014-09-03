@@ -52,6 +52,7 @@ extern int logfile;
 #if TAGS
 public char *tagoption = NULL;
 extern char *tags;
+extern char ztags[];
 #endif
 #if MSDOS_COMPILER
 extern int nm_fg_color, nm_bg_color;
@@ -81,7 +82,7 @@ opt_o(type, s)
 	switch (type)
 	{
 	case INIT:
-		namelogfile = s;
+		namelogfile = save(s);
 		break;
 	case TOGGLE:
 		if (ch_getflags() & CH_CANSEEK)
@@ -95,6 +96,8 @@ opt_o(type, s)
 			return;
 		}
 		s = skipsp(s);
+		if (namelogfile != NULL)
+			free(namelogfile)
 		namelogfile = lglob(s);
 		use_logfile(namelogfile);
 		sync_logfile();
@@ -289,7 +292,7 @@ opt_t(type, s)
 	switch (type)
 	{
 	case INIT:
-		tagoption = s;
+		tagoption = save(s);
 		/* Do the rest in main() */
 		break;
 	case TOGGLE:
@@ -329,10 +332,12 @@ opt__T(type, s)
 	switch (type)
 	{
 	case INIT:
-		tags = s;
+		tags = save(s);
 		break;
 	case TOGGLE:
 		s = skipsp(s);
+		if (tags != NULL && tags != ztags)
+			free(tags);
 		tags = lglob(s);
 		break;
 	case QUERY:

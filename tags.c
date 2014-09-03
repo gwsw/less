@@ -7,7 +7,8 @@
 
 #if TAGS
 
-public char *tags = "tags";
+public char ztags[] = "tags";
+public char *tags = ztags;
 
 static int total;
 static int curseq;
