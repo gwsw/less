@@ -766,6 +766,7 @@ v464  7/19/14   Fix bugs & improve performance in & filtering
 v465  8/9/14    More fixes from John Sullivan.
 v466  8/23/14   Add colon to LESSANSIMIDCHARS.
 v467  9/18/14   Misc. fixes.
+v468  9/18/14   Fix typo
 */
 
-char version[] = "467";
+char version[] = "468";

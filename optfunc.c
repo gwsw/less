@@ -97,7 +97,7 @@ opt_o(type, s)
 		}
 		s = skipsp(s);
 		if (namelogfile != NULL)
-			free(namelogfile)
+			free(namelogfile);
 		namelogfile = lglob(s);
 		use_logfile(namelogfile);
 		sync_logfile();
