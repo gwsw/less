@@ -485,7 +485,7 @@ findgtag(tag, type)
 	{
 		fp = stdin;
 		/* Set tag default because we cannot read stdin again. */
-		tags = "tags";
+		tags = ztags;
 	} else
 	{
 #if !HAVE_POPEN
