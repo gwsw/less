@@ -26,12 +26,6 @@
 #include <values.h>
 #endif
 
-#if HAVE_TIME_T
-#define time_type	time_t
-#else
-#define	time_type	long
-#endif
-
 /*
  * BSD setjmp() saves (and longjmp() restores) the signal mask.
  * This costs a system call or two per setjmp(), so if possible we clear the
@@ -184,7 +178,7 @@ intread()
  * Return the current time.
  */
 #if HAVE_TIME
-	public long
+	public time_type
 get_time()
 {
 	time_type t;

@@ -511,6 +511,12 @@ struct wchar_range_table
 #define	CVT_CRLF	04	/* Remove CR after LF */
 #define	CVT_ANSI	010	/* Remove ANSI escape sequences */
 
+#if HAVE_TIME_T
+#define time_type	time_t
+#else
+#define	time_type	long
+#endif
+
 #include "funcs.h"
 
 /* Functions not included in funcs.h */

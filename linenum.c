@@ -209,7 +209,7 @@ longloopmessage()
 
 static int loopcount;
 #if HAVE_TIME
-static long startime;
+static time_type startime;
 #endif
 
 	static void
