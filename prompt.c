@@ -78,9 +78,9 @@ ap_str(s)
 {
 	int len;
 
-	len = strlen(s);
+	len = (int) strlen(s);
 	if (mp + len >= message + PROMPT_SIZE)
-		len = message + PROMPT_SIZE - mp - 1;
+		len = (int) (message + PROMPT_SIZE - mp - 1);
 	strncpy(mp, s, len);
 	mp += len;
 	*mp = '\0';

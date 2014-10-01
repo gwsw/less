@@ -519,7 +519,6 @@ mca_search_char(c)
 mca_char(c)
 	int c;
 {
-	char *cbuf;
 	int ret;
 
 	switch (mca)

@@ -173,7 +173,7 @@ opt_j(type, s)
 		{
 
 			sprintf(buf, ".%06d", jump_sline_fraction);
-			len = strlen(buf);
+			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
 				len--;
 			buf[len] = '\0';
@@ -238,7 +238,7 @@ opt_shift(type, s)
 		{
 
 			sprintf(buf, ".%06d", shift_count_fraction);
-			len = strlen(buf);
+			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
 				len--;
 			buf[len] = '\0';

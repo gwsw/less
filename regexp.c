@@ -277,7 +277,7 @@ char *exp;
 			for (; scan != NULL; scan = regnext(scan))
 				if (OP(scan) == EXACTLY && ((int) strlen(OPERAND(scan))) >= len) {
 					longest = OPERAND(scan);
-					len = strlen(OPERAND(scan));
+					len = (int) strlen(OPERAND(scan));
 				}
 			r->regmust = longest;
 			r->regmlen = len;
@@ -873,7 +873,7 @@ char *prog;
 				/* Inline the first character, for speed. */
 				if (*opnd != *reginput)
 					return(0);
-				len = strlen(opnd);
+				len = (int) strlen(opnd);
 				if (len > 1 && strncmp(opnd, reginput, len) != 0)
 					return(0);
 				reginput += len;
@@ -1037,7 +1037,7 @@ char *p;
 	opnd = OPERAND(p);
 	switch (OP(p)) {
 	case ANY:
-		count = strlen(scan);
+		count = (int) strlen(scan);
 		scan += count;
 		break;
 	case EXACTLY:

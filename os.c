@@ -230,7 +230,7 @@ errno_message(filename)
 #else
 	p = "cannot open";
 #endif
-	len = strlen(filename) + strlen(p) + 3;
+	len = (int) (strlen(filename) + strlen(p) + 3);
 	m = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF2(m, len, "%s: %s", filename, p);
 	return (m);

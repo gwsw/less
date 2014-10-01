@@ -281,7 +281,7 @@ findctag(tag)
 
 	cleantags();
 	total = 0;
-	taglen = strlen(tag);
+	taglen = (int) strlen(tag);
 
 	/*
 	 * Search the tags file for the desired tag.
@@ -439,7 +439,7 @@ ctagsearch()
 		 * If tagendline is set, make sure we match all
 		 * the way to end of line (no extra chars after the match).
 		 */
-		len = strlen(curtag->tag_pattern);
+		len = (int) strlen(curtag->tag_pattern);
 		if (strncmp(curtag->tag_pattern, line, len) == 0 &&
 		    (!curtag->tag_endline || line[len] == '\0' || line[len] == '\r'))
 		{
@@ -545,7 +545,7 @@ findgtag(tag, type)
 #endif
 				return TAG_INTR;
 			}
-			len = strlen(buf);
+			len = (int) strlen(buf);
 			if (len > 0 && buf[len-1] == '\n')
 				buf[len-1] = '\0';
 			else

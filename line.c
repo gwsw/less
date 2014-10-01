@@ -202,7 +202,7 @@ plinenum(pos)
 		int n;
 
 		linenumtoa(linenum, buf);
-		n = strlen(buf);
+		n = (int) strlen(buf);
 		if (n < MIN_LINENUM_WIDTH)
 			n = MIN_LINENUM_WIDTH;
 		sprintf(linebuf+curr, "%*s ", n, buf);
@@ -484,7 +484,7 @@ backc()
 	       && column > lmargin
 	       && (!(attr[curr - 1] & (AT_ANSI|AT_BINARY))))
 	{
-		curr = p - linebuf;
+		curr = (int) (p - linebuf);
 		prev_ch = step_char(&p, -1, linebuf + lmargin);
 		width = pwidth(ch, attr[curr], prev_ch);
 		column -= width;
@@ -597,7 +597,7 @@ store_char(ch, a, rep, pos)
 			do {
 				bch = step_char(&p, -1, linebuf);
 			} while (p > linebuf && !IS_CSI_START(bch));
-			curr = p - linebuf;
+			curr = (int) (p - linebuf);
 			return 0;
 		}
 		a = AT_ANSI;	/* Will force re-AT_'ing around it.  */

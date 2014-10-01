@@ -196,7 +196,7 @@ cmd_step_common(p, ch, len, pwidth, bswidth)
 		pr = prchar((int) ch);
 		if (pwidth != NULL || bswidth != NULL)
 		{
-			int len = strlen(pr);
+			int len = (int) strlen(pr);
 			if (pwidth != NULL)
 				*pwidth = len;
 			if (bswidth != NULL)
@@ -215,7 +215,7 @@ cmd_step_common(p, ch, len, pwidth, bswidth)
 					*bswidth = 0;
 			} else if (is_ubin_char(ch))
 			{
-				int len = strlen(pr);
+				int len = (int) strlen(pr);
 				if (pwidth != NULL)
 					*pwidth = len;
 				if (bswidth != NULL)
@@ -368,7 +368,7 @@ cmd_lshift()
 		s = ns;
 	}
 
-	cmd_offset = s - cmdbuf;
+	cmd_offset = (int) (s - cmdbuf);
 	save_cp = cp;
 	cmd_home();
 	cmd_repaint(save_cp);
@@ -398,7 +398,7 @@ cmd_rshift()
 		cols += width;
 	}
 
-	cmd_offset = s - cmdbuf;
+	cmd_offset = (int) (s - cmdbuf);
 	save_cp = cp;
 	cmd_home();
 	cmd_repaint(save_cp);
@@ -528,7 +528,7 @@ cmd_erase()
 	 */
 	s = cp;
 	cmd_left();
-	clen = s - cp;
+	clen = (int) (s - cp);
 
 	/*
 	 * Remove the char from the buffer (shift the buffer left).
@@ -694,7 +694,7 @@ cmd_updown(action)
 
 	if (updown_match < 0)
 	{
-		updown_match = cp - cmdbuf;
+		updown_match = (int) (cp - cmdbuf);
 	}
 
 	/*
@@ -960,7 +960,7 @@ delimit_word()
 	int delim_quoted = 0;
 	int meta_quoted = 0;
 	char *esc = get_meta_escape();
-	int esclen = strlen(esc);
+	int esclen = (int) strlen(esc);
 #endif
 	
 	/*
@@ -1395,7 +1395,7 @@ histfile_name()
 #endif
 			return (NULL);
 	}
-	len = strlen(home) + strlen(LESSHISTFILE) + 2;
+	len = (int) (strlen(home) + strlen(LESSHISTFILE) + 2);
 	name = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF2(name, len, "%s/%s", home, LESSHISTFILE);
 	return (name);

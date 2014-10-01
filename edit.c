@@ -57,7 +57,7 @@ init_textlist(tlist, str)
 	int meta_quoted = 0;
 	int delim_quoted = 0;
 	char *esc = get_meta_escape();
-	int esclen = strlen(esc);
+	int esclen = (int) strlen(esc);
 #endif
 	
 	tlist->string = skipsp(str);

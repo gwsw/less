@@ -72,8 +72,8 @@ struct hilite_node
 };
 struct hilite_storage
 {
-	size_t capacity;
-	size_t used;
+	int capacity;
+	int used;
 	struct hilite_storage *next;
 };
 struct hilite_tree
@@ -255,7 +255,6 @@ repaint_hilite(on)
 {
 	int slinenum;
 	POSITION pos;
-	POSITION epos;
 	int save_hide_hilite;
 
 	if (squished)
@@ -281,7 +280,6 @@ repaint_hilite(on)
 		pos = position(slinenum);
 		if (pos == NULL_POSITION)
 			continue;
-		epos = position(slinenum+1);
 		(void) forw_line(pos);
 		goto_line(slinenum);
 		put_line();
@@ -426,9 +424,7 @@ hlist_find(anchor, pos)
 	struct hilite_tree *anchor;
 	POSITION pos;
 {
-	struct hilite_node *n, *m, *pl;
-
-	pl = anchor->lookaside;
+	struct hilite_node *n, *m;
 
 	if (anchor->lookaside)
 	{
@@ -647,8 +643,8 @@ is_hilited(pos, epos, nohide, p_matches)
 hlist_getstorage(anchor)
 	struct hilite_tree *anchor;
 {
-	size_t capacity = 1;
-	size_t allocsize = sizeof(struct hilite_storage);
+	int capacity = 1;
+	int allocsize = sizeof(struct hilite_storage);
 	struct hilite_storage *s;
 
 	if (anchor->current)
