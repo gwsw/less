@@ -307,18 +307,14 @@ match_pattern(pattern, tpattern, line, line_len, sp, ep, notbol, search_type)
 #if HAVE_GNU_REGEX
 	{
 		struct re_registers search_regs;
-		regoff_t *starts = (regoff_t *) ecalloc(1, sizeof (regoff_t));
-		regoff_t *ends = (regoff_t *) ecalloc(1, sizeof (regoff_t));
 		spattern->not_bol = notbol;
-		re_set_registers(spattern, &search_regs, 1, starts, ends);
+		spattern->regs_allocated = REGS_UNALLOCATED;
 		matched = re_search(spattern, line, line_len, 0, line_len, &search_regs) >= 0;
 		if (matched)
 		{
 			*sp = line + search_regs.start[0];
 			*ep = line + search_regs.end[0];
 		}
-		free(starts);
-		free(ends);
 	}
 #endif
 #if HAVE_POSIX_REGCOMP
