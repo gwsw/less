@@ -24,6 +24,9 @@
 
 * Treat multiple CRs before LF are like one CR (all the CRs are hidden).
 
+* Allow "extra" string in lesskey file to append to a multi-char command
+  (like a search pattern), without executing the command.
+
 * Ignore -u/-U setting while viewing help file, so that 
   underline and bold chars are displayed correctly.
 
