@@ -372,6 +372,7 @@ opt_p(type, s)
 		} else
 		{
 			plusoption = TRUE;
+			ungetcc(CHAR_END_COMMAND);
 			ungetsc(s);
 			 /*
 			  * {{ This won't work if the "/" command is

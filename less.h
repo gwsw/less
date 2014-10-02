@@ -458,6 +458,7 @@ struct wchar_range_table
 
 #define	ESC		CONTROL('[')
 #define	CSI		((unsigned char)'\233')
+#define	CHAR_END_COMMAND 0x40000000
 
 #if _OSK_MWC32
 #define	LSIGNAL(sig,func)	os9_signal(sig,func)

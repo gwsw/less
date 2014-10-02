@@ -145,7 +145,10 @@ scan_option(s)
 			if (*str == '+')
 				every_first_cmd = save(str+1);
 			else
+			{
+				ungetcc(CHAR_END_COMMAND);
 				ungetsc(str);
+			}
 			free(str);
 			continue;
 		case '0':  case '1':  case '2':  case '3':  case '4':

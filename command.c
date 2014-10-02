@@ -71,9 +71,9 @@ static char pipec;
 struct ungot {
 	struct ungot *ug_next;
 	char ug_char;
+	char ug_end_command;
 };
 static struct ungot* ungot = NULL;
-static int unget_end = 0;
 
 static void multi_search();
 
@@ -768,40 +768,6 @@ dispversion()
 	public int
 getcc()
 {
-	if (unget_end) 
-	{
-		/*
-		 * We have just run out of ungotten chars.
-		 */
-		unget_end = 0;
-		if (len_cmdbuf() == 0)
-			return (getchr());
-		/*
-		 * Command is incomplete, so try to complete it.
-		 */
-		switch (mca)
-		{
-		case A_DIGIT:
-			/*
-			 * We have a number but no command.  Treat as #g.
-			 */
-			return ('g');
-
-		case A_F_SEARCH:
-		case A_B_SEARCH:
-			/*
-			 * We have "/string" but no newline.  Add the \n.
-			 */
-			return ('\n'); 
-
-		default:
-			/*
-			 * Some other incomplete command.  Let user complete it.
-			 */
-			return (getchr());
-		}
-	}
-
 	if (ungot == NULL)
 	{
 		/*
@@ -816,9 +782,36 @@ getcc()
 	{
 		struct ungot *ug = ungot;
 		char c = ug->ug_char;
+		int end_command = ug->ug_end_command;
 		ungot = ug->ug_next;
 		free(ug);
-		unget_end = (ungot == NULL);
+		if (end_command)
+		{
+			/*
+			 * Command is incomplete, so try to complete it.
+			 */
+			switch (mca)
+			{
+			case A_DIGIT:
+				/*
+				 * We have a number but no command.  Treat as #g.
+				 */
+				return ('g');
+
+			case A_F_SEARCH:
+			case A_B_SEARCH:
+				/*
+				 * We have "/string" but no newline.  Add the \n.
+				 */
+				return ('\n'); 
+
+			default:
+				/*
+				 * Some other incomplete command.  Let user complete it.
+				 */
+				return (getchr());
+			}
+		}
 		return (c);
 	}
 }
@@ -833,10 +826,10 @@ ungetcc(c)
 {
 	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
 
-	ug->ug_char = c;
+	ug->ug_char = (char) c;
+	ug->ug_end_command = (c == CHAR_END_COMMAND);
 	ug->ug_next = ungot;
 	ungot = ug;
-	unget_end = 0;
 }
 
 /*
