@@ -343,7 +343,7 @@ fexpand(s)
 				if (ifile == NULL_IFILE)
 					n++;
 				else
-					n += strlen(get_filename(ifile));
+					n += (int) strlen(get_filename(ifile));
 			}
 			/*
 			 * Else it is the first char in a string of

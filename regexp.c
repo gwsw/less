@@ -557,7 +557,7 @@ int *flagp;
 			register char ender;
 
 			regparse--;
-			len = strcspn(regparse, META);
+			len = (int) strcspn(regparse, META);
 			if (len <= 0)
 				FAIL("internal disaster");
 			ender = *(regparse+len);
@@ -673,9 +673,9 @@ char *val;
 	}
 
 	if (OP(scan) == BACK)
-		offset = scan - val;
+		offset = (int) (scan - val);
 	else
-		offset = val - scan;
+		offset = (int) (val - scan);
 	*(scan+1) = (offset>>8)&0377;
 	*(scan+2) = offset&0377;
 }

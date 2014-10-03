@@ -641,7 +641,7 @@ parse_cmdline(p)
 	do
 	{
 		s = tstr(&p, 1);
-		cmdlen += strlen(s);
+		cmdlen += (int) strlen(s);
 		if (cmdlen > MAX_CMDLEN)
 			error("command too long");
 		else
