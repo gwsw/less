@@ -741,7 +741,8 @@ use_logfile(filename)
 	 */
 	filename = shell_unquote(filename);
 	exists = open(filename, OPEN_READ);
-	close(exists);
+	if (exists >= 0)
+		close(exists);
 	exists = (exists >= 0);
 
 	/*
