@@ -770,6 +770,8 @@ v468  9/18/14   Fix typo
 v469  10/2/14   Allow extra string in command to append to a multichar
                 cmd without executing it; fix bug using GNU regex.
 v470  10/5/14   Fix some compiler warnings.
+v471  12/14/14  Fix unget issues with prompt. Allow disabling history
+                when compiled value of LESSHISTFILE = "-".
 */
 
-char version[] = "470";
+char version[] = "471";
