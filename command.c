@@ -678,7 +678,7 @@ prompt()
 {
 	register constant char *p;
 
-	if (ungot != NULL)
+	if (ungot != NULL && !ungot->ug_end_command)
 	{
 		/*
 		 * No prompt necessary if commands are from 
