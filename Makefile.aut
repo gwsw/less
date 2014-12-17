@@ -50,7 +50,8 @@ help.c: less.hlp mkhelp
 	-mv -f ${srcdir}/help.c ${srcdir}/help.c.old
 	rm -rf help.c
 	./mkhelp < less.hlp > help.c
-	if cmp -s help.c help.c.old; then mv help.c.old help.c; fi
+	chmod -w help.c
+	if cmp -s help.c help.c.old; then mv -f help.c.old help.c; fi
 
 mkhelp: mkhelp.c
 	${CC} -o mkhelp mkhelp.c
@@ -62,7 +63,8 @@ ${srcdir}/configure: ${srcdir}/configure.ac \
 funcs.h: ${SRC:%=${srcdir}/%}
 	-mv -f ${srcdir}/funcs.h ${srcdir}/funcs.h.old
 	awk -f ${srcdir}/mkfuncs.awk ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
-	if cmp -s funcs.h funcs.h.old; then mv funcs.h.old funcs.h; fi
+	chmod -w funcs.h
+	if cmp -s funcs.h funcs.h.old; then mv -f funcs.h.old funcs.h; fi
 
 lint:
 	lint -I. ${CPPFLAGS} ${SRC}
@@ -100,17 +102,20 @@ ${srcdir}/less.hlp: ${srcdir}/less.hlp.VER ${srcdir}/version.c
 
 ${srcdir}/less.man: ${srcdir}/less.nro
 	${NROFF} ${srcdir}/less.nro >${srcdir}/less.man
+	chmod -w ${srcdir}/less.man
 ${srcdir}/lesskey.man: ${srcdir}/lesskey.nro
 	${NROFF} ${srcdir}/lesskey.nro >${srcdir}/lesskey.man
+	chmod -w ${srcdir}/lesskey.man
 ${srcdir}/lessecho.man: ${srcdir}/lessecho.nro
 	${NROFF} ${srcdir}/lessecho.nro >${srcdir}/lessecho.man
+	chmod -w ${srcdir}/lessecho.man
 
 compose.uni: unicode/UnicodeData.txt
-	./mkutable -f2 Mn Me -- unicode/UnicodeData.txt > $@
+	./mkutable -f2 Mn Me -- unicode/UnicodeData.txt > $@; chmod -w $@
 ubin.uni: unicode/UnicodeData.txt
-	./mkutable -f2 Cc Cf Cs Co Zl Zp -- unicode/UnicodeData.txt > $@
+	./mkutable -f2 Cc Cf Cs Co Zl Zp -- unicode/UnicodeData.txt > $@; chmod -w $@
 wide.uni: unicode/EastAsianWidth.txt
-	./mkutable -f1 W -- unicode/EastAsianWidth.txt > $@
+	./mkutable -f1 W -- unicode/EastAsianWidth.txt > $@; chmod -w $@
 
 distfiles: ${DISTFILES}
 
