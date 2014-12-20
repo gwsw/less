@@ -154,6 +154,7 @@ mca_search()
 		cmd_putstr("/");
 	else
 		cmd_putstr("?");
+	forw_prompt = 0;
 	set_mlist(ml_search, 0);
 }
 
@@ -188,6 +189,7 @@ mca_opt_toggle()
 		cmd_putstr("!");
 		break;
 	}
+	forw_prompt = 0;
 	set_mlist(NULL, 0);
 }
 
