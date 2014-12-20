@@ -772,6 +772,7 @@ v469  10/2/14   Allow extra string in command to append to a multichar
 v470  10/5/14   Fix some compiler warnings.
 v471  12/14/14  Fix unget issues with prompt. Allow disabling history
                 when compiled value of LESSHISTFILE = "-".
+v473  12/19/14  Fix prompt bug with stdin and -^P in lesskey extra string.
 */
 
-char version[] = "471";
+char version[] = "473";
