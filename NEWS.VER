@@ -17,6 +17,8 @@
 
 * New command ESC-G goes to end of currently buffered data in a pipe.
 
+* Disable history feature when compiled with LESSHISTFILE set to "-".
+
 * In more-compatible mode, make the -p option apply to every file opened,
   not just the first one.
 
@@ -33,6 +35,10 @@
 * Improve detection of "binary" files in UTF-8 mode.
 
 * Fix bug with ++ commands.
+
+* Fix bug where prompt was sometimes not displayed with +G.
+
+* Fix possible memory corruption 
 
 * Fix bugs and improve performance in ampersand filtering.
 
