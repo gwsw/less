@@ -79,6 +79,7 @@ REPLACE_VERSION = \
 	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q ${srcdir}/version.c`; \
 	DT=`date '+%d %h %Y'`; \
 	echo "Stuffing version number $$REL into $@"; \
+	rm -f $@; \
 	sed \
 		-e "s;@@VERSION@@;$$REL;" \
 		-e "s;@@DATE@@;$$DT;" \
