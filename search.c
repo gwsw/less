@@ -1129,11 +1129,10 @@ search_pos(search_type)
 			 * It starts at the jump target (if searching backwards),
 			 * or at the jump target plus one (if forwards).
 			 */
-			linenum = jump_sline;
+			linenum = adjsline(jump_sline);
 			if (search_type & SRCH_FORW) 
 				add_one = 1;
 		}
-		linenum = adjsline(linenum);
 		pos = position(linenum);
 		if (add_one)
 			pos = forw_raw_line(pos, (char **)NULL, (int *)NULL);
