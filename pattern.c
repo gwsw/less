@@ -227,6 +227,9 @@ is_null_pattern(pattern)
 #if HAVE_V8_REGCOMP
 	return (pattern == NULL);
 #endif
+#if NO_REGEX
+	return (pattern == NULL);
+#endif
 }
 
 /*
