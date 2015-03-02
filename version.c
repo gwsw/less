@@ -775,6 +775,8 @@ v471  12/14/14  Fix unget issues with prompt. Allow disabling history
 v473  12/19/14  Fix prompt bug with stdin and -^P in lesskey extra string.
 v474  1/30/15   Fix bug in backwards search with match on bottom line.
                 Make follow mode reopen file if file shrinks.
+v475  3/2/15    Fix possible buffer overrun with invalid UTF-8; 
+                fix bug when compiled with no regex.
 */
 
-char version[] = "474";
+char version[] = "475";
