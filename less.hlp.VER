@@ -23,6 +23,7 @@
   ESC-)  RightArrow *  Left  one half screen width (or _N positions).
   ESC-(  LeftArrow  *  Right one half screen width (or _N positions).
   F                    Forward forever; like "tail -f".
+  ESC-F                Like F but stop when search pattern is found.
   r  ^R  ^L            Repaint screen.
   R                    Repaint screen, discarding buffered input.
         ---------------------------------------------------
