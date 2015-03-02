@@ -800,7 +800,7 @@ pappend(c, pos)
 			mbc_buf[mbc_buf_index++] = c;
 			if (mbc_buf_index < mbc_buf_len)
 				return (0);
-			if (is_utf8_well_formed(mbc_buf))
+			if (is_utf8_well_formed(mbc_buf, mbc_buf_index))
 				r = do_append(get_wchar(mbc_buf), mbc_buf, mbc_pos);
 			else
 				/* Complete, but not shortest form, sequence. */

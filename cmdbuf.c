@@ -1257,7 +1257,7 @@ cmd_char(c)
 			cmd_mbc_buf[cmd_mbc_buf_index++] = c;
 			if (cmd_mbc_buf_index < cmd_mbc_buf_len)
 				return (CC_OK);
-			if (!is_utf8_well_formed(cmd_mbc_buf))
+			if (!is_utf8_well_formed(cmd_mbc_buf, cmd_mbc_buf_index))
 			{
 				/* complete, but not well formed (non-shortest form), sequence */
 				cmd_mbc_buf_len = 0;
