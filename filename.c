@@ -972,7 +972,7 @@ close_altfile(altfilename, filename, pipefd)
 	     	return;
 	if (num_pct_s(lessclose) > 2) 
 	{
-		error("Invalid LESSCLOSE variable");
+		error("Invalid LESSCLOSE variable", NULL_PARG);
 		return;
 	}
 	len = (int) (strlen(lessclose) + strlen(filename) + strlen(altfilename) + 2);
