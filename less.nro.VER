@@ -85,6 +85,10 @@ Warning: some systems use ^Y as a special job control character.
 Scroll backward N lines, default one half of the screen size.
 If N is specified, it becomes the new default for
 subsequent d and u commands.
+.IP "J"
+Like j, but continues to scroll beyond the end of the file.
+.IP "K or Y"
+Like k, but continues to scroll beyond the beginning of the file.
 .IP "ESC-) or RIGHTARROW"
 Scroll horizontally right N characters, default half the screen width
 (see the \-# option).

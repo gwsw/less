@@ -178,6 +178,8 @@ default command keys used by less:
 	\ee]		right-scroll
 	\ee(		left-scroll
 	\ee)		right-scroll
+	\ekl		left-scroll
+	\ekr		right-scroll
 	{		forw-bracket {}
 	}		back-bracket {}
 	(		forw-bracket ()
