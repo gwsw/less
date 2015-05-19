@@ -59,12 +59,16 @@ jump_forw()
 	public void
 jump_forw_buffered()
 {
+	POSITION end;
+
 	if (ch_end_buffer_seek())
 	{
 		error("Cannot seek to end of buffers", NULL_PARG);
 		return;
 	}
-	jump_line_loc(ch_tell(), sc_height-1);
+	end = ch_tell();
+	if (end != NULL_POSITION && end > 0)
+		jump_line_loc(end-1, sc_height-1);
 }
 
 /*

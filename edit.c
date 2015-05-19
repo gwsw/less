@@ -429,7 +429,8 @@ edit_ifile(ifile)
 #if HILITE_SEARCH
 		clr_hilite();
 #endif
-		cmd_addhist(ml_examine, filename, 1);
+		if (strcmp(filename, FAKE_HELPFILE) && strcmp(filename, FAKE_EMPTYFILE))
+			cmd_addhist(ml_examine, filename, 1);
 		if (no_display && errmsgs > 0)
 		{
 			/*

@@ -778,6 +778,8 @@ v474  1/30/15   Fix bug in backwards search with match on bottom line.
 v475  3/2/15    Fix possible buffer overrun with invalid UTF-8; 
                 fix bug when compiled with no regex; fix non-match search.
 v476  5/3/15    Update man pages.
+v477  5/19/15   Fix off-by-one in jump_forw_buffered;
+                don't add FAKE_* files to cmd history.
 */
 
-char version[] = "476";
+char version[] = "477";
