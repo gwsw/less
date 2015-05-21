@@ -780,6 +780,7 @@ v475  3/2/15    Fix possible buffer overrun with invalid UTF-8;
 v476  5/3/15    Update man pages.
 v477  5/19/15   Fix off-by-one in jump_forw_buffered;
                 don't add FAKE_* files to cmd history.
+v478  5/21/15   Fix nonportable pointer usage in hilite tree.
 */
 
-char version[] = "477";
+char version[] = "478";
