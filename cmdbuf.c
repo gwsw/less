@@ -1477,6 +1477,7 @@ read_cmdhist(action, uparam, skip_search, skip_shell)
 	void (*action)(void*,struct mlist*,char*);
 	void *uparam;
 	int skip_search;
+	int skip_shell;
 {
 	read_cmdhist2(action, uparam, skip_search, skip_shell);
 	(*action)(uparam, NULL, NULL); /* signal end of file */
