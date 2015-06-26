@@ -125,7 +125,7 @@ dist: ${DISTFILES}
 	for file in ${DISTFILES}; do \
 	  ./add_copyright $$file $$REL; \
 	done; \
-	cd $$REL; chmod -w *; chmod +w ${DISTFILES_W}; cd ..; \
+	cd $$REL; chmod -w *; chmod +w ${DISTFILES_W}; chmod +x configure; cd ..; \
 	echo "Creating release/$$REL/$$REL.tar.gz"; \
 	tar -cf - $$REL | gzip -c >release/$$REL/$$REL.tar.gz; \
 	echo "Signing release/$$REL/$$REL.tar.gz"; \
