@@ -814,15 +814,20 @@ lglob(filename)
 num_pct_s(lessopen)
 	char *lessopen;
 {
-	int num;
+	int num = 0;
 
-	for (num = 0;; num++)
+	while (*lessopen != '\0')
 	{
-		lessopen = strchr(lessopen, '%');
-		if (lessopen == NULL)
-			break;
-		if (*++lessopen != 's')
-			return (999);
+		if (*lessopen == '%')
+		{
+			if (lessopen[1] == '%')
+				++lessopen;
+			else if (lessopen[1] == 's')
+				++num;
+			else
+				return (999);
+		}
+		++lessopen;
 	}
 	return (num);
 }
