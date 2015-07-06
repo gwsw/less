@@ -44,6 +44,8 @@
 
 * Automate construction of Unicode tables from Unicode database.
 
+* Allow %% escape sequence in LESSOPEN variable.
+
 ======================================================================
 
 	Major changes between "less" versions 451 and 458
