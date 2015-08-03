@@ -782,6 +782,7 @@ v477  5/19/15   Fix off-by-one in jump_forw_buffered;
                 don't add FAKE_* files to cmd history.
 v478  5/21/15   Fix nonportable pointer usage in hilite tree.
 v479  7/6/15    Allow %% escapes in LESSOPEN variable.
+v480  7/24/15	Fix bug in no-regex searches; support MSVC v1900.
 */
 
-char version[] = "479";
+char version[] = "480";
