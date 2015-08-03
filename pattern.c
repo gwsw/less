@@ -250,9 +250,17 @@ match(pattern, pattern_len, buf, buf_len, pfound, pend)
 
 	for ( ;  buf < buf_end;  buf++)
 	{
-		for (pp = pattern, lp = buf;  *pp == *lp;  pp++, lp++)
+		for (pp = pattern, lp = buf;  ;  pp++, lp++)
+		{
+			char cp = *pp;
+			char cl = *lp;
+			if (caseless == OPT_ONPLUS && ASCII_IS_UPPER(cp))
+				cp = ASCII_TO_LOWER(cp);
+			if (cp != cl)
+				break;
 			if (pp == pattern_end || lp == buf_end)
 				break;
+		}
 		if (pp == pattern_end)
 		{
 			if (pfound != NULL)
