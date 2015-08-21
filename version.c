@@ -783,6 +783,7 @@ v477  5/19/15   Fix off-by-one in jump_forw_buffered;
 v478  5/21/15   Fix nonportable pointer usage in hilite tree.
 v479  7/6/15    Allow %% escapes in LESSOPEN variable.
 v480  7/24/15	Fix bug in no-regex searches; support MSVC v1900.
+v481  8/20/15	Fix broken -g option.
 */
 
-char version[] = "480";
+char version[] = "481";

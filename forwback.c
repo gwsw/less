@@ -28,6 +28,8 @@ extern int final_attr;
 extern int oldbot;
 #if HILITE_SEARCH
 extern int size_linebuf;
+extern int hilite_search;
+extern int status_col;
 #endif
 #if TAGS
 extern char *tagoption;
@@ -140,8 +142,10 @@ forw(n, pos, force, only_last, nblank)
 		(forw_scroll >= 0 && n > forw_scroll && n != sc_height-1);
 
 #if HILITE_SEARCH
-	prep_hilite(pos, pos + 3*size_linebuf, ignore_eoi ? 1 : -1);
-	pos = next_unfiltered(pos);
+	if (hilite_search == OPT_ONPLUS || is_filtering() || status_col) {
+		prep_hilite(pos, pos + 4*size_linebuf, ignore_eoi ? 1 : -1);
+		pos = next_unfiltered(pos);
+	}
 #endif
 
 	if (!do_repaint)
@@ -298,7 +302,9 @@ back(n, pos, force, only_last)
 	squish_check();
 	do_repaint = (n > get_back_scroll() || (only_last && n > sc_height-1));
 #if HILITE_SEARCH
-	prep_hilite((pos < 3*size_linebuf) ?  0 : pos - 3*size_linebuf, pos, -1);
+	if (hilite_search == OPT_ONPLUS || is_filtering() || status_col) {
+		prep_hilite((pos < 3*size_linebuf) ?  0 : pos - 3*size_linebuf, pos, -1);
+	}
 #endif
 	while (--n >= 0)
 	{
