@@ -57,6 +57,8 @@ struct cs_alias {
 	char *oname;
 } cs_aliases[] = {
 	{ "UTF-8",		"utf-8" },
+	{ "utf8",		"utf-8" },
+	{ "UTF8",		"utf-8" },
 	{ "ANSI_X3.4-1968",	"ascii" },
 	{ "US-ASCII",		"ascii" },
 	{ "latin1",		"iso8859" },
