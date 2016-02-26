@@ -786,5 +786,6 @@ v480  7/24/15   Fix bug in no-regex searches; support MSVC v1900.
 v481  8/20/15   Fix broken -g option.
 -----------------------------------------------------------------
 v482  2/25/15   Update Unicode database to "2015-06-16, 20:24:00 GMT [KW]".
+*/
 
 char version[] = "482";
