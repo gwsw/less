@@ -11,7 +11,13 @@
 
 ======================================================================
 
-	Major changes between "less" versions 458 and @@VERSION@@
+	Major changes between "less" versions 481 and @@VERSION@@
+
+* Update Unicdoe database.
+
+======================================================================
+
+	Major changes between "less" versions 458 and 481
 
 * Don't overwrite history file; just append to it.
 
