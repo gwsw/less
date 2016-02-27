@@ -117,7 +117,11 @@ repaint()
 	 */
 	get_scrpos(&scrpos);
 	pos_clear();
-	jump_loc(scrpos.pos, scrpos.ln);
+	if (scrpos.pos == NULL_POSITION)
+		/* Screen hasn't been drawn yet. */
+		jump_loc(0, 0);
+	else
+		jump_loc(scrpos.pos, scrpos.ln);
 }
 
 /*

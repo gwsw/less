@@ -2425,7 +2425,16 @@ win32_kbhit(tty)
 			currentKey.scan = PCK_CTL_DELETE;
 			break;
 		}
+	} else if (ip.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
+	{
+		switch (currentKey.scan)
+		{
+		case PCK_SHIFT_TAB: /* tab */
+			currentKey.ascii = 0;
+			break;
+		}
 	}
+
 	return (TRUE);
 }
 
