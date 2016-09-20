@@ -789,7 +789,8 @@ v482  2/25/16   Update Unicode database to "2015-06-16, 20:24:00 GMT [KW]".
 v483  2/27/16   Regenerate hilite when change search caselessness.
                 (Thanks to Jason Hood)
                 Fix bug when terminal has no "cm". (Thanks to Noel Cragg)
+v484  9/20/16   Update to Unicode 9.0.0 database.
 
 */
 
-char version[] = "483";
+char version[] = "484";
