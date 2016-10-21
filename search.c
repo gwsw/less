@@ -1086,18 +1086,18 @@ search_pos(search_type)
 			 * Search does not include current screen.
 			 */
 			if (search_type & SRCH_FORW)
-				linenum = BOTTOM_PLUS_ONE;
+				linenum = sc_height-1; /* BOTTOM_PLUS_ONE */
 			else
-				linenum = TOP;
+				linenum = 0; /* TOP */
 		} else if (how_search == OPT_ONPLUS && !(search_type & SRCH_AFTER_TARGET))
 		{
 			/*
 			 * Search includes all of displayed screen.
 			 */
 			if (search_type & SRCH_FORW)
-				linenum = TOP;
+				linenum = 0; /* TOP */
 			else
-				linenum = BOTTOM_PLUS_ONE;
+				linenum = sc_height-1; /* BOTTOM_PLUS_ONE */
 		} else 
 		{
 			/*
