@@ -15,6 +15,8 @@
 
 * Make search highlights work correctly when changing caselessness with -i.
 
+* Fix "nothing to search" error when top or bottom line on screen is empty.
+
 * Fix bug when terminal has no "cm" termcap entry.
 
 * Fix bug in Unicode handling that missed some double width characters.
