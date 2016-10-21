@@ -208,7 +208,7 @@ plinenum(pos)
 		sprintf(linebuf+curr, "%*s ", n, buf);
 		n++;  /* One space after the line number. */
 		for (i = 0; i < n; i++)
-			attr[curr+i] = AT_NORMAL;
+			attr[curr+i] = AT_BOLD;
 		curr += n;
 		column += n;
 		lmargin += n;
