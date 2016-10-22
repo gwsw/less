@@ -144,6 +144,7 @@ public int bl_fg_color;		/* Color of blinking text */
 public int bl_bg_color;
 static int sy_fg_color;		/* Color of system text (before less) */
 static int sy_bg_color;
+public int sgr_mode;		/* Honor ANSI sequences rather than using above */
 
 #else
 
@@ -1099,6 +1100,7 @@ get_term()
 	so_bg_color = 9;
 	bl_fg_color = 15;
 	bl_bg_color = 0;
+	sgr_mode = 0;
 
 	/*
 	 * Get size of the screen.
@@ -1441,6 +1443,9 @@ _settextposition(int row, int col)
 	static void
 initcolor()
 {
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
+	intensevideo();
+#endif
 	SETCOLORS(nm_fg_color, nm_bg_color);
 #if 0
 	/*

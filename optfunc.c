@@ -60,6 +60,7 @@ extern int bo_fg_color, bo_bg_color;
 extern int ul_fg_color, ul_bg_color;
 extern int so_fg_color, so_bg_color;
 extern int bl_fg_color, bl_bg_color;
+extern int sgr_mode;
 #endif
 
 
@@ -566,6 +567,8 @@ opt_D(type, s)
 	int type;
 	char *s;
 {
+	PARG p;
+
 	switch (type)
 	{
 	case INIT:
@@ -587,8 +590,11 @@ opt_D(type, s)
 		case 's':
 			colordesc(s, &so_fg_color, &so_bg_color);
 			break;
+		case 'a':
+			sgr_mode = !sgr_mode;
+			break;
 		default:
-			error("-D must be followed by n, d, u, k or s", NULL_PARG);
+			error("-D must be followed by n, d, u, k, s or a", NULL_PARG);
 			break;
 		}
 		if (type == TOGGLE)
@@ -598,6 +604,8 @@ opt_D(type, s)
 		}
 		break;
 	case QUERY:
+		p.p_string = (sgr_mode) ? "on" : "off";
+		error("SGR mode is %s", &p);
 		break;
 	}
 }

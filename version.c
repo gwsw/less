@@ -795,7 +795,8 @@ v485  10/21/16  Fix "nothing to search" bug when top/bottom line is empty;
                 Fix incorrect display when entering double-width chars in 
 		search string.
 v486  10/22/16  New commands ESC-{ and ESC-} to shift to start/end of 
-                displayed lines (thanks to Jason Hood).
+                displayed lines; new option -Da in Windows version to 
+		enable SGR mode (thanks to Jason Hood).
 */
 
 char version[] = "486";

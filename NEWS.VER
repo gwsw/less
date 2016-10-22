@@ -17,6 +17,8 @@
 
 * Make search highlights work correctly when changing caselessness with -i.
 
+* New option -Da in Windows version to enable SGR mode.
+
 * Fix "nothing to search" error when top or bottom line on screen is empty.
 
 * Fix bug when terminal has no "cm" termcap entry.

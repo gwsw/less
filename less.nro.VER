@@ -551,6 +551,7 @@ The first number selects the foreground color and the second selects
 the background color of the text.
 A single number \fIN\fP is the same as \fIN.M\fP,
 where \fIM\fP is the normal background color.
+\fBx\fP may also be \fBa\fP to toggle strict ANSI sequence rendering (SGR mode).
 
 .IP "\-e or \-\-quit-at-eof"
 Causes

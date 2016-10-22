@@ -169,10 +169,10 @@ static struct loption option[] =
 	},
 #if MSDOS_COMPILER
 	{ 'D', &D__optname,
-		STRING|REPAINT|NO_QUERY, 0, NULL, opt_D,
+		STRING|REPAINT, 0, NULL, opt_D,
 		{
 			"color desc: ", 
-			"Ddknsu0123456789.",
+			"Dadknsu0123456789.",
 			NULL
 		}
 	},
