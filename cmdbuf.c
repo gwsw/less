@@ -178,6 +178,8 @@ len_cmdbuf()
 
 /*
  * Common part of cmd_step_right() and cmd_step_left().
+ * {{ Returning pwidth and bswidth separately is a historical artifact
+ *    since they're always the same. Maybe clean this up someday. }}
  */
 	static char *
 cmd_step_common(p, ch, len, pwidth, bswidth)
