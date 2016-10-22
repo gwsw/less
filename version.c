@@ -790,9 +790,10 @@ v483  2/27/16   Regenerate hilite when change search caselessness.
                 (Thanks to Jason Hood)
                 Fix bug when terminal has no "cm". (Thanks to Noel Cragg)
 v484  9/20/16   Update to Unicode 9.0.0 database.
-v485  10/21/16  Fix "nothing to search" bug when top/bottom line is empty.
-                Display line numbers in bold. (thanks to Jason Hood)
-
+v485  10/21/16  Fix "nothing to search" bug when top/bottom line is empty;
+                Display line numbers in bold. (thanks to Jason Hood);
+                Fix incorrect display when entering double-width chars in 
+		search string.
 */
 
 char version[] = "485";

@@ -19,6 +19,8 @@
 
 * Fix bug when terminal has no "cm" termcap entry.
 
+* Fix incorrect display when entering double-width chars in search string.
+
 * Fix bug in Unicode handling that missed some double width characters.
 
 * Update Unicode database to 9.0.0.
