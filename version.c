@@ -794,6 +794,8 @@ v485  10/21/16  Fix "nothing to search" bug when top/bottom line is empty;
                 Display line numbers in bold. (thanks to Jason Hood);
                 Fix incorrect display when entering double-width chars in 
 		search string.
+v486  10/22/16  New commands ESC-{ and ESC-} to shift to start/end of 
+                displayed lines (thanks to Jason Hood).
 */
 
-char version[] = "485";
+char version[] = "486";

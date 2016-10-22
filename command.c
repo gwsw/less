@@ -1772,6 +1772,16 @@ commands()
 			screen_trashed = 1;
 			break;
 
+		case A_LLSHIFT:
+			hshift = 0;
+			screen_trashed = 1;
+			break;
+
+		case A_RRSHIFT:
+			hshift = rrshift();
+			screen_trashed = 1;
+			break;
+
 		case A_PREFIX:
 			/*
 			 * The command is incomplete (more chars are needed).

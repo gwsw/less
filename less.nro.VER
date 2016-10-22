@@ -101,6 +101,10 @@ Scroll horizontally left N characters, default half the screen width
 (see the \-# option).
 If a number N is specified, it becomes the default for future RIGHTARROW
 and LEFTARROW commands.
+.IP "ESC-} or ^RIGHTARROW"
+Scroll horizontally right to show the end of the longest displayed line.
+.IP "ESC-{ or ^LEFTARROW"
+Scroll horizontally left back to the first column.
 .IP "r or ^R or ^L"
 Repaint the screen.
 .IP R

@@ -9,6 +9,7 @@
 
 #include "less.h"
 #include "charset.h"
+#include "position.h"
 
 static char *linebuf = NULL;	/* Buffer which holds the current output line */
 static char *attr = NULL;	/* Extension of linebuf to hold attributes */
@@ -1247,4 +1248,31 @@ back_raw_line(curr_pos, linep, line_lenp)
 	if (line_lenp != NULL)
 		*line_lenp = size_linebuf - 1 - n;
 	return (new_pos);
+}
+
+/*
+ * Find the shift necessary to show the end of the longest displayed line.
+ */
+	public int
+rrshift()
+{
+	POSITION pos;
+	int save_width;
+	int line;
+	int longest = 0;
+
+	save_width = sc_width;
+	sc_width = INT_MAX;
+	hshift = 0;
+	pos = position(TOP);
+	for (line = 0; line < sc_height && pos != NULL_POSITION; line++)
+	{
+		pos = forw_line(pos);
+		if (column > longest)
+			longest = column;
+	}
+	sc_width = save_width;
+	if (longest < sc_width)
+		return 0;
+	return longest - sc_width;
 }
