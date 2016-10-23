@@ -1072,7 +1072,7 @@ pdone(endline, forw)
 }
 
 /*
- * Set char in the status column.
+ *
  */
 	public void
 set_status_col(c)
@@ -1080,17 +1080,6 @@ set_status_col(c)
 {
 	linebuf[0] = c;
 	attr[0] = AT_NORMAL|AT_HILITE;
-}
-
-/*
- * Set char in rightmost position on screen.
- */
-	public void
-set_rstatus_col(c)
-	char c;
-{
-	linebuf[sc_width-1] = c;
-	attr[sc_width-1] = AT_NORMAL|AT_HILITE;
 }
 
 /*

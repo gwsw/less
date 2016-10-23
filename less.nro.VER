@@ -636,9 +636,7 @@ always begin at the start or end of the current screen respectively.
 .IP "\-J or \-\-status-column"
 Displays a status column at the left edge of the screen.
 The status column shows the lines that matched the current search.
-Also, when \-J is in effect, any lines that are truncated (chopped)
-at the right margin due to \-S or horizontal shifting will be marked
-with a greater-than sign in the right column.
+The status column is also used if the \-w or \-W option is in effect.
 .IP "\-k\fIfilename\fP or \-\-lesskey-file=\fIfilename\fP"
 Causes
 .I less

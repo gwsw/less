@@ -13,14 +13,11 @@
 
 	Major changes between "less" versions 481 and @@VERSION@@
 
-* New commands ESC-{ and ESC-} to shift horizontally to 
-  start/end of displayed lines.
+* New commands ESC-{ and ESC-} to shift to start/end of displayed lines.
 
 * Make search highlights work correctly when changing caselessness with -i.
 
 * New option -Da in Windows version to enable SGR mode.
-
-* When -J is in effect, mark truncated (chopped) lines.
 
 * Fix "nothing to search" error when top or bottom line on screen is empty.
 
