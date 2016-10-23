@@ -201,7 +201,7 @@ get_forw_line:
 
 	pdone(endline, 1);
 
-    if (status_col && chopped)
+	if (status_col && chopped)
 		set_rstatus_col('>');
 
 #if HILITE_SEARCH
@@ -255,6 +255,7 @@ back_line(curr_pos)
 	int c;
 	int endline;
 	int backchars;
+	int chopped;
 
 get_back_line:
 	if (curr_pos == NULL_POSITION || curr_pos <= ch_zero())
@@ -355,6 +356,8 @@ get_back_line:
 	endline = FALSE;
 	prewind();
 	plinenum(new_pos);
+	chopped;
+	chopped = (chopline || hshift > 0); /* assume chopped unless we hit \n */
     loop:
 	begin_new_pos = new_pos;
 	(void) ch_seek(new_pos);
@@ -377,6 +380,7 @@ get_back_line:
 				goto shift;
 			}
 			endline = TRUE;
+			chopped = 0;
 			break;
 		}
 		backchars = pappend(c, ch_tell()-1);
@@ -405,6 +409,9 @@ get_back_line:
 	} while (new_pos < curr_pos);
 
 	pdone(endline, 0);
+
+	if (status_col && chopped)
+		set_rstatus_col('>');
 
 #if HILITE_SEARCH
 	if (is_filtered(base_pos))
