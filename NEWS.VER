@@ -19,6 +19,8 @@
 
 * New option -Da in Windows version to enable SGR mode.
 
+* When -J is in effect, mark truncated (chopped) lines.
+
 * Fix "nothing to search" error when top or bottom line on screen is empty.
 
 * Fix bug when terminal has no "cm" termcap entry.

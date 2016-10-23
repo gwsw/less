@@ -44,6 +44,7 @@ forw_line(curr_pos)
 	int blankline;
 	int endline;
 	int backchars;
+	int chopped;
 
 get_forw_line:
 	if (curr_pos == NULL_POSITION)
@@ -136,6 +137,7 @@ get_forw_line:
 	/*
 	 * Read each character in the line and append to the line buffer.
 	 */
+	chopped = (chopline || hshift > 0); /* assume chopped unless we hit \n */
 	for (;;)
 	{
 		if (ABORT_SIGS())
@@ -156,6 +158,7 @@ get_forw_line:
 				endline = FALSE;
 			} else
 				endline = TRUE;
+			chopped = 0;
 			break;
 		}
 		if (c != '\r')
@@ -197,6 +200,9 @@ get_forw_line:
 	}
 
 	pdone(endline, 1);
+
+    if (status_col && chopped)
+		set_rstatus_col('>');
 
 #if HILITE_SEARCH
 	if (is_filtered(base_pos))
