@@ -797,6 +797,7 @@ v485  10/21/16  Fix "nothing to search" bug when top/bottom line is empty;
 v486  10/22/16  New commands ESC-{ and ESC-} to shift to start/end of 
                 displayed lines; new option -Da in Windows version to 
 		enable SGR mode (thanks to Jason Hood).
+v487  10/23/16  configure --help formatting.
 */
 
-char version[] = "486";
+char version[] = "487";
