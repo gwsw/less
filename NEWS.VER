@@ -11,7 +11,13 @@
 
 ======================================================================
 
-	Major changes between "less" versions 481 and @@VERSION@@
+	Major changes between "less" versions 487 and @@VERSION@@
+
+* Fix memory leaks.
+
+======================================================================
+
+	Major changes between "less" versions 481 and 487
 
 * New commands ESC-{ and ESC-} to shift to start/end of displayed lines.
 

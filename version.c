@@ -793,11 +793,12 @@ v484  9/20/16   Update to Unicode 9.0.0 database.
 v485  10/21/16  Fix "nothing to search" bug when top/bottom line is empty;
                 Display line numbers in bold. (thanks to Jason Hood);
                 Fix incorrect display when entering double-width chars in 
-		search string.
+                search string.
 v486  10/22/16  New commands ESC-{ and ESC-} to shift to start/end of 
                 displayed lines; new option -Da in Windows version to 
-		enable SGR mode (thanks to Jason Hood).
+                enable SGR mode (thanks to Jason Hood).
 v487  10/23/16  configure --help formatting.
+v488  2/23/17   Fix memory leaks in search (thanks to John Brooks).
 */
 
-char version[] = "487";
+char version[] = "488";
