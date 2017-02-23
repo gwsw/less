@@ -1264,6 +1264,8 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 				hl.hl_startpos = linepos;
 				hl.hl_endpos = pos;
 				add_hilite(&filter_anchor, &hl);
+				free(cline);
+				free(chpos);
 				continue;
 			}
 		}

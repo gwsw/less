@@ -36,7 +36,10 @@ compile_pattern2(pattern, search_type, comp_pattern, show_error)
 		return (-1);
 	}
 	if (*pcomp != NULL)
+	{
 		regfree(*pcomp);
+		free(*pcomp);
+	}
 	*pcomp = comp;
 #endif
 #if HAVE_POSIX_REGCOMP
@@ -50,7 +53,10 @@ compile_pattern2(pattern, search_type, comp_pattern, show_error)
 		return (-1);
 	}
 	if (*pcomp != NULL)
+	{
 		regfree(*pcomp);
+		free(*pcomp);
+	}
 	*pcomp = comp;
 #endif
 #if HAVE_PCRE
@@ -151,13 +157,19 @@ uncompile_pattern(pattern)
 #if HAVE_GNU_REGEX
 	struct re_pattern_buffer **pcomp = (struct re_pattern_buffer **) pattern;
 	if (*pcomp != NULL)
+	{
 		regfree(*pcomp);
+		free(*pcomp);
+	}
 	*pcomp = NULL;
 #endif
 #if HAVE_POSIX_REGCOMP
 	regex_t **pcomp = (regex_t **) pattern;
 	if (*pcomp != NULL)
+	{
 		regfree(*pcomp);
+		free(*pcomp);
+	}
 	*pcomp = NULL;
 #endif
 #if HAVE_PCRE
