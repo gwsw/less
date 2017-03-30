@@ -437,3 +437,21 @@ get_back_scroll()
 		return (sc_height - 2);
 	return (10000); /* infinity */
 }
+
+/*
+ * Get line count of file up to the screen height + 1 char
+ */
+	public int
+get_line_count()
+{
+	int nlines;
+	POSITION pos;
+
+	pos = ch_zero();
+	for (nlines = 0;  nlines <= sc_height;  nlines++)
+	{
+		pos = forw_line(pos);
+		if (pos == NULL_POSITION) break;
+	}
+	return nlines;
+}

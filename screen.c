@@ -197,6 +197,7 @@ public int missing_cap = 0;	/* Some capability is missing */
 
 static int attrmode = AT_NORMAL;
 extern int binattr;
+extern int line_count;
 
 #if !MSDOS_COMPILER
 static char *cheaper();
@@ -226,6 +227,7 @@ extern int wscroll;
 extern int screen_trashed;
 extern int tty;
 extern int top_scroll;
+extern int quit_if_one_screen;
 extern int oldbot;
 #if HILITE_SEARCH
 extern int hilite_search;
@@ -1531,7 +1533,9 @@ win32_deinit_term()
 init()
 {
 #if !MSDOS_COMPILER
-	if (!no_init)
+	if (quit_if_one_screen && line_count >= sc_height)
+		quit_if_one_screen = FALSE;
+	if (!no_init && !quit_if_one_screen)
 		tputs(sc_init, sc_height, putchr);
 	if (!no_keypad)
 		tputs(sc_s_keypad, sc_height, putchr);
@@ -1571,7 +1575,7 @@ deinit()
 #if !MSDOS_COMPILER
 	if (!no_keypad)
 		tputs(sc_e_keypad, sc_height, putchr);
-	if (!no_init)
+	if (!no_init && !quit_if_one_screen)
 		tputs(sc_deinit, sc_height, putchr);
 #else
 	/* Restore system colors. */

@@ -46,10 +46,12 @@ extern int	jump_sline;
 static char consoleTitle[256];
 #endif
 
+public int  line_count;
 extern int	less_is_more;
 extern int	missing_cap;
 extern int	know_dumb;
 extern int	pr_type;
+extern int	quit_if_one_screen;
 
 
 /*
@@ -266,10 +268,25 @@ main(argc, argv)
 	{
 		if (edit_stdin())  /* Edit standard input */
 			quit(QUIT_ERROR);
+		if (quit_if_one_screen)
+			line_count = get_line_count();
 	} else 
 	{
 		if (edit_first())  /* Edit first valid file in cmd line */
 			quit(QUIT_ERROR);
+		/*
+		 * In case that we have only one file and -F, have to get a line
+		 * count fot init(). If the line count is less then a height of a term,
+		 * the content of the file is printed out and then less quits. Otherwise
+		 * -F can not be used
+		 */
+		if (quit_if_one_screen)
+		{
+			if (nifile() == 1)
+				line_count = get_line_count();
+			else /* In case more than one file, -F can not be used */
+				quit_if_one_screen = FALSE;
+		}
 	}
 
 	init();
