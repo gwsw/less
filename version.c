@@ -798,7 +798,10 @@ v486  10/22/16  New commands ESC-{ and ESC-} to shift to start/end of
                 displayed lines; new option -Da in Windows version to 
                 enable SGR mode (thanks to Jason Hood).
 v487  10/23/16  configure --help formatting.
+-----------------------------------------------------------------
 v488  2/23/17   Fix memory leaks in search (thanks to John Brooks).
+v489  3/30/17   Make -F not do init/deinit if file fits on one screen
+                (thanks to Jindrich Novy).
 */
 
-char version[] = "488";
+char version[] = "489";
