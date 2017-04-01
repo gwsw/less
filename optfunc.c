@@ -40,9 +40,9 @@ extern char *every_first_cmd;
 extern IFILE curr_ifile;
 extern char version[];
 extern int jump_sline;
-extern int jump_sline_fraction;
+extern long jump_sline_fraction;
 extern int shift_count;
-extern int shift_count_fraction;
+extern long shift_count_fraction;
 extern int less_is_more;
 #if LOGFILE
 extern char *namelogfile;
