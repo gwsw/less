@@ -93,9 +93,9 @@ scrsize(p_height, p_width)
 	int *p_height;
 	int *p_width;
 {
-	register int height;
-	register int width;
-	register char *s;
+	int height;
+	int width;
+	char *s;
 
 #if MSDOS_COMPILER==MSOFTC
 	struct videoconfig w;
@@ -308,7 +308,7 @@ create_flash()
 	}
 #else
 #if MSDOS_COMPILER==BORLANDC
-	register int n;
+	int n;
 
 	whitescreen = (unsigned short *) 
 		malloc(sc_width * sc_height * sizeof(short));

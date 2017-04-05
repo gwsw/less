@@ -83,7 +83,7 @@ static struct tag *curtag;
 	public void
 cleantags()
 {
-	register struct tag *tp;
+	struct tag *tp;
 
 	/*
 	 * Delete any existing tag list.
@@ -110,7 +110,7 @@ maketagent(name, file, linenum, pattern, endline)
 	char *pattern;
 	int endline;
 {
-	register struct tag *tp;
+	struct tag *tp;
 
 	tp = (struct tag *) ecalloc(sizeof(struct tag), 1);
 	tp->tag_file = (char *) ecalloc(strlen(file) + 1, sizeof(char));
@@ -163,7 +163,7 @@ gettagtype()
  */
 	public void
 findtag(tag)
-	register char *tag;
+	char *tag;
 {
 	int type = gettagtype();
 	enum tag_result result;
@@ -259,11 +259,11 @@ curr_tag()
  */
 	static enum tag_result
 findctag(tag)
-	register char *tag;
+	char *tag;
 {
 	char *p;
-	register FILE *f;
-	register int taglen;
+	FILE *f;
+	int taglen;
 	LINENUM taglinenum;
 	char *tagfile;
 	char *tagpattern;

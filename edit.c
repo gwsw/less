@@ -19,7 +19,7 @@ extern int sigs;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
-extern void constant *ml_examine;
+extern void *ml_examine;
 #if SPACES_IN_FILENAMES
 extern char openquote;
 extern char closequote;
@@ -709,7 +709,7 @@ edit_stdin()
 	public void
 cat_file()
 {
-	register int c;
+	int c;
 
 	while ((c = ch_forw_get()) != EOI)
 		putchr(c);
@@ -727,8 +727,8 @@ cat_file()
 use_logfile(filename)
 	char *filename;
 {
-	register int exists;
-	register int answer;
+	int exists;
+	int answer;
 	PARG parg;
 
 	if (ch_getflags() & CH_CANSEEK)

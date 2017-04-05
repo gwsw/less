@@ -193,7 +193,7 @@ jump_loc(pos, sline)
 	POSITION pos;
 	int sline;
 {
-	register int nline;
+	int nline;
 	POSITION tpos;
 	POSITION bpos;
 

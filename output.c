@@ -39,8 +39,8 @@ extern int sgr_mode;
 	public void
 put_line()
 {
-	register int c;
-	register int i;
+	int c;
+	int i;
 	int a;
 
 	if (ABORT_SIGS())
@@ -89,8 +89,8 @@ static char *ob = obuf;
 	public void
 flush()
 {
-	register int n;
-	register int fd;
+	int n;
+	int fd;
 
 	n = (int) (ob - obuf);
 	if (n == 0)
@@ -429,7 +429,7 @@ putchr(c)
  */
 	public void
 putstr(s)
-	register char *s;
+	constant char *s;
 {
 	while (*s != '\0')
 		putchr(*s++);
@@ -446,7 +446,7 @@ void funcname(num, buf) \
 { \
 	int neg = (num < 0); \
 	char tbuf[INT_STRLEN_BOUND(num)+2]; \
-	register char *s = tbuf + sizeof(tbuf); \
+	char *s = tbuf + sizeof(tbuf); \
 	if (neg) num = -num; \
 	*--s = '\0'; \
 	do { \
@@ -494,11 +494,11 @@ iprint_linenum(num)
  */
 	static int
 less_printf(fmt, parg)
-	register char *fmt;
+	char *fmt;
 	PARG *parg;
 {
-	register char *s;
-	register int col;
+	char *s;
+	int col;
 
 	col = 0;
 	while (*fmt != '\0')
@@ -638,7 +638,7 @@ query(fmt, parg)
 	char *fmt;
 	PARG *parg;
 {
-	register int c;
+	int c;
 	int col = 0;
 
 	if (any_display && is_tty)

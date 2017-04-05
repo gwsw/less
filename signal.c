@@ -185,7 +185,7 @@ init_signals(on)
 	public void
 psignals()
 {
-	register int tsignals;
+	int tsignals;
 
 	if ((tsignals = sigs) == 0)
 		return;

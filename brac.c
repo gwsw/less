@@ -18,13 +18,13 @@
  */
 	public void
 match_brac(obrac, cbrac, forwdir, n)
-	register int obrac;
-	register int cbrac;
+	int obrac;
+	int cbrac;
 	int forwdir;
 	int n;
 {
-	register int c;
-	register int nest;
+	int c;
+	int nest;
 	POSITION pos;
 	int (*chget)();
 

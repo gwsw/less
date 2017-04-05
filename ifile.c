@@ -43,7 +43,7 @@ static int ifiles = 0;
 
 	static void
 incr_index(p, incr)
-	register struct ifile *p;
+	struct ifile *p;
 	int incr;
 {
 	for (;  p != &anchor;  p = p->h_next)
@@ -100,7 +100,7 @@ new_ifile(filename, prev)
 	char *filename;
 	struct ifile *prev;
 {
-	register struct ifile *p;
+	struct ifile *p;
 
 	/*
 	 * Allocate and initialize structure.
@@ -122,7 +122,7 @@ new_ifile(filename, prev)
 del_ifile(h)
 	IFILE h;
 {
-	register struct ifile *p;
+	struct ifile *p;
 
 	if (h == NULL_IFILE)
 		return;
@@ -146,7 +146,7 @@ del_ifile(h)
 next_ifile(h)
 	IFILE h;
 {
-	register struct ifile *p;
+	struct ifile *p;
 
 	p = (h == NULL_IFILE) ? &anchor : int_ifile(h);
 	if (p->h_next == &anchor)
@@ -161,7 +161,7 @@ next_ifile(h)
 prev_ifile(h)
 	IFILE h;
 {
-	register struct ifile *p;
+	struct ifile *p;
 
 	p = (h == NULL_IFILE) ? &anchor : int_ifile(h);
 	if (p->h_prev == &anchor)
@@ -201,7 +201,7 @@ nifile()
 find_ifile(filename)
 	char *filename;
 {
-	register struct ifile *p;
+	struct ifile *p;
 
 	for (p = anchor.h_next;  p != &anchor;  p = p->h_next)
 		if (strcmp(filename, p->h_filename) == 0)
@@ -219,7 +219,7 @@ get_ifile(filename, prev)
 	char *filename;
 	IFILE prev;
 {
-	register struct ifile *p;
+	struct ifile *p;
 
 	if ((p = find_ifile(filename)) == NULL)
 		p = new_ifile(filename, int_ifile(prev));
@@ -325,7 +325,7 @@ set_filestate(ifile, filestate)
 	public void
 if_dump()
 {
-	register struct ifile *p;
+	struct ifile *p;
 
 	for (p = anchor.h_next;  p != &anchor;  p = p->h_next)
 	{

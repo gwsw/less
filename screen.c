@@ -689,7 +689,7 @@ ltgetstr(capname, pp)
 	public void
 scrsize()
 {
-	register char *s;
+	char *s;
 	int sys_height;
 	int sys_width;
 #if !MSDOS_COMPILER
@@ -1114,7 +1114,7 @@ get_term()
 #else /* !MSDOS_COMPILER */
 
 	char *sp;
-	register char *t1, *t2;
+	char *t1, *t2;
 	char *term;
 	char termbuf[TERMBUF_SIZE];
 
@@ -1943,7 +1943,7 @@ create_flash()
 	}
 #else
 #if MSDOS_COMPILER==BORLANDC
-	register int n;
+	int n;
 
 	whitescreen = (unsigned short *) 
 		malloc(sc_width * sc_height * sizeof(short));
@@ -1953,7 +1953,7 @@ create_flash()
 		whitescreen[n] = 0x7020;
 #else
 #if MSDOS_COMPILER==WIN32C
-	register int n;
+	int n;
 
 	whitescreen = (WORD *)
 		malloc(sc_height * sc_width * sizeof(WORD));

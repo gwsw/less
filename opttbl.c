@@ -459,7 +459,7 @@ static struct loption option[] =
 	public void
 init_option()
 {
-	register struct loption *o;
+	struct loption *o;
 	char *p;
 
 	p = lgetenv("LESS_IS_MORE");
@@ -485,7 +485,7 @@ init_option()
 findopt(c)
 	int c;
 {
-	register struct loption *o;
+	struct loption *o;
 
 	for (o = option;  o->oletter != '\0';  o++)
 	{
@@ -526,9 +526,9 @@ findopt_name(p_optname, p_oname, p_err)
 	int *p_err;
 {
 	char *optname = *p_optname;
-	register struct loption *o;
-	register struct optname *oname;
-	register int len;
+	struct loption *o;
+	struct optname *oname;
+	int len;
 	int uppercase;
 	struct loption *maxo = NULL;
 	struct optname *maxoname = NULL;

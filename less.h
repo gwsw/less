@@ -32,6 +32,11 @@
 /*
  * Language details.
  */
+#if HAVE_ANSI_PROTOS
+#define LPARAM(a) a
+#else
+#define LPARAM(a) ()
+#endif
 #if HAVE_VOID
 #define	VOID_POINTER	void *
 #else
@@ -518,6 +523,10 @@ struct wchar_range_table
 #define	time_type	long
 #endif
 
+struct mlist;
+struct loption;
+struct hilite_tree;
+#include "pattern.h"
 #include "funcs.h"
 
 /* Functions not included in funcs.h */

@@ -117,7 +117,7 @@ squish_check()
  */
 	public void
 forw(n, pos, force, only_last, nblank)
-	register int n;
+	int n;
 	POSITION pos;
 	int force;
 	int only_last;
@@ -291,7 +291,7 @@ forw(n, pos, force, only_last, nblank)
  */
 	public void
 back(n, pos, force, only_last)
-	register int n;
+	int n;
 	POSITION pos;
 	int force;
 	int only_last;

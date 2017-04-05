@@ -173,7 +173,7 @@ opt_j(type, s)
 		} else
 		{
 
-			sprintf(buf, ".%06d", jump_sline_fraction);
+			sprintf(buf, ".%06ld", jump_sline_fraction);
 			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
 				len--;
@@ -238,7 +238,7 @@ opt_shift(type, s)
 		} else
 		{
 
-			sprintf(buf, ".%06d", shift_count_fraction);
+			sprintf(buf, ".%06ld", shift_count_fraction);
 			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
 				len--;
@@ -355,7 +355,7 @@ opt__T(type, s)
 	public void
 opt_p(type, s)
 	int type;
-	register char *s;
+	char *s;
 {
 	switch (type)
 	{
@@ -391,9 +391,9 @@ opt_p(type, s)
 	public void
 opt__P(type, s)
 	int type;
-	register char *s;
+	char *s;
 {
-	register char **proto;
+	char **proto;
 	PARG parg;
 
 	switch (type)
@@ -617,7 +617,7 @@ opt_D(type, s)
 	public void
 opt_x(type, s)
 	int type;
-	register char *s;
+	char *s;
 {
 	extern int tabstops[];
 	extern int ntabstops;
@@ -675,7 +675,7 @@ opt_x(type, s)
 	public void
 opt_quote(type, s)
 	int type;
-	register char *s;
+	char *s;
 {
 	char buf[3];
 	PARG parg;

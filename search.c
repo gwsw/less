@@ -6,7 +6,6 @@
  */
 
 #include "less.h"
-#include "pattern.h"
 #include "position.h"
 #include "charset.h"
 
@@ -22,7 +21,7 @@ extern int jump_sline;
 extern int bs_mode;
 extern int ctldisp;
 extern int status_col;
-extern void * constant ml_search;
+extern void *ml_search;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 extern int utf_mode;
@@ -96,7 +95,7 @@ static struct hilite_tree filter_anchor = HILITE_INITIALIZER();
  * search pattern and filter pattern.
  */
 struct pattern_info {
-	DEFINE_PATTERN(compiled);
+	PATTERN_TYPE compiled;
 	char* text;
 	int search_type;
 };

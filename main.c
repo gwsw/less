@@ -302,9 +302,9 @@ main(argc, argv)
  */
 	public char *
 save(s)
-	char *s;
+	constant char *s;
 {
-	register char *p;
+	char *p;
 
 	p = (char *) ecalloc(strlen(s)+1, sizeof(char));
 	strcpy(p, s);
@@ -320,7 +320,7 @@ ecalloc(count, size)
 	int count;
 	unsigned int size;
 {
-	register VOID_POINTER p;
+	VOID_POINTER p;
 
 	p = (VOID_POINTER) calloc(count, size);
 	if (p != NULL)
@@ -336,7 +336,7 @@ ecalloc(count, size)
  */
 	public char *
 skipsp(s)
-	register char *s;
+	char *s;
 {
 	while (*s == ' ' || *s == '\t')	
 		s++;
@@ -354,9 +354,9 @@ sprefix(ps, s, uppercase)
 	char *s;
 	int uppercase;
 {
-	register int c;
-	register int sc;
-	register int len = 0;
+	int c;
+	int sc;
+	int len = 0;
 
 	for ( ;  *s != '\0';  s++, ps++)
 	{
