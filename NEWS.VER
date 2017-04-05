@@ -13,7 +13,15 @@
 
 	Major changes between "less" versions 487 and @@VERSION@@
 
-* Fix memory leaks.
+* Don't output terminal init sequence if using -F and file fits on one screen.
+
+* Use ANSI prototypes in funcs.h declarations.
+
+* Fix some const mismatches.
+
+* Remove "register" in variable declarations.
+
+* Fix some memory leaks.
 
 ======================================================================
 

@@ -802,6 +802,7 @@ v487  10/23/16  configure --help formatting.
 v488  2/23/17   Fix memory leaks in search (thanks to John Brooks).
 v489  3/30/17   Make -F not do init/deinit if file fits on one screen
                 (thanks to Jindrich Novy).
+v490  4/5/17    Switch to ANSI prototypes in funcs.h; remove "register".
 */
 
-char version[] = "489";
+char version[] = "490";
