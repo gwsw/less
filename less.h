@@ -33,9 +33,9 @@
  * Language details.
  */
 #if HAVE_ANSI_PROTOS
-#define LPARAM(a) a
+#define LESSPARAMS(a) a
 #else
-#define LPARAM(a) ()
+#define LESSPARAMS(a) ()
 #endif
 #if HAVE_VOID
 #define	VOID_POINTER	void *

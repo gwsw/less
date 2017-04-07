@@ -9,7 +9,7 @@ while (<>) {
 		$def = "public $1";
 		$state = 1;
 	} elsif ($state == 1 and /(\w+)\s*\(/) {
-		$def .= " $1 LPARAM((";
+		$def .= " $1 LESSPARAMS((";
 		$state = 2;
 	} elsif ($state == 2) {
 		if (/^{/) {
