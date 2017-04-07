@@ -39,8 +39,10 @@
 #endif
 #if HAVE_VOID
 #define	VOID_POINTER	void *
+#define	VOID_PARAM	void
 #else
 #define	VOID_POINTER	char *
+#define	VOID_PARAM
 #define	void  int
 #endif
 #if HAVE_CONST
