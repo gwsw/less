@@ -803,6 +803,7 @@ v488  2/23/17   Fix memory leaks in search (thanks to John Brooks).
 v489  3/30/17   Make -F not do init/deinit if file fits on one screen
                 (thanks to Jindrich Novy).
 v490  4/5/17    Switch to ANSI prototypes in funcs.h; remove "register".
+v491  4/7/17    Fix signed char bug.
 */
 
-char version[] = "490";
+char version[] = "491";
