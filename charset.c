@@ -501,12 +501,13 @@ utf_len(ch)
  * Does the parameter point to the lead byte of a well-formed UTF-8 character?
  */
 	public int
-is_utf8_well_formed(s, slen)
-	char *s;
+is_utf8_well_formed(ss, slen)
+	char *ss;
 	int slen;
 {
 	int i;
 	int len;
+	unsigned char *s = (unsigned char *) ss;
 
 	if (IS_UTF8_INVALID(s[0]))
 		return (0);
@@ -547,7 +548,7 @@ utf_bin_count(data, len)
 	{
 		if (is_utf8_well_formed(data, len))
 		{
-			int clen = utf_len(*data);
+			int clen = utf_len(*data & 0377);
 			data += clen;
 			len -= clen;
 		} else
@@ -557,7 +558,7 @@ utf_bin_count(data, len)
 			do {
 				++data;
 				--len;
-			} while (len > 0 && !IS_UTF8_LEAD(*data));
+			} while (len > 0 && !IS_UTF8_LEAD(*data & 0377));
 		}
 	}
 	return (bin_count);
