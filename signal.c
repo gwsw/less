@@ -126,6 +126,13 @@ wbreak_handler(dwCtrlType)
 }
 #endif
 
+	static RETSIGTYPE
+terminate(type)
+	int type;
+{
+	quit(15);
+}
+
 /*
  * Set up the signal handlers.
  */
@@ -154,6 +161,9 @@ init_signals(on)
 #ifdef SIGQUIT
 		(void) LSIGNAL(SIGQUIT, SIG_IGN);
 #endif
+#ifdef SIGTERM
+		(void) LSIGNAL(SIGTERM, terminate);
+#endif
 	} else
 	{
 		/*
@@ -174,6 +184,9 @@ init_signals(on)
 #endif
 #ifdef SIGQUIT
 		(void) LSIGNAL(SIGQUIT, SIG_DFL);
+#endif
+#ifdef SIGTERM
+		(void) LSIGNAL(SIGTERM, SIG_DFL);
 #endif
 	}
 }
