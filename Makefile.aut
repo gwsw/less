@@ -130,6 +130,7 @@ dist: ${DISTFILES}
 	tar -cf - $$REL | gzip -c >release/$$REL/$$REL.tar.gz; \
 	echo "Signing release/$$REL/$$REL.tar.gz"; \
 	gpg --detach-sign release/$$REL/$$REL.tar.gz; \
+	mv release/$$REL/$$REL.tar.gz.sig release/$$REL/$$REL.sig; \
 	echo "Creating release/$$REL/$$REL.zip"; \
 	zip -rq release/$$REL/$$REL.zip $$REL; \
 	rm -rf $$REL
