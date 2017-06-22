@@ -347,6 +347,7 @@ set_charset()
 	 * rather than from predefined charset entry.
 	 */
 	ilocale();
+#else
 #if MSDOS_COMPILER
 	/*
 	 * Default to "dos".
