@@ -17,6 +17,8 @@
 
 * Deinit terminal and clean up temp files when SIGTERM is received.
 
+* Fix bug initializing default charset on Windows.
+
 * Use ANSI prototypes in funcs.h declarations.
 
 * Fix some const mismatches.

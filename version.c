@@ -805,6 +805,7 @@ v489  3/30/17   Make -F not do init/deinit if file fits on one screen
 v490  4/5/17    Switch to ANSI prototypes in funcs.h; remove "register".
 v491  4/7/17    Fix signed char bug.
 v492  4/21/17   Handle SIGTERM.
+v493  6/22/17   Fix bug initializing charset in MSDOS build.
 */
 
-char version[] = "492";
+char version[] = "493";
