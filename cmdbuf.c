@@ -316,8 +316,8 @@ cmd_home()
 	static void
 cmd_lshift()
 {
-	constant char *s;
-	constant char *save_cp;
+	char *s;
+	char *save_cp;
 	int cols;
 
 	/*
@@ -335,7 +335,7 @@ cmd_lshift()
 	while (*s != '\0')
 	{
 		int width;
-		constant char *ns = s;
+		char *ns = s;
 		cmd_step_right(&ns, &width, NULL);
 		if (width > 0)
 			break;
@@ -354,8 +354,8 @@ cmd_lshift()
 	static void
 cmd_rshift()
 {
-	constant char *s;
-	constant char *save_cp;
+	char *s;
+	char *save_cp;
 	int cols;
 
 	/*
