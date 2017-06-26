@@ -806,6 +806,7 @@ v490  4/5/17    Switch to ANSI prototypes in funcs.h; remove "register".
 v491  4/7/17    Fix signed char bug.
 v492  4/21/17   Handle SIGTERM.
 v493  6/22/17   Fix bug initializing charset in MSDOS build.
+v494  6/26/17   Update Unicode tables; make Cf chars composing not binary.
 */
 
-char version[] = "493";
+char version[] = "494";

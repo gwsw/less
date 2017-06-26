@@ -25,6 +25,8 @@
 
 * Remove "register" in variable declarations.
 
+* Update Unicode tables.
+
 * Fix some memory leaks.
 
 ======================================================================
