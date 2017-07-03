@@ -39,6 +39,7 @@
 #endif
 #endif
 
+#define BINFILE_PCT      5
 
 extern int force_open;
 extern int secure;
@@ -465,7 +466,7 @@ bin_file(f)
 {
 	int n;
 	int bin_count = 0;
-	char data[256];
+	char data[1024];
 	char* p;
 	char* pend;
 
@@ -495,10 +496,10 @@ bin_file(f)
 		}
 	}
 	/*
-	 * Call it a binary file if there are more than 5 binary characters
-	 * in the first 256 bytes of the file.
-	 */
-	return (bin_count > 5);
+	 * Call it a binary file if binary characters make up too high a
+	 * fraction of the first 1024 bytes of the file.
+ 	 */
+	return ((bin_count * 100 / n) >= BINFILE_PCT);
 }
 
 /*
