@@ -807,6 +807,8 @@ v491  4/7/17    Fix signed char bug.
 v492  4/21/17   Handle SIGTERM.
 v493  6/22/17   Fix bug initializing charset in MSDOS build.
 v494  6/26/17   Update Unicode tables; make Cf chars composing not binary.
+v495  7/3/17    Improve binary file detection (thanks to Bela Lubkin);
+                do -R filter when matching tags (thanks to Matthew Malcomson).
 */
 
-char version[] = "494";
+char version[] = "495";
