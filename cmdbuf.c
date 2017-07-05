@@ -420,8 +420,9 @@ cmd_right()
 cmd_left()
 {
 	char *ncp;
-	int width, bswidth;
-	
+	int width = 0;
+	int bswidth = 0;
+
 	if (cp <= cmdbuf)
 	{
 		/* Already at the beginning of the line */
