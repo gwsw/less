@@ -15,6 +15,7 @@ static int curseq;
 
 extern int linenums;
 extern int sigs;
+extern int ctldisp;
 
 enum tag_result {
 	TAG_FOUND,
@@ -394,12 +395,16 @@ ctagsearch()
 	POSITION pos, linepos;
 	LINENUM linenum;
 	int len;
+	int line_len;
+	char *cline;
+	int *chpos;
 	char *line;
+	int found;
 
 	pos = ch_zero();
 	linenum = find_linenum(pos);
 
-	for (;;)
+	for (found = 0; !found;)
 	{
 		/*
 		 * Get lines until we find a matching one or 
@@ -413,7 +418,7 @@ ctagsearch()
 		 * starting position of that line in linepos.
 		 */
 		linepos = pos;
-		pos = forw_raw_line(pos, &line, (int *)NULL);
+		pos = forw_raw_line(pos, &line, &line_len);
 		if (linenum != 0)
 			linenum++;
 
@@ -434,6 +439,18 @@ ctagsearch()
 		if (linenums)
 			add_lnum(linenum, pos);
 
+		if (ctldisp == OPT_ONPLUS)
+		{
+			int cvt_ops = CVT_ANSI;
+			int cvt_len = cvt_length(line_len, cvt_ops);
+			cline = (char *) ecalloc(1, cvt_len);
+			chpos = cvt_alloc_chpos(cvt_len);
+			cvt_text(cline, line, chpos, &line_len, cvt_ops);
+		} else
+		{
+			cline = line;
+		}
+
 		/*
 		 * Test the line to see if we have a match.
 		 * Use strncmp because the pattern may be
@@ -442,11 +459,16 @@ ctagsearch()
 		 * the way to end of line (no extra chars after the match).
 		 */
 		len = (int) strlen(curtag->tag_pattern);
-		if (strncmp(curtag->tag_pattern, line, len) == 0 &&
-		    (!curtag->tag_endline || line[len] == '\0' || line[len] == '\r'))
+		if (strncmp(curtag->tag_pattern, cline, len) == 0 &&
+		    (!curtag->tag_endline || cline[len] == '\0' || cline[len] == '\r'))
 		{
 			curtag->tag_linenum = find_linenum(linepos);
-			break;
+			found = 1;
+		}
+		if (ctldisp == OPT_ONPLUS)
+		{
+			free(chpos);
+			free(cline);
 		}
 	}
 
