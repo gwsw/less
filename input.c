@@ -187,12 +187,12 @@ get_forw_line:
 				new_pos = ch_tell();
 				endline = TRUE;
 				quit_if_one_screen = FALSE;
+				chopped = TRUE;
 			} else
 			{
 				new_pos = ch_tell() - backchars;
 				endline = FALSE;
 			}
-			chopped = TRUE;
 			break;
 		}
 		c = ch_forw_get();
