@@ -1082,14 +1082,20 @@ pdone(endline, chopped, forw)
 		 */
 		if (column >= sc_width-1)
 		{
+			/* We've already written in the rightmost char. */
 			column = right_column;
 			curr = right_curr;
 		}
 		while (column < sc_width-1)
 		{
-			/* Space to last (rightmost) char on screen. */
+			/*
+			 * Space to last (rightmost) char on screen.
+			 * This may be necessary if double-width chars 
+			 * are involved.
+			 */
 			add_linebuf(' ', AT_NORMAL, 1);
 		}
+		/* Print rscroll char. It must be single-width. */
 		add_linebuf(rscroll_char(), AT_STANDOUT, 1);
 	}
 
