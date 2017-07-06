@@ -1,6 +1,5 @@
 /*@@copyright@@*/
 
-
 /*
  * Routines to manipulate the "line buffer".
  * The line buffer holds a line of output as it is being built
@@ -25,6 +24,8 @@ public POSITION highest_hilite;	/* Pos of last hilite in file found so far */
 static int curr;		/* Index into linebuf */
 static int column;		/* Printable length, accounting for
 				   backspaces, etc. */
+static int right_curr;
+static int right_column;
 static int overstrike;		/* Next char should overstrike previous char */
 static int last_overstrike = AT_NORMAL;
 static int is_null_line;	/* There is no current line */
@@ -145,6 +146,8 @@ prewind()
 {
 	curr = 0;
 	column = 0;
+	right_curr = 0;
+	right_column = 0;
 	cshift = 0;
 	overstrike = 0;
 	last_overstrike = AT_NORMAL;
@@ -154,6 +157,32 @@ prewind()
 	lmargin = 0;
 	if (status_col)
 		lmargin += 1;
+}
+
+/*
+ * Set a character in the line buffer.
+ */
+	static void
+set_linebuf(n, ch, a)
+	int n;
+	LWCHAR ch;
+	char a;
+{
+	linebuf[n] = ch;
+	attr[n] = a;
+}
+
+/*
+ * Append a character to the line buffer.
+ */
+	static void
+add_linebuf(ch, a, w)
+	LWCHAR ch;
+	char a;
+	int w;
+{
+	set_linebuf(curr++, ch, a);
+	column += w;
 }
 
 /*
@@ -184,14 +213,11 @@ plinenum(pos)
 	 */
 	if (status_col)
 	{
-		linebuf[curr] = ' ';
+		int a = AT_NORMAL;
 		if (start_attnpos != NULL_POSITION &&
 		    pos >= start_attnpos && pos < end_attnpos)
-			attr[curr] = AT_NORMAL|AT_HILITE;
-		else
-			attr[curr] = AT_NORMAL;
-		curr++;
-		column++;
+			a |= AT_HILITE;
+		add_linebuf(' ', a, 1);
 	}
 	/*
 	 * Display the line number at the start of each line
@@ -200,29 +226,27 @@ plinenum(pos)
 	if (linenums == OPT_ONPLUS)
 	{
 		char buf[INT_STRLEN_BOUND(pos) + 2];
+		int pad = 0;
 		int n;
 
 		linenumtoa(linenum, buf);
 		n = (int) strlen(buf);
 		if (n < MIN_LINENUM_WIDTH)
-			n = MIN_LINENUM_WIDTH;
-		sprintf(linebuf+curr, "%*s ", n, buf);
-		n++;  /* One space after the line number. */
+			pad = MIN_LINENUM_WIDTH - n;
+		for (i = 0; i < pad; i++)
+			add_linebuf(' ', AT_NORMAL, 1);
 		for (i = 0; i < n; i++)
-			attr[curr+i] = AT_BOLD;
-		curr += n;
-		column += n;
+			add_linebuf(buf[i], AT_BOLD, 1);
+		add_linebuf(' ', AT_NORMAL, 1);
+		n = n + pad + 1;
 		lmargin += n;
 	}
-
 	/*
 	 * Append enough spaces to bring us to the lmargin.
 	 */
 	while (column < lmargin)
 	{
-		linebuf[curr] = ' ';
-		attr[curr++] = AT_NORMAL;
-		column++;
+		add_linebuf(' ', AT_NORMAL, 1);
 	}
 }
 
@@ -641,11 +665,15 @@ store_char(ch, a, rep, pos)
 			return (1);
 	}
 
+	if (column > right_column)
+	{
+		right_column = column;
+		right_curr = curr;
+	}
+
 	while (replen-- > 0)
 	{
-		linebuf[curr] = *rep++;
-		attr[curr] = a;
-		curr++;
+		add_linebuf(*rep++, a, 0);
 	}
 	column += w;
 	return (0);
@@ -993,11 +1021,30 @@ pflushmbc()
 }
 
 /*
+ * Return the scrolling char used on the right side of the screen,
+ * or 0 if a scrolling char should not be displayed.
+ */
+	static LWCHAR
+rscroll_char()
+{
+	static LWCHAR rscroll = 0;
+	if (rscroll == 0)
+	{
+		char constant *p = lgetenv("LESSRSCROLL");
+		if (p && *p) rscroll = *p;
+	}
+	if (rscroll == 0)
+		rscroll = '>';
+	return (rscroll == '-') ? 0 : rscroll;
+}
+
+/*
  * Terminate the line in the line buffer.
  */
 	public void
-pdone(endline, forw)
+pdone(endline, chopped, forw)
 	int endline;
+	int chopped;
 	int forw;
 {
 	(void) pflushmbc();
@@ -1022,9 +1069,28 @@ pdone(endline, forw)
 		char *p = "\033[m";
 		for ( ;  *p != '\0';  p++)
 		{
-			linebuf[curr] = *p;
-			attr[curr++] = AT_ANSI;
+			add_linebuf(*p, AT_ANSI, 0);
 		}
+	}
+
+	if (chopped && rscroll_char())
+	{
+		/*
+		 * Display the right scrolling char.
+		 * If we've already filled the rightmost screen char 
+		 * (in the buffer), overwrite it.
+		 */
+		if (column >= sc_width-1)
+		{
+			column = right_column;
+			curr = right_curr;
+		}
+		while (column < sc_width-1)
+		{
+			/* Space to last (rightmost) char on screen. */
+			add_linebuf(' ', AT_NORMAL, 1);
+		}
+		add_linebuf(rscroll_char(), AT_STANDOUT, 1);
 	}
 
 	/*
@@ -1042,9 +1108,7 @@ pdone(endline, forw)
 	 */
 	if (column < sc_width || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
 	{
-		linebuf[curr] = '\n';
-		attr[curr] = AT_NORMAL;
-		curr++;
+		add_linebuf('\n', AT_NORMAL, 0);
 	} 
 	else if (ignaw && column >= sc_width && forw)
 	{
@@ -1062,13 +1126,10 @@ pdone(endline, forw)
 		 * char on the next line.  We don't need to do this "nudge" 
 		 * at the top of the screen anyway.
 		 */
-		linebuf[curr] = ' ';
-		attr[curr++] = AT_NORMAL;
-		linebuf[curr] = '\b'; 
-		attr[curr++] = AT_NORMAL;
+		add_linebuf(' ', AT_NORMAL, 1);
+		add_linebuf('\b', AT_NORMAL, -1);
 	}
-	linebuf[curr] = '\0';
-	attr[curr] = AT_NORMAL;
+	set_linebuf(curr, '\0', AT_NORMAL);
 }
 
 /*
@@ -1078,8 +1139,7 @@ pdone(endline, forw)
 set_status_col(c)
 	char c;
 {
-	linebuf[0] = c;
-	attr[0] = AT_NORMAL|AT_HILITE;
+	set_linebuf(0, c, AT_NORMAL|AT_HILITE);
 }
 
 /*
