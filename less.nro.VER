@@ -1707,6 +1707,9 @@ If LESSMETAESCAPE is an empty string, commands containing
 metacharacters will not be passed to the shell.
 .IP LESSOPEN
 Command line to invoke the (optional) input-preprocessor.
+.IP LESSRSCROLL
+Character to use instead of ">" to indicate truncated lines.
+If set to "-", truncated lines are not marked.
 .IP LESSSECURE
 Runs less in "secure" mode.
 See discussion under SECURITY.
