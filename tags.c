@@ -380,6 +380,26 @@ edit_tagfile()
 	return (edit(curtag->tag_file));
 }
 
+	static int
+curtag_match(char const *line, POSITION linepos)
+{
+	/*
+	 * Test the line to see if we have a match.
+	 * Use strncmp because the pattern may be
+	 * truncated (in the tags file) if it is too long.
+	 * If tagendline is set, make sure we match all
+	 * the way to end of line (no extra chars after the match).
+	 */
+	int len = (int) strlen(curtag->tag_pattern);
+	if (strncmp(curtag->tag_pattern, line, len) == 0 &&
+	    (!curtag->tag_endline || line[len] == '\0' || line[len] == '\r'))
+	{
+		curtag->tag_linenum = find_linenum(linepos);
+		return 1;
+	}
+	return 0;
+}
+
 /*
  * Search for a tag.
  * This is a stripped-down version of search().
@@ -394,10 +414,7 @@ ctagsearch()
 {
 	POSITION pos, linepos;
 	LINENUM linenum;
-	int len;
 	int line_len;
-	char *cline;
-	int *chpos;
 	char *line;
 	int found;
 
@@ -439,34 +456,19 @@ ctagsearch()
 		if (linenums)
 			add_lnum(linenum, pos);
 
-		if (ctldisp == OPT_ONPLUS)
+		if (ctldisp != OPT_ONPLUS)
+		{
+			if (curtag_match(line, linepos))
+				found = 1;
+		} else
 		{
 			int cvt_ops = CVT_ANSI;
 			int cvt_len = cvt_length(line_len, cvt_ops);
-			cline = (char *) ecalloc(1, cvt_len);
-			chpos = cvt_alloc_chpos(cvt_len);
+			int *chpos = cvt_alloc_chpos(cvt_len);
+			char *cline = (char *) ecalloc(1, cvt_len);
 			cvt_text(cline, line, chpos, &line_len, cvt_ops);
-		} else
-		{
-			cline = line;
-		}
-
-		/*
-		 * Test the line to see if we have a match.
-		 * Use strncmp because the pattern may be
-		 * truncated (in the tags file) if it is too long.
-		 * If tagendline is set, make sure we match all
-		 * the way to end of line (no extra chars after the match).
-		 */
-		len = (int) strlen(curtag->tag_pattern);
-		if (strncmp(curtag->tag_pattern, cline, len) == 0 &&
-		    (!curtag->tag_endline || cline[len] == '\0' || cline[len] == '\r'))
-		{
-			curtag->tag_linenum = find_linenum(linepos);
-			found = 1;
-		}
-		if (ctldisp == OPT_ONPLUS)
-		{
+			if (curtag_match(cline, linepos))
+				found = 1;
 			free(chpos);
 			free(cline);
 		}
