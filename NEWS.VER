@@ -17,21 +17,25 @@
 
 * When using -S, mark truncated lines with a special character.
 
+* Improve detection of binary files.
+
 * Do same ANSI escape code filtering for tag matching that we do for searching.
   
-* Deinit terminal and clean up temp files when SIGTERM is received.
+* Catch SIGTERM and clean up before exiting.
 
 * Fix bug initializing default charset on Windows.
 
-* Use ANSI prototypes in funcs.h declarations.
+* Update Unicode tables to 2017-03-08.
 
-* Fix some const mismatches.
-
-* Remove "register" in variable declarations.
-
-* Update Unicode tables.
+* Pass-thru Unicode formating chars (Cf type).
 
 * Fix some memory leaks.
+
+* Code improvements:
+  . Use ANSI prototypes in funcs.h declarations.
+  . Fix some const mismatches.
+  . Remove "register" in variable declarations.
+
 
 ======================================================================
 
