@@ -1080,7 +1080,7 @@ pdone(endline, chopped, forw)
 		 * If we've already filled the rightmost screen char 
 		 * (in the buffer), overwrite it.
 		 */
-		if (column >= sc_width-1)
+		if (column >= sc_width)
 		{
 			/* We've already written in the rightmost char. */
 			column = right_column;
@@ -1090,8 +1090,8 @@ pdone(endline, chopped, forw)
 		{
 			/*
 			 * Space to last (rightmost) char on screen.
-			 * This may be necessary if double-width chars 
-			 * are involved.
+			 * This may be necessary if the char we overwrote
+			 * was double-width.
 			 */
 			add_linebuf(' ', AT_NORMAL, 1);
 		}
