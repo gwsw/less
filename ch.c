@@ -891,7 +891,7 @@ ch_close()
 	if (thisfile == NULL)
 		return;
 
-	if (ch_flags & (CH_CANSEEK|CH_POPENED|CH_HELPFILE))
+	if (ch_flags & (CH_CANSEEK|CH_HELPFILE))
 	{
 		/*
 		 * We can seek or re-open, so we don't need to keep buffers.
