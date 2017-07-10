@@ -684,9 +684,9 @@ step_char(pp, dir, limit)
 	{
 		/* It's easy if chars are one byte. */
 		if (dir > 0)
-			ch = (LWCHAR) ((p < limit) ? *p++ : 0);
+			ch = (LWCHAR) (unsigned char) ((p < limit) ? *p++ : 0);
 		else
-			ch = (LWCHAR) ((p > limit) ? *--p : 0);
+			ch = (LWCHAR) (unsigned char) ((p > limit) ? *--p : 0);
 	} else if (dir > 0)
 	{
 		len = utf_len(*p);
