@@ -1590,6 +1590,7 @@ commands()
 				error("No next tag", NULL_PARG);
 				break;
 			}
+			cmd_exec();
 			if (edit(tagfile) == 0)
 			{
 				POSITION pos = tagsearch();
@@ -1611,6 +1612,7 @@ commands()
 				error("No previous tag", NULL_PARG);
 				break;
 			}
+			cmd_exec();
 			if (edit(tagfile) == 0)
 			{
 				POSITION pos = tagsearch();
