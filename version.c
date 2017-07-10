@@ -811,6 +811,8 @@ v495  7/3/17    Improve binary file detection (thanks to Bela Lubkin);
                 do -R filter when matching tags (thanks to Matthew Malcomson).
 v496  7/5/17    Add LESSRSCROLL marker.
 v497  7/5/17    Sync.
+v498  7/7/17    Fix early truncation of text if last char is double-width.
+v499  7/10/17   Misc fixes.
 */
 
-char version[] = "497";
+char version[] = "499";
