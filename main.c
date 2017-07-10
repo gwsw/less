@@ -105,8 +105,9 @@ main(argc, argv)
 	 * Command line arguments override environment arguments.
 	 */
 	is_tty = isatty(1);
-	get_term();
 	init_cmds();
+	get_term();
+	expand_cmd_tables();
 	init_charset();
 	init_line();
 	init_cmdhist();
