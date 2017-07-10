@@ -31,6 +31,8 @@
 
 * Fix some memory leaks.
 
+* Allow some debugging environment variables to be set in lesskey file.
+
 * Code improvements:
   . Use ANSI prototypes in funcs.h declarations.
   . Fix some const mismatches.
