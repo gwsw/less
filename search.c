@@ -344,6 +344,7 @@ undo_search()
 		error("No previous regular expression", NULL_PARG);
 		return;
 	}
+	clear_pattern(&search_info);
 #if HILITE_SEARCH
 	hide_hilite = !hide_hilite;
 	repaint_hilite(1);
