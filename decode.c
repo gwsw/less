@@ -284,6 +284,33 @@ expand_special_keys(table, len)
 }
 
 /*
+ * Expand special key abbreviations in a list of command tables.
+ */
+	static void
+expand_cmd_table(tlist)
+	struct tablelist *tlist;
+{
+	struct tablelist *t;
+	for (t = tlist;  t != NULL;  t = t->t_next)
+	{
+		expand_special_keys(t->t_start, t->t_end - t->t_start);
+	}
+}
+
+/*
+ * Expand special key abbreviations in all command tables.
+ */
+	public void
+expand_cmd_tables()
+{
+	expand_cmd_table(list_fcmd_tables);
+	expand_cmd_table(list_ecmd_tables);
+	expand_cmd_table(list_var_tables);
+	expand_cmd_table(list_sysvar_tables);
+}
+
+
+/*
  * Initialize the command lists.
  */
 	public void
@@ -340,26 +367,6 @@ add_cmd_table(tlist, buf, len)
 	t->t_next = *tlist;
 	*tlist = t;
 	return (0);
-}
-
-	static void
-expand_cmd_table(tlist)
-	struct tablelist *tlist;
-{
-	struct tablelist *t;
-	for (t = tlist;  t != NULL;  t = t->t_next)
-	{
-		expand_special_keys(t->t_start, t->t_end - t->t_start);
-	}
-}
-
-	public void
-expand_cmd_tables()
-{
-	expand_cmd_table(list_fcmd_tables);
-	expand_cmd_table(list_ecmd_tables);
-	expand_cmd_table(list_var_tables);
-	expand_cmd_table(list_sysvar_tables);
 }
 
 /*
