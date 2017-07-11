@@ -35,9 +35,9 @@ static POSITION pendpos;
 static char *end_ansi_chars;
 static char *mid_ansi_chars;
 
-static int attr_swidth LESSPARAMS((int a));
-static int attr_ewidth LESSPARAMS((int a));
-static int do_append LESSPARAMS((LWCHAR ch, char *rep, POSITION pos));
+static int attr_swidth LESSPARAMS ((int a));
+static int attr_ewidth LESSPARAMS ((int a));
+static int do_append LESSPARAMS ((LWCHAR ch, char *rep, POSITION pos));
 
 extern int sigs;
 extern int bs_mode;
