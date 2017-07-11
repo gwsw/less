@@ -532,6 +532,6 @@ struct hilite_tree;
 #include "funcs.h"
 
 /* Functions not included in funcs.h */
-void postoa();
-void linenumtoa();
-void inttoa();
+void postoa LESSPARAMS ((POSITION, char*));
+void linenumtoa LESSPARAMS ((LINENUM, char*));
+void inttoa LESSPARAMS ((int, char*));
