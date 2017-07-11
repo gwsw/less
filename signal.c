@@ -71,22 +71,16 @@ stop(type)
 }
 #endif
 
+#undef SIG_LESSWINDOW
 #ifdef SIGWINCH
-/*
- * "Window" change handler
- */
-	/* ARGSUSED*/
-	public RETSIGTYPE
-winch(type)
-	int type;
-{
-	LSIGNAL(SIGWINCH, winch);
-	sigs |= S_WINCH;
-	if (reading)
-		intread();
-}
+#define SIG_LESSWINDOW SIGWINCH
 #else
 #ifdef SIGWIND
+#define SIG_LESSWINDOW SIGWIND
+#endif
+#endif
+
+#ifdef SIG_LESSWINDOW
 /*
  * "Window" change handler
  */
@@ -95,12 +89,11 @@ winch(type)
 winch(type)
 	int type;
 {
-	LSIGNAL(SIGWIND, winch);
+	LSIGNAL(SIG_LESSWINDOW, winch);
 	sigs |= S_WINCH;
 	if (reading)
 		intread();
 }
-#endif
 #endif
 
 #if MSDOS_COMPILER==WIN32C
