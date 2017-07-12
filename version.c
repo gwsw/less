@@ -813,6 +813,8 @@ v496  7/5/17    Add LESSRSCROLL marker.
 v497  7/5/17    Sync.
 v498  7/7/17    Fix early truncation of text if last char is double-width.
 v499  7/10/17   Misc fixes.
+v500  7/11/17   Fix bug where certain env variables couldn't be set in lesskey.
+
 */
 
-char version[] = "499";
+char version[] = "500";

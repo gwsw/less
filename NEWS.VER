@@ -16,10 +16,12 @@
 * Don't output terminal init sequence if using -F and file fits on one screen.
 
 * When using -S, mark truncated lines with a special character.
+  The character can be changed or disabled by environment variable LESSRSCROLL.
 
 * Improve detection of binary files.
 
-* Do same ANSI escape code filtering for tag matching that we do for searching.
+* Do same ANSI escape code filtering for tag matching that we do for 
+  searching, to help when viewing syntax-highlighted code.
   
 * Catch SIGTERM and clean up before exiting.
 
@@ -27,7 +29,8 @@
 
 * Update Unicode tables to 2017-03-08.
 
-* Pass-thru Unicode formating chars (Cf type).
+* Pass-thru Unicode formating chars (Cf type) instead of treating them
+  as binary chars.
 
 * Fix some memory leaks.
 
@@ -36,8 +39,7 @@
 * Code improvements:
   . Use ANSI prototypes in funcs.h declarations.
   . Fix some const mismatches.
-  . Remove "register" in variable declarations.
-
+  . Remove archaic "register" in variable declarations.
 
 ======================================================================
 
