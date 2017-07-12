@@ -35,7 +35,7 @@ static POSITION pendpos;
 static char *end_ansi_chars;
 static char *mid_ansi_chars;
 static LWCHAR rscroll_char = 0; /* Char which marks chopped lines with -S */
-static int rscroll_attr = AT_BOLD; /* Attribute of rscroll_char */
+static int rscroll_attr = AT_STANDOUT; /* Attribute of rscroll_char */
 
 static int attr_swidth LESSPARAMS ((int a));
 static int attr_ewidth LESSPARAMS ((int a));
@@ -1039,7 +1039,10 @@ get_rscroll_char()
 		}
 	}
 	if (rscroll_char == 0)
+	{
 		rscroll_char = '>';
+		rscroll_attr = AT_STANDOUT;
+	}
 	return (rscroll_char == '-') ? 0 : rscroll_char;
 }
 
