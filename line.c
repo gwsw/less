@@ -34,6 +34,8 @@ static LWCHAR pendc;
 static POSITION pendpos;
 static char *end_ansi_chars;
 static char *mid_ansi_chars;
+static LWCHAR rscroll_char = 0; /* Char which marks chopped lines with -S */
+static int rscroll_attr = AT_BOLD; /* Attribute of rscroll_char */
 
 static int attr_swidth LESSPARAMS ((int a));
 static int attr_ewidth LESSPARAMS ((int a));
@@ -225,7 +227,7 @@ plinenum(pos)
 	 */
 	if (linenums == OPT_ONPLUS)
 	{
-		char buf[INT_STRLEN_BOUND(pos) + 2];
+		char buf[INT_STRLEN_BOUND(linenum) + 2];
 		int pad = 0;
 		int n;
 
@@ -238,8 +240,7 @@ plinenum(pos)
 		for (i = 0; i < n; i++)
 			add_linebuf(buf[i], AT_BOLD, 1);
 		add_linebuf(' ', AT_NORMAL, 1);
-		n = n + pad + 1;
-		lmargin += n;
+		lmargin += n + pad + 1;
 	}
 	/*
 	 * Append enough spaces to bring us to the lmargin.
@@ -1025,17 +1026,28 @@ pflushmbc()
  * or 0 if a scrolling char should not be displayed.
  */
 	static LWCHAR
-rscroll_char()
+get_rscroll_char()
 {
-	static LWCHAR rscroll = 0;
-	if (rscroll == 0)
+	if (rscroll_char == 0)
 	{
-		char constant *p = lgetenv("LESSRSCROLL");
-		if (p && *p) rscroll = *p;
+		char *p = lgetenv("LESSRSCROLL");
+		if (p && *p)
+		{
+			char *str;
+			setfmt(p, &str, &rscroll_attr, "*s>");
+			rscroll_char = *str;
+		}
 	}
-	if (rscroll == 0)
-		rscroll = '>';
-	return (rscroll == '-') ? 0 : rscroll;
+	if (rscroll_char == 0)
+		rscroll_char = '>';
+	return (rscroll_char == '-') ? 0 : rscroll_char;
+}
+
+	static int
+get_rscroll_attr()
+{
+	get_rscroll_char();
+	return rscroll_attr;
 }
 
 /*
@@ -1073,7 +1085,7 @@ pdone(endline, chopped, forw)
 		}
 	}
 
-	if (chopped && rscroll_char())
+	if (chopped && get_rscroll_char())
 	{
 		/*
 		 * Display the right scrolling char.
@@ -1096,7 +1108,7 @@ pdone(endline, chopped, forw)
 			add_linebuf(' ', AT_NORMAL, 1);
 		}
 		/* Print rscroll char. It must be single-width. */
-		add_linebuf(rscroll_char(), AT_STANDOUT, 1);
+		add_linebuf(get_rscroll_char(), get_rscroll_attr(), 1);
 	}
 
 	/*
