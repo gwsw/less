@@ -244,16 +244,17 @@ ilocale()
 /*
  * Define the printing format for control (or binary utf) chars.
  */
-   	static void
-setbinfmt(s, fmtvarptr, default_fmt)
+	public void
+setfmt(s, fmtvarptr, attrptr, default_fmt)
 	char *s;
 	char **fmtvarptr;
+	int *attrptr;
 	char *default_fmt;
 {
 	if (s && utf_mode)
 	{
 		/* It would be too hard to account for width otherwise.  */
-		char *t = s;
+		char constant *t = s;
 		while (*t)
 		{
 			if (*t < ' ' || *t > '~')
@@ -275,15 +276,15 @@ setbinfmt(s, fmtvarptr, default_fmt)
 	 * Select the attributes if it starts with "*".
 	 */
  attr:
-	if (*s == '*')
+	if (*s == '*' && s[1] != '\0')
 	{
 		switch (s[1])
 		{
-		case 'd':  binattr = AT_BOLD;      break;
-		case 'k':  binattr = AT_BLINK;     break;
-		case 's':  binattr = AT_STANDOUT;  break;
-		case 'u':  binattr = AT_UNDERLINE; break;
-		default:   binattr = AT_NORMAL;    break;
+		case 'd':  *attrptr = AT_BOLD;      break;
+		case 'k':  *attrptr = AT_BLINK;     break;
+		case 's':  *attrptr = AT_STANDOUT;  break;
+		case 'u':  *attrptr = AT_UNDERLINE; break;
+		default:   *attrptr = AT_NORMAL;    break;
 		}
 		s += 2;
 	}
@@ -377,10 +378,10 @@ init_charset()
 	set_charset();
 
 	s = lgetenv("LESSBINFMT");
-	setbinfmt(s, &binfmt, "*s<%02X>");
+	setfmt(s, &binfmt, &binattr, "*s<%02X>");
 	
 	s = lgetenv("LESSUTFBINFMT");
-	setbinfmt(s, &utfbinfmt, "<U+%04lX>");
+	setfmt(s, &utfbinfmt, &binattr, "<U+%04lX>");
 }
 
 /*
