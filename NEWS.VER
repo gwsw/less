@@ -16,7 +16,7 @@
 * Don't output terminal init sequence if using -F and file fits on one screen.
 
 * When using -S, mark truncated lines with a special character.
-  The character can be changed or disabled by environment variable LESSRSCROLL.
+  The character can be changed or disabled via the new --rscroll option.
 
 * Improve detection of binary files.
 

@@ -935,6 +935,11 @@ This option changes the interpretations of options which follow this one.
 After the \-\-use-backslash option, any backslash in an option string is
 removed and the following character is taken literally.
 This allows a dollar sign to be included in option strings.
+.IP "\-\-rscroll"
+This option changes the character used to mark truncated lines.
+It may begin with a two-character attribute indicator like LESSBINFMT does.
+If there is no attribute indicator, standout is used.
+If set to "-", truncated lines are not marked.
 .IP \-\-
 A command line argument of "\-\-" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.
@@ -1707,10 +1712,6 @@ If LESSMETAESCAPE is an empty string, commands containing
 metacharacters will not be passed to the shell.
 .IP LESSOPEN
 Command line to invoke the (optional) input-preprocessor.
-.IP LESSRSCROLL
-Character to use instead of ">" to mark truncated lines.
-It may begin with a two-character attribute indicator as LESSBINFMT does.
-If set to "-", truncated lines are not marked.
 .IP LESSSECURE
 Runs less in "secure" mode.
 See discussion under SECURITY.
