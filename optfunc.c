@@ -43,6 +43,8 @@ extern int jump_sline;
 extern long jump_sline_fraction;
 extern int shift_count;
 extern long shift_count_fraction;
+extern LWCHAR rscroll_char;
+extern int rscroll_attr;
 extern int less_is_more;
 #if LOGFILE
 extern char *namelogfile;
@@ -707,6 +709,40 @@ opt_quote(type, s)
 		parg.p_string = buf;
 		error("quotes %s", &parg);
 		break;
+	}
+}
+
+/*
+ * Handler for the --rscroll option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_rscroll(type, s)
+	int type;
+	char *s;
+{
+	PARG p;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE: {
+		char *fmt;
+		int attr = AT_STANDOUT;
+		setfmt(s, &fmt, &attr, "*s>");
+		if (strcmp(fmt, "-") == 0)
+		{
+			rscroll_char = 0;
+		} else
+		{
+			rscroll_char = *fmt ? *fmt : '>';
+			rscroll_attr = attr;
+		}
+		break; }
+	case QUERY: {
+		p.p_string = rscroll_char ? prchar(rscroll_char) : "-";
+		error("rscroll char is %s", &p);
+		break; }
 	}
 }
 

@@ -34,8 +34,6 @@ static LWCHAR pendc;
 static POSITION pendpos;
 static char *end_ansi_chars;
 static char *mid_ansi_chars;
-static LWCHAR rscroll_char = 0; /* Char which marks chopped lines with -S */
-static int rscroll_attr = AT_STANDOUT; /* Attribute of rscroll_char */
 
 static int attr_swidth LESSPARAMS ((int a));
 static int attr_ewidth LESSPARAMS ((int a));
@@ -57,6 +55,8 @@ extern int sc_width, sc_height;
 extern int utf_mode;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
+extern LWCHAR rscroll_char;
+extern int rscroll_attr;
 
 static char mbc_buf[MAX_UTF_CHAR_LEN];
 static int mbc_buf_len = 0;
@@ -1022,38 +1022,6 @@ pflushmbc()
 }
 
 /*
- * Return the scrolling char used on the right side of the screen,
- * or 0 if a scrolling char should not be displayed.
- */
-	static LWCHAR
-get_rscroll_char()
-{
-	if (rscroll_char == 0)
-	{
-		char *p = lgetenv("LESSRSCROLL");
-		if (p && *p)
-		{
-			char *str;
-			setfmt(p, &str, &rscroll_attr, "*s>");
-			rscroll_char = *str;
-		}
-	}
-	if (rscroll_char == 0)
-	{
-		rscroll_char = '>';
-		rscroll_attr = AT_STANDOUT;
-	}
-	return (rscroll_char == '-') ? 0 : rscroll_char;
-}
-
-	static int
-get_rscroll_attr()
-{
-	get_rscroll_char();
-	return rscroll_attr;
-}
-
-/*
  * Terminate the line in the line buffer.
  */
 	public void
@@ -1088,7 +1056,7 @@ pdone(endline, chopped, forw)
 		}
 	}
 
-	if (chopped && get_rscroll_char())
+	if (chopped && rscroll_char)
 	{
 		/*
 		 * Display the right scrolling char.
@@ -1111,7 +1079,7 @@ pdone(endline, chopped, forw)
 			add_linebuf(' ', AT_NORMAL, 1);
 		}
 		/* Print rscroll char. It must be single-width. */
-		add_linebuf(get_rscroll_char(), get_rscroll_attr(), 1);
+		add_linebuf(rscroll_char, rscroll_attr, 1);
 	}
 
 	/*
