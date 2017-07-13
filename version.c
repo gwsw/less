@@ -818,4 +818,4 @@ v501  7/12/17   Make sure rscroll char is standout by default.
 v502  7/13/17   Control rscroll char via command line option not env variable.
 */
 
-char version[] = "502";
+char version[] = "503";
