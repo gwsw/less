@@ -196,13 +196,17 @@ main(argc, argv)
 		}
 		free(gfilename);
 #else
+		int alloc = 1;
 		filename = shell_quote(*argv);
 		if (filename == NULL)
+		{
 			filename = *argv;
+			alloc = 0;
+		}
 		argv++;
 		(void) get_ifile(filename, ifile);
 		ifile = prev_ifile(NULL_IFILE);
-		free(filename);
+		if (alloc) free(filename);
 #endif
 	}
 	/*
