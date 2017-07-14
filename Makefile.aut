@@ -32,7 +32,7 @@ DISTFILES = \
 	install.sh defines.h.in mkinstalldirs \
 	less.nro less.man lesskey.nro lesskey.man lessecho.nro lessecho.man \
 	less.hlp \
-	mkfuncs.pl mkhelp.c \
+	mkfuncs.pl mkhelp.pl \
 	mkutable $(UNICODE_FILES) \
 	${DISTFILES_W}
 
@@ -46,14 +46,11 @@ release: .FORCE
 
 .FORCE:
 
-help.c: less.hlp mkhelp
+help.c: less.hlp 
 	-mv -f ${srcdir}/help.c ${srcdir}/help.c.old
 	rm -rf help.c
-	./mkhelp < less.hlp > help.c
+	${srcdir}/mkhelp.pl < less.hlp > help.c
 	if cmp -s help.c help.c.old; then mv -f help.c.old help.c; fi
-
-mkhelp: mkhelp.c
-	${CC} -o mkhelp mkhelp.c
 
 ${srcdir}/configure: ${srcdir}/configure.ac \
 		${srcdir}/Makefile.in

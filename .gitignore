@@ -1,1 +1,17 @@
 obj/**
+release/**
+unicode/**
+*.cache
+NEWS
+README
+configure
+defines.h.in
+funcs.h
+help.c
+less.hlp
+less.man
+less.nro
+lessecho.man
+lessecho.nro
+lesskey.man
+lesskey.nro

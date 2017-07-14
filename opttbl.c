@@ -453,7 +453,7 @@ static struct loption option[] =
 		}
 	},
 	{ OLETTER_NONE, &rscroll_optname,
-		STRING|REPAINT, 0, NULL, opt_rscroll,
+		STRING|REPAINT|INIT_HANDLER, 0, NULL, opt_rscroll,
 		{ "right scroll character: ", NULL, NULL }
 	},
 	{ '\0', NULL, NOVAR, 0, NULL, NULL, { NULL, NULL, NULL } }

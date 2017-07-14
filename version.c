@@ -816,6 +816,8 @@ v499  7/10/17   Misc fixes.
 v500  7/11/17   Fix bug where certain env variables couldn't be set in lesskey.
 v501  7/12/17   Make sure rscroll char is standout by default.
 v502  7/13/17   Control rscroll char via command line option not env variable.
+v503  7/13/17   Switch to git.
+v504  7/13/17   Call opt_rscroll at startup; change mkhelp.c to mkhelp.pl.
 */
 
-char version[] = "503";
+char version[] = "504";
