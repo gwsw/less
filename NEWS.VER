@@ -18,8 +18,6 @@
 * When using -S, mark truncated lines with a special character.
   The character can be changed or disabled via the new --rscroll option.
 
-* Improve detection of binary files.
-
 * Do same ANSI escape code filtering for tag matching that we do for 
   searching, to help when viewing syntax-highlighted code.
   
