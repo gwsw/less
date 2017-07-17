@@ -319,7 +319,7 @@ clear_attn()
 		if (pos == NULL_POSITION)
 			continue;
 		epos = position(slinenum+1);
-		if (pos < old_end_attnpos &&
+		if (pos <= old_end_attnpos &&
 		     (epos == NULL_POSITION || epos > old_start_attnpos))
 		{
 			(void) forw_line(pos);

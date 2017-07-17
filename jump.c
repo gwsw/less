@@ -91,7 +91,7 @@ jump_back(linenum)
 	if (pos != NULL_POSITION && ch_seek(pos) == 0)
 	{
 		if (show_attn)
-			set_attnpos(pos);
+			set_attnpos(pos, 0);
 		jump_loc(pos, jump_sline);
 	} else if (linenum <= 1 && ch_beg_seek() == 0)
 	{
@@ -179,7 +179,7 @@ jump_line_loc(pos, sline)
 		pos = ch_tell();
 	}
 	if (show_attn)
-		set_attnpos(pos);
+		set_attnpos(pos, 0);
 	jump_loc(pos, sline);
 }
 

@@ -29,6 +29,7 @@ extern int secure;
 extern int hshift;
 extern int bs_mode;
 extern int show_attn;
+extern int sticky_attn;
 extern POSITION highest_hilite;
 extern char *every_first_cmd;
 extern char *curr_altfilename;
@@ -48,7 +49,6 @@ extern int screen_trashed;	/* The screen has been overwritten */
 extern int shift_count;
 extern int oldbot;
 extern int forw_prompt;
-extern int same_pos_bell;
 
 #if SHELL_ESCAPE
 static char *shellcmd = NULL;	/* For holding last shell command for "!!" */
@@ -86,7 +86,8 @@ static void multi_search();
 cmd_exec()
 {
 #if HILITE_SEARCH
-	clear_attn();
+	if (!sticky_attn)
+		clear_attn();
 #endif
 	clear_bot();
 	flush();
@@ -298,7 +299,7 @@ is_erase_char(c)
  */
 	static int
 mca_opt_first_char(c)
-    int c;
+	int c;
 {
 	int flag = (optflag & ~OPT_NO_PROMPT);
 	if (flag == OPT_NO_TOGGLE)
@@ -1151,7 +1152,7 @@ commands()
 				number = get_swindow();
 			cmd_exec();
 			if (show_attn)
-				set_attnpos(bottompos);
+				set_attnpos(bottompos, 0);
 			forward((int) number, 0, 1);
 			break;
 
@@ -1180,7 +1181,7 @@ commands()
 				number = 1;
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS && number > 1)
-				set_attnpos(bottompos);
+				set_attnpos(bottompos, 0);
 			forward((int) number, 0, 0);
 			break;
 
@@ -1202,7 +1203,7 @@ commands()
 				number = 1;
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS && number > 1)
-				set_attnpos(bottompos);
+				set_attnpos(bottompos, 0);
 			forward((int) number, 1, 0);
 			break;
 
@@ -1224,7 +1225,7 @@ commands()
 				number = get_swindow();
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS)
-				set_attnpos(bottompos);
+				set_attnpos(bottompos, 0);
 			forward((int) number, 1, 0);
 			break;
 
@@ -1233,7 +1234,7 @@ commands()
 			 * Forward forever, ignoring EOF.
 			 */
 			if (show_attn)
-				set_attnpos(bottompos);
+				set_attnpos(bottompos, 0);
 			newaction = forw_loop(0);
 			break;
 
@@ -1250,7 +1251,7 @@ commands()
 				wscroll = (int) number;
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS)
-				set_attnpos(bottompos);
+				set_attnpos(bottompos, 0);
 			forward(wscroll, 0, 0);
 			break;
 
@@ -1707,6 +1708,7 @@ commands()
 			    c == kill_char || c == '\n' || c == '\r')
 				break;
 			setmark(c);
+			repaint();
 			break;
 
 		case A_GOMARK:
@@ -1782,6 +1784,11 @@ commands()
 		case A_RRSHIFT:
 			hshift = rrshift();
 			screen_trashed = 1;
+			break;
+
+		case A_SETATTN:
+			set_attnpos(position(BOTTOM), 1);
+			repaint();
 			break;
 
 		case A_PREFIX:

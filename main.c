@@ -19,6 +19,7 @@ public struct scrpos initial_scrpos;
 public int	any_display = FALSE;
 public POSITION	start_attnpos = NULL_POSITION;
 public POSITION	end_attnpos = NULL_POSITION;
+public int	sticky_attn = 0;
 public int	wscroll;
 public char *	progname;
 public int	quitting;

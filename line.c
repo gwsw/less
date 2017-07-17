@@ -216,11 +216,19 @@ plinenum(pos)
 	if (status_col)
 	{
 		int a = AT_NORMAL;
-		if (start_attnpos != NULL_POSITION &&
-		    pos >= start_attnpos && pos < end_attnpos)
+		char c = posmark(pos);
+		if (c != 0)
 			a |= AT_HILITE;
-		add_linebuf(' ', a, 1);
+		else 
+        {
+            c = ' ';
+            if (start_attnpos != NULL_POSITION &&
+                pos >= start_attnpos && pos <= end_attnpos)
+                a |= AT_HILITE;
+        }
+		add_linebuf(c, a, 1);
 	}
+
 	/*
 	 * Display the line number at the start of each line
 	 * if the -N option is set.

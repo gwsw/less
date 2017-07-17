@@ -21,6 +21,7 @@ extern int ignore_eoi;
 extern int status_col;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
+extern int sticky_attn;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int size_linebuf;
@@ -427,8 +428,9 @@ get_back_line:
  * Set attnpos.
  */
 	public void
-set_attnpos(pos)
+set_attnpos(pos, sticky)
 	POSITION pos;
+    int sticky;
 {
 	int c;
 
@@ -458,4 +460,5 @@ set_attnpos(pos)
 		}
 	}
 	start_attnpos = pos;
+    sticky_attn = sticky;
 }

@@ -278,7 +278,7 @@ forw(n, pos, force, only_last, nblank)
 		forw_prompt = 1;
 	}
 
-	if (nlines == 0 && same_pos_bell)
+	if (nlines == 0 && !ignore_eoi && same_pos_bell)
 		eof_bell();
 	else if (do_repaint)
 		repaint();

@@ -228,6 +228,27 @@ markpos(c)
 }
 
 /*
+ * Return the mark associated with a given position, if any.
+ */
+	public char
+posmark(pos)
+	POSITION pos;
+{
+	int i;
+
+	for (i = 0;  i < NMARKS;  i++)
+	{
+		if (marks[i].m_ifile == curr_ifile && marks[i].m_scrpos.pos == pos)
+		{
+			if (i < 26)
+				return 'a' + i;
+			return 'A' + i - 26;
+		}
+	}
+    return 0;
+}
+
+/*
  * Clear the marks associated with a specified ifile.
  */
 	public void
