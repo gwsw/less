@@ -134,6 +134,7 @@ static unsigned char cmdtable[] =
 	'&',0,				A_FILTER,
 	'm',0,				A_SETMARK,
 	'M',0,				A_SETATTN,
+	ESC,'M',0,			A_CLRATTN,
 	'\'',0,				A_GOMARK,
 	CONTROL('X'),CONTROL('X'),0,	A_GOMARK,
 	'E',0,				A_EXAMINE,

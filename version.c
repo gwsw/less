@@ -818,6 +818,8 @@ v501  7/12/17   Make sure rscroll char is standout by default.
 v502  7/13/17   Control rscroll char via command line option not env variable.
 v503  7/13/17   Switch to git.
 v504  7/13/17   Call opt_rscroll at startup; change mkhelp.c to mkhelp.pl.
+v505  7/17/17   Add M and ESC-M commands; 
+                fix buffer handling with stdin and LESSOPEN.
 */
 
-char version[] = "504";
+char version[] = "505";

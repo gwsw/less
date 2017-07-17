@@ -63,6 +63,7 @@
 #define A_LLSHIFT              58
 #define A_RRSHIFT              59
 #define A_SETATTN              60
+#define A_CLRATTN              61
 
 #define A_INVALID              100
 #define A_NOACTION             101

@@ -30,6 +30,7 @@ extern int hshift;
 extern int bs_mode;
 extern int show_attn;
 extern int sticky_attn;
+extern int status_col;
 extern POSITION highest_hilite;
 extern char *every_first_cmd;
 extern char *curr_altfilename;
@@ -85,10 +86,8 @@ static void multi_search();
 	static void
 cmd_exec()
 {
-#if HILITE_SEARCH
 	if (!sticky_attn)
 		clear_attn();
-#endif
 	clear_bot();
 	flush();
 }
@@ -1787,8 +1786,13 @@ commands()
 			break;
 
 		case A_SETATTN:
+			status_col = 1;
 			set_attnpos(position(BOTTOM), 1);
 			repaint();
+			break;
+
+		case A_CLRATTN:
+			clear_attn();
 			break;
 
 		case A_PREFIX:

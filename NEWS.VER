@@ -18,6 +18,8 @@
 * When using -S, mark truncated lines with a special character.
   The character can be changed or disabled via the new --rscroll option.
 
+* New command M visually marks the last line displayed on the screen.
+
 * Status column (enabled via -J) now shows mark letters.
 
 * Do same ANSI escape code filtering for tag matching that we do for 
@@ -26,6 +28,8 @@
 * Catch SIGTERM and clean up before exiting.
 
 * Fix bug initializing default charset on Windows.
+
+* Fix buffering bug when using stdin with a LESSOPEN pipe.
 
 * Update Unicode tables to 2017-03-08.
 

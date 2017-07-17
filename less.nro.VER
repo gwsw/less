@@ -188,6 +188,13 @@ Marks are preserved when a new file is examined,
 so the ' command can be used to switch between input files.
 .IP "^X^X"
 Same as single quote.
+.IP M
+Visually marks the last line displayed on the screen.
+The status column is enabled to show the mark if it is not already enabled via the -J option.
+This can be useful to keep track of a particular line while moving in the file
+or while new lines are displayed during the F command.
+.IP "ESC-M"
+Removes the mark set by a previous M command.
 .IP /pattern
 Search forward in the file for the N-th line containing the pattern.
 N defaults to 1.

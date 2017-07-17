@@ -961,6 +961,7 @@ close_altfile(altfilename, filename, pipefd)
 	
 	if (secure)
 		return;
+	ch_ungetchar(-1);
 	if (pipefd != NULL)
 	{
 #if OS2

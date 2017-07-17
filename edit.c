@@ -263,11 +263,17 @@ edit_ifile(ifile)
 	}
 
 	filename = save(get_filename(ifile));
+
 	/*
 	 * See if LESSOPEN specifies an "alternate" file to open.
 	 */
 	alt_pipe = NULL;
-	alt_filename = open_altfile(filename, &f, &alt_pipe);
+	if (strcmp(filename, FAKE_HELPFILE) == 0 ||
+	     strcmp(filename, FAKE_EMPTYFILE) == 0)
+		alt_filename = NULL;
+	else
+		alt_filename = open_altfile(filename, &f, &alt_pipe);
+
 	open_filename = (alt_filename != NULL) ? alt_filename : filename;
 	qopen_filename = shell_unquote(open_filename);
 
@@ -282,6 +288,8 @@ edit_ifile(ifile)
 		 * via popen(), and pclose() wants to close it.
 		 */
 		chflags |= CH_POPENED;
+        if (strcmp(open_filename, "-") == 0)
+            chflags |= CH_KEEPOPEN;
 	} else if (strcmp(open_filename, "-") == 0)
 	{
 		/* 

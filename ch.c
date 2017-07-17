@@ -860,13 +860,12 @@ ch_init(f, flags)
 				calloc(1, sizeof(struct filestate));
 		thisfile->buflist.next = thisfile->buflist.prev = END_OF_CHAIN;
 		thisfile->nbufs = 0;
-		thisfile->flags = 0;
+		thisfile->flags = flags;
 		thisfile->fpos = 0;
 		thisfile->block = 0;
 		thisfile->offset = 0;
 		thisfile->file = -1;
 		thisfile->fsize = NULL_POSITION;
-		ch_flags = flags;
 		init_hashtbl();
 		/*
 		 * Try to seek; set CH_CANSEEK if it works.
@@ -891,7 +890,7 @@ ch_close()
 	if (thisfile == NULL)
 		return;
 
-	if (ch_flags & (CH_CANSEEK|CH_HELPFILE))
+	if ((ch_flags & (CH_CANSEEK|CH_POPENED|CH_HELPFILE)) && !(ch_flags & CH_KEEPOPEN))
 	{
 		/*
 		 * We can seek or re-open, so we don't need to keep buffers.
