@@ -245,7 +245,7 @@ posmark(pos)
 			return 'A' + i - 26;
 		}
 	}
-    return 0;
+	return 0;
 }
 
 /*

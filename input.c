@@ -430,7 +430,7 @@ get_back_line:
 	public void
 set_attnpos(pos, sticky)
 	POSITION pos;
-    int sticky;
+	int sticky;
 {
 	int c;
 
@@ -460,5 +460,5 @@ set_attnpos(pos, sticky)
 		}
 	}
 	start_attnpos = pos;
-    sticky_attn = sticky;
+	sticky_attn = sticky;
 }

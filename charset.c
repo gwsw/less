@@ -548,9 +548,11 @@ utf_bin_count(data, len)
 	int bin_count = 0;
 	while (len > 0)
 	{
-		if (*data && is_utf8_well_formed(data, len))
+		if (is_utf8_well_formed(data, len))
 		{
 			int clen = utf_len(*data & 0377);
+			if (clen == 1 && binary_char(*data))
+				bin_count++;
 			data += clen;
 			len -= clen;
 		} else
@@ -560,7 +562,7 @@ utf_bin_count(data, len)
 			do {
 				++data;
 				--len;
-			} while (len > 0 && *data && !IS_UTF8_LEAD(*data & 0377));
+			} while (len > 0 && !IS_UTF8_LEAD(*data & 0377) && !IS_ASCII_OCTET(*data));
 		}
 	}
 	return (bin_count);

@@ -529,6 +529,9 @@ less_printf(fmt, parg)
 				col += iprint_linenum(parg->p_linenum);
 				parg++;
 				break;
+			case '%':
+				putchr('%');
+				break;
 			}
 		}
 	}
@@ -593,7 +596,7 @@ error(fmt, parg)
 
 	get_return();
 	lower_left();
-    clear_eol();
+	clear_eol();
 
 	if (col >= sc_width)
 		/*

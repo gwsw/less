@@ -880,9 +880,9 @@ open_altfile(filename, pf, pfd)
 		if (strcmp(filename, "-") == 0)
 			return (NULL);
 	}
-	if (num_pct_s(lessopen) > 1)
+	if (num_pct_s(lessopen) != 1)
 	{
-		error("Invalid LESSOPEN variable", NULL_PARG);
+		error("LESSOPEN ignored: must contain exactly one %%s", NULL_PARG);
 		return (NULL);
 	}
 
@@ -977,7 +977,7 @@ close_altfile(altfilename, filename, pipefd)
 	     	return;
 	if (num_pct_s(lessclose) > 2) 
 	{
-		error("Invalid LESSCLOSE variable", NULL_PARG);
+		error("LESSCLOSE ignored; must contain no more than 2 %s", NULL_PARG);
 		return;
 	}
 	len = (int) (strlen(lessclose) + strlen(filename) + strlen(altfilename) + 2);

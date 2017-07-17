@@ -220,12 +220,12 @@ plinenum(pos)
 		if (c != 0)
 			a |= AT_HILITE;
 		else 
-        {
-            c = ' ';
-            if (start_attnpos != NULL_POSITION &&
-                pos >= start_attnpos && pos <= end_attnpos)
-                a |= AT_HILITE;
-        }
+		{
+			c = ' ';
+			if (start_attnpos != NULL_POSITION &&
+			    pos >= start_attnpos && pos <= end_attnpos)
+				a |= AT_HILITE;
+		}
 		add_linebuf(c, a, 1);
 	}
 

@@ -424,8 +424,10 @@ On MS-DOS and OS/2 systems, the shell is the normal command processor.
 .IP "| <m> shell-command"
 <m> represents any mark letter.
 Pipes a section of the input file to the given shell command.
-The section of the file to be piped is between the first line on
-the current screen and the position marked by the letter.
+The section of the file to be piped is between the position marked by 
+the letter and the current screen.
+The entire current screen is included, regardless of whether the
+marked position is before or after the current screen.
 <m> may also be ^ or $ to indicate beginning or end of file respectively.
 If <m> is \&.\& or newline, the current screen is piped.
 .IP "s filename"

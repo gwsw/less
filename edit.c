@@ -288,8 +288,8 @@ edit_ifile(ifile)
 		 * via popen(), and pclose() wants to close it.
 		 */
 		chflags |= CH_POPENED;
-        if (strcmp(open_filename, "-") == 0)
-            chflags |= CH_KEEPOPEN;
+		if (strcmp(open_filename, "-") == 0)
+			chflags |= CH_KEEPOPEN;
 	} else if (strcmp(open_filename, "-") == 0)
 	{
 		/* 
