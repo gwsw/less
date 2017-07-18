@@ -38,6 +38,8 @@
 * Pass-thru Unicode formating chars (Cf type) instead of treating them
   as binary chars.
 
+* Fix some bugs handling filenames containing shell metacharacters.
+
 * Fix some memory leaks.
 
 * Allow some debugging environment variables to be set in lesskey file.

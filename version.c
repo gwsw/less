@@ -822,6 +822,7 @@ v505  7/17/17   Add M and ESC-M commands;
                 fix buffer handling with stdin and LESSOPEN.
 v506  7/17/17   On Windows, convert UTF-8 to multibyte if console is not UTF-8;
                 handle extended chars on input (thanks to Jason Hood).
+v507  7/18/17   Fix some bugs handling filenames containing shell metachars.
 */
 
-char version[] = "506";
+char version[] = "507";
