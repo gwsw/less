@@ -1,3 +1,4 @@
+This is weird chars
 /*@@copyright@@*/
 
 
@@ -199,7 +200,9 @@ main(argc, argv)
 		}
 		free(gfilename);
 #else
-		(void) get_ifile(*argv++, ifile);
+		int alloc = 1;
+		argv++;
+		(void) get_ifile(*argv, ifile);
 		ifile = prev_ifile(NULL_IFILE);
 #endif
 	}

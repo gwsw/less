@@ -176,6 +176,7 @@ main(argc, argv)
 		ifile = get_ifile(FAKE_HELPFILE, ifile);
 	while (argc-- > 0)
 	{
+		char *filename;
 #if (MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC)
 		/*
 		 * Because the "shell" doesn't expand filename patterns,
@@ -184,7 +185,6 @@ main(argc, argv)
 		 * Expand the pattern and iterate over the expanded list.
 		 */
 		struct textlist tlist;
-		char *filename;
 		char *gfilename;
 		
 		gfilename = lglob(*argv++);
@@ -192,15 +192,22 @@ main(argc, argv)
 		filename = NULL;
 		while ((filename = forw_textlist(&tlist, filename)) != NULL)
 		{
-			filename = shell_unquote(filename);
 			(void) get_ifile(filename, ifile);
-			free(filename);
 			ifile = prev_ifile(NULL_IFILE);
 		}
 		free(gfilename);
 #else
-		(void) get_ifile(*argv++, ifile);
+		int alloc = 1;
+		filename = shell_quote(*argv);
+		if (filename == NULL)
+		{
+			filename = *argv;
+			alloc = 0;
+		}
+		argv++;
+		(void) get_ifile(filename, ifile);
 		ifile = prev_ifile(NULL_IFILE);
+		if (alloc) free(filename);
 #endif
 	}
 	/*

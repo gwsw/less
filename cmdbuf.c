@@ -33,7 +33,7 @@ static int in_completion = 0;
 static char *tk_text;
 static char *tk_original;
 static char *tk_ipoint;
-static char *tk_trial;
+static char *tk_trial = NULL;
 static struct textlist tk_tlist;
 #endif
 

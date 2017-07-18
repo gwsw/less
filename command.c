@@ -851,7 +851,7 @@ ungetsc(s)
 /*
  * Peek the next command character, without consuming it.
  */
-	public void
+	public int
 peekcc()
 {
 	int c = getcc();

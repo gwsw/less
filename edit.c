@@ -211,7 +211,6 @@ edit_ifile(ifile)
 	int chflags;
 	char *filename;
 	char *open_filename;
-	char *qopen_filename;
 	char *alt_filename;
 	void *alt_pipe;
 	IFILE was_curr_ifile;
@@ -275,7 +274,6 @@ edit_ifile(ifile)
 		alt_filename = open_altfile(filename, &f, &alt_pipe);
 
 	open_filename = (alt_filename != NULL) ? alt_filename : filename;
-	qopen_filename = shell_unquote(open_filename);
 
 	chflags = 0;
 	if (alt_pipe != NULL)
@@ -332,7 +330,6 @@ edit_ifile(ifile)
 			free(alt_filename);
 		}
 		del_ifile(ifile);
-		free(qopen_filename);
 		free(filename);
 		/*
 		 * Re-open the current file.
@@ -347,7 +344,7 @@ edit_ifile(ifile)
 		}
 		reedit_ifile(was_curr_ifile);
 		return (1);
-	} else if ((f = open(qopen_filename, OPEN_READ)) < 0)
+	} else if ((f = open(open_filename, OPEN_READ)) < 0)
 	{
 		/*
 		 * Got an error trying to open it.
@@ -403,7 +400,7 @@ edit_ifile(ifile)
 		/* Remember the i-number and device of the opened file. */
 		{
 			struct stat statbuf;
-			int r = stat(qopen_filename, &statbuf);
+			int r = stat(open_filename, &statbuf);
 			if (r == 0)
 			{
 				curr_ino = statbuf.st_ino;
@@ -418,7 +415,6 @@ edit_ifile(ifile)
 		}
 	}
 
-	free(qopen_filename);
 	no_display = !any_display;
 	flush();
 	any_display = TRUE;
@@ -469,6 +465,7 @@ edit_list(filelist)
 	char *filename;
 	char *gfilelist;
 	char *gfilename;
+	char *qfilename;
 	struct textlist tl_files;
 	struct textlist tl_gfiles;
 
@@ -490,8 +487,10 @@ edit_list(filelist)
 		gfilename = NULL;
 		while ((gfilename = forw_textlist(&tl_gfiles, gfilename)) != NULL)
 		{
-			if (edit(gfilename) == 0 && good_filename == NULL)
+			qfilename = shell_unquote(gfilename);
+			if (edit(qfilename) == 0 && good_filename == NULL)
 				good_filename = get_filename(curr_ifile);
+			free(qfilename);
 		}
 		free(gfilelist);
 	}
@@ -748,7 +747,6 @@ use_logfile(filename)
 	/*
 	 * {{ We could use access() here. }}
 	 */
-	filename = shell_unquote(filename);
 	exists = open(filename, OPEN_READ);
 	if (exists >= 0)
 		close(exists);
@@ -817,10 +815,8 @@ loop:
 		 */
 		parg.p_string = filename;
 		error("Cannot write to \"%s\"", &parg);
-		free(filename);
 		return;
 	}
-	free(filename);
 	SET_BINARY(logfile);
 }
 

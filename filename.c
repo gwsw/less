@@ -218,7 +218,6 @@ dirfile(dirname, filename)
 	char *filename;
 {
 	char *pathname;
-	char *qpathname;
 	int len;
 	int f;
 
@@ -235,8 +234,7 @@ dirfile(dirname, filename)
 	/*
 	 * Make sure the file exists.
 	 */
-	qpathname = shell_unquote(pathname);
-	f = open(qpathname, OPEN_READ);
+	f = open(pathname, OPEN_READ);
 	if (f < 0)
 	{
 		free(pathname);
@@ -245,7 +243,6 @@ dirfile(dirname, filename)
 	{
 		close(f);
 	}
-	free(qpathname);
 	return (pathname);
 }
 
@@ -403,7 +400,6 @@ fcomplete(s)
 	char *s;
 {
 	char *fpat;
-	char *qs;
 
 	if (secure)
 		return (NULL);
@@ -438,19 +434,18 @@ fcomplete(s)
 	SNPRINTF1(fpat, len, "%s*", s);
 	}
 #endif
-	qs = lglob(fpat);
-	s = shell_unquote(qs);
+	s = lglob(fpat);
 	if (strcmp(s,fpat) == 0)
 	{
 		/*
 		 * The filename didn't expand.
 		 */
-		free(qs);
-		qs = NULL;
+		free(s);
+		free(fpat);
+		return (NULL);
 	}
-	free(s);
 	free(fpat);
-	return (qs);
+	return (s);
 }
 #endif
 
@@ -624,12 +619,10 @@ lglob(filename)
 	char *filename;
 {
 	char *gfilename;
-	char *ofilename;
 
-	ofilename = fexpand(filename);
+	filename = fexpand(filename);
 	if (secure)
-		return (ofilename);
-	filename = shell_unquote(ofilename);
+		return (filename);
 
 #ifdef DECL_GLOB_LIST
 {
@@ -644,8 +637,7 @@ lglob(filename)
 	GLOB_LIST(filename, list);
 	if (GLOB_LIST_FAILED(list))
 	{
-		free(filename);
-		return (ofilename);
+		return (filename);
 	}
 	length = 1; /* Room for trailing null byte */
 	for (SCAN_GLOB_LIST(list, p))
@@ -685,15 +677,14 @@ lglob(filename)
 	char *p;
 	int len;
 	int n;
-	char *pathname;
-	char *qpathname;
+	char *filename;
+	char *qfilename;
 	DECL_GLOB_NAME(fnd,drive,dir,fname,ext,handle)
 	
 	GLOB_FIRST_NAME(filename, &fnd, handle);
 	if (GLOB_FIRST_FAILED(handle))
 	{
-		free(filename);
-		return (ofilename);
+		return (filename);
 	}
 
 	_splitpath(filename, drive, dir, fname, ext);
@@ -702,13 +693,13 @@ lglob(filename)
 	p = gfilename;
 	do {
 		n = (int) (strlen(drive) + strlen(dir) + strlen(fnd.GLOB_NAME) + 1);
-		pathname = (char *) ecalloc(n, sizeof(char));
-		SNPRINTF3(pathname, n, "%s%s%s", drive, dir, fnd.GLOB_NAME);
-		qpathname = shell_quote(pathname);
-		free(pathname);
-		if (qpathname != NULL)
+		filename = (char *) ecalloc(n, sizeof(char));
+		SNPRINTF3(filename, n, "%s%s%s", drive, dir, fnd.GLOB_NAME);
+		qfilename = shell_quote(filename);
+		free(filename);
+		if (qfilename != NULL)
 		{
-			n = (int) strlen(qpathname);
+			n = (int) strlen(qfilename);
 			while (p - gfilename + n + 2 >= len)
 			{
 				/*
@@ -723,8 +714,8 @@ lglob(filename)
 				gfilename = p;
 				p = gfilename + strlen(gfilename);
 			}
-			strcpy(p, qpathname);
-			free(qpathname);
+			strcpy(p, qfilename);
+			free(qfilename);
 			p += n;
 			*p++ = ' ';
 		}
@@ -756,8 +747,7 @@ lglob(filename)
 	esc = shell_quote(esc);
 	if (esc == NULL)
 	{
-		free(filename);
-		return (ofilename);
+		return (filename);
 	}
 	lessecho = lgetenv("LESSECHO");
 	if (lessecho == NULL || *lessecho == '\0')
@@ -765,13 +755,13 @@ lglob(filename)
 	/*
 	 * Invoke lessecho, and read its output (a globbed list of filenames).
 	 */
-	len = (int) (strlen(lessecho) + strlen(ofilename) + (7*strlen(metachars())) + 24);
+	len = (int) (strlen(lessecho) + strlen(filename) + (7*strlen(metachars())) + 24);
 	cmd = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF4(cmd, len, "%s -p0x%x -d0x%x -e%s ", lessecho, openquote, closequote, esc);
 	free(esc);
 	for (s = metachars();  *s != '\0';  s++)
 		sprintf(cmd + strlen(cmd), "-n0x%x ", *s);
-	sprintf(cmd + strlen(cmd), "-- %s", ofilename);
+	sprintf(cmd + strlen(cmd), "-- %s", filename);
 	fd = shellcmd(cmd);
 	free(cmd);
 	if (fd == NULL)
@@ -780,16 +770,14 @@ lglob(filename)
 		 * Cannot create the pipe.
 		 * Just return the original (fexpanded) filename.
 		 */
-		free(filename);
-		return (ofilename);
+		return (filename);
 	}
 	gfilename = readfd(fd);
 	pclose(fd);
 	if (*gfilename == '\0')
 	{
 		free(gfilename);
-		free(filename);
-		return (ofilename);
+		return (save(filename));
 	}
 }
 #else
@@ -801,7 +789,6 @@ lglob(filename)
 #endif
 #endif
 	free(filename);
-	free(ofilename);
 	return (gfilename);
 }
 
@@ -999,7 +986,6 @@ is_dir(filename)
 {
 	int isdir = 0;
 
-	filename = shell_unquote(filename);
 #if HAVE_STAT
 {
 	int r;
@@ -1020,7 +1006,6 @@ is_dir(filename)
 }
 #endif
 #endif
-	free(filename);
 	return (isdir);
 }
 
@@ -1035,7 +1020,6 @@ bad_file(filename)
 {
 	char *m = NULL;
 
-	filename = shell_unquote(filename);
 	if (!force_open && is_dir(filename))
 	{
 		static char is_a_dir[] = " is a directory";
@@ -1067,7 +1051,6 @@ bad_file(filename)
 		}
 #endif
 	}
-	free(filename);
 	return (m);
 }
 
