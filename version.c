@@ -820,6 +820,8 @@ v503  7/13/17   Switch to git.
 v504  7/13/17   Call opt_rscroll at startup; change mkhelp.c to mkhelp.pl.
 v505  7/17/17   Add M and ESC-M commands; 
                 fix buffer handling with stdin and LESSOPEN.
+v506  7/17/17   On Windows, convert UTF-8 to multibyte if console is not UTF-8;
+                handle extended chars on input (thanks to Jason Hood).
 */
 
-char version[] = "505";
+char version[] = "506";

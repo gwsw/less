@@ -849,6 +849,17 @@ ungetsc(s)
 }
 
 /*
+ * Peek the next command character, without consuming it.
+ */
+	public void
+peekcc()
+{
+	int c = getcc();
+	ungetcc(c);
+	return c;
+}
+
+/*
  * Search for a pattern, possibly in multiple files.
  * If SRCH_FIRST_FILE is set, begin searching at the first file.
  * If SRCH_PAST_EOF is set, continue the search thru multiple files.
