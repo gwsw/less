@@ -10,6 +10,11 @@
 #include "charset.h"
 #include "position.h"
 
+#if MSDOS_COMPILER==WIN32C
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 static char *linebuf = NULL;	/* Buffer which holds the current output line */
 static char *attr = NULL;	/* Extension of linebuf to hold attributes */
 public int size_linebuf = 0;	/* Size of line buffer (and attr buffer) */
@@ -1007,6 +1012,16 @@ do_append(ch, rep, pos)
 			STORE_CHAR(*s, AT_BINARY, NULL, pos);
  	} else
 	{
+#if MSDOS_COMPILER==WIN32C
+		if (utf_mode == 2 && ch < 0x10000)
+		{
+			char mb[4];
+			int i;
+			int len = WideCharToMultiByte(CP_OEMCP, 0, (LPCWSTR) &ch, 1, mb, 4, NULL, NULL);
+			for (i = 0;  i < len;  i++)
+				STORE_CHAR(mb[i], a, NULL, pos);
+		} else
+#endif
 		STORE_CHAR(ch, a, rep, pos);
 	}
  	return (0);
