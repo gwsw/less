@@ -76,7 +76,7 @@ opt_o(type, s)
 	char *s;
 {
 	PARG parg;
-    char *filename;
+	char *filename;
 
 	if (secure)
 	{
@@ -103,8 +103,8 @@ opt_o(type, s)
 		if (namelogfile != NULL)
 			free(namelogfile);
 		filename = lglob(s);
-        namelogfile = shell_unquote(filename);
-        free(filename);
+		namelogfile = shell_unquote(filename);
+		free(filename);
 		use_logfile(namelogfile);
 		sync_logfile();
 		break;
@@ -334,7 +334,7 @@ opt__T(type, s)
 	char *s;
 {
 	PARG parg;
-    char *filename;
+	char *filename;
 
 	switch (type)
 	{
@@ -346,8 +346,8 @@ opt__T(type, s)
 		if (tags != NULL && tags != ztags)
 			free(tags);
 		filename = lglob(s);
-        tags = shell_unquote(filename);
-        free(filename);
+		tags = shell_unquote(filename);
+		free(filename);
 		break;
 	case QUERY:
 		parg.p_string = tags;

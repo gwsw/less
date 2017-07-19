@@ -25,9 +25,6 @@
 #include <modes.h>
 #endif
 #endif
-#if OS2
-#include <signal.h>
-#endif
 
 #if HAVE_STAT
 #include <sys/stat.h>
@@ -823,8 +820,9 @@ num_pct_s(lessopen)
  * instead of the file we're about to open.
  */
 	public char *
-open_altfile(filename, pf, pfd)
+open_altfile(filename, first_open, pf, pfd)
 	char *filename;
+	int first_open;
 	int *pf;
 	void **pfd;
 {
@@ -858,12 +856,14 @@ open_altfile(filename, pf, pfd)
 		returnfd++;
 #endif
 	}
-	if (*lessopen == '-') {
+	if (*lessopen == '-')
+    {
 		/*
 		 * Lessopen preprocessor will accept "-" as a filename.
 		 */
 		lessopen++;
-	} else {
+	} else
+    {
 		if (strcmp(filename, "-") == 0)
 			return (NULL);
 	}
@@ -888,33 +888,37 @@ open_altfile(filename, pf, pfd)
 #if HAVE_FILENO
 	if (returnfd)
 	{
-		int f;
-		char c;
-
-		/*
-		 * Read one char to see if the pipe will produce any data.
-		 * If it does, push the char back on the pipe.
-		 */
-		f = fileno(fd);
+		int f = fileno(fd);
 		SET_BINARY(f);
-		if (read(f, &c, 1) != 1)
+
+		if (first_open)
 		{
+			char c;
+
 			/*
-			 * Pipe is empty.
-			 * If more than 1 pipe char was specified,
-			 * the exit status tells whether the file itself 
-			 * is empty, or if there is no alt file.
-			 * If only one pipe char, just assume no alt file.
+			 * The first time we open the file, read one char 
+			 * to see if the pipe will produce any data.
+			 * If it does, push the char back on the pipe.
 			 */
-			int status = pclose(fd);
-			if (returnfd > 1 && status == 0) {
-				*pfd = NULL;
-				*pf = -1;
-				return (save(FAKE_EMPTYFILE));
+			if (read(f, &c, 1) != 1)
+			{
+				/*
+				 * Pipe is empty.
+				 * If more than 1 pipe char was specified,
+				 * the exit status tells whether the file itself 
+				 * is empty, or if there is no alt file.
+				 * If only one pipe char, just assume no alt file.
+				 */
+				int status = pclose(fd);
+				if (returnfd > 1 && status == 0) {
+					*pfd = NULL;
+					*pf = -1;
+					return (save(FAKE_EMPTYFILE));
+				}
+				return (NULL);
 			}
-			return (NULL);
+			ch_ungetchar(c);
 		}
-		ch_ungetchar(c);
 		*pfd = (void *) fd;
 		*pf = f;
 		return (save("-"));
@@ -935,10 +939,9 @@ open_altfile(filename, pf, pfd)
  * Close a replacement file.
  */
 	public void
-close_altfile(altfilename, filename, pipefd)
+close_altfile(altfilename, filename)
 	char *altfilename;
 	char *filename;
-	void *pipefd;
 {
 #if HAVE_POPEN
 	char *lessclose;
@@ -949,17 +952,6 @@ close_altfile(altfilename, filename, pipefd)
 	if (secure)
 		return;
 	ch_ungetchar(-1);
-	if (pipefd != NULL)
-	{
-#if OS2
-		/*
-		 * The pclose function of OS/2 emx sometimes fails.
-		 * Send SIGINT to the piped process before closing it.
-		 */
-		kill(((FILE*)pipefd)->_pid, SIGINT);
-#endif
-		pclose((FILE*) pipefd);
-	}
 	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)
 	     	return;
 	if (num_pct_s(lessclose) > 2) 

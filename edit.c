@@ -5,6 +5,9 @@
 #if HAVE_STAT
 #include <sys/stat.h>
 #endif
+#if OS2
+#include <signal.h>
+#endif
 
 public int fd0 = 0;
 
@@ -35,9 +38,6 @@ extern char *namelogfile;
 public dev_t curr_dev;
 public ino_t curr_ino;
 #endif
-
-char *curr_altfilename = NULL;
-static void *curr_altpipe;
 
 
 /*
@@ -142,12 +142,33 @@ back_textlist(tlist, prev)
 }
 
 /*
+ * Close a pipe opened via popen.
+ */
+	static void
+close_pipe(FILE *pipefd)
+{
+	if (pipefd == NULL)
+		return;
+#if OS2
+	/*
+	 * The pclose function of OS/2 emx sometimes fails.
+	 * Send SIGINT to the piped process before closing it.
+	 */
+	kill(pipefd->_pid, SIGINT);
+#endif
+	pclose(pipefd);
+}
+
+/*
  * Close the current input file.
  */
 	static void
 close_file()
 {
 	struct scrpos scrpos;
+	int chflags;
+	FILE *altpipe;
+	char *altfilename;
 	
 	if (curr_ifile == NULL_IFILE)
 		return;
@@ -165,17 +186,23 @@ close_file()
 	/*
 	 * Close the file descriptor, unless it is a pipe.
 	 */
+	chflags = ch_getflags();
 	ch_close();
 	/*
 	 * If we opened a file using an alternate name,
 	 * do special stuff to close it.
 	 */
-	if (curr_altfilename != NULL)
+	altfilename = get_altfilename(curr_ifile);
+	if (altfilename != NULL)
 	{
-		close_altfile(curr_altfilename, get_filename(curr_ifile),
-				curr_altpipe);
-		free(curr_altfilename);
-		curr_altfilename = NULL;
+		altpipe = get_altpipe(curr_ifile);
+		if (altpipe != NULL && !(chflags & CH_KEEPOPEN))
+		{
+			close_pipe(altpipe);
+			set_altpipe(curr_ifile, NULL);
+		}
+		close_altfile(altfilename, get_filename(curr_ifile));
+		set_altfilename(curr_ifile, NULL);
 	}
 	curr_ifile = NULL_IFILE;
 #if HAVE_STAT_INO
@@ -212,7 +239,7 @@ edit_ifile(ifile)
 	char *filename;
 	char *open_filename;
 	char *alt_filename;
-	void *alt_pipe;
+	void *altpipe;
 	IFILE was_curr_ifile;
 	PARG parg;
 		
@@ -266,17 +293,17 @@ edit_ifile(ifile)
 	/*
 	 * See if LESSOPEN specifies an "alternate" file to open.
 	 */
-	alt_pipe = NULL;
+	altpipe = NULL;
 	if (strcmp(filename, FAKE_HELPFILE) == 0 ||
 	     strcmp(filename, FAKE_EMPTYFILE) == 0)
 		alt_filename = NULL;
 	else
-		alt_filename = open_altfile(filename, &f, &alt_pipe);
+		alt_filename = open_altfile(filename, !opened(ifile), &f, &altpipe);
 
 	open_filename = (alt_filename != NULL) ? alt_filename : filename;
 
 	chflags = 0;
-	if (alt_pipe != NULL)
+	if (altpipe != NULL)
 	{
 		/*
 		 * The alternate "file" is actually a pipe.
@@ -286,9 +313,9 @@ edit_ifile(ifile)
 		 * via popen(), and pclose() wants to close it.
 		 */
 		chflags |= CH_POPENED;
-		if (strcmp(open_filename, "-") == 0)
+		if (strcmp(filename, "-") == 0)
 			chflags |= CH_KEEPOPEN;
-	} else if (strcmp(open_filename, "-") == 0)
+	} else if (strcmp(filename, "-") == 0)
 	{
 		/* 
 		 * Use standard input.
@@ -326,7 +353,8 @@ edit_ifile(ifile)
 	    err1:
 		if (alt_filename != NULL)
 		{
-			close_altfile(alt_filename, filename, alt_pipe);
+			close_pipe(altpipe);
+			close_altfile(alt_filename, filename);
 			free(alt_filename);
 		}
 		del_ifile(ifile);
@@ -383,8 +411,8 @@ edit_ifile(ifile)
 		unsave_ifile(was_curr_ifile);
 	}
 	curr_ifile = ifile;
-	curr_altfilename = alt_filename;
-	curr_altpipe = alt_pipe;
+	set_altfilename(curr_ifile, alt_filename);
+	set_altpipe(curr_ifile, altpipe);
 	set_open(curr_ifile); /* File has been opened */
 	get_pos(curr_ifile, &initial_scrpos);
 	new_file = TRUE;

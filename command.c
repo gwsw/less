@@ -33,7 +33,6 @@ extern int sticky_attn;
 extern int status_col;
 extern POSITION highest_hilite;
 extern char *every_first_cmd;
-extern char *curr_altfilename;
 extern char version[];
 extern struct scrpos initial_scrpos;
 extern IFILE curr_ifile;
@@ -1527,7 +1526,7 @@ commands()
 				error("Cannot edit standard input", NULL_PARG);
 				break;
 			}
-			if (curr_altfilename != NULL)
+			if (get_altfilename(curr_ifile) != NULL)
 			{
 				error("WARNING: This file was viewed via LESSOPEN",
 					NULL_PARG);

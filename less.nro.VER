@@ -1226,7 +1226,7 @@ the original file is used.
 To avoid this, if LESSOPEN starts with two vertical bars,
 the exit status of the script becomes meaningful.
 If the exit status is zero, the output is considered to be
-replacement text, even if it empty.
+replacement text, even if it is empty.
 If the exit status is nonzero, any output is ignored and the
 original file is used.
 For compatibility with previous versions of
