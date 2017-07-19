@@ -820,9 +820,8 @@ num_pct_s(lessopen)
  * instead of the file we're about to open.
  */
 	public char *
-open_altfile(filename, first_open, pf, pfd)
+open_altfile(filename, pf, pfd)
 	char *filename;
-	int first_open;
 	int *pf;
 	void **pfd;
 {
@@ -888,37 +887,34 @@ open_altfile(filename, first_open, pf, pfd)
 #if HAVE_FILENO
 	if (returnfd)
 	{
-		int f = fileno(fd);
+		char c;
+		int f;
+
+		/*
+		 * The first time we open the file, read one char 
+		 * to see if the pipe will produce any data.
+		 * If it does, push the char back on the pipe.
+		 */
+		f = fileno(fd);
 		SET_BINARY(f);
-
-		if (first_open)
+		if (read(f, &c, 1) != 1)
 		{
-			char c;
-
 			/*
-			 * The first time we open the file, read one char 
-			 * to see if the pipe will produce any data.
-			 * If it does, push the char back on the pipe.
+			 * Pipe is empty.
+			 * If more than 1 pipe char was specified,
+			 * the exit status tells whether the file itself 
+			 * is empty, or if there is no alt file.
+			 * If only one pipe char, just assume no alt file.
 			 */
-			if (read(f, &c, 1) != 1)
-			{
-				/*
-				 * Pipe is empty.
-				 * If more than 1 pipe char was specified,
-				 * the exit status tells whether the file itself 
-				 * is empty, or if there is no alt file.
-				 * If only one pipe char, just assume no alt file.
-				 */
-				int status = pclose(fd);
-				if (returnfd > 1 && status == 0) {
-					*pfd = NULL;
-					*pf = -1;
-					return (save(FAKE_EMPTYFILE));
-				}
-				return (NULL);
+			int status = pclose(fd);
+			if (returnfd > 1 && status == 0) {
+				*pfd = NULL;
+				*pf = -1;
+				return (save(FAKE_EMPTYFILE));
 			}
-			ch_ungetchar(c);
+			return (NULL);
 		}
+		ch_ungetchar(c);
 		*pfd = (void *) fd;
 		*pf = f;
 		return (save("-"));

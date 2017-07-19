@@ -293,110 +293,122 @@ edit_ifile(ifile)
 	/*
 	 * See if LESSOPEN specifies an "alternate" file to open.
 	 */
-	altpipe = NULL;
-	if (strcmp(filename, FAKE_HELPFILE) == 0 ||
-	     strcmp(filename, FAKE_EMPTYFILE) == 0)
-		alt_filename = NULL;
-	else
-		alt_filename = open_altfile(filename, !opened(ifile), &f, &altpipe);
-
-	open_filename = (alt_filename != NULL) ? alt_filename : filename;
-
-	chflags = 0;
-	if (altpipe != NULL)
+	if (opened(ifile))
 	{
 		/*
-		 * The alternate "file" is actually a pipe.
-		 * f has already been set to the file descriptor of the pipe
-		 * in the call to open_altfile above.
-		 * Keep the file descriptor open because it was opened 
-		 * via popen(), and pclose() wants to close it.
+		 * File is already open.
 		 */
-		chflags |= CH_POPENED;
-		if (strcmp(filename, "-") == 0)
+		chflags = 0; /* not used by ch_init if ifile has filestate */
+		altpipe = get_altpipe(ifile);
+		alt_filename = get_altfilename(ifile);
+		open_filename = (alt_filename != NULL) ? alt_filename : filename;
+	} else
+	{
+		altpipe = NULL;
+		if (strcmp(filename, FAKE_HELPFILE) == 0 ||
+			 strcmp(filename, FAKE_EMPTYFILE) == 0)
+			alt_filename = NULL;
+		else
+			alt_filename = open_altfile(filename, &f, &altpipe);
+
+		open_filename = (alt_filename != NULL) ? alt_filename : filename;
+
+		chflags = 0;
+		if (altpipe != NULL)
+		{
+			/*
+			 * The alternate "file" is actually a pipe.
+			 * f has already been set to the file descriptor of the pipe
+			 * in the call to open_altfile above.
+			 * Keep the file descriptor open because it was opened 
+			 * via popen(), and pclose() wants to close it.
+			 */
+			chflags |= CH_POPENED;
+			if (strcmp(filename, "-") == 0)
+				chflags |= CH_KEEPOPEN;
+		} else if (strcmp(filename, "-") == 0)
+		{
+			/* 
+			 * Use standard input.
+			 * Keep the file descriptor open because we can't reopen it.
+			 */
+			f = fd0;
 			chflags |= CH_KEEPOPEN;
-	} else if (strcmp(filename, "-") == 0)
-	{
-		/* 
-		 * Use standard input.
-		 * Keep the file descriptor open because we can't reopen it.
-		 */
-		f = fd0;
-		chflags |= CH_KEEPOPEN;
-		/*
-		 * Must switch stdin to BINARY mode.
-		 */
-		SET_BINARY(f);
+			/*
+			 * Must switch stdin to BINARY mode.
+			 */
+			SET_BINARY(f);
 #if MSDOS_COMPILER==DJGPPC
-		/*
-		 * Setting stdin to binary by default causes
-		 * Ctrl-C to not raise SIGINT.  We must undo
-		 * that side-effect.
-		 */
-		__djgpp_set_ctrl_c(1);
+			/*
+			 * Setting stdin to binary by default causes
+			 * Ctrl-C to not raise SIGINT.  We must undo
+			 * that side-effect.
+			 */
+			__djgpp_set_ctrl_c(1);
 #endif
-	} else if (strcmp(open_filename, FAKE_EMPTYFILE) == 0)
-	{
-		f = -1;
-		chflags |= CH_NODATA;
-	} else if (strcmp(open_filename, FAKE_HELPFILE) == 0)
-	{
-		f = -1;
-		chflags |= CH_HELPFILE;
-	} else if ((parg.p_string = bad_file(open_filename)) != NULL)
-	{
-		/*
-		 * It looks like a bad file.  Don't try to open it.
-		 */
-		error("%s", &parg);
-		free(parg.p_string);
-	    err1:
-		if (alt_filename != NULL)
+		} else if (strcmp(open_filename, FAKE_EMPTYFILE) == 0)
 		{
-			close_pipe(altpipe);
-			close_altfile(alt_filename, filename);
-			free(alt_filename);
-		}
-		del_ifile(ifile);
-		free(filename);
-		/*
-		 * Re-open the current file.
-		 */
-		if (was_curr_ifile == ifile)
+			f = -1;
+			chflags |= CH_NODATA;
+		} else if (strcmp(open_filename, FAKE_HELPFILE) == 0)
+		{
+			f = -1;
+			chflags |= CH_HELPFILE;
+		} else if ((parg.p_string = bad_file(open_filename)) != NULL)
 		{
 			/*
-			 * Whoops.  The "current" ifile is the one we just deleted.
-			 * Just give up.
+			 * It looks like a bad file.  Don't try to open it.
 			 */
-			quit(QUIT_ERROR);
-		}
-		reedit_ifile(was_curr_ifile);
-		return (1);
-	} else if ((f = open(open_filename, OPEN_READ)) < 0)
-	{
-		/*
-		 * Got an error trying to open it.
-		 */
-		parg.p_string = errno_message(filename);
-		error("%s", &parg);
-		free(parg.p_string);
-	    	goto err1;
-	} else 
-	{
-		chflags |= CH_CANSEEK;
-		if (!force_open && !opened(ifile) && bin_file(f))
-		{
-			/*
-			 * Looks like a binary file.  
-			 * Ask user if we should proceed.
-			 */
-			parg.p_string = filename;
-			answer = query("\"%s\" may be a binary file.  See it anyway? ",
-				&parg);
-			if (answer != 'y' && answer != 'Y')
+			error("%s", &parg);
+			free(parg.p_string);
+			err1:
+			if (alt_filename != NULL)
 			{
-				close(f);
+				close_pipe(altpipe);
+				close_altfile(alt_filename, filename);
+				free(alt_filename);
+			}
+			del_ifile(ifile);
+			free(filename);
+			/*
+			 * Re-open the current file.
+			 */
+			if (was_curr_ifile == ifile)
+			{
+				/*
+				 * Whoops.  The "current" ifile is the one we just deleted.
+				 * Just give up.
+				 */
+				quit(QUIT_ERROR);
+			}
+			reedit_ifile(was_curr_ifile);
+			return (1);
+		} else if ((f = open(open_filename, OPEN_READ)) < 0)
+		{
+			/*
+			 * Got an error trying to open it.
+			 */
+			parg.p_string = errno_message(filename);
+			error("%s", &parg);
+			free(parg.p_string);
 				goto err1;
+		} else 
+		{
+			chflags |= CH_CANSEEK;
+			if (!force_open && !opened(ifile) && bin_file(f))
+			{
+				/*
+				 * Looks like a binary file.  
+				 * Ask user if we should proceed.
+				 */
+				parg.p_string = filename;
+				answer = query("\"%s\" may be a binary file.  See it anyway? ",
+					&parg);
+				if (answer != 'y' && answer != 'Y')
+				{
+					close(f);
+					goto err1;
+				}
 			}
 		}
 	}
@@ -426,6 +438,7 @@ edit_ifile(ifile)
 #endif
 #if HAVE_STAT_INO
 		/* Remember the i-number and device of the opened file. */
+        if (strcmp(open_filename, "-") != 0)
 		{
 			struct stat statbuf;
 			int r = stat(open_filename, &statbuf);
