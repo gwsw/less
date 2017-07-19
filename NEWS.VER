@@ -38,6 +38,8 @@
 * Pass-thru Unicode formating chars (Cf type) instead of treating them
   as binary chars.
 
+* Fix bugs when using LESSOPEN and switching between stdin and other files.
+
 * Fix some bugs handling filenames containing shell metacharacters.
 
 * Fix some memory leaks.
