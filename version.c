@@ -825,6 +825,7 @@ v506  7/17/17   On Windows, convert UTF-8 to multibyte if console is not UTF-8;
 v507  7/18/17   Fix some bugs handling filenames containing shell metachars.
 v508  7/19/17   Fix bugs when using LESSOPEN to read stdin.
 v509  7/19/17   Fix another stdin bug.
+v510  7/20/17   Fix bug in determining when to reopen a file.
 */
 
-char version[] = "509";
+char version[] = "510";

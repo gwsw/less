@@ -293,18 +293,17 @@ edit_ifile(ifile)
 	/*
 	 * See if LESSOPEN specifies an "alternate" file to open.
 	 */
-	if (opened(ifile))
+    altpipe = get_altpipe(ifile);
+	if (altpipe != NULL)
 	{
 		/*
 		 * File is already open.
 		 */
 		chflags = 0; /* not used by ch_init if ifile has filestate */
-		altpipe = get_altpipe(ifile);
 		alt_filename = get_altfilename(ifile);
 		open_filename = (alt_filename != NULL) ? alt_filename : filename;
 	} else
 	{
-		altpipe = NULL;
 		if (strcmp(filename, FAKE_HELPFILE) == 0 ||
 			 strcmp(filename, FAKE_EMPTYFILE) == 0)
 			alt_filename = NULL;
