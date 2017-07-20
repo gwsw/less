@@ -44,7 +44,7 @@ of the screen are prefixed with a caret.)
 Commands are based on both
 .I more
 and
-.I vi.
+.IR vi .
 Commands may be preceded by a decimal number,
 called N in the descriptions below.
 The number is used by some commands, as indicated.
@@ -399,7 +399,7 @@ Prints the version number of
 being run.
 .IP "q or Q or :q or :Q or ZZ"
 Exits
-.I less.
+.IR less .
 .PP
 The following
 four
@@ -458,12 +458,12 @@ For example,
 to avoid typing "less \-options \&...\&" each time
 .I less
 is invoked, you might tell
-.I csh:
+.IR csh :
 .sp
 setenv LESS "\-options"
 .sp
 or if you use
-.I sh:
+.IR sh :
 .sp
 LESS="\-options"; export LESS
 .sp
@@ -541,7 +541,7 @@ By default,
 full screen repaints are done by scrolling from the bottom of the screen.
 .IP "\-C or \-\-CLEAR-SCREEN"
 Same as \-c, for compatibility with older versions of
-.I less.
+.IR less .
 .IP "\-d or \-\-dumb"
 The \-d option suppresses the error message
 normally displayed if the terminal is dumb;
@@ -687,7 +687,7 @@ prompts with a colon.
 Causes
 .I less
 to prompt even more verbosely than
-.I more.
+.IR more .
 .IP "\-n or \-\-line-numbers"
 Suppresses line numbers.
 The default (to use line numbers) may cause
@@ -720,7 +720,7 @@ the \-o and \-O options can be used from within
 to specify a log file.
 Without a file name, they will simply report the name of the log file.
 The "s" command is equivalent to specifying \-o from within
-.I less.
+.IR less .
 .IP "\-p\fIpattern\fP or \-\-pattern=\fIpattern\fP"
 The \-p option on the command line is equivalent to
 specifying +/\fIpattern\fP;
@@ -819,7 +819,7 @@ The \-t option may also be specified from within
 .I less
 (using the \- command) as a way of examining a new file.
 The command ":t" is equivalent to specifying \-t from within
-.I less.
+.IR less .
 .IP "\-T\fItagsfile\fP or \-\-tag-file=\fItagsfile\fP"
 Specifies a tags file to be used instead of "tags".
 .IP "\-u or \-\-underline-special"
@@ -846,7 +846,7 @@ Text which is overstruck or underlined can be searched for
 if neither \-u nor \-U is in effect.
 .IP "\-V or \-\-version"
 Displays the version number of
-.I less.
+.IR less .
 .IP "\-w or \-\-hilite-unread"
 Temporarily highlights the first "new" line after a forward movement
 of a full page.
@@ -879,12 +879,12 @@ the screen is repainted instead.
 The \-c or \-C option may be used to repaint from the top of
 the screen if desired.
 By default, any forward movement causes scrolling.
-.IP "\-[z]\fIn\fP or \-\-window=\fIn\fP"
+.IP "\-z\fIn\fP or \-\-window=\fIn\fP or \-\fIn\fP"
 Changes the default scrolling window size to \fIn\fP lines.
 The default is one screenful.
 The z and w commands can also be used to change the window size.
 The "z" may be omitted for compatibility with some versions of
-.I more.
+.IR more .
 If the number
 .I n
 is negative, it indicates
@@ -893,7 +893,7 @@ lines less than the current screen size.
 For example, if the screen is 24 lines, \fI\-z\-4\fP sets the
 scrolling window to 20 lines.  If the screen is resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
-.IP "\-\fI\(dqcc\fP\ or\ \-\-quotes=\fIcc\fP"
+.IP "\-\(dq\fIcc\fP\ or\ \-\-quotes=\fIcc\fP"
 Changes the filename quoting character.
 This may be necessary if you are trying to name a file
 which contains both spaces and quote characters.
@@ -957,7 +957,7 @@ This can be useful when viewing a file whose name begins with a "\-" or "+".
 .IP +
 If a command line option begins with \fB+\fP,
 the remainder of that option is taken to be an initial command to
-.I less.
+.IR less .
 For example, +G tells
 .I less
 to start at the end of the file rather than the beginning,
@@ -1096,7 +1096,7 @@ On OS/2 systems, the system-wide lesskey file is c:\esysless.ini.
 
 .SH "INPUT PREPROCESSOR"
 You may define an "input preprocessor" for
-.I less.
+.IR less .
 Before
 .I less
 opens a file, it first gives your input preprocessor a chance to modify the
@@ -1181,7 +1181,7 @@ to accept other types of compressed files, and so on.
 .PP
 It is also possible to set up an input preprocessor to
 pipe the file data directly to
-.I less,
+.IR less ,
 rather than putting the data into a replacement file.
 This avoids the need to decompress the entire file before
 starting to view it.
@@ -1230,7 +1230,7 @@ replacement text, even if it is empty.
 If the exit status is nonzero, any output is ignored and the
 original file is used.
 For compatibility with previous versions of
-.I less,
+.IR less ,
 if LESSOPEN starts with only one vertical bar, the exit status
 of the preprocessor is ignored.
 .PP
@@ -1241,7 +1241,7 @@ In this case, the replacement file name passed to the LESSCLOSE
 postprocessor is "\-".
 .PP
 For compatibility with previous versions of
-.I less,
+.IR less ,
 the input preprocessor or pipe is not used if
 .I less
 is viewing standard input.
@@ -1701,7 +1701,7 @@ Normally should be set to "global" if your system has the
 .IP LESSHISTFILE
 Name of the history file used to remember search commands and
 shell commands between invocations of
-.I less.
+.IR less .
 If set to "\-" or "/dev/null", a history file is not used.
 The default is "$HOME/.lesshst" on Unix systems, "$HOME/_lesshst" on
 DOS and Windows systems, or "$HOME/lesshst.ini" or "$INIT/lesshst.ini"
