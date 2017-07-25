@@ -1218,7 +1218,7 @@ cmd_char(c)
 			if (IS_ASCII_OCTET(c))
 				cmd_mbc_buf_len = 1;
 #if MSDOS_COMPILER || OS2
-			else if (c == '\340' && IS_ASCII_OCTET(peekcc()))
+			else if (c == (unsigned char) '\340' && IS_ASCII_OCTET(peekcc()))
 			{
 				/* Assume a special key. */
 				cmd_mbc_buf_len = 1;

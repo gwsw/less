@@ -1012,16 +1012,6 @@ do_append(ch, rep, pos)
 			STORE_CHAR(*s, AT_BINARY, NULL, pos);
  	} else
 	{
-#if MSDOS_COMPILER==WIN32C
-		if (utf_mode == 2 && ch < 0x10000)
-		{
-			char mb[4];
-			int i;
-			int len = WideCharToMultiByte(CP_OEMCP, 0, (LPCWSTR) &ch, 1, mb, 4, NULL, NULL);
-			for (i = 0;  i < len;  i++)
-				STORE_CHAR(mb[i], a, NULL, pos);
-		} else
-#endif
 		STORE_CHAR(ch, a, rep, pos);
 	}
  	return (0);

@@ -186,15 +186,16 @@ main(argc, argv)
 		struct textlist tlist;
 		char *filename;
 		char *gfilename;
+		char *qfilename;
 		
 		gfilename = lglob(*argv++);
 		init_textlist(&tlist, gfilename);
 		filename = NULL;
 		while ((filename = forw_textlist(&tlist, filename)) != NULL)
 		{
-			filename = shell_unquote(filename);
-			(void) get_ifile(filename, ifile);
-			free(filename);
+			qfilename = shell_unquote(filename);
+			(void) get_ifile(qfilename, ifile);
+			free(qfilename);
 			ifile = prev_ifile(NULL_IFILE);
 		}
 		free(gfilename);

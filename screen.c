@@ -128,7 +128,7 @@ static void win32_deinit_term();
 #define	MAKEATTR(fg,bg)		((WORD)((fg)|((bg)<<4)))
 #define	SETCOLORS(fg,bg)	{ curr_attr = MAKEATTR(fg,bg); \
 				if (SetConsoleTextAttribute(con_out, curr_attr) == 0) \
-				error("SETCOLORS failed"); }
+				error("SETCOLORS failed", NULL_PARG); }
 #endif
 
 #if MSDOS_COMPILER
@@ -2501,7 +2501,18 @@ WIN32textout(text, len)
 {
 #if MSDOS_COMPILER==WIN32C
 	DWORD written;
-	WriteConsole(con_out, text, len, &written, NULL);
+	if (utf_mode == 2)
+	{
+		/*
+		 * We've got UTF-8 text in a non-UTF-8 console.  Convert it to
+		 * wide and use WriteConsoleW.
+		 */
+		WCHAR wtext[1024];
+		len = MultiByteToWideChar(CP_UTF8, 0, text, len, wtext,
+					  sizeof(wtext)/sizeof(*wtext));
+		WriteConsoleW(con_out, wtext, len, &written, NULL);
+	} else
+		WriteConsole(con_out, text, len, &written, NULL);
 #else
 	char c = text[len];
 	text[len] = '\0';

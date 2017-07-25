@@ -674,7 +674,7 @@ lglob(filename)
 	char *p;
 	int len;
 	int n;
-	char *filename;
+	char *pfilename;
 	char *qfilename;
 	DECL_GLOB_NAME(fnd,drive,dir,fname,ext,handle)
 	
@@ -690,10 +690,10 @@ lglob(filename)
 	p = gfilename;
 	do {
 		n = (int) (strlen(drive) + strlen(dir) + strlen(fnd.GLOB_NAME) + 1);
-		filename = (char *) ecalloc(n, sizeof(char));
-		SNPRINTF3(filename, n, "%s%s%s", drive, dir, fnd.GLOB_NAME);
-		qfilename = shell_quote(filename);
-		free(filename);
+		pfilename = (char *) ecalloc(n, sizeof(char));
+		SNPRINTF3(pfilename, n, "%s%s%s", drive, dir, fnd.GLOB_NAME);
+		qfilename = shell_quote(pfilename);
+		free(pfilename);
 		if (qfilename != NULL)
 		{
 			n = (int) strlen(qfilename);
@@ -952,7 +952,7 @@ close_altfile(altfilename, filename)
 	     	return;
 	if (num_pct_s(lessclose) > 2) 
 	{
-		error("LESSCLOSE ignored; must contain no more than 2 %s", NULL_PARG);
+		error("LESSCLOSE ignored; must contain no more than 2 %%s", NULL_PARG);
 		return;
 	}
 	len = (int) (strlen(lessclose) + strlen(filename) + strlen(altfilename) + 2);
