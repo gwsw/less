@@ -826,6 +826,7 @@ v507  7/18/17   Fix some bugs handling filenames containing shell metachars.
 v508  7/19/17   Fix bugs when using LESSOPEN to read stdin.
 v509  7/19/17   Fix another stdin bug.
 v510  7/20/17   Fix bug in determining when to reopen a file.
+v511  7/25/17   Fix bugs in recent MSDOS changes (thanks to Jason Hood).
 */
 
-char version[] = "510";
+char version[] = "511";
