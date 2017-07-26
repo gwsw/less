@@ -1035,6 +1035,20 @@ pflushmbc()
 }
 
 /*
+ * Switch to normal attribute at end of line.
+ */
+	static void
+add_attr_normal()
+{
+	char *p = "\033[m";
+
+	if (ctldisp != OPT_ONPLUS || !is_ansi_end('m'))
+		return;
+	for ( ;  *p != '\0';  p++)
+		add_linebuf(*p, AT_ANSI, 0);
+}
+
+/*
  * Terminate the line in the line buffer.
  */
 	public void
@@ -1059,16 +1073,6 @@ pdone(endline, chopped, forw)
 	if (cshift < hshift)
 		pshift(hshift - cshift);
 
-	if (ctldisp == OPT_ONPLUS && is_ansi_end('m'))
-	{
-		/* Switch to normal attribute at end of line. */
-		char *p = "\033[m";
-		for ( ;  *p != '\0';  p++)
-		{
-			add_linebuf(*p, AT_ANSI, 0);
-		}
-	}
-
 	if (chopped && rscroll_char)
 	{
 		/*
@@ -1082,6 +1086,7 @@ pdone(endline, chopped, forw)
 			column = right_column;
 			curr = right_curr;
 		}
+		add_attr_normal();
 		while (column < sc_width-1)
 		{
 			/*
@@ -1093,6 +1098,9 @@ pdone(endline, chopped, forw)
 		}
 		/* Print rscroll char. It must be single-width. */
 		add_linebuf(rscroll_char, rscroll_attr, 1);
+	} else
+	{
+		add_attr_normal();
 	}
 
 	/*
