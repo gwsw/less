@@ -827,6 +827,7 @@ v508  7/19/17   Fix bugs when using LESSOPEN to read stdin.
 v509  7/19/17   Fix another stdin bug.
 v510  7/20/17   Fix bug in determining when to reopen a file.
 v511  7/25/17   Fix bugs in recent MSDOS changes (thanks to Jason Hood).
+v512  7/26/17   Fix MSDOS build.
 */
 
-char version[] = "511";
+char version[] = "512";

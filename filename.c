@@ -856,13 +856,13 @@ open_altfile(filename, pf, pfd)
 #endif
 	}
 	if (*lessopen == '-')
-    {
+	{
 		/*
 		 * Lessopen preprocessor will accept "-" as a filename.
 		 */
 		lessopen++;
 	} else
-    {
+	{
 		if (strcmp(filename, "-") == 0)
 			return (NULL);
 	}

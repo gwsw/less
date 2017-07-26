@@ -119,6 +119,7 @@ static HANDLE con_out_save = INVALID_HANDLE_VALUE; /* previous console */
 static HANDLE con_out_ours = INVALID_HANDLE_VALUE; /* our own */
 HANDLE con_out = INVALID_HANDLE_VALUE;             /* current console */
 
+extern int utf_mode;
 extern int quitting;
 static void win32_init_term();
 static void win32_deinit_term();

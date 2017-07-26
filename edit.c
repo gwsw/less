@@ -293,7 +293,7 @@ edit_ifile(ifile)
 	/*
 	 * See if LESSOPEN specifies an "alternate" file to open.
 	 */
-    altpipe = get_altpipe(ifile);
+	altpipe = get_altpipe(ifile);
 	if (altpipe != NULL)
 	{
 		/*
@@ -437,7 +437,7 @@ edit_ifile(ifile)
 #endif
 #if HAVE_STAT_INO
 		/* Remember the i-number and device of the opened file. */
-        if (strcmp(open_filename, "-") != 0)
+		if (strcmp(open_filename, "-") != 0)
 		{
 			struct stat statbuf;
 			int r = stat(open_filename, &statbuf);
