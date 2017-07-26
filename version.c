@@ -828,6 +828,7 @@ v509  7/19/17   Fix another stdin bug.
 v510  7/20/17   Fix bug in determining when to reopen a file.
 v511  7/25/17   Fix bugs in recent MSDOS changes (thanks to Jason Hood).
 v512  7/26/17   Fix MSDOS build.
+v513  7/26/17   Fix switch to normal attr at end of line with -R and rscroll.
 */
 
-char version[] = "512";
+char version[] = "513";
