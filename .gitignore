@@ -2,6 +2,7 @@ obj/**
 release/**
 unicode/**
 *.cache
+*.old
 NEWS
 README
 configure

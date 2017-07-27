@@ -397,6 +397,7 @@ fcomplete(s)
 	char *s;
 {
 	char *fpat;
+	char *qs;
 
 	if (secure)
 		return (NULL);
@@ -431,18 +432,19 @@ fcomplete(s)
 	SNPRINTF1(fpat, len, "%s*", s);
 	}
 #endif
-	s = lglob(fpat);
+	qs = lglob(fpat);
+	s = shell_unquote(qs);
 	if (strcmp(s,fpat) == 0)
 	{
 		/*
 		 * The filename didn't expand.
 		 */
-		free(s);
-		free(fpat);
-		return (NULL);
+		free(qs);
+		qs = NULL;
 	}
+	free(s);
 	free(fpat);
-	return (s);
+	return (qs);
 }
 #endif
 
