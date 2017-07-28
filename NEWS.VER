@@ -31,6 +31,8 @@
 
 * Fix buffering bug when using stdin with a LESSOPEN pipe.
 
+* On Windows, allow 'u' in -D option to enable underlining.
+
 * On Windows, convert UTF-8 to multibyte if console is not UTF-8.
 
 * Update Unicode tables to 2017-03-08.

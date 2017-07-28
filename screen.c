@@ -124,6 +124,10 @@ extern int quitting;
 static void win32_init_term();
 static void win32_deinit_term();
 
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 4
+#endif
+
 #define FG_COLORS       (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)
 #define BG_COLORS       (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)
 #define	MAKEATTR(fg,bg)		((WORD)((fg)|((bg)<<4)))
@@ -1492,6 +1496,8 @@ win32_init_term()
 
 	if (con_out_ours == INVALID_HANDLE_VALUE)
 	{
+		DWORD output_mode;
+
 		/*
 		 * Create our own screen buffer, so that we
 		 * may restore the original when done.
@@ -1502,6 +1508,12 @@ win32_init_term()
 			(LPSECURITY_ATTRIBUTES) NULL,
 			CONSOLE_TEXTMODE_BUFFER,
 			(LPVOID) NULL);
+		/*
+		 * Enable underline, if available.
+		 */
+		GetConsoleMode(con_out_ours, &output_mode);
+		SetConsoleMode(con_out_ours,
+			output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 	}
 
 	size.X = scr.srWindow.Right - scr.srWindow.Left + 1;
@@ -1822,6 +1834,8 @@ win32_scroll_up(n)
 	public void
 lower_left()
 {
+	if (!init_done)
+		return;
 #if !MSDOS_COMPILER
 	tputs(sc_lower_left, 1, putchr);
 #else

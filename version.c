@@ -830,6 +830,7 @@ v511  7/25/17   Fix bugs in recent MSDOS changes (thanks to Jason Hood).
 v512  7/26/17   Fix MSDOS build.
 v513  7/26/17   Fix switch to normal attr at end of line with -R and rscroll.
 v514  7/27/17   Fix bug in fcomplete when pattern does not match a file.
+v515  7/28/17   Allow 'u' in -D option on Windows.
 */
 
-char version[] = "514";
+char version[] = "515";

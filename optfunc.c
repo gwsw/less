@@ -63,6 +63,11 @@ extern int ul_fg_color, ul_bg_color;
 extern int so_fg_color, so_bg_color;
 extern int bl_fg_color, bl_bg_color;
 extern int sgr_mode;
+#if MSDOS_COMPILER==WIN32C
+#ifndef COMMON_LVB_UNDERSCORE
+#define COMMON_LVB_UNDERSCORE 0x8000
+#endif
+#endif
 #endif
 
 
@@ -541,12 +546,27 @@ colordesc(s, fg_color, bg_color)
 {
 	int fg, bg;
 	int err;
-	
+#if MSDOS_COMPILER==WIN32C
+	int ul = 0;
+ 	
+	if (*s == 'u')
+	{
+		ul = COMMON_LVB_UNDERSCORE;
+		++s;
+	}
+#endif
 	fg = getnum(&s, "D", &err);
 	if (err)
 	{
-		error("Missing fg color in -D", NULL_PARG);
-		return;
+#if MSDOS_COMPILER==WIN32C
+		if (ul)
+			fg = nm_fg_color;
+		else
+#endif
+		{
+			error("Missing fg color in -D", NULL_PARG);
+			return;
+		}
 	}
 	if (*s != '.')
 		bg = nm_bg_color;
@@ -560,6 +580,14 @@ colordesc(s, fg_color, bg_color)
 			return;
 		}
 	}
+#if MSDOS_COMPILER==WIN32C
+	if (*s == 'u')
+	{
+		ul = COMMON_LVB_UNDERSCORE;
+		++s;
+	}
+	fg |= ul;
+#endif
 	if (*s != '\0')
 		error("Extra characters at end of -D option", NULL_PARG);
 	*fg_color = fg;
