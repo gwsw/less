@@ -831,6 +831,7 @@ open_altfile(filename, pf, pfd)
 	return (NULL);
 #else
 	char *lessopen;
+	char *qfilename;
 	char *cmd;
 	int len;
 	FILE *fd;
@@ -874,9 +875,11 @@ open_altfile(filename, pf, pfd)
 		return (NULL);
 	}
 
-	len = (int) (strlen(lessopen) + strlen(filename) + 2);
+	qfilename = shell_quote(filename);
+	len = (int) (strlen(lessopen) + strlen(qfilename) + 2);
 	cmd = (char *) ecalloc(len, sizeof(char));
-	SNPRINTF1(cmd, len, lessopen, filename);
+	SNPRINTF1(cmd, len, lessopen, qfilename);
+	free(qfilename);
 	fd = shellcmd(cmd);
 	free(cmd);
 	if (fd == NULL)
