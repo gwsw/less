@@ -614,11 +614,18 @@ is_hilited(pos, epos, nohide, p_matches)
 	if (!match)
 		return (0);
 
-	if (p_matches != NULL)
+	if (p_matches == NULL)
 		/*
-		 * Report matches, even if we're hiding highlights.
+		 * Kinda kludgy way to recognize that caller is checking for
+		 * hilite in status column. In this case we want to return
+		 * hilite status even if hiliting is disabled or hidden.
 		 */
-		*p_matches = 1;
+		return (1);
+
+	/*
+	 * Report matches, even if we're hiding highlights.
+	 */
+	*p_matches = 1;
 
 	if (hilite_search == 0)
 		/*
@@ -1413,7 +1420,7 @@ search(search_type, pattern, n)
 			return -1;
 		}
 #if HILITE_SEARCH
-		if (hilite_search == OPT_ON)
+		if (hilite_search == OPT_ON || status_col)
 		{
 			/*
 			 * Erase the highlights currently on screen.
@@ -1440,7 +1447,7 @@ search(search_type, pattern, n)
 		if (set_pattern(&search_info, pattern, search_type) < 0)
 			return (-1);
 #if HILITE_SEARCH
-		if (hilite_search)
+		if (hilite_search || status_col)
 		{
 			/*
 			 * Erase the highlights currently on screen.
@@ -1450,7 +1457,7 @@ search(search_type, pattern, n)
 			hide_hilite = 0;
 			clr_hilite();
 		}
-		if (hilite_search == OPT_ONPLUS)
+		if (hilite_search == OPT_ONPLUS || status_col)
 		{
 			/*
 			 * Highlight any matches currently on screen,
