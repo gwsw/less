@@ -22,6 +22,8 @@
 
 * Status column (enabled via -J) now shows mark letters.
 
+* Status column shows search matches even if highlighting is disabled via -G.
+
 * Do same ANSI escape code filtering for tag matching that we do for 
   searching, to help when viewing syntax-highlighted code.
   

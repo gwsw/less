@@ -832,6 +832,7 @@ v513  7/26/17   Fix switch to normal attr at end of line with -R and rscroll.
 v514  7/27/17   Fix bug in fcomplete when pattern does not match a file.
 v515  7/28/17   Allow 'u' in -D option on Windows.
 v516  7/29/17   Fix bug using LESSOPEN with filename containing metachars.
+v517  7/30/17   Status column shows matches even if hiliting is disabled via -G.
 */
 
-char version[] = "516";
+char version[] = "517";
