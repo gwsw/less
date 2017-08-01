@@ -35,6 +35,8 @@
 
 * On Windows, allow 'u' in -D option to enable underlining.
 
+* On Windows, use underline in sgr mode.
+
 * On Windows, convert UTF-8 to multibyte if console is not UTF-8.
 
 * Update Unicode tables to 2017-03-08.

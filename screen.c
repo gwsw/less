@@ -150,7 +150,9 @@ public int bl_bg_color;
 static int sy_fg_color;		/* Color of system text (before less) */
 static int sy_bg_color;
 public int sgr_mode;		/* Honor ANSI sequences rather than using above */
-
+#if MSDOS_COMPILER==WIN32C
+public int have_ul;		/* Is underline available? */
+#endif
 #else
 
 /*
@@ -1512,8 +1514,8 @@ win32_init_term()
 		 * Enable underline, if available.
 		 */
 		GetConsoleMode(con_out_ours, &output_mode);
-		SetConsoleMode(con_out_ours,
-			output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+		have_ul = SetConsoleMode(con_out_ours,
+			    output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 	}
 
 	size.X = scr.srWindow.Right - scr.srWindow.Left + 1;
