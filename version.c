@@ -834,6 +834,7 @@ v515  7/28/17   Allow 'u' in -D option on Windows.
 v516  7/29/17   Fix bug using LESSOPEN with filename containing metachars.
 v517  7/30/17   Status column shows matches even if hiliting is disabled via -G.
 v518  8/1/17    Use underline in sgr mode in MSDOS (thanks to Jason Hood).
+v519  8/10/17   Fix rscroll bug when last char of line starts coloration.
 */
 
-char version[] = "518";
+char version[] = "519";

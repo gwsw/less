@@ -679,7 +679,7 @@ store_char(ch, a, rep, pos)
 			return (1);
 	}
 
-	if (column > right_column)
+	if (column > right_column && w > 0)
 	{
 		right_column = column;
 		right_curr = curr;
