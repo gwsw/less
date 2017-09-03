@@ -298,8 +298,12 @@ edit_ifile(ifile)
 	{
 		/*
 		 * File is already open.
+		 * chflags and f are not used by ch_init if ifile has 
+		 * filestate which should be the case if we're here. 
+		 * Set them here to avoid uninitialized variable warnings.
 		 */
-		chflags = 0; /* not used by ch_init if ifile has filestate */
+		chflags = 0; 
+		f = -1;
 		alt_filename = get_altfilename(ifile);
 		open_filename = (alt_filename != NULL) ? alt_filename : filename;
 	} else
