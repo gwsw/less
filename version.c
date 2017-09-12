@@ -835,6 +835,7 @@ v516  7/29/17   Fix bug using LESSOPEN with filename containing metachars.
 v517  7/30/17   Status column shows matches even if hiliting is disabled via -G.
 v518  8/1/17    Use underline in sgr mode in MSDOS (thanks to Jason Hood).
 v519  8/10/17   Fix rscroll bug when last char of line starts coloration.
+v520  9/3/17    Fix compiler warning.
 */
 
-char version[] = "519";
+char version[] = "520";
