@@ -21,7 +21,6 @@
 #endif
 
 public int utf_mode = 0;
-extern int ctldisp;
 
 /*
  * Predefined character sets,
