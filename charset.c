@@ -21,6 +21,7 @@
 #endif
 
 public int utf_mode = 0;
+extern int ctldisp;
 
 /*
  * Predefined character sets,
@@ -557,7 +558,7 @@ is_utf8_well_formed(ss, slen)
 }
 
 /*
- * Return number of invalid UTF-8 sequences found in a buffer.
+ * Return number of invalid UTF-8 sequences and binary chars found in a buffer.
  */
 	public int
 utf_bin_count(data, len)
@@ -565,23 +566,27 @@ utf_bin_count(data, len)
 	int len;
 {
 	int bin_count = 0;
-	while (len > 0)
+	char *edata = data + len;
+	while (data < edata)
 	{
-		if (is_utf8_well_formed(data, len))
+		if (is_utf8_well_formed(data, edata-data))
 		{
-			int clen = utf_len(*data & 0377);
-			if (clen == 1 && binary_char(*data))
+			LWCHAR c = step_char(&data, +1, edata);
+			if (ctldisp == OPT_ONPLUS && IS_CSI_START(c))
+			{
+				do {
+					c = step_char(&data, +1, edata);
+				} while (data < edata && is_ansi_middle(c));
+			}
+			if (binary_char(c))
 				bin_count++;
-			data += clen;
-			len -= clen;
-		} else
+		} else /* invalid UTF-8 */
 		{
 			/* Skip to next lead byte. */
 			bin_count++;
 			do {
 				++data;
-				--len;
-			} while (len > 0 && !IS_UTF8_LEAD(*data & 0377) && !IS_ASCII_OCTET(*data));
+			} while (data < edata && !IS_UTF8_LEAD(*data & 0377) && !IS_ASCII_OCTET(*data));
 		}
 	}
 	return (bin_count);
