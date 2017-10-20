@@ -31,6 +31,8 @@
 
 * Fix bug initializing default charset on Windows.
 
+* Handle keypad ENTER key correctly if it sends something other than newline.
+
 * Fix buffering bug when using stdin with a LESSOPEN pipe.
 
 * On Windows, allow 'u' in -D option to enable underlining.

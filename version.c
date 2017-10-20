@@ -837,6 +837,7 @@ v518  8/1/17    Use underline in sgr mode in MSDOS (thanks to Jason Hood).
 v519  8/10/17   Fix rscroll bug when last char of line starts coloration.
 v520  9/3/17    Fix compiler warning.
 v521  10/20/17  Fix binary file warning in UTF-8 files with SGI sequences.
+v522  10/20/17  Handle keypad ENTER key properly.
 */
 
-char version[] = "521";
+char version[] = "522";
