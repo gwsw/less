@@ -571,14 +571,7 @@ utf_bin_count(data, len)
 	{
 		if (is_utf8_well_formed(data, edata-data))
 		{
-			LWCHAR c = step_char(&data, +1, edata);
-			if (ctldisp == OPT_ONPLUS && IS_CSI_START(c))
-			{
-				do {
-					c = step_char(&data, +1, edata);
-				} while (data < edata && is_ansi_middle(c));
-			}
-			if (binary_char(c))
+			if (bin_char_in_string(&data, edata))
 				bin_count++;
 		} else /* invalid UTF-8 */
 		{

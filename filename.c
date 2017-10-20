@@ -477,13 +477,7 @@ bin_file(f)
 		pend = &data[n];
 		for (p = data;  p < pend;  )
 		{
-			LWCHAR c = step_char(&p, +1, pend);
-			if (ctldisp == OPT_ONPLUS && IS_CSI_START(c))
-			{
-				do {
-					c = step_char(&p, +1, pend);
-				} while (p < pend && is_ansi_middle(c));
-			} else if (binary_char(c))
+			if (bin_char_in_string(&p, pend))
 				bin_count++;
 		}
 	}
@@ -492,6 +486,26 @@ bin_file(f)
 	 * in the first 256 bytes of the file.
 	 */
 	return (bin_count > 5);
+}
+
+/*
+ * Determine if the next char in a string is binary.
+ */
+	public int
+bin_char_in_string(pp, limit)
+	char **pp;
+	constant char *limit;
+{
+	LWCHAR c = step_char(pp, +1, limit);
+	if (ctldisp == OPT_ONPLUS && IS_CSI_START(c))
+	{
+		/* Skip the CSI sequence. */
+		do {
+			c = step_char(pp, +1, limit);
+		} while (*pp < limit && is_ansi_middle(c));
+	} else if (binary_char(c))
+		return (1);
+	return (0);
 }
 
 /*
