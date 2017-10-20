@@ -201,6 +201,7 @@ public int above_mem, below_mem;	/* Memory retained above/below screen */
 public int can_goto_line;		/* Can move cursor to any line */
 public int clear_bg;		/* Clear fills with background color */
 public int missing_cap = 0;	/* Some capability is missing */
+public char *kent = NULL;	/* Keypad ENTER sequence */
 
 static int attrmode = AT_NORMAL;
 extern int binattr;
@@ -1210,7 +1211,8 @@ get_term()
 	sc_e_keypad = ltgetstr("ke", &sp);
 	if (sc_e_keypad == NULL)
 		sc_e_keypad = "";
-		
+	kent = ltgetstr("@8", &sp);
+
 	sc_init = ltgetstr("ti", &sp);
 	if (sc_init == NULL)
 		sc_init = "";

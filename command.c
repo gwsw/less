@@ -19,6 +19,7 @@ extern int quit_if_one_screen;
 extern int squished;
 extern int sc_width;
 extern int sc_height;
+extern char *kent;
 extern int swindow;
 extern int jump_sline;
 extern int quitting;
@@ -771,10 +772,40 @@ getcc()
 {
 	if (ungot == NULL)
 	{
+		char c;
+		char keys[16];
+		int ki = 0;
+
 		/*
 		 * Normal case: no ungotten chars, so get one from the user.
+		 * If we receive the kent sequence, convert it to a newline.
 		 */
-		return (getchr());
+		c = getchr();
+		for (;;)
+		{
+			if (kent == NULL)
+				break;
+			keys[ki] = c;
+			if (c != kent[ki] || ki == sizeof(keys)-1)
+			{
+				/* This isn't kent. Unget all the chars
+				 * we've received and return the first one. */
+				while (ki > 0)
+					ungetcc(keys[ki--]);
+				c = keys[0];
+				break;
+			}
+			if (kent[++ki] == '\0')
+			{
+				/* We've received the full kent sequence. */
+				c = '\n';
+				break;
+			}
+			/* We've received a partial kent sequence.
+			 * Get the next char of the sequence. */
+			c = getchr();
+		}
+		return c;
 	}
 
 	/*
