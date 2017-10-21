@@ -460,7 +460,7 @@ bin_file(f)
 	int bin_count = 0;
 	char data[256];
 	char* p;
-	char* pend;
+	char* edata;
 
 	if (!seekable(f))
 		return (0);
@@ -469,15 +469,19 @@ bin_file(f)
 	n = read(f, data, sizeof(data));
 	if (n <= 0)
 		return (0);
-	if (utf_mode)
+	edata = &data[n];
+	for (p = data;  p < edata;  )
 	{
-		bin_count = utf_bin_count(data, n);
-	} else
-	{
-		pend = &data[n];
-		for (p = data;  p < pend;  )
+		if (utf_mode && !is_utf8_well_formed(p, edata-data))
 		{
-			if (bin_char_in_string(&p, pend))
+			bin_count++;
+			utf_skip_to_lead(&p, edata);
+		} else 
+		{
+			LWCHAR c = step_char(&p, +1, edata);
+			if (ctldisp == OPT_ONPLUS && IS_CSI_START(c))
+				skip_ansi(&p, edata);
+			else if (binary_char(c))
 				bin_count++;
 		}
 	}
@@ -486,26 +490,6 @@ bin_file(f)
 	 * in the first 256 bytes of the file.
 	 */
 	return (bin_count > 5);
-}
-
-/*
- * Determine if the next char in a string is binary.
- */
-	public int
-bin_char_in_string(pp, limit)
-	char **pp;
-	constant char *limit;
-{
-	LWCHAR c = step_char(pp, +1, limit);
-	if (ctldisp == OPT_ONPLUS && IS_CSI_START(c))
-	{
-		/* Skip the CSI sequence. */
-		do {
-			c = step_char(pp, +1, limit);
-		} while (*pp < limit && is_ansi_middle(c));
-	} else if (binary_char(c))
-		return (1);
-	return (0);
 }
 
 /*

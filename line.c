@@ -571,7 +571,7 @@ is_ansi_end(ch)
 }
 
 /*
- *
+ * Can a char appear in an ANSI escape sequence, before the end char?
  */
 	public int
 is_ansi_middle(ch)
@@ -583,6 +583,23 @@ is_ansi_middle(ch)
 		return (0);
 	return (strchr(mid_ansi_chars, (char) ch) != NULL);
 }
+
+/*
+ * Skip past an ANSI escape sequence.
+ * pp is initially positioned just after the CSI_START char.
+ */
+	public void
+skip_ansi(pp, limit)
+	char **pp;
+	constant char *limit;
+{
+	LWCHAR c;
+	do {
+		c = step_char(pp, +1, limit);
+	} while (*pp < limit && is_ansi_middle(c));
+	/* Note that we discard final char, for which is_ansi_middle is false. */
+}
+
 
 /*
  * Append a character and attribute to the line buffer.

@@ -557,32 +557,18 @@ is_utf8_well_formed(ss, slen)
 }
 
 /*
- * Return number of invalid UTF-8 sequences and binary chars found in a buffer.
+ * Skip bytes until a UTF-8 lead byte (11xxxxxx) or ASCII byte (0xxxxxxx) is found.
  */
-	public int
-utf_bin_count(data, len)
-	char *data;
-	int len;
+	public void
+utf_skip_to_lead(pp, limit)
+	char **pp;
+	char *limit;
 {
-	int bin_count = 0;
-	char *edata = data + len;
-	while (data < edata)
-	{
-		if (is_utf8_well_formed(data, edata-data))
-		{
-			if (bin_char_in_string(&data, edata))
-				bin_count++;
-		} else /* invalid UTF-8 */
-		{
-			/* Skip to next lead byte. */
-			bin_count++;
-			do {
-				++data;
-			} while (data < edata && !IS_UTF8_LEAD(*data & 0377) && !IS_ASCII_OCTET(*data));
-		}
-	}
-	return (bin_count);
+	do {
+		++(*pp);
+	} while (*pp < limit && !IS_UTF8_LEAD((*pp)[0] & 0377) && !IS_ASCII_OCTET((*pp)[0]));
 }
+
 
 /*
  * Get the value of a UTF-8 character.
