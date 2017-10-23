@@ -72,7 +72,6 @@ static char pipec;
 struct ungot {
 	struct ungot *ug_next;
 	char ug_char;
-	char ug_end_command;
 };
 static struct ungot* ungot = NULL;
 
@@ -680,7 +679,7 @@ prompt()
 {
 	constant char *p;
 
-	if (ungot != NULL && !ungot->ug_end_command)
+	if (ungot != NULL && ungot->ug_char != CHAR_END_COMMAND)
 	{
 		/*
 		 * No prompt necessary if commands are from 
@@ -762,90 +761,117 @@ dispversion()
 }
 
 /*
+ * Return a character to complete a partial command, if possible.
+ */
+	static int
+getcc_end_command()
+{
+	switch (mca)
+	{
+	case A_DIGIT:
+		/* We have a number but no command.  Treat as #g. */
+		return ('g');
+	case A_F_SEARCH:
+	case A_B_SEARCH:
+		/* We have "/string" but no newline.  Add the \n. */
+		return ('\n'); 
+	default:
+		/* Some other incomplete command.  Let user complete it. */
+		return (getchr());
+	}
+}
+
+/*
  * Get command character.
  * The character normally comes from the keyboard,
  * but may come from ungotten characters
  * (characters previously given to ungetcc or ungetsc).
  */
+	static int
+getccu()
+{
+	int c;
+	if (ungot == NULL)
+	{
+		/* Normal case: no ungotten chars.
+		 * Get char from the user. */
+		c = getchr();
+	} else
+	{
+		/* Ungotten chars available:
+		 * Take the first (oldest) one. */
+		struct ungot *ug = ungot;
+		c = ug->ug_char;
+		ungot = ug->ug_next;
+		free(ug);
+
+		if (c == CHAR_END_COMMAND)
+			c = getcc_end_command();
+	}
+	return (c);
+}
+
+/*
+ * Return the first char of a string, and
+ * ungetcc the remaining chars, in reverse order.
+ */
+	static int
+getcc_return_string(str, len)
+	char constant* str;
+	unsigned len;
+{
+	while (len > 1)
+		ungetcc(str[--len]);
+	return str[0];
+}
+
+/*
+ * Get a command character, but if we receive the orig sequence,
+ * convert it to the repl sequence.
+ */
+	static int
+getcc_repl(orig, repl, gr_getc)
+	char const* orig;
+	char const* repl;
+	int (*gr_getc)(VOID_PARAM);
+{
+	char c;
+	char keys[16];
+	int ki = 0;
+
+	/* {{ assert (strlen(orig) <= sizeof(keys)); }} */
+	c = (*gr_getc)();
+	if (orig == NULL)
+		return c;
+	for (;;)
+	{
+		keys[ki] = c;
+		if (c != orig[ki] || ki >= sizeof(keys)-1)
+		{
+			/* This is not orig we have been receiving.
+			 * If we have stashed chars in keys[],
+			 * unget them and return the first one. */
+			return (getcc_return_string(keys, ki+1));
+		}
+		if (orig[++ki] == '\0')
+		{
+			/* We've received the full orig sequence. */
+			return (getcc_return_string(repl, strlen(repl)));
+		}
+		/* We've received a partial orig sequence (ki chars of it).
+		 * Get next char and see if it remains in the orig sequence. */
+		c = (*gr_getc)();
+	}
+}
+
+/*
+ * Get command character.
+ */
 	public int
 getcc()
 {
-	if (ungot == NULL)
-	{
-		char c;
-		char keys[16];
-		int ki = 0;
-
-		/*
-		 * Normal case: no ungotten chars, so get one from the user.
-		 * If we receive the kent sequence, convert it to a newline.
-		 */
-		c = getchr();
-		for (;;)
-		{
-			if (kent == NULL)
-				break;
-			keys[ki] = c;
-			if (c != kent[ki] || ki == sizeof(keys)-1)
-			{
-				/* This isn't kent. Unget all the chars
-				 * we've received and return the first one. */
-				while (ki > 0)
-					ungetcc(keys[ki--]);
-				c = keys[0];
-				break;
-			}
-			if (kent[++ki] == '\0')
-			{
-				/* We've received the full kent sequence. */
-				c = '\n';
-				break;
-			}
-			/* We've received a partial kent sequence.
-			 * Get the next char of the sequence. */
-			c = getchr();
-		}
-		return c;
-	}
-
-	/*
-	 * Return the next ungotten char.
-	 */
-	{
-		struct ungot *ug = ungot;
-		char c = ug->ug_char;
-		int end_command = ug->ug_end_command;
-		ungot = ug->ug_next;
-		free(ug);
-		if (end_command)
-		{
-			/*
-			 * Command is incomplete, so try to complete it.
-			 */
-			switch (mca)
-			{
-			case A_DIGIT:
-				/*
-				 * We have a number but no command.  Treat as #g.
-				 */
-				return ('g');
-
-			case A_F_SEARCH:
-			case A_B_SEARCH:
-				/*
-				 * We have "/string" but no newline.  Add the \n.
-				 */
-				return ('\n'); 
-
-			default:
-				/*
-				 * Some other incomplete command.  Let user complete it.
-				 */
-				return (getchr());
-			}
-		}
-		return (c);
-	}
+    /* Replace kent (keypad Enter) with a newline. */
+    return getcc_repl(kent, "\n", getccu);
 }
 
 /*
@@ -859,7 +885,6 @@ ungetcc(c)
 	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
 
 	ug->ug_char = (char) c;
-	ug->ug_end_command = (c == CHAR_END_COMMAND);
 	ug->ug_next = ungot;
 	ungot = ug;
 }
