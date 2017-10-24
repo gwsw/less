@@ -69,6 +69,7 @@ static int save_bs_mode;
 static char pipec;
 #endif
 
+/* Stack of ungotten chars (via ungetcc) */
 struct ungot {
 	struct ungot *ug_next;
 	LWCHAR ug_char;
@@ -799,7 +800,7 @@ getccu()
 	} else
 	{
 		/* Ungotten chars available:
-		 * Take the first (oldest) one. */
+		 * Take the top of stack (most recent). */
 		struct ungot *ug = ungot;
 		c = ug->ug_char;
 		ungot = ug->ug_next;
@@ -812,36 +813,22 @@ getccu()
 }
 
 /*
- * Return the first char of a string, and
- * ungetcc the remaining chars, in reverse order.
- */
-	static LWCHAR
-getcc_return_string(str, len)
-	char constant* str;
-	unsigned len;
-{
-	while (len > 1)
-		ungetcc(str[--len]);
-	return str[0];
-}
-
-/*
  * Get a command character, but if we receive the orig sequence,
  * convert it to the repl sequence.
  */
 	static LWCHAR
-getcc_repl(orig, repl, gr_getc)
+getcc_repl(orig, repl, gr_getc, gr_ungetc)
 	char const* orig;
 	char const* repl;
 	LWCHAR (*gr_getc)(VOID_PARAM);
+	void (*gr_ungetc)(LWCHAR);
 {
 	LWCHAR c;
 	LWCHAR keys[16];
 	int ki = 0;
 
-	/* {{ assert (strlen(orig) <= sizeof(keys)); }} */
 	c = (*gr_getc)();
-	if (orig == NULL)
+	if (orig == NULL || orig[0] == '\0')
 		return c;
 	for (;;)
 	{
@@ -851,15 +838,21 @@ getcc_repl(orig, repl, gr_getc)
 			/* This is not orig we have been receiving.
 			 * If we have stashed chars in keys[],
 			 * unget them and return the first one. */
-			return (getcc_return_string(keys, ki+1));
+			while (ki > 0)
+				(*gr_ungetc)(keys[ki--]);
+			return keys[0];
 		}
 		if (orig[++ki] == '\0')
 		{
-			/* We've received the full orig sequence. */
-			return (getcc_return_string(repl, strlen(repl)));
+			/* We've received the full orig sequence.
+			 * Return the repl sequence. */
+			ki = strlen(repl)-1;
+			while (ki > 0)
+				(*gr_ungetc)(repl[ki--]);
+			return repl[0];
 		}
 		/* We've received a partial orig sequence (ki chars of it).
-		 * Get next char and see if it remains in the orig sequence. */
+		 * Get next char and see if it continues to match orig. */
 		c = (*gr_getc)();
 	}
 }
@@ -871,7 +864,7 @@ getcc_repl(orig, repl, gr_getc)
 getcc()
 {
     /* Replace kent (keypad Enter) with a newline. */
-    return getcc_repl(kent, "\n", getccu);
+    return getcc_repl(kent, "\n", getccu, ungetcc);
 }
 
 /*

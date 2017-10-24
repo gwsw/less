@@ -839,6 +839,7 @@ v520  9/3/17    Fix compiler warning.
 v521  10/20/17  Fix binary file warning in UTF-8 files with SGI sequences.
 v522  10/20/17  Handle keypad ENTER key properly.
 v523  10/23/17  Cleanup.
+v524  10/24/17  Fix getcc bug.
 */
 
-char version[] = "523";
+char version[] = "524";
