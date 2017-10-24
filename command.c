@@ -71,7 +71,7 @@ static char pipec;
 
 struct ungot {
 	struct ungot *ug_next;
-	char ug_char;
+	LWCHAR ug_char;
 };
 static struct ungot* ungot = NULL;
 
@@ -763,7 +763,7 @@ dispversion()
 /*
  * Return a character to complete a partial command, if possible.
  */
-	static int
+	static LWCHAR
 getcc_end_command()
 {
 	switch (mca)
@@ -787,10 +787,10 @@ getcc_end_command()
  * but may come from ungotten characters
  * (characters previously given to ungetcc or ungetsc).
  */
-	static int
+	static LWCHAR
 getccu()
 {
-	int c;
+	LWCHAR c;
 	if (ungot == NULL)
 	{
 		/* Normal case: no ungotten chars.
@@ -815,7 +815,7 @@ getccu()
  * Return the first char of a string, and
  * ungetcc the remaining chars, in reverse order.
  */
-	static int
+	static LWCHAR
 getcc_return_string(str, len)
 	char constant* str;
 	unsigned len;
@@ -829,14 +829,14 @@ getcc_return_string(str, len)
  * Get a command character, but if we receive the orig sequence,
  * convert it to the repl sequence.
  */
-	static int
+	static LWCHAR
 getcc_repl(orig, repl, gr_getc)
 	char const* orig;
 	char const* repl;
-	int (*gr_getc)(VOID_PARAM);
+	LWCHAR (*gr_getc)(VOID_PARAM);
 {
-	char c;
-	char keys[16];
+	LWCHAR c;
+	LWCHAR keys[16];
 	int ki = 0;
 
 	/* {{ assert (strlen(orig) <= sizeof(keys)); }} */
@@ -880,11 +880,11 @@ getcc()
  */
 	public void
 ungetcc(c)
-	int c;
+	LWCHAR c;
 {
 	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
 
-	ug->ug_char = (char) c;
+	ug->ug_char = c;
 	ug->ug_next = ungot;
 	ungot = ug;
 }
@@ -906,10 +906,10 @@ ungetsc(s)
 /*
  * Peek the next command character, without consuming it.
  */
-	public int
+	public LWCHAR
 peekcc()
 {
-	int c = getcc();
+	LWCHAR c = getcc();
 	ungetcc(c);
 	return c;
 }
