@@ -1533,6 +1533,9 @@ commands()
 			break;
 
 		case A_UNDO_SEARCH:
+			/*
+			 * Clear search string highlighting.
+			 */
 			undo_search();
 			break;
 
@@ -1551,10 +1554,10 @@ commands()
 			break;
 
 		case A_EXAMINE:
-#if EXAMINE
 			/*
 			 * Edit a new file.  Get the filename.
 			 */
+#if EXAMINE
 			if (!secure)
 			{
 				start_mca(A_EXAMINE, "Examine: ", ml_examine, 0);
@@ -1644,6 +1647,9 @@ commands()
 			break;
 
 		case A_NEXT_TAG:
+			/*
+			 * Jump to the next tag in the current tag list.
+			 */
 #if TAGS
 			if (number <= 0)
 				number = 1;
@@ -1666,6 +1672,9 @@ commands()
 			break;
 
 		case A_PREV_TAG:
+			/*
+			 * Jump to the previous tag in the current tag list.
+			 */
 #if TAGS
 			if (number <= 0)
 				number = 1;
@@ -1698,6 +1707,9 @@ commands()
 			break;
 
 		case A_REMOVE_FILE:
+			/*
+			 * Remove a file from the input file list.
+			 */
 			if (ch_getflags() & CH_HELPFILE)
 				break;
 			old_ifile = curr_ifile;
@@ -1716,6 +1728,9 @@ commands()
 			break;
 
 		case A_OPT_TOGGLE:
+			/*
+			 * Change the setting of an  option.
+			 */
 			optflag = OPT_TOGGLE;
 			optgetname = FALSE;
 			mca_opt_toggle();
@@ -1724,7 +1739,7 @@ commands()
 
 		case A_DISP_OPTION:
 			/*
-			 * Report a flag setting.
+			 * Report the setting of an option.
 			 */
 			optflag = OPT_NO_TOGGLE;
 			optgetname = FALSE;
@@ -1757,6 +1772,9 @@ commands()
 
 		case A_SETMARK:
 		case A_SETMARKBOT:
+			/*
+			 * Set a mark.
+			 */
 			if (ch_getflags() & CH_HELPFILE)
 				break;
 			start_mca(A_SETMARK, "set mark: ", (void*)NULL, 0);
@@ -1768,6 +1786,9 @@ commands()
 			break;
 
 		case A_CLRMARK:
+			/*
+			 * Clear a mark.
+			 */
 			start_mca(A_SETMARK, "clear mark: ", (void*)NULL, 0);
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
@@ -1777,6 +1798,9 @@ commands()
 			break;
 
 		case A_GOMARK:
+			/*
+			 * Jump to a marked position.
+			 */
 			start_mca(A_SETMARK, "goto mark: ", (void*)NULL, 0);
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
@@ -1786,6 +1810,9 @@ commands()
 			break;
 
 		case A_PIPE:
+			/*
+			 * Write part of the input to a pipe to a shell command.
+			 */
 #if PIPEC
 			if (!secure)
 			{
@@ -1813,6 +1840,9 @@ commands()
 			goto again;
 
 		case A_LSHIFT:
+			/*
+			 * Shift view left.
+			 */
 			if (number > 0)
 				shift_count = number;
 			else
@@ -1825,6 +1855,9 @@ commands()
 			break;
 
 		case A_RSHIFT:
+			/*
+			 * Shift view right.
+			 */
 			if (number > 0)
 				shift_count = number;
 			else
@@ -1835,11 +1868,17 @@ commands()
 			break;
 
 		case A_LLSHIFT:
+			/*
+			 * Shift view left to margin.
+			 */
 			hshift = 0;
 			screen_trashed = 1;
 			break;
 
 		case A_RRSHIFT:
+			/*
+			 * Shift view right to view rightmost char on screen.
+			 */
 			hshift = rrshift();
 			screen_trashed = 1;
 			break;
