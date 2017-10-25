@@ -841,6 +841,7 @@ v522  10/20/17  Handle keypad ENTER key properly.
 v523  10/23/17  Cleanup.
 v524  10/24/17  Fix getcc bug.
 v525  10/24/17  Change M command to mark last displayed line.
+v526  10/25/17  Fix search hilite bug introduced in v517.
 */
 
-char version[] = "525";
+char version[] = "526";

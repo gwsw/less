@@ -1492,7 +1492,7 @@ search(search_type, pattern, n)
 		 * Search was unsuccessful.
 		 */
 #if HILITE_SEARCH
-		if (hilite_search == OPT_ON && n > 0)
+		if ((hilite_search == OPT_ON || status_col) && n > 0)
 			/*
 			 * Redisplay old hilites.
 			 */
@@ -1510,7 +1510,7 @@ search(search_type, pattern, n)
 	}
 
 #if HILITE_SEARCH
-	if (hilite_search == OPT_ON)
+	if (hilite_search == OPT_ON || status_col)
 		/*
 		 * Display new hilites in the matching line.
 		 */
