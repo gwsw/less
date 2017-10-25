@@ -30,9 +30,10 @@ extern int secure;
 extern int hshift;
 extern int bs_mode;
 extern int show_attn;
-extern int sticky_attn;
 extern int status_col;
 extern POSITION highest_hilite;
+extern POSITION start_attnpos;
+extern POSITION end_attnpos;
 extern char *every_first_cmd;
 extern char version[];
 extern struct scrpos initial_scrpos;
@@ -86,8 +87,7 @@ static void multi_search();
 	static void
 cmd_exec()
 {
-	if (!sticky_attn)
-		clear_attn();
+    clear_attn();
 	clear_bot();
 	flush();
 }
@@ -294,6 +294,16 @@ is_erase_char(c)
 }
 
 /*
+ * Is a character a carriage return or newline?
+ */
+	static int
+is_newline_char(c)
+	int c;
+{
+	return (c == '\n' || c == '\r');
+}
+
+/*
  * Handle the first char of an option (after the initial dash).
  */
 	static int
@@ -418,7 +428,7 @@ mca_opt_char(c)
 	if (optgetname)
 	{
 		/* We're getting a long option name.  */
-		if (c != '\n' && c != '\r')
+		if (!is_newline_char(c))
 			return (mca_opt_nonfirst_char(c));
 		if (curropt == NULL)
 		{
@@ -582,7 +592,7 @@ mca_char(c)
 	/*
 	 * The multichar command is terminated by a newline.
 	 */
-	if (c == '\n' || c == '\r')
+	if (is_newline_char(c))
 	{
 		/*
 		 * Execute the command.
@@ -1210,7 +1220,7 @@ commands()
 				number = get_swindow();
 			cmd_exec();
 			if (show_attn)
-				set_attnpos(bottompos, 0);
+				set_attnpos(bottompos);
 			forward((int) number, 0, 1);
 			break;
 
@@ -1239,7 +1249,7 @@ commands()
 				number = 1;
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS && number > 1)
-				set_attnpos(bottompos, 0);
+				set_attnpos(bottompos);
 			forward((int) number, 0, 0);
 			break;
 
@@ -1261,7 +1271,7 @@ commands()
 				number = 1;
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS && number > 1)
-				set_attnpos(bottompos, 0);
+				set_attnpos(bottompos);
 			forward((int) number, 1, 0);
 			break;
 
@@ -1283,7 +1293,7 @@ commands()
 				number = get_swindow();
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS)
-				set_attnpos(bottompos, 0);
+				set_attnpos(bottompos);
 			forward((int) number, 1, 0);
 			break;
 
@@ -1292,7 +1302,7 @@ commands()
 			 * Forward forever, ignoring EOF.
 			 */
 			if (show_attn)
-				set_attnpos(bottompos, 0);
+				set_attnpos(bottompos);
 			newaction = forw_loop(0);
 			break;
 
@@ -1309,7 +1319,7 @@ commands()
 				wscroll = (int) number;
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS)
-				set_attnpos(bottompos, 0);
+				set_attnpos(bottompos);
 			forward(wscroll, 0, 0);
 			break;
 
@@ -1545,56 +1555,50 @@ commands()
 			/*
 			 * Edit a new file.  Get the filename.
 			 */
-			if (secure)
+			if (!secure)
 			{
-				error("Command not available", NULL_PARG);
-				break;
+				start_mca(A_EXAMINE, "Examine: ", ml_examine, 0);
+				c = getcc();
+				goto again;
 			}
-			start_mca(A_EXAMINE, "Examine: ", ml_examine, 0);
-			c = getcc();
-			goto again;
-#else
+#endif
 			error("Command not available", NULL_PARG);
 			break;
-#endif
 			
 		case A_VISUAL:
 			/*
 			 * Invoke an editor on the input file.
 			 */
 #if EDITOR
-			if (secure)
+			if (!secure)
 			{
-				error("Command not available", NULL_PARG);
+				if (ch_getflags() & CH_HELPFILE)
+					break;
+				if (strcmp(get_filename(curr_ifile), "-") == 0)
+				{
+					error("Cannot edit standard input", NULL_PARG);
+					break;
+				}
+				if (get_altfilename(curr_ifile) != NULL)
+				{
+					error("WARNING: This file was viewed via LESSOPEN",
+						NULL_PARG);
+				}
+				start_mca(A_SHELL, "!", ml_shell, 0);
+				/*
+				 * Expand the editor prototype string
+				 * and pass it to the system to execute.
+				 * (Make sure the screen is displayed so the
+				 * expansion of "+%lm" works.)
+				 */
+				make_display();
+				cmd_exec();
+				lsystem(pr_expand(editproto, 0), (char*)NULL);
 				break;
 			}
-			if (ch_getflags() & CH_HELPFILE)
-				break;
-			if (strcmp(get_filename(curr_ifile), "-") == 0)
-			{
-				error("Cannot edit standard input", NULL_PARG);
-				break;
-			}
-			if (get_altfilename(curr_ifile) != NULL)
-			{
-				error("WARNING: This file was viewed via LESSOPEN",
-					NULL_PARG);
-			}
-			start_mca(A_SHELL, "!", ml_shell, 0);
-			/*
-			 * Expand the editor prototype string
-			 * and pass it to the system to execute.
-			 * (Make sure the screen is displayed so the
-			 * expansion of "+%lm" works.)
-			 */
-			make_display();
-			cmd_exec();
-			lsystem(pr_expand(editproto, 0), (char*)NULL);
-			break;
-#else
+#endif
 			error("Command not available", NULL_PARG);
 			break;
-#endif
 
 		case A_NEXT_FILE:
 			/*
@@ -1741,42 +1745,41 @@ commands()
 			 * Shell escape.
 			 */
 #if SHELL_ESCAPE
-			if (secure)
+			if (!secure)
 			{
-				error("Command not available", NULL_PARG);
-				break;
+				start_mca(A_SHELL, "!", ml_shell, 0);
+				c = getcc();
+				goto again;
 			}
-			start_mca(A_SHELL, "!", ml_shell, 0);
-			c = getcc();
-			goto again;
-#else
+#endif
 			error("Command not available", NULL_PARG);
 			break;
-#endif
 
 		case A_SETMARK:
-			/*
-			 * Set a mark.
-			 */
+		case A_SETMARKBOT:
 			if (ch_getflags() & CH_HELPFILE)
 				break;
-			start_mca(A_SETMARK, "mark: ", (void*)NULL, 0);
+			start_mca(A_SETMARK, "set mark: ", (void*)NULL, 0);
 			c = getcc();
-			if (c == erase_char || c == erase2_char ||
-			    c == kill_char || c == '\n' || c == '\r')
+			if (is_erase_char(c) || is_newline_char(c))
 				break;
-			setmark(c);
+			setmark(c, action == A_SETMARKBOT ? BOTTOM : TOP);
+			repaint();
+			break;
+
+		case A_CLRMARK:
+			start_mca(A_SETMARK, "clear mark: ", (void*)NULL, 0);
+			c = getcc();
+			if (is_erase_char(c) || is_newline_char(c))
+				break;
+			clrmark(c);
 			repaint();
 			break;
 
 		case A_GOMARK:
-			/*
-			 * Go to a mark.
-			 */
-			start_mca(A_GOMARK, "goto mark: ", (void*)NULL, 0);
+			start_mca(A_SETMARK, "goto mark: ", (void*)NULL, 0);
 			c = getcc();
-			if (c == erase_char || c == erase2_char ||
-			    c == kill_char || c == '\n' || c == '\r')
+			if (is_erase_char(c) || is_newline_char(c))
 				break;
 			cmd_exec();
 			gomark(c);
@@ -1784,27 +1787,24 @@ commands()
 
 		case A_PIPE:
 #if PIPEC
-			if (secure)
+			if (!secure)
 			{
-				error("Command not available", NULL_PARG);
-				break;
+				start_mca(A_PIPE, "|mark: ", (void*)NULL, 0);
+				c = getcc();
+				if (is_erase_char(c))
+					break;
+				if (is_newline_char(c))
+					c = '.';
+				if (badmark(c))
+					break;
+				pipec = c;
+				start_mca(A_PIPE, "!", ml_shell, 0);
+				c = getcc();
+				goto again;
 			}
-			start_mca(A_PIPE, "|mark: ", (void*)NULL, 0);
-			c = getcc();
-			if (c == erase_char || c == erase2_char || c == kill_char)
-				break;
-			if (c == '\n' || c == '\r')
-				c = '.';
-			if (badmark(c))
-				break;
-			pipec = c;
-			start_mca(A_PIPE, "!", ml_shell, 0);
-			c = getcc();
-			goto again;
-#else
+#endif
 			error("Command not available", NULL_PARG);
 			break;
-#endif
 
 		case A_B_BRACKET:
 		case A_F_BRACKET:
@@ -1842,16 +1842,6 @@ commands()
 		case A_RRSHIFT:
 			hshift = rrshift();
 			screen_trashed = 1;
-			break;
-
-		case A_SETATTN:
-			status_col = 1;
-			set_attnpos(position(BOTTOM), 1);
-			repaint();
-			break;
-
-		case A_CLRATTN:
-			clear_attn();
 			break;
 
 		case A_PREFIX:

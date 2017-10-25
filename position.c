@@ -108,7 +108,7 @@ pos_init()
 	 */
 	if (table != NULL)
 	{
-		get_scrpos(&scrpos);
+		get_scrpos(&scrpos, TOP);
 		free((char*)table);
 	} else
 		scrpos.pos = NULL_POSITION;
@@ -169,22 +169,34 @@ empty_lines(s, e)
  * the screen line to a number > 0.
  */
 	public void
-get_scrpos(scrpos)
+get_scrpos(scrpos, where)
 	struct scrpos *scrpos;
+	int where;
 {
 	int i;
+	int dir;
+	int last;
+
+	switch (where)
+	{
+	case TOP: i = 0; dir = +1; last = sc_height-2; break;
+	default:  i = sc_height-2; dir = -1; last = 0; break;
+	}
 
 	/*
 	 * Find the first line on the screen which has something on it,
 	 * and return the screen line number and the file position.
 	 */
-	for (i = 0; i < sc_height;  i++)
+	for (;; i += dir)
+	{
 		if (table[i] != NULL_POSITION)
 		{
 			scrpos->ln = i+1;
 			scrpos->pos = table[i];
 			return;
 		}
+		if (i == last) break;
+	}
 	/*
 	 * The screen is empty.
 	 */

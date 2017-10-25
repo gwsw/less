@@ -91,7 +91,7 @@ jump_back(linenum)
 	if (pos != NULL_POSITION && ch_seek(pos) == 0)
 	{
 		if (show_attn)
-			set_attnpos(pos, 0);
+			set_attnpos(pos);
 		jump_loc(pos, jump_sline);
 	} else if (linenum <= 1 && ch_beg_seek() == 0)
 	{
@@ -115,7 +115,7 @@ repaint()
 	 * Start at the line currently at the top of the screen
 	 * and redisplay the screen.
 	 */
-	get_scrpos(&scrpos);
+	get_scrpos(&scrpos, TOP);
 	pos_clear();
 	if (scrpos.pos == NULL_POSITION)
 		/* Screen hasn't been drawn yet. */
@@ -179,7 +179,7 @@ jump_line_loc(pos, sline)
 		pos = ch_tell();
 	}
 	if (show_attn)
-		set_attnpos(pos, 0);
+		set_attnpos(pos);
 	jump_loc(pos, sline);
 }
 

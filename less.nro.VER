@@ -175,7 +175,15 @@ For example, "ESC ^B < >" could be used to
 go backward to the < which matches the > in the bottom displayed line.
 .IP m
 Followed by any lowercase or uppercase letter,
-marks the current position with that letter.
+marks the first displayed line with that letter.
+If the status column is enabled via the \-J option,
+the status column shows the marked line.
+.IP M
+Acts like m, except the last displayed line is marked
+rather than the first displayed line.
+.IP "ESC-m"
+Followed by any lowercase or uppercase letter,
+removes the mark identified by that letter.
 .IP "'"
 (Single quote.)
 Followed by any lowercase or uppercase letter, returns to the position which
@@ -188,13 +196,6 @@ Marks are preserved when a new file is examined,
 so the ' command can be used to switch between input files.
 .IP "^X^X"
 Same as single quote.
-.IP M
-Visually marks the last line displayed on the screen.
-The status column is enabled to show the mark if it is not already enabled via the -J option.
-This can be useful to keep track of a particular line while moving in the file
-or while new lines are displayed during the F command.
-.IP "ESC-M"
-Removes the mark set by a previous M command.
 .IP /pattern
 Search forward in the file for the N-th line containing the pattern.
 N defaults to 1.
@@ -647,7 +648,7 @@ always begin at the start or end of the current screen respectively.
 .IP "\-J or \-\-status-column"
 Displays a status column at the left edge of the screen.
 The status column shows the lines that matched the current search,
-and any lines that are marked (via the m command).
+and any lines that are marked (via the m or M command).
 The status column is also used if the \-w or \-W option is in effect.
 .IP "\-k\fIfilename\fP or \-\-lesskey-file=\fIfilename\fP"
 Causes

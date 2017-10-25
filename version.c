@@ -840,6 +840,7 @@ v521  10/20/17  Fix binary file warning in UTF-8 files with SGI sequences.
 v522  10/20/17  Handle keypad ENTER key properly.
 v523  10/23/17  Cleanup.
 v524  10/24/17  Fix getcc bug.
+v525  10/24/17  Change M command to mark last displayed line.
 */
 
-char version[] = "524";
+char version[] = "525";

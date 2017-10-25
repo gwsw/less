@@ -2,6 +2,7 @@
 
 
 #include "less.h"
+#include "position.h"
 #if HAVE_STAT
 #include <sys/stat.h>
 #endif
@@ -177,7 +178,7 @@ close_file()
 	 * Save the current position so that we can return to
 	 * the same position if we edit this file again.
 	 */
-	get_scrpos(&scrpos);
+	get_scrpos(&scrpos, TOP);
 	if (scrpos.pos != NULL_POSITION)
 	{
 		store_pos(curr_ifile, &scrpos);

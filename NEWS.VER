@@ -18,7 +18,9 @@
 * When using -S, mark truncated lines with a special character.
   The character can be changed or disabled via the new --rscroll option.
 
-* New command M visually marks the last line displayed on the screen.
+* New command M marks the last line displayed on the screen.
+
+* New command ESC-m removes a line mark.
 
 * Status column (enabled via -J) now shows mark letters.
 

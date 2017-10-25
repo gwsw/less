@@ -208,8 +208,8 @@ default command keys used by less:
 	\eeN		reverse-search-all 
 	&		filter
 	m		set-mark 
-	M		set-attn 
-	\eeM		clear-attn
+	M		set-mark-bottom
+	\eem		clear-mark
 	'		goto-mark 
 	^X^X		goto-mark 
 	E		examine 

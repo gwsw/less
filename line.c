@@ -163,7 +163,7 @@ prewind()
 	pendc = '\0';
 	lmargin = 0;
 	if (status_col)
-		lmargin += 1;
+		lmargin += 2;
 }
 
 /*
@@ -231,7 +231,8 @@ plinenum(pos)
 			    pos >= start_attnpos && pos <= end_attnpos)
 				a |= AT_HILITE;
 		}
-		add_linebuf(c, a, 1);
+		add_linebuf(c, a, 1); /* column 0: status */
+		add_linebuf(' ', AT_NORMAL, 1); /* column 1: empty */
 	}
 
 	/*
