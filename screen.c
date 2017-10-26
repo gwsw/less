@@ -1914,14 +1914,14 @@ check_winch()
  * Goto a specific line on the screen.
  */
 	public void
-goto_line(slinenum)
-	int slinenum;
+goto_line(sindex)
+	int sindex;
 {
 #if !MSDOS_COMPILER
-	tputs(tgoto(sc_move, 0, slinenum), 1, putchr);
+	tputs(tgoto(sc_move, 0, sindex), 1, putchr);
 #else
 	flush();
-	_settextposition(slinenum+1, 1);
+	_settextposition(sindex+1, 1);
 #endif
 }
 

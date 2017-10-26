@@ -1789,7 +1789,7 @@ commands()
 			/*
 			 * Clear a mark.
 			 */
-			start_mca(A_SETMARK, "clear mark: ", (void*)NULL, 0);
+			start_mca(A_CLRMARK, "clear mark: ", (void*)NULL, 0);
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
@@ -1801,7 +1801,7 @@ commands()
 			/*
 			 * Jump to a marked position.
 			 */
-			start_mca(A_SETMARK, "goto mark: ", (void*)NULL, 0);
+			start_mca(A_GOMARK, "goto mark: ", (void*)NULL, 0);
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;

@@ -29,21 +29,22 @@ extern int sc_width, sc_height;
  *	the line after the bottom line on the screen
  */
 	public POSITION
-position(where)
-	int where;
+position(sindex)
+	int sindex;
 {
-	switch (where)
+	switch (sindex)
 	{
 	case BOTTOM:
-		where = sc_height - 2;
+		sindex = sc_height - 2;
 		break;
 	case BOTTOM_PLUS_ONE:
-		where = sc_height - 1;
+		sindex = sc_height - 1;
 		break;
 	case MIDDLE:
-		where = (sc_height - 1) / 2;
+		sindex = (sc_height - 1) / 2;
+		break;
 	}
-	return (table[where]);
+	return (table[sindex]);
 }
 
 /*
@@ -213,7 +214,7 @@ get_scrpos(scrpos, where)
  * relative to the bottom of the screen.
  */
 	public int
-adjsline(sline)
+sindex_from_sline(sline)
 	int sline;
 {
 	/*
@@ -223,12 +224,12 @@ adjsline(sline)
 	if (sline < 0)
 		sline += sc_height;
 	/*
-	 * Can't be less than 1 or greater than sc_height-1.
+	 * Can't be less than 1 or greater than sc_height.
 	 */
 	if (sline <= 0)
 		sline = 1;
-	if (sline >= sc_height)
-		sline = sc_height - 1;
+	if (sline > sc_height)
+		sline = sc_height;
 	/*
 	 * Return zero-based line number, not one-based.
 	 */

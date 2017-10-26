@@ -80,7 +80,7 @@ getmark(c)
 		}
 		m = &sm;
 		m->m_scrpos.pos = ch_tell();
-		m->m_scrpos.ln = sc_height-1;
+		m->m_scrpos.ln = sc_height;
 		m->m_ifile = curr_ifile;
 		break;
 	case '.':

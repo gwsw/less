@@ -251,7 +251,7 @@ prev_pattern(info)
 repaint_hilite(on)
 	int on;
 {
-	int slinenum;
+	int sindex;
 	POSITION pos;
 	int save_hide_hilite;
 
@@ -273,13 +273,13 @@ repaint_hilite(on)
 		return;
 	}
 
-	for (slinenum = TOP;  slinenum < TOP + sc_height-1;  slinenum++)
+	for (sindex = TOP;  sindex < TOP + sc_height-1;  sindex++)
 	{
-		pos = position(slinenum);
+		pos = position(sindex);
 		if (pos == NULL_POSITION)
 			continue;
 		(void) forw_line(pos);
-		goto_line(slinenum);
+		goto_line(sindex);
 		put_line();
 	}
 	lower_left();
@@ -292,7 +292,7 @@ repaint_hilite(on)
 	public void
 clear_attn()
 {
-	int slinenum;
+	int sindex;
 	POSITION old_start_attnpos;
 	POSITION old_end_attnpos;
 	POSITION pos;
@@ -313,17 +313,17 @@ clear_attn()
 	if (squished)
 		repaint();
 
-	for (slinenum = TOP;  slinenum < TOP + sc_height-1;  slinenum++)
+	for (sindex = TOP;  sindex < TOP + sc_height-1;  sindex++)
 	{
-		pos = position(slinenum);
+		pos = position(sindex);
 		if (pos == NULL_POSITION)
 			continue;
-		epos = position(slinenum+1);
+		epos = position(sindex+1);
 		if (pos <= old_end_attnpos &&
 		     (epos == NULL_POSITION || epos > old_start_attnpos))
 		{
 			(void) forw_line(pos);
-			goto_line(slinenum);
+			goto_line(sindex);
 			put_line();
 			moved = 1;
 		}
@@ -1059,7 +1059,7 @@ search_pos(search_type)
 	int search_type;
 {
 	POSITION pos;
-	int linenum;
+	int sindex;
 
 	if (empty_screen())
 	{
@@ -1082,7 +1082,7 @@ search_pos(search_type)
 				pos = ch_length();
 			}
 		}
-		linenum = 0;
+		sindex = 0;
 	} else 
 	{
 		int add_one = 0;
@@ -1093,18 +1093,18 @@ search_pos(search_type)
 			 * Search does not include current screen.
 			 */
 			if (search_type & SRCH_FORW)
-				linenum = sc_height-1; /* BOTTOM_PLUS_ONE */
+				sindex = sc_height-1; /* BOTTOM_PLUS_ONE */
 			else
-				linenum = 0; /* TOP */
+				sindex = 0; /* TOP */
 		} else if (how_search == OPT_ONPLUS && !(search_type & SRCH_AFTER_TARGET))
 		{
 			/*
 			 * Search includes all of displayed screen.
 			 */
 			if (search_type & SRCH_FORW)
-				linenum = 0; /* TOP */
+				sindex = 0; /* TOP */
 			else
-				linenum = sc_height-1; /* BOTTOM_PLUS_ONE */
+				sindex = sc_height-1; /* BOTTOM_PLUS_ONE */
 		} else 
 		{
 			/*
@@ -1112,11 +1112,11 @@ search_pos(search_type)
 			 * It starts at the jump target (if searching backwards),
 			 * or at the jump target plus one (if forwards).
 			 */
-			linenum = adjsline(jump_sline);
+			sindex = sindex_from_sline(jump_sline);
 			if (search_type & SRCH_FORW) 
 				add_one = 1;
 		}
-		pos = position(linenum);
+		pos = position(sindex);
 		if (add_one)
 			pos = forw_raw_line(pos, (char **)NULL, (int *)NULL);
 	}
@@ -1128,17 +1128,17 @@ search_pos(search_type)
 	{
 		while (pos == NULL_POSITION)
 		{
-			if (++linenum >= sc_height)
+			if (++sindex >= sc_height)
 				break;
-			pos = position(linenum);
+			pos = position(sindex);
 		}
 	} else 
 	{
 		while (pos == NULL_POSITION)
 		{
-			if (--linenum < 0)
+			if (--sindex < 0)
 				break;
-			pos = position(linenum);
+			pos = position(sindex);
 		}
 	}
 	return (pos);
