@@ -1479,7 +1479,8 @@ search(search_type, pattern, n)
 		 */
 		if (search_type & SRCH_PAST_EOF)
 			return (n);
-		/* repaint(); -- why was this here? */
+		if (hilite_search == OPT_ON || status_col)
+			repaint_hilite(1);
 		error("Nothing to search", NULL_PARG);
 		return (-1);
 	}
