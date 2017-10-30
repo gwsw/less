@@ -842,6 +842,7 @@ v523  10/23/17  Cleanup.
 v524  10/24/17  Fix getcc bug.
 v525  10/24/17  Change M command to mark last displayed line.
 v526  10/25/17  Fix search hilite bug introduced in v517.
+v527  10/30/17  Fix search hilite bug on last page with -a.
 */
 
-char version[] = "526";
+char version[] = "527";
