@@ -341,8 +341,12 @@ undo_search()
 {
 	if (!prev_pattern(&search_info))
 	{
-		error("No previous regular expression", NULL_PARG);
-		return;
+		if (hilite_anchor.first == NULL)
+		{
+			error("No previous regular expression", NULL_PARG);
+			return;
+		}
+		clr_hilite(); /* Next time, hilite_anchor.first will be NULL. */
 	}
 	clear_pattern(&search_info);
 #if HILITE_SEARCH
