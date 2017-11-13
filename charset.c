@@ -20,6 +20,8 @@
 #include <windows.h>
 #endif
 
+extern int bs_mode;
+
 public int utf_mode = 0;
 
 /*
@@ -739,6 +741,10 @@ DECLARE_RANGE_TABLE_START(wide)
 #include "wide.uni"
 DECLARE_RANGE_TABLE_END(wide)
 
+DECLARE_RANGE_TABLE_START(fmt)
+#include "fmt.uni"
+DECLARE_RANGE_TABLE_END(fmt)
+
 /* comb_table is special pairs, not ranges. */
 static struct wchar_range comb_table[] = {
 	{0x0644,0x0622}, {0x0644,0x0623}, {0x0644,0x0625}, {0x0644,0x0627},
@@ -779,7 +785,8 @@ is_in_table(ch, table)
 is_composing_char(ch)
 	LWCHAR ch;
 {
-	return is_in_table(ch, &compose_table);
+	return is_in_table(ch, &compose_table) ||
+	       (bs_mode != BS_CONTROL && is_in_table(ch, &fmt_table));
 }
 
 /*
@@ -789,7 +796,8 @@ is_composing_char(ch)
 is_ubin_char(ch)
 	LWCHAR ch;
 {
-	int ubin = is_in_table(ch, &ubin_table);
+	int ubin = is_in_table(ch, &ubin_table) ||
+	           (bs_mode == BS_CONTROL && is_in_table(ch, &fmt_table));
 #if MSDOS_COMPILER==WIN32C
 	if (!ubin && utf_mode == 2 && ch < 0x10000)
 	{

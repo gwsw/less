@@ -843,6 +843,8 @@ v524  10/24/17  Fix getcc bug.
 v525  10/24/17  Change M command to mark last displayed line.
 v526  10/25/17  Fix search hilite bug introduced in v517.
 v527  10/30/17  Fix search hilite bug on last page with -a.
+v528  11/3/17   Make second ESC-u clear status column.
+v529  11/12/17  Display Unicode formatting chars in hex if -U is set.
 */
 
-char version[] = "527";
+char version[] = "529";

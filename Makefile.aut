@@ -22,7 +22,7 @@ DISTFILES_W = \
 	defines.wn  Makefile.wnm Makefile.wnb \
 	configure 
 UNICODE_FILES = \
-	compose.uni ubin.uni wide.uni
+	compose.uni fmt.uni ubin.uni wide.uni
 DISTFILES = \
 	${SRC} regexp.c regexp.h \
 	COPYING INSTALL LICENSE Makefile.in Makefile.aut NEWS README \
@@ -104,7 +104,9 @@ ${srcdir}/lessecho.man: ${srcdir}/lessecho.nro
 	${NROFF} ${srcdir}/lessecho.nro >${srcdir}/lessecho.man
 
 compose.uni: unicode/UnicodeData.txt
-	./mkutable -f2 Mn Me Cf -- unicode/UnicodeData.txt > $@
+	./mkutable -f2 Mn Me -- unicode/UnicodeData.txt > $@
+fmt.uni: unicode/UnicodeData.txt
+	./mkutable -f2 Cf -- unicode/UnicodeData.txt > $@
 ubin.uni: unicode/UnicodeData.txt
 	./mkutable -f2 Cc Cs Co Zl Zp -- unicode/UnicodeData.txt > $@
 wide.uni: unicode/EastAsianWidth.txt
