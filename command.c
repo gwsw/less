@@ -799,7 +799,7 @@ getcc_end_command()
  * (characters previously given to ungetcc or ungetsc).
  */
 	static LWCHAR
-getccu()
+getccu(VOID_PARAM)
 {
 	LWCHAR c;
 	if (ungot == NULL)
@@ -837,7 +837,7 @@ getcc_repl(orig, repl, gr_getc, gr_ungetc)
 	LWCHAR keys[16];
 	int ki = 0;
 
-	c = (*gr_getc)();
+	c = gr_getc();
 	if (orig == NULL || orig[0] == '\0')
 		return c;
 	for (;;)
@@ -849,7 +849,7 @@ getcc_repl(orig, repl, gr_getc, gr_ungetc)
 			 * If we have stashed chars in keys[],
 			 * unget them and return the first one. */
 			while (ki > 0)
-				(*gr_ungetc)(keys[ki--]);
+				gr_ungetc(keys[ki--]);
 			return keys[0];
 		}
 		if (orig[++ki] == '\0')
@@ -858,12 +858,12 @@ getcc_repl(orig, repl, gr_getc, gr_ungetc)
 			 * Return the repl sequence. */
 			ki = strlen(repl)-1;
 			while (ki > 0)
-				(*gr_ungetc)(repl[ki--]);
+				gr_ungetc(repl[ki--]);
 			return repl[0];
 		}
 		/* We've received a partial orig sequence (ki chars of it).
 		 * Get next char and see if it continues to match orig. */
-		c = (*gr_getc)();
+		c = gr_getc();
 	}
 }
 
