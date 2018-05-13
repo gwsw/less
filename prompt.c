@@ -192,7 +192,9 @@ cond(c, where)
 		return (strcmp(get_filename(curr_ifile), "-") != 0);
 	case 'l':	/* Line number known? */
 	case 'd':	/* Same as l */
-		return (linenums);
+		if (!linenums)
+			return 0;
+		return (currline(where) != 0);
 	case 'L':	/* Final line number known? */
 	case 'D':	/* Final page number known? */
 		return (linenums && ch_length() != NULL_POSITION);
