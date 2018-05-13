@@ -15,6 +15,7 @@
 
 extern int sc_width;
 extern int utf_mode;
+extern int no_hist_dups;
 
 static char cmdbuf[CMDBUF_SIZE]; /* Buffer for holding a multi-char command */
 static int cmd_col;		/* Current column of the cursor */
@@ -712,6 +713,31 @@ cmd_updown(action)
 #endif
 
 /*
+ *
+ */
+	static void
+ml_link(mlist, ml)
+	struct mlist *mlist;
+	struct mlist *ml;
+{
+	ml->next = mlist;
+	ml->prev = mlist->prev;
+	mlist->prev->next = ml;
+	mlist->prev = ml;
+}
+
+/*
+ *
+ */
+	static void
+ml_unlink(ml)
+	struct mlist *ml;
+{
+	ml->prev->next = ml->next;
+	ml->next->prev = ml->prev;
+}
+
+/*
  * Add a string to an mlist.
  */
 	public void
@@ -729,6 +755,21 @@ cmd_addhist(mlist, cmd, modified)
 	if (strlen(cmd) == 0)
 		return;
 
+	if (no_hist_dups)
+	{
+		struct mlist *next = NULL;
+		for (ml = mlist->next;  ml->string != NULL;  ml = next)
+		{
+			next = ml->next;
+			if (strcmp(ml->string, cmd) == 0)
+			{
+				ml_unlink(ml);
+				free(ml->string);
+				free(ml);
+			}
+		}
+	}
+
 	/*
 	 * Save the command unless it's a duplicate of the
 	 * last command in the history.
@@ -743,10 +784,7 @@ cmd_addhist(mlist, cmd, modified)
 		ml = (struct mlist *) ecalloc(1, sizeof(struct mlist));
 		ml->string = save(cmd);
 		ml->modified = modified;
-		ml->next = mlist;
-		ml->prev = mlist->prev;
-		mlist->prev->next = ml;
-		mlist->prev = ml;
+		ml_link(mlist, ml);
 	}
 	/*
 	 * Point to the cmd just after the just-accepted command.
@@ -1141,9 +1179,9 @@ cmd_complete(action)
 		tk_trial = next_compl(action, tk_trial);
 	}
 	
-  	/*
-  	 * Remove the original word, or the previous trial completion.
-  	 */
+	/*
+	 * Remove the original word, or the previous trial completion.
+	 */
 	while (cp > tk_ipoint)
 		(void) cmd_erase();
 	

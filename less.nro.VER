@@ -953,6 +953,12 @@ This option changes the character used to mark truncated lines.
 It may begin with a two-character attribute indicator like LESSBINFMT does.
 If there is no attribute indicator, standout is used.
 If set to "-", truncated lines are not marked.
+.IP "\-\-nohistdups"
+Normally if a search string is typed in, and then later the same search
+string is typed in again, the string will be entered twice into the history list.
+This option changes the behavior so if a string is entered which is already in 
+the history list, the existing copy is removed before the new one is added,
+so that there is only one copy in the history list.
 .IP \-\-
 A command line argument of "\-\-" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.

@@ -48,6 +48,7 @@ public int oldbot;		/* Old bottom of screen behavior {{REMOVE}} */
 public int opt_use_backslash;	/* Use backslash escaping in option parsing */
 public LWCHAR rscroll_char;	/* Char which marks chopped lines with -S */
 public int rscroll_attr;	/* Attribute of rscroll_char */
+public int no_hist_dups;	/* Remove dups from history list */
 #if HILITE_SEARCH
 public int hilite_search;	/* Highlight matched search patterns? */
 #endif
@@ -113,6 +114,7 @@ static struct optname oldbot_optname = { "old-bot",              NULL };
 static struct optname follow_optname = { "follow-name",          NULL };
 static struct optname use_backslash_optname = { "use-backslash", NULL };
 static struct optname rscroll_optname = { "rscroll", NULL };
+static struct optname nohistdups_optname = { "nohistdups",       NULL };
 
 
 /*
@@ -455,6 +457,14 @@ static struct loption option[] =
 	{ OLETTER_NONE, &rscroll_optname,
 		STRING|REPAINT|INIT_HANDLER, 0, NULL, opt_rscroll,
 		{ "right scroll character: ", NULL, NULL }
+	},
+	{ OLETTER_NONE, &nohistdups_optname,
+		BOOL, OPT_OFF, &no_hist_dups, NULL,
+		{
+			"Allow duplicates in history list",
+			"Remove duplicates from history list",
+			NULL
+		}
 	},
 	{ '\0', NULL, NOVAR, 0, NULL, NULL, { NULL, NULL, NULL } }
 };
