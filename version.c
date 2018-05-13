@@ -846,6 +846,9 @@ v527  10/30/17  Fix search hilite bug on last page with -a.
 v528  11/3/17   Make second ESC-u clear status column.
 v529  11/12/17  Display Unicode formatting chars in hex if -U is set.
 v530  12/2/17   Minor doc change and add missing VOID_PARAM.
+-----------------------------------------------------------------
+v531  5/13/18   Fix bug with v on empty file; fix bug with v on file with 
+                metachars in name; add --nohistdups option.
 */
 
-char version[] = "530";
+char version[] = "531";

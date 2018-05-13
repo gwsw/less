@@ -189,6 +189,7 @@ cond(c, where)
 	case 'e':	/* At end of file? */
 		return (eof_displayed());
 	case 'f':	/* Filename known? */
+	case 'g':
 		return (strcmp(get_filename(curr_ifile), "-") != 0);
 	case 'l':	/* Line number known? */
 	case 'd':	/* Same as l */
@@ -249,6 +250,7 @@ protochar(c, where, iseditproto)
 	LINENUM linenum;
 	LINENUM last_linenum;
 	IFILE h;
+	char *s;
 
 #undef  PAGE_NUM
 #define PAGE_NUM(linenum)  ((((linenum) - 1) / (sc_height - 1)) + 1)
@@ -299,6 +301,11 @@ protochar(c, where, iseditproto)
 		break;
 	case 'F':	/* Last component of file name */
 		ap_str(last_component(get_filename(curr_ifile)));
+		break;
+	case 'g':	/* Shell-escaped file name */
+		s = shell_quote(get_filename(curr_ifile));
+		ap_str(s);
+		free(s);
 		break;
 	case 'i':	/* Index into list of files */
 #if TAGS

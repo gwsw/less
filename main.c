@@ -163,7 +163,7 @@ main(argc, argv)
 	}
 	editproto = lgetenv("LESSEDIT");
 	if (editproto == NULL || *editproto == '\0')
-		editproto = "%E ?lm+%lm. %f";
+		editproto = "%E ?lm+%lm. %g";
 #endif
 
 	/*

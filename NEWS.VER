@@ -15,6 +15,10 @@
 
 * Add --nohistdups option.
 
+* Fix bug in v command on empty file.
+
+* Fix bug in v command when filename contains shell metacharacters.
+
 	Major changes between "less" versions 487 and 530
 
 * Don't output terminal init sequence if using -F and file fits on one screen.
