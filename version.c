@@ -849,6 +849,7 @@ v530  12/2/17   Minor doc change and add missing VOID_PARAM.
 -----------------------------------------------------------------
 v531  5/13/18   Fix bug with v on empty file; fix bug with v on file with 
                 metachars in name; add --nohistdups option.
+v532  7/27/18   Redraw screen on SIGWINCH even if screen size doesn't change.
 */
 
-char version[] = "531";
+char version[] = "532";

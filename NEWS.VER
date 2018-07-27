@@ -15,6 +15,8 @@
 
 * Add --nohistdups option.
 
+* Redraw screen on SIGWINCH even if screen size doesn't change.
+
 * Fix bug in v command on empty file.
 
 * Fix bug in v command when filename contains shell metacharacters.
