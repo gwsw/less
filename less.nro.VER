@@ -954,11 +954,11 @@ It may begin with a two-character attribute indicator like LESSBINFMT does.
 If there is no attribute indicator, standout is used.
 If set to "-", truncated lines are not marked.
 .IP "\-\-nohistdups"
-Normally if a search string is typed in, and then later the same search
-string is typed in again, the string will be entered twice into the history list.
-This option changes the behavior so if a string is entered which is already in 
-the history list, the existing copy is removed before the new one is added,
-so that there is only one copy in the history list.
+This option changes the behavior so that if a search string or
+file name is typed in, and the same string is already in the history list, 
+the existing copy is removed from the history list before the new one is added.
+Thus, a given string will appear only once in the history list.
+Normally, a string may appear multiple times.
 .IP \-\-
 A command line argument of "\-\-" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.
@@ -1219,6 +1219,8 @@ lesspipe.sh:
 .br
 	*.Z)	uncompress \-c $1  2>/dev/null
 .br
+		;;
+.br
 	*)	exit 1
 .br
 		;;
@@ -1446,6 +1448,10 @@ See the discussion of the LESSEDIT feature below.
 Replaced by the name of the current input file.
 .IP "%F"
 Replaced by the last component of the name of the current input file.
+.IP "%g"
+Replaced by the shell-escaped name of the current input file.
+This is useful when the expanded string will be used in a shell command,
+such as in LESSEDIT.
 .IP "%i"
 Replaced by the index of the current file in the list of
 input files.
@@ -1581,11 +1587,11 @@ The LESSEDIT string is expanded in the same way as the prompt strings.
 The default value for LESSEDIT is:
 .nf
 .sp
-	%E\ ?lm+%lm.\ %f
+	%E\ ?lm+%lm.\ %g
 .sp
 .fi
 Note that this expands to the editor name, followed by a + and the
-line number, followed by the file name.
+line number, followed by the shell-escaped file name.
 If your editor does not accept the "+linenumber" syntax, or has other
 differences in invocation syntax, the LESSEDIT variable can be
 changed to modify this default.
