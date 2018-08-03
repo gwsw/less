@@ -17,6 +17,12 @@
 
 * Redraw screen on SIGWINCH even if screen size doesn't change.
 
+* Shell-escape filenames in history so they can be used again.
+
+* Use PCRE_UTF8 flag for pcre regular expressions when in UTF-8 mode.
+
+* Windows: use wide-char string to set console title.
+
 * Fix bug in v command on empty file.
 
 * Fix bug in v command when filename contains shell metacharacters.

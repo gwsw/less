@@ -60,7 +60,7 @@ extern int sc_width, sc_height;
 extern int utf_mode;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
-extern LWCHAR rscroll_char;
+extern char rscroll_char;
 extern int rscroll_attr;
 
 static char mbc_buf[MAX_UTF_CHAR_LEN];
@@ -172,7 +172,7 @@ prewind()
 	static void
 set_linebuf(n, ch, a)
 	int n;
-	LWCHAR ch;
+	char ch;
 	char a;
 {
 	linebuf[n] = ch;
@@ -184,7 +184,7 @@ set_linebuf(n, ch, a)
  */
 	static void
 add_linebuf(ch, a, w)
-	LWCHAR ch;
+	char ch;
 	char a;
 	int w;
 {

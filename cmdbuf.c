@@ -696,6 +696,7 @@ cmd_updown(action)
 			s = ml->string;
 			if (s == NULL)
 				s = "";
+			cmd_offset = 0;
 			cmd_home();
 			clear_eol();
 			strcpy(cmdbuf, s);
@@ -805,7 +806,7 @@ cmd_accept()
 	/*
 	 * Nothing to do if there is no currently selected history list.
 	 */
-	if (curr_mlist == NULL)
+	if (curr_mlist == NULL || curr_mlist == ml_examine)
 		return;
 	cmd_addhist(curr_mlist, cmdbuf, 1);
 	curr_mlist->modified = 1;

@@ -7,6 +7,9 @@
 #include "less.h"
 
 extern int caseless;
+#if HAVE_PCRE
+extern int utf_mode;
+#endif
 
 /*
  * Compile a search pattern, for future use by match_pattern.
@@ -56,11 +59,11 @@ compile_pattern2(pattern, search_type, comp_pattern, show_error)
 	*comp_pattern = comp;
 #endif
 #if HAVE_PCRE
-	pcre *comp;
 	constant char *errstring;
 	int erroffset;
 	PARG parg;
-	comp = pcre_compile(pattern, 0,
+	pcre *comp = pcre_compile(pattern,
+			(utf_mode) ? PCRE_UTF8 | PCRE_NO_UTF8_CHECK : 0,
 			&errstring, &erroffset, NULL);
 	if (comp == NULL)
 	{

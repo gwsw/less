@@ -554,7 +554,9 @@ readfd(fd)
 
 #if HAVE_POPEN
 
+#if MSDOS_COMPILER!=WIN32C
 FILE *popen();
+#endif
 
 /*
  * Execute a shell command.

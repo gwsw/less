@@ -43,7 +43,7 @@ extern int jump_sline;
 extern long jump_sline_fraction;
 extern int shift_count;
 extern long shift_count_fraction;
-extern LWCHAR rscroll_char;
+extern char rscroll_char;
 extern int rscroll_attr;
 extern int less_is_more;
 #if LOGFILE

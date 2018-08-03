@@ -46,7 +46,7 @@ public int quit_on_intr;	/* Quit on interrupt */
 public int follow_mode;		/* F cmd Follows file desc or file name? */
 public int oldbot;		/* Old bottom of screen behavior {{REMOVE}} */
 public int opt_use_backslash;	/* Use backslash escaping in option parsing */
-public LWCHAR rscroll_char;	/* Char which marks chopped lines with -S */
+public char rscroll_char;	/* Char which marks chopped lines with -S */
 public int rscroll_attr;	/* Attribute of rscroll_char */
 public int no_hist_dups;	/* Remove dups from history list */
 #if HILITE_SEARCH

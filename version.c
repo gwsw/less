@@ -850,6 +850,8 @@ v530  12/2/17   Minor doc change and add missing VOID_PARAM.
 v531  5/13/18   Fix bug with v on empty file; fix bug with v on file with 
                 metachars in name; add --nohistdups option.
 v532  7/27/18   Redraw screen on SIGWINCH even if screen size doesn't change.
+v533  8/1/18    Shell escape filenames in history; use PCRE_UTF8 flag; 
+                use wide-chars for Windows console title (thanks to Jason Hood).
 */
 
-char version[] = "532";
+char version[] = "533";

@@ -479,7 +479,12 @@ edit_ifile(ifile)
 		clr_hilite();
 #endif
 		if (strcmp(filename, FAKE_HELPFILE) && strcmp(filename, FAKE_EMPTYFILE))
-			cmd_addhist(ml_examine, filename, 1);
+		{
+			char *qfilename = shell_quote(filename);
+			cmd_addhist(ml_examine, qfilename, 1);
+			free(qfilename);
+		}
+
 		if (no_display && errmsgs > 0)
 		{
 			/*
