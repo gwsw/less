@@ -24,6 +24,13 @@
 #define CLEAR_PATTERN(name)   name = NULL
 #endif
 
+#if HAVE_PCRE2
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
+#define PATTERN_TYPE          pcre2_code *
+#define CLEAR_PATTERN(name)   name = NULL
+#endif
+
 #if HAVE_RE_COMP
 char *re_comp LESSPARAMS ((char*));
 int re_exec LESSPARAMS ((char*));

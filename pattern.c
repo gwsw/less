@@ -7,9 +7,7 @@
 #include "less.h"
 
 extern int caseless;
-#if HAVE_PCRE
 extern int utf_mode;
-#endif
 
 /*
  * Compile a search pattern, for future use by match_pattern.
@@ -70,6 +68,21 @@ compile_pattern2(pattern, search_type, comp_pattern, show_error)
 		parg.p_string = (char *) errstring;
 		if (show_error)
 			error("%s", &parg);
+		return (-1);
+	}
+	*comp_pattern = comp;
+#endif
+#if HAVE_PCRE2
+	int errcode;
+	PCRE2_SIZE erroffset;
+	PARG parg;
+	pcre2_code *comp = pcre2_compile((PCRE2_SPTR)pattern, strlen(pattern),
+			0, &errcode, &erroffset, NULL);
+	if (comp == NULL)
+	{
+		parg.p_int = errcode;
+		if (show_error)
+			error("PCRE2 error %d", &parg);
 		return (-1);
 	}
 	*comp_pattern = comp;
@@ -170,6 +183,11 @@ uncompile_pattern(pattern)
 		pcre_free(*pattern);
 	*pattern = NULL;
 #endif
+#if HAVE_PCRE2
+	if (*pattern != NULL)
+		pcre2_code_free(*pattern);
+	*pattern = NULL;
+#endif
 #if HAVE_RE_COMP
 	*pattern = 0;
 #endif
@@ -217,6 +235,9 @@ is_null_pattern(pattern)
 	return (pattern == NULL);
 #endif
 #if HAVE_PCRE
+	return (pattern == NULL);
+#endif
+#if HAVE_PCRE2
 	return (pattern == NULL);
 #endif
 #if HAVE_RE_COMP
@@ -345,6 +366,21 @@ match_pattern(pattern, tpattern, line, line_len, sp, ep, notbol, search_type)
 			*sp = line + ovector[0];
 			*ep = line + ovector[1];
 		}
+	}
+#endif
+#if HAVE_PCRE2
+	{
+		int flags = (notbol) ? PCRE2_NOTBOL : 0;
+		pcre2_match_data *md = pcre2_match_data_create(3, NULL);
+		matched = pcre2_match(pattern, (PCRE2_SPTR)line, line_len,
+			0, flags, md, NULL) >= 0;
+		if (matched)
+		{
+			PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(md);
+			*sp = line + ovector[0];
+			*ep = line + ovector[1];
+		}
+		pcre2_match_data_free(md);
 	}
 #endif
 #if HAVE_RE_COMP

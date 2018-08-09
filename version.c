@@ -852,6 +852,7 @@ v531  5/13/18   Fix bug with v on empty file; fix bug with v on file with
 v532  7/27/18   Redraw screen on SIGWINCH even if screen size doesn't change.
 v533  8/1/18    Shell escape filenames in history; use PCRE_UTF8 flag; 
                 use wide-chars for Windows console title (thanks to Jason Hood).
+v534  8/9/18    Support PCRE2.
 */
 
-char version[] = "533";
+char version[] = "534";

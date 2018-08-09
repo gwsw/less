@@ -504,24 +504,32 @@ opt__V(type, s)
 		putstr(" (");
 #if HAVE_GNU_REGEX
 		putstr("GNU ");
-#endif
+#else
 #if HAVE_POSIX_REGCOMP
 		putstr("POSIX ");
-#endif
+#else
+#if HAVE_PCRE2
+		putstr("PCRE2 ");
+#else
 #if HAVE_PCRE
 		putstr("PCRE ");
-#endif
+#else
 #if HAVE_RE_COMP
 		putstr("BSD ");
-#endif
+#else
 #if HAVE_REGCMP
 		putstr("V8 ");
-#endif
+#else
 #if HAVE_V8_REGCOMP
 		putstr("Spencer V8 ");
-#endif
-#if !HAVE_GNU_REGEX && !HAVE_POSIX_REGCOMP && !HAVE_PCRE && !HAVE_RE_COMP && !HAVE_REGCMP && !HAVE_V8_REGCOMP
+#else
 		putstr("no ");
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
 #endif
 		putstr("regular expressions)\n");
 		putstr("@@copyright_oneline@@\n\n");

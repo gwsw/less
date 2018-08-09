@@ -735,8 +735,8 @@ prompt()
 		MultiByteToWideChar(CP_ACP, 0, p, -1, w, sizeof(w)/sizeof(*w));
 		SetConsoleTitleW(w);
 	}
-
 #endif
+
 	/*
 	 * Select the proper prompt and display it.
 	 */
