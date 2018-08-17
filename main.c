@@ -52,6 +52,7 @@ extern int	missing_cap;
 extern int	know_dumb;
 extern int	pr_type;
 extern int	quit_if_one_screen;
+extern int	no_init;
 
 
 /*
@@ -267,7 +268,7 @@ main(argc, argv)
 	{
 		if (edit_stdin())  /* Edit standard input */
 			quit(QUIT_ERROR);
-		if (quit_if_one_screen)
+		if (quit_if_one_screen && !no_init)
 			line_count = get_line_count();
 	} else 
 	{
@@ -275,10 +276,10 @@ main(argc, argv)
 			quit(QUIT_ERROR);
 		if (quit_if_one_screen)
 		{
-			if (nifile() == 1)
-				line_count = get_line_count();
-			else /* If more than one file, -F can not be used */
+			if (nifile() > 1) /* If more than one file, -F cannot be used */
 				quit_if_one_screen = FALSE;
+			else if (!no_init)
+				line_count = get_line_count();
 		}
 	}
 

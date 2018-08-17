@@ -25,6 +25,8 @@
 
 * Windows: use wide-char string to set console title.
 
+* Don't count lines in initial screen if using -X with -F.
+
 * Fix bug in v command on empty file.
 
 * Fix bug in v command when filename contains shell metacharacters.

@@ -853,6 +853,8 @@ v532  7/27/18   Redraw screen on SIGWINCH even if screen size doesn't change.
 v533  8/1/18    Shell escape filenames in history; use PCRE_UTF8 flag; 
                 use wide-chars for Windows console title (thanks to Jason Hood).
 v534  8/9/18    Support PCRE2.
+v535  8/16/18   Don't count lines of initial screen if using -X with -F
+                (thankx to Linus Torvalds).
 */
 
-char version[] = "534";
+char version[] = "535";
