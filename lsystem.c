@@ -12,11 +12,16 @@
 
 #if MSDOS_COMPILER
 #include <dos.h>
+#if MSDOS_COMPILER==WIN32C && defined(MINGW)
+#include <direct.h>
+#define setdisk(n) _chdrive((n)+1)
+#else
 #ifdef _MSC_VER
 #include <direct.h>
 #define setdisk(n) _chdrive((n)+1)
 #else
 #include <dir.h>
+#endif
 #endif
 #endif
 

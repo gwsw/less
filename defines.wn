@@ -232,7 +232,11 @@
 /* Define MUST_DEFINE_ERRNO if you have errno but it is not define 
  * in errno.h */
 #define HAVE_ERRNO 1
+#ifdef MINGW
+#define MUST_DEFINE_ERRNO 0
+#else
 #define MUST_DEFINE_ERRNO 1
+#endif
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
 #define HAVE_SYS_ERRLIST 1
@@ -332,13 +336,21 @@
 #define HAVE_TIME_H 1
 
 /* Define if you have the <unistd.h> header file.  */
+#ifdef MINGW
+#define HAVE_UNISTD_H 1
+#else
 #define HAVE_UNISTD_H 0
+#endif
 
 /* Define if you have the <values.h> header file.  */
 #ifdef _MSC_VER
 #define HAVE_VALUES_H 0
 #else
+#ifdef MINGW
+#define HAVE_VALUES_H 0
+#else
 #define HAVE_VALUES_H 1
+#endif
 #endif
 
 #define	popen	_popen
@@ -347,4 +359,6 @@
 #define snprintf	_snprintf
 #endif
 
+#ifndef MINGW
 #pragma warning(disable:4996)
+#endif

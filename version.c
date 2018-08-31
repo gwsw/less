@@ -856,6 +856,7 @@ v534  8/9/18    Support PCRE2.
 v535  8/16/18   Don't count lines of initial screen if using -X with -F
                 (thanks to Linus Torvalds).
 v536  8/31/18   Use descriptive error messages for PCRE2.
+v537  8/31/18   Support mingw build system (thanks to Mike Soyka).
 */
 
-char version[] = "536";
+char version[] = "537";

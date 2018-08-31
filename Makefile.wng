@@ -1,0 +1,85 @@
+# Makefile for less using mingw-w64 package:
+#   http://mingw-w64.org/doku.php
+#
+# Derived from Makefile.wnm
+#
+
+#### Start of system configuration section. ####
+
+CC = gcc
+
+# Definitions specific to mingw
+#
+MINGW_DEFINES     = -DMINGW -DWIN32 -D_CONSOLE -DNDEBUG
+
+# The sources assume that pointer values are 4-bytes long
+# (there are assignments of pointer variables to int variables)
+# and so we must force a 32-bit build.
+#
+CFLAGS_MINGW = -m32 ${MINGW_DEFINES}
+
+# MingW may use sh.exe instead of cmd.exe.  
+# Make sure it does not.
+#
+SHELL = cmd.exe
+
+CFLAGS  = -O2 ${CFLAGS_MINGW}
+LDFLAGS = 
+LIBS    = 
+
+#### End of system configuration section. ####
+
+# This rule allows us to supply the necessary -D options
+# in addition to whatever the user asks for.
+.c.o:
+	${CC} -c -I. ${CFLAGS} $<
+
+LESS_SRC = brac.c ch.c charset.c cmdbuf.c command.c		\
+           cvt.c decode.c edit.c filename.c forwback.c 		\
+           ifile.c input.c jump.c line.c linenum.c 		\
+           lsystem.c main.c mark.c optfunc.c option.c 		\
+	   opttbl.c os.c output.c pattern.c position.c 		\
+	   prompt.c regexp.c screen.c scrsize.c search.c 	\
+	   signal.c tags.c ttyin.c version.c
+
+OBJ = \
+	main.o screen.o brac.o ch.o charset.o cmdbuf.o \
+	command.o cvt.o decode.o edit.o filename.o forwback.o \
+	help.o ifile.o input.o jump.o line.o linenum.o \
+	lsystem.o mark.o optfunc.o option.o opttbl.o os.o \
+	output.o pattern.o position.o prompt.o search.o signal.o \
+	tags.o ttyin.o version.o regexp.o
+
+all: clean less lesskey lessecho
+
+less: ${OBJ}
+	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
+
+lesskey: lesskey.o version.o
+	${CC} ${LDFLAGS} -o $@ lesskey.o version.o
+
+lessecho: lessecho.o version.o
+	${CC} ${LDFLAGS} -o $@ lessecho.o version.o
+
+defines.h: defines.wn
+	copy $< $@
+
+funcs.h:
+	perl mkfuncs.pl ${LESS_SRC}  > $@
+
+help.c: less.hlp.VER
+	perl mkhelp.pl  < $<  > $@
+
+${OBJ}: less.h defines.h funcs.h
+
+TAGS:
+	etags *.c *.h
+
+clean:
+	-del *.o
+	-del *.exe
+	-del defines.h
+	-del funcs.h
+	-del help.c
+	-if exist TAGS del TAGS
+

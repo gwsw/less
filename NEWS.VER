@@ -27,6 +27,8 @@
 
 * Don't count lines in initial screen if using -X with -F.
 
+* Support mingw build system.
+
 * Fix bug in v command on empty file.
 
 * Fix bug in v command when filename contains shell metacharacters.
