@@ -80,9 +80,13 @@ compile_pattern2(pattern, search_type, comp_pattern, show_error)
 			0, &errcode, &erroffset, NULL);
 	if (comp == NULL)
 	{
-		parg.p_int = errcode;
 		if (show_error)
-			error("PCRE2 error %d", &parg);
+		{
+			char msg[160];
+			pcre2_get_error_message(errcode, msg, sizeof(msg));
+			parg.p_string = msg;
+			error("%s", &parg);
+		}
 		return (-1);
 	}
 	*comp_pattern = comp;

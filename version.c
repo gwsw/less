@@ -855,6 +855,7 @@ v533  8/1/18    Shell escape filenames in history; use PCRE_UTF8 flag;
 v534  8/9/18    Support PCRE2.
 v535  8/16/18   Don't count lines of initial screen if using -X with -F
                 (thanks to Linus Torvalds).
+v536  8/31/18   Use descriptive error messages for PCRE2.
 */
 
-char version[] = "535";
+char version[] = "536";
