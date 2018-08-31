@@ -48,6 +48,7 @@ INSTALLATION (Unix systems only):
      finds a regular expression library automatically.  Other values are:
         gnu            Use the GNU regex library.
         pcre           Use the PCRE library.
+        pcre2          Use the PCRE2 library.
         posix          Use the POSIX-compatible regcomp.
         regcmp         Use the regcmp library.
         re_comp        Use the re_comp library.
