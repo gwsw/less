@@ -112,15 +112,7 @@ expand_linebuf()
 			free(new_buf);
 		return 1;
 	}
-#if HAVE_REALLOC
-	/*
-	 * We realloc'd the buffers; they already have the old contents.
-	 */
-	#if 0
-	memset(new_buf + size_linebuf, 0, new_size - size_linebuf);
-	memset(new_attr + size_linebuf, 0, new_size - size_linebuf);
-	#endif
-#else
+#if !HAVE_REALLOC
 	/*
 	 * We just calloc'd the buffers; copy the old contents.
 	 */

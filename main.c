@@ -268,6 +268,10 @@ main(argc, argv)
 	{
 		if (edit_stdin())  /* Edit standard input */
 			quit(QUIT_ERROR);
+		/*
+		 * Use line count to decide whether to send terminal init.
+		 * But don't need line count if -X overrides this (see init()).
+		 */
 		if (quit_if_one_screen && !no_init)
 			line_count = get_line_count();
 	} else 

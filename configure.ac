@@ -584,7 +584,7 @@ AH_TOP([
 #define	PIPEC		(!SECURE)
 
 /*
- * LOGFILE is 1 if you wish to allow the -l option (to create log files).
+ * LOGFILE is 1 if you wish to allow the -o option (to create log files).
  */
 #define	LOGFILE		(!SECURE)
 

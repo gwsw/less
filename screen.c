@@ -1970,18 +1970,6 @@ create_flash()
 		return;
 	for (n = 0;  n < sc_width * sc_height;  n++)
 		whitescreen[n] = 0x7020;
-#else
-#if MSDOS_COMPILER==WIN32C
-	int n;
-
-	whitescreen = (WORD *)
-		malloc(sc_height * sc_width * sizeof(WORD));
-	if (whitescreen == NULL)
-		return;
-	/* Invert the standard colors. */
-	for (n = 0;  n < sc_width * sc_height;  n++)
-		whitescreen[n] = (WORD)((nm_fg_color << 4) | nm_bg_color);
-#endif
 #endif
 #endif
 	flash_created = 1;
