@@ -83,7 +83,7 @@ compile_pattern2(pattern, search_type, comp_pattern, show_error)
 		if (show_error)
 		{
 			char msg[160];
-			pcre2_get_error_message(errcode, msg, sizeof(msg));
+			pcre2_get_error_message(errcode, (PCRE2_UCHAR*)msg, sizeof(msg));
 			parg.p_string = msg;
 			error("%s", &parg);
 		}

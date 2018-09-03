@@ -12,11 +12,11 @@
 #endif
 #if MSDOS_COMPILER==WIN32C
 #include "windows.h"
-extern char WIN32getch();
 static DWORD console_mode;
-#endif
-
+public HANDLE tty;
+#else
 public int tty;
+#endif
 extern int sigs;
 extern int utf_mode;
 
@@ -32,12 +32,12 @@ open_getchr()
 	memset(&sa, 0, sizeof(SECURITY_ATTRIBUTES));
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 	sa.bInheritHandle = TRUE;
-	tty = (int) CreateFile("CONIN$", GENERIC_READ,
+	tty = CreateFile("CONIN$", GENERIC_READ,
 			FILE_SHARE_READ, &sa, 
 			OPEN_EXISTING, 0L, NULL);
-	GetConsoleMode((HANDLE)tty, &console_mode);
+	GetConsoleMode(tty, &console_mode);
 	/* Make sure we get Ctrl+C events. */
-	SetConsoleMode((HANDLE)tty, ENABLE_PROCESSED_INPUT);
+	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT);
 #else
 #if MSDOS_COMPILER
 	extern int fd0;
@@ -81,8 +81,8 @@ open_getchr()
 close_getchr()
 {
 #if MSDOS_COMPILER==WIN32C
-	SetConsoleMode((HANDLE)tty, console_mode);
-	CloseHandle((HANDLE)tty);
+	SetConsoleMode(tty, console_mode);
+	CloseHandle(tty);
 #endif
 }
 
@@ -105,7 +105,7 @@ getchr()
 #if MSDOS_COMPILER==WIN32C
 		if (ABORT_SIGS())
 			return (READ_INTR);
-		c = WIN32getch(tty);
+		c = WIN32getch();
 #else
 		c = getch();
 #endif

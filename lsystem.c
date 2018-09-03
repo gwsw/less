@@ -289,7 +289,6 @@ pipe_data(cmd, spos, epos)
 {
 	FILE *f;
 	int c;
-	extern FILE *popen();
 
 	/*
 	 * This is structured much like lsystem().

@@ -16,7 +16,7 @@ MINGW_DEFINES     = -DMINGW -DWIN32 -D_CONSOLE -DNDEBUG
 # (there are assignments of pointer variables to int variables)
 # and so we must force a 32-bit build.
 #
-CFLAGS_MINGW = -m32 ${MINGW_DEFINES}
+CFLAGS_MINGW = ${MINGW_DEFINES}
 
 # MingW may use sh.exe instead of cmd.exe.  
 # Make sure it does not.

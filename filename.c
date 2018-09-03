@@ -554,10 +554,6 @@ readfd(fd)
 
 #if HAVE_POPEN
 
-#if MSDOS_COMPILER!=WIN32C
-FILE *popen();
-#endif
-
 /*
  * Execute a shell command.
  * Return a pointer to a pipe connected to the shell command's standard output.

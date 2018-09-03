@@ -113,7 +113,6 @@ struct keyRecord
 static int keyCount = 0;
 static WORD curr_attr;
 static int pending_scancode = 0;
-static WORD *whitescreen;
 
 static HANDLE con_out_save = INVALID_HANDLE_VALUE; /* previous console */
 static HANDLE con_out_ours = INVALID_HANDLE_VALUE; /* our own */
@@ -233,12 +232,16 @@ extern int no_keypad;
 extern int sigs;
 extern int wscroll;
 extern int screen_trashed;
-extern int tty;
 extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
 #if HILITE_SEARCH
 extern int hilite_search;
+#endif
+#if MSDOS_COMPILER==WIN32C
+extern HANDLE tty;
+#else
+extern int tty;
 #endif
 
 extern char *tgetstr();
@@ -2384,8 +2387,7 @@ putbs()
  * Determine whether an input character is waiting to be read.
  */
 	static int
-win32_kbhit(tty)
-	HANDLE tty;
+win32_kbhit()
 {
 	INPUT_RECORD ip;
 	DWORD read;
@@ -2458,8 +2460,7 @@ win32_kbhit(tty)
  * Read a character from the keyboard.
  */
 	public char
-WIN32getch(tty)
-	int tty;
+WIN32getch()
 {
 	int ascii;
 
@@ -2469,7 +2470,7 @@ WIN32getch(tty)
 		return ((char)(currentKey.scan & 0x00FF));
 	}
 
-	while (win32_kbhit((HANDLE)tty) == FALSE)
+	while (win32_kbhit() == FALSE)
 	{
 		Sleep(20);
 		if (ABORT_SIGS())
