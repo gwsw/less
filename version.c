@@ -858,6 +858,7 @@ v535  8/16/18   Don't count lines of initial screen if using -X with -F
 v536  8/31/18   Use descriptive error messages for PCRE2.
 v537  8/31/18   Support mingw build system (thanks to Mike Soyka).
 v538  9/3/18    Clean up some WIN32 code.
+v539  9/13/18   Fix spurious input on Windows with CAPSLOCK.
 */
 
-char version[] = "538";
+char version[] = "539";

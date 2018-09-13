@@ -2470,21 +2470,24 @@ WIN32getch()
 		return ((char)(currentKey.scan & 0x00FF));
 	}
 
-	while (win32_kbhit() == FALSE)
-	{
-		Sleep(20);
-		if (ABORT_SIGS())
-			return ('\003');
-		continue;
-	}
-	keyCount --;
-	ascii = currentKey.ascii;
-	/*
-	 * On PC's, the extended keys return a 2 byte sequence beginning 
-	 * with '00', so if the ascii code is 00, the next byte will be 
-	 * the lsb of the scan code.
-	 */
-	pending_scancode = (ascii == 0x00);
+	do {
+		while (win32_kbhit() == FALSE)
+		{
+			Sleep(20);
+			if (ABORT_SIGS())
+				return ('\003');
+			continue;
+		}
+		keyCount --;
+		ascii = currentKey.ascii;
+		/*
+		 * On PC's, the extended keys return a 2 byte sequence beginning 
+		 * with '00', so if the ascii code is 00, the next byte will be 
+		 * the lsb of the scan code.
+		 */
+		pending_scancode = (ascii == 0x00);
+	} while (pending_scancode && currentKey.scan == PCK_CAPS_LOCK);
+
 	return ((char)ascii);
 }
 #endif
