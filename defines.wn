@@ -209,9 +209,26 @@
 /* #undef HAVE_POSIX_REGCOMP */
 /* #undef HAVE_RE_COMP */
 /* #undef HAVE_REGCMP */
+#ifdef MINGW
+    #ifdef USE_POSIX_REGCOMP
+	#define HAVE_POSIX_REGCOMP 1
+    #else
+	#ifdef USE_GNU_REGEX
+	    #define HAVE_GNU_REGEX  1
+        #else
+            #ifdef USE_REGEXP_C
+		#define HAVE_V8_REGCOMP 1
+		#define HAVE_REGEXEC2   1
+            #else
+                #define NO_REGEX 1
+	    #endif
+	#endif
+    #endif
+#else
 #define HAVE_V8_REGCOMP 1
 /* #undef NO_REGEX */
 #define HAVE_REGEXEC2 1
+#endif
 
 /* Define HAVE_VOID if your compiler supports the "void" type. */
 #define HAVE_VOID 1
