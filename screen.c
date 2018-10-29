@@ -179,6 +179,8 @@ static char
 	*sc_backspace,		/* Backspace cursor */
 	*sc_s_keypad,		/* Start keypad mode */
 	*sc_e_keypad,		/* End keypad mode */
+	*sc_s_mousecap,		/* Start mouse capture mode */
+	*sc_e_mousecap,		/* End mouse capture mode */
 	*sc_init,		/* Startup terminal initialization */
 	*sc_deinit;		/* Exit terminal de-initialization */
 #endif
@@ -235,6 +237,7 @@ extern int screen_trashed;
 extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
+extern int mousecap;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -1216,6 +1219,9 @@ get_term()
 		sc_e_keypad = "";
 	kent = ltgetstr("@8", &sp);
 
+	sc_s_mousecap = "\e[?1000h";
+	sc_e_mousecap = "\e[?1000l";
+
 	sc_init = ltgetstr("ti", &sp);
 	if (sc_init == NULL)
 		sc_init = "";
@@ -1559,6 +1565,8 @@ init()
 		tputs(sc_init, sc_height, putchr);
 	if (!no_keypad)
 		tputs(sc_s_keypad, sc_height, putchr);
+	if (mousecap)
+		tputs(sc_s_mousecap, sc_height, putchr);
 	if (top_scroll) 
 	{
 		int i;
@@ -1593,6 +1601,8 @@ deinit()
 	if (!init_done)
 		return;
 #if !MSDOS_COMPILER
+	if (mousecap)
+		tputs(sc_e_mousecap, sc_height, putchr);
 	if (!no_keypad)
 		tputs(sc_e_keypad, sc_height, putchr);
 	if (!no_init && !quit_if_one_screen)
@@ -2408,6 +2418,17 @@ win32_kbhit()
 		if (read == 0)
 			return (FALSE);
 		ReadConsoleInput(tty, &ip, 1, &read);
+		/* read mouse wheel and fake up/down arrow key presses */
+		if (mousecap && ip.EventType == MOUSE_EVENT &&
+		    ip.Event.MouseEvent.dwEventFlags == MOUSE_WHEELED)
+		{
+			/* {{ This does not support setmark('#') like the X11 version does.
+			 *     Also fails if user redefines the arrow actions. }} */
+			currentKey.scan = ((int)ip.Event.MouseEvent.dwButtonState < 0) ? PCK_DOWN : PCK_UP;
+			currentKey.ascii = 0;
+			keyCount = 1;
+			return (TRUE);
+		}
 	} while (ip.EventType != KEY_EVENT ||
 		ip.Event.KeyEvent.bKeyDown != TRUE ||
 		ip.Event.KeyEvent.wVirtualScanCode == 0 ||

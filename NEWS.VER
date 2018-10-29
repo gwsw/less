@@ -15,6 +15,8 @@
 
 * Add --nohistdups option.
 
+* Add --mouse option.
+
 * Support PCRE2 regular expression library.
 
 * Redraw screen on SIGWINCH even if screen size doesn't change.

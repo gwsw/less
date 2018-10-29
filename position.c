@@ -180,8 +180,19 @@ get_scrpos(scrpos, where)
 
 	switch (where)
 	{
-	case TOP: i = 0; dir = +1; last = sc_height-2; break;
-	default:  i = sc_height-2; dir = -1; last = 0; break;
+	case TOP:
+		i = 0; dir = +1; last = sc_height-2;
+		break;
+	case BOTTOM: case BOTTOM_PLUS_ONE:
+		i = sc_height-2; dir = -1; last = 0;
+		break;
+	default:
+		i = where;
+		if (table[i] == NULL_POSITION) {
+			scrpos->pos = NULL_POSITION;
+			return;
+		}
+		break;
 	}
 
 	/*

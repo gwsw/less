@@ -28,6 +28,7 @@
 
 extern int erase_char, erase2_char, kill_char;
 extern int secure;
+extern int screen_trashed;
 
 #define SK(k) \
 	SK_SPECIAL_KEY, (k), 6, 1, 1, 1
@@ -58,6 +59,7 @@ static unsigned char cmdtable[] =
 	CONTROL('D'),0,			A_F_SCROLL,
 	'u',0,				A_B_SCROLL,
 	CONTROL('U'),0,			A_B_SCROLL,
+	'\e','[','M',0,  		A_MOUSE_IN,
 	' ',0,				A_F_SCREEN,
 	'f',0,				A_F_SCREEN,
 	CONTROL('F'),0,			A_F_SCREEN,
@@ -456,6 +458,26 @@ cmd_search(cmd, table, endtable, sp)
 				{
 					*sp = ++p;
 					a &= ~A_EXTRA;
+				}
+				if (a == A_MOUSE_IN)
+				{
+					int b = getcc();
+					int x = getcc() - 0x21;
+					int y = getcc() - 0x21;
+					switch (b) {
+					default:   a = A_NOACTION; break;
+					case 0x61: a = A_F_LINE; break;
+					case 0x60: a = A_B_LINE; break;
+					case 0x23: /* button release */
+						/*
+						 * {{ It would be better to do this in commands()
+						 *    but it's nontrival to pass y to it. }}
+						 */
+						setmark('#', y);
+						screen_trashed = 1;
+						a = A_NOACTION;
+						break;
+					}
 				}
 				return (a);
 			}

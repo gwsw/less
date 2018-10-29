@@ -859,6 +859,7 @@ v536  8/31/18   Use descriptive error messages for PCRE2.
 v537  8/31/18   Support mingw build system (thanks to Mike Soyka).
 v538  9/3/18    Clean up some WIN32 code.
 v539  9/13/18   Fix spurious input on Windows with CAPSLOCK.
+v540  10/29/18  Add --mouse option.
 */
 
-char version[] = "539";
+char version[] = "540";

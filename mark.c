@@ -13,7 +13,8 @@ extern int jump_sline;
  * Each mark is identified by a lowercase or uppercase letter.
  * The final one is lmark, for the "last mark"; addressed by the apostrophe.
  */
-#define	NMARKS		((2*26)+1)	/* a-z, A-Z, lastmark */
+#define	NMARKS		((2*26)+2)	/* a-z, A-Z, lastmark, mousemark */
+#define	MOUSEMARK	(NMARKS-2)
 #define	LASTMARK	(NMARKS-1)
 static struct mark marks[NMARKS];
 
@@ -41,6 +42,9 @@ getumark(c)
 
 	if (c >= 'A' && c <= 'Z')
 		return (&marks[c-'A'+26]);
+
+	if (c == '#')
+		return (&marks[MOUSEMARK]);
 
 	error("Invalid mark letter", NULL_PARG);
 	return (NULL);
@@ -97,6 +101,9 @@ getmark(c)
 		 */
 		m = &marks[LASTMARK];
 		break;
+	case '#':
+		m = &marks[MOUSEMARK];
+		break;
 	default:
 		/*
 		 * Must be a user-defined mark.
@@ -139,6 +146,11 @@ setmark(c, where)
 	if (m == NULL)
 		return;
 	get_scrpos(&scrpos, where);
+	if (scrpos.pos == NULL_POSITION)
+	{
+		bell();
+		return;
+	}
 	m->m_scrpos = scrpos;
 	m->m_ifile = curr_ifile;
 }
@@ -253,13 +265,14 @@ posmark(pos)
 {
 	int i;
 
-	/* Only lower case and upper case letters */
-	for (i = 0;  i < 26*2;  i++)
+	/* Only user marks */
+	for (i = 0;  i < 26*2 + 1;  i++)
 	{
 		if (marks[i].m_ifile == curr_ifile && marks[i].m_scrpos.pos == pos)
 		{
 			if (i < 26) return 'a' + i;
-			return 'A' + i - 26;
+			if (i < 26*2) return 'A' + (i - 26);
+			return '#';
 		}
 	}
 	return 0;

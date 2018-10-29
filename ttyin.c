@@ -32,12 +32,12 @@ open_getchr()
 	memset(&sa, 0, sizeof(SECURITY_ATTRIBUTES));
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 	sa.bInheritHandle = TRUE;
-	tty = CreateFile("CONIN$", GENERIC_READ,
+	tty = CreateFile("CONIN$", GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ, &sa, 
 			OPEN_EXISTING, 0L, NULL);
 	GetConsoleMode(tty, &console_mode);
 	/* Make sure we get Ctrl+C events. */
-	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT);
+	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
 #else
 #if MSDOS_COMPILER
 	extern int fd0;

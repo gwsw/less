@@ -959,6 +959,11 @@ file name is typed in, and the same string is already in the history list,
 the existing copy is removed from the history list before the new one is added.
 Thus, a given string will appear only once in the history list.
 Normally, a string may appear multiple times.
+.IP "\-\-mouse"
+Enables mouse input:
+the scroll wheel can be used to scroll within the file,
+and clicking the mouse will set the "#" mark to the line on which the cursor sits.
+Mouse input works only on terminals which support X11 mouse reporting, and on Windows systems.
 .IP \-\-
 A command line argument of "\-\-" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.
