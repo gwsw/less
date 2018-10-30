@@ -26,8 +26,20 @@
 #include "cmd.h"
 #include "lesskey.h"
 
+/*
+ * Definitions for X11 mouse reporting.
+ */
+#define LMOUSE_BUTTON1    0x20
+#define LMOUSE_BUTTON2    0x21
+#define LMOUSE_BUTTON3    0x22
+#define LMOUSE_BUTTON_REL 0x23
+#define LMOUSE_WHEEL_UP   0x60
+#define LMOUSE_WHEEL_DOWN 0x61
+#define LMOUSE_POS_OFFSET 0x20
+
 extern int erase_char, erase2_char, kill_char;
 extern int secure;
+extern int mousecap;
 extern int screen_trashed;
 
 #define SK(k) \
@@ -462,13 +474,19 @@ cmd_search(cmd, table, endtable, sp)
 				if (a == A_MOUSE_IN)
 				{
 					int b = getcc();
-					int x = getcc() - 0x21;
-					int y = getcc() - 0x21;
+					int x = getcc() - LMOUSE_POS_OFFSET-1;
+					int y = getcc() - LMOUSE_POS_OFFSET-1;
 					switch (b) {
-					default:   a = A_NOACTION; break;
-					case 0x61: a = A_F_LINE; break;
-					case 0x60: a = A_B_LINE; break;
-					case 0x23: /* button release */
+					default:
+						a = A_NOACTION;
+						break;
+					case LMOUSE_WHEEL_DOWN:
+						a = (mousecap == OPT_ONPLUS) ? A_B_LINE : A_F_LINE;
+						break;
+					case LMOUSE_WHEEL_UP:
+						a = (mousecap == OPT_ONPLUS) ? A_F_LINE : A_B_LINE;
+						break;
+					case LMOUSE_BUTTON_REL:
 						/*
 						 * {{ It would be better to do this in commands()
 						 *    but it's nontrival to pass y to it. }}

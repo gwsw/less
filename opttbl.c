@@ -469,11 +469,11 @@ static struct loption option[] =
 		}
 	},
 	{ OLETTER_NONE, &mousecap_optname,
-		BOOL, OPT_OFF, &mousecap, NULL,
+		TRIPLE, OPT_OFF, &mousecap, NULL,
 		{
 			"Ignore mouse input",
 			"Use the mouse for scrolling",
-			NULL
+			"Use the mouse for scrolling (reverse)"
 		}
 	},
 	{ '\0', NULL, NOVAR, 0, NULL, NULL, { NULL, NULL, NULL } }

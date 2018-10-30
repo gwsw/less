@@ -2425,6 +2425,8 @@ win32_kbhit()
 			/* {{ This does not support setmark('#') like the X11 version does.
 			 *     Also fails if user redefines the arrow actions. }} */
 			currentKey.scan = ((int)ip.Event.MouseEvent.dwButtonState < 0) ? PCK_DOWN : PCK_UP;
+			if (mousecap == OPT_ONPLUS)
+				currentKey.scan = (currentKey.scan == PCK_DOWN) ? PCK_UP : PCK_DOWN;
 			currentKey.ascii = 0;
 			keyCount = 1;
 			return (TRUE);

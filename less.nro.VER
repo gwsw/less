@@ -961,9 +961,12 @@ Thus, a given string will appear only once in the history list.
 Normally, a string may appear multiple times.
 .IP "\-\-mouse"
 Enables mouse input:
-the scroll wheel can be used to scroll within the file,
-and clicking the mouse will set the "#" mark to the line on which the cursor sits.
-Mouse input works only on terminals which support X11 mouse reporting, and on Windows systems.
+scrolling the mouse wheel down moves forward in the file,
+scrolling the mouse wheel up moves backwards in the file,
+and clicking the mouse will set the "#" mark to the line on which the mouse cursor sits.
+Mouse input works only on terminals which support X11 mouse reporting.
+.IP "\-\-MOUSE"
+Like \-\-mouse, except the scrolling direction is reversed.
 .IP \-\-
 A command line argument of "\-\-" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.
