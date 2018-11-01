@@ -26,17 +26,6 @@
 #include "cmd.h"
 #include "lesskey.h"
 
-/*
- * Definitions for X11 mouse reporting.
- */
-#define LMOUSE_BUTTON1    0x20
-#define LMOUSE_BUTTON2    0x21
-#define LMOUSE_BUTTON3    0x22
-#define LMOUSE_BUTTON_REL 0x23
-#define LMOUSE_WHEEL_UP   0x60
-#define LMOUSE_WHEEL_DOWN 0x61
-#define LMOUSE_POS_OFFSET 0x20
-
 extern int erase_char, erase2_char, kill_char;
 extern int secure;
 extern int mousecap;
@@ -71,7 +60,7 @@ static unsigned char cmdtable[] =
 	CONTROL('D'),0,			A_F_SCROLL,
 	'u',0,				A_B_SCROLL,
 	CONTROL('U'),0,			A_B_SCROLL,
-	'\e','[','M',0,  		A_MOUSE_IN,
+	'\e','[','M',0,  		A_X11MOUSE_IN,
 	' ',0,				A_F_SCREEN,
 	'f',0,				A_F_SCREEN,
 	CONTROL('F'),0,			A_F_SCREEN,
@@ -423,6 +412,42 @@ add_var_table(tlist, buf, len)
 }
 
 /*
+ * Read suffix of mouse input and return the action to take.
+ * The prefix ("\e[M") has already been read.
+ */
+	static int
+x11mouse_action()
+{
+#define X11MOUSE_BUTTON1    0x20
+#define X11MOUSE_BUTTON2    0x21
+#define X11MOUSE_BUTTON3    0x22
+#define X11MOUSE_BUTTON_REL 0x23
+#define X11MOUSE_WHEEL_UP   0x60
+#define X11MOUSE_WHEEL_DOWN 0x61
+#define X11MOUSE_POS_OFFSET 0x20
+
+	int b = getcc();
+	int x = getcc() - X11MOUSE_POS_OFFSET-1;
+	int y = getcc() - X11MOUSE_POS_OFFSET-1;
+	switch (b) {
+	default:
+		return (A_NOACTION);
+	case X11MOUSE_WHEEL_DOWN:
+		return ((mousecap == OPT_ONPLUS) ? A_B_LINE : A_F_LINE);
+	case X11MOUSE_WHEEL_UP:
+		return ((mousecap == OPT_ONPLUS) ? A_F_LINE : A_B_LINE);
+	case X11MOUSE_BUTTON_REL:
+		/*
+		 * {{ It would be better to do this in commands()
+		 *    but it's nontrival to pass y to it. }}
+		 */
+		setmark('#', y);
+		screen_trashed = 1;
+		return (A_NOACTION);
+	}
+}
+
+/*
  * Search a single command table for the command string in cmd.
  */
 	static int
@@ -471,31 +496,9 @@ cmd_search(cmd, table, endtable, sp)
 					*sp = ++p;
 					a &= ~A_EXTRA;
 				}
-				if (a == A_MOUSE_IN)
+				if (a == A_X11MOUSE_IN)
 				{
-					int b = getcc();
-					int x = getcc() - LMOUSE_POS_OFFSET-1;
-					int y = getcc() - LMOUSE_POS_OFFSET-1;
-					switch (b) {
-					default:
-						a = A_NOACTION;
-						break;
-					case LMOUSE_WHEEL_DOWN:
-						a = (mousecap == OPT_ONPLUS) ? A_B_LINE : A_F_LINE;
-						break;
-					case LMOUSE_WHEEL_UP:
-						a = (mousecap == OPT_ONPLUS) ? A_F_LINE : A_B_LINE;
-						break;
-					case LMOUSE_BUTTON_REL:
-						/*
-						 * {{ It would be better to do this in commands()
-						 *    but it's nontrival to pass y to it. }}
-						 */
-						setmark('#', y);
-						screen_trashed = 1;
-						a = A_NOACTION;
-						break;
-					}
+					a = x11mouse_action();
 				}
 				return (a);
 			}

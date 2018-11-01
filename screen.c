@@ -1219,8 +1219,12 @@ get_term()
 		sc_e_keypad = "";
 	kent = ltgetstr("@8", &sp);
 
-	sc_s_mousecap = "\e[?1000h";
-	sc_e_mousecap = "\e[?1000l";
+	sc_s_mousecap = lgetenv("LESS_TERMCAP_MOUSE_START");
+	if (sc_s_mousecap == NULL || *sc_s_mousecap == '\0')
+		sc_s_mousecap = "\33[?1000h";
+	sc_e_mousecap = lgetenv("LESS_TERMCAP_MOUSE_END");
+	if (sc_e_mousecap == NULL || *sc_e_mousecap == '\0')
+		sc_e_mousecap = "\33[?1000l";
 
 	sc_init = ltgetstr("ti", &sp);
 	if (sc_init == NULL)
