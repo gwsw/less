@@ -113,6 +113,8 @@ struct keyRecord
 static int keyCount = 0;
 static WORD curr_attr;
 static int pending_scancode = 0;
+static char x11mousebuf[] = "[M???";    /* \e is separate */
+static int x11mousePos, x11mouseCount;
 
 static HANDLE con_out_save = INVALID_HANDLE_VALUE; /* previous console */
 static HANDLE con_out_ours = INVALID_HANDLE_VALUE; /* our own */
@@ -2412,6 +2414,14 @@ win32_kbhit()
 	currentKey.ascii = 0;
 	currentKey.scan = 0;
 
+	if (x11mouseCount > 0)
+	{
+		currentKey.ascii = x11mousebuf[x11mousePos++];
+		--x11mouseCount;
+		keyCount = 1;
+		return (TRUE);
+	}
+
 	/*
 	 * Wait for a real key-down event, but
 	 * ignore SHIFT and CONTROL key events.
@@ -2422,16 +2432,31 @@ win32_kbhit()
 		if (read == 0)
 			return (FALSE);
 		ReadConsoleInput(tty, &ip, 1, &read);
-		/* read mouse wheel and fake up/down arrow key presses */
+		/* generate an X11 mouse sequence from the mouse event */
 		if (mousecap && ip.EventType == MOUSE_EVENT &&
-		    ip.Event.MouseEvent.dwEventFlags == MOUSE_WHEELED)
+		    ip.Event.MouseEvent.dwEventFlags != MOUSE_MOVED)
 		{
-			/* {{ This does not support setmark('#') like the X11 version does.
-			 *     Also fails if user redefines the arrow actions. }} */
-			currentKey.scan = ((int)ip.Event.MouseEvent.dwButtonState < 0) ? PCK_DOWN : PCK_UP;
-			if (mousecap == OPT_ONPLUS)
-				currentKey.scan = (currentKey.scan == PCK_DOWN) ? PCK_UP : PCK_DOWN;
-			currentKey.ascii = 0;
+			x11mousebuf[3] = X11MOUSE_POS_OFFSET + ip.Event.MouseEvent.dwMousePosition.X + 1;
+			x11mousebuf[4] = X11MOUSE_POS_OFFSET + ip.Event.MouseEvent.dwMousePosition.Y + 1;
+			switch (ip.Event.MouseEvent.dwEventFlags)
+			{
+			case 0: /* press or release */
+				if (ip.Event.MouseEvent.dwButtonState == 0)
+					x11mousebuf[2] = X11MOUSE_BUTTON_REL;
+				else if (ip.Event.MouseEvent.dwButtonState & (FROM_LEFT_3RD_BUTTON_PRESSED | FROM_LEFT_4TH_BUTTON_PRESSED))
+					continue;
+				else
+					x11mousebuf[2] = X11MOUSE_BUTTON1 + ((int)ip.Event.MouseEvent.dwButtonState << 1);
+				break;
+			case MOUSE_WHEELED:
+				x11mousebuf[2] = ((int)ip.Event.MouseEvent.dwButtonState < 0) ? X11MOUSE_WHEEL_DOWN : X11MOUSE_WHEEL_UP;
+				break;
+			default:
+				continue;
+			}
+			x11mousePos = 0;
+			x11mouseCount = 5;
+			currentKey.ascii = ESC;
 			keyCount = 1;
 			return (TRUE);
 		}

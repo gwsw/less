@@ -86,6 +86,22 @@ close_getchr()
 #endif
 }
 
+#if MSDOS_COMPILER==WIN32C
+/*
+ * Close the pipe, restoring the keyboard (CMD resets it, losing the mouse).
+ */
+	int
+pclose(f)
+	FILE *f;
+{
+	int result;
+
+	result = _pclose(f);
+	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
+	return result;
+}
+#endif
+
 /*
  * Get a character from the keyboard.
  */

@@ -60,7 +60,7 @@ static unsigned char cmdtable[] =
 	CONTROL('D'),0,			A_F_SCROLL,
 	'u',0,				A_B_SCROLL,
 	CONTROL('U'),0,			A_B_SCROLL,
-	'\e','[','M',0,  		A_X11MOUSE_IN,
+	ESC,'[','M',0,			A_X11MOUSE_IN,
 	' ',0,				A_F_SCREEN,
 	'f',0,				A_F_SCREEN,
 	CONTROL('F'),0,			A_F_SCREEN,
@@ -418,14 +418,6 @@ add_var_table(tlist, buf, len)
 	static int
 x11mouse_action()
 {
-#define X11MOUSE_BUTTON1    0x20
-#define X11MOUSE_BUTTON2    0x21
-#define X11MOUSE_BUTTON3    0x22
-#define X11MOUSE_BUTTON_REL 0x23
-#define X11MOUSE_WHEEL_UP   0x60
-#define X11MOUSE_WHEEL_DOWN 0x61
-#define X11MOUSE_POS_OFFSET 0x20
-
 	int b = getcc();
 	int x = getcc() - X11MOUSE_POS_OFFSET-1;
 	int y = getcc() - X11MOUSE_POS_OFFSET-1;
@@ -439,7 +431,7 @@ x11mouse_action()
 	case X11MOUSE_BUTTON_REL:
 		/*
 		 * {{ It would be better to do this in commands()
-		 *    but it's nontrival to pass y to it. }}
+		 *    but it's nontrivial to pass y to it. }}
 		 */
 		setmark('#', y);
 		screen_trashed = 1;

@@ -13,9 +13,9 @@
 
 	Major changes between "less" versions 530 and @@VERSION@@
 
-* Add --nohistdups option.
-
 * Add --mouse option.
+
+* Add --nohistdups option.
 
 * Support PCRE2 regular expression library.
 
@@ -34,6 +34,8 @@
 * Fix bug in v command on empty file.
 
 * Fix bug in v command when filename contains shell metacharacters.
+
+======================================================================
 
 	Major changes between "less" versions 487 and 530
 

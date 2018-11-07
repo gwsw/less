@@ -524,6 +524,15 @@ struct wchar_range_table
 #define	time_type	long
 #endif
 
+/* X11 mouse reporting definitions */
+#define X11MOUSE_BUTTON1    0x20
+#define X11MOUSE_BUTTON2    0x21
+#define X11MOUSE_BUTTON3    0x22
+#define X11MOUSE_BUTTON_REL 0x23
+#define X11MOUSE_WHEEL_UP   0x60
+#define X11MOUSE_WHEEL_DOWN 0x61
+#define X11MOUSE_POS_OFFSET 0x20
+
 struct mlist;
 struct loption;
 struct hilite_tree;
@@ -534,3 +543,6 @@ struct hilite_tree;
 void postoa LESSPARAMS ((POSITION, char*));
 void linenumtoa LESSPARAMS ((LINENUM, char*));
 void inttoa LESSPARAMS ((int, char*));
+#if MSDOS_COMPILER==WIN32C
+int pclose LESSPARAMS ((FILE*));
+#endif
