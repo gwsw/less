@@ -861,7 +861,8 @@ v538  9/3/18    Clean up some WIN32 code.
 v539  9/13/18   Fix spurious input on Windows with CAPSLOCK.
 v540  10/29/18  Add --mouse option.
 v541  10/30/18  Add --MOUSE option.
-v542  11/6/18   Add mouse support for WIN32 (thanks to Jason Hood).
+v542  11/6/18   Add mouse support for WIN32; add --wheel-lines option.
+                (thanks to Jason Hood).
 */
 
 char version[] = "542";
