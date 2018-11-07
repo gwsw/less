@@ -425,9 +425,9 @@ x11mouse_action()
 	default:
 		return (A_NOACTION);
 	case X11MOUSE_WHEEL_DOWN:
-		return ((mousecap == OPT_ONPLUS) ? A_B_LINE : A_F_LINE);
+		return ((mousecap == OPT_ONPLUS) ? A_B_MOUSE : A_F_MOUSE);
 	case X11MOUSE_WHEEL_UP:
-		return ((mousecap == OPT_ONPLUS) ? A_F_LINE : A_B_LINE);
+		return ((mousecap == OPT_ONPLUS) ? A_F_MOUSE : A_B_MOUSE);
 	case X11MOUSE_BUTTON_REL:
 		/*
 		 * {{ It would be better to do this in commands()

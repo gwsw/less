@@ -50,6 +50,7 @@ public char rscroll_char;	/* Char which marks chopped lines with -S */
 public int rscroll_attr;	/* Attribute of rscroll_char */
 public int no_hist_dups;	/* Remove dups from history list */
 public int mousecap;		/* Allow mouse for scrolling */
+public int mouse_lines;		/* Number of lines to scroll on mouse scroll */
 #if HILITE_SEARCH
 public int hilite_search;	/* Highlight matched search patterns? */
 #endif
@@ -117,6 +118,7 @@ static struct optname use_backslash_optname = { "use-backslash", NULL };
 static struct optname rscroll_optname = { "rscroll", NULL };
 static struct optname nohistdups_optname = { "nohistdups",       NULL };
 static struct optname mousecap_optname = { "mouse",              NULL };
+static struct optname mouse_lines_optname = { "wheel-lines",     NULL };
 
 
 /*
@@ -469,11 +471,19 @@ static struct loption option[] =
 		}
 	},
 	{ OLETTER_NONE, &mousecap_optname,
-		TRIPLE, OPT_OFF, &mousecap, NULL,
+		TRIPLE|NO_TOGGLE, OPT_OFF, &mousecap, NULL,
 		{
 			"Ignore mouse input",
 			"Use the mouse for scrolling",
 			"Use the mouse for scrolling (reverse)"
+		}
+	},
+	{ OLETTER_NONE, &mouse_lines_optname,
+		NUMBER|INIT_HANDLER, 0, &mouse_lines, opt_mouselines,
+		{
+			"Lines to scroll on mouse wheel: ",
+			"Scroll %d line(s) on mouse wheel",
+			NULL
 		}
 	},
 	{ '\0', NULL, NOVAR, 0, NULL, NULL, { NULL, NULL, NULL } }

@@ -65,6 +65,8 @@
 #define A_CLRMARK              62
 #define A_SETMARKBOT           63
 #define A_X11MOUSE_IN          64
+#define A_F_MOUSE              65
+#define A_B_MOUSE              66
 
 #define A_INVALID              100
 #define A_NOACTION             101

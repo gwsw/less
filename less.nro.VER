@@ -938,35 +938,43 @@ If the reopen succeeds and the file is a different file from the original
 with the same name as the original (now renamed) file),
 .I less
 will display the contents of that new file.
+.IP "\-\-mouse"
+Enables mouse input:
+scrolling the mouse wheel down moves forward in the file,
+scrolling the mouse wheel up moves backwards in the file,
+and clicking the mouse will set the "#" mark to the line 
+on which the mouse cursor sits.
+The number of lines to scroll when the wheel is moved 
+can be set by the \-\-wheel-lines option.
+Mouse input works only on terminals which support X11 mouse reporting
+and on the Windows version.
+.IP "\-\-MOUSE"
+Like \-\-mouse, except the scrolling direction is reversed.
 .IP "\-\-no-keypad"
 Disables sending the keypad initialization and deinitialization strings
 to the terminal.
 This is sometimes useful if the keypad strings make the numeric
 keypad behave in an undesirable manner.
-.IP "\-\-use-backslash"
-This option changes the interpretations of options which follow this one.
-After the \-\-use-backslash option, any backslash in an option string is
-removed and the following character is taken literally.
-This allows a dollar sign to be included in option strings.
-.IP "\-\-rscroll"
-This option changes the character used to mark truncated lines.
-It may begin with a two-character attribute indicator like LESSBINFMT does.
-If there is no attribute indicator, standout is used.
-If set to "-", truncated lines are not marked.
 .IP "\-\-nohistdups"
 This option changes the behavior so that if a search string or
 file name is typed in, and the same string is already in the history list, 
 the existing copy is removed from the history list before the new one is added.
 Thus, a given string will appear only once in the history list.
 Normally, a string may appear multiple times.
-.IP "\-\-mouse"
-Enables mouse input:
-scrolling the mouse wheel down moves forward in the file,
-scrolling the mouse wheel up moves backwards in the file,
-and clicking the mouse will set the "#" mark to the line on which the mouse cursor sits.
-Mouse input works only on terminals which support X11 mouse reporting.
-.IP "\-\-MOUSE"
-Like \-\-mouse, except the scrolling direction is reversed.
+.IP "\-\-rscroll"
+This option changes the character used to mark truncated lines.
+It may begin with a two-character attribute indicator like LESSBINFMT does.
+If there is no attribute indicator, standout is used.
+If set to "-", truncated lines are not marked.
+.IP "\-\-use-backslash"
+This option changes the interpretations of options which follow this one.
+After the \-\-use-backslash option, any backslash in an option string is
+removed and the following character is taken literally.
+This allows a dollar sign to be included in option strings.
+.IP "\-\-wheel-lines=\fIn\fP"
+Set the number of lines to scroll when the mouse wheel is scrolled
+and the \-\-mouse or \-\-MOUSE option is in effect.
+The default is 1 line.
 .IP \-\-
 A command line argument of "\-\-" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.
