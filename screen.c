@@ -208,7 +208,7 @@ public char *kent = NULL;	/* Keypad ENTER sequence */
 
 static int attrmode = AT_NORMAL;
 extern int binattr;
-extern int line_count;
+extern int one_screen;
 
 #if !MSDOS_COMPILER
 static char *cheaper();
@@ -1565,7 +1565,7 @@ win32_deinit_term()
 init()
 {
 #if !MSDOS_COMPILER
-	if (quit_if_one_screen && line_count >= sc_height)
+	if (quit_if_one_screen && !one_screen)
 		quit_if_one_screen = FALSE;
 	if (!no_init && !quit_if_one_screen)
 		tputs(sc_init, sc_height, putchr);

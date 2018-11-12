@@ -30,6 +30,7 @@ extern int erase_char, erase2_char, kill_char;
 extern int secure;
 extern int mousecap;
 extern int screen_trashed;
+extern int sc_height;
 
 #define SK(k) \
 	SK_SPECIAL_KEY, (k), 6, 1, 1, 1
@@ -433,8 +434,11 @@ x11mouse_action()
 		 * {{ It would be better to do this in commands()
 		 *    but it's nontrivial to pass y to it. }}
 		 */
-		setmark('#', y);
-		screen_trashed = 1;
+		if (y < sc_height-1)
+		{
+			setmark('#', y);
+			screen_trashed = 1;
+		}
 		return (A_NOACTION);
 	}
 }

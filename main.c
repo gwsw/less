@@ -7,6 +7,8 @@
 
 #include "less.h"
 #if MSDOS_COMPILER==WIN32C
+#define WIN32_LEAN_AND_MEAN
+#define _WIN32_WINNT 0x400
 #include <windows.h>
 #endif
 
@@ -46,7 +48,7 @@ extern int	jump_sline;
 static char consoleTitle[256];
 #endif
 
-public int  line_count;
+public int  one_screen;
 extern int	less_is_more;
 extern int	missing_cap;
 extern int	know_dumb;
@@ -273,7 +275,7 @@ main(argc, argv)
 		 * But don't need line count if -X overrides this (see init()).
 		 */
 		if (quit_if_one_screen && !no_init)
-			line_count = get_line_count();
+			one_screen = get_one_screen();
 	} else 
 	{
 		if (edit_first())  /* Edit first valid file in cmd line */
@@ -283,7 +285,7 @@ main(argc, argv)
 			if (nifile() > 1) /* If more than one file, -F cannot be used */
 				quit_if_one_screen = FALSE;
 			else if (!no_init)
-				line_count = get_line_count();
+				one_screen = get_one_screen();
 		}
 	}
 

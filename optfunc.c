@@ -19,11 +19,6 @@
 
 #include "less.h"
 #include "option.h"
-#if MSDOS_COMPILER==WIN32C
-#define WIN32_LEAN_AND_MEAN
-#define _WIN32_WINNT 0x400
-#include <windows.h>
-#endif
 
 extern int nbufs;
 extern int bufspace;
@@ -50,7 +45,7 @@ extern int shift_count;
 extern long shift_count_fraction;
 extern char rscroll_char;
 extern int rscroll_attr;
-extern int mouse_lines;
+extern int wheel_lines;
 extern int less_is_more;
 #if LOGFILE
 extern char *namelogfile;
@@ -820,7 +815,7 @@ opt_query(type, s)
  */
 	/*ARGSUSED*/
 	public void
-opt_mouselines(type, s)
+opt_wheel_lines(type, s)
 	int type;
 	char *s;
 {
@@ -828,13 +823,8 @@ opt_mouselines(type, s)
 	{
 	case INIT:
 	case TOGGLE:
-		if (mouse_lines <= 0)
-		{
-			mouse_lines = 1;
-#if MSDOS_COMPILER==WIN32C
-			SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &mouse_lines, 0);
-#endif
-		}
+		if (wheel_lines <= 0)
+			wheel_lines = get_wheel_lines();
 		break;
 	case QUERY:
 		break;

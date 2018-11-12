@@ -40,7 +40,7 @@ extern struct scrpos initial_scrpos;
 extern IFILE curr_ifile;
 extern void *ml_search;
 extern void *ml_examine;
-extern int mouse_lines;
+extern int wheel_lines;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
@@ -1283,18 +1283,18 @@ commands()
 
 		case A_F_MOUSE:
 			/*
-			 * Forward mouse_lines lines.
+			 * Forward wheel_lines lines.
 			 */
 			cmd_exec();
-			forward(mouse_lines, 0, 0);
+			forward(wheel_lines, 0, 0);
 			break;
 
 		case A_B_MOUSE:
 			/*
-			 * Backward mouse_lines lines.
+			 * Backward wheel_lines lines.
 			 */
 			cmd_exec();
-			backward(mouse_lines, 0, 0);
+			backward(wheel_lines, 0, 0);
 			break;
 
 		case A_FF_LINE:

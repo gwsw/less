@@ -863,6 +863,7 @@ v540  10/29/18  Add --mouse option.
 v541  10/30/18  Add --MOUSE option.
 v542  11/6/18   Add mouse support for WIN32; add --wheel-lines option.
                 (thanks to Jason Hood).
+v543  11/12/18  Code cleanup.
 */
 
-char version[] = "542";
+char version[] = "543";

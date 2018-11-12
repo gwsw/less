@@ -19,6 +19,7 @@ public int tty;
 #endif
 extern int sigs;
 extern int utf_mode;
+extern int wheel_lines;
 
 /*
  * Open keyboard for input.
@@ -101,6 +102,23 @@ pclose(f)
 	return result;
 }
 #endif
+
+/*
+ * Get the number of lines to scroll when mouse wheel is moved.
+ */
+	public int
+get_wheel_lines()
+{
+	int lines = wheel_lines;
+#if MSDOS_COMPILER==WIN32C
+	if (SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &lines, 0))
+	{
+		if (lines == WHEEL_PAGESCROLL)
+			lines = 3;
+	}
+#endif
+	return lines;
+}
 
 /*
  * Get a character from the keyboard.

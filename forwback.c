@@ -439,19 +439,18 @@ get_back_scroll()
 }
 
 /*
- * Return number of displayable lines in the file.
- * Stop counting at screen height + 1.
+ * Does entire file fit on one screen?
  */
 	public int
-get_line_count()
+get_one_screen()
 {
 	int nlines;
 	POSITION pos = ch_zero();
 
-	for (nlines = 0;  nlines <= sc_height;  nlines++)
+	for (nlines = 0;  nlines < sc_height;  nlines++)
 	{
 		pos = forw_line(pos);
 		if (pos == NULL_POSITION) break;
 	}
-	return nlines;
+	return (nlines < sc_height);
 }
