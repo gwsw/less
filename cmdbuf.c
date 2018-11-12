@@ -1398,7 +1398,7 @@ histfile_name()
 	
 	/* See if filename is explicitly specified by $LESSHISTFILE. */
 	name = lgetenv("LESSHISTFILE");
-	if (name != NULL && *name != '\0')
+	if (!isnullenv(name))
 	{
 		if (strcmp(name, "-") == 0 || strcmp(name, "/dev/null") == 0)
 			/* $LESSHISTFILE == "-" means don't use a history file. */
@@ -1412,11 +1412,11 @@ histfile_name()
 
 	/* Otherwise, file is in $HOME. */
 	home = lgetenv("HOME");
-	if (home == NULL || *home == '\0')
+	if (isnullenv(home))
 	{
 #if OS2
 		home = lgetenv("INIT");
-		if (home == NULL || *home == '\0')
+		if (isnullenv(home))
 #endif
 			return (NULL);
 	}

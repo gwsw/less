@@ -568,7 +568,7 @@ shellcmd(cmd)
 	char *shell;
 
 	shell = lgetenv("SHELL");
-	if (shell != NULL && *shell != '\0')
+	if (!isnullenv(shell))
 	{
 		char *scmd;
 		char *esccmd;
@@ -745,7 +745,7 @@ lglob(filename)
 		return (filename);
 	}
 	lessecho = lgetenv("LESSECHO");
-	if (lessecho == NULL || *lessecho == '\0')
+	if (isnullenv(lessecho))
 		lessecho = "lessecho";
 	/*
 	 * Invoke lessecho, and read its output (a globbed list of filenames).

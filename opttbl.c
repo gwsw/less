@@ -500,7 +500,7 @@ init_option()
 	char *p;
 
 	p = lgetenv("LESS_IS_MORE");
-	if (p != NULL && *p != '\0')
+	if (!isnullenv(p))
 		less_is_more = 1;
 
 	for (o = option;  o->oletter != '\0';  o++)

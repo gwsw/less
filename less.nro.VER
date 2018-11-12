@@ -942,14 +942,16 @@ will display the contents of that new file.
 Enables mouse input:
 scrolling the mouse wheel down moves forward in the file,
 scrolling the mouse wheel up moves backwards in the file,
-and clicking the mouse will set the "#" mark to the line 
-on which the mouse cursor sits.
+and clicking the mouse sets the "#" mark to the line 
+where the mouse is clicked.
 The number of lines to scroll when the wheel is moved 
 can be set by the \-\-wheel-lines option.
-Mouse input works only on terminals which support X11 mouse reporting
-and on the Windows version.
+Mouse input works only on terminals which support X11 mouse reporting,
+and on the Windows version of 
+.IR less .
 .IP "\-\-MOUSE"
-Like \-\-mouse, except the scrolling direction is reversed.
+Like \-\-mouse, except the direction scrolled 
+on mouse wheel movement is reversed.
 .IP "\-\-no-keypad"
 Disables sending the keypad initialization and deinitialization strings
 to the terminal.

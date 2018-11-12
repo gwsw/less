@@ -331,7 +331,7 @@ set_charset()
 	 * LESSCHARSET is not defined: try LESSCHARDEF.
 	 */
 	s = lgetenv("LESSCHARDEF");
-	if (s != NULL && *s != '\0')
+	if (!isnullenv(s))
 	{
 		ichardef(s);
 		return;

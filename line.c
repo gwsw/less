@@ -75,11 +75,11 @@ static POSITION mbc_pos;
 init_line()
 {
 	end_ansi_chars = lgetenv("LESSANSIENDCHARS");
-	if (end_ansi_chars == NULL || *end_ansi_chars == '\0')
+	if (isnullenv(end_ansi_chars))
 		end_ansi_chars = "m";
 
 	mid_ansi_chars = lgetenv("LESSANSIMIDCHARS");
-	if (mid_ansi_chars == NULL || *mid_ansi_chars == '\0')
+	if (isnullenv(mid_ansi_chars))
 		mid_ansi_chars = "0123456789:;[?!\"'#%()*+ ";
 
 	linebuf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));

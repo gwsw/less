@@ -113,7 +113,7 @@ struct keyRecord
 static int keyCount = 0;
 static WORD curr_attr;
 static int pending_scancode = 0;
-static char x11mousebuf[] = "[M???";    /* \e is separate */
+static char x11mousebuf[] = "[M???";    /* Mouse report, after ESC */
 static int x11mousePos, x11mouseCount;
 
 static HANDLE con_out_save = INVALID_HANDLE_VALUE; /* previous console */
@@ -637,7 +637,7 @@ ltget_env(capname)
 	char *s;
 
 	s = lgetenv("LESS_TERMCAP_DEBUG");
-	if (s != NULL && *s != '\0')
+	if (!isnullenv(s))
 	{
 		struct env { struct env *next; char *name; char *value; };
 		static struct env *envs = NULL;
@@ -1141,7 +1141,7 @@ get_term()
 	 * Make sure the termcap database is available.
 	 */
 	sp = lgetenv("TERMCAP");
-	if (sp == NULL || *sp == '\0')
+	if (isnullenv(sp))
 	{
 		char *termcap;
 		if ((sp = homefile("termcap.dat")) != NULL)
@@ -1222,10 +1222,10 @@ get_term()
 	kent = ltgetstr("@8", &sp);
 
 	sc_s_mousecap = lgetenv("LESS_TERMCAP_MOUSE_START");
-	if (sc_s_mousecap == NULL || *sc_s_mousecap == '\0')
+	if (isnullenv(sc_s_mousecap))
 		sc_s_mousecap = "\33[?1000h";
 	sc_e_mousecap = lgetenv("LESS_TERMCAP_MOUSE_END");
-	if (sc_e_mousecap == NULL || *sc_e_mousecap == '\0')
+	if (isnullenv(sc_e_mousecap))
 		sc_e_mousecap = "\33[?1000l";
 
 	sc_init = ltgetstr("ti", &sp);

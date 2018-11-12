@@ -76,7 +76,7 @@ main(argc, argv)
 
 	secure = 0;
 	s = lgetenv("LESSSECURE");
-	if (s != NULL && *s != '\0')
+	if (!isnullenv(s))
 		secure = 1;
 
 #ifdef WIN32
@@ -159,11 +159,11 @@ main(argc, argv)
 	if (editor == NULL || *editor == '\0')
 	{
 		editor = lgetenv("EDITOR");
-		if (editor == NULL || *editor == '\0')
+		if (isnullenv(editor))
 			editor = EDIT_PGM;
 	}
 	editproto = lgetenv("LESSEDIT");
-	if (editproto == NULL || *editproto == '\0')
+	if (isnullenv(editproto))
 		editproto = "%E ?lm+%lm. %g";
 #endif
 

@@ -522,7 +522,7 @@ findgtag(tag, type)
 		char *qtag;
 		char *cmd = lgetenv("LESSGLOBALTAGS");
 
-		if (cmd == NULL || *cmd == '\0')
+		if (isnullenv(cmd))
 			return TAG_NOFILE;
 		/* Get suitable flag value for global(1). */
 		switch (type)

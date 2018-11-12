@@ -607,6 +607,16 @@ lgetenv(var)
 	return (NULL);
 }
 
+/*
+ * Is a string null or empty? 
+ */
+	public int
+isnullenv(s)
+	char* s;
+{
+	return (s == NULL || *s == '\0');
+}
+
 #if USERFILE
 /*
  * Get an "integer" from a lesskey file.
