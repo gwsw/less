@@ -1565,9 +1565,7 @@ win32_deinit_term()
 init()
 {
 #if !MSDOS_COMPILER
-	if (quit_if_one_screen && !one_screen)
-		quit_if_one_screen = FALSE;
-	if (!no_init && !quit_if_one_screen)
+	if (!no_init && !(quit_if_one_screen && one_screen))
 		tputs(sc_init, sc_height, putchr);
 	if (!no_keypad)
 		tputs(sc_s_keypad, sc_height, putchr);
