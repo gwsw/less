@@ -439,7 +439,7 @@ get_back_scroll()
 }
 
 /*
- * Does entire file fit on one screen?
+ * Will the entire file fit on one screen?
  */
 	public int
 get_one_screen()

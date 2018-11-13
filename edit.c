@@ -570,6 +570,8 @@ edit_list(filelist)
 	public int
 edit_first()
 {
+	if (nifile() == 0)
+		return (edit_stdin());
 	curr_ifile = NULL_IFILE;
 	return (edit_next(1));
 }

@@ -266,20 +266,13 @@ main(argc, argv)
 		initial_scrpos.ln = jump_sline;
 	} else
 #endif
-	if (nifile() == 0)
 	{
-		if (edit_stdin())  /* Edit standard input */
+		if (edit_first())
 			quit(QUIT_ERROR);
 		/*
 		 * Use line count to decide whether to send terminal init.
 		 * But don't need line count if -X overrides this (see init()).
 		 */
-		if (quit_if_one_screen && !no_init)
-			one_screen = get_one_screen();
-	} else 
-	{
-		if (edit_first())  /* Edit first valid file in cmd line */
-			quit(QUIT_ERROR);
 		if (quit_if_one_screen)
 		{
 			if (nifile() > 1) /* If more than one file, -F cannot be used */
