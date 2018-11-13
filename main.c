@@ -216,11 +216,7 @@ main(argc, argv)
 		 * Just copy the input file(s) to output.
 		 */
 		SET_BINARY(1);
-		if (nifile() == 0)
-		{
-			if (edit_stdin() == 0)
-				cat_file();
-		} else if (edit_first() == 0)
+		if (edit_first() == 0)
 		{
 			do {
 				cat_file();
@@ -270,8 +266,9 @@ main(argc, argv)
 		if (edit_first())
 			quit(QUIT_ERROR);
 		/*
-		 * Use line count to decide whether to send terminal init.
-		 * But don't need line count if -X overrides this (see init()).
+		 * See if file fits on one screen to decide whether 
+		 * to send terminal init. But don't need this 
+		 * if -X (no_init) overrides this (see init()).
 		 */
 		if (quit_if_one_screen)
 		{
