@@ -464,6 +464,7 @@ struct wchar_range_table
 #endif /* IS_EBCDIC_HOST */
 
 #define	ESC		CONTROL('[')
+#define	ESCS		"\33"
 #define	CSI		((unsigned char)'\233')
 #define	CHAR_END_COMMAND 0x40000000
 

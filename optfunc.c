@@ -824,7 +824,7 @@ opt_wheel_lines(type, s)
 	case INIT:
 	case TOGGLE:
 		if (wheel_lines <= 0)
-			wheel_lines = get_wheel_lines();
+			wheel_lines = default_wheel_lines();
 		break;
 	case QUERY:
 		break;

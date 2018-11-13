@@ -107,9 +107,9 @@ pclose(f)
  * Get the number of lines to scroll when mouse wheel is moved.
  */
 	public int
-get_wheel_lines()
+default_wheel_lines()
 {
-	int lines = wheel_lines;
+	int lines = 1;
 #if MSDOS_COMPILER==WIN32C
 	if (SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &lines, 0))
 	{
@@ -184,7 +184,7 @@ getchr()
 			else if (c >= 'A' && c <= 'F')
 				v = c - 'A' + 10;
 			else
-				hex_in = 0;
+				v = 0;
 			hex_value = (hex_value << 4) | v;
 			if (--hex_in > 0)
 			{

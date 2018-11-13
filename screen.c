@@ -1223,10 +1223,10 @@ get_term()
 
 	sc_s_mousecap = lgetenv("LESS_TERMCAP_MOUSE_START");
 	if (isnullenv(sc_s_mousecap))
-		sc_s_mousecap = "\33[?1000h";
+		sc_s_mousecap = ESCS "[?1000h";
 	sc_e_mousecap = lgetenv("LESS_TERMCAP_MOUSE_END");
 	if (isnullenv(sc_e_mousecap))
-		sc_e_mousecap = "\33[?1000l";
+		sc_e_mousecap = ESCS "[?1000l";
 
 	sc_init = ltgetstr("ti", &sp);
 	if (sc_init == NULL)
