@@ -633,7 +633,7 @@ static int hardcopy;
 ltget_env(capname)
 	char *capname;
 {
-	char name[16];
+	char name[64];
 	char *s;
 
 	s = lgetenv("LESS_TERMCAP_DEBUG");
@@ -653,8 +653,7 @@ ltget_env(capname)
 		envs = p;
 		return p->value;
 	}
-	strcpy(name, "LESS_TERMCAP_");
-	strcat(name, capname);
+    SNPRINTF1(name, sizeof(name), "LESS_TERMCAP_%s", capname);
 	return (lgetenv(name));
 }
 
@@ -1221,11 +1220,11 @@ get_term()
 		sc_e_keypad = "";
 	kent = ltgetstr("@8", &sp);
 
-	sc_s_mousecap = lgetenv("LESS_TERMCAP_MOUSE_START");
-	if (isnullenv(sc_s_mousecap))
+	sc_s_mousecap = ltgetstr("MOUSE_START", &sp);
+	if (sc_s_mousecap == NULL)
 		sc_s_mousecap = ESCS "[?1000h";
-	sc_e_mousecap = lgetenv("LESS_TERMCAP_MOUSE_END");
-	if (isnullenv(sc_e_mousecap))
+	sc_e_mousecap = ltgetstr("MOUSE_END", &sp);
+	if (sc_e_mousecap == NULL)
 		sc_e_mousecap = ESCS "[?1000l";
 
 	sc_init = ltgetstr("ti", &sp);
