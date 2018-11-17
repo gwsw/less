@@ -864,6 +864,7 @@ v541  10/30/18  Add --MOUSE option.
 v542  11/6/18   Add mouse support for WIN32; add --wheel-lines option.
                 (thanks to Jason Hood).
 v543  11/12/18  Code cleanup.
+v544  11/16/18  Don't init/deinit keyboard/mouse if quit due to -F.
 */
 
-char version[] = "543";
+char version[] = "544";
