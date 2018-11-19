@@ -91,7 +91,7 @@ static void multi_search();
 	static void
 cmd_exec()
 {
-    clear_attn();
+	clear_attn();
 	clear_bot();
 	flush();
 }
@@ -456,6 +456,7 @@ mca_opt_char(c)
 			error("There is no %s option", &parg);
 			return (MCA_DONE);
 		}
+		opt_lower = ASCII_IS_LOWER(c);
 	}
 	/*
 	 * If the option which was entered does not take a 
@@ -465,7 +466,7 @@ mca_opt_char(c)
 	if ((optflag & ~OPT_NO_PROMPT) != OPT_TOGGLE ||
 	    !opt_has_param(curropt))
 	{
-		toggle_option(curropt, ASCII_IS_LOWER(c), "", optflag);
+		toggle_option(curropt, opt_lower, "", optflag);
 		return (MCA_DONE);
 	}
 	/*
@@ -891,8 +892,8 @@ getcc_repl(orig, repl, gr_getc, gr_ungetc)
 	public int
 getcc()
 {
-    /* Replace kent (keypad Enter) with a newline. */
-    return getcc_repl(kent, "\n", getccu, ungetcc);
+	/* Replace kent (keypad Enter) with a newline. */
+	return getcc_repl(kent, "\n", getccu, ungetcc);
 }
 
 /*

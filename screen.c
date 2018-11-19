@@ -1557,6 +1557,22 @@ win32_deinit_term()
 
 #endif
 
+	public void
+init_mouse()
+{
+#if !MSDOS_COMPILER
+	tputs(sc_s_mousecap, sc_height, putchr);
+#endif
+}
+
+	public void
+deinit_mouse()
+{
+#if !MSDOS_COMPILER
+	tputs(sc_e_mousecap, sc_height, putchr);
+#endif
+}
+
 /*
  * Initialize terminal
  */
@@ -1564,15 +1580,15 @@ win32_deinit_term()
 init()
 {
 #if !MSDOS_COMPILER
-    if (!(quit_if_one_screen && one_screen))
-    {
-        if (!no_init)
-            tputs(sc_init, sc_height, putchr);
-        if (!no_keypad)
-            tputs(sc_s_keypad, sc_height, putchr);
-        if (mousecap)
-            tputs(sc_s_mousecap, sc_height, putchr);
-    }
+	if (!(quit_if_one_screen && one_screen))
+	{
+		if (!no_init)
+			tputs(sc_init, sc_height, putchr);
+		if (!no_keypad)
+			tputs(sc_s_keypad, sc_height, putchr);
+		if (mousecap)
+			init_mouse();
+	}
 	if (top_scroll) 
 	{
 		int i;
@@ -1607,15 +1623,15 @@ deinit()
 	if (!init_done)
 		return;
 #if !MSDOS_COMPILER
-    if (!(quit_if_one_screen && one_screen))
-    {
-        if (mousecap)
-            tputs(sc_e_mousecap, sc_height, putchr);
-        if (!no_keypad)
-            tputs(sc_e_keypad, sc_height, putchr);
-        if (!no_init)
-            tputs(sc_deinit, sc_height, putchr);
-    }
+	if (!(quit_if_one_screen && one_screen))
+	{
+		if (mousecap)
+			deinit_mouse();
+		if (!no_keypad)
+			tputs(sc_e_keypad, sc_height, putchr);
+		if (!no_init)
+			tputs(sc_deinit, sc_height, putchr);
+	}
 #else
 	/* Restore system colors. */
 	SETCOLORS(sy_fg_color, sy_bg_color);

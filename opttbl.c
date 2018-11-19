@@ -50,7 +50,7 @@ public char rscroll_char;	/* Char which marks chopped lines with -S */
 public int rscroll_attr;	/* Attribute of rscroll_char */
 public int no_hist_dups;	/* Remove dups from history list */
 public int mousecap;		/* Allow mouse for scrolling */
-public int wheel_lines;		/* Number of lines to scroll on mouse scroll */
+public int wheel_lines;		/* Number of lines to scroll on mouse wheel scroll */
 #if HILITE_SEARCH
 public int hilite_search;	/* Highlight matched search patterns? */
 #endif
@@ -471,7 +471,7 @@ static struct loption option[] =
 		}
 	},
 	{ OLETTER_NONE, &mousecap_optname,
-		TRIPLE|NO_TOGGLE, OPT_OFF, &mousecap, NULL,
+		TRIPLE, OPT_OFF, &mousecap, opt_mousecap,
 		{
 			"Ignore mouse input",
 			"Use the mouse for scrolling",

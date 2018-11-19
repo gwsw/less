@@ -45,6 +45,7 @@ extern int shift_count;
 extern long shift_count_fraction;
 extern char rscroll_char;
 extern int rscroll_attr;
+extern int mousecap;
 extern int wheel_lines;
 extern int less_is_more;
 #if LOGFILE
@@ -807,6 +808,29 @@ opt_query(type, s)
 		break;
 	case INIT:
 		dohelp = 1;
+	}
+}
+
+/*
+ * Handler for the --mouse option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_mousecap(type, s)
+	int type;
+	char *s;
+{
+	switch (type)
+	{
+	case TOGGLE:
+		if (mousecap == OPT_OFF)
+			deinit_mouse();
+		else
+			init_mouse();
+		break;
+	case INIT:
+	case QUERY:
+		break;
 	}
 }
 
