@@ -1557,6 +1557,10 @@ win32_deinit_term()
 
 #endif
 
+/*
+ * Configure the termimal so mouse clicks and wheel moves 
+ * produce input to less.
+ */
 	public void
 init_mouse()
 {
@@ -1565,6 +1569,10 @@ init_mouse()
 #endif
 }
 
+/*
+ * Configure the terminal so mouse clicks and wheel moves
+ * are handled by the system (so text can be selected, etc).
+ */
 	public void
 deinit_mouse()
 {
