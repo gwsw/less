@@ -8,7 +8,6 @@
 #include "less.h"
 #if MSDOS_COMPILER==WIN32C
 #define WIN32_LEAN_AND_MEAN
-#define _WIN32_WINNT 0x400
 #include <windows.h>
 #endif
 
