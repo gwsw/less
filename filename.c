@@ -772,7 +772,7 @@ lglob(filename)
 	if (*gfilename == '\0')
 	{
 		free(gfilename);
-		return (save(filename));
+		return (filename);
 	}
 }
 #else

@@ -143,8 +143,11 @@ scan_option(s)
 			if (s == NULL)
 				return;
 			if (*str == '+')
+			{
+				if (every_first_cmd != NULL)
+					free(every_first_cmd);
 				every_first_cmd = save(str+1);
-			else
+			} else
 			{
 				ungetcc(CHAR_END_COMMAND);
 				ungetsc(str);
