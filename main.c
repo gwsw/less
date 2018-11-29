@@ -107,6 +107,7 @@ main(argc, argv)
 	 * Command line arguments override environment arguments.
 	 */
 	is_tty = isatty(1);
+	init_mark();
 	init_cmds();
 	get_term();
 	expand_cmd_tables();
@@ -226,7 +227,6 @@ main(argc, argv)
 
 	if (missing_cap && !know_dumb)
 		error("WARNING: terminal is not fully functional", NULL_PARG);
-	init_mark();
 	open_getchr();
 	raw_mode(1);
 	init_signals(1);

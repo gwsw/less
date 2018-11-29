@@ -866,6 +866,7 @@ v542  11/6/18   Add mouse support for WIN32; add --wheel-lines option.
 v543  11/12/18  Code cleanup.
 v544  11/16/18  Don't init/deinit keyboard/mouse if quit due to -F.
 v545  11/22/18  Fix Windows build, memory leaks.
+v546  11/29/18  Add --save-marks option.
 */
 
-char version[] = "545";
+char version[] = "546";

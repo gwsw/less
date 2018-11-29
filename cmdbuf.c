@@ -16,6 +16,7 @@
 extern int sc_width;
 extern int utf_mode;
 extern int no_hist_dups;
+extern int marks_modified;
 
 static char cmdbuf[CMDBUF_SIZE]; /* Buffer for holding a multi-char command */
 static int cmd_col;		/* Current column of the cursor */
@@ -52,6 +53,7 @@ public char closequote = '"';
 #define HISTFILE_FIRST_LINE      ".less-history-file:"
 #define HISTFILE_SEARCH_SECTION  ".search"
 #define HISTFILE_SHELL_SECTION   ".shell"
+#define HISTFILE_MARK_SECTION    ".mark"
 
 /*
  * A mlist structure represents a command history.
@@ -1479,6 +1481,9 @@ read_cmdhist2(action, uparam, skip_search, skip_shell)
 			ml = NULL;
 			skip = NULL;
 #endif
+		} else if (strcmp(line, HISTFILE_MARK_SECTION) == 0)
+		{
+			ml = NULL;
 		} else if (*line == '"')
 		{
 			if (ml != NULL)
@@ -1488,6 +1493,9 @@ read_cmdhist2(action, uparam, skip_search, skip_shell)
 				else
 					(*action)(uparam, ml, line+1);
 			}
+		} else if (*line == 'm')
+		{
+			restore_mark(line);
 		}
 	}
 	fclose(f);
@@ -1656,6 +1664,10 @@ histfile_modified()
 	if (mlist_shell.modified)
 		return 1;
 #endif
+#if CMD_HISTORY
+	if (marks_modified)
+		return 1;
+#endif
 	return 0;
 }
 
@@ -1698,6 +1710,7 @@ save_cmdhist()
 		ctx.fout = fout;
 		ctx.mlist = NULL;
 		read_cmdhist(copy_hist, &ctx, skip_search, skip_shell);
+		save_marks(fout, HISTFILE_MARK_SECTION);
 		fclose(fout);
 #if MSDOS_COMPILER==WIN32C
 		/*

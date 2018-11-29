@@ -203,16 +203,20 @@
                   Don't display tildes after end of file.
   -# [_N]  ....  --shift=[_N]
                   Horizontal scroll amount (0 = one half screen width)
-                --no-keypad
-                  Don't send termcap keypad init/deinit strings.
                 --follow-name
                   The F command changes files if the input file is renamed.
-                --use-backslash
-                  Subsequent options use backslash as escape char.
+                --mouse
+                  Enable mouse input.
+                --no-keypad
+                  Don't send termcap keypad init/deinit strings.
+                --no-histdups
+                  Remove duplicates from command history.
                 --rscroll=C
                   Set the character used to mark truncated lines.
-                --nohistdups
-                  Remove duplicates from command history.
+                --save-marks
+                  Retain marks across invocations of less.
+                --use-backslash
+                  Subsequent options use backslash as escape char.
 
 
  ---------------------------------------------------------------------------

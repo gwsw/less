@@ -260,7 +260,7 @@ AC_TRY_COMPILE([], [int f(int a) { return a; }],
 
 # Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([fsync popen _setjmp sigprocmask sigsetmask snprintf stat system fchmod])
+AC_CHECK_FUNCS([fsync popen _setjmp sigprocmask sigsetmask snprintf stat system fchmod realpath])
 
 # AC_CHECK_FUNCS may not work for inline functions, so test these separately.
 AC_MSG_CHECKING(for memcpy)

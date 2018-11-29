@@ -51,6 +51,7 @@ public int rscroll_attr;	/* Attribute of rscroll_char */
 public int no_hist_dups;	/* Remove dups from history list */
 public int mousecap;		/* Allow mouse for scrolling */
 public int wheel_lines;		/* Number of lines to scroll on mouse wheel scroll */
+public int perma_marks;		/* Save marks in history file */
 #if HILITE_SEARCH
 public int hilite_search;	/* Highlight matched search patterns? */
 #endif
@@ -116,9 +117,10 @@ static struct optname oldbot_optname = { "old-bot",              NULL };
 static struct optname follow_optname = { "follow-name",          NULL };
 static struct optname use_backslash_optname = { "use-backslash", NULL };
 static struct optname rscroll_optname = { "rscroll", NULL };
-static struct optname nohistdups_optname = { "nohistdups",       NULL };
+static struct optname nohistdups_optname = { "no-histdups",      NULL };
 static struct optname mousecap_optname = { "mouse",              NULL };
 static struct optname wheel_lines_optname = { "wheel-lines",     NULL };
+static struct optname perma_marks_optname = { "save-marks",     NULL };
 
 
 /*
@@ -483,6 +485,14 @@ static struct loption option[] =
 		{
 			"Lines to scroll on mouse wheel: ",
 			"Scroll %d line(s) on mouse wheel",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &perma_marks_optname,
+		BOOL, OPT_OFF, &perma_marks, NULL,
+		{
+			"Don't save marks in history file",
+			"Save marks in history file",
 			NULL
 		}
 	},

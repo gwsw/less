@@ -476,6 +476,27 @@ TYPE_TO_A_FUNC(linenumtoa, LINENUM)
 TYPE_TO_A_FUNC(inttoa, int)
 
 /*
+ * Convert an string to an integral type.
+ */
+#define STR_TO_TYPE_FUNC(funcname, type) \
+type funcname(buf, ebuf) \
+	char *buf; \
+	char **ebuf; \
+{ \
+	type val = 0; \
+	for (;;) { \
+		char c = *buf++; \
+		if (c < '0' || c > '9') break; \
+		val = 10 * val + c - '0'; \
+	} \
+	if (ebuf != NULL) *ebuf = buf; \
+	return val; \
+}
+
+STR_TO_TYPE_FUNC(lstrtopos, POSITION);
+STR_TO_TYPE_FUNC(lstrtoi, int);
+
+/*
  * Output an integer in a given radix.
  */
 	static int

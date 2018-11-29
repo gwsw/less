@@ -788,6 +788,21 @@ lglob(filename)
 }
 
 /*
+ * @@@
+ */
+	public char *
+lrealpath(path)
+	char *path;
+{
+#if HAVE_REALPATH
+	char rpath[PATH_MAX];
+	if (realpath(path, rpath) != NULL)
+		return (save(rpath));
+#endif
+	return (save(path));
+}
+
+/*
  * Return number of %s escapes in a string.
  * Return a large number if there are any other % escapes besides %s.
  */

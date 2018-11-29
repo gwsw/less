@@ -957,7 +957,7 @@ Disables sending the keypad initialization and deinitialization strings
 to the terminal.
 This is sometimes useful if the keypad strings make the numeric
 keypad behave in an undesirable manner.
-.IP "\-\-nohistdups"
+.IP "\-\-no-histdups"
 This option changes the behavior so that if a search string or
 file name is typed in, and the same string is already in the history list, 
 the existing copy is removed from the history list before the new one is added.
@@ -968,6 +968,9 @@ This option changes the character used to mark truncated lines.
 It may begin with a two-character attribute indicator like LESSBINFMT does.
 If there is no attribute indicator, standout is used.
 If set to "-", truncated lines are not marked.
+.IP "\-\-save-marks"
+Save marks in the history file, so marks are retained
+across different invocations of \fIless\fP.
 .IP "\-\-use-backslash"
 This option changes the interpretations of options which follow this one.
 After the \-\-use-backslash option, any backslash in an option string is

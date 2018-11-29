@@ -295,15 +295,6 @@ struct scrpos
 	int ln;
 };
 
-/*
- * A mark is an ifile (input file) plus a position within the file.
- */
-struct mark 
-{
-	IFILE m_ifile;
-	struct scrpos m_scrpos;
-};
-
 typedef union parg
 {
 	char *p_string;
@@ -544,6 +535,8 @@ struct hilite_tree;
 void postoa LESSPARAMS ((POSITION, char*));
 void linenumtoa LESSPARAMS ((LINENUM, char*));
 void inttoa LESSPARAMS ((int, char*));
+int lstrtoi LESSPARAMS ((char*, char**));
+POSITION lstrtopos LESSPARAMS ((char*, char**));
 #if MSDOS_COMPILER==WIN32C
 int pclose LESSPARAMS ((FILE*));
 #endif

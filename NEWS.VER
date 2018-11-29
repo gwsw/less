@@ -17,7 +17,9 @@
 
 * Add --wheel-lines option.
 
-* Add --nohistdups option.
+* Add --no-histdups option.
+
+* Add --save-marks  option.
 
 * Support PCRE2 regular expression library.
 
