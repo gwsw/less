@@ -18,7 +18,7 @@ struct mark
 	 * Normally m_ifile != IFILE_NULL and m_filename == NULL.
 	 * For restored marks we set m_filename instead of m_ifile
 	 * because we don't want to create an ifile until the 
-	 * user requests the file (by name or mark).
+	 * user explicitly requests the file (by name or mark).
 	 */
 	char m_letter;           /* Associated character */
 	IFILE m_ifile;           /* Input file being marked */
@@ -53,7 +53,7 @@ init_mark()
 		switch (i) {
 		case MOUSEMARK: letter = '#'; break;
 		case LASTMARK: letter = '\''; break;
-		default: letter = (i < 26) ? 'a' + i : 'A' + i-26; break;
+		default: letter = (i < 26) ? 'a'+i : 'A'+i-26; break;
 		}
 		marks[i].m_letter = letter;
 		marks[i].m_scrpos.pos = NULL_POSITION;
@@ -84,7 +84,7 @@ mark_get_ifile(m)
 	struct mark *m;
 {
 	if (m->m_ifile != NULL_IFILE)
-		return;
+		return; /* m_ifile is already set */
 	m->m_ifile = get_ifile(m->m_filename, prev_ifile(NULL_IFILE));
 	/* With m_ifile set, m_filename is no longer needed. */
 	free(m->m_filename);
@@ -92,7 +92,7 @@ mark_get_ifile(m)
 }
 
 /*
- * See if a mark letter is valid (between a and z).
+ * Return the user mark struct identified by a character.
  */
 	static struct mark *
 getumark(c)
@@ -110,7 +110,7 @@ getumark(c)
 
 /*
  * Get the mark structure identified by a character.
- * The mark struct may come either from the mark table
+ * The mark struct may either be in the mark table (user mark)
  * or may be constructed on the fly for certain characters like ^, $.
  */
 	static struct mark *
@@ -154,9 +154,6 @@ getmark(c)
 		 * The "last mark".
 		 */
 		m = &marks[LASTMARK];
-		break;
-	case '#':
-		m = &marks[MOUSEMARK];
 		break;
 	default:
 		/*
@@ -221,6 +218,11 @@ clrmark(c)
 	m = getumark(c);
 	if (m == NULL)
 		return;
+	if (m->m_scrpos.pos == NULL_POSITION)
+	{
+		bell();
+		return;
+	}
 	m->m_scrpos.pos = NULL_POSITION;
 	marks_modified = 1;
 }
@@ -249,7 +251,7 @@ gomark(c)
 	int c;
 {
 	struct mark *m;
-	struct scrpos scrpos;
+//struct scrpos scrpos;
 
 	m = getmark(c);
 	if (m == NULL)
@@ -259,6 +261,7 @@ gomark(c)
 	 * If we're trying to go to the lastmark and 
 	 * it has not been set to anything yet,
 	 * set it to the beginning of the current file.
+	 * {{ Couldn't we instead set marks[LASTMARK] in edit()? }}
 	 */
 	if (m == &marks[LASTMARK] && m->m_scrpos.pos == NULL_POSITION)
 		cmark(m, curr_ifile, ch_zero(), jump_sline);
@@ -270,7 +273,7 @@ gomark(c)
 	 * because if we call edit_ifile() below, lmark will change.
 	 * (We save the screen position even if we're not using lmark.)
 	 */
-	scrpos = m->m_scrpos;
+//scrpos = m->m_scrpos;
 	if (m->m_ifile != curr_ifile)
 	{
 		/*
@@ -280,7 +283,7 @@ gomark(c)
 			return;
 	}
 
-	jump_loc(scrpos.pos, scrpos.ln);
+	jump_loc(m->m_scrpos.pos, m->m_scrpos.ln);
 }
 
 /*
@@ -386,7 +389,7 @@ save_marks(fout, hdr)
 {
 	int i;
 
-	if (!perma_marks || !marks_modified)
+	if (!perma_marks)
 		return;
 
 	fprintf(fout, "%s\n", hdr);
