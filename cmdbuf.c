@@ -1495,7 +1495,7 @@ read_cmdhist2(action, uparam, skip_search, skip_shell)
 			}
 		} else if (*line == 'm')
 		{
-			restore_mark(line);
+			(*action)(uparam, NULL, line);
 		}
 	}
 	fclose(f);
@@ -1515,9 +1515,10 @@ read_cmdhist(action, uparam, skip_search, skip_shell)
 	static void
 addhist_init(void *uparam, struct mlist *ml, char *string)
 {
-	if (ml == NULL || string == NULL)
-		return;
-	cmd_addhist(ml, string, 0);
+	if (ml != NULL)
+		cmd_addhist(ml, string, 0);
+	else if (string != NULL)
+		restore_mark(string);
 }
 #endif /* CMD_HISTORY */
 
@@ -1598,7 +1599,7 @@ copy_hist(void *uparam, struct mlist *ml, char *string)
 {
 	struct save_ctx *ctx = (struct save_ctx *) uparam;
 
-	if (ml != ctx->mlist) {
+	if (ml != NULL && ml != ctx->mlist) {
 		/* We're changing mlists. */
 		if (ctx->mlist)
 			/* Append any new entries to the end of the current mlist. */
@@ -1607,12 +1608,8 @@ copy_hist(void *uparam, struct mlist *ml, char *string)
 		ctx->mlist = ml;
 		write_mlist_header(ctx->mlist, ctx->fout);
 	}
-	if (string != NULL)
-	{
-		/* Copy the entry. */
-		fprintf(ctx->fout, "\"%s\n", string);
-	}
-	if (ml == NULL) /* End of file */
+
+	if (string == NULL) /* End of file */
 	{
 		/* Write any sections that were not in the original file. */
 		if (mlist_search.modified)
@@ -1627,7 +1624,12 @@ copy_hist(void *uparam, struct mlist *ml, char *string)
 			write_mlist(&mlist_shell, ctx->fout);
 		}
 #endif
+	} else if (ml != NULL)
+	{
+		/* Copy mlist entry. */
+		fprintf(ctx->fout, "\"%s\n", string);
 	}
+	/* Skip marks */
 }
 #endif /* CMD_HISTORY */
 
@@ -1709,7 +1711,7 @@ save_cmdhist()
 		fprintf(fout, "%s\n", HISTFILE_FIRST_LINE);
 		ctx.fout = fout;
 		ctx.mlist = NULL;
-		read_cmdhist(copy_hist, &ctx, skip_search, skip_shell);
+		read_cmdhist(&copy_hist, &ctx, skip_search, skip_shell);
 		save_marks(fout, HISTFILE_MARK_SECTION);
 		fclose(fout);
 #if MSDOS_COMPILER==WIN32C
