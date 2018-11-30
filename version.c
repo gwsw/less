@@ -867,6 +867,7 @@ v543  11/12/18  Code cleanup.
 v544  11/16/18  Don't init/deinit keyboard/mouse if quit due to -F.
 v545  11/22/18  Fix Windows build, memory leaks.
 v546  11/29/18  Add --save-marks option.
+v547  11/30/18  Fix some bugs with saved marks.
 */
 
-char version[] = "546";
+char version[] = "547";

@@ -1403,7 +1403,7 @@ commands()
 				number = 0;
 				fraction = 0;
 			}
-			if (number > 100)
+			if (number > 100 || (number == 100 && fraction != 0))
 			{
 				number = 100;
 				fraction = 0;

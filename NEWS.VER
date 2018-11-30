@@ -19,7 +19,7 @@
 
 * Add --no-histdups option.
 
-* Add --save-marks  option.
+* Add --save-marks option.
 
 * Support PCRE2 regular expression library.
 
