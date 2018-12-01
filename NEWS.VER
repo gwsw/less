@@ -27,6 +27,8 @@
 
 * Shell-escape filenames in history so they can be used again.
 
+* Ring bell if user enters invalid long option name.
+
 * Use PCRE_UTF8 flag for pcre regular expressions when in UTF-8 mode.
 
 * Windows: use wide-char string to set console title.

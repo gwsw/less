@@ -368,6 +368,7 @@ mca_opt_nonfirst_char(c)
 {
 	char *p;
 	char *oname;
+	int err;
 
 	if (curropt != NULL)
 	{
@@ -387,7 +388,8 @@ mca_opt_nonfirst_char(c)
 		return (MCA_DONE);
 	p = get_cmdbuf();
 	opt_lower = ASCII_IS_LOWER(p[0]);
-	curropt = findopt_name(&p, &oname, NULL);
+	err = 0;
+	curropt = findopt_name(&p, &oname, &err);
 	if (curropt != NULL)
 	{
 		/*
@@ -405,6 +407,10 @@ mca_opt_nonfirst_char(c)
 			if (cmd_char(c) != CC_OK)
 				return (MCA_DONE);
 		}
+	} else
+	{
+		if (err != OPT_AMBIG && !is_erase_char(c))
+			bell();
 	}
 	return (MCA_MORE);
 }
