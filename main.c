@@ -47,7 +47,7 @@ extern int	jump_sline;
 static char consoleTitle[256];
 #endif
 
-public int  one_screen;
+public int	one_screen;
 extern int	less_is_more;
 extern int	missing_cap;
 extern int	know_dumb;
@@ -121,11 +121,7 @@ main(argc, argv)
 	 * If the name of the executable program is "more",
 	 * act like LESS_IS_MORE is set.
 	 */
-	for (s = progname + strlen(progname);  s > progname;  s--)
-	{
-		if (s[-1] == PATHNAME_SEP[0])
-			break;
-	}
+	s = last_component(progname);
 	if (strcmp(s, "more") == 0)
 		less_is_more = 1;
 
