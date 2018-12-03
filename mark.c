@@ -405,8 +405,9 @@ save_marks(fout, hdr)
 		if (filename == NULL)
 			filename = get_filename(m->m_ifile);
 		filename = lrealpath(filename);
-		fprintf(fout, "m %c %d %s %s\n",
-			m->m_letter, m->m_scrpos.ln, pos_str, filename);
+		if (strcmp(filename, "-") != 0)
+			fprintf(fout, "m %c %d %s %s\n",
+				m->m_letter, m->m_scrpos.ln, pos_str, filename);
 		free(filename);
 	}
 }
