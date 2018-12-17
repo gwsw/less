@@ -40,27 +40,6 @@ public int marks_modified = 0;
 
 
 /*
- * Initialize the mark table to show no marks are set.
- */
-	public void
-init_mark()
-{
-	int i;
-
-	for (i = 0;  i < NMARKS;  i++)
-	{
-		char letter;
-		switch (i) {
-		case MOUSEMARK: letter = '#'; break;
-		case LASTMARK: letter = '\''; break;
-		default: letter = (i < 26) ? 'a'+i : 'A'+i-26; break;
-		}
-		marks[i].m_letter = letter;
-		marks[i].m_scrpos.pos = NULL_POSITION;
-	}
-}
-
-/*
  * Initialize a mark struct.
  */
 	static void
@@ -77,6 +56,41 @@ cmark(m, ifile, pos, ln)
 }
 
 /*
+ * Initialize the mark table to show no marks are set.
+ */
+	public void
+init_mark()
+{
+	int i;
+
+	for (i = 0;  i < NMARKS;  i++)
+	{
+		char letter;
+		switch (i) {
+		case MOUSEMARK: letter = '#'; break;
+		case LASTMARK: letter = '\''; break;
+		default: letter = (i < 26) ? 'a'+i : 'A'+i-26; break;
+		}
+		marks[i].m_letter = letter;
+		cmark(&marks[i], NULL_IFILE, NULL_POSITION, -1);
+	}
+}
+
+/*
+ * Set m_ifile and clear m_filename.
+ */
+	static void
+mark_set_ifile(m, ifile)
+	struct mark *m;
+	IFILE ifile;
+{
+	m->m_ifile = ifile;
+	/* With m_ifile set, m_filename is no longer needed. */
+	free(m->m_filename);
+	m->m_filename = NULL;
+}
+
+/*
  * Populate the m_ifile member of a mark struct from m_filename.
  */
 	static void
@@ -85,10 +99,7 @@ mark_get_ifile(m)
 {
 	if (m->m_ifile != NULL_IFILE)
 		return; /* m_ifile is already set */
-	m->m_ifile = get_ifile(m->m_filename, prev_ifile(NULL_IFILE));
-	/* With m_ifile set, m_filename is no longer needed. */
-	free(m->m_filename);
-	m->m_filename = NULL;
+	mark_set_ifile(m, get_ifile(m->m_filename, prev_ifile(NULL_IFILE)));
 }
 
 /*
@@ -251,7 +262,6 @@ gomark(c)
 	int c;
 {
 	struct mark *m;
-//struct scrpos scrpos;
 
 	m = getmark(c);
 	if (m == NULL)
@@ -268,12 +278,6 @@ gomark(c)
 
 	mark_get_ifile(m);
 
-	/*
-	 * If we're using lmark, we must save the screen position now,
-	 * because if we call edit_ifile() below, lmark will change.
-	 * (We save the screen position even if we're not using lmark.)
-	 */
-//scrpos = m->m_scrpos;
 	if (m->m_ifile != curr_ifile)
 	{
 		/*
@@ -366,11 +370,7 @@ mark_check_ifile(ifile)
 		{
 			mark_filename = lrealpath(mark_filename);
 			if (strcmp(filename, mark_filename) == 0)
-			{
-				m->m_ifile = ifile;
-				free(m->m_filename);
-				m->m_filename = NULL;
-			}
+				mark_set_ifile(m, ifile);
 			free(mark_filename);
 		}
 	}
