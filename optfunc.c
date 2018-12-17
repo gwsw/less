@@ -504,41 +504,13 @@ opt__V(type, s)
 		putstr("less ");
 		putstr(version);
 		putstr(" (");
-#if HAVE_GNU_REGEX
-		putstr("GNU ");
-#else
-#if HAVE_POSIX_REGCOMP
-		putstr("POSIX ");
-#else
-#if HAVE_PCRE2
-		putstr("PCRE2 ");
-#else
-#if HAVE_PCRE
-		putstr("PCRE ");
-#else
-#if HAVE_RE_COMP
-		putstr("BSD ");
-#else
-#if HAVE_REGCMP
-		putstr("V8 ");
-#else
-#if HAVE_V8_REGCOMP
-		putstr("Spencer V8 ");
-#else
-		putstr("no ");
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-		putstr("regular expressions)\n");
+		putstr(pattern_lib_name());
+		putstr(" regular expressions)\n");
 		putstr("@@copyright_oneline@@\n\n");
 		putstr("less comes with NO WARRANTY, to the extent permitted by law.\n");
 		putstr("For information about the terms of redistribution,\n");
 		putstr("see the file named README in the less distribution.\n");
-		putstr("Homepage: http://www.greenwoodsoftware.com/less\n");
+		putstr("Home page: http://www.greenwoodsoftware.com/less\n");
 		quit(QUIT_OK);
 		break;
 	}

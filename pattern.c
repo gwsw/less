@@ -418,3 +418,39 @@ match_pattern(pattern, tpattern, line, line_len, sp, ep, notbol, search_type)
 	return (matched);
 }
 
+/*
+ * Return the name of the pattern matching library.
+ */
+	public char *
+pattern_lib_name()
+{
+#if HAVE_GNU_REGEX
+	return ("GNU");
+#else
+#if HAVE_POSIX_REGCOMP
+	return ("POSIX");
+#else
+#if HAVE_PCRE2
+	return ("PCRE2");
+#else
+#if HAVE_PCRE
+	return ("PCRE");
+#else
+#if HAVE_RE_COMP
+	return ("BSD");
+#else
+#if HAVE_REGCMP
+	return ("V8");
+#else
+#if HAVE_V8_REGCOMP
+	return ("Spencer V8");
+#else
+	return ("no");
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
