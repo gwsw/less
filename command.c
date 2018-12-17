@@ -407,10 +407,9 @@ mca_opt_nonfirst_char(c)
 			if (cmd_char(c) != CC_OK)
 				return (MCA_DONE);
 		}
-	} else
+	} else if (err != OPT_AMBIG)
 	{
-		if (err != OPT_AMBIG && !is_erase_char(c))
-			bell();
+		bell();
 	}
 	return (MCA_MORE);
 }

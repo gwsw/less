@@ -207,6 +207,7 @@ static unsigned char edittable[] =
 	ESC,'j',0,			EC_DOWN,	/* ESC j */
 	SK(SK_DOWN_ARROW),0,		EC_DOWN,	/* DOWNARROW */
 	CONTROL('G'),0,			EC_ABORT,	/* CTRL-G */
+	ESC,'[','M',0,			A_X11MOUSE_IGNORE,
 };
 
 /*
@@ -444,6 +445,18 @@ x11mouse_action()
 }
 
 /*
+ * Read suffix of mouse input and ignore it.
+ */
+	static int
+x11mouse_ignore()
+{
+	(void) getcc();
+	(void) getcc();
+	(void) getcc();
+	return (EC_NOACTION);
+}
+
+/*
  * Search a single command table for the command string in cmd.
  */
 	static int
@@ -493,9 +506,9 @@ cmd_search(cmd, table, endtable, sp)
 					a &= ~A_EXTRA;
 				}
 				if (a == A_X11MOUSE_IN)
-				{
 					a = x11mouse_action();
-				}
+				else if (a == A_X11MOUSE_IGNORE)
+					a = x11mouse_ignore();
 				return (a);
 			}
 		} else if (*q == '\0')
