@@ -2429,7 +2429,7 @@ putbs()
 /*
  * Determine whether an input character is waiting to be read.
  */
-	static int
+	public int
 win32_kbhit()
 {
 	INPUT_RECORD ip;
@@ -2565,7 +2565,8 @@ WIN32getch()
 		 * the lsb of the scan code.
 		 */
 		pending_scancode = (ascii == 0x00);
-	} while (pending_scancode && currentKey.scan == PCK_CAPS_LOCK);
+	} while (pending_scancode &&
+		(currentKey.scan == PCK_CAPS_LOCK || currentKey.scan == PCK_NUM_LOCK));
 
 	return ((char)ascii);
 }

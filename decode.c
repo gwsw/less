@@ -944,7 +944,13 @@ editchar(c, flags)
 	if (c == erase_char || c == erase2_char)
 		return (EC_BACKSPACE);
 	if (c == kill_char)
+	{
+#if MSDOS_COMPILER==WIN32C
+		if (!win32_kbhit())
+#endif
+
 		return (EC_LINEKILL);
+	}
 		
 	/*
 	 * Collect characters in a buffer.
