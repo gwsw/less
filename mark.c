@@ -262,6 +262,7 @@ gomark(c)
 	int c;
 {
 	struct mark *m;
+	struct scrpos scrpos;
 
 	m = getmark(c);
 	if (m == NULL)
@@ -278,6 +279,8 @@ gomark(c)
 
 	mark_get_ifile(m);
 
+	/* Save scrpos; if it's LASTMARK it could change in edit_ifile. */
+	scrpos = m->m_scrpos;
 	if (m->m_ifile != curr_ifile)
 	{
 		/*
@@ -287,7 +290,7 @@ gomark(c)
 			return;
 	}
 
-	jump_loc(m->m_scrpos.pos, m->m_scrpos.ln);
+	jump_loc(scrpos.pos, scrpos.ln);
 }
 
 /*
