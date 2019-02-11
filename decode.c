@@ -62,7 +62,7 @@ static unsigned char cmdtable[] =
 	'u',0,				A_B_SCROLL,
 	CONTROL('U'),0,			A_B_SCROLL,
 	ESC,'[','M',0,			A_X11MOUSE_IN,
-	ESC,'[','<',0,			A_X12MOUSE_IN,
+	ESC,'[','<',0,			A_X116MOUSE_IN,
 	' ',0,				A_F_SCREEN,
 	'f',0,				A_F_SCREEN,
 	CONTROL('F'),0,			A_F_SCREEN,
@@ -209,7 +209,7 @@ static unsigned char edittable[] =
 	SK(SK_DOWN_ARROW),0,		EC_DOWN,	/* DOWNARROW */
 	CONTROL('G'),0,			EC_ABORT,	/* CTRL-G */
 	ESC,'[','M',0,			A_X11MOUSE_IGNORE,
-	ESC,'[','<',0,			A_X12MOUSE_IGNORE,
+	ESC,'[','<',0,			A_X116MOUSE_IGNORE,
 };
 
 /*
@@ -516,7 +516,7 @@ x11mouse_ignore()
  * The prefix ("\e[<") has already been read.
  */
 	static int
-x12mouse_action()
+x116mouse_action()
 {
 	char ch;
 	int x, y;
@@ -541,7 +541,7 @@ x12mouse_action()
  * Read suffix of mouse input and ignore it.
  */
 	static int
-x12mouse_ignore()
+x116mouse_ignore()
 {
 	char ch;
 	do {
@@ -603,10 +603,10 @@ cmd_search(cmd, table, endtable, sp)
 					a = x11mouse_action();
 				else if (a == A_X11MOUSE_IGNORE)
 					a = x11mouse_ignore();
-				else if (a == A_X12MOUSE_IN)
-					a = x12mouse_action();
-				else if (a == A_X12MOUSE_IGNORE)
-					a = x12mouse_ignore();
+				else if (a == A_X116MOUSE_IN)
+					a = x116mouse_action();
+				else if (a == A_X116MOUSE_IGNORE)
+					a = x116mouse_ignore();
 				return (a);
 			}
 		} else if (*q == '\0')
