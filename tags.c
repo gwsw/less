@@ -31,7 +31,7 @@ enum tag_result {
 enum {
 	T_CTAGS,	/* 'tags': standard and extended format (ctags) */
 	T_CTAGS_X,	/* stdin: cross reference format (ctags) */
-	T_GTAGS,	/* 'GTAGS': function defenition (global) */
+	T_GTAGS,	/* 'GTAGS': function definition (global) */
 	T_GRTAGS,	/* 'GRTAGS': function reference (global) */
 	T_GSYMS,	/* 'GSYMS': other symbols (global) */
 	T_GPATH		/* 'GPATH': path name (global) */

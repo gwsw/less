@@ -653,7 +653,7 @@ ltget_env(capname)
 		envs = p;
 		return p->value;
 	}
-    SNPRINTF1(name, sizeof(name), "LESS_TERMCAP_%s", capname);
+	SNPRINTF1(name, sizeof(name), "LESS_TERMCAP_%s", capname);
 	return (lgetenv(name));
 }
 
@@ -860,13 +860,6 @@ get_clock()
  * Delay for a specified number of milliseconds.
  */
 	static void
-dummy_func()
-{
-	static long delay_dummy = 0;
-	delay_dummy++;
-}
-
-	static void
 delay(msec)
 	int msec;
 {
@@ -875,13 +868,7 @@ delay(msec)
 	while (msec-- > 0)
 	{
 		for (i = 0;  i < msec_loops;  i++)
-		{
-			/*
-			 * Make it look like we're doing something here,
-			 * so the optimizer doesn't remove the whole loop.
-			 */
-			dummy_func();
-		}
+			(void) clock();
 	}
 }
 #endif
@@ -949,17 +936,13 @@ special_key_str(key)
 		s = windowid ? ltgetstr("@7", &sp) : k_end;
 		break;
 	case SK_DELETE:
-		if (windowid)
+		s = windowid ? ltgetstr("kD", &sp) : k_delete;
+		if (s == NULL)
 		{
-			s = ltgetstr("kD", &sp);
-			if (s == NULL)
-			{
-				tbuf[0] = '\177';
-				tbuf[1] = '\0';
-				s = tbuf;
-			}
-		} else
-			s = k_delete;
+			tbuf[0] = '\177';
+			tbuf[1] = '\0';
+			s = tbuf;
+		}
 		break;
 #endif
 #if MSDOS_COMPILER

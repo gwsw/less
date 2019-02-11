@@ -15,7 +15,7 @@
 #include "position.h"
 
 static POSITION *table = NULL;	/* The position table */
-static int table_size;
+static int table_size = 0;
 
 extern int sc_width, sc_height;
 
@@ -192,6 +192,7 @@ get_scrpos(scrpos, where)
 			scrpos->pos = NULL_POSITION;
 			return;
 		}
+		/* Values of dir and last don't matter after this. */
 		break;
 	}
 
