@@ -517,13 +517,13 @@ struct wchar_range_table
 #endif
 
 /* X11 mouse reporting definitions */
-#define X11MOUSE_BUTTON1    0x20 /* Left button press */
-#define X11MOUSE_BUTTON2    0x21 /* Middle button press */
-#define X11MOUSE_BUTTON3    0x22 /* Right button press */
-#define X11MOUSE_BUTTON_REL 0x23 /* Button release */
-#define X11MOUSE_WHEEL_UP   0x60 /* Wheel scroll up */
-#define X11MOUSE_WHEEL_DOWN 0x61 /* Wheel scroll down */
-#define X11MOUSE_POS_OFFSET 0x20 /* Added to x,y position to create a char */
+#define X11MOUSE_BUTTON1    0 /* Left button press */
+#define X11MOUSE_BUTTON2    1 /* Middle button press */
+#define X11MOUSE_BUTTON3    2 /* Right button press */
+#define X11MOUSE_BUTTON_REL 3 /* Button release */
+#define X11MOUSE_WHEEL_UP   0x40 /* Wheel scroll up */
+#define X11MOUSE_WHEEL_DOWN 0x41 /* Wheel scroll down */
+#define X11MOUSE_OFFSET     0x20 /* Added to button & pos bytes to create a char */
 
 struct mlist;
 struct loption;

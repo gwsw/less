@@ -68,6 +68,8 @@
 #define A_X11MOUSE_IGNORE      65
 #define A_F_MOUSE              66
 #define A_B_MOUSE              67
+#define A_X12MOUSE_IN          68
+#define A_X12MOUSE_IGNORE      69
 
 #define A_INVALID              100
 #define A_NOACTION             101

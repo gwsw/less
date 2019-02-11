@@ -1222,10 +1222,10 @@ get_term()
 
 	sc_s_mousecap = ltgetstr("MOUSE_START", &sp);
 	if (sc_s_mousecap == NULL)
-		sc_s_mousecap = ESCS "[?1000h";
+		sc_s_mousecap = ESCS "[?1000h" ESCS "[?1006h";
 	sc_e_mousecap = ltgetstr("MOUSE_END", &sp);
 	if (sc_e_mousecap == NULL)
-		sc_e_mousecap = ESCS "[?1000l";
+		sc_e_mousecap = ESCS "[?1006l" ESCS "[?1000l";
 
 	sc_init = ltgetstr("ti", &sp);
 	if (sc_init == NULL)

@@ -62,6 +62,7 @@ static unsigned char cmdtable[] =
 	'u',0,				A_B_SCROLL,
 	CONTROL('U'),0,			A_B_SCROLL,
 	ESC,'[','M',0,			A_X11MOUSE_IN,
+	ESC,'[','<',0,			A_X12MOUSE_IN,
 	' ',0,				A_F_SCREEN,
 	'f',0,				A_F_SCREEN,
 	CONTROL('F'),0,			A_F_SCREEN,
@@ -208,6 +209,7 @@ static unsigned char edittable[] =
 	SK(SK_DOWN_ARROW),0,		EC_DOWN,	/* DOWNARROW */
 	CONTROL('G'),0,			EC_ABORT,	/* CTRL-G */
 	ESC,'[','M',0,			A_X11MOUSE_IGNORE,
+	ESC,'[','<',0,			A_X12MOUSE_IGNORE,
 };
 
 /*
@@ -414,33 +416,86 @@ add_var_table(tlist, buf, len)
 }
 
 /*
+ * Return action for a mouse wheel down event.
+ */
+	static int
+mouse_wheel_down()
+{
+	return ((mousecap == OPT_ONPLUS) ? A_B_MOUSE : A_F_MOUSE);
+}
+
+/*
+ * Return action for a mouse wheel up event.
+ */
+	static int
+mouse_wheel_up()
+{
+	return ((mousecap == OPT_ONPLUS) ? A_F_MOUSE : A_B_MOUSE);
+}
+
+/*
+ * Return action for a mouse button release event.
+ */
+	static int
+mouse_button_rel(x, y)
+	int x;
+	int y;
+{
+	/*
+	 * {{ It would be better to return an action and then do this 
+	 *    in commands() but it's nontrivial to pass y to it. }}
+	 */
+	if (y < sc_height-1)
+	{
+		setmark('#', y);
+		screen_trashed = 1;
+	}
+	return (A_NOACTION);
+}
+
+/*
+ * Read an integer. Return the integer and set *pterm to the terminating char.
+ */
+	static int
+getcc_int(pterm)
+	char* pterm;
+{
+	int num = 0;
+	int digits = 0;
+	for (;;)
+	{
+		char ch = getcc();
+		if (ch < '0' || ch > '9')
+		{
+			if (pterm != NULL) *pterm = ch;
+			if (digits == 0)
+				return (-1);
+			return (num);
+		}
+		num = (10 * num) + (ch - '0');
+		++digits;
+	}
+}
+
+/*
  * Read suffix of mouse input and return the action to take.
  * The prefix ("\e[M") has already been read.
  */
 	static int
 x11mouse_action()
 {
-	int b = getcc();
-	int x = getcc() - X11MOUSE_POS_OFFSET-1;
-	int y = getcc() - X11MOUSE_POS_OFFSET-1;
+	int b = getcc() - X11MOUSE_OFFSET;
+	int x = getcc() - X11MOUSE_OFFSET-1;
+	int y = getcc() - X11MOUSE_OFFSET-1;
 	switch (b) {
 	default:
 		return (A_NOACTION);
 	case X11MOUSE_WHEEL_DOWN:
-		return ((mousecap == OPT_ONPLUS) ? A_B_MOUSE : A_F_MOUSE);
+		return mouse_wheel_down();
 	case X11MOUSE_WHEEL_UP:
-		return ((mousecap == OPT_ONPLUS) ? A_F_MOUSE : A_B_MOUSE);
+		return mouse_wheel_up();
 	case X11MOUSE_BUTTON_REL:
-		/*
-		 * {{ It would be better to do this in commands()
-		 *    but it's nontrivial to pass y to it. }}
-		 */
-		if (y < sc_height-1)
-		{
-			setmark('#', y);
-			screen_trashed = 1;
-		}
-		return (A_NOACTION);
+		return mouse_button_rel(x, y);
 	}
 }
 
@@ -453,6 +508,45 @@ x11mouse_ignore()
 	(void) getcc();
 	(void) getcc();
 	(void) getcc();
+	return (EC_NOACTION);
+}
+
+/*
+ * Read suffix of mouse input and return the action to take.
+ * The prefix ("\e[<") has already been read.
+ */
+	static int
+x12mouse_action()
+{
+	char ch;
+	int x, y;
+	int b = getcc_int(&ch);
+	if (b < 0 || ch != ';') return (A_NOACTION);
+	x = getcc_int(&ch) - 1;
+	if (x < 0 || ch != ';') return (A_NOACTION);
+	y = getcc_int(&ch) - 1;
+	if (y < 0) return (A_NOACTION);
+	switch (b) {
+	case X11MOUSE_WHEEL_DOWN:
+		return mouse_wheel_down();
+	case X11MOUSE_WHEEL_UP:
+		return mouse_wheel_up();
+	default:
+		if (ch != 'm') return (A_NOACTION);
+		return mouse_button_rel(x, y);
+	}
+}
+
+/*
+ * Read suffix of mouse input and ignore it.
+ */
+	static int
+x12mouse_ignore()
+{
+	char ch;
+	do {
+		ch = getcc();
+	} while (ch == ';' || (ch >= '0' && ch <= '9'));
 	return (EC_NOACTION);
 }
 
@@ -509,6 +603,10 @@ cmd_search(cmd, table, endtable, sp)
 					a = x11mouse_action();
 				else if (a == A_X11MOUSE_IGNORE)
 					a = x11mouse_ignore();
+				else if (a == A_X12MOUSE_IN)
+					a = x12mouse_action();
+				else if (a == A_X12MOUSE_IGNORE)
+					a = x12mouse_ignore();
 				return (a);
 			}
 		} else if (*q == '\0')

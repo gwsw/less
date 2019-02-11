@@ -869,6 +869,7 @@ v545  11/22/18  Fix Windows build, memory leaks.
 v546  11/29/18  Add --save-marks option.
 v547  11/30/18  Fix some bugs with saved marks.
 v548  12/14/18  Ignore mouse input when line editing.
+v549  2/10/19   Support X11 mouse extension 1006.
 */
 
-char version[] = "548";
+char version[] = "549";
