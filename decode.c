@@ -208,8 +208,6 @@ static unsigned char edittable[] =
 	ESC,'j',0,			EC_DOWN,	/* ESC j */
 	SK(SK_DOWN_ARROW),0,		EC_DOWN,	/* DOWNARROW */
 	CONTROL('G'),0,			EC_ABORT,	/* CTRL-G */
-	ESC,'[','M',0,			A_X11MOUSE_IGNORE,
-	ESC,'[','<',0,			A_X116MOUSE_IGNORE,
 };
 
 /*
@@ -500,18 +498,6 @@ x11mouse_action()
 }
 
 /*
- * Read suffix of mouse input and ignore it.
- */
-	static int
-x11mouse_ignore()
-{
-	(void) getcc();
-	(void) getcc();
-	(void) getcc();
-	return (EC_NOACTION);
-}
-
-/*
  * Read suffix of mouse input and return the action to take.
  * The prefix ("\e[<") has already been read.
  */
@@ -535,19 +521,6 @@ x116mouse_action()
 		if (ch != 'm') return (A_NOACTION);
 		return mouse_button_rel(x, y);
 	}
-}
-
-/*
- * Read suffix of mouse input and ignore it.
- */
-	static int
-x116mouse_ignore()
-{
-	char ch;
-	do {
-		ch = getcc();
-	} while (ch == ';' || (ch >= '0' && ch <= '9'));
-	return (EC_NOACTION);
 }
 
 /*
@@ -601,12 +574,8 @@ cmd_search(cmd, table, endtable, sp)
 				}
 				if (a == A_X11MOUSE_IN)
 					a = x11mouse_action();
-				else if (a == A_X11MOUSE_IGNORE)
-					a = x11mouse_ignore();
 				else if (a == A_X116MOUSE_IN)
 					a = x116mouse_action();
-				else if (a == A_X116MOUSE_IGNORE)
-					a = x116mouse_ignore();
 				return (a);
 			}
 		} else if (*q == '\0')

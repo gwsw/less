@@ -97,6 +97,29 @@ cmd_exec()
 }
 
 /*
+ * Indicate we are reading a multi-character command.
+ */
+	static void
+set_mca(action)
+	int action;
+{
+	mca = action;
+	deinit_mouse(); /* we don't want mouse events while entering a cmd */
+	clear_bot();
+	clear_cmd();
+}
+
+/*
+ * Indicate we are not reading a multi-character command.
+ */
+	static void
+clear_mca()
+{
+	mca = 0;
+	init_mouse();
+}
+
+/*
  * Set up the display to start a new multi-character command.
  */
 	static void
@@ -106,9 +129,7 @@ start_mca(action, prompt, mlist, cmdflags)
 	void *mlist;
 	int cmdflags;
 {
-	mca = action;
-	clear_bot();
-	clear_cmd();
+	set_mca(action);
 	cmd_putstr(prompt);
 	set_mlist(mlist, cmdflags);
 }
@@ -127,16 +148,13 @@ mca_search()
 {
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
-		mca = A_FILTER;
+		set_mca(A_FILTER);
 	else 
 #endif
 	if (search_type & SRCH_FORW)
-		mca = A_F_SEARCH;
+		set_mca(A_F_SEARCH);
 	else
-		mca = A_B_SEARCH;
-
-	clear_bot();
-	clear_cmd();
+		set_mca(A_B_SEARCH);
 
 	if (search_type & SRCH_NO_MATCH)
 		cmd_putstr("Non-match ");
@@ -176,9 +194,7 @@ mca_opt_toggle()
 	flag = (optflag & ~OPT_NO_PROMPT);
 	dash = (flag == OPT_NO_TOGGLE) ? "_" : "-";
 
-	mca = A_OPT_TOGGLE;
-	clear_bot();
-	clear_cmd();
+	set_mca(A_OPT_TOGGLE);
 	cmd_putstr(dash);
 	if (optgetname)
 		cmd_putstr(dash);
@@ -574,7 +590,7 @@ mca_char(c)
 			 * as a normal command character.
 			 */
 			number = cmd_int(&fraction);
-			mca = 0;
+			clear_mca();
 			cmd_accept();
 			return (NO_MCA);
 		}
@@ -1105,7 +1121,7 @@ commands()
 
 	for (;;)
 	{
-		mca = 0;
+		clear_mca();
 		cmd_accept();
 		number = 0;
 		curropt = NULL;
