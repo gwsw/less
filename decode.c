@@ -452,7 +452,7 @@ mouse_button_rel(x, y)
 }
 
 /*
- * Read an integer. Return the integer and set *pterm to the terminating char.
+ * Read a decimal integer. Return the integer and set *pterm to the terminating char.
  */
 	static int
 getcc_int(pterm)
