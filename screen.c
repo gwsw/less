@@ -207,6 +207,7 @@ public int missing_cap = 0;	/* Some capability is missing */
 public char *kent = NULL;	/* Keypad ENTER sequence */
 
 static int attrmode = AT_NORMAL;
+static int termcap_debug = -1;
 extern int binattr;
 extern int one_screen;
 
@@ -636,8 +637,7 @@ ltget_env(capname)
 	char name[64];
 	char *s;
 
-	s = lgetenv("LESS_TERMCAP_DEBUG");
-	if (!isnullenv(s))
+	if (termcap_debug)
 	{
 		struct env { struct env *next; char *name; char *value; };
 		static struct env *envs = NULL;
@@ -1048,6 +1048,7 @@ special_key_str(key)
 	public void
 get_term(VOID_PARAM)
 {
+	termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
 #if MSDOS_COMPILER
 	auto_wrap = 1;
 	ignaw = 0;
@@ -2376,6 +2377,10 @@ backspace(VOID_PARAM)
 	public void
 putbs(VOID_PARAM)
 {
+	if (termcap_debug)
+		tputs("<bs>", 1, putchr);
+	else
+	{
 #if !MSDOS_COMPILER
 	tputs(sc_backspace, 1, putchr);
 #else
@@ -2406,6 +2411,7 @@ putbs(VOID_PARAM)
 		return;
 	_settextposition(row, col-1);
 #endif /* MSDOS_COMPILER */
+	}
 }
 
 #if MSDOS_COMPILER==WIN32C
