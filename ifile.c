@@ -197,7 +197,7 @@ getoff_ifile(ifile)
  * Return the number of ifiles.
  */
 	public int
-nifile()
+nifile(VOID_PARAM)
 {
 	return (ifiles);
 }
@@ -379,7 +379,7 @@ get_altfilename(ifile)
 
 #if 0
 	public void
-if_dump()
+if_dump(VOID_PARAM)
 {
 	struct ifile *p;
 

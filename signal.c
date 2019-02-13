@@ -194,7 +194,7 @@ init_signals(on)
  * A received signal cause a bit to be set in "sigs".
  */
 	public void
-psignals()
+psignals(VOID_PARAM)
 {
 	int tsignals;
 

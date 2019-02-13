@@ -82,7 +82,7 @@ static struct tag *curtag;
  * Delete tag structures.
  */
 	public void
-cleantags()
+cleantags(VOID_PARAM)
 {
 	struct tag *tp;
 
@@ -134,7 +134,7 @@ maketagent(name, file, linenum, pattern, endline)
  * Get tag mode.
  */
 	public int
-gettagtype()
+gettagtype(VOID_PARAM)
 {
 	int f;
 
@@ -196,7 +196,7 @@ findtag(tag)
  * Search for a tag.
  */
 	public POSITION
-tagsearch()
+tagsearch(VOID_PARAM)
 {
 	if (curtag == NULL)
 		return (NULL_POSITION);  /* No gtags loaded! */
@@ -238,7 +238,7 @@ prevtag(n)
  * Return the total number of tags.
  */
 	public int
-ntags()
+ntags(VOID_PARAM)
 {
 	return total;
 }
@@ -247,7 +247,7 @@ ntags()
  * Return the sequence number of current tag.
  */
 	public int
-curr_tag()
+curr_tag(VOID_PARAM)
 {
 	return curseq;
 }
@@ -373,7 +373,7 @@ findctag(tag)
  * Edit current tagged file.
  */
 	public int
-edit_tagfile()
+edit_tagfile(VOID_PARAM)
 {
 	if (curtag == NULL)
 		return (1);
@@ -410,7 +410,7 @@ curtag_match(char const *line, POSITION linepos)
  *	parentheses (which are almost always found in a tag).
  */
 	static POSITION
-ctagsearch()
+ctagsearch(VOID_PARAM)
 {
 	POSITION pos, linepos;
 	LINENUM linenum;
@@ -624,7 +624,7 @@ static int circular = 0;	/* 1: circular tag structure */
  * appropriate tag.
  */
 	static char *
-nextgtag()
+nextgtag(VOID_PARAM)
 {
 	struct tag *tp;
 
@@ -654,7 +654,7 @@ nextgtag()
  * at the appropriate tag.
  */
 	static char *
-prevgtag()
+prevgtag(VOID_PARAM)
 {
 	struct tag *tp;
 
@@ -684,7 +684,7 @@ prevgtag()
  * if it was unable to position at the tag, 0 if successful.
  */
 	static POSITION
-gtagsearch()
+gtagsearch(VOID_PARAM)
 {
 	if (curtag == NULL)
 		return (NULL_POSITION);  /* No gtags loaded! */

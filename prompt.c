@@ -59,7 +59,7 @@ static char *mp;
  * Initialize the prompt prototype strings.
  */
 	public void
-init_prompt()
+init_prompt(VOID_PARAM)
 {
 	prproto[0] = save(s_proto);
 	prproto[1] = save(less_is_more ? more_proto : m_proto);
@@ -143,7 +143,7 @@ ap_int(num)
  * Append a question mark to the end of the message.
  */
 	static void
-ap_quest()
+ap_quest(VOID_PARAM)
 {
 	ap_str("?");
 }
@@ -553,7 +553,7 @@ pr_expand(proto, maxwidth)
  * Return a message suitable for printing by the "=" command.
  */
 	public char *
-eq_message()
+eq_message(VOID_PARAM)
 {
 	return (pr_expand(eqproto, 0));
 }
@@ -565,7 +565,7 @@ eq_message()
  * and the caller will prompt with a colon.
  */
 	public char *
-pr_string()
+pr_string(VOID_PARAM)
 {
 	char *prompt;
 	int type;
@@ -582,7 +582,7 @@ pr_string()
  * Return a message suitable for printing while waiting in the F command.
  */
 	public char *
-wait_message()
+wait_message(VOID_PARAM)
 {
 	return (pr_expand(wproto, sc_width-so_s_width-so_e_width-2));
 }

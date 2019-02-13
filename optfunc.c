@@ -198,7 +198,7 @@ opt_j(type, s)
 }
 
 	public void
-calc_jump_sline()
+calc_jump_sline(VOID_PARAM)
 {
 	if (jump_sline_fraction < 0)
 		return;
@@ -262,7 +262,7 @@ opt_shift(type, s)
 	}
 }
 	public void
-calc_shift_count()
+calc_shift_count(VOID_PARAM)
 {
 	if (shift_count_fraction < 0)
 		return;
@@ -831,7 +831,7 @@ opt_wheel_lines(type, s)
  * Get the "screen window" size.
  */
 	public int
-get_swindow()
+get_swindow(VOID_PARAM)
 {
 	if (swindow > 0)
 		return (swindow);

@@ -39,7 +39,7 @@ extern char *tagoption;
  * Sound the bell to indicate user is trying to move past end of file.
  */
 	static void
-eof_bell()
+eof_bell(VOID_PARAM)
 {
 	if (quiet == NOT_QUIET)
 		bell();
@@ -51,7 +51,7 @@ eof_bell()
  * Check to see if the end of file is currently displayed.
  */
 	public int
-eof_displayed()
+eof_displayed(VOID_PARAM)
 {
 	POSITION pos;
 
@@ -78,7 +78,7 @@ eof_displayed()
  * Check to see if the entire file is currently displayed.
  */
 	public int
-entire_file_displayed()
+entire_file_displayed(VOID_PARAM)
 {
 	POSITION pos;
 
@@ -98,7 +98,7 @@ entire_file_displayed()
  * for the first time.
  */
 	public void
-squish_check()
+squish_check(VOID_PARAM)
 {
 	if (!squished)
 		return;
@@ -427,7 +427,7 @@ backward(n, force, only_last)
  * top_scroll, as well as back_scroll.
  */
 	public int
-get_back_scroll()
+get_back_scroll(VOID_PARAM)
 {
 	if (no_back_scroll)
 		return (0);
@@ -442,7 +442,7 @@ get_back_scroll()
  * Will the entire file fit on one screen?
  */
 	public int
-get_one_screen()
+get_one_screen(VOID_PARAM)
 {
 	int nlines;
 	POSITION pos = ch_zero();

@@ -91,7 +91,7 @@ shell_unquote(str)
  * Get the shell's escape character.
  */
 	public char *
-get_meta_escape()
+get_meta_escape(VOID_PARAM)
 {
 	char *s;
 
@@ -105,7 +105,7 @@ get_meta_escape()
  * Get the characters which the shell considers to be "metacharacters".
  */
 	static char *
-metachars()
+metachars(VOID_PARAM)
 {
 	static char *mchars = NULL;
 
@@ -1086,7 +1086,7 @@ filesize(f)
  * 
  */
 	public char *
-shell_coption()
+shell_coption(VOID_PARAM)
 {
 	return ("-c");
 }

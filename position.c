@@ -85,7 +85,7 @@ add_back_pos(pos)
  * Initialize the position table, done whenever we clear the screen.
  */
 	public void
-pos_clear()
+pos_clear(VOID_PARAM)
 {
 	int i;
 
@@ -97,7 +97,7 @@ pos_clear()
  * Allocate or reallocate the position table.
  */
 	public void
-pos_init()
+pos_init(VOID_PARAM)
 {
 	struct scrpos scrpos;
 
@@ -143,7 +143,7 @@ onscreen(pos)
  * See if the entire screen is empty.
  */
 	public int
-empty_screen()
+empty_screen(VOID_PARAM)
 {
 	return (empty_lines(0, sc_height-1));
 }

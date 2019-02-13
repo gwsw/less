@@ -422,7 +422,7 @@ match_pattern(pattern, tpattern, line, line_len, sp, ep, notbol, search_type)
  * Return the name of the pattern matching library.
  */
 	public char *
-pattern_lib_name()
+pattern_lib_name(VOID_PARAM)
 {
 #if HAVE_GNU_REGEX
 	return ("GNU");

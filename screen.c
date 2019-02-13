@@ -702,7 +702,7 @@ ltgetstr(capname, pp)
  * Get size of the output screen.
  */
 	public void
-scrsize()
+scrsize(VOID_PARAM)
 {
 	char *s;
 	int sys_height;
@@ -832,7 +832,7 @@ scrsize()
  * Figure out how many empty loops it takes to delay a millisecond.
  */
 	static void
-get_clock()
+get_clock(VOID_PARAM)
 {
 	clock_t start;
 	
@@ -1046,7 +1046,7 @@ special_key_str(key)
  * Get terminal capabilities via termcap.
  */
 	public void
-get_term()
+get_term(VOID_PARAM)
 {
 #if MSDOS_COMPILER
 	auto_wrap = 1;
@@ -1449,7 +1449,7 @@ _settextposition(int row, int col)
  * Initialize the screen to the correct color at startup.
  */
 	static void
-initcolor()
+initcolor(VOID_PARAM)
 {
 #if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	intensevideo();
@@ -1485,7 +1485,7 @@ initcolor()
  * Termcap-like init with a private win32 console.
  */
 	static void
-win32_init_term()
+win32_init_term(VOID_PARAM)
 {
 	CONSOLE_SCREEN_BUFFER_INFO scr;
 	COORD size;
@@ -1527,8 +1527,8 @@ win32_init_term()
 /*
  * Restore the startup console.
  */
-static void
-win32_deinit_term()
+	static void
+win32_deinit_term(VOID_PARAM)
 {
 	if (con_out_save == INVALID_HANDLE_VALUE)
 		return;
@@ -1545,7 +1545,7 @@ win32_deinit_term()
  * produce input to less.
  */
 	public void
-init_mouse()
+init_mouse(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_s_mousecap, sc_height, putchr);
@@ -1557,7 +1557,7 @@ init_mouse()
  * are handled by the system (so text can be selected, etc).
  */
 	public void
-deinit_mouse()
+deinit_mouse(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_e_mousecap, sc_height, putchr);
@@ -1568,7 +1568,7 @@ deinit_mouse()
  * Initialize terminal
  */
 	public void
-init()
+init(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
@@ -1609,7 +1609,7 @@ init()
  * Deinitialize terminal
  */
 	public void
-deinit()
+deinit(VOID_PARAM)
 {
 	if (!init_done)
 		return;
@@ -1641,7 +1641,7 @@ deinit()
  * Home cursor (move to upper left corner of screen).
  */
 	public void
-home()
+home(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_home, 1, putchr);
@@ -1656,7 +1656,7 @@ home()
  * Should scroll the display down.
  */
 	public void
-add_line()
+add_line(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_addline, sc_height, putchr);
@@ -1768,7 +1768,7 @@ remove_top(n)
  * Clear the screen.
  */
 	static void
-win32_clear()
+win32_clear(VOID_PARAM)
 {
 	/*
 	 * This will clear only the currently visible rows of the NT
@@ -1865,7 +1865,7 @@ win32_scroll_up(n)
  * Move cursor to lower left corner of screen.
  */
 	public void
-lower_left()
+lower_left(VOID_PARAM)
 {
 	if (!init_done)
 		return;
@@ -1881,7 +1881,7 @@ lower_left()
  * Move cursor to left position of current line.
  */
 	public void
-line_left()
+line_left(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_return, 1, putchr);
@@ -1913,7 +1913,7 @@ line_left()
  * (in lieu of SIGWINCH for WIN32).
  */
 	public void
-check_winch()
+check_winch(VOID_PARAM)
 {
 #if MSDOS_COMPILER==WIN32C
 	CONSOLE_SCREEN_BUFFER_INFO scr;
@@ -1962,7 +1962,7 @@ goto_line(sindex)
  * {{ Yuck!  There must be a better way to get a visual bell. }}
  */
 	static void
-create_flash()
+create_flash(VOID_PARAM)
 {
 #if MSDOS_COMPILER==MSOFTC
 	struct videoconfig w;
@@ -2009,7 +2009,7 @@ create_flash()
  * Output the "visual bell", if there is one.
  */
 	public void
-vbell()
+vbell(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	if (*sc_visual_bell == '\0')
@@ -2073,7 +2073,7 @@ vbell()
  * Make a noise.
  */
 	static void
-beep()
+beep(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	putchr(CONTROL('G'));
@@ -2090,7 +2090,7 @@ beep()
  * Ring the terminal bell.
  */
 	public void
-bell()
+bell(VOID_PARAM)
 {
 	if (quiet == VERY_QUIET)
 		vbell();
@@ -2102,7 +2102,7 @@ bell()
  * Clear the screen.
  */
 	public void
-clear()
+clear(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_clear, sc_height, putchr);
@@ -2121,7 +2121,7 @@ clear()
  * {{ This must not move the cursor. }}
  */
 	public void
-clear_eol()
+clear_eol(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_eol_clear, 1, putchr);
@@ -2180,7 +2180,7 @@ clear_eol()
  * Clear the screen if there's off-screen memory below the display.
  */
 	static void
-clear_eol_bot()
+clear_eol_bot(VOID_PARAM)
 {
 #if MSDOS_COMPILER
 	clear_eol();
@@ -2197,7 +2197,7 @@ clear_eol_bot()
  * Leave the cursor at the beginning of the bottom line.
  */
 	public void
-clear_bot()
+clear_bot(VOID_PARAM)
 {
 	/*
 	 * If we're in a non-normal attribute mode, temporarily exit
@@ -2261,7 +2261,7 @@ at_enter(attr)
 }
 
 	public void
-at_exit()
+at_exit(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	/* Undo things in the reverse order we did them.  */
@@ -2325,7 +2325,7 @@ apply_at_specials(attr)
  * and move the cursor left.
  */
 	public void
-backspace()
+backspace(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	/* 
@@ -2374,7 +2374,7 @@ backspace()
  * Output a plain backspace, without erasing the previous char.
  */
 	public void
-putbs()
+putbs(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_backspace, 1, putchr);
@@ -2413,7 +2413,7 @@ putbs()
  * Determine whether an input character is waiting to be read.
  */
 	public int
-win32_kbhit()
+win32_kbhit(VOID_PARAM)
 {
 	INPUT_RECORD ip;
 	DWORD read;
@@ -2522,7 +2522,7 @@ win32_kbhit()
  * Read a character from the keyboard.
  */
 	public char
-WIN32getch()
+WIN32getch(VOID_PARAM)
 {
 	int ascii;
 

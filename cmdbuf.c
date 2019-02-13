@@ -110,7 +110,7 @@ static int cmd_mbc_buf_index;
  * Reset command buffer (to empty).
  */
 	public void
-cmd_reset()
+cmd_reset(VOID_PARAM)
 {
 	cp = cmdbuf;
 	*cp = '\0';
@@ -125,7 +125,7 @@ cmd_reset()
  * Clear command line.
  */
 	public void
-clear_cmd()
+clear_cmd(VOID_PARAM)
 {
 	cmd_col = prompt_col = 0;
 	cmd_mbc_buf_len = 0;
@@ -165,7 +165,7 @@ cmd_putstr(s)
  * How many characters are in the command buffer?
  */
 	public int
-len_cmdbuf()
+len_cmdbuf(VOID_PARAM)
 {
 	char *s = cmdbuf;
 	char *endline = s + strlen(s);
@@ -298,7 +298,7 @@ cmd_repaint(old_cp)
  * and set cp to the corresponding char in cmdbuf.
  */
 	static void
-cmd_home()
+cmd_home(VOID_PARAM)
 {
 	while (cmd_col > prompt_col)
 	{
@@ -317,7 +317,7 @@ cmd_home()
  * Shift the cmdbuf display left a half-screen.
  */
 	static void
-cmd_lshift()
+cmd_lshift(VOID_PARAM)
 {
 	char *s;
 	char *save_cp;
@@ -355,7 +355,7 @@ cmd_lshift()
  * Shift the cmdbuf display right a half-screen.
  */
 	static void
-cmd_rshift()
+cmd_rshift(VOID_PARAM)
 {
 	char *s;
 	char *save_cp;
@@ -385,7 +385,7 @@ cmd_rshift()
  * Move cursor right one character.
  */
 	static int
-cmd_right()
+cmd_right(VOID_PARAM)
 {
 	char *pr;
 	char *ncp;
@@ -420,7 +420,7 @@ cmd_right()
  * Move cursor left one character.
  */
 	static int
-cmd_left()
+cmd_left(VOID_PARAM)
 {
 	char *ncp;
 	int width = 0;
@@ -488,7 +488,7 @@ cmd_ichar(cs, clen)
  * Delete the char to the left of the cursor.
  */
 	static int
-cmd_erase()
+cmd_erase(VOID_PARAM)
 {
 	char *s;
 	int clen;
@@ -537,7 +537,7 @@ cmd_erase()
  * Delete the char under the cursor.
  */
 	static int
-cmd_delete()
+cmd_delete(VOID_PARAM)
 {
 	if (*cp == '\0')
 	{
@@ -556,7 +556,7 @@ cmd_delete()
  * Delete the "word" to the left of the cursor.
  */
 	static int
-cmd_werase()
+cmd_werase(VOID_PARAM)
 {
 	if (cp > cmdbuf && cp[-1] == ' ')
 	{
@@ -582,7 +582,7 @@ cmd_werase()
  * Delete the "word" under the cursor.
  */
 	static int
-cmd_wdelete()
+cmd_wdelete(VOID_PARAM)
 {
 	if (*cp == ' ')
 	{
@@ -608,7 +608,7 @@ cmd_wdelete()
  * Delete all chars in the command buffer.
  */
 	static int
-cmd_kill()
+cmd_kill(VOID_PARAM)
 {
 	if (cmdbuf[0] == '\0')
 	{
@@ -802,7 +802,7 @@ cmd_addhist(mlist, cmd, modified)
  * Add it to the currently selected history list.
  */
 	public void
-cmd_accept()
+cmd_accept(VOID_PARAM)
 {
 #if CMD_HISTORY
 	/*
@@ -833,7 +833,7 @@ cmd_edit(c)
 #if TAB_COMPLETE_FILENAME
 #define	not_in_completion()	in_completion = 0
 #else
-#define	not_in_completion()
+#define	not_in_completion(VOID_PARAM)
 #endif
 	
 	/*
@@ -968,7 +968,7 @@ cmd_istr(str)
  * cursor at the end of the word.
  */
 	static char *
-delimit_word()
+delimit_word(VOID_PARAM)
 {
 	char *word;
 #if SPACES_IN_FILENAMES
@@ -1055,7 +1055,7 @@ delimit_word()
  * which start with that word, and set tk_text to that list.
  */
 	static void
-init_compl()
+init_compl(VOID_PARAM)
 {
 	char *word;
 	char c;
@@ -1357,7 +1357,7 @@ cmd_int(frac)
  * Return a pointer to the command buffer.
  */
 	public char *
-get_cmdbuf()
+get_cmdbuf(VOID_PARAM)
 {
 	return (cmdbuf);
 }
@@ -1367,7 +1367,7 @@ get_cmdbuf()
  * Return the last (most recent) string in the current command history.
  */
 	public char *
-cmd_lastpattern()
+cmd_lastpattern(VOID_PARAM)
 {
 	if (curr_mlist == NULL)
 		return (NULL);
@@ -1392,7 +1392,7 @@ mlist_size(ml)
  * Get the name of the history file.
  */
 	static char *
-histfile_name()
+histfile_name(VOID_PARAM)
 {
 	char *home;
 	char *name;
@@ -1526,7 +1526,7 @@ addhist_init(void *uparam, struct mlist *ml, char *string)
  * Initialize history from a .lesshist file.
  */
 	public void
-init_cmdhist()
+init_cmdhist(VOID_PARAM)
 {
 #if CMD_HISTORY
 	read_cmdhist(&addhist_init, NULL, 0, 0);
@@ -1658,7 +1658,7 @@ make_file_private(f)
  * Does the history file need to be updated?
  */
 	static int
-histfile_modified()
+histfile_modified(VOID_PARAM)
 {
 	if (mlist_search.modified)
 		return 1;
@@ -1677,7 +1677,7 @@ histfile_modified()
  * Update the .lesshst file.
  */
 	public void
-save_cmdhist()
+save_cmdhist(VOID_PARAM)
 {
 #if CMD_HISTORY
 	char *histname;

@@ -29,7 +29,7 @@ extern int wheel_lines;
  * Open keyboard for input.
  */
 	public void
-open_getchr()
+open_getchr(VOID_PARAM)
 {
 #if MSDOS_COMPILER==WIN32C
 	/* Need this to let child processes inherit our console handle */
@@ -83,7 +83,7 @@ open_getchr()
  * Close the keyboard.
  */
 	public void
-close_getchr()
+close_getchr(VOID_PARAM)
 {
 #if MSDOS_COMPILER==WIN32C
 	SetConsoleMode(tty, console_mode);
@@ -111,7 +111,7 @@ pclose(f)
  * Get the number of lines to scroll when mouse wheel is moved.
  */
 	public int
-default_wheel_lines()
+default_wheel_lines(VOID_PARAM)
 {
 	int lines = 1;
 #if MSDOS_COMPILER==WIN32C
@@ -128,7 +128,7 @@ default_wheel_lines()
  * Get a character from the keyboard.
  */
 	public int
-getchr()
+getchr(VOID_PARAM)
 {
 	char c;
 	int result;

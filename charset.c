@@ -238,7 +238,7 @@ icharset(name, no_error)
  * Define a charset, given a locale name.
  */
 	static void
-ilocale()
+ilocale(VOID_PARAM)
 {
 	int c;
 
@@ -308,7 +308,7 @@ setfmt(s, fmtvarptr, attrptr, default_fmt)
  *
  */
 	static void
-set_charset()
+set_charset(VOID_PARAM)
 {
 	char *s;
 
@@ -388,7 +388,7 @@ set_charset()
  * Initialize charset data structures.
  */
 	public void
-init_charset()
+init_charset(VOID_PARAM)
 {
 	char *s;
 

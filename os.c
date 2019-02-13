@@ -169,7 +169,7 @@ start:
  * Interrupt a pending iread().
  */
 	public void
-intread()
+intread(VOID_PARAM)
 {
 	LONG_JUMP(read_label, 1);
 }
@@ -179,7 +179,7 @@ intread()
  */
 #if HAVE_TIME
 	public time_type
-get_time()
+get_time(VOID_PARAM)
 {
 	time_type t;
 

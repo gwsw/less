@@ -308,7 +308,7 @@ expand_cmd_table(tlist)
  * Expand special key abbreviations in all command tables.
  */
 	public void
-expand_cmd_tables()
+expand_cmd_tables(VOID_PARAM)
 {
 	expand_cmd_table(list_fcmd_tables);
 	expand_cmd_table(list_ecmd_tables);
@@ -321,7 +321,7 @@ expand_cmd_tables()
  * Initialize the command lists.
  */
 	public void
-init_cmds()
+init_cmds(VOID_PARAM)
 {
 	/*
 	 * Add the default command tables.
@@ -417,7 +417,7 @@ add_var_table(tlist, buf, len)
  * Return action for a mouse wheel down event.
  */
 	static int
-mouse_wheel_down()
+mouse_wheel_down(VOID_PARAM)
 {
 	return ((mousecap == OPT_ONPLUS) ? A_B_MOUSE : A_F_MOUSE);
 }
@@ -426,7 +426,7 @@ mouse_wheel_down()
  * Return action for a mouse wheel up event.
  */
 	static int
-mouse_wheel_up()
+mouse_wheel_up(VOID_PARAM)
 {
 	return ((mousecap == OPT_ONPLUS) ? A_F_MOUSE : A_B_MOUSE);
 }
@@ -480,7 +480,7 @@ getcc_int(pterm)
  * The prefix ("\e[M") has already been read.
  */
 	static int
-x11mouse_action()
+x11mouse_action(VOID_PARAM)
 {
 	int b = getcc() - X11MOUSE_OFFSET;
 	int x = getcc() - X11MOUSE_OFFSET-1;
@@ -502,7 +502,7 @@ x11mouse_action()
  * The prefix ("\e[<") has already been read.
  */
 	static int
-x116mouse_action()
+x116mouse_action(VOID_PARAM)
 {
 	char ch;
 	int x, y;
