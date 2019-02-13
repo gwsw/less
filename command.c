@@ -115,6 +115,8 @@ set_mca(action)
 	static void
 clear_mca(VOID_PARAM)
 {
+	if (mca == 0)
+		return;
 	mca = 0;
 	init_mouse();
 }
