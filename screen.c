@@ -1550,6 +1550,10 @@ init_mouse(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_s_mousecap, sc_height, putchr);
+#else
+#if MSDOS_COMPILER==WIN32C
+	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
+#endif
 #endif
 }
 
@@ -1562,6 +1566,10 @@ deinit_mouse(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	tputs(sc_e_mousecap, sc_height, putchr);
+#else
+#if MSDOS_COMPILER==WIN32C
+	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT);
+#endif
 #endif
 }
 
@@ -2452,20 +2460,20 @@ win32_kbhit(VOID_PARAM)
 		if (mousecap && ip.EventType == MOUSE_EVENT &&
 		    ip.Event.MouseEvent.dwEventFlags != MOUSE_MOVED)
 		{
-			x11mousebuf[3] = X11MOUSE_POS_OFFSET + ip.Event.MouseEvent.dwMousePosition.X + 1;
-			x11mousebuf[4] = X11MOUSE_POS_OFFSET + ip.Event.MouseEvent.dwMousePosition.Y + 1;
+			x11mousebuf[3] = X11MOUSE_OFFSET + ip.Event.MouseEvent.dwMousePosition.X + 1;
+			x11mousebuf[4] = X11MOUSE_OFFSET + ip.Event.MouseEvent.dwMousePosition.Y + 1;
 			switch (ip.Event.MouseEvent.dwEventFlags)
 			{
 			case 0: /* press or release */
 				if (ip.Event.MouseEvent.dwButtonState == 0)
-					x11mousebuf[2] = X11MOUSE_BUTTON_REL;
+					x11mousebuf[2] = X11MOUSE_OFFSET + X11MOUSE_BUTTON_REL;
 				else if (ip.Event.MouseEvent.dwButtonState & (FROM_LEFT_3RD_BUTTON_PRESSED | FROM_LEFT_4TH_BUTTON_PRESSED))
 					continue;
 				else
-					x11mousebuf[2] = X11MOUSE_BUTTON1 + ((int)ip.Event.MouseEvent.dwButtonState << 1);
+					x11mousebuf[2] = X11MOUSE_OFFSET + X11MOUSE_BUTTON1 + ((int)ip.Event.MouseEvent.dwButtonState << 1);
 				break;
 			case MOUSE_WHEELED:
-				x11mousebuf[2] = ((int)ip.Event.MouseEvent.dwButtonState < 0) ? X11MOUSE_WHEEL_DOWN : X11MOUSE_WHEEL_UP;
+				x11mousebuf[2] = X11MOUSE_OFFSET + (((int)ip.Event.MouseEvent.dwButtonState < 0) ? X11MOUSE_WHEEL_DOWN : X11MOUSE_WHEEL_UP);
 				break;
 			default:
 				continue;
