@@ -112,6 +112,13 @@ ubin.uni: unicode/UnicodeData.txt
 wide.uni: unicode/EastAsianWidth.txt
 	./mkutable -f1 W F -- unicode/EastAsianWidth.txt > $@
 
+unicode/UnicodeData.txt:
+	mkdir -p unicode
+	curl -s -o $@ ftp://ftp.unicode.org/Public/UNIDATA/UnicodeData.txt
+unicode/EastAsianWidth.txt:
+	mkdir -p unicode
+	curl -s -o $@ ftp://ftp.unicode.org/Public/UNIDATA/EastAsianWidth.txt
+
 distfiles: ${DISTFILES}
 
 dist: ${DISTFILES}
