@@ -871,6 +871,7 @@ v547  11/30/18  Fix some bugs with saved marks.
 v548  12/14/18  Ignore mouse input when line editing.
 v549  2/10/19   Support X11 mouse extension 1006;
                 Win32 fixes (thanks to Jason Hood).
+v550  
 */
 
-char version[] = "549";
+char version[] = "550";

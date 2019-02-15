@@ -1111,7 +1111,7 @@ get_term(VOID_PARAM)
 
 
 #else /* !MSDOS_COMPILER */
-
+{
 	char *sp;
 	char *t1, *t2;
 	char *term;
@@ -1338,6 +1338,7 @@ get_term(VOID_PARAM)
 		 */
 		no_back_scroll = 1;
 	}
+}
 #endif /* MSDOS_COMPILER */
 }
 
