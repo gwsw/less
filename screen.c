@@ -2387,7 +2387,7 @@ backspace(VOID_PARAM)
 putbs(VOID_PARAM)
 {
 	if (termcap_debug)
-		tputs("<bs>", 1, putchr);
+		putstr("<bs>");
 	else
 	{
 #if !MSDOS_COMPILER
