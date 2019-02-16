@@ -217,6 +217,8 @@
                   Retain marks across invocations of less.
                 --use-backslash
                   Subsequent options use backslash as escape char.
+                --wheel-lines=N
+                  Each click of the mouse wheel moves N lines.
 
 
  ---------------------------------------------------------------------------
