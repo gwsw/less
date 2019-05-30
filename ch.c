@@ -19,6 +19,8 @@ extern dev_t curr_dev;
 extern ino_t curr_ino;
 #endif
 
+#include <poll.h>
+
 typedef POSITION BLOCKNUM;
 
 public int ignore_eoi;
@@ -294,6 +296,14 @@ ch_get(VOID_PARAM)
 		ch_fsize = pos;
 		if (ignore_eoi)
 		{
+			struct pollfd poller = { ch_file, 0, 0 };
+			poll(&poller, 1, 0);
+			if ((poller.revents & POLLERR) || (poller.revents & POLLHUP))
+			{
+				sigs |= S_INTERRUPT;
+				return (EOI);
+			}
+
 			/*
 			 * We are ignoring EOF.
 			 * Wait a while, then try again.
