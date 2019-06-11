@@ -1824,9 +1824,7 @@ See the GNU General Public License for more details.
 .PP
 Mark Nudelman
 .br
-Send bug reports or comments to <@@EMAIL@@>
-.br
-See @@HOMEPAGE@@/bugs.html for the latest list of known bugs in less.
+Report bugs at https://github.com/gwsw/less/issues.
 .br
 For more information, see the less homepage at
 .br
