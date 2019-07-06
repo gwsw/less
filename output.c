@@ -493,8 +493,8 @@ type funcname(buf, ebuf) \
 	return val; \
 }
 
-STR_TO_TYPE_FUNC(lstrtopos, POSITION);
-STR_TO_TYPE_FUNC(lstrtoi, int);
+STR_TO_TYPE_FUNC(lstrtopos, POSITION)
+STR_TO_TYPE_FUNC(lstrtoi, int)
 
 /*
  * Output an integer in a given radix.
