@@ -502,7 +502,7 @@ prutfchar(ch)
  */
 	public int
 utf_len(ch)
-	unsigned char ch;
+	int ch;
 {
 	if ((ch & 0x80) == 0)
 		return 1;
