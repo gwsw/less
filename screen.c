@@ -635,7 +635,6 @@ ltget_env(capname)
 	char *capname;
 {
 	char name[64];
-	char *s;
 
 	if (termcap_debug)
 	{

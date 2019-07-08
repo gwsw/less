@@ -873,6 +873,8 @@ v549  2/10/19   Support X11 mouse extension 1006;
                 Win32 fixes (thanks to Jason Hood).
 v550  2/16/19   Fix Win32 build; don't enable mouse unless --mouse is set.
 v551  6/10/19   Doc changes.
+-----------------------------------------------------------------
+v552  7/8/19    Update Unicode tables.
 */
 
-char version[] = "551";
+char version[] = "552";
