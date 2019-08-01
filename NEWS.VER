@@ -11,7 +11,17 @@
 
 ======================================================================
 
-	Major changes between "less" versions 530 and @@VERSION@@
+	Major changes between "less" versions 551 and @@VERSION@@
+
+* Update Unicode tables.
+
+* Treat Hangul Jamo medial vowels and final consonants as zero width.
+
+* Support libtinfow.
+
+======================================================================
+
+	Major changes between "less" versions 530 and 551
 
 * Add --mouse option.
 

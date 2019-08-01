@@ -875,6 +875,7 @@ v550  2/16/19   Fix Win32 build; don't enable mouse unless --mouse is set.
 v551  6/10/19   Doc changes.
 -----------------------------------------------------------------
 v552  7/8/19    Update Unicode tables.
+v553x
 */
 
-char version[] = "552";
+char version[] = "553x";
