@@ -212,8 +212,9 @@ extern int binattr;
 extern int one_screen;
 
 #if !MSDOS_COMPILER
-static char *cheaper();
-static void tmodes();
+static char *cheaper LESSPARAMS((char *t1, char *t2, char *def));
+static void tmodes LESSPARAMS((char *incap, char *outcap, char **instr,
+    char **outstr, char *def_instr, char *def_outstr, char **spp));
 #endif
 
 /*
