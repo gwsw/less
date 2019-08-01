@@ -22,6 +22,13 @@ my %force_space = (
     0x0d => 1, # carriage return
 );
 
+# Hangul Jamo medial vowels and final consonants should be zero width.
+my @force_compose = (
+    [0x1160, 0x11ff],
+    [0xd7b0, 0xd7c6],
+    [0xd7cb, 0xd7fb]
+);
+
 exit (main() ? 0 : 1);
 
 sub main {
@@ -36,6 +43,14 @@ sub main {
         $types{$arg} = 1;
     }
     my %out = ( 'types' => \%types );
+
+    my %force_compose;
+    foreach my $comp (@force_compose) {
+        my ($lo,$hi) = @$comp;
+        for (my $ch = $lo; $ch <= $hi; ++$ch) {
+            $force_compose{$ch} = 1;
+        }
+    }
 
     my $date = `date`;
     chomp $date;
@@ -58,7 +73,8 @@ sub main {
         my $type = $fields[$type_field];
         $type =~ s/\s//g;
         for ($last_code = $lo_code; $last_code <= $hi_code; ++$last_code) {
-            output(\%out, $last_code, $force_space{$last_code} ? 'Zs' : $type);
+            output(\%out, $last_code,
+                $force_space{$last_code} ? 'Zs' : $force_compose{$last_code} ? 'Mn' : $type);
         }
     }
     output(\%out, $last_code);
