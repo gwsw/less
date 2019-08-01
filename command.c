@@ -81,7 +81,7 @@ struct ungot {
 };
 static struct ungot* ungot = NULL;
 
-static void multi_search();
+static void multi_search LESSPARAMS((char *pattern, int n, int silent));
 
 /*
  * Move the cursor to start of prompt line before executing a command.
