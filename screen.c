@@ -1073,7 +1073,6 @@ get_term(VOID_PARAM)
 #else
 #if MSDOS_COMPILER==WIN32C
     {
-	DWORD nread;
 	CONSOLE_SCREEN_BUFFER_INFO scr;
 
 	con_out_save = con_out = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -1083,8 +1082,7 @@ get_term(VOID_PARAM)
 	 */
 	SET_BINARY(0);
 	GetConsoleScreenBufferInfo(con_out, &scr);
-	ReadConsoleOutputAttribute(con_out, &curr_attr, 
-					1, scr.dwCursorPosition, &nread);
+	curr_attr = scr.wAttributes;
 	sy_bg_color = (curr_attr & BG_COLORS) >> 4; /* normalize */
 	sy_fg_color = curr_attr & FG_COLORS;
     }
