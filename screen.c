@@ -152,7 +152,7 @@ static int sy_fg_color;		/* Color of system text (before less) */
 static int sy_bg_color;
 public int sgr_mode;		/* Honor ANSI sequences rather than using above */
 #if MSDOS_COMPILER==WIN32C
-public int have_ul;		/* Is underline available? */
+public int vt_enabled;		/* Is virtual terminal processing available? */
 #endif
 #else
 
@@ -1510,11 +1510,11 @@ win32_init_term(VOID_PARAM)
 			CONSOLE_TEXTMODE_BUFFER,
 			(LPVOID) NULL);
 		/*
-		 * Enable underline, if available.
+		 * Enable virtual terminal processing, if available.
 		 */
 		GetConsoleMode(con_out_ours, &output_mode);
-		have_ul = SetConsoleMode(con_out_ours,
-			    output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+		vt_enabled = SetConsoleMode(con_out_ours,
+			       output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 	}
 
 	size.X = scr.srWindow.Right - scr.srWindow.Left + 1;
@@ -1608,7 +1608,20 @@ init(VOID_PARAM)
 #else
 #if MSDOS_COMPILER==WIN32C
 	if (!no_init)
+	{
 		win32_init_term();
+	}
+	else
+	{
+		DWORD output_mode;
+
+		/*
+		 * Enable virtual terminal processing, if available.
+		 */
+		GetConsoleMode(con_out, &output_mode);
+		vt_enabled = SetConsoleMode(con_out,
+			       output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	}
 #endif
 	initcolor();
 	flush();
