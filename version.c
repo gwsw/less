@@ -875,7 +875,7 @@ v550  2/16/19   Fix Win32 build; don't enable mouse unless --mouse is set.
 v551  6/10/19   Doc changes.
 -----------------------------------------------------------------
 v552  7/8/19    Update Unicode tables.
-v553x
+v553  10/17/19  Support tinfow; handle zero-width Hangul chars.
 */
 
-char version[] = "553x";
+char version[] = "553";
