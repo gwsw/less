@@ -115,7 +115,7 @@ defines.h: defines.wn
 funcs.h:
 	perl mkfuncs.pl ${LESS_SRC}  > $@
 
-help.c: less.hlp.VER
+help.c: less.hlp
 	perl mkhelp.pl  < $<  > $@
 
 ${OBJ}: less.h defines.h funcs.h

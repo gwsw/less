@@ -9,7 +9,6 @@ defines.h.in
 defines.h.in~
 funcs.h
 help.c
-less.hlp
 less.man
 less.nro
 lessecho.man
