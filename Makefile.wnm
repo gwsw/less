@@ -43,11 +43,16 @@ defines.h: defines.wn
 	-del defines.h
 	-copy defines.wn defines.h
 
+funcs.h: help.c
+	perl mkfuncs.pl $(OBJ:.obj=.c) > $@
+
+help.c: less.hlp
+	perl mkhelp.pl < less.hlp > $@
+
 $(OBJ): less.h defines.h funcs.h cmd.h
 
 clean:
 	-del *.obj 
 	-del less.exe
 	-del lesskey.exe
-
-
+	-del defines.h funcs.h help.c

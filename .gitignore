@@ -5,6 +5,7 @@ release/**
 NEWS
 README
 configure
+defines.h
 defines.h.in
 defines.h.in~
 funcs.h
