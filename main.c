@@ -110,7 +110,6 @@ main(argc, argv)
 	init_mark();
 	init_cmds();
 	get_term();
-	expand_cmd_tables();
 	init_charset();
 	init_line();
 	init_cmdhist();
@@ -151,6 +150,8 @@ main(argc, argv)
 		nopendopt();
 		quit(QUIT_OK);
 	}
+
+	expand_cmd_tables();
 
 #if EDITOR
 	editor = lgetenv("VISUAL");
