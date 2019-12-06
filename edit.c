@@ -847,7 +847,6 @@ loop:
 		/*
 		 * Don't do anything.
 		 */
-		free(filename);
 		return;
 	case 'q':
 		quit(QUIT_OK);
