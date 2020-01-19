@@ -876,6 +876,7 @@ v551  6/10/19   Doc changes.
 -----------------------------------------------------------------
 v552  7/8/19    Update Unicode tables.
 v553  10/17/19  Support tinfow; handle zero-width Hangul chars.
+v554  1/19/20   Remove erroneous free().
 */
 
-char version[] = "553";
+char version[] = "554x";
