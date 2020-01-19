@@ -879,4 +879,4 @@ v553  10/17/19  Support tinfow; handle zero-width Hangul chars.
 v554  1/19/20   Remove erroneous free().
 */
 
-char version[] = "554x";
+char version[] = "554";
