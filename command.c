@@ -16,6 +16,8 @@
 extern int erase_char, erase2_char, kill_char;
 extern int sigs;
 extern int quit_if_one_screen;
+extern int quit_if_less_lines;
+extern int less_lines;
 extern int squished;
 extern int sc_width;
 extern int sc_height;
@@ -742,9 +744,9 @@ prompt(VOID_PARAM)
 		quit(QUIT_OK);
 
 	/*
-	 * If the entire file is displayed and the -F flag is set, quit.
+	 * If the entire file is displayed and the -F or the -l flag is set, quit.
 	 */
-	if (quit_if_one_screen &&
+	if ((quit_if_one_screen || quit_if_less_lines && less_lines) &&
 	    entire_file_displayed() && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);

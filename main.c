@@ -48,11 +48,13 @@ static char consoleTitle[256];
 #endif
 
 public int	one_screen;
+public int	less_lines;
 extern int	less_is_more;
 extern int	missing_cap;
 extern int	know_dumb;
 extern int	pr_type;
 extern int	quit_if_one_screen;
+extern int	quit_if_less_lines;
 extern int	no_init;
 
 
@@ -266,12 +268,15 @@ main(argc, argv)
 		 * to send terminal init. But don't need this 
 		 * if -X (no_init) overrides this (see init()).
 		 */
-		if (quit_if_one_screen)
+		if (quit_if_one_screen || quit_if_less_lines)
 		{
-			if (nifile() > 1) /* If more than one file, -F cannot be used */
+			if (nifile() > 1) { /* If more than one file, -F cannot be used */
 				quit_if_one_screen = FALSE;
+				less_lines = FALSE;
+			}
 			else if (!no_init)
 				one_screen = get_one_screen();
+				less_lines = get_less_lines(quit_if_less_lines);
 		}
 	}
 

@@ -155,6 +155,8 @@
                   Use a lesskey file.
   -K  ........  --quit-on-intr
                   Exit less in response to ctrl-C.
+  -l [_N]  ....  --quit-if-less-lines=[_N]
+                  Quit if the entire file fits in less than N lines.
   -L  ........  --no-lessopen
                   Ignore the LESSOPEN environment variable.
   -m  -M  ....  --long-prompt  --LONG-PROMPT

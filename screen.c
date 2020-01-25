@@ -210,6 +210,7 @@ static int attrmode = AT_NORMAL;
 static int termcap_debug = -1;
 extern int binattr;
 extern int one_screen;
+extern int less_lines;
 
 #if !MSDOS_COMPILER
 static char *cheaper LESSPARAMS((char *t1, char *t2, char *def));
@@ -240,6 +241,7 @@ extern int wscroll;
 extern int screen_trashed;
 extern int top_scroll;
 extern int quit_if_one_screen;
+extern int quit_if_less_lines;
 extern int oldbot;
 extern int mousecap;
 #if HILITE_SEARCH
@@ -1583,7 +1585,8 @@ deinit_mouse(VOID_PARAM)
 init(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
-	if (!(quit_if_one_screen && one_screen))
+	if (!(quit_if_one_screen && one_screen
+		|| quit_if_less_lines && less_lines))
 	{
 		if (!no_init)
 			tputs(sc_init, sc_height, putchr);
@@ -1625,7 +1628,8 @@ deinit(VOID_PARAM)
 	if (!init_done)
 		return;
 #if !MSDOS_COMPILER
-	if (!(quit_if_one_screen && one_screen))
+	if (!(quit_if_one_screen && one_screen
+		|| quit_if_less_lines && less_lines))
 	{
 		deinit_mouse();
 		if (!no_keypad)

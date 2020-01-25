@@ -58,6 +58,8 @@ public int hilite_search;	/* Highlight matched search patterns? */
 
 public int less_is_more = 0;	/* Make compatible with POSIX more */
 
+public int quit_if_less_lines;	/* Quit if the output takes less than X lines */
+
 /*
  * Long option names.
  */
@@ -83,6 +85,7 @@ static struct optname J__optname     = { "status-column",        NULL };
 static struct optname k_optname      = { "lesskey-file",         NULL };
 #endif
 static struct optname K__optname     = { "quit-on-intr",         NULL };
+static struct optname l_optname      = { "quit-if-less-lines",   NULL };
 static struct optname L__optname     = { "no-lessopen",          NULL };
 static struct optname m_optname      = { "long-prompt",          NULL };
 static struct optname n_optname      = { "line-numbers",         NULL };
@@ -265,6 +268,14 @@ static struct loption option[] =
 		{
 			"Interrupt (ctrl-C) returns to prompt",
 			"Interrupt (ctrl-C) exits less",
+			NULL
+		}
+	},
+	{ 'l', &l_optname,
+		NUMBER, -1, &quit_if_less_lines, NULL,
+		{
+			"Exit if the text fits in this many lines: ",
+			"Exit the file if the text fits in %d lines",
 			NULL
 		}
 	},

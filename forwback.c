@@ -454,3 +454,24 @@ get_one_screen(VOID_PARAM)
 	}
 	return (nlines < sc_height);
 }
+
+/*
+ * Will the entire file fit in X lines?
+ */
+	public int
+get_less_lines(maxlines)
+	int maxlines;
+{
+	if (maxlines < 0)
+		return FALSE;
+
+	int nlines;
+	POSITION pos = ch_zero();
+
+	for (nlines = 0;  nlines < sc_height;  nlines++)
+	{
+		pos = forw_line(pos);
+		if (pos == NULL_POSITION) break;
+	}
+	return (nlines < maxlines);
+}

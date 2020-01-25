@@ -672,6 +672,11 @@ Normally, an interrupt character causes
 to stop whatever it is doing and return to its command prompt.
 Note that use of this option makes it impossible to return to the
 command prompt from the "F" command.
+.IP "\-l\fIn\fP or \-\-quit-if-less-lines=\fIn\fP"
+Causes
+.I less
+to automatically exit
+if the entire file can be displayed less than that many lines.
 .IP "\-L or \-\-no-lessopen"
 Ignore the LESSOPEN environment variable
 (see the INPUT PREPROCESSOR section below).
