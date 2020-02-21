@@ -22,6 +22,10 @@ extern int fd0;
 #endif
 #else
 #if MSDOS_COMPILER==WIN32C
+#include "os_windows_defs.h"
+#undef NONLS
+#undef NOVIRTUALKEYCODES
+#undef NOUSER
 #include <windows.h>
 #endif
 #endif

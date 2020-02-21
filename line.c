@@ -11,7 +11,7 @@
 #include "position.h"
 
 #if MSDOS_COMPILER==WIN32C
-#define WIN32_LEAN_AND_MEAN
+#include "os_windows_defs.h"
 #include <windows.h>
 #endif
 

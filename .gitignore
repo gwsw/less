@@ -17,3 +17,5 @@ lesskey.man
 lesskey.nro
 upload
 .vimrc
+.vscode/
+IGNORE/
