@@ -1,0 +1,62 @@
+# Cmake file for less
+# by Pedro Oliva Rodrigues
+
+cmake_minimum_required(VERSION 3.5)
+project("gwsw-less" 
+    VERSION 554 
+    LANGUAGES C 
+    HOMEPAGE_URL "http://www.greenwoodsoftware.com/less"
+)
+
+if(WIN32)
+    set(DEFINES_HEADER defines.wn)
+    if(MSVC)
+        add_compile_definitions(WIN32 NDEBUG _CONSOLE)
+    elseif(MINGW)
+        add_compile_definitions(MINGW WIN32)
+    endif()
+elseif(UNIX)
+    set(DEFINES_HEADER defines.h.in)
+endif()
+
+configure_file(${DEFINES_HEADER} defines.h  COPYONLY)
+
+add_library(common STATIC version.c)
+target_include_directories(common PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for defines.h
+
+# ---
+find_program(perl_exe NAMES perl DOC "Peal executable")
+
+set(SRC main.c screen.c brac.c ch.c charset.c cmdbuf.c
+    command.c cvt.c decode.c edit.c filename.c forwback.c
+    help.c ifile.c input.c jump.c line.c linenum.c
+    lsystem.c mark.c optfunc.c option.c opttbl.c os.c
+    output.c pattern.c position.c prompt.c search.c signal.c
+    tags.c ttyin.c regexp.c)
+
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/funcs.h)
+    execute_process(
+        COMMAND ${perl_exe} mkfuncs.pl ${SRC}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_FILE funcs.h
+        
+    )    
+endif()
+
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/help.c)
+    execute_process(
+        COMMAND ${perl_exe} mkhelp.pl
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        INPUT_FILE less.hlp
+        OUTPUT_FILE help.c
+    )    
+endif()
+# ---
+
+add_executable(less ${SRC})
+add_executable(lesskey lesskey.c)
+add_executable(lessecho lessecho.c)
+
+target_link_libraries(less PRIVATE common)
+target_link_libraries(lesskey PRIVATE common)
+target_link_libraries(lessecho PRIVATE common)
