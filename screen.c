@@ -26,6 +26,7 @@ extern int fd0;
 #undef NONLS
 #undef NOVIRTUALKEYCODES
 #undef NOUSER
+#undef NOMB
 #include <windows.h>
 #endif
 #endif
