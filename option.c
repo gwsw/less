@@ -520,6 +520,24 @@ opt_prompt(o)
 }
 
 /*
+ * If the specified option can be toggled, return NULL.
+ * Otherwise return an appropriate error message.
+ */
+	public char *
+opt_toggle_disallowed(c)
+	int c;
+{
+	switch (c)
+	{
+	case 'o':
+		if (ch_getflags() & CH_CANSEEK)
+			return "Input is not a pipe";
+		break;
+	}
+	return NULL;
+}
+
+/*
  * Return whether or not there is a string option pending;
  * that is, if the previous option was a string-valued option letter 
  * (like -P) without a following string.

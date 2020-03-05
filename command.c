@@ -1793,6 +1793,12 @@ commands(VOID_PARAM)
 			optgetname = FALSE;
 			mca_opt_toggle();
 			c = getcc();
+			cbuf = opt_toggle_disallowed(c);
+			if (cbuf != NULL)
+			{
+				error(cbuf, NULL_PARG);
+				break;
+			}
 			goto again;
 
 		case A_DISP_OPTION:
