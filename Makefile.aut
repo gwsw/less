@@ -115,7 +115,7 @@ unicode/UnicodeData.txt:
 	curl -s -u 'anonymous:${EMAIL}' -o $@ ftp://ftp.unicode.org/Public/UNIDATA/UnicodeData.txt
 unicode/EastAsianWidth.txt:
 	mkdir -p unicode
-	curl -s -u 'anonymous:$(EMAIL)' -o $@ ftp://ftp.unicode.org/Public/UNIDATA/EastAsianWidth.txt
+	curl -s -u 'anonymous:${EMAIL}' -o $@ ftp://ftp.unicode.org/Public/UNIDATA/EastAsianWidth.txt
 
 distfiles: ${DISTFILES}
 
