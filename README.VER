@@ -26,6 +26,13 @@ The manual page nroff source is in less.nro.
 Major changes made since the last posted version are in NEWS.
 
 =======================================================================
+PRE-INSTALLATION (when using git)
+If you are building from a clone of a git repository,
+type "make -f Makefile.aut".
+If you are building from a numbered release package (a tar or zip file 
+with a name like less-999.tar.gz or less-999.zip), you should skip this step. 
+
+=======================================================================
 INSTALLATION (Unix systems only):
 
 1. Move the distributed source to its own directory and unpack it,
