@@ -66,6 +66,7 @@ lint:
 
 clean: 
 	rm -f Makefile config.status config.log config.cache defines.h stamp-h \
+		configure defines.h.in funcs.h help.c \
 		README NEWS \
 		less.nro less.man lesskey.nro lesskey.man lessecho.nro lessecho.man 
 

@@ -17,6 +17,11 @@
 
 * Treat Hangul Jamo medial vowels and final consonants as zero width.
 
+* Display error message immediately when -o is toggled and 
+  input is not a pipe.
+
+* Fix display bug in WIN32C version.
+
 * Support libtinfow.
 
 ======================================================================
