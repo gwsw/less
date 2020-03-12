@@ -24,6 +24,7 @@ public int tty;
 extern int sigs;
 extern int utf_mode;
 extern int wheel_lines;
+static struct ungot* ungot_chr = NULL;
 
 /*
  * Open keyboard for input.
@@ -133,6 +134,8 @@ getchr(VOID_PARAM)
 	char c;
 	int result;
 
+    if (ungot_chr != NULL)
+        return (int) regetg(&ungot_chr);
 	do
 	{
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
@@ -209,4 +212,30 @@ getchr(VOID_PARAM)
 	} while (result != 1);
 
 	return (c & 0xFF);
+}
+
+/*
+ *
+ */
+	public int
+getchr_if(VOID_PARAM)
+{
+#if MSDOS_COMPILER==WIN32C
+	if (win32_kbhit())
+		return (getchr());
+#else
+	if (readable(tty))
+		return (getchr());
+#endif
+	return (0);
+}
+
+/*
+ *
+ */
+	public void
+ungetchr(c)
+	int c;
+{
+	ungetg(&ungot_chr, (LWCHAR) c);
 }

@@ -82,6 +82,9 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_SELECT_H
+#include <sys/select.h>
+#endif
 
 /* OS-specific includes */
 #ifdef _OSK
@@ -321,6 +324,12 @@ struct wchar_range_table
 	int count;
 };
 
+/* Stack of ungotten chars (via ungetcc) */
+struct ungot {
+	struct ungot *ug_next;
+	LWCHAR ug_char;
+};
+
 #define	EOI		(-1)
 
 #define	READ_INTR	(-2)
@@ -458,6 +467,7 @@ struct wchar_range_table
 #define	ESCS		"\33"
 #define	CSI		((unsigned char)'\233')
 #define	CHAR_END_COMMAND 0x40000000
+#define	ALT_INTR_CHAR CONTROL('x')
 
 #if _OSK_MWC32
 #define	LSIGNAL(sig,func)	os9_signal(sig,func)

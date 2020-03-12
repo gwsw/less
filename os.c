@@ -46,6 +46,7 @@ public int reading;
 static jmp_buf read_label;
 
 extern int sigs;
+extern int ignore_eoi;
 
 /*
  * Like read() system call, but is deliberately interruptible.
@@ -120,6 +121,20 @@ start:
 			return (-1);
 	}
 #endif
+	if (ignore_eoi)
+	{
+printf("ignore_eoi: readable %d\n", readable(fd));
+		while (!readable(fd))
+		{
+			int c = getchr_if();
+printf("getchr_if %x\n", c);
+			if (c == ALT_INTR_CHAR)
+			{
+				LONG_JUMP(read_label, 1);
+			}
+			ungetchr(c);
+		}
+	}
 	n = read(fd, buf, len);
 #if 1
 	/*
@@ -128,7 +143,6 @@ start:
 	 * start returning 0 forever, instead of -1.
 	 */
 	{
-		extern int ignore_eoi;
 		if (!ignore_eoi)
 		{
 			static int consecutive_nulls = 0;
@@ -174,6 +188,27 @@ intread(VOID_PARAM)
 	LONG_JUMP(read_label, 1);
 }
 
+/*
+ * Is data available to be read from the specified fd?
+ */
+	public int
+readable(fd)
+	int fd;
+{
+#if HAVE_SELECT
+	fd_set fds;
+	struct timeval tv;
+	FD_ZERO(&fds);
+	FD_SET(fd, &fds);
+	tv.tv_sec = 0;
+	tv.tv_usec = 1;
+	int nn = select(fd+1, &fds, NULL, NULL, &tv);
+printf("sel(%d) %d\n", fd, nn);
+    return (nn > 0);
+#else
+	return (1);
+#endif
+}
 /*
  * Return the current time.
  */

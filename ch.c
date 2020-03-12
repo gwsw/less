@@ -298,7 +298,7 @@ ch_get(VOID_PARAM)
 			 * We are ignoring EOF.
 			 * Wait a while, then try again.
 			 */
-			if (!slept)
+			//if (!slept)
 			{
 				PARG parg;
 				parg.p_string = wait_message();

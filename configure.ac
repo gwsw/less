@@ -181,7 +181,7 @@ LIBS="$LIBS $TERMLIBS"
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h wctype.h])
+AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/select.h sys/stream.h wctype.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
@@ -274,7 +274,7 @@ AC_TRY_COMPILE([], [int f(int a) { return a; }],
 
 # Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([fsync popen _setjmp sigprocmask sigsetmask snprintf stat system fchmod realpath])
+AC_CHECK_FUNCS([fsync popen _setjmp sigprocmask sigsetmask snprintf select stat system fchmod realpath])
 
 # AC_CHECK_FUNCS may not work for inline functions, so test these separately.
 AC_MSG_CHECKING(for memcpy)

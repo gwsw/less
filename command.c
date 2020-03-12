@@ -74,11 +74,6 @@ static int save_bs_mode;
 static char pipec;
 #endif
 
-/* Stack of ungotten chars (via ungetcc) */
-struct ungot {
-	struct ungot *ug_next;
-	LWCHAR ug_char;
-};
 static struct ungot* ungot = NULL;
 
 static void multi_search LESSPARAMS((char *pattern, int n, int silent));
@@ -661,9 +656,9 @@ mca_char(c)
 	static void
 clear_buffers(VOID_PARAM)
 {
+	ch_flush();
 	if (!(ch_getflags() & CH_CANSEEK))
 		return;
-	ch_flush();
 	clr_linenum();
 #if HILITE_SEARCH
 	clr_hilite();
@@ -853,11 +848,7 @@ getccu(VOID_PARAM)
 	{
 		/* Ungotten chars available:
 		 * Take the top of stack (most recent). */
-		struct ungot *ug = ungot;
-		c = ug->ug_char;
-		ungot = ug->ug_next;
-		free(ug);
-
+		c = regetcc();
 		if (c == CHAR_END_COMMAND)
 			c = getcc_end_command();
 	}
@@ -924,14 +915,44 @@ getcc(VOID_PARAM)
  * The next getcc() will return this character.
  */
 	public void
-ungetcc(c)
+ungetg(anchor, c)
+	struct ungot **anchor;
 	LWCHAR c;
 {
 	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
-
 	ug->ug_char = c;
-	ug->ug_next = ungot;
-	ungot = ug;
+	ug->ug_next = *anchor;
+	*anchor = ug;
+}
+
+/*
+ *
+ */
+	public LWCHAR
+regetg(anchor)
+	struct ungot **anchor;
+{
+	struct ungot *ug = *anchor;
+	LWCHAR c = ug->ug_char;
+	*anchor = ug->ug_next;
+	free(ug);
+	return c;
+}
+
+/*
+ *
+ */
+	public void
+ungetcc(c)
+	LWCHAR c;
+{
+	return ungetg(&ungot, c);
+}
+
+	public LWCHAR
+regetcc()
+{
+	return regetg(&ungot);
 }
 
 /*
@@ -1086,7 +1107,7 @@ forw_loop(until_hilite)
 		forward(1, 0, 0);
 	}
 	ignore_eoi = 0;
-	ch_set_eof();
+	//FIXME:MJN  ch_set_eof();
 
 	/*
 	 * This gets us back in "F mode" after processing 
