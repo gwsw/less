@@ -52,8 +52,7 @@ help.c: less.hlp
 	${srcdir}/mkhelp.pl < less.hlp > help.c
 	if cmp -s help.c help.c.old; then mv -f help.c.old help.c; fi
 
-${srcdir}/configure: ${srcdir}/configure.ac \
-		${srcdir}/Makefile.in
+${srcdir}/configure ${srcdir}/defines.h.in: ${srcdir}/configure.ac ${srcdir}/Makefile.in
 	cd ${srcdir}; autoheader; autoconf
 
 funcs.h: ${SRC:%=${srcdir}/%}
