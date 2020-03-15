@@ -9,17 +9,49 @@ project("gwsw-less"
 )
 
 if(WIN32)
-    set(DEFINES_HEADER defines.wn)
-    if(MSVC)
-        add_compile_definitions(WIN32 NDEBUG _CONSOLE)
-    elseif(MINGW)
-        add_compile_definitions(MINGW WIN32)
-    endif()
-elseif(UNIX)
-    set(DEFINES_HEADER defines.h.in)
+    set(EDIT_PGM "notepad")
+    set(EDIT_PROTO "%E %g")
+    set(SYSDIR "c:\\\\")
+else()
+    set(EDIT_PGM "vi")
+    set(EDIT_PROTO "%E ?lm+%lm. %g")
+    set(SYSDIR "/")
 endif()
 
-configure_file(${DEFINES_HEADER} defines.h  COPYONLY)
+# User preferences
+option(SECURE_COMPILE "If enabled, disables a bunch of features in order to be safe to run by unprivileged users." OFF)
+option(CMD_HISTORY "Enable if you wish to allow keys to cycle through previous commands at prompts." ON)
+option(HILITE_SEARCH "Enable if you wish to have search targets to be displayed in standout mode." ON)
+set(EDIT_PGM ${EDIT_PGM} CACHE STRING "Name of the default to be invoked by the 'v' command if EDITOR env. var. is not set")
+set(EDIT_PROTO ${EDIT_PROTO} CACHE STRING "The default editor prototype, if LESSEDIT is not set.")
+option(GNU_OPTIONS "Enable if you wish to support the GNU-style command line options --help and --version." ON)
+option(ONLY_RETURN "Enable if you want RETURN to be the only input which will continue past an error message. Otherwise, any key will continue past an error message." OFF)
+
+set(LESSKEYFILE ".less")
+set(LESSKEYFILE_SYS "${SYSDIR}sysless")
+set(DEF_LESSKEYINFILE ".lesskey")
+set(LESSHISTFILE ".lesshst")
+
+# autoconf replacement
+include(CheckIncludeFile)
+include(CheckIncludeFiles)
+include(CheckSymbolExists)
+include(CheckTypeSize)
+check_include_file("langinfo.h"     HAVE_LANGINFO)
+check_include_file("sys/ioctl.h"    HAVE_SYS_IOCTL_H)
+check_include_file("sys/ptem.h"     HAVE_SYS_PTEM_H)
+check_include_file("sys/stream.h"   HAVE_SYS_STREAM_H)
+check_include_file("termcap.h"      HAVE_TERMCAP_H)
+check_include_file("termio.h"       HAVE_TERMIO_H)
+check_include_file("termios.h"      HAVE_TERMIOS_H)
+check_type_size("(sigset_t*)0"      HAVE_SIGSET_T)
+check_symbol_exists(sigemptyset "signal.h" HAVE_SIGEMPTYSET)
+if(HAVE_TERMIOS_H)
+    set(HAVE_TERMIOS_FUNCS On)
+endif()
+
+configure_file(defines.h.cin defines.h)
+
 
 add_library(common STATIC version.c)
 target_include_directories(common PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for defines.h

@@ -266,7 +266,7 @@
 #define MUST_DEFINE_OSPEED 0
 
 /* Define HAVE_LOCALE if you have locale.h and setlocale. */
-#define HAVE_LOCALE 0
+#define HAVE_LOCALE 1
 
 /* Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr */
 #define HAVE_TERMIOS_FUNCS 0

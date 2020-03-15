@@ -10,7 +10,9 @@
 #if HAVE_LOCALE
 #include <locale.h>
 #include <ctype.h>
+#ifdef HAVE_LANGINFO
 #include <langinfo.h>
+#endif
 #endif
 
 #include "charset.h"
