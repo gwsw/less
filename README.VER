@@ -27,6 +27,7 @@ Major changes made since the last posted version are in NEWS.
 
 =======================================================================
 PRE-INSTALLATION (when using git)
+
 If you are building from a clone of a git repository,
 type "make -f Makefile.aut".
 If you are building from a numbered release package (a tar or zip file 
