@@ -47,9 +47,10 @@ add_executable(less ${SRC})
 add_executable(lesskey lesskey.c)
 add_executable(lessecho lessecho.c)
 
-# lib for common settings
-add_library(common STATIC version.c)
-target_include_directories(common PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for defines.h
+# sudo lib for common settings
+add_library(common INTERFACE)
+target_sources(common INTERFACE ${CMAKE_SOURCE_DIR}/version.c)
+target_include_directories(common INTERFACE ${CMAKE_CURRENT_BINARY_DIR}) # for defines.h
 
 target_link_libraries(less PRIVATE common)
 target_link_libraries(lesskey PRIVATE common)
@@ -107,40 +108,45 @@ endif()
 # help.c, funcs.h exists at this point
 target_sources(less PRIVATE help.c funcs.h)
 
+
+# find terminal libraries
+find_package(Curses) # curses or ncurses
+find_library(TINFO_LIB NAMES tinfo libtinfo)
+find_library(TERMCAP_LIB names termcap libtermcap)
+
+if(WIN32)
+    set(TERMINAL_API WindowsConsole)
+elseif(TINFO_LIB)
+    set(TERMINAL_API tinfo)
+    target_link_libraries(less PRIVATE ${TINFO_LIB})
+elseif(CURSES_FOUND)
+    target_include_directories(less PRIVATE ${CURSES_INCLUDE_DIRS})
+    set(TERMINAL_API curses)
+    target_link_libraries(less PRIVATE ${CURSES_LIBRARIES})
+elseif(TERMCAP_LIB)
+    set(TERMINAL_API termcap)
+    target_link_libraries(less PRIVATE ${TERMCAP_LIB})
+else()
+    set(TERMINAL_API NOTFOUND)
+endif()
+
+if(NOT TERMINAL_API)
+    message(SEND_ERROR "Cannot find terminal libraries")
+else()
+    message(STATUS "using ${TERMINAL_API}")
+endif()
+
 # dependency detection
 include(CheckIncludeFiles)
 include(CheckTypeSize)
 include(CheckSymbolExists)
-
-# find terminal libraries
-find_package(Curses) # curses or ncurses
-set(TERMLIB_FOUND ${CURSES_FOUND})
-
-if(CURSES_FOUND)
-    target_include_directories(less PRIVATE ${CURSES_INCLUDE_DIRS})
-    target_link_libraries(less PRIVATE ${CURSES_LIBRARIES})
-
-    # do we need to check, if we're linking to curses?
-    list(APPEND CMAKE_REQUIRED_INCLUDES ${CURSES_INCLUDE_DIRS})
-    check_include_files("termios.h" HAVE_TERMIOS_H)
-    check_include_files("termcap.h" HAVE_TERMCAP_H)
-else()
-    check_include_files("termios.h" HAVE_TERMIOS_H)
-    check_include_files("termio.h"  HAVE_TERMIO_H)
-    check_include_files("termcap.h" HAVE_TERMCAP_H)
-
-    set(TERMLIB_FOUND ${HAVE_TERMCAP_H} ${HAVE_TERMIO_H} ${HAVE_TERMIOS_H})
-endif()
-
-if(HAVE_TERMIOS_H)
-    set(HAVE_TERMIOS_FUNCS On)
-endif()
-
-# find other deps
-check_include_files("langinfo.h"     HAVE_LANGINFO)
-check_include_files("sys/ioctl.h"    HAVE_SYS_IOCTL_H)
-check_include_files("sys/ptem.h"     HAVE_SYS_PTEM_H)
-check_include_files("sys/stream.h"   HAVE_SYS_STREAM_H)
+check_include_files("langinfo.h"   HAVE_LANGINFO)
+check_include_files("sys/ioctl.h"  HAVE_SYS_IOCTL_H)
+check_include_files("sys/ptem.h"   HAVE_SYS_PTEM_H)
+check_include_files("sys/stream.h" HAVE_SYS_STREAM_H)
+check_include_files("termios.h" HAVE_TERMIOS_H)
+check_include_files("termio.h"  HAVE_TERMIO_H)
+check_include_files("termcap.h" HAVE_TERMCAP_H)
 
 list(APPEND CMAKE_EXTRA_INCLUDE_FILES "signal.h")
 check_type_size("(sigset_t*)0" SIGSET_T)

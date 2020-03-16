@@ -142,7 +142,9 @@
 #cmakedefine01 HAVE_SIGSET_T
 #cmakedefine01 HAVE_TERMIOS_FUNCS
 
-
+#if HAVE_TERMIOS_H
+    #define HAVE_TERMIOS_FUNCS 1
+#endif
 
 /* User preferences.  */
 
