@@ -10,7 +10,7 @@
 #if HAVE_LOCALE
 #include <locale.h>
 #include <ctype.h>
-#ifdef HAVE_LANGINFO
+#if HAVE_LANGINFO
 #include <langinfo.h>
 #endif
 #endif

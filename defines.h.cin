@@ -1,11 +1,20 @@
 /* Cmake definition file for less.  */
-/**/
+/* 
+    This file has 3 sections:
+    - Global settings.
+    - Platform specific settings.
+    - User preferences.
+
+    User preferences can be controled via Cmake and CMakeCache.txt
+*/
+
+
+/* Global settings.  */
 
 /* 
     Legacy checks that if you're using Cmake and a compiler from this decade you don't need to worry about it,
     these are defined in standard C. 
 */
-
 #define HAVE_ANSI_PROTOS 1
 #define HAVE_MEMCPY 1
 #define HAVE_STRCHR 1
@@ -28,10 +37,26 @@
 #define HAVE_LOCALE 1
 #define HAVE_ERRNO_H 1
 
+/*
+ * Sizes of various buffers.
+ */
+#define	CMDBUF_SIZE     2048	/* Buffer for multichar commands */
+#define	UNGOT_SIZE	    200	    /* Max chars to unget() */
+#define	LINEBUF_SIZE	1024	/* Initial max size of line in input file */
+#define	OUTBUF_SIZE	    1024	/* Output buffer */
+#define	PROMPT_SIZE	    2048	/* Max size of prompt string */
+#define	TERMBUF_SIZE	2048	/* Termcap buffer for tgetent */
+#define	TERMSBUF_SIZE	1024	/* Buffer to hold termcap strings */
+#define	TAGLINE_SIZE	1024	/* Max size of line in tags file */
+#define	TABSTOP_MAX	    128	    /* Max number of custom tab stops */
+
+#define RETSIGTYPE void
+
 
 /* 
-    Platform specific checks (stuff that's common, but not standard)
+    Platform specific checks
 */
+
 #ifdef WIN32
     #define	PATHNAME_SEP	"\\"
     #define MSDOS_COMPILER	WIN32C
@@ -104,6 +129,7 @@
     #define	DEF_METAESCAPE	"\\"
 #endif
 
+/* stuff autodetected by Cmake */
 #cmakedefine01 HAVE_SYS_TYPES_H
 #cmakedefine01 HAVE_LANGINFO
 #cmakedefine01 HAVE_SYS_IOCTL_H
@@ -116,7 +142,7 @@
 #cmakedefine01 HAVE_SIGSET_T
 #cmakedefine01 HAVE_TERMIOS_FUNCS
 
-#define RETSIGTYPE void
+
 
 /* User preferences.  */
 
@@ -162,7 +188,7 @@
  * EDITOR is 1 if you wish to allow editor invocation (the "v" command).
  * (This is possible only if your system supplies the system() function.)
  * EDIT_PGM is the name of the (default) editor to be invoked.
- * EDIT_PROTO is the default editor prototype, if LESSEDIT is not set.
+ * EDIT_PROTO is the default editor prompt, if LESSEDIT is not set.
  */
 #define	EDITOR (!SECURE)
 #cmakedefine EDIT_PGM "${EDIT_PGM}"
@@ -220,19 +246,6 @@
  * (in the HOME directory).
  */
 #cmakedefine LESSKEYFILE "${LESSKEYFILE}"
-#cmakedefine LESSKEYFILE_SYS "${LESSKEYFILE_SYS}"
+#cmakedefine LESSKEYFILE_SYS "${SYSDIR}" PATHNAME_SEP "${LESSKEYFILE_SYS}"
 #cmakedefine DEF_LESSKEYINFILE "${DEF_LESSKEYINFILE}"
 #cmakedefine LESSHISTFILE "${LESSHISTFILE}"
-
-/*
- * Sizes of various buffers.
- */
-#define	CMDBUF_SIZE     2048	/* Buffer for multichar commands */
-#define	UNGOT_SIZE	    200	    /* Max chars to unget() */
-#define	LINEBUF_SIZE	1024	/* Initial max size of line in input file */
-#define	OUTBUF_SIZE	    1024	/* Output buffer */
-#define	PROMPT_SIZE	    2048	/* Max size of prompt string */
-#define	TERMBUF_SIZE	2048	/* Termcap buffer for tgetent */
-#define	TERMSBUF_SIZE	1024	/* Buffer to hold termcap strings */
-#define	TAGLINE_SIZE	1024	/* Max size of line in tags file */
-#define	TABSTOP_MAX	    128	    /* Max number of custom tab stops */
