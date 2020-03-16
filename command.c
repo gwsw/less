@@ -7,6 +7,8 @@
 
 #include "less.h"
 #if MSDOS_COMPILER==WIN32C
+#include "os_windows_defs.h"
+#undef NONLS
 #include <windows.h>
 #endif
 #include "position.h"

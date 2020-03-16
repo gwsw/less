@@ -11,10 +11,11 @@
 #include "pckeys.h"
 #endif
 #if MSDOS_COMPILER==WIN32C
-#define WIN32_LEAN_AND_MEAN
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x400
-#endif
+#include "os_windows_defs.h"
+#define _WIN32_WINNT 0x500
+#undef NOUSER
+#undef NOVIRTUALKEYCODES
+#undef NOWINMESSAGES
 #include <windows.h>
 static DWORD console_mode;
 public HANDLE tty;

@@ -7,7 +7,7 @@
 
 #include "less.h"
 #if MSDOS_COMPILER==WIN32C
-#define WIN32_LEAN_AND_MEAN
+#include "os_windows_defs.h"
 #include <windows.h>
 #endif
 
@@ -84,19 +84,21 @@ main(argc, argv)
 	if (getenv("HOME") == NULL)
 	{
 		/*
-		 * If there is no HOME environment variable,
-		 * try the concatenation of HOMEDRIVE + HOMEPATH.
+		 * If there is no HOME environment variable, try USERPROFILE.
 		 */
-		char *drive = getenv("HOMEDRIVE");
-		char *path  = getenv("HOMEPATH");
-		if (drive != NULL && path != NULL)
-		{
-			char *env = (char *) ecalloc(strlen(drive) + 
-					strlen(path) + 6, sizeof(char));
-			strcpy(env, "HOME=");
-			strcat(env, drive);
-			strcat(env, path);
-			putenv(env);
+		char* userprofile = getenv("USERPROFILE");
+		if (userprofile != NULL) {
+			_putenv_s("HOME", userprofile);
+		} else {
+			// try the concatenation of HOMEDRIVE + HOMEPATH.
+			char *drive = getenv("HOMEDRIVE");
+			char *path  = getenv("HOMEPATH");
+			if (drive != NULL && path != NULL) {
+				userprofile = (char*) ecalloc(strlen(drive) + strlen(path) + 1, sizeof(char));
+				strcpy(userprofile, drive);
+				strcat(userprofile, path);
+				_putenv_s("HOME", userprofile);
+			}
 		}
 	}
 	GetConsoleTitle(consoleTitle, sizeof(consoleTitle)/sizeof(char));
@@ -163,7 +165,7 @@ main(argc, argv)
 	}
 	editproto = lgetenv("LESSEDIT");
 	if (isnullenv(editproto))
-		editproto = "%E ?lm+%lm. %g";
+		editproto = EDIT_PROTO;
 #endif
 
 	/*
