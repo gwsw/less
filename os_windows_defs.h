@@ -5,8 +5,6 @@
 
 #define WIN32_LEAN_AND_MEAN	// - Excludes less common APIs like Cryptography DDE, RPC, Shell and Windows Sockets
 #define NOGDICAPMASKS 		// - CC_*, LC_*, PC_*, CP_*, TC_*, RC_
-#define NOVIRTUALKEYCODES 	// - VK_*
-#define NOWINMESSAGES 		// - WM_*, EM_*, LB_*, CB_*
 #define NOWINSTYLES 		// - WS_*, CS_*, ES_*, LBS_*, SBS_*, CBS_*
 #define NOSYSMETRICS 		// - SM_*
 #define NOMENUS 			// - MF_*
@@ -23,9 +21,6 @@
 #define NODRAWTEXT 			// - DrawText() and DT_*
 #define NOGDI 				// - All GDI defines and routines
 #define NOKERNEL 			// - All KERNEL defines and routines
-#define NOUSER 				// - All USER defines and routines
-#define NONLS 				// - All NLS defines and routines
-#define NOMB 				// - MB_* and MessageBox()
 #define NOMEMMGR 			// - GMEM_*, LMEM_*, GHND, LHND, associated routines
 #define NOMETAFILE 			// - typedef METAFILEPICT
 #define NOMINMAX 			// - Macros min(a,b) and max(a,b)
@@ -45,9 +40,3 @@
 #define NOMCX 				// - Modem Configuration Extensions
 
 // ---------------------------------------------------------------------------
-
-/* how to use:
-    #include "os_windows_defs.h"
-    #undef whatever you're going to need
-    #include <windows.h>
-*/

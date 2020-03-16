@@ -13,9 +13,6 @@
 #if MSDOS_COMPILER==WIN32C
 #include "os_windows_defs.h"
 #define _WIN32_WINNT 0x500
-#undef NOUSER
-#undef NOVIRTUALKEYCODES
-#undef NOWINMESSAGES
 #include <windows.h>
 static DWORD console_mode;
 public HANDLE tty;
