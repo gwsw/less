@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.8)
 project("gwsw-less" 
-    VERSION 554 
+    VERSION 556
     LANGUAGES C 
     HOMEPAGE_URL "http://www.greenwoodsoftware.com/less"
 )
@@ -34,6 +34,9 @@ set(LESSKEYFILE_SYS "sysless" CACHE STRING "Filename of the system-wide lesskey 
 set(DEF_LESSKEYINFILE ".lesskey" CACHE STRING "Filename of the default lesskey input (in the HOME directory).")
 set(LESSHISTFILE ".lesshst" CACHE STRING "Filename of the history file (in the HOME directory).")
 
+# needed for creating generated_files and making pkg releases
+find_package(Perl REQUIRED)
+
 # targets
 set(SRC main.c screen.c brac.c ch.c charset.c cmdbuf.c
     command.c cvt.c decode.c edit.c filename.c forwback.c
@@ -41,9 +44,17 @@ set(SRC main.c screen.c brac.c ch.c charset.c cmdbuf.c
     lsystem.c mark.c optfunc.c option.c opttbl.c os.c
     output.c pattern.c position.c prompt.c search.c signal.c
     tags.c ttyin.c regexp.c)
-    #help.c  funcs.h
 
-add_executable(less ${SRC})
+# we need to give the full path, else it fails to find help.c when building less
+add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/help.c ${CMAKE_SOURCE_DIR}/funcs.h
+    COMMAND ${PERL_EXECUTABLE} mkhelp.pl < "less.hlp" > help.c
+    COMMAND ${PERL_EXECUTABLE} mkfuncs.pl ${SRC} > funcs.h
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Generating help.c and funcs.h ..."
+    USES_TERMINAL
+)
+
+add_executable(less ${SRC} help.c)
 add_executable(lesskey lesskey.c)
 add_executable(lessecho lessecho.c)
 
@@ -55,58 +66,6 @@ target_include_directories(common INTERFACE ${CMAKE_CURRENT_BINARY_DIR}) # for d
 target_link_libraries(less PRIVATE common)
 target_link_libraries(lesskey PRIVATE common)
 target_link_libraries(lessecho PRIVATE common)
-
-# we may need to generate help.c, funcs.h
-set(generated_files help.c funcs.h)
-find_file(help_c_found  help.c  PATHS ${CMAKE_SOURCE_DIR} NO_DEFAULT_PATH)
-find_file(funcs_h_found funcs.h PATHS ${CMAKE_SOURCE_DIR} NO_DEFAULT_PATH)
-
-if(NOT help_c_found OR NOT funcs_h_found)
-    message(CHECK_START " " "Generating files (${generated_files})")
-
-    find_package(Perl REQUIRED)
-
-    if(NOT help_c_found)
-        message(CHECK_START "  " "Generating help.c")
-        execute_process(
-            COMMAND ${PERL_EXECUTABLE} mkhelp.pl
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            INPUT_FILE less.hlp
-            OUTPUT_FILE help.c
-            RESULT_VARIABLE gen
-        )
-        if(gen EQUAL 0)
-            message(CHECK_PASS "  " "ok")
-        else()
-            message(CHECK_FAIL "  " "fail")
-        endif()
-    endif()
-
-    if(NOT funcs_h_found)
-        message(CHECK_START "  " "Generating funcs.h")
-        execute_process(
-            COMMAND ${PERL_EXECUTABLE} mkfuncs.pl ${SRC} help.c
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            OUTPUT_FILE funcs.h
-            RESULT_VARIABLE gen
-        )
-        if(gen EQUAL 0)
-            message(CHECK_PASS "  " "ok")
-        else()
-            message(CHECK_FAIL "  " "fail")
-        endif()
-    endif()
-
-    if((EXISTS help.c) AND (EXISTS funcs.h))
-        message(CHECK_PASS "  " "ok")
-    else()
-        message(CHECK_FAIL "  " "fail")
-    endif()
-    
-endif()
-
-# help.c, funcs.h exists at this point
-target_sources(less PRIVATE help.c funcs.h)
 
 
 # find terminal libraries
