@@ -102,7 +102,7 @@ winch(type)
 /*
  * Handle CTRL-C and CTRL-BREAK keys.
  */
-#include "os_windows_defs.h"
+#include "os_defs.h"
 #include <windows.h>
 
 	static BOOL WINAPI 

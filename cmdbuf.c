@@ -1674,20 +1674,9 @@ histfile_modified(VOID_PARAM)
 }
 
 #if MSDOS_COMPILER==WIN32C
-#include "os_windows_defs.h"
-#define _WIN32_WINNT 0x500
+#include "os_defs.h"
 #include <windows.h>
 #endif
-
-// replace a file atomically
-static void replace_file(const char* oldfile, const char* newfile)
-{
-#if MSDOS_COMPILER==WIN32C
-	ReplaceFileA(newfile, oldfile, 0,0,0,0);
-#else
-	rename(oldfile, newfile);
-#endif
-}
 
 /*
  * Update the .lesshst file.
@@ -1733,7 +1722,12 @@ save_cmdhist(VOID_PARAM)
 		save_marks(fout, HISTFILE_MARK_SECTION);
 		fclose(fout);
 
-		replace_file(tempname, histname);
+		// replace the file atomically
+#if MSDOS_COMPILER==WIN32C
+		ReplaceFileA(histname, tempname, 0,0,0,0);
+#else
+		rename(tempname, histname);
+#endif
 	}
 	free(tempname);
 	free(histname);
