@@ -823,6 +823,7 @@ loop:
 	switch (answer)
 	{
 	case 'O': case 'o':
+	{
 		/*
 		 * Overwrite: create the file.
 		 */
@@ -836,6 +837,7 @@ loop:
 		
 		logfile = creat(filename, perms);
 		break;
+	}
 	case 'A': case 'a':
 		/*
 		 * Append: open the file and seek to the end.

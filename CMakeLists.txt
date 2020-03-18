@@ -2,11 +2,11 @@
 # by Pedro Oliva Rodrigues
 
 cmake_minimum_required(VERSION 3.8)
-project("gwsw-less" 
+project("gwsw-less"
     VERSION 556
-    LANGUAGES C 
-    #HOMEPAGE_URL "http://www.greenwoodsoftware.com/less"
+    LANGUAGES C
 )
+set(PROJECT_HOMEPAGE_URL "http://www.greenwoodsoftware.com/less")
 
 if(WIN32)
     set(EDIT_PGM_ "notepad")
@@ -82,8 +82,8 @@ include(CheckSymbolExists)
 
 # find terminal libraries
 find_package(Curses) # curses or ncurses
-find_library(TINFO_LIB NAMES tinfo libtinfo libtinfo5)
-find_library(TERMCAP_LIB names termcap libtermcap)
+find_library(TINFO_LIB NAMES tinfo libtinfo.so libtinfo5.so libtinfo.so.5)
+find_library(TERMCAP_LIB names termcap libtermcap.so)
 
 if(WIN32)
     set(TERMINAL_LIBRARY WindowsConsole)
