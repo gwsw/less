@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.8)
 project("gwsw-less" 
     VERSION 556
     LANGUAGES C 
-    HOMEPAGE_URL "http://www.greenwoodsoftware.com/less"
+    #HOMEPAGE_URL "http://www.greenwoodsoftware.com/less"
 )
 
 if(WIN32)
@@ -39,6 +39,7 @@ set(DEF_LESSKEYINFILE ".lesskey" CACHE STRING "Filename of the default lesskey i
 set(LESSHISTFILE ".lesshst" CACHE STRING "Filename of the history file (in the HOME directory).")
 set(REGEX_LIBRARY regcomp-local CACHE STRING "Select what regular expression library to use ([regcomp-local],posix,pcre2,off).")
 
+set(SECURE SECURE_COMPILE)
 
 # needed for creating generated_files and making pkg releases
 find_package(Perl REQUIRED)
@@ -81,7 +82,7 @@ include(CheckSymbolExists)
 
 # find terminal libraries
 find_package(Curses) # curses or ncurses
-find_library(TINFO_LIB NAMES tinfo libtinfo)
+find_library(TINFO_LIB NAMES tinfo libtinfo libtinfo5)
 find_library(TERMCAP_LIB names termcap libtermcap)
 
 if(WIN32)
@@ -111,18 +112,18 @@ else()
 endif()
 
 # find regex library
-check_include_files("regex.h" HAVE_POSIX_REGCOMP)
-find_library(pcre2_lib names pcre2 libpcre2 libpcre2-8-0)
 
 if(REGEX_LIBRARY MATCHES regcomp-local)
     target_sources(less PRIVATE ${CMAKE_SOURCE_DIR}/regexp.c)
     set(HAVE_V8_REGCOMP true)
     set(HAVE_REGEXEC2 true)
 elseif(REGEX_LIBRARY MATCHES posix)
+    check_include_files("regex.h" HAVE_POSIX_REGCOMP)
     if(NOT HAVE_POSIX_REGCOMP)
         message(SEND_ERROR "posix regcomp not found!")
     endif()
 elseif(REGEX_LIBRARY MATCHES pcre2)
+    find_library(pcre2_lib names pcre2 libpcre2 libpcre2-8-0)
     if(NOT pcre2_lib)
         message(SEND_ERROR "pcre2 not found!")
     else()

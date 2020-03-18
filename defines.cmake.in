@@ -23,7 +23,7 @@
 #define HAVE_STRING_H 1
 #define HAVE_LIMITS_H 1
 #define HAVE_STRSTR 1
-#define	HAVE_TIME 1
+#define HAVE_TIME 1
 #define HAVE_CONST 1
 #define HAVE_VOID 1
 #define HAVE_FLOAT 1
@@ -33,22 +33,25 @@
 #define HAVE_UPPER_LOWER 1
 #define HAVE_WCTYPE_H 1
 #define HAVE_WCTYPE 1
-#define	HAVE_PERROR	1
+#define HAVE_PERROR 1
 #define HAVE_LOCALE 1
 #define HAVE_ERRNO_H 1
+#define HAVE_SYSTEM 1
+#define HAVE_CTYPE_H 1
+#define HAVE_TIME_H 1
 
 /*
  * Sizes of various buffers.
  */
-#define	CMDBUF_SIZE     2048	/* Buffer for multichar commands */
-#define	UNGOT_SIZE	    200	    /* Max chars to unget() */
-#define	LINEBUF_SIZE	1024	/* Initial max size of line in input file */
-#define	OUTBUF_SIZE	    1024	/* Output buffer */
-#define	PROMPT_SIZE	    2048	/* Max size of prompt string */
-#define	TERMBUF_SIZE	2048	/* Termcap buffer for tgetent */
-#define	TERMSBUF_SIZE	1024	/* Buffer to hold termcap strings */
-#define	TAGLINE_SIZE	1024	/* Max size of line in tags file */
-#define	TABSTOP_MAX	    128	    /* Max number of custom tab stops */
+#define CMDBUF_SIZE     2048    /* Buffer for multichar commands */
+#define UNGOT_SIZE      200     /* Max chars to unget() */
+#define LINEBUF_SIZE    1024    /* Initial max size of line in input file */
+#define OUTBUF_SIZE     1024    /* Output buffer */
+#define PROMPT_SIZE     2048    /* Max size of prompt string */
+#define TERMBUF_SIZE    2048    /* Termcap buffer for tgetent */
+#define TERMSBUF_SIZE   1024    /* Buffer to hold termcap strings */
+#define TAGLINE_SIZE    1024    /* Max size of line in tags file */
+#define TABSTOP_MAX     128     /* Max number of custom tab stops */
 
 #define RETSIGTYPE void
 
@@ -58,10 +61,10 @@
 */
 
 #ifdef WIN32
-    #define	PATHNAME_SEP	"\\"
-    #define MSDOS_COMPILER	WIN32C
+    #define PATHNAME_SEP    "\\"
+    #define MSDOS_COMPILER  WIN32C
 
-    #define	popen	_popen
+    #define popen _popen
     #if _MSC_VER < 1900
         #define snprintf _snprintf
     #endif
@@ -78,38 +81,35 @@
         #define HAVE_UNISTD_H 0
     #endif
 
-    #define	HAVE_DUP 1
+    #define HAVE_DUP 1
     #define HAVE_POPEN 1
     #define MUST_DEFINE_ERRNO 0
     #define HAVE_STAT 1
     #define HAVE_SYS_ERRLIST 1
 
     #define HAVE__SETJMP 1
-    #define HAVE_SYSTEM	1
-    #define HAVE_CTYPE_H 1
     #define HAVE_FCNTL_H 1
-    #define HAVE_TIME_H 1
     #define HAVE_FILENO 1
 
-    #define	DEF_METACHARS	"; *?\t\n'\"()<>|&"
-    #define	DEF_METAESCAPE	""
+    #define DEF_METACHARS "; *?\t\n'\"()<>|&"
+    #define DEF_METAESCAPE    ""
 
     #ifndef MINGW
         #pragma warning(disable:4996)
     #endif
 #else
-    #define	MSDOS_COMPILER	0
-    #define	PATHNAME_SEP	"/"
-    #define TGETENT_OK  1
-    #define	HAVE_SHELL	1
+    #define MSDOS_COMPILER 0
+    #define PATHNAME_SEP "/"
+    #define TGETENT_OK 1
+    #define HAVE_SHELL 1
 
-    #define	HAVE_DUP	1
+    #define HAVE_DUP 1
     #define HAVE_FCNTL_H 1
     #define HAVE_POPEN 1
     #define HAVE_STAT 1
     
-    #define	DEF_METACHARS	"; *?\t\n'\"()<>[]|&^`#\\$%=~{},"
-    #define	DEF_METAESCAPE	"\\"
+    #define DEF_METACHARS    "; *?\t\n'\"()<>[]|&^`#\\$%=~{},"
+    #define DEF_METAESCAPE   "\\"
 #endif
 
 
@@ -139,27 +139,24 @@
  * SECURE is 1 if you wish to disable a bunch of features in order to
  * be safe to run by unprivileged users.
  */
-#cmakedefine01 SECURE_COMPILE
-#define SECURE SECURE_COMPILE
-
-#undef SECURE_COMPILE
+#cmakedefine01 SECURE
 
 /*
  * SHELL_ESCAPE is 1 if you wish to allow shell escapes.
  * (This is possible only if your system supplies the system() function.)
  */
-#define	SHELL_ESCAPE	(!SECURE)
+#define SHELL_ESCAPE (!SECURE)
 
 /*
  * EXAMINE is 1 if you wish to allow examining files by name from within less.
  */
-#define	EXAMINE		(!SECURE)
+#define EXAMINE (!SECURE)
 
 /*
  * TAB_COMPLETE_FILENAME is 1 if you wish to allow the TAB key
  * to complete filenames at prompts.
  */
-#define	TAB_COMPLETE_FILENAME	(!SECURE)
+#define TAB_COMPLETE_FILENAME (!SECURE)
 
 /*
  * CMD_HISTORY is 1 if you wish to allow keys to cycle through
@@ -171,7 +168,7 @@
  * HILITE_SEARCH is 1 if you wish to have search targets to be 
  * displayed in standout mode.
  */
-#cmakedefine01	HILITE_SEARCH
+#cmakedefine01 HILITE_SEARCH
 
 /*
  * EDITOR is 1 if you wish to allow editor invocation (the "v" command).
@@ -179,51 +176,51 @@
  * EDIT_PGM is the name of the (default) editor to be invoked.
  * EDIT_PROTO is the default editor prompt, if LESSEDIT is not set.
  */
-#define	EDITOR (!SECURE)
+#define EDITOR (!SECURE)
 #cmakedefine EDIT_PGM "${EDIT_PGM}"
 #cmakedefine EDIT_PROTO "${EDIT_PROTO}"
 
 /*
  * TAGS is 1 if you wish to support tag files.
  */
-#define	TAGS		(!SECURE)
+#define TAGS (!SECURE)
 
 /*
  * USERFILE is 1 if you wish to allow a .less file to specify 
  * user-defined key bindings.
  */
-#define	USERFILE	(!SECURE)
+#define USERFILE (!SECURE)
 
 /*
  * GLOB is 1 if you wish to have shell metacharacters expanded in filenames.
  * This will generally work if your system provides the "popen" function
  * and the "echo" shell command.
  */
-#define	GLOB		(!SECURE)
+#define GLOB (!SECURE)
 
 /*
  * PIPEC is 1 if you wish to have the "|" command
  * which allows the user to pipe data into a shell command.
  */
-#define	PIPEC		(!SECURE)
+#define PIPEC (!SECURE)
 
 /*
  * LOGFILE is 1 if you wish to allow the -o option (to create log files).
  */
-#define	LOGFILE		(!SECURE)
+#define LOGFILE (!SECURE)
 
 /*
  * GNU_OPTIONS is 1 if you wish to support the GNU-style command
  * line options --help and --version.
  */
-#cmakedefine01	GNU_OPTIONS
+#cmakedefine01 GNU_OPTIONS
 
 /*
  * ONLY_RETURN is 1 if you want RETURN to be the only input which
  * will continue past an error message.
  * Otherwise, any key will continue past an error message.
  */
-#cmakedefine01	ONLY_RETURN
+#cmakedefine01 ONLY_RETURN
 
 /*
  * LESSKEYFILE is the filename of the default lesskey output file 
