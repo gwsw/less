@@ -113,6 +113,8 @@
 #endif
 
 
+/* User preferences.  */
+
 /* Regular expression library */
 #cmakedefine01 HAVE_POSIX_REGCOMP
 #cmakedefine01 HAVE_V8_REGCOMP
@@ -132,8 +134,6 @@
 
 #define HAVE_TERMIOS_FUNCS HAVE_TERMIOS_H
 
-
-/* User preferences.  */
 
 /*
  * SECURE is 1 if you wish to disable a bunch of features in order to
