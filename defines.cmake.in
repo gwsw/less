@@ -5,7 +5,7 @@
     - Platform specific settings.
     - User preferences.
 
-    User preferences can be controled via Cmake and CMakeCache.txt
+    User preferences can be controlled via Cmake and CMakeCache.txt
 */
 
 
@@ -94,23 +94,6 @@
     #define	DEF_METACHARS	"; *?\t\n'\"()<>|&"
     #define	DEF_METAESCAPE	""
 
-    /* Regular expression library */
-    #ifdef MINGW
-        #if defined(USE_POSIX_REGCOMP)
-            #define HAVE_POSIX_REGCOMP 1
-        #elif defined(USE_GNU_REGEX)
-            #define HAVE_GNU_REGEX  1
-        #elif defined(USE_REGEXP_C)
-            #define HAVE_V8_REGCOMP 1
-            #define HAVE_REGEXEC2   1
-        #else
-            #define NO_REGEX 1
-        #endif
-    #else
-        #define HAVE_V8_REGCOMP 1
-        #define HAVE_REGEXEC2 1
-    #endif
-
     #ifndef MINGW
         #pragma warning(disable:4996)
     #endif
@@ -129,7 +112,13 @@
     #define	DEF_METAESCAPE	"\\"
 #endif
 
-/* stuff autodetected by Cmake */
+
+/* Regular expression library */
+#cmakedefine01 HAVE_POSIX_REGCOMP
+#cmakedefine01 HAVE_V8_REGCOMP
+#cmakedefine01 HAVE_REGEXEC2
+#cmakedefine01 NO_REGEX
+
 #cmakedefine01 HAVE_SYS_TYPES_H
 #cmakedefine01 HAVE_LANGINFO
 #cmakedefine01 HAVE_SYS_IOCTL_H
@@ -140,11 +129,9 @@
 #cmakedefine01 HAVE_TERMIOS_H
 #cmakedefine01 HAVE_SIGSETMASK
 #cmakedefine01 HAVE_SIGSET_T
-#cmakedefine01 HAVE_TERMIOS_FUNCS
 
-#if HAVE_TERMIOS_H
-    #define HAVE_TERMIOS_FUNCS 1
-#endif
+#define HAVE_TERMIOS_FUNCS HAVE_TERMIOS_H
+
 
 /* User preferences.  */
 
