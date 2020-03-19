@@ -117,11 +117,13 @@
 /* User preferences.  */
 
 /* Regular expression library */
-#cmakedefine01 HAVE_POSIX_REGCOMP
 #cmakedefine01 HAVE_V8_REGCOMP
 #cmakedefine01 HAVE_REGEXEC2
+#cmakedefine01 HAVE_POSIX_REGCOMP
+#cmakedefine01 HAVE_PCRE2
 #cmakedefine01 NO_REGEX
 
+/* cmake detected */
 #cmakedefine01 HAVE_SYS_TYPES_H
 #cmakedefine01 HAVE_LANGINFO
 #cmakedefine01 HAVE_SYS_IOCTL_H
