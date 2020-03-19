@@ -95,6 +95,7 @@
     #define DEF_METAESCAPE    ""
 
     #ifndef MINGW
+        // disable warning about POSIX function names on Windows
         #pragma warning(disable:4996)
     #endif
 #else

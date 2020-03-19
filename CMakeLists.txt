@@ -39,7 +39,7 @@ set(DEF_LESSKEYINFILE ".lesskey" CACHE STRING "Filename of the default lesskey i
 set(LESSHISTFILE ".lesshst" CACHE STRING "Filename of the history file (in the HOME directory).")
 set(REGEX_LIBRARY regcomp-local CACHE STRING "Select what regular expression library to use ([regcomp-local],posix,pcre2,off).")
 
-set(SECURE SECURE_COMPILE)
+set(SECURE ${SECURE_COMPILE} CACHE INTERNAL "same as SECURE_COMPILE")
 
 # needed for creating generated_files and making pkg releases
 find_package(Perl REQUIRED)
@@ -82,7 +82,7 @@ include(CheckSymbolExists)
 
 # find terminal libraries
 find_package(Curses) # curses or ncurses
-find_library(TINFO_LIB NAMES tinfo libtinfo.so libtinfo5.so libtinfo.so.5)
+find_library(TINFO_LIB NAMES tinfo libtinfo.so libtinfo.so.5)
 find_library(TERMCAP_LIB names termcap libtermcap.so)
 
 if(WIN32)
@@ -105,14 +105,14 @@ check_include_files("termios.h" HAVE_TERMIOS_H)
 check_include_files("termio.h"  HAVE_TERMIO_H)
 check_include_files("termcap.h" HAVE_TERMCAP_H)
 
+message(STATUS "terminal lib: ${TERMINAL_LIBRARY}")
+
 if(NOT TERMINAL_LIBRARY)
     message(SEND_ERROR "Cannot find terminal libraries")
-else()
-    message(STATUS "terminal lib: ${TERMINAL_LIBRARY}")
 endif()
 
-# find regex library
 
+# find regex library
 if(REGEX_LIBRARY MATCHES regcomp-local)
     target_sources(less PRIVATE ${CMAKE_SOURCE_DIR}/regexp.c)
     set(HAVE_V8_REGCOMP true)
@@ -123,7 +123,7 @@ elseif(REGEX_LIBRARY MATCHES posix)
         message(SEND_ERROR "posix regcomp not found!")
     endif()
 elseif(REGEX_LIBRARY MATCHES pcre2)
-    find_library(pcre2_lib names pcre2 libpcre2 libpcre2-8-0)
+    find_library(pcre2_lib names pcre2 libpcre2-8.so libpcre2-8.so.0)
     if(NOT pcre2_lib)
         message(SEND_ERROR "pcre2 not found!")
     else()
@@ -132,10 +132,11 @@ elseif(REGEX_LIBRARY MATCHES pcre2)
     endif()
 elseif(NOT REGEX_LIBRARY)
     set(NO_REGEX true)
-else()
-    message("unknown regex package '${REGEX_LIBRARY}'")
-    set(REGEX_LIBRARY IGNORE)
-    set(NO_REGEX true)
+endif()
+
+if(REGEX_LIBRARY AND NOT NO_REGEX)
+    message("Cannot find regex lib '${REGEX_LIBRARY}'")
+    set(REGEX_LIBRARY NOTFOUND)
 endif()
 
 message(STATUS "regex lib: ${REGEX_LIBRARY}")
