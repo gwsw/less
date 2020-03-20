@@ -786,7 +786,7 @@ main(argc, argv)
 			char *drive = getenv("HOMEDRIVE");
 			char *path  = getenv("HOMEPATH");
 			if (drive != NULL && path != NULL) {
-				userprofile = (char*) ecalloc(strlen(drive) + strlen(path) + 1, sizeof(char));
+				userprofile = (char*) calloc(strlen(drive) + strlen(path) + 1, sizeof(char));
 				strcpy(userprofile, drive);
 				strcat(userprofile, path);
 				_putenv_s("HOME", userprofile);

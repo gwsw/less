@@ -52,22 +52,26 @@ set(SRC main.c screen.c brac.c ch.c charset.c cmdbuf.c
     tags.c ttyin.c)
 
 # we need to give the full path, else it fails to find help.c when building less
-add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/help.c ${CMAKE_SOURCE_DIR}/funcs.h
+add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/help.c
     COMMAND ${PERL_EXECUTABLE} mkhelp.pl < "less.hlp" > help.c
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Generating help.c ..."
+    USES_TERMINAL
+)
+add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/funcs.h
     COMMAND ${PERL_EXECUTABLE} mkfuncs.pl ${SRC} > funcs.h
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Generating help.c and funcs.h ..."
+    COMMENT "Generating funcs.h ..."
     USES_TERMINAL
 )
 
 add_executable(less ${SRC} help.c)
-# BUG? lesskey.c calls ecalloc, which is defined in main.c, but main.c also has a main function
-add_executable(lesskey lesskey.c main.c)
+add_executable(lesskey lesskey.c)
 add_executable(lessecho lessecho.c)
 
 # sudo lib for common settings
 add_library(common INTERFACE)
-target_sources(common INTERFACE ${CMAKE_SOURCE_DIR}/version.c)
+target_sources(common INTERFACE ${CMAKE_SOURCE_DIR}/version.c ${CMAKE_SOURCE_DIR}/funcs.h)
 target_include_directories(common INTERFACE ${CMAKE_CURRENT_BINARY_DIR}) # for defines.h
 
 target_link_libraries(less PRIVATE common)
