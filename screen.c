@@ -1113,8 +1113,11 @@ get_term(VOID_PARAM)
 	char *sp;
 	char *t1, *t2;
 	char *term;
-	char termbuf[TERMBUF_SIZE];
-
+    /*
+     * Some termcap libraries assume termbuf is static
+     * (accessible after tgetent returns).
+     */
+	static char termbuf[TERMBUF_SIZE];
 	static char sbuf[TERMSBUF_SIZE];
 
 #if OS2
