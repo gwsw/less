@@ -401,6 +401,7 @@ end_logfile(VOID_PARAM)
 	}
 	close(logfile);
 	logfile = -1;
+	free(namelogfile);
 	namelogfile = NULL;
 }
 
