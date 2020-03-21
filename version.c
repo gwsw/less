@@ -879,7 +879,7 @@ v553  10/17/19  Support tinfow; handle zero-width Hangul chars.
 v554  1/19/20   Remove erroneous free().
 v555  3/15/20   Display error msg immediately when toggle -o without stdin.
 v556  3/15/20   Update copyright.
-v557 
+v557  3/21/20   Fix memory corruption with libtermcap.
 */
 
-char version[] = "557x";
+char version[] = "557";
