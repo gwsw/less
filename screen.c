@@ -1113,10 +1113,10 @@ get_term(VOID_PARAM)
 	char *sp;
 	char *t1, *t2;
 	char *term;
-    /*
-     * Some termcap libraries assume termbuf is static
-     * (accessible after tgetent returns).
-     */
+	/*
+	 * Some termcap libraries assume termbuf is static
+	 * (accessible after tgetent returns).
+	 */
 	static char termbuf[TERMBUF_SIZE];
 	static char sbuf[TERMSBUF_SIZE];
 
@@ -1140,12 +1140,13 @@ get_term(VOID_PARAM)
 	/*
 	 * Find out what kind of terminal this is.
 	 */
- 	if ((term = lgetenv("TERM")) == NULL)
- 		term = DEFAULT_TERM;
+	if ((term = lgetenv("TERM")) == NULL)
+		term = DEFAULT_TERM;
 	hardcopy = 0;
- 	if (tgetent(termbuf, term) != TGETENT_OK)
- 		hardcopy = 1;
- 	if (ltgetflag("hc"))
+	/* {{ Should probably just pass NULL instead of termbuf. }} */
+	if (tgetent(termbuf, term) != TGETENT_OK)
+		hardcopy = 1;
+	if (ltgetflag("hc"))
 		hardcopy = 1;
 
 	/*
