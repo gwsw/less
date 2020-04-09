@@ -152,6 +152,7 @@ static int sy_fg_color;		/* Color of system text (before less) */
 static int sy_bg_color;
 public int sgr_mode;		/* Honor ANSI sequences rather than using above */
 #if MSDOS_COMPILER==WIN32C
+DWORD init_output_mode;		/* The initial console output mode */
 public int vt_enabled;		/* Is virtual terminal processing available? */
 #endif
 #else
@@ -1607,20 +1608,19 @@ init(VOID_PARAM)
 		line_left();
 #else
 #if MSDOS_COMPILER==WIN32C
+	GetConsoleMode(con_out, &init_output_mode);
+
 	if (!no_init)
 	{
 		win32_init_term();
 	}
 	else
 	{
-		DWORD output_mode;
-
 		/*
 		 * Enable virtual terminal processing, if available.
 		 */
-		GetConsoleMode(con_out, &output_mode);
 		vt_enabled = SetConsoleMode(con_out,
-			       output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+			       init_output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 	}
 #endif
 	initcolor();
@@ -1650,6 +1650,8 @@ deinit(VOID_PARAM)
 	/* Restore system colors. */
 	SETCOLORS(sy_fg_color, sy_bg_color);
 #if MSDOS_COMPILER==WIN32C
+	SetConsoleMode(con_out, init_output_mode);
+
 	if (!no_init)
 		win32_deinit_term();
 #else
