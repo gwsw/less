@@ -1610,10 +1610,13 @@ init(VOID_PARAM)
 	} else
 		line_left();
 #else
+	if (!(quit_if_one_screen && one_screen))
+	{
 #if MSDOS_COMPILER==WIN32C
-	if (!no_init)
-		win32_init_term();
+		if (!no_init)
+			win32_init_term();
 #endif
+	}
 	initcolor();
 	flush();
 #endif

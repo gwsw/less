@@ -880,6 +880,7 @@ v554  1/19/20   Remove erroneous free().
 v555  3/15/20   Display error msg immediately when toggle -o without stdin.
 v556  3/15/20   Update copyright.
 v557  3/21/20   Fix memory corruption with libtermcap.
+v558  4/17/20   Don't init terminal if -F and file fits on one screen (WIN32).
 */
 
-char version[] = "557";
+char version[] = "558";
