@@ -16,7 +16,7 @@
 #define _WIN32_WINNT 0x400
 #endif
 #include <windows.h>
-static DWORD console_mode;
+public DWORD console_mode;
 public HANDLE tty;
 #else
 public int tty;
