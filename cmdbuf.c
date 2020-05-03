@@ -953,10 +953,7 @@ cmd_istr(str)
 		step_char(&s, +1, endline);
 		action = cmd_ichar(os, s - os);
 		if (action != CC_OK)
-		{
-			bell();
 			return (action);
-		}
 	}
 	return (CC_OK);
 }
