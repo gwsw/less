@@ -882,7 +882,8 @@ v556  3/15/20   Update copyright.
 v557  3/21/20   Fix memory corruption with libtermcap.
 v558  4/17/20   Don't init terminal if -F and file fits on one screen (WIN32).
 v559  4/19/20   Handle deinit correctly on WIN32.
-v560x
+v560  5/3/20    Fix regression when command results in no movement;
+                fix some less.nro issues (thanks to Bjarni I. Gislason).
 */
 
-char version[] = "560x";
+char version[] = "560";
