@@ -884,6 +884,7 @@ v558  4/17/20   Don't init terminal if -F and file fits on one screen (WIN32).
 v559  4/19/20   Handle deinit correctly on WIN32.
 v560  5/3/20    Fix regression when command results in no movement;
                 fix some less.nro issues (thanks to Bjarni I. Gislason).
+v561x 
 */
 
-char version[] = "560";
+char version[] = "561x";
