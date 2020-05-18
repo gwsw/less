@@ -26,15 +26,14 @@ less \- opposite of more
 .SH DESCRIPTION
 .I Less
 is a program similar to
-.I more
-(1), but which allows backward movement
+.IR more (1),
+but which allows backward movement
 in the file as well as forward movement.
 Also,
 .I less
 does not have to read the entire input file before starting,
 so with large input files it starts up faster than text editors like
-.I vi
-(1).
+.IR vi (1).
 .I Less
 uses termcap (or terminfo on some systems),
 so it can run on a variety of terminals.
@@ -656,8 +655,8 @@ The status column is also used if the \-w or \-W option is in effect.
 Causes
 .I less
 to open and interpret the named file as a
-.I lesskey
-(1) file.
+.IR lesskey (1)
+file.
 Multiple \-k options may be specified.
 If the LESSKEY or LESSKEY_SYSTEM environment variable is set, or
 if a lesskey file is found in a standard place (see KEY BINDINGS),
@@ -815,12 +814,12 @@ will edit the file containing that tag.
 For this to work, tag information must be available;
 for example, there may be a file in the current directory called "tags",
 which was previously built by
-.I ctags
-(1) or an equivalent command.
+.IR ctags (1)
+or an equivalent command.
 If the environment variable LESSGLOBALTAGS is set, it is taken to be
 the name of a command compatible with
-.I global
-(1), and that command is executed to find the tag.
+.IR global (1),
+and that command is executed to find the tag.
 (See http://www.gnu.org/software/global/global.html).
 The \-t option may also be specified from within
 .I less
@@ -1076,8 +1075,7 @@ Delete the entire command line and return to the main prompt.
 You may define your own
 .I less
 commands by using the program
-.I lesskey
-(1)
+.IR lesskey (1)
 to create a lesskey file.
 This file specifies a set of command keys and an action
 associated with each key.
@@ -1681,8 +1679,8 @@ and the MORE environment variable is used in its place.
 .SH "ENVIRONMENT VARIABLES"
 Environment variables may be specified either in the system environment
 as usual, or in a
-.I lesskey
-(1) file.
+.IR lesskey (1)
+file.
 If environment variables are defined in more than one place,
 variables defined in a local lesskey file take precedence over
 variables defined in the system environment, which take precedence
@@ -1737,8 +1735,8 @@ See discussion under PROMPTS.
 .IP LESSGLOBALTAGS
 Name of the command used by the \-t option to find global tags.
 Normally should be set to "global" if your system has the
-.I global
-(1) command.  If not set, global tags are not used.
+.IR global (1)
+command.  If not set, global tags are not used.
 .IP LESSHISTFILE
 Name of the history file used to remember search commands and
 shell commands between invocations of
@@ -1776,8 +1774,8 @@ String to be appended to a directory name in filename completion.
 Format for displaying non-printable Unicode code points.
 .IP LESS_IS_MORE
 Emulate the
-.I more
-(1) command.
+.IR more (1)
+command.
 .IP LINES
 Sets the number of lines on the screen.
 Takes precedence over the number of lines specified by the TERM variable.
@@ -1803,7 +1801,7 @@ is being run.
 The name of the editor (used for the v command).
 .
 .SH "SEE ALSO"
-.IR lesskey (1)
+.BR lesskey (1)
 .
 .SH COPYRIGHT
 @@copyright_oneline@@
