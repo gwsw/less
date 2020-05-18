@@ -4,7 +4,7 @@ EMAIL = bug-less@gnu.org
 HOMEPAGE = http://www.greenwoodsoftware.com/less
 SHELL = /bin/sh
 GIT = git
-NROFF = nroff -man
+NROFF = nroff -t -man
 
 srcdir = .
 

@@ -20,6 +20,14 @@
 * Display error message immediately when -o is toggled and 
   input is not a pipe.
 
+* Fix regression: make screen repaint when "squished" and 
+  a no-movement command is given.
+
+* Fix erroneous EOF calculation when F command is interrupted.
+
+* Make WIN32C version include this fix from 551:
+  Don't count lines in initial screen if using -X with -F.
+
 * Fix display bug in WIN32C version.
 
 * Fix memory corruption when built with libtermcap.
