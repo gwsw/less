@@ -13,7 +13,7 @@ lesskey \- specify key bindings for less
 .SH DESCRIPTION
 .I Lesskey
 is used to specify a set of key bindings to be used by
-.I less.
+.IR less .
 The input file is a text file which describes the key bindings.
 If the input file is "\-", standard input is read.
 If no input file is specified, a standard filename is used
@@ -23,7 +23,7 @@ on MS-DOS systems, $HOME/_lesskey is used;
 and on OS/2 systems $HOME/lesskey.ini is used,
 or $INIT/lesskey.ini if $HOME is undefined.
 The output file is a binary file which is used by
-.I less.
+.IR less .
 If no output file is specified,
 and the environment variable LESSKEY is set,
 the value of LESSKEY is used as the name of the output file.
@@ -113,10 +113,10 @@ caret, space, tab and the backslash itself.
 .PP
 An action may be followed by an "extra" string.
 When such a command is entered while running
-.I less,
+.IR less ,
 the action is performed, and then the extra
 string is parsed, just as if it were typed in to
-.I less.
+.IR less .
 This feature can be used in certain cases to extend
 the functionality of a command.
 For example, see the "{" and ":t" commands in the example below.
@@ -340,7 +340,7 @@ Each line consists of an environment variable name, an equals sign (=)
 and the value to be assigned to the environment variable.
 White space before and after the equals sign is ignored.
 Variables assigned in this way are visible only to
-.I less.
+.IR less .
 If a variable is specified in the system environment and also in a
 lesskey file, the value in the lesskey file takes precedence.
 Although the lesskey file can be used to override variables set in the

@@ -44,7 +44,7 @@ Specifies "n" to be the escape char for metachars, as an integer.
 Specifies that all arguments are to be quoted.
 The default is that only arguments containing metacharacters are quoted
 .SH "SEE ALSO"
-less(1)
+.BR less (1)
 .SH AUTHOR
 This manual page was written by Thomas Schoepf <schoepf@debian.org>,
 for the Debian GNU/Linux system (but may be used by others).
