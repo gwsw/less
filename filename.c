@@ -788,16 +788,16 @@ lglob(filename)
 }
 
 /*
- * @@@
+ * Return canonical pathname.
  */
 	public char *
 lrealpath(path)
 	char *path;
 {
 #if HAVE_REALPATH
-	char *rpath = realpath(path, NULL);
-	if (rpath != NULL)
-		return (rpath);
+	char rpath[PATH_MAX];
+	if (realpath(path, rpath) != NULL)
+		return (save(rpath));
 #endif
 	return (save(path));
 }
