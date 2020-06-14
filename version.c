@@ -886,6 +886,7 @@ v560  5/3/20    Fix regression when command results in no movement;
                 fix some less.nro issues (thanks to Bjarni I. Gislason).
 v561  5/11/20   Fix erroneous EOF calculation when F command is interrupted.
 v562  5/19/20   Update Unicode tables; minor doc formatting.
+v563  6/13/20   Fix crash due to realpath() incompatibility.
 */
 
-char version[] = "562";
+char version[] = "563";
