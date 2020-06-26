@@ -80,7 +80,6 @@ REPLACE_VERSION = \
 	sed \
 		-e "s;@@VERSION@@;$$REL;" \
 		-e "s;@@DATE@@;$$DT;" \
-		-e "s;@@EMAIL@@;${EMAIL};" \
 		-e "s;@@HOMEPAGE@@;${HOMEPAGE};" >$@
 
 ${srcdir}/README: ${srcdir}/README.VER ${srcdir}/version.c
