@@ -78,13 +78,32 @@ cvt_text(odst, osrc, chpos, lenp, ops)
 				dst--;
 			} while (dst > odst && utf_mode &&
 				!IS_ASCII_OCTET(*dst) && !IS_UTF8_LEAD(*dst));
-		} else if ((ops & CVT_ANSI) && IS_CSI_START(ch))
+		} else if ((ops & CVT_ANSI) && ch == ESC)
 		{
-			/* Skip to end of ANSI escape sequence. */
-			src++;  /* skip the CSI start char */
-			while (src < src_end)
-				if (!is_ansi_middle(*src++))
-					break;
+            if (src[0] == ']' && src[1] == '8' && src[2] == ';')
+            {
+                /* Skip to the end of a hyperlink. */
+                src += 3;
+                while (src < src_end)
+                {
+                    if (src[0] == BEL)
+                    {
+                        src++;
+                        break;
+                    } else if (src[0] == ESC && src[1] == '\\')
+                    {
+                        src += 2;
+                        break;
+                    }
+                    src++;
+                }
+            } else
+            {
+                /* Skip to end of ANSI escape sequence. */
+                while (src < src_end)
+                    if (!is_ansi_middle(*src++))
+                        break;
+            }
 		} else
 		{
 			/* Just copy the char to the destination buffer. */

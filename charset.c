@@ -426,6 +426,7 @@ control_char(c)
 	LWCHAR c;
 {
 	c &= 0377;
+	if (c == 7) return FALSE;  /* FIXME hack for OSC 8, should be shown as ^G if outside of this escape sequence */
 	return (chardef[c] & IS_CONTROL_CHAR);
 }
 

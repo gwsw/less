@@ -288,18 +288,30 @@ pshift(shift)
 	while (shifted <= shift && from < curr)
 	{
 		c = linebuf[from];
-		if (ctldisp == OPT_ONPLUS && IS_CSI_START(c))
+        /* FIXME: accept C1 CSI and C1 OSC as well! */
+        if (ctldisp == OPT_ONPLUS && c == ESC)
 		{
 			/* Keep cumulative effect.  */
 			linebuf[to] = c;
 			attr[to++] = attr[from++];
-			while (from < curr && linebuf[from])
-			{
-				linebuf[to] = linebuf[from];
-				attr[to++] = attr[from];
-				if (!is_ansi_middle(linebuf[from++]))
-					break;
-			} 
+            if (linebuf[from] == ']' && linebuf[from+1] == '8' && linebuf[from+2] == ';') {
+                while (from < curr && linebuf[from])
+                {
+                    linebuf[to] = linebuf[from];
+                    attr[to++] = attr[from++];
+                    /* FIXME: accept C1 ST */
+                    if (linebuf[from-1] == BEL || (linebuf[from-1] == '\\' && linebuf[from-2] == ESC))
+                        break;
+                }
+            } else {
+                while (from < curr && linebuf[from])
+                {
+                    linebuf[to] = linebuf[from];
+                    attr[to++] = attr[from];
+                    if (!is_ansi_middle(linebuf[from++]))
+                        break;
+                }
+            }
 			continue;
 		}
 
@@ -530,23 +542,141 @@ backc(VOID_PARAM)
 
 /*
  * Are we currently within a recognized ANSI escape sequence?
+ *
+ * FIXME This code is a nightmare!
+ * Displaying a line potentially takes O(n^2) time as this function is called
+ * for each character.
+ * Why do we walk backwards at all, rather having a state machine that knows
+ * the current state???
+ * Not to mention the if-else hell...
  */
 	static int
 in_ansi_esc_seq(VOID_PARAM)
 {
-	char *p;
+    char *p, *save;
+    LWCHAR ch, ch2;
 
 	/*
-	 * Search backwards for either an ESC (which means we ARE in a seq);
+     * Search backwards for either a CSI (which means we ARE in a seq);
 	 * or an end char (which means we're NOT in a seq).
 	 */
+
+    /* Potential lone ESC */
+    p = &linebuf[curr];
+    if (p > linebuf)
+    {
+        ch = step_char(&p, -1, linebuf);
+        if (ch == ESC)
+            return (1);
+    }
+
+    /* Search for ESC [ or a terminator character */
 	for (p = &linebuf[curr];  p > linebuf; )
 	{
-		LWCHAR ch = step_char(&p, -1, linebuf);
-		if (IS_CSI_START(ch))
+        ch = step_char(&p, -1, linebuf);
+        save = p;
+        if (ch == ESC)
 			return (1);
+        if (ch == CSI)
+            return (1);
+        else if (ch == '[' && p > linebuf)
+        {
+            ch2 = step_char(&p, -1, linebuf);
+            if (ch2 == ESC)
+                return (1);
+        }
 		if (!is_ansi_middle(ch))
 			return (0);
+        p = save;
+    }
+    return (0);
+}
+
+
+
+/*
+ * Are we currently within a hyperlink escape sequence?
+ * (Not to be confused with the the visible anchor text of the hyperlink.)
+ *
+ * FIXME This code is a nightmare!
+ * Displaying a line potentially takes O(n^2) time as this function is called
+* for each character.
+ * Why do we walk backwards at all, rather having a state machine that knows
+ * the current state???
+ * Not to mention the if-else hell...
+ */
+	static int
+in_hyperlink_esc_seq()
+{
+	char *p, *save;
+	LWCHAR ch, ch2, ch3, ch4;
+
+	/*
+	 * Search backwards for either an OSC 8 ; (which means we ARE in a hyperlink);
+	 * or a BEL or ST (which means we're NOT in a seq).
+	 */
+
+	/* Potential prefix (ESC, ESC [ or ESC [ 8 but no semicolon yet) */
+	p = &linebuf[curr];
+	if (p > linebuf)
+	{
+		ch = step_char(&p, -1, linebuf);
+		if (ch == ESC)
+			return (1);
+		else if (ch == OSC)
+			return (1);
+		else if (ch == ']' && p > linebuf)
+		{
+			ch2 = step_char(&p, -1, linebuf);
+			if (ch2 == ESC)
+				return (1);
+		}
+		else if (ch == '8' && p > linebuf)
+		{
+			ch2 = step_char(&p, -1, linebuf);
+			if (ch2 == OSC)
+				return (1);
+			else if (ch2 == ']' && p > linebuf)
+			{
+				ch3 = step_char(&p, -1, linebuf);
+				if (ch3 == ESC)
+					return (1);
+			}
+		}
+	}
+
+	/* ESC [ 8 ; or a terminator */
+	for (p = &linebuf[curr];  p > linebuf; )
+	{
+		ch = step_char(&p, -1, linebuf);
+		save = p;
+		if (ch == BEL)
+			return (0);
+		else if (ch == ST)
+			return (0);
+		else if (ch == '\\' && p > linebuf)
+		{
+			ch2 = step_char(&p, -1, linebuf);
+			if (ch2 == ESC)
+				return (0);
+		}
+		else if (ch == ';' && p > linebuf)
+		{
+			ch2 = step_char(&p, -1, linebuf);
+			if (ch2 == '8' && p > linebuf)
+			{
+				ch3 = step_char(&p, -1, linebuf);
+				if (ch3 == OSC)
+					return (1);
+				else if (ch3 == ']' && p > linebuf)
+				{
+					ch4 = step_char(&p, -1, linebuf);
+					if (ch4 == ESC)
+						return (1);
+				}
+			}
+		}
+		p = save;
 	}
 	return (0);
 }
@@ -637,7 +767,12 @@ store_char(ch, a, rep, pos)
 	}
 #endif
 
-	if (ctldisp == OPT_ONPLUS && in_ansi_esc_seq())
+	if (ctldisp == OPT_ONPLUS && in_hyperlink_esc_seq())
+	{
+		a = AT_ANSI;
+		w = 0;
+	}
+	else if (ctldisp == OPT_ONPLUS && in_ansi_esc_seq())
 	{
 		if (!is_ansi_end(ch) && !is_ansi_middle(ch)) {
 			/* Remove whole unrecognized sequence.  */
@@ -1008,7 +1143,7 @@ do_append(ch, rep, pos)
 		{
 			STORE_PRCHAR((char) ch, pos);
 		}
-	} else if (utf_mode && ctldisp != OPT_ON && is_ubin_char(ch))
+	} else if (utf_mode && ctldisp != OPT_ON && is_ubin_char(ch) && ch != 7 /* FIXME hack for OSC 8 */)
 	{
 		char *s;
 
@@ -1056,6 +1191,16 @@ add_attr_normal(VOID_PARAM)
 		return;
 	for ( ;  *p != '\0';  p++)
 		add_linebuf(*p, AT_ANSI, 0);
+	if (ctldisp == OPT_ONPLUS)
+	{
+		/* Turn off hyperlink at end of line. */
+		char *p = "\033]8;;\007";
+		for ( ;  *p != '\0';  p++)
+		{
+			linebuf[curr] = *p;
+ 			attr[curr++] = AT_ANSI;
+ 		}
+ 	}
 }
 
 /*

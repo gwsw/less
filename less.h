@@ -456,7 +456,10 @@ struct wchar_range_table
 
 #define	ESC		CONTROL('[')
 #define	ESCS		"\33"
+#define	BEL		CONTROL('g')
 #define	CSI		((unsigned char)'\233')
+#define ST      ((unsigned char)'\234')
+#define OSC     ((unsigned char)'\235')
 #define	CHAR_END_COMMAND 0x40000000
 
 #if _OSK_MWC32
