@@ -19,7 +19,7 @@ are surrounded by quotes instead.
 .TP
 .B \-ox
 Specifies "x", rather than double-quote, to be the open quote character,
-which is used if the -e- option is specified.
+which is used if the \-e- option is specified.
 .TP
 .B \-cx
 Specifies "x" to be the close quote character.
@@ -42,7 +42,7 @@ Specifies "n" to be the escape char for metachars, as an integer.
 .TP
 .B \-a
 Specifies that all arguments are to be quoted.
-The default is that only arguments containing metacharacters are quoted
+The default is that only arguments containing metacharacters are quoted.
 .SH "SEE ALSO"
 .BR less (1)
 .SH AUTHOR

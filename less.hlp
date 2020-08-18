@@ -42,7 +42,7 @@
   ESC-n             *  Repeat previous search, spanning files.
   ESC-N             *  Repeat previous search, reverse dir. & spanning files.
   ESC-u                Undo (toggle) search highlighting.
-  &_p_a_t_t_e_r_n          *  Display only matching lines
+  &_p_a_t_t_e_r_n          *  Display only matching lines.
         ---------------------------------------------------
         A search pattern may begin with one or more of:
         ^N or !  Search for NON-matching lines.
@@ -62,7 +62,7 @@
   {  (  [           *  Find close bracket } ) ].
   }  )  ]           *  Find open bracket { ( [.
   ESC-^F _<_c_1_> _<_c_2_>  *  Find close bracket _<_c_2_>.
-  ESC-^B _<_c_1_> _<_c_2_>  *  Find open bracket _<_c_1_> 
+  ESC-^B _<_c_1_> _<_c_2_>  *  Find open bracket _<_c_1_>.
         ---------------------------------------------------
         Each "find close bracket" command goes forward to the close bracket 
           matching the (_N-th) open bracket in the top line.
@@ -202,7 +202,7 @@
   -~  ........  --tilde
                   Don't display tildes after end of file.
   -# [_N]  ....  --shift=[_N]
-                  Horizontal scroll amount (0 = one half screen width)
+                  Set horizontal scroll amount (0 = one half screen width).
                 --follow-name
                   The F command changes files if the input file is renamed.
                 --mouse

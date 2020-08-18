@@ -676,7 +676,8 @@ command prompt from the "F" command.
 .IP "\-L or \-\-no-lessopen"
 Ignore the LESSOPEN environment variable
 (see the INPUT PREPROCESSOR section below).
-This option can be set from within \fIless\fP,
+This option can be set from within
+.IR less ,
 but it will apply only to files opened subsequently, not to the
 file which is currently open.
 .IP "\-m or \-\-long-prompt"
@@ -783,7 +784,7 @@ ANSI "color" escape sequences are sequences of the form:
 .sp
 	ESC [ \&...\& m
 .sp
-where the "...\&" is zero or more color specification characters
+where the "...\&" is zero or more color specification characters.
 For the purpose of keeping track of screen appearance,
 ANSI color escape sequences are assumed to not move the cursor.
 You can make
@@ -973,7 +974,8 @@ If there is no attribute indicator, standout is used.
 If set to "\-", truncated lines are not marked.
 .IP "\-\-save-marks"
 Save marks in the history file, so marks are retained
-across different invocations of \fIless\fP.
+across different invocations of
+.IR less .
 .IP "\-\-use-backslash"
 This option changes the interpretations of options which follow this one.
 After the \-\-use-backslash option, any backslash in an option string is
