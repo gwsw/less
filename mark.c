@@ -377,7 +377,6 @@ mark_check_ifile(ifile)
 			free(mark_filename);
 		}
 	}
-	free(filename);
 }
 
 #if CMD_HISTORY
@@ -410,7 +409,6 @@ save_marks(fout, hdr)
 		if (strcmp(filename, "-") != 0)
 			fprintf(fout, "m %c %d %s %s\n",
 				m->m_letter, m->m_scrpos.ln, pos_str, filename);
-		free(filename);
 	}
 }
 
