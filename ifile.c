@@ -255,7 +255,7 @@ get_ifile(filename, prev)
 }
 
 /*
- * Get the filename associated with a ifile.
+ * Get the display filename associated with a ifile.
  */
 	public char *
 get_filename(ifile)
@@ -264,6 +264,18 @@ get_filename(ifile)
 	if (ifile == NULL)
 		return (NULL);
 	return (int_ifile(ifile)->h_filename);
+}
+
+/*
+ * Get the canonical filename associated with a ifile.
+ */
+	public char *
+get_real_filename(ifile)
+	IFILE ifile;
+{
+	if (ifile == NULL)
+		return (NULL);
+	return (int_ifile(ifile)->h_rfilename);
 }
 
 /*
