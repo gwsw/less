@@ -168,6 +168,8 @@ mca_search(VOID_PARAM)
 		cmd_putstr("Keep-pos ");
 	if (search_type & SRCH_NO_REGEX)
 		cmd_putstr("Regex-off ");
+	if (search_type & SRCH_WRAP_AROUND)
+		cmd_putstr("Wrap-around ");
 
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
@@ -534,6 +536,10 @@ mca_search_char(c)
 		if (mca != A_FILTER)
 			flag = SRCH_NO_MOVE;
 		break;
+	case CONTROL('W'): /* WRAP around */
+		if (mca != A_FILTER)
+			flag = SRCH_WRAP_AROUND;
+		break;
 	case CONTROL('R'): /* Don't use REGULAR EXPRESSIONS */
 		flag = SRCH_NO_REGEX;
 		break;
@@ -545,7 +551,8 @@ mca_search_char(c)
 
 	if (flag != 0)
 	{
-		search_type ^= flag;
+		/* Toggle flag, but keep PAST_EOF and WRAP_AROUND mutually exclusive. */
+		search_type ^= flag | (search_type & (SRCH_PAST_EOF|SRCH_WRAP_AROUND));
 		mca_search();
 		return (MCA_MORE);
 	}
