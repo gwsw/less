@@ -288,6 +288,9 @@ any filtering is turned off, and all lines are displayed.
 While filtering is in effect, an ampersand is displayed at the
 beginning of the prompt,
 as a reminder that some lines in the file may be hidden.
+If you add more than one filter pattern, only lines that pass all
+filters will be displayed. If more than one filter is in effect,
+the prompt will display an asterisk next to the ampersand.
 .sp
 Certain characters are special as in the / command:
 .RS

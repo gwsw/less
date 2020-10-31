@@ -780,8 +780,15 @@ prompt(VOID_PARAM)
 	clear_cmd();
 	forw_prompt = 0;
 	p = pr_string();
-	if (is_filtering())
-		putstr("& ");
+	switch (is_filtering()) {
+		case 0:
+			break;
+		case 1:
+			putstr("& ");
+			break;
+		default:
+			putstr("&* ");
+	}
 	if (p == NULL || *p == '\0')
 		putchr(':');
 	else
