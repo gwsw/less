@@ -71,6 +71,7 @@
 /* Note "X116" refers to extended (1006) X11 mouse reporting. */
 #define A_X116MOUSE_IN         68
 #define A_X116MOUSE_IGNORE     69
+#define A_CLR_SEARCH           70
 
 #define A_INVALID              100
 #define A_NOACTION             101

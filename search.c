@@ -337,7 +337,8 @@ clear_attn(VOID_PARAM)
  * Hide search string highlighting.
  */
 	public void
-undo_search(VOID_PARAM)
+undo_search(clear)
+	int clear;
 {
 	if (!prev_pattern(&search_info))
 	{
@@ -346,7 +347,8 @@ undo_search(VOID_PARAM)
 			error("No previous regular expression", NULL_PARG);
 			return;
 		}
-		clr_hilite(); /* Next time, hilite_anchor.first will be NULL. */
+		if (clear)
+			clr_hilite(); /* Next time, hilite_anchor.first will be NULL. */
 	}
 	clear_pattern(&search_info);
 #if HILITE_SEARCH

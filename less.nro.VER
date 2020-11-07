@@ -280,6 +280,10 @@ turn highlighting back on.
 Any search command will also turn highlighting back on.
 (Highlighting can also be disabled by toggling the \-G option;
 in that case search commands do not turn highlighting back on.)
+.IP "ESC-U"
+Like ESC-u but also clears the saved search pattern.
+If the status column is enabled via the \-J option,
+this clears all search matches marked in the status column.
 .IP "&pattern"
 Display only lines which match the pattern;
 lines which do not match the pattern are not displayed.
@@ -650,7 +654,6 @@ always begin at the start or end of the current screen respectively.
 Displays a status column at the left edge of the screen.
 The status column shows the lines that matched the current search,
 and any lines that are marked (via the m or M command).
-The status column is also used if the \-w or \-W option is in effect.
 .IP "\-k\fIfilename\fP or \-\-lesskey-file=\fIfilename\fP"
 Causes
 .I less

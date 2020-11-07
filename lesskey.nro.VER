@@ -171,6 +171,7 @@ r	repaint
 ^R	repaint
 ^L	repaint
 \eeu	undo-hilite
+\eeU	clear-search
 g	goto-line
 \ekh	goto-line
 <	goto-line

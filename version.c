@@ -888,7 +888,7 @@ v561  5/11/20   Fix erroneous EOF calculation when F command is interrupted.
 v562  5/19/20   Update Unicode tables; minor doc formatting.
 v563  6/13/20   Fix crash due to realpath() incompatibility.
 v564  8/25/20   Handle realpath consistently; update docs.
-v565  8/31/20   Optimize calls to realpath().
+v565  11/3/20   Add ESC-U command, optimize calls to realpath().
 */
 
-char version[] = "565x";
+char version[] = "566x";

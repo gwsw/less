@@ -1591,10 +1591,11 @@ commands(VOID_PARAM)
 			break;
 
 		case A_UNDO_SEARCH:
+		case A_CLR_SEARCH:
 			/*
 			 * Clear search string highlighting.
 			 */
-			undo_search();
+			undo_search(action == A_CLR_SEARCH);
 			break;
 
 		case A_HELP:
