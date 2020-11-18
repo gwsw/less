@@ -1109,6 +1109,7 @@ commands(VOID_PARAM)
 	int action;
 	char *cbuf;
 	int newaction;
+	int save_jump_sline;
 	int save_search_type;
 	char *extra;
 	char tbuf[2];
@@ -1410,11 +1411,18 @@ commands(VOID_PARAM)
 		case A_GOLINE:
 			/*
 			 * Go to line N, default beginning of file.
+			 * If N <= 0, ignore jump_sline in order to avoid
+			 * empty lines before the beginning of the file.
 			 */
+			save_jump_sline = jump_sline;
 			if (number <= 0)
+			{
 				number = 1;
+				jump_sline = 0;
+			}
 			cmd_exec();
 			jump_back(number);
+			jump_sline = save_jump_sline;
 			break;
 
 		case A_PERCENT:
