@@ -110,7 +110,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-lncurses"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([#include <termcap.h>], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
