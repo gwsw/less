@@ -42,6 +42,7 @@
   ESC-n             *  Repeat previous search, spanning files.
   ESC-N             *  Repeat previous search, reverse dir. & spanning files.
   ESC-u                Undo (toggle) search highlighting.
+  ESC-U                Clear search highlighting.
   &_p_a_t_t_e_r_n          *  Display only matching lines.
         ---------------------------------------------------
         A search pattern may begin with one or more of:
