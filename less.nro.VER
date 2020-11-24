@@ -792,8 +792,10 @@ Thus, various display problems may result,
 such as long lines being split in the wrong place.
 .IP "\-R or \-\-RAW-CONTROL-CHARS"
 Like \-r, but only ANSI "color" escape sequences are output in "raw" form.
-Unlike \-r, the screen appearance is maintained correctly in most cases.
-ANSI "color" escape sequences are sequences of the form:
+Unlike \-r, the screen appearance is maintained correctly,
+provided that there are no escape sequences in the file 
+other than ANSI color escape sequences.
+ANSI color escape sequences are sequences of the form:
 .sp
 	ESC [ \&...\& m
 .sp

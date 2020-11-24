@@ -12,7 +12,26 @@
 
 ======================================================================
 
-	Major changes between "less" versions 551 and @@VERSION@@
+	Major changes between "less" versions 563 and @@VERSION@@
+
+* Change ESC-u command to toggle, not disable, highlighting per man page.
+
+* Add ESC-U command. 
+
+* Add ctrl-W search modifier for wrapping search.
+
+* g command with no number will ignore -j and put first line at top of screen.
+
+* Editing the same file under different names now creates only
+  one entry in the file list.
+
+* Fix crash in the 's' command due to duplicate free.
+
+* Fix realpath crash on Darwin.
+
+======================================================================
+
+	Major changes between "less" versions 551 and 563
 
 * Update Unicode tables.
 
@@ -24,21 +43,14 @@
 * Fix regression: make screen repaint when "squished" and 
   a no-movement command is given.
 
-* Editing the same file under different names now creates only
-  one entry in the file list.
-
 * Fix erroneous EOF calculation when F command is interrupted.
 
 * Make WIN32C version include this fix from 551:
   Don't count lines in initial screen if using -X with -F.
 
-* Fix crash in the 's' command due to duplicate free.
-
 * Fix display bug in WIN32C version.
 
 * Fix memory corruption when built with libtermcap.
-
-* Fix realpath crash on Darwin.
 
 * Support libtinfow.
 
