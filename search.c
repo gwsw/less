@@ -1179,6 +1179,9 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 
 	linenum = find_linenum(pos);
 	oldpos = pos;
+	/* When the search wraps around, end at starting position. */
+        if ((search_type & SRCH_WRAP_AROUND) && endpos == NULL_POSITION)
+		endpos = pos;
 	for (;;)
 	{
 		/*
@@ -1194,7 +1197,9 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 			return (-1);
 		}
 
-		if ((endpos != NULL_POSITION && pos >= endpos) || maxlines == 0)
+		if ((endpos != NULL_POSITION && !(search_type & SRCH_WRAP_AROUND) &&
+			(((search_type & SRCH_FORW) && pos >= endpos) ||
+			 ((search_type & SRCH_BACK) && pos <= endpos))) || maxlines == 0)
 		{
 			/*
 			 * Reached end position without a match.
@@ -1233,6 +1238,35 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 			/*
 			 * Reached EOF/BOF without a match.
 			 */
+			if (search_type & SRCH_WRAP_AROUND)
+			{
+				/*
+				 * The search wraps around the current file, so
+				 * try to continue at BOF/EOF.
+				 */
+				if (search_type & SRCH_FORW)
+				{
+					pos = ch_zero();
+				} else
+				{
+					pos = ch_length();
+					if (pos == NULL_POSITION)
+					{
+						(void) ch_end_seek();
+						pos = ch_length();
+					}
+				}
+				if (pos != NULL_POSITION) {
+					/*
+					 * Wrap-around was successful. Clear
+					 * the flag so we don't wrap again, and
+					 * continue the search at new pos.
+					 */
+					search_type &= ~SRCH_WRAP_AROUND;
+					linenum = find_linenum(pos);
+					continue;
+				}
+			}
 			if (pendpos != NULL)
 				*pendpos = oldpos;
 			return (matches);
