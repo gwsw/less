@@ -153,13 +153,10 @@ set_pattern(info, pattern, search_type)
 	int search_type;
 {
 #if !NO_REGEX
-    PATTERN_TYPE compiled;
 	if (pattern == NULL)
-		SET_NULL_PATTERN(compiled);
-	else if (compile_pattern(pattern, search_type, &compiled) < 0)
+		SET_NULL_PATTERN(info->compiled);
+	else if (compile_pattern(pattern, search_type, &info->compiled) < 0)
 		return -1;
-    clear_pattern(info);
-    info->compiled = compiled;
 #endif
 	/* Pattern compiled successfully; save the text too. */
 	if (info->text != NULL)

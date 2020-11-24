@@ -889,7 +889,7 @@ v562  5/19/20   Update Unicode tables; minor doc formatting.
 v563  6/13/20   Fix crash due to realpath() incompatibility.
 v564  8/25/20   Handle realpath consistently; update docs.
 v565  11/3/20   Add ESC-U command, optimize calls to realpath().
-v566            fix crash when reopening a file while using LESSOPEN.
+v566            Fix crash when reopening a file while using LESSOPEN.
 */
 
 char version[] = "566x";
