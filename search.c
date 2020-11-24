@@ -129,6 +129,21 @@ is_ucase(str)
 }
 
 /*
+ * Discard a saved pattern.
+ */
+	static void
+clear_pattern(info)
+	struct pattern_info *info;
+{
+	if (info->text != NULL)
+		free(info->text);
+	info->text = NULL;
+#if !NO_REGEX
+	uncompile_pattern(&info->compiled);
+#endif
+}
+
+/*
  * Compile and save a search pattern.
  */
 	static int
@@ -138,10 +153,13 @@ set_pattern(info, pattern, search_type)
 	int search_type;
 {
 #if !NO_REGEX
+    PATTERN_TYPE compiled;
 	if (pattern == NULL)
-		CLEAR_PATTERN(info->compiled);
-	else if (compile_pattern(pattern, search_type, &info->compiled) < 0)
+		SET_NULL_PATTERN(compiled);
+	else if (compile_pattern(pattern, search_type, &compiled) < 0)
 		return -1;
+    clear_pattern(info);
+    info->compiled = compiled;
 #endif
 	/* Pattern compiled successfully; save the text too. */
 	if (info->text != NULL)
@@ -167,28 +185,13 @@ set_pattern(info, pattern, search_type)
 }
 
 /*
- * Discard a saved pattern.
- */
-	static void
-clear_pattern(info)
-	struct pattern_info *info;
-{
-	if (info->text != NULL)
-		free(info->text);
-	info->text = NULL;
-#if !NO_REGEX
-	uncompile_pattern(&info->compiled);
-#endif
-}
-
-/*
  * Initialize saved pattern to nothing.
  */
 	static void
 init_pattern(info)
 	struct pattern_info *info;
 {
-	CLEAR_PATTERN(info->compiled);
+	SET_NULL_PATTERN(info->compiled);
 	info->text = NULL;
 	info->search_type = 0;
 }
