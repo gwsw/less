@@ -18,6 +18,7 @@
 static char *linebuf = NULL;	/* Buffer which holds the current output line */
 static char *attr = NULL;	/* Extension of linebuf to hold attributes */
 public int size_linebuf = 0;	/* Size of line buffer (and attr buffer) */
+static struct ansi_state *line_ansi = NULL;
 
 static int cshift;		/* Current left-shift of output line buffer */
 public int hshift;		/* Desired left-shift of output line buffer */
@@ -67,6 +68,12 @@ static char mbc_buf[MAX_UTF_CHAR_LEN];
 static int mbc_buf_len = 0;
 static int mbc_buf_index = 0;
 static POSITION mbc_pos;
+
+struct ansi_state {
+	int hindex;
+	int hlink;
+	int prev_esc;
+};
 
 /*
  * Initialize from environment variables.
@@ -287,8 +294,9 @@ pshift(shift)
 	 */
 	while (shifted <= shift && from < curr)
 	{
+		struct ansi_state *pansi;
 		c = linebuf[from];
-		if (ctldisp == OPT_ONPLUS && IS_CSI_START(c))
+		if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(c)) != NULL)
 		{
 			/* Keep cumulative effect.  */
 			linebuf[to] = c;
@@ -297,9 +305,10 @@ pshift(shift)
 			{
 				linebuf[to] = linebuf[from];
 				attr[to++] = attr[from];
-				if (!is_ansi_middle(linebuf[from++]))
+				if (ansi_step(pansi, linebuf[from++]) != ANSI_MID)
 					break;
-			} 
+			}
+			ansi_done(pansi);
 			continue;
 		}
 
@@ -529,29 +538,6 @@ backc(VOID_PARAM)
 }
 
 /*
- * Are we currently within a recognized ANSI escape sequence?
- */
-	static int
-in_ansi_esc_seq(VOID_PARAM)
-{
-	char *p;
-
-	/*
-	 * Search backwards for either an ESC (which means we ARE in a seq);
-	 * or an end char (which means we're NOT in a seq).
-	 */
-	for (p = &linebuf[curr];  p > linebuf; )
-	{
-		LWCHAR ch = step_char(&p, -1, linebuf);
-		if (IS_CSI_START(ch))
-			return (1);
-		if (!is_ansi_middle(ch))
-			return (0);
-	}
-	return (0);
-}
-
-/*
  * Is a character the end of an ANSI escape sequence?
  */
 	public int
@@ -582,15 +568,82 @@ is_ansi_middle(ch)
  * pp is initially positioned just after the CSI_START char.
  */
 	public void
-skip_ansi(pp, limit)
+skip_ansi(pansi, pp, limit)
+	struct ansi_state *pansi;
 	char **pp;
 	constant char *limit;
 {
 	LWCHAR c;
 	do {
 		c = step_char(pp, +1, limit);
-	} while (*pp < limit && is_ansi_middle(c));
-	/* Note that we discard final char, for which is_ansi_middle is false. */
+	} while (*pp < limit && ansi_step(pansi, c) != ANSI_MID);
+	/* Note that we discard final char, for which is_ansi_end is true. */
+}
+
+/*
+ * Determine if a character starts an ANSI escape sequence.
+ * If so, return an ansi_state struct; otherwise return NULL.
+ */
+	public struct ansi_state *
+ansi_start(ch)
+	LWCHAR ch;
+{
+	struct ansi_state *pansi;
+
+	if (!IS_CSI_START(ch))
+		return NULL;
+	pansi = ecalloc(1, sizeof(struct ansi_state));
+	pansi->hindex = 0;
+	pansi->hlink = 0;
+	pansi->prev_esc = 0;
+	return pansi;
+}
+
+/*
+ * Determine whether the next char in an ANSI escape sequence
+ * ends the sequence.
+ */
+	public int
+ansi_step(pansi, ch)
+	struct ansi_state *pansi;
+	LWCHAR ch;
+{
+	if (pansi->hlink)
+	{
+		/* Hyperlink ends with \7 or ESC-backslash. */
+		if (ch == '\7')
+			return ANSI_END;
+		if (hlink->prev_esc && ch == '\\')
+			return ANSI_END;
+		hlink->prev_esc = (ch == ESC);
+		return ANSI_MID;
+	}
+	if (pansi->hindex >= 0)
+	{
+		static char hlink_prefix[] = "]8;";
+		if (ch == hlink_prefix[pansi->hindex++])
+		{
+			if (hlink_prefix[pansi->hindex] == '\0')
+				pansi->hlink = 1;
+			return ANSI_MID;
+		}
+		pansi->hindex = -1;
+	}
+	if (is_ansi_middle(ch))
+		return ANSI_MID;
+	if (is_ansi_end(ch))
+		return ANSI_END;
+	return ANSI_ERR;
+}
+
+/*
+ * Free an ansi_state structure.
+ */
+	public void
+ansi_done(pansi)
+	struct ansi_state *pansi;
+{
+	free(pansi);
 }
 
 
@@ -637,9 +690,16 @@ store_char(ch, a, rep, pos)
 	}
 #endif
 
-	if (ctldisp == OPT_ONPLUS && in_ansi_esc_seq())
+	if (ctldisp == OPT_ONPLUS && line_ansi == NULL)
+		line_ansi = ansi_start(ch);
+	else if (ctldisp == OPT_ONPLUS && line_ansi != NULL)
 	{
-		if (!is_ansi_end(ch) && !is_ansi_middle(ch)) {
+		int a = ansi_step(line_ansi, ch);
+		if (a == ANSI_END)
+		{
+			ansi_done(line_ansi);
+			line_ansi = NULL;
+		} else if (a == ANSI_ERR) {
 			/* Remove whole unrecognized sequence.  */
 			char *p = &linebuf[curr];
 			LWCHAR bch;

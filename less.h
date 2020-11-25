@@ -383,6 +383,11 @@ struct wchar_range_table
 #define	AT_BINARY	(1 << 5)  /* LESS*BINFMT representation */
 #define	AT_HILITE	(1 << 6)  /* Internal highlights (e.g., for search) */
 
+/* ANSI states */
+#define ANSI_MID    1
+#define ANSI_ERR    2
+#define ANSI_END    3
+
 #if '0' == 240
 #define IS_EBCDIC_HOST 1
 #endif
@@ -529,6 +534,7 @@ struct wchar_range_table
 struct mlist;
 struct loption;
 struct hilite_tree;
+struct ansi_state;
 #include "pattern.h"
 #include "funcs.h"
 
