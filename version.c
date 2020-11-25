@@ -891,6 +891,7 @@ v564  8/25/20   Handle realpath consistently; update docs.
 v565  11/3/20   Add ESC-U command, optimize calls to realpath().
 v566  11/25/20  Fix crash when reopening a file while using LESSOPEN;
                 support OSC 8 hyperlinks.
+v567  11/25/20  Fix typo.
 */
 
-char version[] = "566";
+char version[] = "567";

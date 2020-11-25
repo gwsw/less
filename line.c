@@ -613,9 +613,9 @@ ansi_step(pansi, ch)
 		/* Hyperlink ends with \7 or ESC-backslash. */
 		if (ch == '\7')
 			return ANSI_END;
-		if (hlink->prev_esc && ch == '\\')
+		if (pansi->prev_esc && ch == '\\')
 			return ANSI_END;
-		hlink->prev_esc = (ch == ESC);
+		pansi->prev_esc = (ch == ESC);
 		return ANSI_MID;
 	}
 	if (pansi->hindex >= 0)
