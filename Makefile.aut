@@ -8,6 +8,12 @@ NROFF = nroff -t -man
 
 srcdir = .
 
+ifeq ($(USE_PYTHON),1)
+	MKHELP = mkhelp.py
+else
+	MKHELP = mkhelp.pl
+endif
+
 SRC = \
 	main.c screen.c brac.c ch.c charset.c cmdbuf.c \
 	command.c cvt.c decode.c edit.c filename.c forwback.c \
@@ -33,6 +39,7 @@ DISTFILES = \
 	less.nro less.man lesskey.nro lesskey.man lessecho.nro lessecho.man \
 	less.hlp \
 	mkfuncs.pl mkhelp.pl \
+	mkfuncs.py mkhelp.py \
 	mkutable $(UNICODE_FILES) \
 	${DISTFILES_W}
 
@@ -49,7 +56,7 @@ release: .FORCE
 help.c: less.hlp 
 	-mv -f ${srcdir}/help.c ${srcdir}/help.c.old
 	rm -rf help.c
-	${srcdir}/mkhelp.pl < less.hlp > help.c
+	${srcdir}/${MKHELP} < less.hlp > help.c
 	if cmp -s help.c help.c.old; then mv -f help.c.old help.c; fi
 
 ${srcdir}/configure ${srcdir}/defines.h.in: ${srcdir}/configure.ac ${srcdir}/Makefile.in
@@ -57,7 +64,11 @@ ${srcdir}/configure ${srcdir}/defines.h.in: ${srcdir}/configure.ac ${srcdir}/Mak
 
 funcs.h: ${SRC:%=${srcdir}/%}
 	-mv -f ${srcdir}/funcs.h ${srcdir}/funcs.h.old
+ifeq ($(USE_PYTHON),1)
+	python ${srcdir}/mkfuncs.py ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
+else
 	perl ${srcdir}/mkfuncs.pl ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
+endif
 	if cmp -s funcs.h funcs.h.old; then mv -f funcs.h.old funcs.h; fi
 
 lint:
