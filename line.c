@@ -620,8 +620,9 @@ ansi_step(pansi, ch)
 	}
 	if (pansi->hindex >= 0)
 	{
-		static char hlink_prefix[] = "]8;";
-		if (ch == hlink_prefix[pansi->hindex++])
+		static char hlink_prefix[] = ESCS "]8;";
+		if (ch == hlink_prefix[pansi->hindex++] ||
+		    (pansi->hindex == 0 && IS_CSI_START(ch)))
 		{
 			if (hlink_prefix[pansi->hindex] == '\0')
 				pansi->hlink = 1;
@@ -645,7 +646,6 @@ ansi_done(pansi)
 {
 	free(pansi);
 }
-
 
 /*
  * Append a character and attribute to the line buffer.
@@ -690,35 +690,9 @@ store_char(ch, a, rep, pos)
 	}
 #endif
 
-	if (ctldisp == OPT_ONPLUS && line_ansi == NULL)
-		line_ansi = ansi_start(ch);
-	else if (ctldisp == OPT_ONPLUS && line_ansi != NULL)
-	{
-		int a = ansi_step(line_ansi, ch);
-		if (a == ANSI_END)
-		{
-			ansi_done(line_ansi);
-			line_ansi = NULL;
-		} else if (a == ANSI_ERR) {
-			/* Remove whole unrecognized sequence.  */
-			char *p = &linebuf[curr];
-			LWCHAR bch;
-			do {
-				bch = step_char(&p, -1, linebuf);
-			} while (p > linebuf && !IS_CSI_START(bch));
-			curr = (int) (p - linebuf);
-			return 0;
-		}
-		a = AT_ANSI;	/* Will force re-AT_'ing around it.  */
+	if (a == AT_ANSI) {
 		w = 0;
-	}
-	else if (ctldisp == OPT_ONPLUS && IS_CSI_START(ch))
-	{
-		a = AT_ANSI;	/* Will force re-AT_'ing around it.  */
-		w = 0;
-	}
-	else
-	{
+	} else {
 		char *p = &linebuf[curr];
 		LWCHAR prev_ch = step_char(&p, -1, linebuf);
 		w = pwidth(ch, a, prev_ch);
@@ -951,37 +925,93 @@ pappend(c, pos)
 }
 
 	static int
+store_control_char(ch, rep, pos)
+	LWCHAR ch;
+	char *rep;
+	POSITION pos;
+{
+	if (ctldisp == OPT_ON)
+	{
+		/* Output the character itself. */
+		STORE_CHAR(ch, AT_NORMAL, rep, pos);
+	} else 
+	{
+		/* Output a printable representation of the character. */
+		STORE_PRCHAR((char) ch, pos);
+	}
+	return (0);
+}
+
+	static int
+store_ansi(ch, rep, pos)
+	LWCHAR ch;
+	char *rep;
+	POSITION pos;
+{
+	switch (ansi_step(line_ansi, ch))
+	{
+	case ANSI_MID:
+		STORE_CHAR(ch, AT_ANSI, rep, pos);
+		break;
+	case ANSI_END:
+		STORE_CHAR(ch, AT_ANSI, rep, pos);
+		ansi_done(line_ansi);
+		line_ansi = NULL;
+		break;
+	case ANSI_ERR: {
+		/* Remove whole unrecognized sequence.  */
+		char *p = &linebuf[curr];
+		LWCHAR bch;
+		do {
+			bch = step_char(&p, -1, linebuf);
+		} while (p > linebuf && !IS_CSI_START(bch));
+		curr = (int) (p - linebuf);
+		break; }
+	}
+	return (0);
+} 
+
+	static int
+store_bs(ch, rep, pos)
+	LWCHAR ch;
+	char *rep;
+	POSITION pos;
+{
+	/*
+	 * A better test is needed here so we don't
+	 * backspace over part of the printed
+	 * representation of a binary character.
+	 */
+	if (bs_mode == BS_CONTROL)
+		return store_control_char(ch, rep, pos);
+	else if (   curr <= lmargin
+		|| column <= lmargin
+		|| (attr[curr - 1] & (AT_ANSI|AT_BINARY)))
+		STORE_PRCHAR('\b', pos);
+	else if (bs_mode == BS_NORMAL)
+		STORE_CHAR(ch, AT_NORMAL, NULL, pos);
+	else if (bs_mode == BS_SPECIAL)
+		overstrike = backc();
+
+	return 0;
+}
+
+	static int
 do_append(ch, rep, pos)
 	LWCHAR ch;
 	char *rep;
 	POSITION pos;
 {
-	int a;
-	LWCHAR prev_ch;
+	int a = AT_NORMAL;
 
-	a = AT_NORMAL;
+	if (ctldisp == OPT_ONPLUS && line_ansi == NULL)
+		line_ansi = ansi_start(ch);
+
+	if (line_ansi != NULL)
+		return store_ansi(ch, rep, pos);
 
 	if (ch == '\b')
-	{
-		if (bs_mode == BS_CONTROL)
-			goto do_control_char;
-
-		/*
-		 * A better test is needed here so we don't
-		 * backspace over part of the printed
-		 * representation of a binary character.
-		 */
-		if (   curr <= lmargin
-		    || column <= lmargin
-		    || (attr[curr - 1] & (AT_ANSI|AT_BINARY)))
-			STORE_PRCHAR('\b', pos);
-		else if (bs_mode == BS_NORMAL)
-			STORE_CHAR(ch, AT_NORMAL, NULL, pos);
-		else if (bs_mode == BS_SPECIAL)
-			overstrike = backc();
-
-		return 0;
-	}
+		return store_bs(ch, rep, pos);
 
 	if (overstrike > 0)
 	{
@@ -992,6 +1022,7 @@ do_append(ch, rep, pos)
 		 * bold (if an identical character is overstruck),
 		 * or just deletion of the character in the buffer.
 		 */
+		LWCHAR prev_ch;
 		overstrike = utf_mode ? -1 : 0;
 		if (utf_mode)
 		{
@@ -1041,7 +1072,7 @@ do_append(ch, rep, pos)
 			overstrike = 0;
 	}
 
-	if (ch == '\t') 
+	if (ch == '\t')
 	{
 		/*
 		 * Expand a tab into spaces.
@@ -1049,31 +1080,20 @@ do_append(ch, rep, pos)
 		switch (bs_mode)
 		{
 		case BS_CONTROL:
-			goto do_control_char;
+			return store_control_char(ch, rep, pos);
 		case BS_NORMAL:
 		case BS_SPECIAL:
 			STORE_TAB(a, pos);
 			break;
 		}
-	} else if ((!utf_mode || is_ascii_char(ch)) && control_char((char)ch))
+		return (0);
+	}
+	if ((!utf_mode || is_ascii_char(ch)) && control_char((char)ch))
 	{
-	do_control_char:
-		if (ctldisp == OPT_ON || (ctldisp == OPT_ONPLUS && IS_CSI_START(ch)))
-		{
-			/*
-			 * Output as a normal character.
-			 */
-			STORE_CHAR(ch, AT_NORMAL, rep, pos);
-		} else 
-		{
-			STORE_PRCHAR((char) ch, pos);
-		}
+		return store_control_char(ch, rep, pos);
 	} else if (utf_mode && ctldisp != OPT_ON && is_ubin_char(ch))
 	{
-		char *s;
-
-		s = prutfchar(ch);
-
+		char *s = prutfchar(ch);
 		if (column + (int) strlen(s) - 1 +
 		    pwidth(' ', binattr, 0) + attr_ewidth(binattr) > sc_width)
 			return (1);

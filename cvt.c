@@ -83,8 +83,11 @@ cvt_text(odst, osrc, chpos, lenp, ops)
 		{
 			/* Skip to end of ANSI escape sequence. */
 			while (src < src_end)
-				if (ansi_step(pansi, *src++) != ANSI_MID)
+			{
+				if (ansi_step(pansi, ch) != ANSI_MID)
 					break;
+				ch = *src++;
+			}
 			ansi_done(pansi);
 		} else
 		{
