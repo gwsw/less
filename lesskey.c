@@ -146,6 +146,7 @@ struct cmdname cmdnames[] =
 	{ "toggle-flag",          A_OPT_TOGGLE },
 	{ "toggle-option",        A_OPT_TOGGLE },
 	{ "undo-hilite",          A_UNDO_SEARCH },
+	{ "clear-search",         A_CLR_SEARCH },
 	{ "version",              A_VERSION },
 	{ "visual",               A_VISUAL },
 	{ NULL,   0 }

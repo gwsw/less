@@ -207,6 +207,7 @@ uncompile_pattern(pattern)
 #endif
 }
 
+#if 0
 /*
  * Can a pattern be successfully compiled?
  */
@@ -217,13 +218,14 @@ valid_pattern(pattern)
 	PATTERN_TYPE comp_pattern;
 	int result;
 
-	CLEAR_PATTERN(comp_pattern);
+	SET_NULL_PATTERN(comp_pattern);
 	result = compile_pattern2(pattern, 0, &comp_pattern, 0);
 	if (result != 0)
 		return (0);
 	uncompile_pattern(&comp_pattern);
 	return (1);
 }
+#endif
 
 /*
  * Is a compiled pattern null?

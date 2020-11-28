@@ -226,6 +226,11 @@ but don't move to the first match (KEEP current position).
 .IP "^R"
 Don't interpret regular expression metacharacters;
 that is, do a simple textual comparison.
+.IP "^W"
+WRAP around the current file.
+That is, if the search reaches the end of the current file
+without finding a match, the search continues from the first line of the
+current file up to the line where it started.
 .RE
 .IP ?pattern
 Search backward in the file for the N-th line containing the pattern.
@@ -250,6 +255,11 @@ or the settings of the \-a or \-j options.
 As in forward searches.
 .IP "^R"
 As in forward searches.
+.IP "^W"
+WRAP around the current file.
+That is, if the search reaches the beginning of the current file
+without finding a match, the search continues from the last line of the
+current file up to the line where it started.
 .RE
 .IP "ESC-/pattern"
 Same as "/*".
@@ -280,6 +290,10 @@ turn highlighting back on.
 Any search command will also turn highlighting back on.
 (Highlighting can also be disabled by toggling the \-G option;
 in that case search commands do not turn highlighting back on.)
+.IP "ESC-U"
+Like ESC-u but also clears the saved search pattern.
+If the status column is enabled via the \-J option,
+this clears all search matches marked in the status column.
 .IP "&pattern"
 Display only lines which match the pattern;
 lines which do not match the pattern are not displayed.
@@ -650,7 +664,6 @@ always begin at the start or end of the current screen respectively.
 Displays a status column at the left edge of the screen.
 The status column shows the lines that matched the current search,
 and any lines that are marked (via the m or M command).
-The status column is also used if the \-w or \-W option is in effect.
 .IP "\-k\fIfilename\fP or \-\-lesskey-file=\fIfilename\fP"
 Causes
 .I less
@@ -676,7 +689,8 @@ command prompt from the "F" command.
 .IP "\-L or \-\-no-lessopen"
 Ignore the LESSOPEN environment variable
 (see the INPUT PREPROCESSOR section below).
-This option can be set from within \fIless\fP,
+This option can be set from within
+.IR less ,
 but it will apply only to files opened subsequently, not to the
 file which is currently open.
 .IP "\-m or \-\-long-prompt"
@@ -777,15 +791,25 @@ each type of control character).
 Thus, various display problems may result,
 such as long lines being split in the wrong place.
 .IP "\-R or \-\-RAW-CONTROL-CHARS"
-Like \-r, but only ANSI "color" escape sequences are output in "raw" form.
-Unlike \-r, the screen appearance is maintained correctly in most cases.
-ANSI "color" escape sequences are sequences of the form:
+Like \-r, but only ANSI "color" escape sequences and OSC 8 hyperlink
+sequences are output in "raw" form.
+Unlike \-r, the screen appearance is maintained correctly,
+provided that there are no escape sequences in the file 
+other than these types of escape sequences.
+For the purpose of keeping track of screen appearance,
+these escape sequences are assumed to not move the cursor.
+OSC 8 hyperlinks are sequences of the form:
+.sp
+	ESC ] 8 ; \&...\& \\7
+.sp
+The terminating sequence may be either a BEL character (\\7) 
+or the two-character sequence "ESC \\".
+.sp
+ANSI color escape sequences are sequences of the form:
 .sp
 	ESC [ \&...\& m
 .sp
-where the "...\&" is zero or more color specification characters
-For the purpose of keeping track of screen appearance,
-ANSI color escape sequences are assumed to not move the cursor.
+where the "...\&" is zero or more color specification characters.
 You can make
 .I less
 think that characters other than "m" can end ANSI color escape sequences
@@ -973,7 +997,8 @@ If there is no attribute indicator, standout is used.
 If set to "\-", truncated lines are not marked.
 .IP "\-\-save-marks"
 Save marks in the history file, so marks are retained
-across different invocations of \fIless\fP.
+across different invocations of
+.IR less .
 .IP "\-\-use-backslash"
 This option changes the interpretations of options which follow this one.
 After the \-\-use-backslash option, any backslash in an option string is

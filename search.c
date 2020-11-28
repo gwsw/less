@@ -129,6 +129,21 @@ is_ucase(str)
 }
 
 /*
+ * Discard a saved pattern.
+ */
+	static void
+clear_pattern(info)
+	struct pattern_info *info;
+{
+	if (info->text != NULL)
+		free(info->text);
+	info->text = NULL;
+#if !NO_REGEX
+	uncompile_pattern(&info->compiled);
+#endif
+}
+
+/*
  * Compile and save a search pattern.
  */
 	static int
@@ -139,7 +154,7 @@ set_pattern(info, pattern, search_type)
 {
 #if !NO_REGEX
 	if (pattern == NULL)
-		CLEAR_PATTERN(info->compiled);
+		SET_NULL_PATTERN(info->compiled);
 	else if (compile_pattern(pattern, search_type, &info->compiled) < 0)
 		return -1;
 #endif
@@ -167,28 +182,13 @@ set_pattern(info, pattern, search_type)
 }
 
 /*
- * Discard a saved pattern.
- */
-	static void
-clear_pattern(info)
-	struct pattern_info *info;
-{
-	if (info->text != NULL)
-		free(info->text);
-	info->text = NULL;
-#if !NO_REGEX
-	uncompile_pattern(&info->compiled);
-#endif
-}
-
-/*
  * Initialize saved pattern to nothing.
  */
 	static void
 init_pattern(info)
 	struct pattern_info *info;
 {
-	CLEAR_PATTERN(info->compiled);
+	SET_NULL_PATTERN(info->compiled);
 	info->text = NULL;
 	info->search_type = 0;
 }
@@ -337,7 +337,8 @@ clear_attn(VOID_PARAM)
  * Hide search string highlighting.
  */
 	public void
-undo_search(VOID_PARAM)
+undo_search(clear)
+	int clear;
 {
 	if (!prev_pattern(&search_info))
 	{
@@ -346,7 +347,8 @@ undo_search(VOID_PARAM)
 			error("No previous regular expression", NULL_PARG);
 			return;
 		}
-		clr_hilite(); /* Next time, hilite_anchor.first will be NULL. */
+		if (clear)
+			clr_hilite(); /* Next time, hilite_anchor.first will be NULL. */
 	}
 	clear_pattern(&search_info);
 #if HILITE_SEARCH
@@ -1174,6 +1176,9 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 
 	linenum = find_linenum(pos);
 	oldpos = pos;
+	/* When the search wraps around, end at starting position. */
+        if ((search_type & SRCH_WRAP_AROUND) && endpos == NULL_POSITION)
+		endpos = pos;
 	for (;;)
 	{
 		/*
@@ -1189,7 +1194,9 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 			return (-1);
 		}
 
-		if ((endpos != NULL_POSITION && pos >= endpos) || maxlines == 0)
+		if ((endpos != NULL_POSITION && !(search_type & SRCH_WRAP_AROUND) &&
+			(((search_type & SRCH_FORW) && pos >= endpos) ||
+			 ((search_type & SRCH_BACK) && pos <= endpos))) || maxlines == 0)
 		{
 			/*
 			 * Reached end position without a match.
@@ -1228,6 +1235,35 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 			/*
 			 * Reached EOF/BOF without a match.
 			 */
+			if (search_type & SRCH_WRAP_AROUND)
+			{
+				/*
+				 * The search wraps around the current file, so
+				 * try to continue at BOF/EOF.
+				 */
+				if (search_type & SRCH_FORW)
+				{
+					pos = ch_zero();
+				} else
+				{
+					pos = ch_length();
+					if (pos == NULL_POSITION)
+					{
+						(void) ch_end_seek();
+						pos = ch_length();
+					}
+				}
+				if (pos != NULL_POSITION) {
+					/*
+					 * Wrap-around was successful. Clear
+					 * the flag so we don't wrap again, and
+					 * continue the search at new pos.
+					 */
+					search_type &= ~SRCH_WRAP_AROUND;
+					linenum = find_linenum(pos);
+					continue;
+				}
+			}
 			if (pendpos != NULL)
 				*pendpos = oldpos;
 			return (matches);

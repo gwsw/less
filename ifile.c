@@ -115,6 +115,8 @@ new_ifile(filename, prev)
 	p->h_opened = 0;
 	p->h_hold = 0;
 	p->h_filestate = NULL;
+	p->h_altfilename = NULL;
+	p->h_altpipe = NULL;
 	link_ifile(p, prev);
 	/*
 	 * {{ It's dodgy to call mark.c functions from here;
@@ -255,7 +257,7 @@ get_ifile(filename, prev)
 }
 
 /*
- * Get the filename associated with a ifile.
+ * Get the display filename associated with a ifile.
  */
 	public char *
 get_filename(ifile)
@@ -264,6 +266,18 @@ get_filename(ifile)
 	if (ifile == NULL)
 		return (NULL);
 	return (int_ifile(ifile)->h_filename);
+}
+
+/*
+ * Get the canonical filename associated with a ifile.
+ */
+	public char *
+get_real_filename(ifile)
+	IFILE ifile;
+{
+	if (ifile == NULL)
+		return (NULL);
+	return (int_ifile(ifile)->h_rfilename);
 }
 
 /*
@@ -370,7 +384,7 @@ set_altfilename(ifile, altfilename)
 	char *altfilename;
 {
 	struct ifile *p = int_ifile(ifile);
-	if (p->h_altfilename != NULL)
+	if (p->h_altfilename != NULL && p->h_altfilename != altfilename)
 		free(p->h_altfilename);
 	p->h_altfilename = altfilename;
 }

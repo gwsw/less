@@ -19,7 +19,7 @@ DISTFILES_W = \
 	defines.ds  Makefile.dsb Makefile.dsg Makefile.dsu \
 	defines.o2  Makefile.o2e \
 	defines.o9  Makefile.o9c Makefile.o9u \
-	defines.wn  Makefile.wnm Makefile.wnb \
+	defines.wn  Makefile.wnm Makefile.wnb Makefile.wng \
 	configure 
 UNICODE_FILES = \
 	compose.uni fmt.uni ubin.uni wide.uni

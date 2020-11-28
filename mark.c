@@ -363,7 +363,7 @@ mark_check_ifile(ifile)
 	IFILE ifile;
 {
 	int i;
-	char *filename = lrealpath(get_filename(ifile));
+	char *filename = get_real_filename(ifile);
 
 	for (i = 0;  i < NMARKS;  i++)
 	{
@@ -377,7 +377,6 @@ mark_check_ifile(ifile)
 			free(mark_filename);
 		}
 	}
-	free(filename);
 }
 
 #if CMD_HISTORY
@@ -406,12 +405,10 @@ save_marks(fout, hdr)
 		postoa(m->m_scrpos.pos, pos_str);
 		filename = m->m_filename;
 		if (filename == NULL)
-			filename = get_filename(m->m_ifile);
-		filename = lrealpath(filename);
+			filename = get_real_filename(m->m_ifile);
 		if (strcmp(filename, "-") != 0)
 			fprintf(fout, "m %c %d %s %s\n",
 				m->m_letter, m->m_scrpos.ln, pos_str, filename);
-		free(filename);
 	}
 }
 

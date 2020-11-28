@@ -479,8 +479,9 @@ bin_file(f)
 		} else 
 		{
 			LWCHAR c = step_char(&p, +1, edata);
-			if (ctldisp == OPT_ONPLUS && IS_CSI_START(c))
-				skip_ansi(&p, edata);
+			struct ansi_state *pansi;
+			if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(c)) != NULL)
+				skip_ansi(pansi, &p, edata);
 			else if (binary_char(c))
 				bin_count++;
 		}
@@ -907,7 +908,7 @@ open_altfile(filename, pf, pfd)
 		int f;
 
 		/*
-		 * The first time we open the file, read one char 
+		 * The alt file is a pipe. Read one char 
 		 * to see if the pipe will produce any data.
 		 * If it does, push the char back on the pipe.
 		 */
@@ -924,18 +925,22 @@ open_altfile(filename, pf, pfd)
 			 */
 			int status = pclose(fd);
 			if (returnfd > 1 && status == 0) {
+				/* File is empty. */
 				*pfd = NULL;
 				*pf = -1;
 				return (save(FAKE_EMPTYFILE));
 			}
+			/* No alt file. */
 			return (NULL);
 		}
+		/* Alt pipe contains data, so use it. */
 		ch_ungetchar(c);
 		*pfd = (void *) fd;
 		*pf = f;
 		return (save("-"));
 	}
 #endif
+	/* The alt file is a regular file. Read its name from LESSOPEN. */
 	cmd = readfd(fd);
 	pclose(fd);
 	if (*cmd == '\0')
@@ -965,7 +970,7 @@ close_altfile(altfilename, filename)
 		return;
 	ch_ungetchar(-1);
 	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)
-	     	return;
+		return;
 	if (num_pct_s(lessclose) > 2) 
 	{
 		error("LESSCLOSE ignored; must contain no more than 2 %%s", NULL_PARG);

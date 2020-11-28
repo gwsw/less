@@ -168,6 +168,8 @@ mca_search(VOID_PARAM)
 		cmd_putstr("Keep-pos ");
 	if (search_type & SRCH_NO_REGEX)
 		cmd_putstr("Regex-off ");
+	if (search_type & SRCH_WRAP_AROUND)
+		cmd_putstr("Wrap-around ");
 
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
@@ -534,6 +536,10 @@ mca_search_char(c)
 		if (mca != A_FILTER)
 			flag = SRCH_NO_MOVE;
 		break;
+	case CONTROL('W'): /* WRAP around */
+		if (mca != A_FILTER)
+			flag = SRCH_WRAP_AROUND;
+		break;
 	case CONTROL('R'): /* Don't use REGULAR EXPRESSIONS */
 		flag = SRCH_NO_REGEX;
 		break;
@@ -545,7 +551,8 @@ mca_search_char(c)
 
 	if (flag != 0)
 	{
-		search_type ^= flag;
+		/* Toggle flag, but keep PAST_EOF and WRAP_AROUND mutually exclusive. */
+		search_type ^= flag | (search_type & (SRCH_PAST_EOF|SRCH_WRAP_AROUND));
 		mca_search();
 		return (MCA_MORE);
 	}
@@ -1109,6 +1116,7 @@ commands(VOID_PARAM)
 	int action;
 	char *cbuf;
 	int newaction;
+	int save_jump_sline;
 	int save_search_type;
 	char *extra;
 	char tbuf[2];
@@ -1410,11 +1418,18 @@ commands(VOID_PARAM)
 		case A_GOLINE:
 			/*
 			 * Go to line N, default beginning of file.
+			 * If N <= 0, ignore jump_sline in order to avoid
+			 * empty lines before the beginning of the file.
 			 */
+			save_jump_sline = jump_sline;
 			if (number <= 0)
+			{
 				number = 1;
+				jump_sline = 0;
+			}
 			cmd_exec();
 			jump_back(number);
+			jump_sline = save_jump_sline;
 			break;
 
 		case A_PERCENT:
@@ -1591,10 +1606,11 @@ commands(VOID_PARAM)
 			break;
 
 		case A_UNDO_SEARCH:
+		case A_CLR_SEARCH:
 			/*
 			 * Clear search string highlighting.
 			 */
-			undo_search();
+			undo_search(action == A_CLR_SEARCH);
 			break;
 
 		case A_HELP:
