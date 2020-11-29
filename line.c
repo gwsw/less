@@ -69,10 +69,11 @@ static int mbc_buf_len = 0;
 static int mbc_buf_index = 0;
 static POSITION mbc_pos;
 
+/* State while processing an ANSI escape sequence */
 struct ansi_state {
-	int hindex;
-	int hlink;
-	int prev_esc;
+	int hindex;   /* Index into hyperlink prefix */
+	int hlink;    /* Processing hyperlink address? */
+	int prev_esc; /* Prev char was ESC */
 };
 
 /*
@@ -623,11 +624,12 @@ ansi_step(pansi, ch)
 		    (pansi->hindex == 0 && IS_CSI_START(ch)))
 		{
 			if (hlink_prefix[pansi->hindex] == '\0')
-				pansi->hlink = 1;
+				pansi->hlink = 1; /* now processing hyperlink addr */
 			return ANSI_MID;
 		}
-		pansi->hindex = -1;
+		pansi->hindex = -1; /* not a hyperlink */
 	}
+	/* Check for SGR sequences */
 	if (is_ansi_middle(ch))
 		return ANSI_MID;
 	if (is_ansi_end(ch))
