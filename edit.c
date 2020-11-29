@@ -20,6 +20,7 @@ extern int any_display;
 extern int force_open;
 extern int is_tty;
 extern int sigs;
+extern int hshift;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -478,6 +479,7 @@ edit_ifile(ifile)
 #if HILITE_SEARCH
 		clr_hilite();
 #endif
+		hshift = 0;
 		if (strcmp(filename, FAKE_HELPFILE) && strcmp(filename, FAKE_EMPTYFILE))
 		{
 			char *qfilename = shell_quote(filename);
