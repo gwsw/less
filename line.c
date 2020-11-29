@@ -299,8 +299,6 @@ pshift(shift)
 		if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(c)) != NULL)
 		{
 			/* Keep cumulative effect.  */
-			linebuf[to] = c;
-			attr[to++] = attr[from++];
 			while (from < curr && linebuf[from])
 			{
 				linebuf[to] = linebuf[from];
@@ -903,18 +901,6 @@ pappend(c, pos)
 			if (!r)
 				goto retry;
  		}
-	}
-
-	/*
-	 * If we need to shift the line, do it.
-	 * But wait until we get to at least the middle of the screen,
-	 * so shifting it doesn't affect the chars we're currently
-	 * pappending.  (Bold & underline can get messed up otherwise.)
-	 */
-	if (cshift < hshift && column > sc_width / 2)
-	{
-		linebuf[curr] = '\0';
-		pshift(hshift - cshift);
 	}
 	if (r)
 	{
