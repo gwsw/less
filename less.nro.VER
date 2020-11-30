@@ -302,6 +302,8 @@ any filtering is turned off, and all lines are displayed.
 While filtering is in effect, an ampersand is displayed at the
 beginning of the prompt,
 as a reminder that some lines in the file may be hidden.
+Multiple & commands may be entered, in which case only lines
+which match all of the patterns will be displayed.
 .sp
 Certain characters are special as in the / command:
 .RS

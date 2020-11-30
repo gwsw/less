@@ -98,6 +98,7 @@ struct pattern_info {
 	PATTERN_TYPE compiled;
 	char* text;
 	int search_type;
+	struct pattern_info *next;
 };
 
 #if NO_REGEX
@@ -107,7 +108,7 @@ struct pattern_info {
 #endif
 	
 static struct pattern_info search_info;
-static struct pattern_info filter_info;
+static struct pattern_info *filter_infos = NULL;
 
 /*
  * Are there any uppercase letters in this string?
@@ -191,6 +192,7 @@ init_pattern(info)
 	SET_NULL_PATTERN(info->compiled);
 	info->text = NULL;
 	info->search_type = 0;
+	info->next = NULL;
 }
 
 /*
@@ -200,7 +202,6 @@ init_pattern(info)
 init_search(VOID_PARAM)
 {
 	init_pattern(&search_info);
-	init_pattern(&filter_info);
 }
 
 /*
@@ -1151,6 +1152,40 @@ search_pos(search_type)
 }
 
 /*
+ * Check to see if the line matches the filter pattern.
+ * If so, add an entry to the filter list.
+ */
+	static int
+matches_filters(pos, cline, line_len, chpos, linepos, sp, ep)
+ 	POSITION pos;
+ 	char *cline;
+ 	int line_len;
+ 	int *chpos;
+ 	POSITION linepos;
+ 	char **sp;
+ 	char **ep;
+{
+	struct pattern_info *filter;
+
+	for (filter = filter_infos; filter != NULL; filter = filter->next)
+	{
+		int line_filter = match_pattern(info_compiled(filter), filter->text,
+			cline, line_len, sp, ep, 0, filter->search_type);
+		if (line_filter)
+		{
+			struct hilite hl;
+			hl.hl_startpos = linepos;
+			hl.hl_endpos = pos;
+			add_hilite(&filter_anchor, &hl);
+			free(cline);
+			free(chpos);
+			return (1);
+		}
+	}
+	return (0);
+}
+
+/*
  * Search a subset of the file, specified by start/end position.
  */
 	static int
@@ -1177,7 +1212,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 	linenum = find_linenum(pos);
 	oldpos = pos;
 	/* When the search wraps around, end at starting position. */
-        if ((search_type & SRCH_WRAP_AROUND) && endpos == NULL_POSITION)
+	if ((search_type & SRCH_WRAP_AROUND) && endpos == NULL_POSITION)
 		endpos = pos;
 	for (;;)
 	{
@@ -1295,26 +1330,15 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		cvt_text(cline, line, chpos, &line_len, cvt_ops);
 
 #if HILITE_SEARCH
-		/*
-		 * Check to see if the line matches the filter pattern.
-		 * If so, add an entry to the filter list.
-		 */
-		if (((search_type & SRCH_FIND_ALL) ||
+        /*
+         * If any filters are in effect, ignore non-matching lines.
+         */
+		if (filter_infos != NULL &&
+           ((search_type & SRCH_FIND_ALL) ||
 		     prep_startpos == NULL_POSITION ||
-		     linepos < prep_startpos || linepos >= prep_endpos) &&
-		    prev_pattern(&filter_info)) {
-			int line_filter = match_pattern(info_compiled(&filter_info), filter_info.text,
-				cline, line_len, &sp, &ep, 0, filter_info.search_type);
-			if (line_filter)
-			{
-				struct hilite hl;
-				hl.hl_startpos = linepos;
-				hl.hl_endpos = pos;
-				add_hilite(&filter_anchor, &hl);
-				free(cline);
-				free(chpos);
+		     linepos < prep_startpos || linepos >= prep_endpos)) {
+			if (matches_filters(pos, cline, line_len, chpos, linepos, &sp, &ep))
 				continue;
-			}
 		}
 #endif
 
@@ -1747,11 +1771,29 @@ set_filter_pattern(pattern, search_type)
 	char *pattern;
 	int search_type;
 {
+	struct pattern_info *filter;
+
 	clr_filter();
 	if (pattern == NULL || *pattern == '\0')
-		clear_pattern(&filter_info);
-	else
-		set_pattern(&filter_info, pattern, search_type);
+	{
+		/* Clear and free all filters. */
+		for (filter = filter_infos; filter != NULL; )
+		{
+			struct pattern_info *next_filter = filter->next;
+			clear_pattern(filter);
+			free(filter);
+			filter = next_filter;
+		}
+		filter_infos = NULL;
+	} else
+	{
+		/* Create a new filter and add it to the filter_infos list. */
+		filter = ecalloc(1, sizeof(struct pattern_info));
+		init_pattern(filter);
+		set_pattern(filter, pattern, search_type);
+		filter->next = filter_infos;
+		filter_infos = filter;
+	}
 	screen_trashed = 1;
 }
 
@@ -1763,7 +1805,7 @@ is_filtering(VOID_PARAM)
 {
 	if (ch_getflags() & CH_HELPFILE)
 		return (0);
-	return prev_pattern(&filter_info);
+	return (filter_infos != NULL);
 }
 #endif
 
