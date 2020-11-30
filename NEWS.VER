@@ -27,6 +27,8 @@
 * Editing the same file under different names now creates only
   one entry in the file list.
 
+* Build can use either Python or Perl for Makefile.aut operations.
+
 * Fix crash when using the @ search modifier.
 
 * Fix crash in the 's' command due to duplicate free.

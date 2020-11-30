@@ -796,6 +796,10 @@ sequences are output in "raw" form.
 Unlike \-r, the screen appearance is maintained correctly,
 provided that there are no escape sequences in the file 
 other than these types of escape sequences.
+Color escape sequences are only supported when the color
+is changed within one line, not across lines. 
+In other words, the beginning of each line is assumed to be
+normal (non-colored), regardless of any escape sequences in previous lines.
 For the purpose of keeping track of screen appearance,
 these escape sequences are assumed to not move the cursor.
 OSC 8 hyperlinks are sequences of the form:

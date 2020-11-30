@@ -892,7 +892,8 @@ v565  11/3/20   Add ESC-U command, optimize calls to realpath().
 v566  11/25/20  Fix crash when reopening a file while using LESSOPEN;
                 support OSC 8 hyperlinks.
 v567  11/25/20  Fix typo.
-v568            Fix some hyperlink bugs.
+v568  11/29/20  Fix some hyperlink bugs; add ^W search modifier;
+                allow Makefile.aut to use Python instead of Perl.
 */
 
-char version[] = "568x";
+char version[] = "568";

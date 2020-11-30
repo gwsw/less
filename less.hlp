@@ -51,6 +51,7 @@
         ^F or @  Start search at FIRST file (for /) or last file (for ?).
         ^K       Highlight matches, but don't move (KEEP position).
         ^R       Don't use REGULAR EXPRESSIONS.
+        ^W       WRAP search if no match found.
  ---------------------------------------------------------------------------
 
                            JJUUMMPPIINNGG
