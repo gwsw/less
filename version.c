@@ -896,7 +896,7 @@ v568  11/29/20  Fix some hyperlink bugs; add ^W search modifier
                 (thanks to Arminius); allow Makefile.aut to use Python 
                 instead of Perl (thanks to Charlie Lin).
 v569            Allow multiple & filters (thanks to Mattias Johansson),
-                allow ^X to exit F command.
+                allow ^X to exit F command (thanks to Jason Shirk & Jason Hood).
 */
 
 char version[] = "569x";
