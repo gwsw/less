@@ -20,6 +20,8 @@
 
 * Add ctrl-W search modifier for wrapping search.
 
+* F command can be interrupted by ^X.
+
 * Support OSC 8 hyperlinks when -R is in effect.
 
 * g command with no number will ignore -j and put first line at top of screen.
