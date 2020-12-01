@@ -241,6 +241,8 @@ longish(VOID_PARAM)
 	static void
 abort_long(VOID_PARAM)
 {
+	if (loopcount >= 0)
+		return;
 	if (linenums == OPT_ONPLUS)
 		/*
 		 * We were displaying line numbers, so need to repaint.
@@ -301,6 +303,7 @@ find_linenum(pos)
 #if HAVE_TIME
 	startime = get_time();
 #endif
+	loopcount = 0;
 	if (p == &anchor || pos - p->prev->pos < p->pos - pos)
 	{
 		/*
@@ -309,7 +312,6 @@ find_linenum(pos)
 		p = p->prev;
 		if (ch_seek(p->pos))
 			return (0);
-		loopcount = 0;
 		for (linenum = p->line, cpos = p->pos;  cpos < pos;  linenum++)
 		{
 			/*
@@ -341,7 +343,6 @@ find_linenum(pos)
 		 */
 		if (ch_seek(p->pos))
 			return (0);
-		loopcount = 0;
 		for (linenum = p->line, cpos = p->pos;  cpos > pos;  linenum--)
 		{
 			/*
@@ -361,7 +362,7 @@ find_linenum(pos)
 		 */
 		add_lnum(linenum, cpos);
 	}
-
+	loopcount = 0;
 	return (linenum);
 }
 

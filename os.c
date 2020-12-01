@@ -25,6 +25,9 @@
 #if HAVE_VALUES_H
 #include <values.h>
 #endif
+#if HAVE_POLL
+#include <poll.h>
+#endif
 
 /*
  * BSD setjmp() saves (and longjmp() restores) the signal mask.
@@ -46,6 +49,10 @@ public int reading;
 static jmp_buf read_label;
 
 extern int sigs;
+extern int ignore_eoi;
+#if !MSDOS_COMPILER
+extern int tty;
+#endif
 
 /*
  * Like read() system call, but is deliberately interruptible.
@@ -120,6 +127,25 @@ start:
 			return (-1);
 	}
 #endif
+#if HAVE_POLL && !MSDOS_COMPILER
+	if (ignore_eoi)
+	{
+		struct pollfd poll_tty = { tty, POLLIN, 0 };
+		n = poll(&poll_tty, 1, 0);
+		if (n > 0)
+		{
+			if (poll_tty.revents & POLLIN)
+			{
+				n = read(tty, buf, 1);
+				if (n > 0 && buf[0] == CONTROL('X'))
+				{
+					sigs |= S_INTERRUPT;
+					return (READ_INTR);
+				}
+			}
+		}
+	}
+#endif
 	n = read(fd, buf, len);
 #if 1
 	/*
@@ -128,7 +154,6 @@ start:
 	 * start returning 0 forever, instead of -1.
 	 */
 	{
-		extern int ignore_eoi;
 		if (!ignore_eoi)
 		{
 			static int consecutive_nulls = 0;

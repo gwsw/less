@@ -117,6 +117,8 @@ Normally this command would be used when already at the end of the file.
 It is a way to monitor the tail of a file which is growing
 while it is being viewed.
 (The behavior is similar to the "tail \-f" command.)
+To stop waiting for more data, enter the interrupt character (usually ^C).
+On some systems you can also use ^X.
 .IP "ESC-F"
 Like F, but as soon as a line is found which matches
 the last search pattern, the terminal bell is rung
