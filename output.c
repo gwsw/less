@@ -35,7 +35,7 @@ extern int so_fg_color, so_bg_color;
 extern int bl_fg_color, bl_bg_color;
 extern int sgr_mode;
 #if MSDOS_COMPILER==WIN32C
-extern int have_ul;
+extern int vt_enabled;
 #endif
 #endif
 
@@ -115,7 +115,7 @@ flush(VOID_PARAM)
 	if (is_tty && any_display)
 	{
 		*ob = '\0';
-		if (ctldisp != OPT_ONPLUS)
+		if (ctldisp != OPT_ONPLUS || (vt_enabled && sgr_mode))
 			WIN32textout(obuf, ob - obuf);
 		else
 		{
@@ -259,12 +259,7 @@ flush(VOID_PARAM)
 							at |= 2;
 							break;
 						case 4: /* underline on */
-#if MSDOS_COMPILER==WIN32C
-							if (have_ul)
-								bgi = COMMON_LVB_UNDERSCORE >> 4;
-							else
-#endif
-								bgi = 8;
+							bgi = 8;
 							at |= 4;
 							break;
 						case 5: /* slow blink on */
@@ -360,11 +355,7 @@ flush(VOID_PARAM)
 					if (at & 16)
 						f = b ^ 8;
 					f &= 0xf;
-#if MSDOS_COMPILER==WIN32C
-					b &= 0xf | (COMMON_LVB_UNDERSCORE >> 4);
-#else
  					b &= 0xf;
-#endif
 					WIN32setcolors(f, b);
 					p_next = anchor = p + 1;
 				} else

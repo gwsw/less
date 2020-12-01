@@ -152,7 +152,8 @@ static int sy_fg_color;		/* Color of system text (before less) */
 static int sy_bg_color;
 public int sgr_mode;		/* Honor ANSI sequences rather than using above */
 #if MSDOS_COMPILER==WIN32C
-public int have_ul;		/* Is underline available? */
+static DWORD init_output_mode;	/* The initial console output mode */
+public int vt_enabled = -1;	/* Is virtual terminal processing available? */
 #endif
 #else
 
@@ -1086,6 +1087,7 @@ get_term(VOID_PARAM)
 	 * before any file operations have been done on fd0.
 	 */
 	SET_BINARY(0);
+	GetConsoleMode(con_out, &init_output_mode);
 	GetConsoleScreenBufferInfo(con_out, &scr);
 	curr_attr = scr.wAttributes;
 	sy_bg_color = (curr_attr & BG_COLORS) >> 4; /* normalize */
@@ -1491,6 +1493,34 @@ initcolor(VOID_PARAM)
 #if MSDOS_COMPILER==WIN32C
 
 /*
+ * Enable virtual terminal processing, if available.
+ */
+	static void
+win32_init_vt_term(VOID_PARAM)
+{
+	DWORD output_mode;
+
+	if (vt_enabled == 0 || (vt_enabled == 1 && con_out == con_out_ours))
+		return;
+
+	GetConsoleMode(con_out, &output_mode);
+	vt_enabled = SetConsoleMode(con_out,
+		       output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	if (vt_enabled)
+	{
+	    auto_wrap = 0;
+	    ignaw = 1;
+	}
+}
+
+	static void
+win32_deinit_vt_term(VOID_PARAM)
+{
+	if (vt_enabled == 1 && con_out == con_out_save)
+		SetConsoleMode(con_out, init_output_mode);
+}
+
+/*
  * Termcap-like init with a private win32 console.
  */
 	static void
@@ -1506,8 +1536,6 @@ win32_init_term(VOID_PARAM)
 
 	if (con_out_ours == INVALID_HANDLE_VALUE)
 	{
-		DWORD output_mode;
-
 		/*
 		 * Create our own screen buffer, so that we
 		 * may restore the original when done.
@@ -1518,12 +1546,6 @@ win32_init_term(VOID_PARAM)
 			(LPSECURITY_ATTRIBUTES) NULL,
 			CONSOLE_TEXTMODE_BUFFER,
 			(LPVOID) NULL);
-		/*
-		 * Enable underline, if available.
-		 */
-		GetConsoleMode(con_out_ours, &output_mode);
-		have_ul = SetConsoleMode(con_out_ours,
-			    output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 	}
 
 	size.X = scr.srWindow.Right - scr.srWindow.Left + 1;
@@ -1626,6 +1648,7 @@ init(VOID_PARAM)
 		init_mouse();
 
 	}
+	win32_init_vt_term();
 #endif
 	initcolor();
 	flush();
@@ -1654,6 +1677,7 @@ deinit(VOID_PARAM)
 	/* Restore system colors. */
 	SETCOLORS(sy_fg_color, sy_bg_color);
 #if MSDOS_COMPILER==WIN32C
+	win32_deinit_vt_term();
 	if (!(quit_if_one_screen && one_screen))
 	{
 		deinit_mouse();
