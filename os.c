@@ -16,6 +16,9 @@
 #include "less.h"
 #include <signal.h>
 #include <setjmp.h>
+#if MSDOS_COMPILER==WIN32C
+#include <windows.h>
+#endif
 #if HAVE_TIME_H
 #include <time.h>
 #endif
@@ -372,3 +375,24 @@ isatty(f)
 }
 	
 #endif
+
+	public void
+sleep_ms(ms)
+	int ms;
+{
+#if MSDOS_COMPILER==WIN32C
+	Sleep(ms);
+#else
+#if HAVE_NANOSLEEP
+	int sec = ms / 1000;
+	struct timespec t = { sec, (ms - sec*1000) * 1000000 };
+	nanosleep(&t, NULL);
+#else
+#if HAVE_USLEEP
+	usleep(ms);
+#else
+	sleep((ms+999) / 1000);
+#endif
+#endif
+#endif
+}

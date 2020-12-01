@@ -304,13 +304,7 @@ ch_get(VOID_PARAM)
 				parg.p_string = wait_message();
 				ierror("%s", &parg);
 			}
-#if !MSDOS_COMPILER
-	 		sleep(1);
-#else
-#if MSDOS_COMPILER==WIN32C
-			Sleep(1000);
-#endif
-#endif
+	 		sleep_ms(2); /* Reduce system load */
 			slept = TRUE;
 
 #if HAVE_STAT_INO
