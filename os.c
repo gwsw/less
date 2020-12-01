@@ -222,18 +222,16 @@ get_time(VOID_PARAM)
 strerror(err)
 	int err;
 {
-#if HAVE_SYS_ERRLIST
 	static char buf[16];
+#if HAVE_SYS_ERRLIST
 	extern char *sys_errlist[];
 	extern int sys_nerr;
   
 	if (err < sys_nerr)
 		return sys_errlist[err];
+#endif
 	sprintf(buf, "Error %d", err);
 	return buf;
-#else
-	return ("cannot open");
-#endif
 }
 #endif
 
