@@ -127,7 +127,7 @@ start:
 			return (-1);
 	}
 #endif
-#if HAVE_POLL && !MSDOS_COMPILER
+#if HAVE_POLL && !MSDOS_COMPILER && !defined(__APPLE__)
 	if (ignore_eoi)
 	{
 		struct pollfd poll_tty = { tty, POLLIN, 0 };
