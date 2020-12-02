@@ -167,6 +167,14 @@ start:
 			return (READ_INTR);
 		}
 	}
+#else
+#if MSDOS_COMPILER==WIN32C
+    if (win32_kbhit() && WIN32getch() == CONTROL('X'))
+    {
+        sigs |= S_INTERRUPT;
+        return (READ_INTR);
+    }
+#endif
 #endif
 	n = read(fd, buf, len);
 #if 1
