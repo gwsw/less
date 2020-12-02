@@ -52,6 +52,7 @@ u_interrupt(type)
 	if (kbhit())
 		getkey();
 #endif
+	set_filter_pattern(NULL, 0);
 	if (reading)
 		intread(); /* May longjmp */
 }
