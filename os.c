@@ -28,7 +28,9 @@
 #if HAVE_VALUES_H
 #include <values.h>
 #endif
-#if HAVE_POLL
+
+#define USE_POLL (HAVE_POLL && !MSDOS_COMPILER && !defined(__APPLE__))
+#if USE_POLL
 #include <poll.h>
 #endif
 
@@ -55,6 +57,23 @@ extern int sigs;
 extern int ignore_eoi;
 #if !MSDOS_COMPILER
 extern int tty;
+#endif
+
+#if USE_POLL
+/*
+ * Return true if one of the events has occurred on the specified file.
+ */
+	static int
+poll_events(fd, events)
+	int fd;
+	int events;
+{
+	struct pollfd poller = { fd, events, 0 };
+	int n = poll(&poller, 1, 0);
+	if (n <= 0)
+		return 0;
+	return (poller.revents & events);
+}
 #endif
 
 /*
@@ -130,22 +149,22 @@ start:
 			return (-1);
 	}
 #endif
-#if HAVE_POLL && !MSDOS_COMPILER && !defined(__APPLE__)
+#if USE_POLL
 	if (ignore_eoi)
 	{
-		struct pollfd poll_tty = { tty, POLLIN, 0 };
-		n = poll(&poll_tty, 1, 0);
-		if (n > 0)
+		if (poll_events(tty, POLLIN))
 		{
-			if (poll_tty.revents & POLLIN)
+			n = read(tty, buf, 1);
+			if (n > 0 && buf[0] == CONTROL('X'))
 			{
-				n = read(tty, buf, 1);
-				if (n > 0 && buf[0] == CONTROL('X'))
-				{
-					sigs |= S_INTERRUPT;
-					return (READ_INTR);
-				}
+				sigs |= S_INTERRUPT;
+				return (READ_INTR);
 			}
+		}
+		if (poll_events(fd, POLLERR|POLLHUP))
+		{
+			sigs |= S_INTERRUPT;
+			return (READ_INTR);
 		}
 	}
 #endif
