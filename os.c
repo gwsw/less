@@ -152,14 +152,10 @@ start:
 #if USE_POLL
 	if (ignore_eoi)
 	{
-		if (poll_events(tty, POLLIN))
+		if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
 		{
-			n = read(tty, buf, 1);
-			if (n > 0 && buf[0] == CONTROL('X'))
-			{
-				sigs |= S_INTERRUPT;
-				return (READ_INTR);
-			}
+			sigs |= S_INTERRUPT;
+			return (READ_INTR);
 		}
 		if (poll_events(fd, POLLERR|POLLHUP))
 		{

@@ -135,11 +135,11 @@ getchr(VOID_PARAM)
 
 	do
 	{
+		flush();
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
 		/*
 		 * In raw read, we don't see ^C so look here for it.
 		 */
-		flush();
 #if MSDOS_COMPILER==WIN32C
 		if (ABORT_SIGS())
 			return (READ_INTR);
@@ -153,11 +153,9 @@ getchr(VOID_PARAM)
 #else
 		{
 			unsigned char uc;
-			result = iread(tty, &uc, sizeof(char));
+			result = read(tty, &uc, sizeof(char));
 			c = (char) uc;
 		}
-		if (result == READ_INTR)
-			return (READ_INTR);
 		if (result < 0)
 		{
 			/*
