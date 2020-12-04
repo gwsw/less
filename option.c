@@ -150,8 +150,8 @@ scan_option(s)
 				every_first_cmd = save(str+1);
 			} else
 			{
-				ungetcc(CHAR_END_COMMAND);
 				ungetsc(str);
+				ungetcc_back(CHAR_END_COMMAND);
 			}
 			free(str);
 			continue;

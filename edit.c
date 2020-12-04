@@ -456,8 +456,8 @@ edit_ifile(ifile)
 #endif
 		if (every_first_cmd != NULL)
 		{
-			ungetcc(CHAR_END_COMMAND);
 			ungetsc(every_first_cmd);
+			ungetcc_back(CHAR_END_COMMAND);
 		}
 	}
 

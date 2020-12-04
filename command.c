@@ -837,7 +837,7 @@ getcc_end_command(VOID_PARAM)
 		return ('\n'); 
 	default:
 		/* Some other incomplete command.  Let user complete it. */
-		return (getchr());
+		return ((ungot == NULL) ? getchr() : 0);
 	}
 }
 
@@ -850,23 +850,26 @@ getcc_end_command(VOID_PARAM)
 	static LWCHAR
 getccu(VOID_PARAM)
 {
-	LWCHAR c;
-	if (ungot == NULL)
+	LWCHAR c = 0;
+	while (c == 0)
 	{
-		/* Normal case: no ungotten chars.
-		 * Get char from the user. */
-		c = getchr();
-	} else
-	{
-		/* Ungotten chars available:
-		 * Take the top of stack (most recent). */
-		struct ungot *ug = ungot;
-		c = ug->ug_char;
-		ungot = ug->ug_next;
-		free(ug);
+		if (ungot == NULL)
+		{
+			/* Normal case: no ungotten chars.
+			 * Get char from the user. */
+			c = getchr();
+		} else
+		{
+			/* Ungotten chars available:
+			 * Take the top of stack (most recent). */
+			struct ungot *ug = ungot;
+			c = ug->ug_char;
+			ungot = ug->ug_next;
+			free(ug);
 
-		if (c == CHAR_END_COMMAND)
-			c = getcc_end_command();
+			if (c == CHAR_END_COMMAND)
+				c = getcc_end_command();
+		}
 	}
 	return (c);
 }
@@ -942,6 +945,28 @@ ungetcc(c)
 }
 
 /*
+ * "Unget" a command character.
+ * If any other chars are already ungotten, put this one after those.
+ */
+	public void
+ungetcc_back(c)
+	LWCHAR c;
+{
+    struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
+    ug->ug_char = c;
+    ug->ug_next = NULL;
+    if (ungot == NULL)
+        ungot = ug;
+    else
+    {
+		struct ungot *pu;
+		for (pu = ungot; pu->ug_next != NULL; pu = pu->ug_next)
+			continue;
+		pu->ug_next = ug;
+	}
+}
+
+/*
  * Unget a whole string of command characters.
  * The next sequence of getcc()'s will return this string.
  */
@@ -949,10 +974,8 @@ ungetcc(c)
 ungetsc(s)
 	char *s;
 {
-	char *p;
-
-	for (p = s + strlen(s) - 1;  p >= s;  p--)
-		ungetcc(*p);
+	while (*s != '\0')
+		ungetcc_back(*s++);
 }
 
 /*

@@ -388,13 +388,13 @@ opt_p(type, s)
 		} else
 		{
 			plusoption = TRUE;
-			ungetcc(CHAR_END_COMMAND);
-			ungetsc(s);
 			 /*
 			  * {{ This won't work if the "/" command is
 			  *    changed or invalidated by a .lesskey file. }}
 			  */
 			ungetsc("/");
+			ungetsc(s);
+			ungetcc_back(CHAR_END_COMMAND);
 		}
 		break;
 	}
