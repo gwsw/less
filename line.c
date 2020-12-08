@@ -15,27 +15,30 @@
 #include <windows.h>
 #endif
 
-static char *linebuf = NULL;	/* Buffer which holds the current output line */
-static char *attr = NULL;	/* Extension of linebuf to hold attributes */
-public int size_linebuf = 0;	/* Size of line buffer (and attr buffer) */
+static struct {
+	char *buf;    /* Buffer which holds the current output line */
+	char *attr;   /* Parallel to buf, to hold attributes */
+	int print;    /* Index in buf of first printable char */
+	int text;     /* Index in buf of first data char (not prefix chars) */
+	int end;      /* Number of chars in buf */
+} linebuf;
+
+public int size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
 
-static int cshift;		/* Current left-shift of output line buffer */
-public int hshift;		/* Desired left-shift of output line buffer */
+static int cshift;   /* Current left-shift of output line buffer */
+public int hshift;   /* Desired left-shift of output line buffer */
 public int tabstops[TABSTOP_MAX] = { 0 }; /* Custom tabstops */
-public int ntabstops = 1;	/* Number of tabstops */
-public int tabdefault = 8;	/* Default repeated tabstops */
-public POSITION highest_hilite;	/* Pos of last hilite in file found so far */
+public int ntabstops = 1;        /* Number of tabstops */
+public int tabdefault = 8;       /* Default repeated tabstops */
+public POSITION highest_hilite;  /* Pos of last hilite in file found so far */
 
-static int curr;		/* Index into linebuf */
-static int column;		/* Printable length, accounting for
-				   backspaces, etc. */
+static int end_column;  /* Printable length, accounting for backspaces, etc. */
 static int right_curr;
 static int right_column;
-static int overstrike;		/* Next char should overstrike previous char */
+static int overstrike;  /* Next char should overstrike previous char */
 static int last_overstrike = AT_NORMAL;
-static int is_null_line;	/* There is no current line */
-static int lmargin;		/* Left margin */
+static int is_null_line;  /* There is no current line */
 static LWCHAR pendc;
 static POSITION pendpos;
 static char *end_ansi_chars;
@@ -73,7 +76,7 @@ static POSITION mbc_pos;
 struct ansi_state {
 	int hindex;   /* Index into hyperlink prefix */
 	int hlink;    /* Processing hyperlink address? */
-	int prev_esc; /* Prev char was ESC */
+	int prev_esc; /* Prev char was ESC (to detect ESC-\ seq) */
 };
 
 /*
@@ -90,8 +93,8 @@ init_line(VOID_PARAM)
 	if (isnullenv(mid_ansi_chars))
 		mid_ansi_chars = "0123456789:;[?!\"'#%()*+ ";
 
-	linebuf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
-	attr = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
+	linebuf.buf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
+	linebuf.attr = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
 	size_linebuf = LINEBUF_SIZE;
 }
 
@@ -106,8 +109,8 @@ expand_linebuf(VOID_PARAM)
 
 	/* Just realloc to expand the buffer, if we can. */
 #if HAVE_REALLOC
-	char *new_buf = (char *) realloc(linebuf, new_size);
-	char *new_attr = (char *) realloc(attr, new_size);
+	char *new_buf = (char *) realloc(linebuf.buf, new_size);
+	char *new_attr = (char *) realloc(linebuf.attr, new_size);
 #else
 	char *new_buf = (char *) calloc(new_size, sizeof(char));
 	char *new_attr = (char *) calloc(new_size, sizeof(char));
@@ -124,13 +127,13 @@ expand_linebuf(VOID_PARAM)
 	/*
 	 * We just calloc'd the buffers; copy the old contents.
 	 */
-	memcpy(new_buf, linebuf, size_linebuf * sizeof(char));
-	memcpy(new_attr, attr, size_linebuf * sizeof(char));
-	free(attr);
-	free(linebuf);
+	memcpy(new_buf, linebuf.buf, size_linebuf * sizeof(char));
+	memcpy(new_attr, linebuf.attr, size_linebuf * sizeof(char));
+	free(linebuf.attr);
+	free(linebuf.buf);
 #endif
-	linebuf = new_buf;
-	attr = new_attr;
+	linebuf.buf = new_buf;
+	linebuf.attr = new_attr;
 	size_linebuf = new_size;
 	return 0;
 }
@@ -151,8 +154,12 @@ is_ascii_char(ch)
 	public void
 prewind(VOID_PARAM)
 {
-	curr = 0;
-	column = 0;
+	linebuf.print = 1;
+	linebuf.text = linebuf.print;
+	for (linebuf.end = 0; linebuf.end < linebuf.print; linebuf.end++)
+		linebuf.buf[linebuf.end] = '\0';
+
+	end_column = 0;
 	right_curr = 0;
 	right_column = 0;
 	cshift = 0;
@@ -161,9 +168,6 @@ prewind(VOID_PARAM)
 	mbc_buf_len = 0;
 	is_null_line = 0;
 	pendc = '\0';
-	lmargin = 0;
-	if (status_col)
-		lmargin += 2;
 }
 
 /*
@@ -175,8 +179,8 @@ set_linebuf(n, ch, a)
 	char ch;
 	char a;
 {
-	linebuf[n] = ch;
-	attr[n] = a;
+	linebuf.buf[n] = ch;
+	linebuf.attr[n] = a;
 }
 
 /*
@@ -188,15 +192,15 @@ add_linebuf(ch, a, w)
 	char a;
 	int w;
 {
-	set_linebuf(curr++, ch, a);
-	column += w;
+	set_linebuf(linebuf.end++, ch, a);
+	end_column += w;
 }
 
 /*
- * Insert the line number (of the given position) into the line buffer.
+ * Insert the status column and line number into the line buffer.
  */
 	public void
-plinenum(pos)
+plinestart(pos)
 	POSITION pos;
 {
 	LINENUM linenum = 0;
@@ -208,7 +212,7 @@ plinenum(pos)
 		 * Get the line number and put it in the current line.
 		 * {{ Note: since find_linenum calls forw_raw_line,
 		 *    it may seek in the input file, requiring the caller 
-		 *    of plinenum to re-seek if necessary. }}
+		 *    of plinestart to re-seek if necessary. }}
 		 * {{ Since forw_raw_line modifies linebuf, we must
 		 *    do this first, before storing anything in linebuf. }}
 		 */
@@ -233,6 +237,7 @@ plinenum(pos)
 		}
 		add_linebuf(c, a, 1); /* column 0: status */
 		add_linebuf(' ', AT_NORMAL, 1); /* column 1: empty */
+		linebuf.text += 2;
 	}
 
 	/*
@@ -254,143 +259,22 @@ plinenum(pos)
 		for (i = 0; i < n; i++)
 			add_linebuf(buf[i], AT_BOLD, 1);
 		add_linebuf(' ', AT_NORMAL, 1);
-		lmargin += n + pad + 1;
+		linebuf.text += n + pad + 1;
 	}
 	/*
 	 * Append enough spaces to bring us to the lmargin.
 	 */
-	while (column < lmargin)
+	while (linebuf.end < linebuf.text)
 	{
 		add_linebuf(' ', AT_NORMAL, 1);
 	}
 }
 
-/*
- * Shift the input line left.
- * This means discarding N printable chars at the start of the buffer.
- */
-	static void
-pshift(shift)
-	int shift;
+	static int
+line_start_pwidth(VOID_PARAM)
 {
-	LWCHAR prev_ch = 0;
-	unsigned char c;
-	int shifted = 0;
-	int to;
-	int from;
-	int len;
-	int width;
-	int prev_attr;
-	int next_attr;
-
-	if (shift > column - lmargin)
-		shift = column - lmargin;
-	if (shift > curr - lmargin)
-		shift = curr - lmargin;
-
-	to = from = lmargin;
-	/*
-	 * We keep on going when shifted == shift
-	 * to get all combining chars.
-	 */
-	while (shifted <= shift && from < curr)
-	{
-		struct ansi_state *pansi;
-		c = linebuf[from];
-		if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(c)) != NULL)
-		{
-			/* Keep cumulative effect.  */
-			while (from < curr && linebuf[from])
-			{
-				linebuf[to] = linebuf[from];
-				attr[to++] = attr[from];
-				if (ansi_step(pansi, linebuf[from++]) != ANSI_MID)
-					break;
-			}
-			ansi_done(pansi);
-			continue;
-		}
-
-		width = 0;
-
-		if (!IS_ASCII_OCTET(c) && utf_mode)
-		{
-			/* Assumes well-formedness validation already done.  */
-			LWCHAR ch;
-
-			len = utf_len(c);
-			if (from + len > curr)
-				break;
-			ch = get_wchar(linebuf + from);
-			if (!is_composing_char(ch) && !is_combining_char(prev_ch, ch))
-				width = is_wide_char(ch) ? 2 : 1;
-			prev_ch = ch;
-		} else
-		{
-			len = 1;
-			if (c == '\b')
-				/* XXX - Incorrect if several '\b' in a row.  */
-				width = (utf_mode && is_wide_char(prev_ch)) ? -2 : -1;
-			else if (!control_char(c))
-				width = 1;
-			prev_ch = 0;
-		}
-
-		if (width == 2 && shift - shifted == 1) {
-			/* Should never happen when called by pshift_all().  */
-			attr[to] = attr[from];
-			/*
-			 * Assume a wide_char will never be the first half of a
-			 * combining_char pair, so reset prev_ch in case we're
-			 * followed by a '\b'.
-			 */
-			prev_ch = linebuf[to++] = ' ';
-			from += len;
-			shifted++;
-			continue;
-		}
-
-		/* Adjust width for magic cookies. */
-		prev_attr = (to > 0) ? attr[to-1] : AT_NORMAL;
-		next_attr = (from + len < curr) ? attr[from + len] : prev_attr;
-		if (!is_at_equiv(attr[from], prev_attr) && 
-			!is_at_equiv(attr[from], next_attr))
-		{
-			width += attr_swidth(attr[from]);
-			if (from + len < curr)
-				width += attr_ewidth(attr[from]);
-			if (is_at_equiv(prev_attr, next_attr))
-			{
-				width += attr_ewidth(prev_attr);
-				if (from + len < curr)
-					width += attr_swidth(next_attr);
-			}
-		}
-
-		if (shift - shifted < width)
-			break;
-		from += len;
-		shifted += width;
-		if (shifted < 0)
-			shifted = 0;
-	}
-	while (from < curr)
-	{
-		linebuf[to] = linebuf[from];
-		attr[to++] = attr[from++];
-	}
-	curr = to;
-	column -= shifted;
-	cshift += shifted;
-}
-
-/*
- *
- */
-	public void
-pshift_all(VOID_PARAM)
-{
-	pshift(column);
+	/* Assume chars in status column, line num etc. all have printing width of 1. */
+	return linebuf.text - linebuf.print;
 }
 
 /*
@@ -443,7 +327,7 @@ attr_ewidth(a)
 
 /*
  * Return the printing width of a given character and attribute,
- * if the character were added to the current position in the line buffer.
+ * if the character were added after prev_ch.
  * Adding a character with a given attribute may cause an enter or exit
  * attribute sequence to be inserted, so this must be taken into account.
  */
@@ -456,11 +340,13 @@ pwidth(ch, a, prev_ch)
 	int w;
 
 	if (ch == '\b')
+	{
 		/*
 		 * Backspace moves backwards one or two positions.
 		 * XXX - Incorrect if several '\b' in a row.
 		 */
 		return (utf_mode && is_wide_char(prev_ch)) ? -2 : -1;
+	}
 
 	if (!utf_mode || is_ascii_char(ch))
 	{
@@ -482,7 +368,7 @@ pwidth(ch, a, prev_ch)
 			 *
 			 * Some terminals, upon failure to compose a
 			 * composing character with the character(s) that
-			 * precede(s) it will actually take up one column
+			 * precede(s) it will actually take up one end_column
 			 * for the composing character; there isn't much
 			 * we could do short of testing the (complex)
 			 * composition process ourselves and printing
@@ -499,41 +385,41 @@ pwidth(ch, a, prev_ch)
 	w = 1;
 	if (is_wide_char(ch))
 		w++;
-	if (curr > 0 && !is_at_equiv(attr[curr-1], a))
-		w += attr_ewidth(attr[curr-1]);
-	if ((apply_at_specials(a) != AT_NORMAL) &&
-	    (curr == 0 || !is_at_equiv(attr[curr-1], a)))
+	if (linebuf.end > 0 && !is_at_equiv(linebuf.attr[linebuf.end-1], a))
+		w += attr_ewidth(linebuf.attr[linebuf.end-1]);
+	if (apply_at_specials(a) != AT_NORMAL &&
+	    (linebuf.end == 0 || !is_at_equiv(linebuf.attr[linebuf.end-1], a)))
 		w += attr_swidth(a);
 	return (w);
 }
 
 /*
  * Delete to the previous base character in the line buffer.
- * Return 1 if one is found.
  */
 	static int
 backc(VOID_PARAM)
 {
-	LWCHAR prev_ch;
-	char *p = linebuf + curr;
-	LWCHAR ch = step_char(&p, -1, linebuf + lmargin);
-	int width;
+	LWCHAR ch;
+	char *p;
 
-	/* This assumes that there is no '\b' in linebuf.  */
-	while (   curr > lmargin
-	       && column > lmargin
-	       && (!(attr[curr - 1] & (AT_ANSI|AT_BINARY))))
+	if (linebuf.end == 0)
+		return (0);
+	p = &linebuf.buf[linebuf.end];
+	ch = step_char(&p, -1, linebuf.buf);
+	/* Skip back to the next nonzero-width char. */
+	for (;;)
 	{
-		curr = (int) (p - linebuf);
-		prev_ch = step_char(&p, -1, linebuf + lmargin);
-		width = pwidth(ch, attr[curr], prev_ch);
-		column -= width;
+		LWCHAR prev_ch;
+		int width;
+		linebuf.end = (int) (p - linebuf.buf);
+		prev_ch = step_char(&p, -1, linebuf.buf);
+		width = pwidth(ch, linebuf.attr[linebuf.end], prev_ch);
 		if (width > 0)
-			return 1;
+			break;
+		end_column -= width;
 		ch = prev_ch;
 	}
-
-	return 0;
+	return (1);
 }
 
 /*
@@ -681,9 +567,8 @@ store_char(ch, a, rep, pos)
 			 */
 			if (a != AT_ANSI)
 			{
-				if (highest_hilite != NULL_POSITION &&
-				    pos > highest_hilite)
-				    	highest_hilite = pos;
+				if (highest_hilite != NULL_POSITION && pos > highest_hilite)
+					highest_hilite = pos;
 				a |= AT_HILITE;
 			}
 		}
@@ -693,12 +578,12 @@ store_char(ch, a, rep, pos)
 	if (a == AT_ANSI) {
 		w = 0;
 	} else {
-		char *p = &linebuf[curr];
-		LWCHAR prev_ch = step_char(&p, -1, linebuf);
+		char *p = &linebuf.buf[linebuf.end];
+		LWCHAR prev_ch = step_char(&p, -1, linebuf.buf);
 		w = pwidth(ch, a, prev_ch);
 	}
 
-	if (ctldisp != OPT_ON && column + w + attr_ewidth(a) > sc_width)
+	if (ctldisp != OPT_ON && end_column + w + attr_ewidth(a) > sc_width)
 		/*
 		 * Won't fit on screen.
 		 */
@@ -713,7 +598,7 @@ store_char(ch, a, rep, pos)
 	{
 		replen = utf_len(rep[0]);
 	}
-	if (curr + replen >= size_linebuf-6)
+	if (linebuf.end + replen >= size_linebuf-6)
 	{
 		/*
 		 * Won't fit in line buffer.
@@ -723,17 +608,26 @@ store_char(ch, a, rep, pos)
 			return (1);
 	}
 
-	if (column > right_column && w > 0)
+	if (end_column > right_column && w > 0)
 	{
-		right_column = column;
-		right_curr = curr;
+		right_column = end_column;
+		right_curr = linebuf.end;
 	}
 
 	while (replen-- > 0)
 	{
 		add_linebuf(*rep++, a, 0);
 	}
-	column += w;
+	end_column += w;
+
+	while (cshift < hshift && linebuf.end > 1)
+	{
+		int i;
+		for (i = 0;  i < linebuf.print;  i++)
+			linebuf.buf[i] = linebuf.buf[i+1];
+		linebuf.end--;
+		cshift += w;
+	}
 	return (0);
 }
 
@@ -749,7 +643,7 @@ store_tab(attr, pos)
 	int attr;
 	POSITION pos;
 {
-	int to_tab = column + cshift - lmargin;
+	int to_tab = end_column + cshift - line_start_pwidth();
 	int i;
 
 	if (ntabstops < 2 || to_tab >= tabstops[ntabstops-1])
@@ -763,7 +657,7 @@ store_tab(attr, pos)
 		to_tab = tabstops[i+1] - to_tab;
 	}
 
-	if (column + to_tab - 1 + pwidth(' ', attr, 0) + attr_ewidth(attr) > sc_width)
+	if (end_column + to_tab - 1 + pwidth(' ', attr, 0) + attr_ewidth(attr) > sc_width)
 		return 1;
 
 	do {
@@ -791,8 +685,8 @@ store_prchar(c, pos)
 	 * Make sure we can get the entire representation
 	 * of the character on this line.
 	 */
-	if (column + (int) strlen(s) - 1 +
-            pwidth(' ', binattr, 0) + attr_ewidth(binattr) > sc_width)
+	if (end_column + (int) strlen(s) - 1 +
+	        pwidth(' ', binattr, 0) + attr_ewidth(binattr) > sc_width)
 		return 1;
 
 	for ( ;  *s != 0;  s++)
@@ -948,12 +842,12 @@ store_ansi(ch, rep, pos)
 		break;
 	case ANSI_ERR: {
 		/* Remove whole unrecognized sequence.  */
-		char *p = &linebuf[curr];
+		char *p = &linebuf.buf[linebuf.end];
 		LWCHAR bch;
 		do {
-			bch = step_char(&p, -1, linebuf);
-		} while (p > linebuf && !IS_CSI_START(bch));
-		curr = (int) (p - linebuf);
+			bch = step_char(&p, -1, linebuf.buf);
+		} while (p > linebuf.buf && !IS_CSI_START(bch));
+		linebuf.end = (int) (p - linebuf.buf);
 		break; }
 	}
 	return (0);
@@ -972,15 +866,12 @@ store_bs(ch, rep, pos)
 	 */
 	if (bs_mode == BS_CONTROL)
 		return store_control_char(ch, rep, pos);
-	else if (   curr <= lmargin
-		|| column <= lmargin
-		|| (attr[curr - 1] & (AT_ANSI|AT_BINARY)))
+	if (linebuf.end > 0 && linebuf.attr[linebuf.end - 1] & (AT_ANSI|AT_BINARY))
 		STORE_PRCHAR('\b', pos);
 	else if (bs_mode == BS_NORMAL)
 		STORE_CHAR(ch, AT_NORMAL, NULL, pos);
 	else if (bs_mode == BS_SPECIAL)
 		overstrike = backc();
-
 	return 0;
 }
 
@@ -1008,19 +899,19 @@ do_append(ch, rep, pos)
 		 * in the line buffer.  This will cause either 
 		 * underline (if a "_" is overstruck), 
 		 * bold (if an identical character is overstruck),
-		 * or just deletion of the character in the buffer.
+		 * or just replacing the character in the buffer.
 		 */
 		LWCHAR prev_ch;
 		overstrike = utf_mode ? -1 : 0;
 		if (utf_mode)
 		{
 			/* To be correct, this must be a base character.  */
-			prev_ch = get_wchar(linebuf + curr);
+			prev_ch = get_wchar(&linebuf.buf[linebuf.end]);
 		} else
 		{
-			prev_ch = (unsigned char) linebuf[curr];
+			prev_ch = (unsigned char) linebuf.buf[linebuf.end];
 		}
-		a = attr[curr];
+		a = linebuf.attr[linebuf.end];
 		if (ch == prev_ch)
 		{
 			/*
@@ -1044,7 +935,7 @@ do_append(ch, rep, pos)
 		{
 			a |= AT_UNDERLINE;
 			ch = prev_ch;
-			rep = linebuf + curr;
+			rep = &linebuf.buf[linebuf.end];
 		} else if (prev_ch == '_')
 		{
 			a |= AT_UNDERLINE;
@@ -1053,7 +944,7 @@ do_append(ch, rep, pos)
 	} else if (overstrike < 0)
 	{
 		if (   is_composing_char(ch)
-		    || is_combining_char(get_wchar(linebuf + curr), ch))
+		    || is_combining_char(get_wchar(&linebuf.buf[linebuf.end]), ch))
 			/* Continuation of the same overstrike.  */
 			a = last_overstrike;
 		else
@@ -1082,7 +973,7 @@ do_append(ch, rep, pos)
 	} else if (utf_mode && ctldisp != OPT_ON && is_ubin_char(ch))
 	{
 		char *s = prutfchar(ch);
-		if (column + (int) strlen(s) - 1 +
+		if (end_column + (int) strlen(s) - 1 +
 		    pwidth(' ', binattr, 0) + attr_ewidth(binattr) > sc_width)
 			return (1);
 
@@ -1145,12 +1036,6 @@ pdone(endline, chopped, forw)
 		 */
 		(void) do_append(pendc, NULL, pendpos);
 
-	/*
-	 * Make sure we've shifted the line, if we need to.
-	 */
-	if (cshift < hshift)
-		pshift(hshift - cshift);
-
 	if (chopped && rscroll_char)
 	{
 		/*
@@ -1158,14 +1043,14 @@ pdone(endline, chopped, forw)
 		 * If we've already filled the rightmost screen char 
 		 * (in the buffer), overwrite it.
 		 */
-		if (column >= sc_width)
+		if (end_column >= sc_width)
 		{
 			/* We've already written in the rightmost char. */
-			column = right_column;
-			curr = right_curr;
+			end_column = right_column;
+			linebuf.end = right_curr;
 		}
 		add_attr_normal();
-		while (column < sc_width-1)
+		while (end_column < sc_width-1)
 		{
 			/*
 			 * Space to last (rightmost) char on screen.
@@ -1194,11 +1079,11 @@ pdone(endline, chopped, forw)
 	 * the next line is blank.  In that case the single newline output for
 	 * that blank line would be ignored!)
 	 */
-	if (column < sc_width || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
+	if (end_column < sc_width || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
 	{
 		add_linebuf('\n', AT_NORMAL, 0);
 	} 
-	else if (ignaw && column >= sc_width && forw)
+	else if (ignaw && end_column >= sc_width && forw)
 	{
 		/*
 		 * Terminals with "ignaw" don't wrap until they *really* need
@@ -1217,7 +1102,7 @@ pdone(endline, chopped, forw)
 		add_linebuf(' ', AT_NORMAL, 1);
 		add_linebuf('\b', AT_NORMAL, -1);
 	}
-	set_linebuf(curr, '\0', AT_NORMAL);
+	set_linebuf(linebuf.end, '\0', AT_NORMAL);
 }
 
 /*
@@ -1260,8 +1145,8 @@ gline(i, ap)
 		return i ? '\0' : '\n';
 	}
 
-	*ap = attr[i];
-	return (linebuf[i] & 0xFF);
+	*ap = linebuf.attr[i + linebuf.print];
+	return (linebuf.buf[i + linebuf.print] & 0xFF);
 }
 
 /*
@@ -1313,12 +1198,12 @@ forw_raw_line(curr_pos, linep, line_lenp)
 				break;
 			}
 		}
-		linebuf[n++] = c;
+		linebuf.buf[n++] = c;
 		c = ch_forw_get();
 	}
-	linebuf[n] = '\0';
+	linebuf.buf[n] = '\0';
 	if (linep != NULL)
-		*linep = linebuf;
+		*linep = linebuf.buf;
 	if (line_lenp != NULL)
 		*line_lenp = n;
 	return (new_pos);
@@ -1343,7 +1228,7 @@ back_raw_line(curr_pos, linep, line_lenp)
 		return (NULL_POSITION);
 
 	n = size_linebuf;
-	linebuf[--n] = '\0';
+	linebuf.buf[--n] = '\0';
 	for (;;)
 	{
 		c = ch_back_get();
@@ -1383,16 +1268,16 @@ back_raw_line(curr_pos, linep, line_lenp)
 			/*
 			 * Shift the data to the end of the new linebuf.
 			 */
-			for (fm = linebuf + old_size_linebuf - 1,
-			      to = linebuf + size_linebuf - 1;
-			     fm >= linebuf;  fm--, to--)
+			for (fm = linebuf.buf + old_size_linebuf - 1,
+			      to = linebuf.buf + size_linebuf - 1;
+			     fm >= linebuf.buf;  fm--, to--)
 				*to = *fm;
 			n = size_linebuf - old_size_linebuf;
 		}
-		linebuf[--n] = c;
+		linebuf.buf[--n] = c;
 	}
 	if (linep != NULL)
-		*linep = &linebuf[n];
+		*linep = &linebuf.buf[n];
 	if (line_lenp != NULL)
 		*line_lenp = size_linebuf - 1 - n;
 	return (new_pos);
@@ -1411,13 +1296,12 @@ rrshift(VOID_PARAM)
 
 	save_width = sc_width;
 	sc_width = INT_MAX;
-	hshift = 0;
 	pos = position(TOP);
 	for (line = 0; line < sc_height && pos != NULL_POSITION; line++)
 	{
 		pos = forw_line(pos);
-		if (column > longest)
-			longest = column;
+		if (end_column > longest)
+			longest = end_column;
 	}
 	sc_width = save_width;
 	if (longest < sc_width)

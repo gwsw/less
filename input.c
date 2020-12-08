@@ -98,7 +98,7 @@ get_forw_line:
 	 * Read forward again to the position we should start at.
 	 */
  	prewind();
-	plinenum(base_pos);
+	plinestart(base_pos);
 	(void) ch_seek(base_pos);
 	new_pos = base_pos;
 	while (new_pos < curr_pos)
@@ -113,14 +113,12 @@ get_forw_line:
 		new_pos++;
 		if (backchars > 0)
 		{
-			pshift_all();
 			new_pos -= backchars;
 			while (--backchars >= 0)
 				(void) ch_back_get();
 		}
 	}
 	(void) pflushmbc();
-	pshift_all();
 
 	/*
 	 * Read the first character to display.
@@ -351,7 +349,7 @@ get_back_line:
 	}
 	endline = FALSE;
 	prewind();
-	plinenum(new_pos);
+	plinestart(new_pos);
     loop:
 	begin_new_pos = new_pos;
 	(void) ch_seek(new_pos);
@@ -393,7 +391,6 @@ get_back_line:
 				break;
 			}
 		shift:
-			pshift_all();
 			while (backchars-- > 0)
 			{
 				(void) ch_back_get();
