@@ -19,8 +19,9 @@ static struct {
 	char *buf;    /* Buffer which holds the current output line */
 	char *attr;   /* Parallel to buf, to hold attributes */
 	int print;    /* Index in buf of first printable char */
-	int text;     /* Index in buf of first data char (not prefix chars) */
 	int end;      /* Number of chars in buf */
+	char pfx[16]; /* Holds status column and line number */
+	int pfx_end;  /* Number of chars in pfx */
 } linebuf;
 
 static struct {
@@ -31,7 +32,6 @@ static struct {
 
 public int size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
-
 static int cshift;   /* Current left-shift of output line buffer */
 public int hshift;   /* Desired left-shift of output line buffer */
 public int tabstops[TABSTOP_MAX] = { 0 }; /* Custom tabstops */
@@ -163,7 +163,7 @@ is_ascii_char(ch)
 prewind(VOID_PARAM)
 {
 	linebuf.print = 6; /* big enough for longest UTF-8 sequence */
-	linebuf.text = linebuf.print;
+	linebuf.pfx_end = 0;
 	for (linebuf.end = 0; linebuf.end < linebuf.print; linebuf.end++)
 		linebuf.buf[linebuf.end] = '\0';
 
@@ -244,9 +244,8 @@ plinestart(pos)
 			    pos >= start_attnpos && pos <= end_attnpos)
 				a |= AT_HILITE;
 		}
-		add_linebuf(c, a, 1); /* column 0: status */
-		add_linebuf(' ', AT_NORMAL, 1); /* column 1: empty */
-		linebuf.text += 2;
+		linebuf.pfx[linebuf.pfx_end++] = c;  /* column 0: status */
+		linebuf.pfx[linebuf.pfx_end++] = ' ';
 	}
 
 	/*
@@ -256,34 +255,32 @@ plinestart(pos)
 	if (linenums == OPT_ONPLUS)
 	{
 		char buf[INT_STRLEN_BOUND(linenum) + 2];
-		int pad = 0;
-		int n;
+		int len;
 
 		linenumtoa(linenum, buf);
-		n = (int) strlen(buf);
-		if (n < MIN_LINENUM_WIDTH)
-			pad = MIN_LINENUM_WIDTH - n;
-		for (i = 0; i < pad; i++)
-			add_linebuf(' ', AT_NORMAL, 1);
-		for (i = 0; i < n; i++)
-			add_linebuf(buf[i], AT_BOLD, 1);
-		add_linebuf(' ', AT_NORMAL, 1);
-		linebuf.text += n + pad + 1;
+		len = (int) strlen(buf);
+		for (i = 0; i < MIN_LINENUM_WIDTH - len; i++)
+			linebuf.pfx[linebuf.pfx_end++] = ' ';
+		for (i = 0; i < len; i++)
+			linebuf.pfx[linebuf.pfx_end++] = buf[i];
+		linebuf.pfx[linebuf.pfx_end++] = ' ';
 	}
-	/*
-	 * Append enough spaces to bring us to the lmargin.
-	 */
-	while (linebuf.end < linebuf.text)
-	{
-		add_linebuf(' ', AT_NORMAL, 1);
-	}
+	end_column = linebuf.pfx_end;
 }
 
-	static int
-line_start_pwidth(VOID_PARAM)
+/*
+ * Shift line left so that the last char is just to the left
+ * of the first visible column.
+ */
+	public void
+pshift_all(VOID_PARAM)
 {
-	/* Assume chars in status column, line num etc. all have printing width of 1. */
-	return linebuf.text - linebuf.print;
+	int i;
+	int shift = linebuf.end - linebuf.print;
+	for (i = 0;  i < linebuf.print;  i++)
+		linebuf.buf[i] = linebuf.buf[i + shift];
+	linebuf.end = linebuf.print;
+	end_column = linebuf.pfx_end;
 }
 
 /*
@@ -654,7 +651,7 @@ store_char(ch, a, rep, pos)
 		if (linebuf.end > linebuf.print)
 		{
 			for (i = 0;  i < linebuf.print;  i++)
-				linebuf.buf[i] = linebuf.buf[i+replen];
+				linebuf.buf[i] = linebuf.buf[i + replen];
 			linebuf.end -= replen;
 			cshift += w;
 			while (cshift > hshift)
@@ -679,7 +676,7 @@ store_tab(attr, pos)
 	int attr;
 	POSITION pos;
 {
-	int to_tab = end_column - line_start_pwidth();
+	int to_tab = end_column - linebuf.pfx_end;
 	int i;
 
 	if (ntabstops < 2 || to_tab >= tabstops[ntabstops-1])
@@ -1148,7 +1145,7 @@ pdone(endline, chopped, forw)
 set_status_col(c)
 	int c;
 {
-	set_linebuf(0, c, AT_NORMAL|AT_HILITE);
+	linebuf.pfx[0] = c;
 }
 
 /*
@@ -1181,6 +1178,12 @@ gline(i, ap)
 		return i ? '\0' : '\n';
 	}
 
+	if (i < linebuf.pfx_end)
+	{
+		*ap = (status_col && linebuf.pfx[i] == '*') ? AT_NORMAL|AT_HILITE : AT_BOLD;
+		return linebuf.pfx[i];
+	}
+	i -= linebuf.pfx_end;
 	*ap = linebuf.attr[i + linebuf.print];
 	return (linebuf.buf[i + linebuf.print] & 0xFF);
 }
