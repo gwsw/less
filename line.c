@@ -23,6 +23,12 @@ static struct {
 	int end;      /* Number of chars in buf */
 } linebuf;
 
+static struct {
+	char *buf;
+	int size;
+	int end;
+} shifted_ansi;
+
 public int size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
 
@@ -96,6 +102,8 @@ init_line(VOID_PARAM)
 	linebuf.buf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
 	linebuf.attr = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
 	size_linebuf = LINEBUF_SIZE;
+	shifted_ansi.buf = NULL;
+	shifted_ansi.size = 0;
 }
 
 /*
@@ -154,7 +162,7 @@ is_ascii_char(ch)
 	public void
 prewind(VOID_PARAM)
 {
-	linebuf.print = 1;
+	linebuf.print = 6; /* big enough for longest UTF-8 sequence */
 	linebuf.text = linebuf.print;
 	for (linebuf.end = 0; linebuf.end < linebuf.print; linebuf.end++)
 		linebuf.buf[linebuf.end] = '\0';
@@ -168,6 +176,7 @@ prewind(VOID_PARAM)
 	mbc_buf_len = 0;
 	is_null_line = 0;
 	pendc = '\0';
+	shifted_ansi.end = 0;
 }
 
 /*
@@ -549,12 +558,13 @@ store_char(ch, a, rep, pos)
 	POSITION pos;
 {
 	int w;
+	int i;
 	int replen;
 	char cs;
 
-	w = (a & (AT_UNDERLINE|AT_BOLD));	/* Pre-use w.  */
-	if (w != AT_NORMAL)
-		last_overstrike = w;
+	i = (a & (AT_UNDERLINE|AT_BOLD));
+	if (i != AT_NORMAL)
+		last_overstrike = i;
 
 #if HILITE_SEARCH
 	{
@@ -583,7 +593,7 @@ store_char(ch, a, rep, pos)
 		w = pwidth(ch, a, prev_ch);
 	}
 
-	if (ctldisp != OPT_ON && end_column + w + attr_ewidth(a) > sc_width)
+	if (ctldisp != OPT_ON && end_column - cshift + w + attr_ewidth(a) > sc_width)
 		/*
 		 * Won't fit on screen.
 		 */
@@ -614,19 +624,45 @@ store_char(ch, a, rep, pos)
 		right_curr = linebuf.end;
 	}
 
-	while (replen-- > 0)
+	if (cshift == hshift && shifted_ansi.end > 0)
 	{
-		add_linebuf(*rep++, a, 0);
+		/* Copy shifted ANSI sequences to beginning of line. */
+		for (i = 0;  i < shifted_ansi.end;  i++)
+			add_linebuf(shifted_ansi.buf[i], AT_ANSI, 0);
+		shifted_ansi.end = 0;
 	}
+	for (i = 0;  i < replen;  i++)
+		add_linebuf(*rep++, a, 0);
 	end_column += w;
 
-	while (cshift < hshift && linebuf.end > 1)
+	if (cshift < hshift)
 	{
-		int i;
-		for (i = 0;  i < linebuf.print;  i++)
-			linebuf.buf[i] = linebuf.buf[i+1];
-		linebuf.end--;
-		cshift += w;
+		if (a == AT_ANSI)
+		{
+			if (shifted_ansi.end == shifted_ansi.size)
+			{
+				/* Expand shifted_ansi buffer. */
+				int size = (shifted_ansi.size == 0) ? 8 : shifted_ansi.size * 2;
+				char *buf = (char *) ecalloc(size, sizeof(char));
+				memcpy(buf, shifted_ansi.buf, shifted_ansi.size);
+				if (shifted_ansi.buf != NULL) free(shifted_ansi.buf);
+				shifted_ansi.buf = buf;
+				shifted_ansi.size = size;
+			}
+			shifted_ansi.buf[shifted_ansi.end++] = ch;
+		}
+		if (linebuf.end > linebuf.print)
+		{
+			for (i = 0;  i < linebuf.print;  i++)
+				linebuf.buf[i] = linebuf.buf[i+replen];
+			linebuf.end -= replen;
+			cshift += w;
+			while (cshift > hshift)
+			{
+				add_linebuf(' ', AT_NORMAL, 1);
+				cshift--;
+			}
+		}
 	}
 	return (0);
 }
@@ -643,7 +679,7 @@ store_tab(attr, pos)
 	int attr;
 	POSITION pos;
 {
-	int to_tab = end_column + cshift - line_start_pwidth();
+	int to_tab = end_column - line_start_pwidth();
 	int i;
 
 	if (ntabstops < 2 || to_tab >= tabstops[ntabstops-1])
