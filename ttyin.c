@@ -153,9 +153,11 @@ getchr(VOID_PARAM)
 #else
 		{
 			unsigned char uc;
-			result = read(tty, &uc, sizeof(char));
+			result = iread(tty, &uc, sizeof(char));
 			c = (char) uc;
 		}
+		if (result == READ_INTR)
+			return (READ_INTR);
 		if (result < 0)
 		{
 			/*

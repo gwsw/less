@@ -150,7 +150,7 @@ start:
 	}
 #endif
 #if USE_POLL
-	if (ignore_eoi)
+	if (ignore_eoi && fd != tty)
 	{
 		if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
 		{
