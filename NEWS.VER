@@ -26,6 +26,8 @@
 
 * g command with no number will ignore -j and put first line at top of screen.
 
+* Multiple + or -p command line options are handled better.
+
 * Editing the same file under different names now creates only
   one entry in the file list.
 
