@@ -269,6 +269,26 @@ plinestart(pos)
 }
 
 /*
+ * Add char to the shifted_ansi buffer.
+ */
+	static void
+add_ansi(ch)
+	char ch;
+{
+	if (shifted_ansi.end == shifted_ansi.size)
+	{
+		/* Expand shifted_ansi buffer. */
+		int size = (shifted_ansi.size == 0) ? 8 : shifted_ansi.size * 2;
+		char *buf = (char *) ecalloc(size, sizeof(char));
+		memcpy(buf, shifted_ansi.buf, shifted_ansi.size);
+		if (shifted_ansi.buf != NULL) free(shifted_ansi.buf);
+		shifted_ansi.buf = buf;
+		shifted_ansi.size = size;
+	}
+	shifted_ansi.buf[shifted_ansi.end++] = ch;
+}
+
+/*
  * Shift line left so that the last char is just to the left
  * of the first visible column.
  */
@@ -276,9 +296,9 @@ plinestart(pos)
 pshift_all(VOID_PARAM)
 {
 	int i;
-	int shift = linebuf.end - linebuf.print;
-	for (i = 0;  i < linebuf.print;  i++)
-		linebuf.buf[i] = linebuf.buf[i + shift];
+	for (i = linebuf.print;  i < linebuf.end;  i++)
+		if (linebuf.attr[i] == AT_ANSI)
+			add_ansi(linebuf.buf[i]);
 	linebuf.end = linebuf.print;
 	end_column = linebuf.pfx_end;
 }
@@ -635,23 +655,10 @@ store_char(ch, a, rep, pos)
 	if (cshift < hshift)
 	{
 		if (a == AT_ANSI)
-		{
-			if (shifted_ansi.end == shifted_ansi.size)
-			{
-				/* Expand shifted_ansi buffer. */
-				int size = (shifted_ansi.size == 0) ? 8 : shifted_ansi.size * 2;
-				char *buf = (char *) ecalloc(size, sizeof(char));
-				memcpy(buf, shifted_ansi.buf, shifted_ansi.size);
-				if (shifted_ansi.buf != NULL) free(shifted_ansi.buf);
-				shifted_ansi.buf = buf;
-				shifted_ansi.size = size;
-			}
-			shifted_ansi.buf[shifted_ansi.end++] = ch;
-		}
+			add_ansi(ch);
 		if (linebuf.end > linebuf.print)
 		{
-			for (i = 0;  i < linebuf.print;  i++)
-				linebuf.buf[i] = linebuf.buf[i + replen];
+			memcpy(&linebuf.buf[0], &linebuf.buf[replen], linebuf.print);
 			linebuf.end -= replen;
 			cshift += w;
 			while (cshift > hshift)
