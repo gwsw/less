@@ -897,8 +897,8 @@ v568  11/29/20  Fix some hyperlink bugs; add ^W search modifier
                 instead of Perl (thanks to Charlie Lin).
 v569  12/1/20   Allow multiple & filters (thanks to Mattias Johansson),
                 allow ^X to exit F command.
-v570            Better handling of multiple + or -p options;
+v570  12/12/20  Better handling of multiple + or -p options;
                 fix bugs in horizontal scrolling.
 */
 
-char version[] = "570x";
+char version[] = "570";
