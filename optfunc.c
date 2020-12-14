@@ -48,6 +48,8 @@ extern int rscroll_attr;
 extern int mousecap;
 extern int wheel_lines;
 extern int less_is_more;
+extern int linenum_width;
+extern int status_col_width;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -821,6 +823,60 @@ opt_wheel_lines(type, s)
 	case TOGGLE:
 		if (wheel_lines <= 0)
 			wheel_lines = default_wheel_lines();
+		break;
+	case QUERY:
+		break;
+	}
+}
+
+/*
+ * Handler for the --line-number-width option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_linenum_width(type, s)
+	int type;
+	char *s;
+{
+	PARG parg;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		if (linenum_width > MAX_LINENUM_WIDTH)
+		{
+			parg.p_int = MAX_LINENUM_WIDTH;
+			error("Line number width must not be larger than %d", &parg);
+			linenum_width = MIN_LINENUM_WIDTH;
+		} 
+		break;
+	case QUERY:
+		break;
+	}
+}
+
+/*
+ * Handler for the --status-column-width option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_status_col_width(type, s)
+	int type;
+	char *s;
+{
+	PARG parg;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		if (status_col_width > MAX_STATUSCOL_WIDTH)
+		{
+			parg.p_int = MAX_STATUSCOL_WIDTH;
+			error("Status column width must not be larger than %d", &parg);
+			status_col_width = 2;
+		}
 		break;
 	case QUERY:
 		break;

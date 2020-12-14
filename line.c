@@ -15,12 +15,13 @@
 #include <windows.h>
 #endif
 
+#define MAX_PFX_WIDTH (MAX_LINENUM_WIDTH + MAX_STATUSCOL_WIDTH + 1)
 static struct {
 	char *buf;    /* Buffer which holds the current output line */
 	char *attr;   /* Parallel to buf, to hold attributes */
 	int print;    /* Index in buf of first printable char */
 	int end;      /* Number of chars in buf */
-	char pfx[16]; /* Holds status column and line number */
+	char pfx[MAX_PFX_WIDTH]; /* Holds status column and line number */
 	int pfx_end;  /* Number of chars in pfx */
 } linebuf;
 
@@ -61,6 +62,8 @@ extern int ctldisp;
 extern int twiddle;
 extern int binattr;
 extern int status_col;
+extern int status_col_width;
+extern int linenum_width;
 extern int auto_wrap, ignaw;
 extern int bo_s_width, bo_e_width;
 extern int ul_s_width, ul_e_width;
@@ -245,7 +248,8 @@ plinestart(pos)
 				a |= AT_HILITE;
 		}
 		linebuf.pfx[linebuf.pfx_end++] = c;  /* column 0: status */
-		linebuf.pfx[linebuf.pfx_end++] = ' ';
+		while (linebuf.pfx_end < status_col_width)
+			linebuf.pfx[linebuf.pfx_end++] = ' ';
 	}
 
 	/*
@@ -259,7 +263,7 @@ plinestart(pos)
 
 		linenumtoa(linenum, buf);
 		len = (int) strlen(buf);
-		for (i = 0; i < MIN_LINENUM_WIDTH - len; i++)
+		for (i = 0; i < linenum_width - len; i++)
 			linebuf.pfx[linebuf.pfx_end++] = ' ';
 		for (i = 0; i < len; i++)
 			linebuf.pfx[linebuf.pfx_end++] = buf[i];

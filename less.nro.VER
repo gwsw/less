@@ -973,6 +973,9 @@ If the reopen succeeds and the file is a different file from the original
 with the same name as the original (now renamed) file),
 .I less
 will display the contents of that new file.
+.IP "\-\-line-num-width"
+Sets the minimum width of the line number field when the \-N option is in effect.
+The default is 7 characters.
 .IP "\-\-mouse"
 Enables mouse input:
 scrolling the mouse wheel down moves forward in the file,
@@ -1007,6 +1010,9 @@ If set to "\-", truncated lines are not marked.
 Save marks in the history file, so marks are retained
 across different invocations of
 .IR less .
+.IP "\-\-status-col-width"
+Sets the width of the status column when the \-J option is in effect.
+The default is 2 characters.
 .IP "\-\-use-backslash"
 This option changes the interpretations of options which follow this one.
 After the \-\-use-backslash option, any backslash in an option string is
@@ -1037,7 +1043,7 @@ The + command described previously
 may also be used to set (or change) an initial command for every file.
 .
 .SH "LINE EDITING"
-When entering command line at the bottom of the screen
+When entering a command line at the bottom of the screen
 (for example, a filename for the :e command,
 or the pattern for a search command),
 certain keys can be used to manipulate the command line.

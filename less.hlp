@@ -207,6 +207,8 @@
                   Set horizontal scroll amount (0 = one half screen width).
                 --follow-name
                   The F command changes files if the input file is renamed.
+                --line-num-width=N
+                  Set the width of the -N line number field to N characters.
                 --mouse
                   Enable mouse input.
                 --no-keypad
@@ -217,6 +219,8 @@
                   Set the character used to mark truncated lines.
                 --save-marks
                   Retain marks across invocations of less.
+                --status-col-width=N
+                  Set the width of the -J status column to N characters.
                 --use-backslash
                   Subsequent options use backslash as escape char.
                 --wheel-lines=N

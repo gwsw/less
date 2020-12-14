@@ -52,6 +52,8 @@ public int no_hist_dups;	/* Remove dups from history list */
 public int mousecap;		/* Allow mouse for scrolling */
 public int wheel_lines;		/* Number of lines to scroll on mouse wheel scroll */
 public int perma_marks;		/* Save marks in history file */
+public int linenum_width;	/* Width of line numbers */
+public int status_col_width;    /* Width of status column */
 #if HILITE_SEARCH
 public int hilite_search;	/* Highlight matched search patterns? */
 #endif
@@ -120,7 +122,9 @@ static struct optname rscroll_optname = { "rscroll", NULL };
 static struct optname nohistdups_optname = { "no-histdups",      NULL };
 static struct optname mousecap_optname = { "mouse",              NULL };
 static struct optname wheel_lines_optname = { "wheel-lines",     NULL };
-static struct optname perma_marks_optname = { "save-marks",     NULL };
+static struct optname perma_marks_optname = { "save-marks",      NULL };
+static struct optname linenum_width_optname = { "line-num-width", NULL };
+static struct optname status_col_width_optname = { "status-col-width", NULL };
 
 
 /*
@@ -493,6 +497,22 @@ static struct loption option[] =
 		{
 			"Don't save marks in history file",
 			"Save marks in history file",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &linenum_width_optname,
+		NUMBER|REPAINT, MIN_LINENUM_WIDTH, &linenum_width, opt_linenum_width,
+		{
+			"Line number width: ",
+			"Line number width is %d chars",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &status_col_width_optname,
+		NUMBER|REPAINT, 2, &status_col_width, opt_status_col_width,
+		{
+			"Status column width: ",
+			"Status column width is %d chars",
 			NULL
 		}
 	},

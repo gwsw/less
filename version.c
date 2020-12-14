@@ -899,6 +899,7 @@ v569  12/1/20   Allow multiple & filters (thanks to Mattias Johansson),
                 allow ^X to exit F command.
 v570  12/12/20  Better handling of multiple + or -p options;
                 fix bugs in horizontal scrolling.
+v571            Add --line-num-width and --status-col-width options.
 */
 
-char version[] = "570";
+char version[] = "571x";

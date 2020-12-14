@@ -28,6 +28,10 @@
 
 * Multiple + or -p command line options are handled better.
 
+* Add the --line-num-width option.
+
+* Add the --status-col-width option.
+
 * Editing the same file under different names now creates only
   one entry in the file list.
 
