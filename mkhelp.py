@@ -33,4 +33,4 @@ while True:
         else:
             print("0x%02x," % ord(ch), end='')
 print(" '\\0' };")
-print("constant int size_helpdata = sizeof(helpsata - 1);")
+print("constant int size_helpdata = sizeof(helpdata) - 1;")
