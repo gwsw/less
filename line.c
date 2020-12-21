@@ -444,9 +444,9 @@ backc(VOID_PARAM)
 		linebuf.end = (int) (p - linebuf.buf);
 		prev_ch = step_char(&p, -1, linebuf.buf);
 		width = pwidth(ch, linebuf.attr[linebuf.end], prev_ch);
+		end_column -= width;
 		if (width > 0)
 			break;
-		end_column -= width;
 		ch = prev_ch;
 	}
 	return (1);
