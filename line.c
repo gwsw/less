@@ -688,21 +688,18 @@ store_tab(attr, pos)
 	POSITION pos;
 {
 	int to_tab = end_column - linebuf.pfx_end;
-	int i;
 
 	if (ntabstops < 2 || to_tab >= tabstops[ntabstops-1])
 		to_tab = tabdefault -
 		     ((to_tab - tabstops[ntabstops-1]) % tabdefault);
 	else
 	{
+		int i;
 		for (i = ntabstops - 2;  i >= 0;  i--)
 			if (to_tab >= tabstops[i])
 				break;
 		to_tab = tabstops[i+1] - to_tab;
 	}
-
-	if (end_column + to_tab - 1 + pwidth(' ', attr, 0) + attr_ewidth(attr) > sc_width)
-		return 1;
 
 	do {
 		STORE_CHAR(' ', attr, " ", pos);
