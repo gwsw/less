@@ -24,6 +24,7 @@ extern POSITION end_attnpos;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int size_linebuf;
+extern int show_attn;
 #endif
 
 /*
@@ -198,6 +199,13 @@ get_forw_line:
 		c = ch_forw_get();
 	}
 
+#if HILITE_SEARCH
+	if (blankline && show_attn)
+	{
+		/* Add spurious space to carry possible attn hilite. */
+		pappend(' ', ch_tell()-1);
+	}
+#endif
 	pdone(endline, chopped, 1);
 
 #if HILITE_SEARCH

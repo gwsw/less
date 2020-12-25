@@ -610,8 +610,8 @@ is_hilited(pos, epos, nohide, p_matches)
 
 	if (!status_col &&
 	    start_attnpos != NULL_POSITION && 
-	    pos < end_attnpos &&
-	     (epos == NULL_POSITION || epos > start_attnpos))
+	    pos <= end_attnpos &&
+	     (epos == NULL_POSITION || epos >= start_attnpos))
 		/*
 		 * The attn line overlaps this range.
 		 */
