@@ -22,6 +22,7 @@ static struct {
 	int print;    /* Index in buf of first printable char */
 	int end;      /* Number of chars in buf */
 	char pfx[MAX_PFX_WIDTH]; /* Holds status column and line number */
+	char pfx_attr[MAX_PFX_WIDTH];
 	int pfx_end;  /* Number of chars in pfx */
 } linebuf;
 
@@ -209,6 +210,18 @@ add_linebuf(ch, a, w)
 }
 
 /*
+ * Append a character to the line prefix buffer.
+ */
+	static void
+add_pfx(ch, a)
+	char ch;
+	int a;
+{
+	linebuf.pfx[linebuf.pfx_end] = ch;
+	linebuf.pfx_attr[linebuf.pfx_end++] = a;
+}
+
+/*
  * Insert the status column and line number into the line buffer.
  */
 	public void
@@ -247,9 +260,9 @@ plinestart(pos)
 			    pos >= start_attnpos && pos <= end_attnpos)
 				a |= AT_HILITE;
 		}
-		linebuf.pfx[linebuf.pfx_end++] = c;  /* column 0: status */
+		add_pfx(c, a); /* column 0: status */
 		while (linebuf.pfx_end < status_col_width)
-			linebuf.pfx[linebuf.pfx_end++] = ' ';
+			add_pfx(' ', AT_NORMAL);
 	}
 
 	/*
@@ -264,10 +277,10 @@ plinestart(pos)
 		linenumtoa(linenum, buf);
 		len = (int) strlen(buf);
 		for (i = 0; i < linenum_width - len; i++)
-			linebuf.pfx[linebuf.pfx_end++] = ' ';
+			add_pfx(' ', AT_NORMAL);
 		for (i = 0; i < len; i++)
-			linebuf.pfx[linebuf.pfx_end++] = buf[i];
-		linebuf.pfx[linebuf.pfx_end++] = ' ';
+			add_pfx(buf[i], AT_NORMAL);
+		add_pfx(' ', AT_NORMAL);
 	}
 	end_column = linebuf.pfx_end;
 }
@@ -1188,7 +1201,7 @@ gline(i, ap)
 
 	if (i < linebuf.pfx_end)
 	{
-		*ap = (status_col && linebuf.pfx[i] == '*') ? AT_NORMAL|AT_HILITE : AT_BOLD;
+		*ap = linebuf.pfx_attr[i];
 		return linebuf.pfx[i];
 	}
 	i -= linebuf.pfx_end;

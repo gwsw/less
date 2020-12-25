@@ -115,6 +115,7 @@ wbreak_handler(dwCtrlType)
 	case CTRL_C_EVENT:
 	case CTRL_BREAK_EVENT:
 		sigs |= S_INTERRUPT;
+		set_filter_pattern(NULL, 0);
 		return (TRUE);
 	default:
 		break;
