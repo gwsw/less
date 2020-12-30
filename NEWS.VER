@@ -32,6 +32,8 @@
 
 * Add the --status-col-width option.
 
+* Display -w highlight even if highlighted line is empty.
+
 * Editing the same file under different names now creates only
   one entry in the file list.
 
