@@ -900,6 +900,7 @@ v569  12/1/20   Allow multiple & filters (thanks to Mattias Johansson),
 v570  12/12/20  Better handling of multiple + or -p options;
                 fix bugs in horizontal scrolling.
 v571  12/30/20  Add --line-num-width and --status-col-width options.
+v572            Save lastmark in history file.
 */
 
-char version[] = "571";
+char version[] = "572x";
