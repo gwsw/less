@@ -10,8 +10,10 @@ srcdir = .
 
 ifeq ($(USE_PYTHON),1)
 	MKHELP = mkhelp.py
+	MKFUNCS = mkfuncs.py
 else
 	MKHELP = mkhelp.pl
+	MKFUNCS = mkfuncs.pl
 endif
 
 SRC = \
@@ -64,11 +66,7 @@ ${srcdir}/configure ${srcdir}/defines.h.in: ${srcdir}/configure.ac ${srcdir}/Mak
 
 funcs.h: ${SRC:%=${srcdir}/%}
 	-mv -f ${srcdir}/funcs.h ${srcdir}/funcs.h.old
-ifeq ($(USE_PYTHON),1)
-	python ${srcdir}/mkfuncs.py ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
-else
-	perl ${srcdir}/mkfuncs.pl ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
-endif
+	${srcdir}/${MKFUNCS} ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
 	if cmp -s funcs.h funcs.h.old; then mv -f funcs.h.old funcs.h; fi
 
 lint:
