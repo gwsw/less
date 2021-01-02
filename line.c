@@ -210,6 +210,19 @@ add_linebuf(ch, a, w)
 }
 
 /*
+ * Set a character in the line prefix buffer.
+ */
+	static void
+set_pfx(n, ch, a)
+	int n;
+	char ch;
+	int a;
+{
+	linebuf.pfx[n] = ch;
+	linebuf.pfx_attr[n] = a;
+}
+
+/*
  * Append a character to the line prefix buffer.
  */
 	static void
@@ -217,8 +230,7 @@ add_pfx(ch, a)
 	char ch;
 	int a;
 {
-	linebuf.pfx[linebuf.pfx_end] = ch;
-	linebuf.pfx_attr[linebuf.pfx_end++] = a;
+	set_pfx(linebuf.pfx_end++, ch, a);
 }
 
 /*
@@ -1166,7 +1178,7 @@ pdone(endline, chopped, forw)
 set_status_col(c)
 	int c;
 {
-	linebuf.pfx[0] = c;
+	set_pfx(0, c, AT_HILITE);
 }
 
 /*
