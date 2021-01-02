@@ -181,7 +181,7 @@ static unsigned char edittable[] =
 	CONTROL('L'),0,			EC_EXPAND,	/* CTRL-L */
 	CONTROL('V'),0,			EC_LITERAL,	/* BACKSLASH */
 	CONTROL('A'),0,			EC_LITERAL,	/* BACKSLASH */
-   	ESC,'l',0,			EC_RIGHT,	/* ESC l */
+	ESC,'l',0,			EC_RIGHT,	/* ESC l */
 	SK(SK_RIGHT_ARROW),0,		EC_RIGHT,	/* RIGHTARROW */
 	ESC,'h',0,			EC_LEFT,	/* ESC h */
 	SK(SK_LEFT_ARROW),0,		EC_LEFT,	/* LEFTARROW */
@@ -209,6 +209,8 @@ static unsigned char edittable[] =
 	ESC,'j',0,			EC_DOWN,	/* ESC j */
 	SK(SK_DOWN_ARROW),0,		EC_DOWN,	/* DOWNARROW */
 	CONTROL('G'),0,			EC_ABORT,	/* CTRL-G */
+	ESC,'[','M',0,			EC_X11MOUSE_IGNORE,
+	ESC,'[','<',0,			EC_X116MOUSE_IGNORE,
 };
 
 /*
@@ -481,11 +483,14 @@ getcc_int(pterm)
  * The prefix ("\e[M") has already been read.
  */
 	static int
-x11mouse_action(VOID_PARAM)
+x11mouse_action(skip)
+    int skip;
 {
 	int b = getcc() - X11MOUSE_OFFSET;
 	int x = getcc() - X11MOUSE_OFFSET-1;
 	int y = getcc() - X11MOUSE_OFFSET-1;
+	if (skip)
+		return (A_NOACTION);
 	switch (b) {
 	default:
 		return (A_NOACTION);
@@ -503,7 +508,8 @@ x11mouse_action(VOID_PARAM)
  * The prefix ("\e[<") has already been read.
  */
 	static int
-x116mouse_action(VOID_PARAM)
+x116mouse_action(skip)
+    int skip;
 {
 	char ch;
 	int x, y;
@@ -513,6 +519,8 @@ x116mouse_action(VOID_PARAM)
 	if (x < 0 || ch != ';') return (A_NOACTION);
 	y = getcc_int(&ch) - 1;
 	if (y < 0) return (A_NOACTION);
+	if (skip)
+		return (A_NOACTION);
 	switch (b) {
 	case X11MOUSE_WHEEL_DOWN:
 		return mouse_wheel_down();
@@ -574,9 +582,9 @@ cmd_search(cmd, table, endtable, sp)
 					a &= ~A_EXTRA;
 				}
 				if (a == A_X11MOUSE_IN)
-					a = x11mouse_action();
+					a = x11mouse_action(0);
 				else if (a == A_X116MOUSE_IN)
-					a = x116mouse_action();
+					a = x116mouse_action(0);
 				return (a);
 			}
 		} else if (*q == '\0')
@@ -936,6 +944,14 @@ editchar(c, flags)
 		action = ecmd_decode(usercmd, &s);
 	} while (action == A_PREFIX);
 	
+	if (action == EC_X11MOUSE_IGNORE)
+	{
+		return (x11mouse_action(1));
+	}
+	if (action == EC_X116MOUSE_IGNORE)
+	{
+		return (x116mouse_action(1));
+	}
 	if (flags & EC_NORIGHTLEFT)
 	{
 		switch (action)

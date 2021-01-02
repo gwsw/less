@@ -24,7 +24,6 @@
 #define A_HELP                 19
 #define A_NEXT_FILE            20
 #define A_PERCENT              21
-#define A_PREFIX               22
 #define A_PREV_FILE            23
 #define A_QUIT                 24
 #define A_REPAINT              25
@@ -65,12 +64,10 @@
 #define A_CLRMARK              62
 #define A_SETMARKBOT           63
 #define A_X11MOUSE_IN          64
-#define A_X11MOUSE_IGNORE      65
 #define A_F_MOUSE              66
 #define A_B_MOUSE              67
 /* Note "X116" refers to extended (1006) X11 mouse reporting. */
 #define A_X116MOUSE_IN         68
-#define A_X116MOUSE_IGNORE     69
 #define A_CLR_SEARCH           70
 
 #define A_INVALID              100
@@ -78,6 +75,7 @@
 #define A_UINVALID             102
 #define A_END_LIST             103
 #define A_SPECIAL_KEY          104
+#define A_PREFIX               105
 
 #define A_SKIP                 127
 
@@ -105,6 +103,8 @@
 #define EC_B_COMPLETE          18
 #define EC_LITERAL             19
 #define EC_ABORT               20
+#define EC_X11MOUSE_IGNORE     21
+#define EC_X116MOUSE_IGNORE    22
 
 #define EC_NOACTION            101
 #define EC_UINVALID            102

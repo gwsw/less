@@ -104,7 +104,6 @@ set_mca(action)
 	int action;
 {
 	mca = action;
-	deinit_mouse(); /* we don't want mouse events while entering a cmd */
 	clear_bot();
 	clear_cmd();
 }
@@ -118,7 +117,6 @@ clear_mca(VOID_PARAM)
 	if (mca == 0)
 		return;
 	mca = 0;
-	init_mouse();
 }
 
 /*
@@ -590,9 +588,13 @@ mca_char(c)
 		 * Entering digits of a number.
 		 * Terminated by a non-digit.
 		 */
-		if (!((c >= '0' && c <= '9') || c == '.') && 
-		  editchar(c, EC_PEEK|EC_NOHISTORY|EC_NOCOMPLETE|EC_NORIGHTLEFT) == A_INVALID)
+		if ((c >= '0' && c <= '9') || c == '.')
+			break;
+		switch (editchar(c, EC_PEEK|EC_NOHISTORY|EC_NOCOMPLETE|EC_NORIGHTLEFT))
 		{
+		case A_NOACTION:
+			return (MCA_MORE);
+		case A_INVALID:
 			/*
 			 * Not part of the number.
 			 * End the number and treat this char 
