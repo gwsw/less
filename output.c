@@ -518,6 +518,9 @@ iprint_linenum(num)
 /*
  * This function implements printf-like functionality
  * using a more portable argument list mechanism than printf's.
+ *
+ * {{ This paranoia about the portability of printf dates from experiences
+ *    with systems in the 1980s and is of course no longer necessary. }}
  */
 	static int
 less_printf(fmt, parg)
@@ -555,6 +558,10 @@ less_printf(fmt, parg)
 			case 'n':
 				col += iprint_linenum(parg->p_linenum);
 				parg++;
+				break;
+			case 'c':
+				putchr(parg->p_char);
+				col++;
 				break;
 			case '%':
 				putchr('%');
