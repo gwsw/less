@@ -70,13 +70,13 @@
 #define A_X116MOUSE_IN         68
 #define A_CLR_SEARCH           70
 
+/* These values must not conflict with any A_* or EC_* value. */
 #define A_INVALID              100
 #define A_NOACTION             101
 #define A_UINVALID             102
 #define A_END_LIST             103
 #define A_SPECIAL_KEY          104
 #define A_PREFIX               105
-
 #define A_SKIP                 127
 
 #define A_EXTRA                0200
@@ -103,17 +103,16 @@
 #define EC_B_COMPLETE          18
 #define EC_LITERAL             19
 #define EC_ABORT               20
-#define EC_X11MOUSE_IGNORE     21
-#define EC_X116MOUSE_IGNORE    22
+#define EC_X11MOUSE            21
+#define EC_X116MOUSE           22
 
-#define EC_NOACTION            101
 #define EC_UINVALID            102
 
 /* Flags for editchar() */
-#define EC_PEEK                01
-#define EC_NOHISTORY           02
-#define EC_NOCOMPLETE          04
-#define EC_NORIGHTLEFT         010
+#define ECF_PEEK                01
+#define ECF_NOHISTORY           02
+#define ECF_NOCOMPLETE          04
+#define ECF_NORIGHTLEFT         010
 
 /* Environment variable stuff */
 #define EV_OK                  01

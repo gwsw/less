@@ -590,7 +590,7 @@ mca_char(c)
 		 */
 		if ((c >= '0' && c <= '9') || c == '.')
 			break;
-		switch (editchar(c, EC_PEEK|EC_NOHISTORY|EC_NOCOMPLETE|EC_NORIGHTLEFT))
+		switch (editchar(c, ECF_PEEK|ECF_NOHISTORY|ECF_NOCOMPLETE|ECF_NORIGHTLEFT))
 		{
 		case A_NOACTION:
 			return (MCA_MORE);

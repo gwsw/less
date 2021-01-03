@@ -845,20 +845,22 @@ cmd_edit(c)
 		/*
 		 * No current history; don't accept history manipulation cmds.
 		 */
-		flags |= EC_NOHISTORY;
+		flags |= ECF_NOHISTORY;
 #endif
 #if TAB_COMPLETE_FILENAME
 	if (curr_mlist == ml_search)
 		/*
 		 * In a search command; don't accept file-completion cmds.
 		 */
-		flags |= EC_NOCOMPLETE;
+		flags |= ECF_NOCOMPLETE;
 #endif
 
 	action = editchar(c, flags);
 
 	switch (action)
 	{
+	case A_NOACTION:
+		return (CC_OK);
 	case EC_RIGHT:
 		not_in_completion();
 		return (cmd_right());
@@ -927,8 +929,6 @@ cmd_edit(c)
 	case EC_EXPAND:
 		return (cmd_complete(action));
 #endif
-	case EC_NOACTION:
-		return (CC_OK);
 	default:
 		not_in_completion();
 		return (CC_PASS);
