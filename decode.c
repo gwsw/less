@@ -941,8 +941,8 @@ editchar(c, flags)
 		usercmd[nch+1] = '\0';
 		nch++;
 		action = ecmd_decode(usercmd, &s);
-	} while (action == A_PREFIX);
-	
+	} while (action == A_PREFIX && nch < MAX_CMDLEN);
+
 	if (action == EC_X11MOUSE)
 		return (x11mouse_action(1));
 	if (action == EC_X116MOUSE)
