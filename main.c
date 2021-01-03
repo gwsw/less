@@ -17,7 +17,6 @@ public int	is_tty;
 public IFILE	curr_ifile = NULL_IFILE;
 public IFILE	old_ifile = NULL_IFILE;
 public struct scrpos initial_scrpos;
-public int	any_display = FALSE;
 public POSITION	start_attnpos = NULL_POSITION;
 public POSITION	end_attnpos = NULL_POSITION;
 public int	wscroll;
@@ -384,7 +383,7 @@ quit(status)
 	quitting = 1;
 	edit((char*)NULL);
 	save_cmdhist();
-	if (any_display && is_tty)
+	if (interactive())
 		clear_bot();
 	deinit();
 	flush();

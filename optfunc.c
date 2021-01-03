@@ -29,7 +29,8 @@ extern int sc_width;
 extern int sc_height;
 extern int secure;
 extern int dohelp;
-extern int any_display;
+extern int init_done;
+extern int is_tty;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
@@ -502,7 +503,7 @@ opt__V(type, s)
 		/*
 		 * Force output to stdout per GNU standard for --version output.
 		 */
-		any_display = 1;
+		is_tty = init_done = 1;
 		putstr("less ");
 		putstr(version);
 		putstr(" (");

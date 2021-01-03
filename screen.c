@@ -188,7 +188,8 @@ static char
 	*sc_deinit;		/* Exit terminal de-initialization */
 #endif
 
-static int init_done = 0;
+public int init_done = 0;
+static int first_init = 1;
 
 public int auto_wrap;		/* Terminal does \r\n when write past margin */
 public int ignaw;		/* Terminal ignores \n immediately after wrap */
@@ -243,6 +244,8 @@ extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
 extern int mousecap;
+extern int is_tty;
+extern int errmsgs;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -1616,6 +1619,18 @@ deinit_mouse(VOID_PARAM)
 	public void
 init(VOID_PARAM)
 {
+	if (first_init && errmsgs > 0)
+	{
+		/*
+		 * We displayed some messages on error output
+		 * (file descriptor 2; see error() function).
+		 * Before erasing the screen contents, wait for a keystroke.
+		 */
+		less_printf("Press RETURN to continue ", NULL_PARG);
+		get_return();
+		putchr('\n');
+	}
+	first_init = 0;
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
 	{
@@ -1690,6 +1705,14 @@ deinit(VOID_PARAM)
 #endif
 #endif
 	init_done = 0;
+}
+
+/*
+ */
+	public int
+interactive(VOID_PARAM)
+{
+	return (is_tty && init_done);
 }
 
 /*

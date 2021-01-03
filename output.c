@@ -22,7 +22,7 @@ extern int sigs;
 extern int sc_width;
 extern int so_s_width, so_e_width;
 extern int screen_trashed;
-extern int any_display;
+extern int init_done;
 extern int is_tty;
 extern int oldbot;
 
@@ -103,7 +103,7 @@ flush(VOID_PARAM)
 		return;
 
 #if MSDOS_COMPILER==MSOFTC
-	if (is_tty && any_display)
+	if (interactive())
 	{
 		*ob = '\0';
 		_outtext(obuf);
@@ -112,7 +112,7 @@ flush(VOID_PARAM)
 	}
 #else
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
-	if (is_tty && any_display)
+	if (interactive())
 	{
 		*ob = '\0';
 		if (ctldisp != OPT_ONPLUS || (vt_enabled && sgr_mode))
@@ -370,7 +370,7 @@ flush(VOID_PARAM)
 	}
 #endif
 #endif
-	fd = (any_display) ? 1 : 2;
+	fd = (init_done || !is_tty) ? 1 : 2;
 	if (write(fd, obuf, n) != n)
 		screen_trashed = 1;
 	ob = obuf;
@@ -522,7 +522,7 @@ iprint_linenum(num)
  * {{ This paranoia about the portability of printf dates from experiences
  *    with systems in the 1980s and is of course no longer necessary. }}
  */
-	static int
+	public int
 less_printf(fmt, parg)
 	char *fmt;
 	PARG *parg;
@@ -606,24 +606,20 @@ error(fmt, parg)
 
 	errmsgs++;
 
-	if (any_display && is_tty)
+	if (!interactive())
 	{
-		if (!oldbot)
-			squish_check();
-		at_exit();
-		clear_bot();
-		at_enter(AT_STANDOUT);
-		col += so_s_width;
-	}
-
-	col += less_printf(fmt, parg);
-
-	if (!(any_display && is_tty))
-	{
+		less_printf(fmt, parg);
 		putchr('\n');
 		return;
 	}
 
+	if (!oldbot)
+		squish_check();
+	at_exit();
+	clear_bot();
+	at_enter(AT_STANDOUT);
+	col += so_s_width;
+	col += less_printf(fmt, parg);
 	putstr(return_to_continue);
 	at_exit();
 	col += sizeof(return_to_continue) + so_e_width;
@@ -678,13 +674,13 @@ query(fmt, parg)
 	int c;
 	int col = 0;
 
-	if (any_display && is_tty)
+	if (interactive())
 		clear_bot();
 
 	(void) less_printf(fmt, parg);
 	c = getchr();
 
-	if (!(any_display && is_tty))
+	if (!interactive())
 	{
 		putchr('\n');
 		return (c);
