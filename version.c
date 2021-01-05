@@ -900,12 +900,8 @@ v569  12/1/20   Allow multiple & filters (thanks to Mattias Johansson),
 v570  12/12/20  Better handling of multiple + or -p options;
                 fix bugs in horizontal scrolling.
 v571  12/30/20  Add --line-num-width and --status-col-width options.
-<<<<<<< HEAD
-v572            Save lastmark in history file; don't toggle mouse reporting.
-=======
 v572  1/4/21    Save lastmark in history file; don't toggle mouse reporting;
                 implement termcap delays.
->>>>>>> 8776795460d2d7f47b94329cdf16ef70cf502c86
 */
 
 char version[] = "572";
