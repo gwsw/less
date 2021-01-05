@@ -22,7 +22,6 @@ extern int sigs;
 extern int sc_width;
 extern int so_s_width, so_e_width;
 extern int screen_trashed;
-extern int init_done;
 extern int is_tty;
 extern int oldbot;
 
@@ -75,6 +74,7 @@ put_line(VOID_PARAM)
 
 static char obuf[OUTBUF_SIZE];
 static char *ob = obuf;
+static int outfd = 2; /* stderr */
 
 /*
  * Flush buffered output.
@@ -370,10 +370,21 @@ flush(VOID_PARAM)
 	}
 #endif
 #endif
-	fd = (init_done || !is_tty) ? 1 : 2;
-	if (write(fd, obuf, n) != n)
+
+	if (write(outfd, obuf, n) != n)
 		screen_trashed = 1;
 	ob = obuf;
+}
+
+/*
+ * Set the output file descriptor (1=stdout or 2=stderr).
+ */
+	public void
+set_output(fd)
+	int fd;
+{
+	flush();
+	outfd = fd;
 }
 
 /*

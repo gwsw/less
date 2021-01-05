@@ -188,8 +188,7 @@ static char
 	*sc_deinit;		/* Exit terminal de-initialization */
 #endif
 
-public int init_done = 0;
-static int first_init = 1;
+static int init_done = 0;
 
 public int auto_wrap;		/* Terminal does \r\n when write past margin */
 public int ignaw;		/* Terminal ignores \n immediately after wrap */
@@ -245,7 +244,6 @@ extern int quit_if_one_screen;
 extern int oldbot;
 extern int mousecap;
 extern int is_tty;
-extern int errmsgs;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -1619,18 +1617,6 @@ deinit_mouse(VOID_PARAM)
 	public void
 init(VOID_PARAM)
 {
-	if (first_init && errmsgs > 0)
-	{
-		/*
-		 * We displayed some messages on error output
-		 * (file descriptor 2; see error() function).
-		 * Before erasing the screen contents, wait for a keystroke.
-		 */
-		less_printf("Press RETURN to continue ", NULL_PARG);
-		get_return();
-		putchr('\n');
-	}
-	first_init = 0;
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
 	{
@@ -1640,6 +1626,7 @@ init(VOID_PARAM)
 			tputs(sc_s_keypad, sc_height, putchr);
 		init_mouse();
 	}
+	init_done = 1;
 	if (top_scroll) 
 	{
 		int i;
@@ -1668,7 +1655,6 @@ init(VOID_PARAM)
 	initcolor();
 	flush();
 #endif
-	init_done = 1;
 }
 
 /*
@@ -1708,11 +1694,19 @@ deinit(VOID_PARAM)
 }
 
 /*
+ * Are we interactive (ie. writing to an initialized tty)?
  */
 	public int
 interactive(VOID_PARAM)
 {
 	return (is_tty && init_done);
+}
+
+	static void
+assert_interactive(VOID_PARAM)
+{
+	if (interactive()) return;
+	/* abort(); */
 }
 
 /*
@@ -1721,6 +1715,7 @@ interactive(VOID_PARAM)
 	public void
 home(VOID_PARAM)
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
 	tputs(sc_home, 1, putchr);
 #else
@@ -1736,6 +1731,7 @@ home(VOID_PARAM)
 	public void
 add_line(VOID_PARAM)
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
 	tputs(sc_addline, sc_height, putchr);
 #else
@@ -1945,8 +1941,7 @@ win32_scroll_up(n)
 	public void
 lower_left(VOID_PARAM)
 {
-	if (!init_done)
-		return;
+	assert_interactive();
 #if !MSDOS_COMPILER
 	tputs(sc_lower_left, 1, putchr);
 #else
@@ -1961,6 +1956,7 @@ lower_left(VOID_PARAM)
 	public void
 line_left(VOID_PARAM)
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
 	tputs(sc_return, 1, putchr);
 #else
@@ -2024,6 +2020,7 @@ check_winch(VOID_PARAM)
 goto_line(sindex)
 	int sindex;
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
 	tputs(tgoto(sc_move, 0, sindex), 1, putchr);
 #else
@@ -2182,6 +2179,7 @@ bell(VOID_PARAM)
 	public void
 clear(VOID_PARAM)
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
 	tputs(sc_clear, sc_height, putchr);
 #else
@@ -2201,6 +2199,7 @@ clear(VOID_PARAM)
 	public void
 clear_eol(VOID_PARAM)
 {
+	/* assert_interactive();*/
 #if !MSDOS_COMPILER
 	tputs(sc_eol_clear, 1, putchr);
 #else
@@ -2260,6 +2259,7 @@ clear_eol(VOID_PARAM)
 	static void
 clear_eol_bot(VOID_PARAM)
 {
+	assert_interactive();
 #if MSDOS_COMPILER
 	clear_eol();
 #else

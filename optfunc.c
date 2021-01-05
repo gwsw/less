@@ -29,7 +29,6 @@ extern int sc_width;
 extern int sc_height;
 extern int secure;
 extern int dohelp;
-extern int init_done;
 extern int is_tty;
 extern char openquote;
 extern char closequote;
@@ -500,10 +499,7 @@ opt__V(type, s)
 		dispversion();
 		break;
 	case INIT:
-		/*
-		 * Force output to stdout per GNU standard for --version output.
-		 */
-		is_tty = init_done = 1;
+		set_output(1); /* Force output to stdout per GNU standard for --version output. */
 		putstr("less ");
 		putstr(version);
 		putstr(" (");

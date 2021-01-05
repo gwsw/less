@@ -53,6 +53,7 @@ extern int	know_dumb;
 extern int	pr_type;
 extern int	quit_if_one_screen;
 extern int	no_init;
+extern int errmsgs;
 
 
 /*
@@ -211,6 +212,7 @@ main(argc, argv)
 		 * Output is not a tty.
 		 * Just copy the input file(s) to output.
 		 */
+		set_output(1); /* write to stdout */
 		SET_BINARY(1);
 		if (edit_first() == 0)
 		{
@@ -274,7 +276,19 @@ main(argc, argv)
 		}
 	}
 
+	if (errmsgs > 0)
+	{
+		/*
+		 * We displayed some messages on error output
+		 * (file descriptor 2; see flush()).
+		 * Before erasing the screen contents, wait for a keystroke.
+		 */
+		less_printf("Press RETURN to continue ", NULL_PARG);
+		get_return();
+		putchr('\n');
+	}
 	init();
+	set_output(1);
 	commands();
 	quit(QUIT_OK);
 	/*NOTREACHED*/
