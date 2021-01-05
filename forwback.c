@@ -40,6 +40,13 @@ extern char *tagoption;
 	static void
 eof_bell(VOID_PARAM)
 {
+#if HAVE_TIME
+    static time_type last_eof_bell = 0;
+    time_type now = get_time();
+    if (now == last_eof_bell) /* max once per second */
+        return;
+    last_eof_bell = now;
+#endif
 	if (quiet == NOT_QUIET)
 		bell();
 	else
