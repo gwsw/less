@@ -109,6 +109,7 @@ mark_get_ifile(m)
 getumark(c)
 	int c;
 {
+	PARG parg;
 	if (c >= 'a' && c <= 'z')
 		return (&marks[c-'a']);
 	if (c >= 'A' && c <= 'Z')
@@ -117,7 +118,8 @@ getumark(c)
 		return (&marks[LASTMARK]);
 	if (c == '#')
 		return (&marks[MOUSEMARK]);
-	error("Invalid mark letter", NULL_PARG);
+	parg.p_char = (char) c;
+	error("Invalid mark letter %c", &parg);
 	return (NULL);
 }
 

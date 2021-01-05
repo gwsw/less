@@ -37,6 +37,8 @@
 * Editing the same file under different names now creates only
   one entry in the file list.
 
+* Make visual bell more visible  on some terminals.
+
 * Build can use either Python or Perl for Makefile.aut operations.
 
 * Fix crash when using the @ search modifier.

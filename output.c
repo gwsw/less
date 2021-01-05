@@ -22,7 +22,6 @@ extern int sigs;
 extern int sc_width;
 extern int so_s_width, so_e_width;
 extern int screen_trashed;
-extern int any_display;
 extern int is_tty;
 extern int oldbot;
 
@@ -75,6 +74,7 @@ put_line(VOID_PARAM)
 
 static char obuf[OUTBUF_SIZE];
 static char *ob = obuf;
+static int outfd = 2; /* stderr */
 
 /*
  * Flush buffered output.
@@ -103,7 +103,7 @@ flush(VOID_PARAM)
 		return;
 
 #if MSDOS_COMPILER==MSOFTC
-	if (is_tty && any_display)
+	if (interactive())
 	{
 		*ob = '\0';
 		_outtext(obuf);
@@ -112,7 +112,7 @@ flush(VOID_PARAM)
 	}
 #else
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
-	if (is_tty && any_display)
+	if (interactive())
 	{
 		*ob = '\0';
 		if (ctldisp != OPT_ONPLUS || (vt_enabled && sgr_mode))
@@ -370,10 +370,21 @@ flush(VOID_PARAM)
 	}
 #endif
 #endif
-	fd = (any_display) ? 1 : 2;
-	if (write(fd, obuf, n) != n)
+
+	if (write(outfd, obuf, n) != n)
 		screen_trashed = 1;
 	ob = obuf;
+}
+
+/*
+ * Set the output file descriptor (1=stdout or 2=stderr).
+ */
+	public void
+set_output(fd)
+	int fd;
+{
+	flush();
+	outfd = fd;
 }
 
 /*
@@ -518,8 +529,11 @@ iprint_linenum(num)
 /*
  * This function implements printf-like functionality
  * using a more portable argument list mechanism than printf's.
+ *
+ * {{ This paranoia about the portability of printf dates from experiences
+ *    with systems in the 1980s and is of course no longer necessary. }}
  */
-	static int
+	public int
 less_printf(fmt, parg)
 	char *fmt;
 	PARG *parg;
@@ -555,6 +569,10 @@ less_printf(fmt, parg)
 			case 'n':
 				col += iprint_linenum(parg->p_linenum);
 				parg++;
+				break;
+			case 'c':
+				putchr(parg->p_char);
+				col++;
 				break;
 			case '%':
 				putchr('%');
@@ -599,24 +617,20 @@ error(fmt, parg)
 
 	errmsgs++;
 
-	if (any_display && is_tty)
+	if (!interactive())
 	{
-		if (!oldbot)
-			squish_check();
-		at_exit();
-		clear_bot();
-		at_enter(AT_STANDOUT);
-		col += so_s_width;
-	}
-
-	col += less_printf(fmt, parg);
-
-	if (!(any_display && is_tty))
-	{
+		less_printf(fmt, parg);
 		putchr('\n');
 		return;
 	}
 
+	if (!oldbot)
+		squish_check();
+	at_exit();
+	clear_bot();
+	at_enter(AT_STANDOUT);
+	col += so_s_width;
+	col += less_printf(fmt, parg);
 	putstr(return_to_continue);
 	at_exit();
 	col += sizeof(return_to_continue) + so_e_width;
@@ -671,13 +685,13 @@ query(fmt, parg)
 	int c;
 	int col = 0;
 
-	if (any_display && is_tty)
+	if (interactive())
 		clear_bot();
 
 	(void) less_printf(fmt, parg);
 	c = getchr();
 
-	if (!(any_display && is_tty))
+	if (!interactive())
 	{
 		putchr('\n');
 		return (c);

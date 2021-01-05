@@ -17,7 +17,6 @@ public int	is_tty;
 public IFILE	curr_ifile = NULL_IFILE;
 public IFILE	old_ifile = NULL_IFILE;
 public struct scrpos initial_scrpos;
-public int	any_display = FALSE;
 public POSITION	start_attnpos = NULL_POSITION;
 public POSITION	end_attnpos = NULL_POSITION;
 public int	wscroll;
@@ -54,6 +53,7 @@ extern int	know_dumb;
 extern int	pr_type;
 extern int	quit_if_one_screen;
 extern int	no_init;
+extern int errmsgs;
 
 
 /*
@@ -212,6 +212,7 @@ main(argc, argv)
 		 * Output is not a tty.
 		 * Just copy the input file(s) to output.
 		 */
+		set_output(1); /* write to stdout */
 		SET_BINARY(1);
 		if (edit_first() == 0)
 		{
@@ -275,7 +276,19 @@ main(argc, argv)
 		}
 	}
 
+	if (errmsgs > 0)
+	{
+		/*
+		 * We displayed some messages on error output
+		 * (file descriptor 2; see flush()).
+		 * Before erasing the screen contents, wait for a keystroke.
+		 */
+		less_printf("Press RETURN to continue ", NULL_PARG);
+		get_return();
+		putchr('\n');
+	}
 	init();
+	set_output(1);
 	commands();
 	quit(QUIT_OK);
 	/*NOTREACHED*/
@@ -384,7 +397,7 @@ quit(status)
 	quitting = 1;
 	edit((char*)NULL);
 	save_cmdhist();
-	if (any_display && is_tty)
+	if (interactive())
 		clear_bot();
 	deinit();
 	flush();

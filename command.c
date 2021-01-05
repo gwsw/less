@@ -593,6 +593,9 @@ mca_char(c)
 		switch (editchar(c, ECF_PEEK|ECF_NOHISTORY|ECF_NOCOMPLETE|ECF_NORIGHTLEFT))
 		{
 		case A_NOACTION:
+            /*
+             * Ignore this char and get another one.
+             */
 			return (MCA_MORE);
 		case A_INVALID:
 			/*
@@ -691,12 +694,6 @@ make_display(VOID_PARAM)
 	if (empty_screen())
 	{
 		if (initial_scrpos.pos == NULL_POSITION)
-			/*
-			 * {{ Maybe this should be:
-			 *    jump_loc(ch_zero(), jump_sline);
-			 *    but this behavior seems rather unexpected 
-			 *    on the first screen. }}
-			 */
 			jump_loc(ch_zero(), 1);
 		else
 			jump_loc(initial_scrpos.pos, initial_scrpos.ln);

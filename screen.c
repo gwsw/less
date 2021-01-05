@@ -243,6 +243,7 @@ extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
 extern int mousecap;
+extern int is_tty;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -1571,6 +1572,51 @@ win32_deinit_term(VOID_PARAM)
 
 #endif
 
+#if !MSDOS_COMPILER
+/*
+ * Like tputs but we handle $<...> delay strings here because
+ * some implementations of tputs don't perform delays correctly.
+ */
+	static void
+ltputs(str, affcnt, f_putc)
+	char *str;
+	int affcnt;
+	int (*f_putc)(int);
+{
+	while (*str != '\0')
+	{
+#if HAVE_STRSTR
+		char *obrac = strstr(str, "$<");
+		if (obrac != NULL)
+		{
+			char str2[64];
+			int slen = obrac - str;
+			if (slen < sizeof(str2))
+			{
+				int delay;
+				/* Output first part of string (before "$<"). */
+				memcpy(str2, str, slen);
+				str2[slen] = '\0';
+				tputs(str2, affcnt, f_putc);
+				str += slen + 2;
+				/* Perform the delay. */
+				delay = lstrtoi(str, &str);
+				if (*str == '*')
+					delay *= affcnt;
+				str = strstr(str, ">");
+				flush();
+				sleep_ms(delay);
+				continue;
+			}
+		}
+#endif
+		/* Pass the rest of the string to tputs and we're done. */
+		tputs(str, affcnt, f_putc);
+		break;
+	}
+}
+#endif /* MSDOS_COMPILER */
+
 /*
  * Configure the termimal so mouse clicks and wheel moves 
  * produce input to less.
@@ -1581,7 +1627,7 @@ init_mouse(VOID_PARAM)
 	if (!mousecap)
 		return;
 #if !MSDOS_COMPILER
-	tputs(sc_s_mousecap, sc_height, putchr);
+	ltputs(sc_s_mousecap, sc_height, putchr);
 #else
 #if MSDOS_COMPILER==WIN32C
 	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT
@@ -1601,7 +1647,7 @@ deinit_mouse(VOID_PARAM)
 	if (!mousecap)
 		return;
 #if !MSDOS_COMPILER
-	tputs(sc_e_mousecap, sc_height, putchr);
+	ltputs(sc_e_mousecap, sc_height, putchr);
 #else
 #if MSDOS_COMPILER==WIN32C
 	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT | ENABLE_EXTENDED_FLAGS
@@ -1620,11 +1666,12 @@ init(VOID_PARAM)
 	if (!(quit_if_one_screen && one_screen))
 	{
 		if (!no_init)
-			tputs(sc_init, sc_height, putchr);
+			ltputs(sc_init, sc_height, putchr);
 		if (!no_keypad)
-			tputs(sc_s_keypad, sc_height, putchr);
+			ltputs(sc_s_keypad, sc_height, putchr);
 		init_mouse();
 	}
+	init_done = 1;
 	if (top_scroll) 
 	{
 		int i;
@@ -1653,7 +1700,6 @@ init(VOID_PARAM)
 	initcolor();
 	flush();
 #endif
-	init_done = 1;
 }
 
 /*
@@ -1669,9 +1715,9 @@ deinit(VOID_PARAM)
 	{
 		deinit_mouse();
 		if (!no_keypad)
-			tputs(sc_e_keypad, sc_height, putchr);
+			ltputs(sc_e_keypad, sc_height, putchr);
 		if (!no_init)
-			tputs(sc_deinit, sc_height, putchr);
+			ltputs(sc_deinit, sc_height, putchr);
 	}
 #else
 	/* Restore system colors. */
@@ -1693,13 +1739,30 @@ deinit(VOID_PARAM)
 }
 
 /*
+ * Are we interactive (ie. writing to an initialized tty)?
+ */
+	public int
+interactive(VOID_PARAM)
+{
+	return (is_tty && init_done);
+}
+
+	static void
+assert_interactive(VOID_PARAM)
+{
+	if (interactive()) return;
+	/* abort(); */
+}
+
+/*
  * Home cursor (move to upper left corner of screen).
  */
 	public void
 home(VOID_PARAM)
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
-	tputs(sc_home, 1, putchr);
+	ltputs(sc_home, 1, putchr);
 #else
 	flush();
 	_settextposition(1,1);
@@ -1713,8 +1776,9 @@ home(VOID_PARAM)
 	public void
 add_line(VOID_PARAM)
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
-	tputs(sc_addline, sc_height, putchr);
+	ltputs(sc_addline, sc_height, putchr);
 #else
 	flush();
 #if MSDOS_COMPILER==MSOFTC
@@ -1922,10 +1986,9 @@ win32_scroll_up(n)
 	public void
 lower_left(VOID_PARAM)
 {
-	if (!init_done)
-		return;
+	assert_interactive();
 #if !MSDOS_COMPILER
-	tputs(sc_lower_left, 1, putchr);
+	ltputs(sc_lower_left, 1, putchr);
 #else
 	flush();
 	_settextposition(sc_height, 1);
@@ -1938,8 +2001,9 @@ lower_left(VOID_PARAM)
 	public void
 line_left(VOID_PARAM)
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
-	tputs(sc_return, 1, putchr);
+	ltputs(sc_return, 1, putchr);
 #else
 	int row;
 	flush();
@@ -2001,8 +2065,9 @@ check_winch(VOID_PARAM)
 goto_line(sindex)
 	int sindex;
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
-	tputs(tgoto(sc_move, 0, sindex), 1, putchr);
+	ltputs(tgoto(sc_move, 0, sindex), 1, putchr);
 #else
 	flush();
 	_settextposition(sindex+1, 1);
@@ -2069,7 +2134,7 @@ vbell(VOID_PARAM)
 #if !MSDOS_COMPILER
 	if (*sc_visual_bell == '\0')
 		return;
-	tputs(sc_visual_bell, sc_height, putchr);
+	ltputs(sc_visual_bell, sc_height, putchr);
 #else
 #if MSDOS_COMPILER==DJGPPC
 	ScreenVisualBell();
@@ -2159,8 +2224,9 @@ bell(VOID_PARAM)
 	public void
 clear(VOID_PARAM)
 {
+	assert_interactive();
 #if !MSDOS_COMPILER
-	tputs(sc_clear, sc_height, putchr);
+	ltputs(sc_clear, sc_height, putchr);
 #else
 	flush();
 #if MSDOS_COMPILER==WIN32C
@@ -2178,8 +2244,9 @@ clear(VOID_PARAM)
 	public void
 clear_eol(VOID_PARAM)
 {
+	/* assert_interactive();*/
 #if !MSDOS_COMPILER
-	tputs(sc_eol_clear, 1, putchr);
+	ltputs(sc_eol_clear, 1, putchr);
 #else
 #if MSDOS_COMPILER==MSOFTC
 	short top, left;
@@ -2237,13 +2304,14 @@ clear_eol(VOID_PARAM)
 	static void
 clear_eol_bot(VOID_PARAM)
 {
+	assert_interactive();
 #if MSDOS_COMPILER
 	clear_eol();
 #else
 	if (below_mem)
-		tputs(sc_eos_clear, 1, putchr);
+		ltputs(sc_eos_clear, 1, putchr);
 	else
-		tputs(sc_eol_clear, 1, putchr);
+		ltputs(sc_eol_clear, 1, putchr);
 #endif
 }
 
@@ -2285,13 +2353,13 @@ at_enter(attr)
 #if !MSDOS_COMPILER
 	/* The one with the most priority is last.  */
 	if (attr & AT_UNDERLINE)
-		tputs(sc_u_in, 1, putchr);
+		ltputs(sc_u_in, 1, putchr);
 	if (attr & AT_BOLD)
-		tputs(sc_b_in, 1, putchr);
+		ltputs(sc_b_in, 1, putchr);
 	if (attr & AT_BLINK)
-		tputs(sc_bl_in, 1, putchr);
+		ltputs(sc_bl_in, 1, putchr);
 	if (attr & AT_STANDOUT)
-		tputs(sc_s_in, 1, putchr);
+		ltputs(sc_s_in, 1, putchr);
 #else
 	flush();
 	/* The one with the most priority is first.  */
@@ -2321,13 +2389,13 @@ at_exit(VOID_PARAM)
 #if !MSDOS_COMPILER
 	/* Undo things in the reverse order we did them.  */
 	if (attrmode & AT_STANDOUT)
-		tputs(sc_s_out, 1, putchr);
+		ltputs(sc_s_out, 1, putchr);
 	if (attrmode & AT_BLINK)
-		tputs(sc_bl_out, 1, putchr);
+		ltputs(sc_bl_out, 1, putchr);
 	if (attrmode & AT_BOLD)
-		tputs(sc_b_out, 1, putchr);
+		ltputs(sc_b_out, 1, putchr);
 	if (attrmode & AT_UNDERLINE)
-		tputs(sc_u_out, 1, putchr);
+		ltputs(sc_u_out, 1, putchr);
 #else
 	flush();
 	SETCOLORS(nm_fg_color, nm_bg_color);
@@ -2386,9 +2454,9 @@ backspace(VOID_PARAM)
 	/* 
 	 * Erase the previous character by overstriking with a space.
 	 */
-	tputs(sc_backspace, 1, putchr);
+	ltputs(sc_backspace, 1, putchr);
 	putchr(' ');
-	tputs(sc_backspace, 1, putchr);
+	ltputs(sc_backspace, 1, putchr);
 #else
 #if MSDOS_COMPILER==MSOFTC
 	struct rccoord tpos;
@@ -2436,7 +2504,7 @@ putbs(VOID_PARAM)
 	else
 	{
 #if !MSDOS_COMPILER
-	tputs(sc_backspace, 1, putchr);
+	ltputs(sc_backspace, 1, putchr);
 #else
 	int row, col;
 

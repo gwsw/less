@@ -29,7 +29,7 @@ extern int sc_width;
 extern int sc_height;
 extern int secure;
 extern int dohelp;
-extern int any_display;
+extern int is_tty;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
@@ -499,10 +499,7 @@ opt__V(type, s)
 		dispversion();
 		break;
 	case INIT:
-		/*
-		 * Force output to stdout per GNU standard for --version output.
-		 */
-		any_display = 1;
+		set_output(1); /* Force output to stdout per GNU standard for --version output. */
 		putstr("less ");
 		putstr(version);
 		putstr(" (");
