@@ -1583,7 +1583,7 @@ ltputs(str, affcnt, f_putc)
 	int affcnt;
 	int (*f_putc)(int);
 {
-	while (*str != '\0')
+	while (str != NULL && *str != '\0')
 	{
 #if HAVE_STRSTR
 		char *obrac = strstr(str, "$<");
