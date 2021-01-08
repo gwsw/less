@@ -1603,9 +1603,12 @@ ltputs(str, affcnt, f_putc)
 				delay = lstrtoi(str, &str);
 				if (*str == '*')
 					delay *= affcnt;
-				str = strstr(str, ">");
 				flush();
 				sleep_ms(delay);
+                /* Skip past closing ">" at end of delay string. */
+				str = strstr(str, ">");
+				if (str != NULL)
+					str++;
 				continue;
 			}
 		}
