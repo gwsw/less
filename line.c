@@ -747,14 +747,6 @@ store_prchar(c, pos)
 	 */
 	s = prchar(c);
 
-	/*
-	 * Make sure we can get the entire representation
-	 * of the character on this line.
-	 */
-	if (end_column + (int) strlen(s) - 1 +
-	        pwidth(' ', binattr, 0) + attr_ewidth(binattr) > sc_width)
-		return 1;
-
 	for ( ;  *s != 0;  s++)
 		STORE_CHAR(*s, AT_BINARY, NULL, pos);
 
