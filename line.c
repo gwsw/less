@@ -387,10 +387,11 @@ attr_ewidth(a)
  * attribute sequence to be inserted, so this must be taken into account.
  */
 	static int
-pwidth(ch, a, prev_ch)
+pwidth(ch, a, prev_ch, prev_a)
 	LWCHAR ch;
 	int a;
 	LWCHAR prev_ch;
+	int prev_a;
 {
 	int w;
 
@@ -398,8 +399,9 @@ pwidth(ch, a, prev_ch)
 	{
 		/*
 		 * Backspace moves backwards one or two positions.
-		 * XXX - Incorrect if several '\b' in a row.
 		 */
+		if (prev_a & (AT_ANSI|AT_BINARY))
+			return strlen(prchar('\b'));
 		return (utf_mode && is_wide_char(prev_ch)) ? -2 : -1;
 	}
 
@@ -462,13 +464,13 @@ backc(VOID_PARAM)
 	p = &linebuf.buf[linebuf.end];
 	ch = step_char(&p, -1, linebuf.buf);
 	/* Skip back to the next nonzero-width char. */
-	for (;;)
+	while (p > linebuf.buf)
 	{
 		LWCHAR prev_ch;
 		int width;
 		linebuf.end = (int) (p - linebuf.buf);
 		prev_ch = step_char(&p, -1, linebuf.buf);
-		width = pwidth(ch, linebuf.attr[linebuf.end], prev_ch);
+		width = pwidth(ch, linebuf.attr[linebuf.end], prev_ch, linebuf.attr[linebuf.end-1]);
 		end_column -= width;
 		if (width > 0)
 			break;
@@ -636,7 +638,7 @@ store_char(ch, a, rep, pos)
 	} else {
 		char *p = &linebuf.buf[linebuf.end];
 		LWCHAR prev_ch = step_char(&p, -1, linebuf.buf);
-		w = pwidth(ch, a, prev_ch);
+		w = pwidth(ch, a, prev_ch, linebuf.attr[linebuf.end-1]);
 	}
 
 	if (ctldisp != OPT_ON && end_column - cshift + w + attr_ewidth(a) > sc_width)
@@ -688,6 +690,7 @@ store_char(ch, a, rep, pos)
 		if (linebuf.end > linebuf.print)
 		{
 			memcpy(&linebuf.buf[0], &linebuf.buf[replen], linebuf.print);
+			memcpy(&linebuf.attr[0], &linebuf.attr[replen], linebuf.print);
 			linebuf.end -= replen;
 			cshift += w;
 			while (cshift > hshift)
@@ -917,14 +920,10 @@ store_bs(ch, rep, pos)
 	char *rep;
 	POSITION pos;
 {
-	/*
-	 * A better test is needed here so we don't
-	 * backspace over part of the printed
-	 * representation of a binary character.
-	 */
 	if (bs_mode == BS_CONTROL)
 		return store_control_char(ch, rep, pos);
-	if (linebuf.end > 0 && linebuf.attr[linebuf.end - 1] & (AT_ANSI|AT_BINARY))
+	if (linebuf.end <= linebuf.print ||
+	    (linebuf.end > 0 && linebuf.attr[linebuf.end - 1] & (AT_ANSI|AT_BINARY)))
 		STORE_PRCHAR('\b', pos);
 	else if (bs_mode == BS_NORMAL)
 		STORE_CHAR(ch, AT_NORMAL, NULL, pos);
@@ -1031,10 +1030,6 @@ do_append(ch, rep, pos)
 	} else if (utf_mode && ctldisp != OPT_ON && is_ubin_char(ch))
 	{
 		char *s = prutfchar(ch);
-		if (end_column + (int) strlen(s) - 1 +
-		    pwidth(' ', binattr, 0) + attr_ewidth(binattr) > sc_width)
-			return (1);
-
 		for ( ;  *s != 0;  s++)
 			STORE_CHAR(*s, AT_BINARY, NULL, pos);
  	} else
