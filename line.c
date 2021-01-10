@@ -169,7 +169,10 @@ prewind(VOID_PARAM)
 	linebuf.print = 6; /* big enough for longest UTF-8 sequence */
 	linebuf.pfx_end = 0;
 	for (linebuf.end = 0; linebuf.end < linebuf.print; linebuf.end++)
+	{
 		linebuf.buf[linebuf.end] = '\0';
+		linebuf.attr[linebuf.end] = 0;
+	}
 
 	end_column = 0;
 	right_curr = 0;
@@ -1203,9 +1206,9 @@ gline(i, ap)
 		*ap = linebuf.pfx_attr[i];
 		return linebuf.pfx[i];
 	}
-	i -= linebuf.pfx_end;
-	*ap = linebuf.attr[i + linebuf.print];
-	return (linebuf.buf[i + linebuf.print] & 0xFF);
+	i += linebuf.print - linebuf.pfx_end;
+	*ap = linebuf.attr[i];
+	return (linebuf.buf[i] & 0xFF);
 }
 
 /*
