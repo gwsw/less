@@ -52,6 +52,7 @@ extern int screen_trashed;	/* The screen has been overwritten */
 extern int shift_count;
 extern int oldbot;
 extern int forw_prompt;
+extern int incr_search;
 #if MSDOS_COMPILER==WIN32C
 extern int utf_mode;
 #endif
@@ -650,15 +651,44 @@ mca_char(c)
 		 */
 		return (MCA_DONE);
 
-	if ((mca == A_F_BRACKET || mca == A_B_BRACKET) && len_cmdbuf() >= 2)
+	switch (mca)
 	{
-		/*
-		 * Special case for the bracket-matching commands.
-		 * Execute the command after getting exactly two
-		 * characters from the user.
-		 */
-		exec_mca();
-		return (MCA_DONE);
+	case A_F_BRACKET:
+	case A_B_BRACKET:
+		if (len_cmdbuf() >= 2)
+		{
+			/*
+			 * Special case for the bracket-matching commands.
+			 * Execute the command after getting exactly two
+			 * characters from the user.
+			 */
+			exec_mca();
+			return (MCA_DONE);
+		}
+		break;
+	case A_F_SEARCH:
+	case A_B_SEARCH:
+		if (incr_search)
+		{
+			/* Incremental search: do a search after every input char. */
+			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX));
+			char *pattern = get_cmdbuf();
+			cmd_exec();
+			if (*pattern == '\0')
+			{
+				/* User has backspaced to an empty pattern. */
+				undo_search(1);
+			} else
+			{
+				if (search(st | SRCH_INCR, pattern, 1) != 0)
+					/* No match, invalid pattern, etc. */
+					undo_search(1);
+			}
+			/* Redraw the search prompt and search string. */
+			mca_search();
+			cmd_repaint(NULL);
+		}
+		break;
 	}
 
 	/*

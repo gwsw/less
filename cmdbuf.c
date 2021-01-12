@@ -253,16 +253,41 @@ cmd_step_left(pp, pwidth, bswidth)
 }
 
 /*
+ * Put the cursor at "home" (just after the prompt),
+ * and set cp to the corresponding char in cmdbuf.
+ */
+	static void
+cmd_home(VOID_PARAM)
+{
+	while (cmd_col > prompt_col)
+	{
+		int width, bswidth;
+
+		cmd_step_left(&cp, &width, &bswidth);
+		while (bswidth-- > 0)
+			putbs();
+		cmd_col -= width;
+	}
+
+	cp = &cmdbuf[cmd_offset];
+}
+
+/*
  * Repaint the line from cp onwards.
  * Then position the cursor just after the char old_cp (a pointer into cmdbuf).
  */
-	static void
+	public void
 cmd_repaint(old_cp)
 	constant char *old_cp;
 {
 	/*
 	 * Repaint the line from the current position.
 	 */
+	if (old_cp == NULL)
+	{
+		old_cp = cp;
+		cmd_home();
+	}
 	clear_eol();
 	while (*cp != '\0')
 	{
@@ -291,26 +316,6 @@ cmd_repaint(old_cp)
 	 */
 	while (cp > old_cp)
 		cmd_left();
-}
-
-/*
- * Put the cursor at "home" (just after the prompt),
- * and set cp to the corresponding char in cmdbuf.
- */
-	static void
-cmd_home(VOID_PARAM)
-{
-	while (cmd_col > prompt_col)
-	{
-		int width, bswidth;
-
-		cmd_step_left(&cp, &width, &bswidth);
-		while (bswidth-- > 0)
-			putbs();
-		cmd_col -= width;
-	}
-
-	cp = &cmdbuf[cmd_offset];
 }
 
 /*

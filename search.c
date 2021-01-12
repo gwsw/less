@@ -148,15 +148,16 @@ clear_pattern(info)
  * Compile and save a search pattern.
  */
 	static int
-set_pattern(info, pattern, search_type)
+set_pattern(info, pattern, search_type, show_error)
 	struct pattern_info *info;
 	char *pattern;
 	int search_type;
+	int show_error;
 {
 #if !NO_REGEX
 	if (pattern == NULL)
 		SET_NULL_PATTERN(info->compiled);
-	else if (compile_pattern(pattern, search_type, &info->compiled) < 0)
+	else if (compile_pattern(pattern, search_type, show_error, &info->compiled) < 0)
 		return -1;
 #endif
 	/* Pattern compiled successfully; save the text too. */
@@ -345,7 +346,7 @@ undo_search(clear)
 	{
 		if (hilite_anchor.first == NULL)
 		{
-			error("No previous regular expression", NULL_PARG);
+			/* error("No previous regular expression", NULL_PARG); */
 			return;
 		}
 		if (clear)
@@ -1411,7 +1412,7 @@ hist_pattern(search_type)
 	if (pattern == NULL)
 		return (0);
 
-	if (set_pattern(&search_info, pattern, search_type) < 0)
+	if (set_pattern(&search_info, pattern, search_type, 1) < 0)
 		return (0);
 
 #if HILITE_SEARCH
@@ -1465,6 +1466,7 @@ search(search_type, pattern, n)
 	int n;
 {
 	POSITION pos;
+	POSITION opos;
 
 	if (pattern == NULL || *pattern == '\0')
 	{
@@ -1508,7 +1510,7 @@ search(search_type, pattern, n)
 		/*
 		 * Compile the pattern.
 		 */
-		if (set_pattern(&search_info, pattern, search_type) < 0)
+		if (set_pattern(&search_info, pattern, search_type, !(search_type & SRCH_INCR)) < 0)
 			return (-1);
 #if HILITE_SEARCH
 		if (hilite_search || status_col)
@@ -1536,6 +1538,7 @@ search(search_type, pattern, n)
 	 * Figure out where to start the search.
 	 */
 	pos = search_pos(search_type);
+	opos = position(sindex_from_sline(jump_sline));
 	if (pos == NULL_POSITION)
 	{
 		/*
@@ -1568,10 +1571,13 @@ search(search_type, pattern, n)
 
 	if (!(search_type & SRCH_NO_MOVE))
 	{
-		/*
-		 * Go to the matching line.
-		 */
-		jump_loc(pos, jump_sline);
+		if (pos != opos)
+		{
+			/*
+			 * Go to the matching line.
+			 */
+			jump_loc(pos, jump_sline);
+		}
 	}
 
 #if HILITE_SEARCH
@@ -1583,7 +1589,6 @@ search(search_type, pattern, n)
 #endif
 	return (0);
 }
-
 
 #if HILITE_SEARCH
 /*
@@ -1790,7 +1795,7 @@ set_filter_pattern(pattern, search_type)
 		/* Create a new filter and add it to the filter_infos list. */
 		filter = ecalloc(1, sizeof(struct pattern_info));
 		init_pattern(filter);
-		set_pattern(filter, pattern, search_type);
+		set_pattern(filter, pattern, search_type, 1);
 		filter->next = filter_infos;
 		filter_infos = filter;
 	}

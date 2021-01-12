@@ -54,6 +54,7 @@ public int wheel_lines;         /* Number of lines to scroll on mouse wheel scro
 public int perma_marks;         /* Save marks in history file */
 public int linenum_width;       /* Width of line numbers */
 public int status_col_width;    /* Width of status column */
+public int incr_search;         /* Incremental search */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -125,6 +126,7 @@ static struct optname wheel_lines_optname = { "wheel-lines",     NULL };
 static struct optname perma_marks_optname = { "save-marks",      NULL };
 static struct optname linenum_width_optname = { "line-num-width", NULL };
 static struct optname status_col_width_optname = { "status-col-width", NULL };
+static struct optname incr_search_optname = { "incsearch",       NULL };
 
 
 /*
@@ -513,6 +515,14 @@ static struct loption option[] =
 		{
 			"Status column width: ",
 			"Status column width is %d chars",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &incr_search_optname,
+		BOOL, OPT_OFF, &incr_search, NULL,
+		{
+			"Incremental search is off",
+			"Incremental search is on",
 			NULL
 		}
 	},
