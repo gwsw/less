@@ -28,6 +28,8 @@
 
 * Multiple + or -p command line options are handled better.
 
+* Add the --incsearch option.
+
 * Add the --line-num-width option.
 
 * Add the --status-col-width option.

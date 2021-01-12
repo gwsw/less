@@ -973,6 +973,11 @@ If the reopen succeeds and the file is a different file from the original
 with the same name as the original (now renamed) file),
 .I less
 will display the contents of that new file.
+.IP "\-\-incsearch"
+Subsequent search commands will be "incremental"; that is,
+.I less
+will advance to the next line containing the search pattern 
+as each character of the pattern is typed in.
 .IP "\-\-line-num-width"
 Sets the minimum width of the line number field when the \-N option is in effect.
 The default is 7 characters.

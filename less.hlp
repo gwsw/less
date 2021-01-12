@@ -207,6 +207,8 @@
                   Set horizontal scroll amount (0 = one half screen width).
                 --follow-name
                   The F command changes files if the input file is renamed.
+                --incsearch
+                  Search file as each pattern character is typed in.
                 --line-num-width=N
                   Set the width of the -N line number field to N characters.
                 --mouse
