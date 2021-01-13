@@ -903,7 +903,7 @@ v571  12/30/20  Add --line-num-width and --status-col-width options.
 v572  1/4/21    Save lastmark in history file; don't toggle mouse reporting;
                 implement termcap delays.
 v573  1/9/21    Limit eof bell to 1 per second.
-v574            Add incremental search.
+v574  1/13/21   Add incremental search.
 */
 
-char version[] = "574x";
+char version[] = "574";
