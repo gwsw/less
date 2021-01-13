@@ -508,7 +508,7 @@ opt__V(type, s)
 		{
 			char constant *copyright = "@@copyright_oneline@@\n\n";
 			if (copyright[0] == '@')
-				copyright = "Copyright (C) 2021  Mark Nudelman\n\n";
+				copyright = "Copyright (C) 1984  Mark Nudelman\n\n";
             putstr(copyright);
 		}
 		if (version[strlen(version)-1] == 'x')
