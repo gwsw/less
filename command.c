@@ -48,7 +48,7 @@ extern void *ml_shell;
 extern char *editor;
 extern char *editproto;
 #endif
-extern int screen_trashed;	/* The screen has been overwritten */
+extern int screen_trashed;      /* The screen has been overwritten */
 extern int shift_count;
 extern int oldbot;
 extern int forw_prompt;
@@ -58,12 +58,12 @@ extern int utf_mode;
 #endif
 
 #if SHELL_ESCAPE
-static char *shellcmd = NULL;	/* For holding last shell command for "!!" */
+static char *shellcmd = NULL;   /* For holding last shell command for "!!" */
 #endif
-static int mca;			/* The multicharacter command (action) */
-static int search_type;		/* The previous type of search */
-static LINENUM number;		/* The number typed by the user */
-static long fraction;		/* The fractional part of the number */
+static int mca;                 /* The multicharacter command (action) */
+static int search_type;         /* The previous type of search */
+static LINENUM number;          /* The number typed by the user */
+static long fraction;           /* The fractional part of the number */
 static struct loption *curropt;
 static int opt_lower;
 static int optflag;
@@ -512,9 +512,9 @@ mca_search_char(c)
 	/*
 	 * Certain characters as the first char of 
 	 * the pattern have special meaning:
-	 *	!  Toggle the NO_MATCH flag
-	 *	*  Toggle the PAST_EOF flag
-	 *	@  Toggle the FIRST_FILE flag
+	 *      !  Toggle the NO_MATCH flag
+	 *      *  Toggle the PAST_EOF flag
+	 *      @  Toggle the FIRST_FILE flag
 	 */
 	if (len_cmdbuf() > 0)
 		return (NO_MCA);
@@ -1578,10 +1578,10 @@ commands(VOID_PARAM)
 /*
  * Define abbreviation for a commonly used sequence below.
  */
-#define	DO_SEARCH() \
-			if (number <= 0) number = 1;	\
-			mca_search();			\
-			cmd_exec();			\
+#define DO_SEARCH() \
+			if (number <= 0) number = 1;    \
+			mca_search();                   \
+			cmd_exec();                     \
 			multi_search((char *)NULL, (int) number, 0);
 
 

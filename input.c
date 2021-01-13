@@ -98,7 +98,7 @@ get_forw_line:
 	/*
 	 * Read forward again to the position we should start at.
 	 */
- 	prewind();
+	prewind();
 	plinestart(base_pos);
 	(void) ch_seek(base_pos);
 	new_pos = base_pos;

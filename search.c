@@ -9,8 +9,8 @@
 #include "position.h"
 #include "charset.h"
 
-#define	MINPOS(a,b)	(((a) < (b)) ? (a) : (b))
-#define	MAXPOS(a,b)	(((a) > (b)) ? (a) : (b))
+#define MINPOS(a,b)     (((a) < (b)) ? (a) : (b))
+#define MAXPOS(a,b)     (((a) > (b)) ? (a) : (b))
 
 extern int sigs;
 extern int how_search;
@@ -1158,13 +1158,13 @@ search_pos(search_type)
  */
 	static int
 matches_filters(pos, cline, line_len, chpos, linepos, sp, ep)
- 	POSITION pos;
- 	char *cline;
- 	int line_len;
- 	int *chpos;
- 	POSITION linepos;
- 	char **sp;
- 	char **ep;
+	POSITION pos;
+	char *cline;
+	int line_len;
+	int *chpos;
+	POSITION linepos;
+	char **sp;
+	char **ep;
 {
 	struct pattern_info *filter;
 
@@ -1619,7 +1619,7 @@ prep_hilite(spos, epos, maxlines)
  * Search beyond where we're asked to search, so the prep region covers
  * more than we need.  Do one big search instead of a bunch of small ones.
  */
-#define	SEARCH_MORE (3*size_linebuf)
+#define SEARCH_MORE (3*size_linebuf)
 
 	if (!prev_pattern(&search_info) && !is_filtering())
 		return;

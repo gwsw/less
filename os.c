@@ -42,11 +42,11 @@
  * _setjmp() does not exist; we just use setjmp().
  */
 #if HAVE__SETJMP && HAVE_SIGSETMASK
-#define SET_JUMP	_setjmp
-#define LONG_JUMP	_longjmp
+#define SET_JUMP        _setjmp
+#define LONG_JUMP       _longjmp
 #else
-#define SET_JUMP	setjmp
-#define LONG_JUMP	longjmp
+#define SET_JUMP        setjmp
+#define LONG_JUMP       longjmp
 #endif
 
 public int reading;

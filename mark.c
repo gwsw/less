@@ -31,10 +31,10 @@ struct mark
  * Each mark is identified by a lowercase or uppercase letter.
  * The final one is lmark, for the "last mark"; addressed by the apostrophe.
  */
-#define	NMARKS		((2*26)+2)	/* a-z, A-Z, mousemark, lastmark */
-#define	NUMARKS		((2*26)+1)	/* user marks (not lastmark) */
-#define	MOUSEMARK	(NMARKS-2)
-#define	LASTMARK	(NMARKS-1)
+#define NMARKS          ((2*26)+2)      /* a-z, A-Z, mousemark, lastmark */
+#define NUMARKS         ((2*26)+1)      /* user marks (not lastmark) */
+#define MOUSEMARK       (NMARKS-2)
+#define LASTMARK        (NMARKS-1)
 static struct mark marks[NMARKS];
 public int marks_modified = 0;
 

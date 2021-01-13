@@ -19,12 +19,12 @@ extern int no_hist_dups;
 extern int marks_modified;
 
 static char cmdbuf[CMDBUF_SIZE]; /* Buffer for holding a multi-char command */
-static int cmd_col;		/* Current column of the cursor */
-static int prompt_col;		/* Column of cursor just after prompt */
-static char *cp;		/* Pointer into cmdbuf */
-static int cmd_offset;		/* Index into cmdbuf of first displayed char */
-static int literal;		/* Next input char should not be interpreted */
-static int updown_match = -1;	/* Prefix length in up/down movement */
+static int cmd_col;              /* Current column of the cursor */
+static int prompt_col;           /* Column of cursor just after prompt */
+static char *cp;                 /* Pointer into cmdbuf */
+static int cmd_offset;           /* Index into cmdbuf of first displayed char */
+static int literal;              /* Next input char should not be interpreted */
+static int updown_match = -1;    /* Prefix length in up/down movement */
 
 #if TAB_COMPLETE_FILENAME
 static int cmd_complete LESSPARAMS((int action));
@@ -216,7 +216,7 @@ cmd_step_common(p, ch, len, pwidth, bswidth)
 		}
 	}
 	if (pwidth != NULL)
-		*pwidth	= width;
+		*pwidth = width;
 	if (bswidth != NULL)
 		*bswidth = width;
 	return (pr);
@@ -824,9 +824,9 @@ cmd_accept(VOID_PARAM)
  * Try to perform a line-edit function on the command buffer,
  * using a specified char as a line-editing command.
  * Returns:
- *	CC_PASS	The char does not invoke a line edit function.
- *	CC_OK	Line edit function done.
- *	CC_QUIT	The char requests the current command to be aborted.
+ *      CC_PASS The char does not invoke a line edit function.
+ *      CC_OK   Line edit function done.
+ *      CC_QUIT The char requests the current command to be aborted.
  */
 	static int
 cmd_edit(c)
@@ -836,9 +836,9 @@ cmd_edit(c)
 	int flags;
 
 #if TAB_COMPLETE_FILENAME
-#define	not_in_completion()	in_completion = 0
+#define not_in_completion()     in_completion = 0
 #else
-#define	not_in_completion(VOID_PARAM)
+#define not_in_completion(VOID_PARAM)
 #endif
 	
 	/*
@@ -1235,9 +1235,9 @@ fail:
  * Process a single character of a multi-character command, such as
  * a number, or the pattern of a search command.
  * Returns:
- *	CC_OK		The char was accepted.
- *	CC_QUIT		The char requests the command to be aborted.
- *	CC_ERROR	The char could not be accepted due to an error.
+ *      CC_OK           The char was accepted.
+ *      CC_QUIT         The char requests the command to be aborted.
+ *      CC_ERROR        The char could not be accepted due to an error.
  */
 	public int
 cmd_char(c)

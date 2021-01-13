@@ -12,9 +12,9 @@
  * Each handling function is passed a "type" and, if it is a string
  * option, the string which should be "assigned" to the option.
  * The type may be one of:
- *	INIT	The option is being initialized from the command line.
- *	TOGGLE	The option is being changed from within the program.
- *	QUERY	The setting of the option is merely being queried.
+ *      INIT    The option is being initialized from the command line.
+ *      TOGGLE  The option is being changed from within the program.
+ *      QUERY   The setting of the option is merely being queried.
  */
 
 #include "less.h"
@@ -422,13 +422,13 @@ opt__P(type, s)
 		 */
 		switch (*s)
 		{
-		case 's':  proto = &prproto[PR_SHORT];	s++;	break;
-		case 'm':  proto = &prproto[PR_MEDIUM];	s++;	break;
-		case 'M':  proto = &prproto[PR_LONG];	s++;	break;
-		case '=':  proto = &eqproto;		s++;	break;
-		case 'h':  proto = &hproto;		s++;	break;
-		case 'w':  proto = &wproto;		s++;	break;
-		default:   proto = &prproto[PR_SHORT];		break;
+                case 's':  proto = &prproto[PR_SHORT];  s++;    break;
+                case 'm':  proto = &prproto[PR_MEDIUM]; s++;    break;
+                case 'M':  proto = &prproto[PR_LONG];   s++;    break;
+                case '=':  proto = &eqproto;            s++;    break;
+                case 'h':  proto = &hproto;             s++;    break;
+                case 'w':  proto = &wproto;             s++;    break;
+                default:   proto = &prproto[PR_SHORT];          break;
 		}
 		free(*proto);
 		*proto = save(s);
@@ -530,7 +530,7 @@ opt__V(type, s)
 /*
  * Parse an MSDOS color descriptor.
  */
-   	static void
+	static void
 colordesc(s, fg_color, bg_color)
 	char *s;
 	int *fg_color;
@@ -540,7 +540,7 @@ colordesc(s, fg_color, bg_color)
 	int err;
 #if MSDOS_COMPILER==WIN32C
 	int ul = 0;
- 	
+ 
 	if (*s == 'u')
 	{
 		ul = COMMON_LVB_UNDERSCORE;

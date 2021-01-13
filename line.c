@@ -596,7 +596,7 @@ ansi_done(pansi)
 /*
  * Append a character and attribute to the line buffer.
  */
-#define	STORE_CHAR(ch,a,rep,pos) \
+#define STORE_CHAR(ch,a,rep,pos) \
 	do { \
 		if (store_char((ch),(a),(rep),(pos))) return (1); \
 	} while (0)
@@ -710,7 +710,7 @@ store_char(ch, a, rep, pos)
  * Append a tab to the line buffer.
  * Store spaces to represent the tab.
  */
-#define	STORE_TAB(a,pos) \
+#define STORE_TAB(a,pos) \
 	do { if (store_tab((a),(pos))) return (1); } while (0)
 
 	static int
@@ -860,7 +860,7 @@ pappend(c, pos)
 			/* Handle new char.  */
 			if (!r)
 				goto retry;
- 		}
+		}
 	}
 	if (r)
 	{
@@ -1035,11 +1035,11 @@ do_append(ch, rep, pos)
 		char *s = prutfchar(ch);
 		for ( ;  *s != 0;  s++)
 			STORE_CHAR(*s, AT_BINARY, NULL, pos);
- 	} else
+	} else
 	{
 		STORE_CHAR(ch, a, rep, pos);
 	}
- 	return (0);
+	return (0);
 }
 
 /*

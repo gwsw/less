@@ -90,7 +90,7 @@ lsystem(cmd, donemsg)
 	 * De-initialize the terminal and take out of raw mode.
 	 */
 	deinit();
-	flush();	/* Make sure the deinit chars get out */
+	flush();         /* Make sure the deinit chars get out */
 	raw_mode(0);
 #if MSDOS_COMPILER==WIN32C
 	close_getchr();
@@ -162,7 +162,7 @@ lsystem(cmd, donemsg)
 	 * also makes trouble with some DPMI servers).
 	 */
 	__djgpp_exception_toggle();
-  	system(cmd);
+	system(cmd);
 	__djgpp_exception_toggle();
 #else
 	system(cmd);
@@ -267,14 +267,14 @@ pipe_mark(c, cmd)
 		tpos = ch_zero();
 	bpos = position(BOTTOM);
 
- 	if (c == '.') 
- 		return (pipe_data(cmd, tpos, bpos));
- 	else if (mpos <= tpos)
- 		return (pipe_data(cmd, mpos, bpos));
- 	else if (bpos == NULL_POSITION)
- 		return (pipe_data(cmd, tpos, bpos));
- 	else
- 		return (pipe_data(cmd, tpos, mpos));
+	if (c == '.') 
+		return (pipe_data(cmd, tpos, bpos));
+	else if (mpos <= tpos)
+		return (pipe_data(cmd, mpos, bpos));
+	else if (bpos == NULL_POSITION)
+		return (pipe_data(cmd, tpos, bpos));
+	else
+		return (pipe_data(cmd, tpos, mpos));
 }
 
 /*
@@ -339,14 +339,14 @@ pipe_data(cmd, spos, epos)
 	/*
 	 * Finish up the last line.
 	 */
- 	while (c != '\n' && c != EOI ) 
- 	{
- 		c = ch_forw_get();
- 		if (c == EOI)
- 			break;
- 		if (putc(c, f) == EOF)
- 			break;
- 	}
+	while (c != '\n' && c != EOI ) 
+	{
+		c = ch_forw_get();
+		if (c == EOI)
+			break;
+		if (putc(c, f) == EOF)
+			break;
+	}
 
 	pclose(f);
 
