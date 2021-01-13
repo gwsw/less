@@ -816,8 +816,10 @@ prompt(VOID_PARAM)
 	clear_cmd();
 	forw_prompt = 0;
 	p = pr_string();
+#if HILITE_SEARCH
 	if (is_filtering())
 		putstr("& ");
+#endif
 	if (p == NULL || *p == '\0')
 		putchr(':');
 	else

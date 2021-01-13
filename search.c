@@ -34,8 +34,6 @@ extern int can_goto_line;
 static int hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
-static int is_caseless;
-static int is_ucase_pattern;
 
 /*
  * Structures for maintaining a set of ranges for hilites and filtered-out
@@ -87,6 +85,7 @@ struct hilite_tree
 
 static struct hilite_tree hilite_anchor = HILITE_INITIALIZER();
 static struct hilite_tree filter_anchor = HILITE_INITIALIZER();
+static struct pattern_info *filter_infos = NULL;
 
 #endif
 
@@ -108,7 +107,8 @@ struct pattern_info {
 #endif
 	
 static struct pattern_info search_info;
-static struct pattern_info *filter_infos = NULL;
+static int is_ucase_pattern;
+static int is_caseless;
 
 /*
  * Are there any uppercase letters in this string?
@@ -287,6 +287,7 @@ repaint_hilite(on)
 	lower_left();
 	hide_hilite = save_hide_hilite;
 }
+#endif
 
 /*
  * Clear the attn hilite.
@@ -294,6 +295,7 @@ repaint_hilite(on)
 	public void
 clear_attn(VOID_PARAM)
 {
+#if HILITE_SEARCH
 	int sindex;
 	POSITION old_start_attnpos;
 	POSITION old_end_attnpos;
@@ -332,29 +334,30 @@ clear_attn(VOID_PARAM)
 	}
 	if (moved)
 		lower_left();
-}
 #endif
+}
 
 /*
- * Hide search string highlighting.
+ * Toggle or clear search string highlighting.
  */
 	public void
 undo_search(clear)
 	int clear;
 {
-	if (!prev_pattern(&search_info))
+	clear_pattern(&search_info);
+#if HILITE_SEARCH
+	if (clear)
+	{
+		clr_hilite();
+	} else
 	{
 		if (hilite_anchor.first == NULL)
 		{
-			/* error("No previous regular expression", NULL_PARG); */
+			error("No previous regular expression", NULL_PARG);
 			return;
 		}
-		if (clear)
-			clr_hilite(); /* Next time, hilite_anchor.first will be NULL. */
+		hide_hilite = !hide_hilite;
 	}
-	clear_pattern(&search_info);
-#if HILITE_SEARCH
-	hide_hilite = !hide_hilite;
 	repaint_hilite(1);
 #endif
 }
@@ -1156,6 +1159,7 @@ search_pos(search_type)
  * Check to see if the line matches the filter pattern.
  * If so, add an entry to the filter list.
  */
+#if HILITE_SEARCH
 	static int
 matches_filters(pos, cline, line_len, chpos, linepos, sp, ep)
 	POSITION pos;
@@ -1185,6 +1189,7 @@ matches_filters(pos, cline, line_len, chpos, linepos, sp, ep)
 	}
 	return (0);
 }
+#endif
 
 /*
  * Search a subset of the file, specified by start/end position.
@@ -1317,8 +1322,10 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 			add_lnum(linenum, pos);
 		oldpos = pos;
 
+#if HILITE_SEARCH
 		if (is_filtered(linepos))
 			continue;
+#endif
 
 		/*
 		 * If it's a caseless search, convert the line to lowercase.
@@ -1547,8 +1554,10 @@ search(search_type, pattern, n)
 		 */
 		if (search_type & SRCH_PAST_EOF)
 			return (n);
+#if HILITE_SEARCH
 		if (hilite_search == OPT_ON || status_col)
 			repaint_hilite(1);
+#endif
 		error("Nothing to search", NULL_PARG);
 		return (-1);
 	}
