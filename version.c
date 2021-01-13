@@ -904,6 +904,7 @@ v572  1/4/21    Save lastmark in history file; don't toggle mouse reporting;
                 implement termcap delays.
 v573  1/9/21    Limit eof bell to 1 per second.
 v574  1/13/21   Add incremental search.
+v575            
 */
 
-char version[] = "574";
+char version[] = "575x";
