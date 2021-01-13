@@ -1213,7 +1213,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 	linenum = find_linenum(pos);
 	oldpos = pos;
 	/* When the search wraps around, end at starting position. */
-	if ((search_type & SRCH_WRAP_AROUND) && endpos == NULL_POSITION)
+	if ((search_type & SRCH_WRAP) && endpos == NULL_POSITION)
 		endpos = pos;
 	for (;;)
 	{
@@ -1230,7 +1230,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 			return (-1);
 		}
 
-		if ((endpos != NULL_POSITION && !(search_type & SRCH_WRAP_AROUND) &&
+		if ((endpos != NULL_POSITION && !(search_type & SRCH_WRAP) &&
 			(((search_type & SRCH_FORW) && pos >= endpos) ||
 			 ((search_type & SRCH_BACK) && pos <= endpos))) || maxlines == 0)
 		{
@@ -1271,7 +1271,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 			/*
 			 * Reached EOF/BOF without a match.
 			 */
-			if (search_type & SRCH_WRAP_AROUND)
+			if (search_type & SRCH_WRAP)
 			{
 				/*
 				 * The search wraps around the current file, so
@@ -1295,7 +1295,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 					 * the flag so we don't wrap again, and
 					 * continue the search at new pos.
 					 */
-					search_type &= ~SRCH_WRAP_AROUND;
+					search_type &= ~SRCH_WRAP;
 					linenum = find_linenum(pos);
 					continue;
 				}
@@ -1510,7 +1510,8 @@ search(search_type, pattern, n)
 		/*
 		 * Compile the pattern.
 		 */
-		if (set_pattern(&search_info, pattern, search_type, !(search_type & SRCH_INCR)) < 0)
+		int show_error = !(search_type & SRCH_INCR);
+		if (set_pattern(&search_info, pattern, search_type, show_error) < 0)
 			return (-1);
 #if HILITE_SEARCH
 		if (hilite_search || status_col)

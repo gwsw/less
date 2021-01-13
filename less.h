@@ -359,7 +359,7 @@ struct wchar_range_table
 #define SRCH_NO_REGEX   (1 << 12) /* Don't use regular expressions */
 #define SRCH_FILTER     (1 << 13) /* Search is for '&' (filter) command */
 #define SRCH_AFTER_TARGET (1 << 14) /* Start search after the target line */
-#define SRCH_WRAP_AROUND (1 << 15) /* Wrap-around search (continue at BOF/EOF) */
+#define SRCH_WRAP       (1 << 15) /* Wrap-around search (continue at BOF/EOF) */
 
 #define	SRCH_REVERSE(t)	(((t) & SRCH_FORW) ? \
 				(((t) & ~SRCH_FORW) | SRCH_BACK) : \

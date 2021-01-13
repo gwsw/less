@@ -167,8 +167,8 @@ mca_search(VOID_PARAM)
 		cmd_putstr("Keep-pos ");
 	if (search_type & SRCH_NO_REGEX)
 		cmd_putstr("Regex-off ");
-	if (search_type & SRCH_WRAP_AROUND)
-		cmd_putstr("Wrap-around ");
+	if (search_type & SRCH_WRAP)
+		cmd_putstr("Wrap ");
 
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
@@ -537,7 +537,7 @@ mca_search_char(c)
 		break;
 	case CONTROL('W'): /* WRAP around */
 		if (mca != A_FILTER)
-			flag = SRCH_WRAP_AROUND;
+			flag = SRCH_WRAP;
 		break;
 	case CONTROL('R'): /* Don't use REGULAR EXPRESSIONS */
 		flag = SRCH_NO_REGEX;
@@ -550,8 +550,8 @@ mca_search_char(c)
 
 	if (flag != 0)
 	{
-		/* Toggle flag, but keep PAST_EOF and WRAP_AROUND mutually exclusive. */
-		search_type ^= flag | (search_type & (SRCH_PAST_EOF|SRCH_WRAP_AROUND));
+		/* Toggle flag, but keep PAST_EOF and WRAP mutually exclusive. */
+		search_type ^= flag | (search_type & (SRCH_PAST_EOF|SRCH_WRAP));
 		mca_search();
 		return (MCA_MORE);
 	}
@@ -671,7 +671,7 @@ mca_char(c)
 		if (incr_search)
 		{
 			/* Incremental search: do a search after every input char. */
-			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX));
+			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX|SRCH_NO_MOVE|SRCH_WRAP));
 			char *pattern = get_cmdbuf();
 			cmd_exec();
 			if (*pattern == '\0')
