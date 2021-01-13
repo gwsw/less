@@ -154,27 +154,27 @@ struct cmdname cmdnames[] =
 
 struct cmdname editnames[] = 
 {
-        { "back-complete",      EC_B_COMPLETE },
-        { "backspace",          EC_BACKSPACE },
-        { "delete",             EC_DELETE },
-        { "down",               EC_DOWN },
-        { "end",                EC_END },
-        { "expand",             EC_EXPAND },
-        { "forw-complete",      EC_F_COMPLETE },
-        { "home",               EC_HOME },
-        { "insert",             EC_INSERT },
-        { "invalid",            EC_UINVALID },
-        { "kill-line",          EC_LINEKILL },
-        { "abort",              EC_ABORT },
-        { "left",               EC_LEFT },
-        { "literal",            EC_LITERAL },
-        { "right",              EC_RIGHT },
-        { "up",                 EC_UP },
-        { "word-backspace",     EC_W_BACKSPACE },
-        { "word-delete",        EC_W_DELETE },
-        { "word-left",          EC_W_LEFT },
-        { "word-right",         EC_W_RIGHT },
-        { NULL, 0 }
+	{ "back-complete",      EC_B_COMPLETE },
+	{ "backspace",          EC_BACKSPACE },
+	{ "delete",             EC_DELETE },
+	{ "down",               EC_DOWN },
+	{ "end",                EC_END },
+	{ "expand",             EC_EXPAND },
+	{ "forw-complete",      EC_F_COMPLETE },
+	{ "home",               EC_HOME },
+	{ "insert",             EC_INSERT },
+	{ "invalid",            EC_UINVALID },
+	{ "kill-line",          EC_LINEKILL },
+	{ "abort",              EC_ABORT },
+	{ "left",               EC_LEFT },
+	{ "literal",            EC_LITERAL },
+	{ "right",              EC_RIGHT },
+	{ "up",                 EC_UP },
+	{ "word-backspace",     EC_W_BACKSPACE },
+	{ "word-delete",        EC_W_DELETE },
+	{ "word-left",          EC_W_LEFT },
+	{ "word-right",         EC_W_RIGHT },
+	{ NULL, 0 }
 };
 
 struct table

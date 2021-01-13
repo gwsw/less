@@ -462,13 +462,13 @@ wherechar(p, wp)
 	case 'b': case 'd': case 'l': case 'p': case 'P':
 		switch (*++p)
 		{
-                case 't':   *wp = TOP;                  break;
-                case 'm':   *wp = MIDDLE;               break;
-                case 'b':   *wp = BOTTOM;               break;
-                case 'B':   *wp = BOTTOM_PLUS_ONE;      break;
-                case 'j':   *wp = sindex_from_sline(jump_sline); break;
-                default:    *wp = TOP;  p--;            break;
-                }
+		case 't':   *wp = TOP;                  break;
+		case 'm':   *wp = MIDDLE;               break;
+		case 'b':   *wp = BOTTOM;               break;
+		case 'B':   *wp = BOTTOM_PLUS_ONE;      break;
+		case 'j':   *wp = sindex_from_sline(jump_sline); break;
+		default:    *wp = TOP;  p--;            break;
+		}
 	}
 	return (p);
 }

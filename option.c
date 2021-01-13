@@ -16,8 +16,7 @@
 static struct loption *pendopt;
 public int plusoption = FALSE;
 
-static char *optstring LESSPARAMS((char *s, char **p_str, char *printopt,
-    char *validchars));
+static char *optstring LESSPARAMS((char *s, char **p_str, char *printopt, char *validchars));
 static int flip_triple LESSPARAMS((int val, int lc));
 
 extern int screen_trashed;
@@ -377,11 +376,11 @@ toggle_option(o, lower, s, how_toggle)
 		case TRIPLE:
 			/*
 			 * Triple:
-                         *      If user gave the lower case letter, then switch 
-                         *      to 1 unless already 1, in which case make it 0.
-                         *      If user gave the upper case letter, then switch
-                         *      to 2 unless already 2, in which case make it 0.
-                         */
+			 *      If user gave the lower case letter, then switch 
+			 *      to 1 unless already 1, in which case make it 0.
+			 *      If user gave the upper case letter, then switch
+			 *      to 2 unless already 2, in which case make it 0.
+			 */
 			switch (how_toggle)
 			{
 			case OPT_TOGGLE:

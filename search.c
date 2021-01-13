@@ -1331,11 +1331,11 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 		cvt_text(cline, line, chpos, &line_len, cvt_ops);
 
 #if HILITE_SEARCH
-        /*
-         * If any filters are in effect, ignore non-matching lines.
-         */
+		/*
+		 * If any filters are in effect, ignore non-matching lines.
+		 */
 		if (filter_infos != NULL &&
-           ((search_type & SRCH_FIND_ALL) ||
+		   ((search_type & SRCH_FIND_ALL) ||
 		     prep_startpos == NULL_POSITION ||
 		     linepos < prep_startpos || linepos >= prep_endpos)) {
 			if (matches_filters(pos, cline, line_len, chpos, linepos, &sp, &ep))

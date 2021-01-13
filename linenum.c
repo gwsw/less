@@ -33,11 +33,11 @@
  */
 struct linenum_info
 {
-        struct linenum_info *next;      /* Link to next in the list */
-        struct linenum_info *prev;      /* Line to previous in the list */
-        POSITION pos;                   /* File position */
-        POSITION gap;                   /* Gap between prev and next */
-        LINENUM line;                   /* Line number */
+	struct linenum_info *next;      /* Link to next in the list */
+	struct linenum_info *prev;      /* Line to previous in the list */
+	POSITION pos;                   /* File position */
+	POSITION gap;                   /* Gap between prev and next */
+	LINENUM line;                   /* Line number */
 };
 /*
  * "gap" needs some explanation: the gap of any particular line number
