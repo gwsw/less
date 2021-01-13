@@ -1547,7 +1547,7 @@ commands(VOID_PARAM)
 
 		case A_VERSION:
 			/*
-			 * Print version number, without the "@(#)".
+			 * Print version number.
 			 */
 			cmd_exec();
 			dispversion();
