@@ -1420,7 +1420,7 @@ hist_pattern(search_type)
 		return (0);
 
 	if (set_pattern(&search_info, pattern, search_type, 1) < 0)
-		return (0);
+		return (-1);
 
 #if HILITE_SEARCH
 	if (hilite_search == OPT_ONPLUS && !hide_hilite)
@@ -1453,7 +1453,7 @@ chg_caseless(VOID_PARAM)
 		 * Regenerate the pattern using the new state.
 		 */
 		clear_pattern(&search_info);
-		hist_pattern(search_info.search_type);
+		(void) hist_pattern(search_info.search_type);
 	}
 }
 
@@ -1481,10 +1481,13 @@ search(search_type, pattern, n)
 		 * A null pattern means use the previously compiled pattern.
 		 */
 		search_type |= SRCH_AFTER_TARGET;
-		if (!prev_pattern(&search_info) && !hist_pattern(search_type))
+		if (!prev_pattern(&search_info))
 		{
-			error("No previous regular expression", NULL_PARG);
-			return (-1);
+			int r = hist_pattern(search_type);
+			if (r == 0)
+				error("No previous regular expression", NULL_PARG);
+			if (r <= 0)
+				return (-1);
 		}
 		if ((search_type & SRCH_NO_REGEX) != 
 		      (search_info.search_type & SRCH_NO_REGEX))
