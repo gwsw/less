@@ -7,7 +7,7 @@
  * This is all table driven.
  * A command table is a sequence of command descriptors.
  * Each command descriptor is a sequence of bytes with the following format:
- *	<c1><c2>...<cN><0><action>
+ *     <c1><c2>...<cN><0><action>
  * The characters c1,c2,...,cN are the command string; that is,
  * the characters which the user must type.
  * It is terminated by a null <0> byte.
@@ -935,7 +935,7 @@ editchar(c, flags)
 	 */
 	nch = 0;
 	do {
-	  	if (nch > 0)
+	        if (nch > 0)
 			c = getcc();
 		usercmd[nch] = c;
 		usercmd[nch+1] = '\0';

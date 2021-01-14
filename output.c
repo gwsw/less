@@ -13,7 +13,7 @@
 #endif
 #endif
 
-public int errmsgs;	/* Count of messages displayed by error() */
+public int errmsgs;    /* Count of messages displayed by error() */
 public int need_clr;
 public int final_attr;
 public int at_prompt;
@@ -250,11 +250,11 @@ flush(VOID_PARAM)
 								bgi = nm_bg_color & 8;
 							}
 							break;
-						case 1:	/* bold on */
+						case 1: /* bold on */
 							fgi = 8;
 							at |= 1;
 							break;
-						case 3:	/* italic on */
+						case 3: /* italic on */
 						case 7: /* inverse on */
 							at |= 2;
 							break;
@@ -267,7 +267,7 @@ flush(VOID_PARAM)
 							bgi = 8;
 							at |= 8;
 							break;
-						case 8:	/* concealed on */
+						case 8: /* concealed on */
 							at |= 16;
 							break;
 						case 22: /* bold off */
@@ -355,7 +355,7 @@ flush(VOID_PARAM)
 					if (at & 16)
 						f = b ^ 8;
 					f &= 0xf;
- 					b &= 0xf;
+					b &= 0xf;
 					WIN32setcolors(f, b);
 					p_next = anchor = p + 1;
 				} else

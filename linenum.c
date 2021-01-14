@@ -33,11 +33,11 @@
  */
 struct linenum_info
 {
-	struct linenum_info *next;	/* Link to next in the list */
-	struct linenum_info *prev;	/* Line to previous in the list */
-	POSITION pos;			/* File position */
-	POSITION gap;			/* Gap between prev and next */
-	LINENUM line;			/* Line number */
+        struct linenum_info *next;      /* Link to next in the list */
+        struct linenum_info *prev;      /* Line to previous in the list */
+        POSITION pos;                   /* File position */
+        POSITION gap;                   /* Gap between prev and next */
+        LINENUM line;                   /* Line number */
 };
 /*
  * "gap" needs some explanation: the gap of any particular line number
@@ -48,14 +48,14 @@ struct linenum_info
  * when we have a new one to insert and the table is full.
  */
 
-#define	NPOOL	200			/* Size of line number pool */
+#define NPOOL   200                     /* Size of line number pool */
 
-#define	LONGTIME	(2)		/* In seconds */
+#define LONGTIME        (2)             /* In seconds */
 
-static struct linenum_info anchor;	/* Anchor of the list */
-static struct linenum_info *freelist;	/* Anchor of the unused entries */
-static struct linenum_info pool[NPOOL];	/* The pool itself */
-static struct linenum_info *spare;		/* We always keep one spare entry */
+static struct linenum_info anchor;      /* Anchor of the list */
+static struct linenum_info *freelist;   /* Anchor of the unused entries */
+static struct linenum_info pool[NPOOL]; /* The pool itself */
+static struct linenum_info *spare;              /* We always keep one spare entry */
 
 extern int linenums;
 extern int sigs;

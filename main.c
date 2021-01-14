@@ -11,48 +11,48 @@
 #include <windows.h>
 #endif
 
-public char *	every_first_cmd = NULL;
-public int	new_file;
-public int	is_tty;
-public IFILE	curr_ifile = NULL_IFILE;
-public IFILE	old_ifile = NULL_IFILE;
+public char *   every_first_cmd = NULL;
+public int      new_file;
+public int      is_tty;
+public IFILE    curr_ifile = NULL_IFILE;
+public IFILE    old_ifile = NULL_IFILE;
 public struct scrpos initial_scrpos;
-public POSITION	start_attnpos = NULL_POSITION;
-public POSITION	end_attnpos = NULL_POSITION;
-public int	wscroll;
-public char *	progname;
-public int	quitting;
-public int	secure;
-public int	dohelp;
+public POSITION start_attnpos = NULL_POSITION;
+public POSITION end_attnpos = NULL_POSITION;
+public int      wscroll;
+public char *   progname;
+public int      quitting;
+public int      secure;
+public int      dohelp;
 
 #if LOGFILE
-public int	logfile = -1;
-public int	force_logfile = FALSE;
-public char *	namelogfile = NULL;
+public int      logfile = -1;
+public int      force_logfile = FALSE;
+public char *   namelogfile = NULL;
 #endif
 
 #if EDITOR
-public char *	editor;
-public char *	editproto;
+public char *   editor;
+public char *   editproto;
 #endif
 
 #if TAGS
-extern char *	tags;
-extern char *	tagoption;
-extern int	jump_sline;
+extern char *   tags;
+extern char *   tagoption;
+extern int      jump_sline;
 #endif
 
 #ifdef WIN32
 static char consoleTitle[256];
 #endif
 
-public int	one_screen;
-extern int	less_is_more;
-extern int	missing_cap;
-extern int	know_dumb;
-extern int	pr_type;
-extern int	quit_if_one_screen;
-extern int	no_init;
+public int      one_screen;
+extern int      less_is_more;
+extern int      missing_cap;
+extern int      know_dumb;
+extern int      pr_type;
+extern int      quit_if_one_screen;
+extern int      no_init;
 extern int errmsgs;
 
 
@@ -130,7 +130,7 @@ main(argc, argv)
 	if (s != NULL)
 		scan_option(save(s));
 
-#define	isoptstring(s)	(((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
+#define isoptstring(s)  (((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
 	while (argc > 0 && (isoptstring(*argv) || isoptpending()))
 	{
 		s = *argv++;
@@ -337,7 +337,7 @@ ecalloc(count, size)
 skipsp(s)
 	char *s;
 {
-	while (*s == ' ' || *s == '\t')	
+	while (*s == ' ' || *s == '\t')
 		s++;
 	return (s);
 }

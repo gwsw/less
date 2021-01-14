@@ -78,17 +78,17 @@ extern int fd0;
 #endif
 
 #if OS2
-#define	DEFAULT_TERM		"ansi"
+#define DEFAULT_TERM            "ansi"
 static char *windowid;
 #else
-#define	DEFAULT_TERM		"unknown"
+#define DEFAULT_TERM            "unknown"
 #endif
 
 #if MSDOS_COMPILER==MSOFTC
 static int videopages;
 static long msec_loops;
 static int flash_created = 0;
-#define	SETCOLORS(fg,bg)	{ _settextcolor(fg); _setbkcolor(bg); }
+#define SETCOLORS(fg,bg)        { _settextcolor(fg); _setbkcolor(bg); }
 #endif
 
 #if MSDOS_COMPILER==BORLANDC
@@ -99,15 +99,15 @@ static int flash_created = 0;
 #define _settextposition(y,x)   gotoxy(x,y)
 #define _clearscreen(m)         clrscr()
 #define _outtext(s)             cputs(s)
-#define	SETCOLORS(fg,bg)	{ textcolor(fg); textbackground(bg); }
+#define SETCOLORS(fg,bg)        { textcolor(fg); textbackground(bg); }
 extern int sc_height;
 #endif
 
 #if MSDOS_COMPILER==WIN32C
 struct keyRecord
 {
-	int ascii;
-	int scan;
+        int ascii;
+        int scan;
 } currentKey;
 
 static int keyCount = 0;
@@ -131,29 +131,29 @@ static void win32_deinit_term();
 
 #define FG_COLORS       (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)
 #define BG_COLORS       (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)
-#define	MAKEATTR(fg,bg)		((WORD)((fg)|((bg)<<4)))
-#define	SETCOLORS(fg,bg)	{ curr_attr = MAKEATTR(fg,bg); \
-				if (SetConsoleTextAttribute(con_out, curr_attr) == 0) \
-				error("SETCOLORS failed", NULL_PARG); }
+#define MAKEATTR(fg,bg)         ((WORD)((fg)|((bg)<<4)))
+#define SETCOLORS(fg,bg)        { curr_attr = MAKEATTR(fg,bg); \
+                                if (SetConsoleTextAttribute(con_out, curr_attr) == 0) \
+                                error("SETCOLORS failed", NULL_PARG); }
 #endif
 
 #if MSDOS_COMPILER
-public int nm_fg_color;		/* Color of normal text */
+public int nm_fg_color;         /* Color of normal text */
 public int nm_bg_color;
-public int bo_fg_color;		/* Color of bold text */
+public int bo_fg_color;         /* Color of bold text */
 public int bo_bg_color;
-public int ul_fg_color;		/* Color of underlined text */
+public int ul_fg_color;         /* Color of underlined text */
 public int ul_bg_color;
-public int so_fg_color;		/* Color of standout text */
+public int so_fg_color;         /* Color of standout text */
 public int so_bg_color;
-public int bl_fg_color;		/* Color of blinking text */
+public int bl_fg_color;         /* Color of blinking text */
 public int bl_bg_color;
-static int sy_fg_color;		/* Color of system text (before less) */
+static int sy_fg_color;         /* Color of system text (before less) */
 static int sy_bg_color;
-public int sgr_mode;		/* Honor ANSI sequences rather than using above */
+public int sgr_mode;            /* Honor ANSI sequences rather than using above */
 #if MSDOS_COMPILER==WIN32C
-static DWORD init_output_mode;	/* The initial console output mode */
-public int vt_enabled = -1;	/* Is virtual terminal processing available? */
+static DWORD init_output_mode;  /* The initial console output mode */
+public int vt_enabled = -1;     /* Is virtual terminal processing available? */
 #endif
 #else
 
@@ -161,51 +161,51 @@ public int vt_enabled = -1;	/* Is virtual terminal processing available? */
  * Strings passed to tputs() to do various terminal functions.
  */
 static char
-	*sc_pad,		/* Pad string */
-	*sc_home,		/* Cursor home */
-	*sc_addline,		/* Add line, scroll down following lines */
-	*sc_lower_left,		/* Cursor to last line, first column */
-	*sc_return,		/* Cursor to beginning of current line */
-	*sc_move,		/* General cursor positioning */
-	*sc_clear,		/* Clear screen */
-	*sc_eol_clear,		/* Clear to end of line */
-	*sc_eos_clear,		/* Clear to end of screen */
-	*sc_s_in,		/* Enter standout (highlighted) mode */
-	*sc_s_out,		/* Exit standout mode */
-	*sc_u_in,		/* Enter underline mode */
-	*sc_u_out,		/* Exit underline mode */
-	*sc_b_in,		/* Enter bold mode */
-	*sc_b_out,		/* Exit bold mode */
-	*sc_bl_in,		/* Enter blink mode */
-	*sc_bl_out,		/* Exit blink mode */
-	*sc_visual_bell,	/* Visual bell (flash screen) sequence */
-	*sc_backspace,		/* Backspace cursor */
-	*sc_s_keypad,		/* Start keypad mode */
-	*sc_e_keypad,		/* End keypad mode */
-	*sc_s_mousecap,		/* Start mouse capture mode */
-	*sc_e_mousecap,		/* End mouse capture mode */
-	*sc_init,		/* Startup terminal initialization */
-	*sc_deinit;		/* Exit terminal de-initialization */
+        *sc_pad,                /* Pad string */
+        *sc_home,               /* Cursor home */
+        *sc_addline,            /* Add line, scroll down following lines */
+        *sc_lower_left,         /* Cursor to last line, first column */
+        *sc_return,             /* Cursor to beginning of current line */
+        *sc_move,               /* General cursor positioning */
+        *sc_clear,              /* Clear screen */
+        *sc_eol_clear,          /* Clear to end of line */
+        *sc_eos_clear,          /* Clear to end of screen */
+        *sc_s_in,               /* Enter standout (highlighted) mode */
+        *sc_s_out,              /* Exit standout mode */
+        *sc_u_in,               /* Enter underline mode */
+        *sc_u_out,              /* Exit underline mode */
+        *sc_b_in,               /* Enter bold mode */
+        *sc_b_out,              /* Exit bold mode */
+        *sc_bl_in,              /* Enter blink mode */
+        *sc_bl_out,             /* Exit blink mode */
+        *sc_visual_bell,        /* Visual bell (flash screen) sequence */
+        *sc_backspace,          /* Backspace cursor */
+        *sc_s_keypad,           /* Start keypad mode */
+        *sc_e_keypad,           /* End keypad mode */
+        *sc_s_mousecap,         /* Start mouse capture mode */
+        *sc_e_mousecap,         /* End mouse capture mode */
+        *sc_init,               /* Startup terminal initialization */
+        *sc_deinit;             /* Exit terminal de-initialization */
 #endif
 
 static int init_done = 0;
 
-public int auto_wrap;		/* Terminal does \r\n when write past margin */
-public int ignaw;		/* Terminal ignores \n immediately after wrap */
-public int erase_char;		/* The user's erase char */
-public int erase2_char;		/* The user's other erase char */
-public int kill_char;		/* The user's line-kill char */
-public int werase_char;		/* The user's word-erase char */
-public int sc_width, sc_height;	/* Height & width of screen */
-public int bo_s_width, bo_e_width;	/* Printing width of boldface seq */
-public int ul_s_width, ul_e_width;	/* Printing width of underline seq */
-public int so_s_width, so_e_width;	/* Printing width of standout seq */
-public int bl_s_width, bl_e_width;	/* Printing width of blink seq */
-public int above_mem, below_mem;	/* Memory retained above/below screen */
-public int can_goto_line;		/* Can move cursor to any line */
-public int clear_bg;		/* Clear fills with background color */
-public int missing_cap = 0;	/* Some capability is missing */
-public char *kent = NULL;	/* Keypad ENTER sequence */
+public int auto_wrap;           /* Terminal does \r\n when write past margin */
+public int ignaw;               /* Terminal ignores \n immediately after wrap */
+public int erase_char;          /* The user's erase char */
+public int erase2_char;         /* The user's other erase char */
+public int kill_char;           /* The user's line-kill char */
+public int werase_char;         /* The user's word-erase char */
+public int sc_width, sc_height; /* Height & width of screen */
+public int bo_s_width, bo_e_width;      /* Printing width of boldface seq */
+public int ul_s_width, ul_e_width;      /* Printing width of underline seq */
+public int so_s_width, so_e_width;      /* Printing width of standout seq */
+public int bl_s_width, bl_e_width;      /* Printing width of blink seq */
+public int above_mem, below_mem;        /* Memory retained above/below screen */
+public int can_goto_line;               /* Can move cursor to any line */
+public int clear_bg;            /* Clear fills with background color */
+public int missing_cap = 0;     /* Some capability is missing */
+public char *kent = NULL;       /* Keypad ENTER sequence */
 
 static int attrmode = AT_NORMAL;
 static int termcap_debug = -1;
@@ -223,15 +223,15 @@ static void tmodes LESSPARAMS((char *incap, char *outcap, char **instr,
  * and needed by, the termcap library.
  */
 #if MUST_DEFINE_OSPEED
-extern short ospeed;	/* Terminal output baud rate */
-extern char PC;		/* Pad character */
+extern short ospeed;    /* Terminal output baud rate */
+extern char PC;         /* Pad character */
 #endif
 #ifdef _OSK
 short ospeed;
 char PC_, *UP, *BC;
 #endif
 
-extern int quiet;		/* If VERY_QUIET, use visual bell for bell */
+extern int quiet;               /* If VERY_QUIET, use visual bell for bell */
 extern int no_back_scroll;
 extern int swindow;
 extern int no_init;
@@ -265,28 +265,28 @@ extern char *tgoto();
 /*
  * Change terminal to "raw mode", or restore to "normal" mode.
  * "Raw mode" means 
- *	1. An outstanding read will complete on receipt of a single keystroke.
- *	2. Input is not echoed.  
- *	3. On output, \n is mapped to \r\n.
- *	4. \t is NOT expanded into spaces.
- *	5. Signal-causing characters such as ctrl-C (interrupt),
- *	   etc. are NOT disabled.
+ *      1. An outstanding read will complete on receipt of a single keystroke.
+ *      2. Input is not echoed.  
+ *      3. On output, \n is mapped to \r\n.
+ *      4. \t is NOT expanded into spaces.
+ *      5. Signal-causing characters such as ctrl-C (interrupt),
+ *         etc. are NOT disabled.
  * It doesn't matter whether an input \n is mapped to \r, or vice versa.
  */
-	public void
+        public void
 raw_mode(on)
-	int on;
+        int on;
 {
-	static int curr_on = 0;
+        static int curr_on = 0;
 
-	if (on == curr_on)
-		return;
-	erase2_char = '\b'; /* in case OS doesn't know about erase2 */
+        if (on == curr_on)
+                return;
+        erase2_char = '\b'; /* in case OS doesn't know about erase2 */
 #if HAVE_TERMIOS_H && HAVE_TERMIOS_FUNCS
     {
-	struct termios s;
-	static struct termios save_term;
-	static int saved_term = 0;
+        struct termios s;
+        static struct termios save_term;
+        static int saved_term = 0;
 
 	if (on) 
 	{
@@ -718,11 +718,11 @@ scrsize(VOID_PARAM)
 	int n;
 #endif
 
-#define	DEF_SC_WIDTH	80
+#define DEF_SC_WIDTH    80
 #if MSDOS_COMPILER
-#define	DEF_SC_HEIGHT	25
+#define DEF_SC_HEIGHT   25
 #else
-#define	DEF_SC_HEIGHT	24
+#define DEF_SC_HEIGHT   24
 #endif
 
 
@@ -817,7 +817,7 @@ scrsize(VOID_PARAM)
 		sc_height = atoi(s);
 #if !MSDOS_COMPILER
 	else if ((n = ltgetnum("li")) > 0)
- 		sc_height = n;
+		sc_height = n;
 #endif
 	if (sc_height <= 0)
 		sc_height = DEF_SC_HEIGHT;
@@ -828,7 +828,7 @@ scrsize(VOID_PARAM)
 		sc_width = atoi(s);
 #if !MSDOS_COMPILER
 	else if ((n = ltgetnum("co")) > 0)
- 		sc_width = n;
+		sc_width = n;
 #endif
 	if (sc_width <= 0)
 		sc_width = DEF_SC_WIDTH;
@@ -890,176 +890,176 @@ special_key_str(key)
 	static char tbuf[40];
 	char *s;
 #if MSDOS_COMPILER || OS2
-	static char k_right[]		= { '\340', PCK_RIGHT, 0 };
-	static char k_left[]		= { '\340', PCK_LEFT, 0  };
-	static char k_ctl_right[]	= { '\340', PCK_CTL_RIGHT, 0  };
-	static char k_ctl_left[]	= { '\340', PCK_CTL_LEFT, 0  };
-	static char k_insert[]		= { '\340', PCK_INSERT, 0  };
-	static char k_delete[]		= { '\340', PCK_DELETE, 0  };
-	static char k_ctl_delete[]	= { '\340', PCK_CTL_DELETE, 0  };
-	static char k_ctl_backspace[]	= { '\177', 0 };
-	static char k_home[]		= { '\340', PCK_HOME, 0 };
-	static char k_end[]		= { '\340', PCK_END, 0 };
-	static char k_up[]		= { '\340', PCK_UP, 0 };
-	static char k_down[]		= { '\340', PCK_DOWN, 0 };
-	static char k_backtab[]		= { '\340', PCK_SHIFT_TAB, 0 };
-	static char k_pagedown[]	= { '\340', PCK_PAGEDOWN, 0 };
-	static char k_pageup[]		= { '\340', PCK_PAGEUP, 0 };
-	static char k_f1[]		= { '\340', PCK_F1, 0 };
+        static char k_right[]           = { '\340', PCK_RIGHT, 0 };
+        static char k_left[]            = { '\340', PCK_LEFT, 0  };
+        static char k_ctl_right[]       = { '\340', PCK_CTL_RIGHT, 0  };
+        static char k_ctl_left[]        = { '\340', PCK_CTL_LEFT, 0  };
+        static char k_insert[]          = { '\340', PCK_INSERT, 0  };
+        static char k_delete[]          = { '\340', PCK_DELETE, 0  };
+        static char k_ctl_delete[]      = { '\340', PCK_CTL_DELETE, 0  };
+        static char k_ctl_backspace[]   = { '\177', 0 };
+        static char k_home[]            = { '\340', PCK_HOME, 0 };
+        static char k_end[]             = { '\340', PCK_END, 0 };
+        static char k_up[]              = { '\340', PCK_UP, 0 };
+        static char k_down[]            = { '\340', PCK_DOWN, 0 };
+        static char k_backtab[]         = { '\340', PCK_SHIFT_TAB, 0 };
+        static char k_pagedown[]        = { '\340', PCK_PAGEDOWN, 0 };
+        static char k_pageup[]          = { '\340', PCK_PAGEUP, 0 };
+        static char k_f1[]              = { '\340', PCK_F1, 0 };
 #endif
 #if !MSDOS_COMPILER
-	char *sp = tbuf;
+        char *sp = tbuf;
 #endif
 
-	switch (key)
-	{
+        switch (key)
+        {
 #if OS2
-	/*
-	 * If windowid is not NULL, assume less is executed in 
-	 * the XFree86 environment.
-	 */
-	case SK_RIGHT_ARROW:
-		s = windowid ? ltgetstr("kr", &sp) : k_right;
-		break;
-	case SK_LEFT_ARROW:
-		s = windowid ? ltgetstr("kl", &sp) : k_left;
-		break;
-	case SK_UP_ARROW:
-		s = windowid ? ltgetstr("ku", &sp) : k_up;
-		break;
-	case SK_DOWN_ARROW:
-		s = windowid ? ltgetstr("kd", &sp) : k_down;
-		break;
-	case SK_PAGE_UP:
-		s = windowid ? ltgetstr("kP", &sp) : k_pageup;
-		break;
-	case SK_PAGE_DOWN:
-		s = windowid ? ltgetstr("kN", &sp) : k_pagedown;
-		break;
-	case SK_HOME:
-		s = windowid ? ltgetstr("kh", &sp) : k_home;
-		break;
-	case SK_END:
-		s = windowid ? ltgetstr("@7", &sp) : k_end;
-		break;
-	case SK_DELETE:
-		s = windowid ? ltgetstr("kD", &sp) : k_delete;
-		if (s == NULL)
-		{
-			tbuf[0] = '\177';
-			tbuf[1] = '\0';
-			s = tbuf;
-		}
-		break;
+        /*
+         * If windowid is not NULL, assume less is executed in 
+         * the XFree86 environment.
+         */
+        case SK_RIGHT_ARROW:
+                s = windowid ? ltgetstr("kr", &sp) : k_right;
+                break;
+        case SK_LEFT_ARROW:
+                s = windowid ? ltgetstr("kl", &sp) : k_left;
+                break;
+        case SK_UP_ARROW:
+                s = windowid ? ltgetstr("ku", &sp) : k_up;
+                break;
+        case SK_DOWN_ARROW:
+                s = windowid ? ltgetstr("kd", &sp) : k_down;
+                break;
+        case SK_PAGE_UP:
+                s = windowid ? ltgetstr("kP", &sp) : k_pageup;
+                break;
+        case SK_PAGE_DOWN:
+                s = windowid ? ltgetstr("kN", &sp) : k_pagedown;
+                break;
+        case SK_HOME:
+                s = windowid ? ltgetstr("kh", &sp) : k_home;
+                break;
+        case SK_END:
+                s = windowid ? ltgetstr("@7", &sp) : k_end;
+                break;
+        case SK_DELETE:
+                s = windowid ? ltgetstr("kD", &sp) : k_delete;
+                if (s == NULL)
+                {
+                        tbuf[0] = '\177';
+                        tbuf[1] = '\0';
+                        s = tbuf;
+                }
+                break;
 #endif
 #if MSDOS_COMPILER
-	case SK_RIGHT_ARROW:
-		s = k_right;
-		break;
-	case SK_LEFT_ARROW:
-		s = k_left;
-		break;
-	case SK_UP_ARROW:
-		s = k_up;
-		break;
-	case SK_DOWN_ARROW:
-		s = k_down;
-		break;
-	case SK_PAGE_UP:
-		s = k_pageup;
-		break;
-	case SK_PAGE_DOWN:
-		s = k_pagedown;
-		break;
-	case SK_HOME:
-		s = k_home;
-		break;
-	case SK_END:
-		s = k_end;
-		break;
-	case SK_DELETE:
-		s = k_delete;
-		break;
+        case SK_RIGHT_ARROW:
+                s = k_right;
+                break;
+        case SK_LEFT_ARROW:
+                s = k_left;
+                break;
+        case SK_UP_ARROW:
+                s = k_up;
+                break;
+        case SK_DOWN_ARROW:
+                s = k_down;
+                break;
+        case SK_PAGE_UP:
+                s = k_pageup;
+                break;
+        case SK_PAGE_DOWN:
+                s = k_pagedown;
+                break;
+        case SK_HOME:
+                s = k_home;
+                break;
+        case SK_END:
+                s = k_end;
+                break;
+        case SK_DELETE:
+                s = k_delete;
+                break;
 #endif
 #if MSDOS_COMPILER || OS2
-	case SK_INSERT:
-		s = k_insert;
-		break;
-	case SK_CTL_LEFT_ARROW:
-		s = k_ctl_left;
-		break;
-	case SK_CTL_RIGHT_ARROW:
-		s = k_ctl_right;
-		break;
-	case SK_CTL_BACKSPACE:
-		s = k_ctl_backspace;
-		break;
-	case SK_CTL_DELETE:
-		s = k_ctl_delete;
-		break;
-	case SK_F1:
-		s = k_f1;
-		break;
-	case SK_BACKTAB:
-		s = k_backtab;
-		break;
+        case SK_INSERT:
+                s = k_insert;
+                break;
+        case SK_CTL_LEFT_ARROW:
+                s = k_ctl_left;
+                break;
+        case SK_CTL_RIGHT_ARROW:
+                s = k_ctl_right;
+                break;
+        case SK_CTL_BACKSPACE:
+                s = k_ctl_backspace;
+                break;
+        case SK_CTL_DELETE:
+                s = k_ctl_delete;
+                break;
+        case SK_F1:
+                s = k_f1;
+                break;
+        case SK_BACKTAB:
+                s = k_backtab;
+                break;
 #else
-	case SK_RIGHT_ARROW:
-		s = ltgetstr("kr", &sp);
-		break;
-	case SK_LEFT_ARROW:
-		s = ltgetstr("kl", &sp);
-		break;
-	case SK_UP_ARROW:
-		s = ltgetstr("ku", &sp);
-		break;
-	case SK_DOWN_ARROW:
-		s = ltgetstr("kd", &sp);
-		break;
-	case SK_PAGE_UP:
-		s = ltgetstr("kP", &sp);
-		break;
-	case SK_PAGE_DOWN:
-		s = ltgetstr("kN", &sp);
-		break;
-	case SK_HOME:
-		s = ltgetstr("kh", &sp);
-		break;
-	case SK_END:
-		s = ltgetstr("@7", &sp);
-		break;
-	case SK_DELETE:
-		s = ltgetstr("kD", &sp);
-		if (s == NULL)
-		{
-			tbuf[0] = '\177';
-			tbuf[1] = '\0';
-			s = tbuf;
-		}
-		break;
+        case SK_RIGHT_ARROW:
+                s = ltgetstr("kr", &sp);
+                break;
+        case SK_LEFT_ARROW:
+                s = ltgetstr("kl", &sp);
+                break;
+        case SK_UP_ARROW:
+                s = ltgetstr("ku", &sp);
+                break;
+        case SK_DOWN_ARROW:
+                s = ltgetstr("kd", &sp);
+                break;
+        case SK_PAGE_UP:
+                s = ltgetstr("kP", &sp);
+                break;
+        case SK_PAGE_DOWN:
+                s = ltgetstr("kN", &sp);
+                break;
+        case SK_HOME:
+                s = ltgetstr("kh", &sp);
+                break;
+        case SK_END:
+                s = ltgetstr("@7", &sp);
+                break;
+        case SK_DELETE:
+                s = ltgetstr("kD", &sp);
+                if (s == NULL)
+                {
+                        tbuf[0] = '\177';
+                        tbuf[1] = '\0';
+                        s = tbuf;
+                }
+                break;
 #endif
-	case SK_CONTROL_K:
-		tbuf[0] = CONTROL('K');
-		tbuf[1] = '\0';
-		s = tbuf;
-		break;
-	default:
-		return (NULL);
-	}
-	return (s);
+        case SK_CONTROL_K:
+                tbuf[0] = CONTROL('K');
+                tbuf[1] = '\0';
+                s = tbuf;
+                break;
+        default:
+                return (NULL);
+        }
+        return (s);
 }
 
 /*
  * Get terminal capabilities via termcap.
  */
-	public void
+        public void
 get_term(VOID_PARAM)
 {
-	termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
+        termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
 #if MSDOS_COMPILER
-	auto_wrap = 1;
-	ignaw = 0;
-	can_goto_line = 1;
+        auto_wrap = 1;
+        ignaw = 0;
+        can_goto_line = 1;
 	clear_bg = 1;
 	/*
 	 * Set up default colors.
