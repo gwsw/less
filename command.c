@@ -594,9 +594,9 @@ mca_char(c)
 		switch (editchar(c, ECF_PEEK|ECF_NOHISTORY|ECF_NOCOMPLETE|ECF_NORIGHTLEFT))
 		{
 		case A_NOACTION:
-            /*
-             * Ignore this char and get another one.
-             */
+			/*
+			 * Ignore this char and get another one.
+			 */
 			return (MCA_MORE);
 		case A_INVALID:
 			/*
@@ -816,8 +816,10 @@ prompt(VOID_PARAM)
 	clear_cmd();
 	forw_prompt = 0;
 	p = pr_string();
+#if HILITE_SEARCH
 	if (is_filtering())
 		putstr("& ");
+#endif
 	if (p == NULL || *p == '\0')
 		putchr(':');
 	else
@@ -981,13 +983,13 @@ ungetcc(c)
 ungetcc_back(c)
 	LWCHAR c;
 {
-    struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
-    ug->ug_char = c;
-    ug->ug_next = NULL;
-    if (ungot == NULL)
-        ungot = ug;
-    else
-    {
+	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
+	ug->ug_char = c;
+	ug->ug_next = NULL;
+	if (ungot == NULL)
+		ungot = ug;
+	else
+	{
 		struct ungot *pu;
 		for (pu = ungot; pu->ug_next != NULL; pu = pu->ug_next)
 			continue;

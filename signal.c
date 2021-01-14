@@ -52,7 +52,9 @@ u_interrupt(type)
 	if (kbhit())
 		getkey();
 #endif
+#if HILITE_SEARCH
 	set_filter_pattern(NULL, 0);
+#endif
 	if (reading)
 		intread(); /* May longjmp */
 }
@@ -115,7 +117,9 @@ wbreak_handler(dwCtrlType)
 	case CTRL_C_EVENT:
 	case CTRL_BREAK_EVENT:
 		sigs |= S_INTERRUPT;
+#if HILITE_SEARCH
 		set_filter_pattern(NULL, 0);
+#endif
 		return (TRUE);
 	default:
 		break;
