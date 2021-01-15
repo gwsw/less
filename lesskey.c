@@ -453,7 +453,7 @@ tstr(pp, xlate)
 		*pp = p+2;
 		buf[0] = CONTROL(p[1]);
 		buf[1] = '\0';
-		if (buf[0] == CONTROL('K'))
+		if (xlate && buf[0] == CONTROL('K'))
 			return tstr_control_k;
 		return (buf);
 	}
