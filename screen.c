@@ -273,7 +273,7 @@ extern char *tgoto();
  *         etc. are NOT disabled.
  * It doesn't matter whether an input \n is mapped to \r, or vice versa.
  */
-        public void
+	public void
 raw_mode(on)
         int on;
 {
@@ -1052,7 +1052,7 @@ special_key_str(key)
 /*
  * Get terminal capabilities via termcap.
  */
-        public void
+	public void
 get_term(VOID_PARAM)
 {
         termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
