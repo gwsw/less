@@ -29,7 +29,11 @@
 #include <values.h>
 #endif
 
-#define USE_POLL (HAVE_POLL && !MSDOS_COMPILER && !defined(__APPLE__))
+#if HAVE_POLL && !MSDOS_COMPILER && !defined(__APPLE__)
+#define USE_POLL 1
+#else
+#define USE_POLL 0
+#endif
 #if USE_POLL
 #include <poll.h>
 #endif
