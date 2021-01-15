@@ -106,8 +106,8 @@ extern int sc_height;
 #if MSDOS_COMPILER==WIN32C
 struct keyRecord
 {
-        int ascii;
-        int scan;
+	int ascii;
+	int scan;
 } currentKey;
 
 static int keyCount = 0;
@@ -161,31 +161,31 @@ public int vt_enabled = -1;     /* Is virtual terminal processing available? */
  * Strings passed to tputs() to do various terminal functions.
  */
 static char
-        *sc_pad,                /* Pad string */
-        *sc_home,               /* Cursor home */
-        *sc_addline,            /* Add line, scroll down following lines */
-        *sc_lower_left,         /* Cursor to last line, first column */
-        *sc_return,             /* Cursor to beginning of current line */
-        *sc_move,               /* General cursor positioning */
-        *sc_clear,              /* Clear screen */
-        *sc_eol_clear,          /* Clear to end of line */
-        *sc_eos_clear,          /* Clear to end of screen */
-        *sc_s_in,               /* Enter standout (highlighted) mode */
-        *sc_s_out,              /* Exit standout mode */
-        *sc_u_in,               /* Enter underline mode */
-        *sc_u_out,              /* Exit underline mode */
-        *sc_b_in,               /* Enter bold mode */
-        *sc_b_out,              /* Exit bold mode */
-        *sc_bl_in,              /* Enter blink mode */
-        *sc_bl_out,             /* Exit blink mode */
-        *sc_visual_bell,        /* Visual bell (flash screen) sequence */
-        *sc_backspace,          /* Backspace cursor */
-        *sc_s_keypad,           /* Start keypad mode */
-        *sc_e_keypad,           /* End keypad mode */
-        *sc_s_mousecap,         /* Start mouse capture mode */
-        *sc_e_mousecap,         /* End mouse capture mode */
-        *sc_init,               /* Startup terminal initialization */
-        *sc_deinit;             /* Exit terminal de-initialization */
+	*sc_pad,                /* Pad string */
+	*sc_home,               /* Cursor home */
+	*sc_addline,            /* Add line, scroll down following lines */
+	*sc_lower_left,         /* Cursor to last line, first column */
+	*sc_return,             /* Cursor to beginning of current line */
+	*sc_move,               /* General cursor positioning */
+	*sc_clear,              /* Clear screen */
+	*sc_eol_clear,          /* Clear to end of line */
+	*sc_eos_clear,          /* Clear to end of screen */
+	*sc_s_in,               /* Enter standout (highlighted) mode */
+	*sc_s_out,              /* Exit standout mode */
+	*sc_u_in,               /* Enter underline mode */
+	*sc_u_out,              /* Exit underline mode */
+	*sc_b_in,               /* Enter bold mode */
+	*sc_b_out,              /* Exit bold mode */
+	*sc_bl_in,              /* Enter blink mode */
+	*sc_bl_out,             /* Exit blink mode */
+	*sc_visual_bell,        /* Visual bell (flash screen) sequence */
+	*sc_backspace,          /* Backspace cursor */
+	*sc_s_keypad,           /* Start keypad mode */
+	*sc_e_keypad,           /* End keypad mode */
+	*sc_s_mousecap,         /* Start mouse capture mode */
+	*sc_e_mousecap,         /* End mouse capture mode */
+	*sc_init,               /* Startup terminal initialization */
+	*sc_deinit;             /* Exit terminal de-initialization */
 #endif
 
 static int init_done = 0;
@@ -273,20 +273,20 @@ extern char *tgoto();
  *         etc. are NOT disabled.
  * It doesn't matter whether an input \n is mapped to \r, or vice versa.
  */
-        public void
+	public void
 raw_mode(on)
-        int on;
+	int on;
 {
-        static int curr_on = 0;
+	static int curr_on = 0;
 
-        if (on == curr_on)
-                return;
-        erase2_char = '\b'; /* in case OS doesn't know about erase2 */
+	if (on == curr_on)
+			return;
+	erase2_char = '\b'; /* in case OS doesn't know about erase2 */
 #if HAVE_TERMIOS_H && HAVE_TERMIOS_FUNCS
     {
-        struct termios s;
-        static struct termios save_term;
-        static int saved_term = 0;
+	struct termios s;
+	static struct termios save_term;
+	static int saved_term = 0;
 
 	if (on) 
 	{
@@ -890,176 +890,176 @@ special_key_str(key)
 	static char tbuf[40];
 	char *s;
 #if MSDOS_COMPILER || OS2
-        static char k_right[]           = { '\340', PCK_RIGHT, 0 };
-        static char k_left[]            = { '\340', PCK_LEFT, 0  };
-        static char k_ctl_right[]       = { '\340', PCK_CTL_RIGHT, 0  };
-        static char k_ctl_left[]        = { '\340', PCK_CTL_LEFT, 0  };
-        static char k_insert[]          = { '\340', PCK_INSERT, 0  };
-        static char k_delete[]          = { '\340', PCK_DELETE, 0  };
-        static char k_ctl_delete[]      = { '\340', PCK_CTL_DELETE, 0  };
-        static char k_ctl_backspace[]   = { '\177', 0 };
-        static char k_home[]            = { '\340', PCK_HOME, 0 };
-        static char k_end[]             = { '\340', PCK_END, 0 };
-        static char k_up[]              = { '\340', PCK_UP, 0 };
-        static char k_down[]            = { '\340', PCK_DOWN, 0 };
-        static char k_backtab[]         = { '\340', PCK_SHIFT_TAB, 0 };
-        static char k_pagedown[]        = { '\340', PCK_PAGEDOWN, 0 };
-        static char k_pageup[]          = { '\340', PCK_PAGEUP, 0 };
-        static char k_f1[]              = { '\340', PCK_F1, 0 };
+	static char k_right[]           = { '\340', PCK_RIGHT, 0 };
+	static char k_left[]            = { '\340', PCK_LEFT, 0  };
+	static char k_ctl_right[]       = { '\340', PCK_CTL_RIGHT, 0  };
+	static char k_ctl_left[]        = { '\340', PCK_CTL_LEFT, 0  };
+	static char k_insert[]          = { '\340', PCK_INSERT, 0  };
+	static char k_delete[]          = { '\340', PCK_DELETE, 0  };
+	static char k_ctl_delete[]      = { '\340', PCK_CTL_DELETE, 0  };
+	static char k_ctl_backspace[]   = { '\177', 0 };
+	static char k_home[]            = { '\340', PCK_HOME, 0 };
+	static char k_end[]             = { '\340', PCK_END, 0 };
+	static char k_up[]              = { '\340', PCK_UP, 0 };
+	static char k_down[]            = { '\340', PCK_DOWN, 0 };
+	static char k_backtab[]         = { '\340', PCK_SHIFT_TAB, 0 };
+	static char k_pagedown[]        = { '\340', PCK_PAGEDOWN, 0 };
+	static char k_pageup[]          = { '\340', PCK_PAGEUP, 0 };
+	static char k_f1[]              = { '\340', PCK_F1, 0 };
 #endif
 #if !MSDOS_COMPILER
-        char *sp = tbuf;
+	char *sp = tbuf;
 #endif
 
-        switch (key)
-        {
+	switch (key)
+	{
 #if OS2
-        /*
-         * If windowid is not NULL, assume less is executed in 
-         * the XFree86 environment.
-         */
-        case SK_RIGHT_ARROW:
-                s = windowid ? ltgetstr("kr", &sp) : k_right;
-                break;
-        case SK_LEFT_ARROW:
-                s = windowid ? ltgetstr("kl", &sp) : k_left;
-                break;
-        case SK_UP_ARROW:
-                s = windowid ? ltgetstr("ku", &sp) : k_up;
-                break;
-        case SK_DOWN_ARROW:
-                s = windowid ? ltgetstr("kd", &sp) : k_down;
-                break;
-        case SK_PAGE_UP:
-                s = windowid ? ltgetstr("kP", &sp) : k_pageup;
-                break;
-        case SK_PAGE_DOWN:
-                s = windowid ? ltgetstr("kN", &sp) : k_pagedown;
-                break;
-        case SK_HOME:
-                s = windowid ? ltgetstr("kh", &sp) : k_home;
-                break;
-        case SK_END:
-                s = windowid ? ltgetstr("@7", &sp) : k_end;
-                break;
-        case SK_DELETE:
-                s = windowid ? ltgetstr("kD", &sp) : k_delete;
-                if (s == NULL)
-                {
-                        tbuf[0] = '\177';
-                        tbuf[1] = '\0';
-                        s = tbuf;
-                }
-                break;
+	/*
+	 * If windowid is not NULL, assume less is executed in 
+	 * the XFree86 environment.
+	 */
+	case SK_RIGHT_ARROW:
+		s = windowid ? ltgetstr("kr", &sp) : k_right;
+		break;
+	case SK_LEFT_ARROW:
+		s = windowid ? ltgetstr("kl", &sp) : k_left;
+		break;
+	case SK_UP_ARROW:
+		s = windowid ? ltgetstr("ku", &sp) : k_up;
+		break;
+	case SK_DOWN_ARROW:
+		s = windowid ? ltgetstr("kd", &sp) : k_down;
+		break;
+	case SK_PAGE_UP:
+		s = windowid ? ltgetstr("kP", &sp) : k_pageup;
+		break;
+	case SK_PAGE_DOWN:
+		s = windowid ? ltgetstr("kN", &sp) : k_pagedown;
+		break;
+	case SK_HOME:
+		s = windowid ? ltgetstr("kh", &sp) : k_home;
+		break;
+	case SK_END:
+		s = windowid ? ltgetstr("@7", &sp) : k_end;
+		break;
+	case SK_DELETE:
+		s = windowid ? ltgetstr("kD", &sp) : k_delete;
+		if (s == NULL)
+		{
+				tbuf[0] = '\177';
+				tbuf[1] = '\0';
+				s = tbuf;
+		}
+		break;
 #endif
 #if MSDOS_COMPILER
-        case SK_RIGHT_ARROW:
-                s = k_right;
-                break;
-        case SK_LEFT_ARROW:
-                s = k_left;
-                break;
-        case SK_UP_ARROW:
-                s = k_up;
-                break;
-        case SK_DOWN_ARROW:
-                s = k_down;
-                break;
-        case SK_PAGE_UP:
-                s = k_pageup;
-                break;
-        case SK_PAGE_DOWN:
-                s = k_pagedown;
-                break;
-        case SK_HOME:
-                s = k_home;
-                break;
-        case SK_END:
-                s = k_end;
-                break;
-        case SK_DELETE:
-                s = k_delete;
-                break;
+	case SK_RIGHT_ARROW:
+		s = k_right;
+		break;
+	case SK_LEFT_ARROW:
+		s = k_left;
+		break;
+	case SK_UP_ARROW:
+		s = k_up;
+		break;
+	case SK_DOWN_ARROW:
+		s = k_down;
+		break;
+	case SK_PAGE_UP:
+		s = k_pageup;
+		break;
+	case SK_PAGE_DOWN:
+		s = k_pagedown;
+		break;
+	case SK_HOME:
+		s = k_home;
+		break;
+	case SK_END:
+		s = k_end;
+		break;
+	case SK_DELETE:
+		s = k_delete;
+		break;
 #endif
 #if MSDOS_COMPILER || OS2
-        case SK_INSERT:
-                s = k_insert;
-                break;
-        case SK_CTL_LEFT_ARROW:
-                s = k_ctl_left;
-                break;
-        case SK_CTL_RIGHT_ARROW:
-                s = k_ctl_right;
-                break;
-        case SK_CTL_BACKSPACE:
-                s = k_ctl_backspace;
-                break;
-        case SK_CTL_DELETE:
-                s = k_ctl_delete;
-                break;
-        case SK_F1:
-                s = k_f1;
-                break;
-        case SK_BACKTAB:
-                s = k_backtab;
-                break;
+	case SK_INSERT:
+		s = k_insert;
+		break;
+	case SK_CTL_LEFT_ARROW:
+		s = k_ctl_left;
+		break;
+	case SK_CTL_RIGHT_ARROW:
+		s = k_ctl_right;
+		break;
+	case SK_CTL_BACKSPACE:
+		s = k_ctl_backspace;
+		break;
+	case SK_CTL_DELETE:
+		s = k_ctl_delete;
+		break;
+	case SK_F1:
+		s = k_f1;
+		break;
+	case SK_BACKTAB:
+		s = k_backtab;
+		break;
 #else
-        case SK_RIGHT_ARROW:
-                s = ltgetstr("kr", &sp);
-                break;
-        case SK_LEFT_ARROW:
-                s = ltgetstr("kl", &sp);
-                break;
-        case SK_UP_ARROW:
-                s = ltgetstr("ku", &sp);
-                break;
-        case SK_DOWN_ARROW:
-                s = ltgetstr("kd", &sp);
-                break;
-        case SK_PAGE_UP:
-                s = ltgetstr("kP", &sp);
-                break;
-        case SK_PAGE_DOWN:
-                s = ltgetstr("kN", &sp);
-                break;
-        case SK_HOME:
-                s = ltgetstr("kh", &sp);
-                break;
-        case SK_END:
-                s = ltgetstr("@7", &sp);
-                break;
-        case SK_DELETE:
-                s = ltgetstr("kD", &sp);
-                if (s == NULL)
-                {
-                        tbuf[0] = '\177';
-                        tbuf[1] = '\0';
-                        s = tbuf;
-                }
-                break;
+	case SK_RIGHT_ARROW:
+		s = ltgetstr("kr", &sp);
+		break;
+	case SK_LEFT_ARROW:
+		s = ltgetstr("kl", &sp);
+		break;
+	case SK_UP_ARROW:
+		s = ltgetstr("ku", &sp);
+		break;
+	case SK_DOWN_ARROW:
+		s = ltgetstr("kd", &sp);
+		break;
+	case SK_PAGE_UP:
+		s = ltgetstr("kP", &sp);
+		break;
+	case SK_PAGE_DOWN:
+		s = ltgetstr("kN", &sp);
+		break;
+	case SK_HOME:
+		s = ltgetstr("kh", &sp);
+		break;
+	case SK_END:
+		s = ltgetstr("@7", &sp);
+		break;
+	case SK_DELETE:
+		s = ltgetstr("kD", &sp);
+		if (s == NULL)
+		{
+				tbuf[0] = '\177';
+				tbuf[1] = '\0';
+				s = tbuf;
+		}
+		break;
 #endif
-        case SK_CONTROL_K:
-                tbuf[0] = CONTROL('K');
-                tbuf[1] = '\0';
-                s = tbuf;
-                break;
-        default:
-                return (NULL);
-        }
-        return (s);
+	case SK_CONTROL_K:
+		tbuf[0] = CONTROL('K');
+		tbuf[1] = '\0';
+		s = tbuf;
+		break;
+	default:
+		return (NULL);
+	}
+	return (s);
 }
 
 /*
  * Get terminal capabilities via termcap.
  */
-        public void
+	public void
 get_term(VOID_PARAM)
 {
-        termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
+	termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
 #if MSDOS_COMPILER
-        auto_wrap = 1;
-        ignaw = 0;
-        can_goto_line = 1;
+	auto_wrap = 1;
+	ignaw = 0;
+	can_goto_line = 1;
 	clear_bg = 1;
 	/*
 	 * Set up default colors.
@@ -1605,7 +1605,7 @@ ltputs(str, affcnt, f_putc)
 					delay *= affcnt;
 				flush();
 				sleep_ms(delay);
-                /* Skip past closing ">" at end of delay string. */
+				/* Skip past closing ">" at end of delay string. */
 				str = strstr(str, ">");
 				if (str != NULL)
 					str++;

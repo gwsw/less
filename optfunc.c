@@ -422,13 +422,13 @@ opt__P(type, s)
 		 */
 		switch (*s)
 		{
-                case 's':  proto = &prproto[PR_SHORT];  s++;    break;
-                case 'm':  proto = &prproto[PR_MEDIUM]; s++;    break;
-                case 'M':  proto = &prproto[PR_LONG];   s++;    break;
-                case '=':  proto = &eqproto;            s++;    break;
-                case 'h':  proto = &hproto;             s++;    break;
-                case 'w':  proto = &wproto;             s++;    break;
-                default:   proto = &prproto[PR_SHORT];          break;
+		case 's':  proto = &prproto[PR_SHORT];  s++;    break;
+		case 'm':  proto = &prproto[PR_MEDIUM]; s++;    break;
+		case 'M':  proto = &prproto[PR_LONG];   s++;    break;
+		case '=':  proto = &eqproto;            s++;    break;
+		case 'h':  proto = &hproto;             s++;    break;
+		case 'w':  proto = &wproto;             s++;    break;
+		default:   proto = &prproto[PR_SHORT];          break;
 		}
 		free(*proto);
 		*proto = save(s);
@@ -509,14 +509,14 @@ opt__V(type, s)
 			char constant *copyright = "@@copyright_oneline@@\n\n";
 			if (copyright[0] == '@')
 				copyright = "Copyright (C) 1984  Mark Nudelman\n\n";
-            putstr(copyright);
+			putstr(copyright);
 		}
 		if (version[strlen(version)-1] == 'x')
-        {
+		{
 			putstr("** This is an EXPERIMENTAL build of the 'less' software,\n");
-            putstr("** and may not function correctly.\n");
-            putstr("** Obtain release builds from the web page below.\n\n");
-        }
+			putstr("** and may not function correctly.\n");
+			putstr("** Obtain release builds from the web page below.\n\n");
+		}
 		putstr("less comes with NO WARRANTY, to the extent permitted by law.\n");
 		putstr("For information about the terms of redistribution,\n");
 		putstr("see the file named README in the less distribution.\n");
