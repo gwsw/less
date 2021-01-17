@@ -904,7 +904,8 @@ v572  1/4/21    Save lastmark in history file; don't toggle mouse reporting;
                 implement termcap delays.
 v573  1/9/21    Limit eof bell to 1 per second.
 v574  1/13/21   Add incremental search.
-v575            
+v575  1/17/21   Fix build without HILITE_SEARCH;
+                fix bug with ^K in lesskey extra string.
 */
 
-char version[] = "575x";
+char version[] = "575";
