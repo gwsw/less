@@ -26,6 +26,8 @@ extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 extern int utf_mode;
 extern int screen_trashed;
+extern int sc_width;
+extern int sc_height;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int size_linebuf;
@@ -1195,7 +1197,7 @@ matches_filters(pos, cline, line_len, chpos, linepos, sp, ep)
  * Search a subset of the file, specified by start/end position.
  */
 	static int
-search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
+search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pbotpos)
 	POSITION pos;
 	POSITION endpos;
 	int search_type;
@@ -1203,6 +1205,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 	int maxlines;
 	POSITION *plinepos;
 	POSITION *pendpos;
+	POSITION *pbotpos;
 {
 	char *line;
 	char *cline;
@@ -1391,6 +1394,23 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos)
 						hilite_line(linepos, cline, line_len, chpos, sp, ep, cvt_ops);
 					}
 #endif
+					if (pbotpos != NULL)
+					{
+						/*
+						 * It may be the line is so long that the highlighted match
+						 * won't be seen when the line is displayed normally
+						 * (starting at the first char) because it fills the whole 
+						 * screen and more. In that case, we (effectively) scroll
+						 * forward until at least one char of the match appears in 
+						 * the last line on the screen.
+						 * botpos is the position of the first char of that last line.
+						 */
+						int height = sc_height - sindex_from_sline(jump_sline) - 1;
+						int scr_size = sc_width * height;
+						int match_off = sp - cline;
+						if (match_off >= scr_size)
+							*pbotpos = linepos + chpos[(match_off / sc_width) * sc_width];
+					}
 					free(cline);
 					free(chpos);
 					if (plinepos != NULL)
@@ -1474,6 +1494,7 @@ search(search_type, pattern, n)
 {
 	POSITION pos;
 	POSITION opos;
+	POSITION botpos = NULL_POSITION;
 
 	if (pattern == NULL || *pattern == '\0')
 	{
@@ -1566,7 +1587,7 @@ search(search_type, pattern, n)
 	}
 
 	n = search_range(pos, NULL_POSITION, search_type, n, -1,
-			&pos, (POSITION*)NULL);
+			&pos, (POSITION*)NULL, &botpos);
 	if (n != 0)
 	{
 		/*
@@ -1584,13 +1605,13 @@ search(search_type, pattern, n)
 
 	if (!(search_type & SRCH_NO_MOVE))
 	{
-		if (pos != opos)
-		{
-			/*
-			 * Go to the matching line.
-			 */
+		/*
+		 * Go to the matching line.
+		 */
+		if (botpos != NULL_POSITION)
+			jump_loc(botpos, BOTTOM);
+		else if (pos != opos)
 			jump_loc(pos, jump_sline);
-		}
 	}
 
 #if HILITE_SEARCH
@@ -1736,7 +1757,7 @@ prep_hilite(spos, epos, maxlines)
 		search_type |= (search_info.search_type & SRCH_NO_REGEX);
 		for (;;) 
 		{
-			result = search_range(spos, epos, search_type, 0, maxlines, (POSITION*)NULL, &new_epos);
+			result = search_range(spos, epos, search_type, 0, maxlines, (POSITION*)NULL, &new_epos, (POSITION*)NULL, (POSITION*)NULL);
 			if (result < 0)
 				return;
 			if (prep_endpos == NULL_POSITION || new_epos > prep_endpos)
