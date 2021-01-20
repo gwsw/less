@@ -48,21 +48,22 @@ extern void *ml_shell;
 extern char *editor;
 extern char *editproto;
 #endif
-extern int screen_trashed;	/* The screen has been overwritten */
+extern int screen_trashed;      /* The screen has been overwritten */
 extern int shift_count;
 extern int oldbot;
 extern int forw_prompt;
+extern int incr_search;
 #if MSDOS_COMPILER==WIN32C
 extern int utf_mode;
 #endif
 
 #if SHELL_ESCAPE
-static char *shellcmd = NULL;	/* For holding last shell command for "!!" */
+static char *shellcmd = NULL;   /* For holding last shell command for "!!" */
 #endif
-static int mca;			/* The multicharacter command (action) */
-static int search_type;		/* The previous type of search */
-static LINENUM number;		/* The number typed by the user */
-static long fraction;		/* The fractional part of the number */
+static int mca;                 /* The multicharacter command (action) */
+static int search_type;         /* The previous type of search */
+static LINENUM number;          /* The number typed by the user */
+static long fraction;           /* The fractional part of the number */
 static struct loption *curropt;
 static int opt_lower;
 static int optflag;
@@ -104,7 +105,6 @@ set_mca(action)
 	int action;
 {
 	mca = action;
-	deinit_mouse(); /* we don't want mouse events while entering a cmd */
 	clear_bot();
 	clear_cmd();
 }
@@ -118,7 +118,6 @@ clear_mca(VOID_PARAM)
 	if (mca == 0)
 		return;
 	mca = 0;
-	init_mouse();
 }
 
 /*
@@ -168,8 +167,8 @@ mca_search(VOID_PARAM)
 		cmd_putstr("Keep-pos ");
 	if (search_type & SRCH_NO_REGEX)
 		cmd_putstr("Regex-off ");
-	if (search_type & SRCH_WRAP_AROUND)
-		cmd_putstr("Wrap-around ");
+	if (search_type & SRCH_WRAP)
+		cmd_putstr("Wrap ");
 
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
@@ -513,9 +512,9 @@ mca_search_char(c)
 	/*
 	 * Certain characters as the first char of 
 	 * the pattern have special meaning:
-	 *	!  Toggle the NO_MATCH flag
-	 *	*  Toggle the PAST_EOF flag
-	 *	@  Toggle the FIRST_FILE flag
+	 *      !  Toggle the NO_MATCH flag
+	 *      *  Toggle the PAST_EOF flag
+	 *      @  Toggle the FIRST_FILE flag
 	 */
 	if (len_cmdbuf() > 0)
 		return (NO_MCA);
@@ -538,7 +537,7 @@ mca_search_char(c)
 		break;
 	case CONTROL('W'): /* WRAP around */
 		if (mca != A_FILTER)
-			flag = SRCH_WRAP_AROUND;
+			flag = SRCH_WRAP;
 		break;
 	case CONTROL('R'): /* Don't use REGULAR EXPRESSIONS */
 		flag = SRCH_NO_REGEX;
@@ -551,8 +550,8 @@ mca_search_char(c)
 
 	if (flag != 0)
 	{
-		/* Toggle flag, but keep PAST_EOF and WRAP_AROUND mutually exclusive. */
-		search_type ^= flag | (search_type & (SRCH_PAST_EOF|SRCH_WRAP_AROUND));
+		/* Toggle flag, but keep PAST_EOF and WRAP mutually exclusive. */
+		search_type ^= flag | (search_type & (SRCH_PAST_EOF|SRCH_WRAP));
 		mca_search();
 		return (MCA_MORE);
 	}
@@ -590,9 +589,16 @@ mca_char(c)
 		 * Entering digits of a number.
 		 * Terminated by a non-digit.
 		 */
-		if (!((c >= '0' && c <= '9') || c == '.') && 
-		  editchar(c, EC_PEEK|EC_NOHISTORY|EC_NOCOMPLETE|EC_NORIGHTLEFT) == A_INVALID)
+		if ((c >= '0' && c <= '9') || c == '.')
+			break;
+		switch (editchar(c, ECF_PEEK|ECF_NOHISTORY|ECF_NOCOMPLETE|ECF_NORIGHTLEFT))
 		{
+		case A_NOACTION:
+			/*
+			 * Ignore this char and get another one.
+			 */
+			return (MCA_MORE);
+		case A_INVALID:
 			/*
 			 * Not part of the number.
 			 * End the number and treat this char 
@@ -645,15 +651,44 @@ mca_char(c)
 		 */
 		return (MCA_DONE);
 
-	if ((mca == A_F_BRACKET || mca == A_B_BRACKET) && len_cmdbuf() >= 2)
+	switch (mca)
 	{
-		/*
-		 * Special case for the bracket-matching commands.
-		 * Execute the command after getting exactly two
-		 * characters from the user.
-		 */
-		exec_mca();
-		return (MCA_DONE);
+	case A_F_BRACKET:
+	case A_B_BRACKET:
+		if (len_cmdbuf() >= 2)
+		{
+			/*
+			 * Special case for the bracket-matching commands.
+			 * Execute the command after getting exactly two
+			 * characters from the user.
+			 */
+			exec_mca();
+			return (MCA_DONE);
+		}
+		break;
+	case A_F_SEARCH:
+	case A_B_SEARCH:
+		if (incr_search)
+		{
+			/* Incremental search: do a search after every input char. */
+			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX|SRCH_NO_MOVE|SRCH_WRAP));
+			char *pattern = get_cmdbuf();
+			cmd_exec();
+			if (*pattern == '\0')
+			{
+				/* User has backspaced to an empty pattern. */
+				undo_search(1);
+			} else
+			{
+				if (search(st | SRCH_INCR, pattern, 1) != 0)
+					/* No match, invalid pattern, etc. */
+					undo_search(1);
+			}
+			/* Redraw the search prompt and search string. */
+			mca_search();
+			cmd_repaint(NULL);
+		}
+		break;
 	}
 
 	/*
@@ -689,12 +724,6 @@ make_display(VOID_PARAM)
 	if (empty_screen())
 	{
 		if (initial_scrpos.pos == NULL_POSITION)
-			/*
-			 * {{ Maybe this should be:
-			 *    jump_loc(ch_zero(), jump_sline);
-			 *    but this behavior seems rather unexpected 
-			 *    on the first screen. }}
-			 */
 			jump_loc(ch_zero(), 1);
 		else
 			jump_loc(initial_scrpos.pos, initial_scrpos.ln);
@@ -787,8 +816,10 @@ prompt(VOID_PARAM)
 	clear_cmd();
 	forw_prompt = 0;
 	p = pr_string();
+#if HILITE_SEARCH
 	if (is_filtering())
 		putstr("& ");
+#endif
 	if (p == NULL || *p == '\0')
 		putchr(':');
 	else
@@ -837,7 +868,7 @@ getcc_end_command(VOID_PARAM)
 		return ('\n'); 
 	default:
 		/* Some other incomplete command.  Let user complete it. */
-		return (getchr());
+		return ((ungot == NULL) ? getchr() : 0);
 	}
 }
 
@@ -850,23 +881,26 @@ getcc_end_command(VOID_PARAM)
 	static LWCHAR
 getccu(VOID_PARAM)
 {
-	LWCHAR c;
-	if (ungot == NULL)
+	LWCHAR c = 0;
+	while (c == 0)
 	{
-		/* Normal case: no ungotten chars.
-		 * Get char from the user. */
-		c = getchr();
-	} else
-	{
-		/* Ungotten chars available:
-		 * Take the top of stack (most recent). */
-		struct ungot *ug = ungot;
-		c = ug->ug_char;
-		ungot = ug->ug_next;
-		free(ug);
+		if (ungot == NULL)
+		{
+			/* Normal case: no ungotten chars.
+			 * Get char from the user. */
+			c = getchr();
+		} else
+		{
+			/* Ungotten chars available:
+			 * Take the top of stack (most recent). */
+			struct ungot *ug = ungot;
+			c = ug->ug_char;
+			ungot = ug->ug_next;
+			free(ug);
 
-		if (c == CHAR_END_COMMAND)
-			c = getcc_end_command();
+			if (c == CHAR_END_COMMAND)
+				c = getcc_end_command();
+		}
 	}
 	return (c);
 }
@@ -942,6 +976,28 @@ ungetcc(c)
 }
 
 /*
+ * "Unget" a command character.
+ * If any other chars are already ungotten, put this one after those.
+ */
+	public void
+ungetcc_back(c)
+	LWCHAR c;
+{
+	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
+	ug->ug_char = c;
+	ug->ug_next = NULL;
+	if (ungot == NULL)
+		ungot = ug;
+	else
+	{
+		struct ungot *pu;
+		for (pu = ungot; pu->ug_next != NULL; pu = pu->ug_next)
+			continue;
+		pu->ug_next = ug;
+	}
+}
+
+/*
  * Unget a whole string of command characters.
  * The next sequence of getcc()'s will return this string.
  */
@@ -949,10 +1005,8 @@ ungetcc(c)
 ungetsc(s)
 	char *s;
 {
-	char *p;
-
-	for (p = s + strlen(s) - 1;  p >= s;  p--)
-		ungetcc(*p);
+	while (*s != '\0')
+		ungetcc_back(*s++);
 }
 
 /*
@@ -1495,7 +1549,7 @@ commands(VOID_PARAM)
 
 		case A_VERSION:
 			/*
-			 * Print version number, without the "@(#)".
+			 * Print version number.
 			 */
 			cmd_exec();
 			dispversion();
@@ -1526,10 +1580,10 @@ commands(VOID_PARAM)
 /*
  * Define abbreviation for a commonly used sequence below.
  */
-#define	DO_SEARCH() \
-			if (number <= 0) number = 1;	\
-			mca_search();			\
-			cmd_exec();			\
+#define DO_SEARCH() \
+			if (number <= 0) number = 1;    \
+			mca_search();                   \
+			cmd_exec();                     \
 			multi_search((char *)NULL, (int) number, 0);
 
 

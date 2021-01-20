@@ -13,7 +13,7 @@
 #endif
 #endif
 
-public int errmsgs;	/* Count of messages displayed by error() */
+public int errmsgs;    /* Count of messages displayed by error() */
 public int need_clr;
 public int final_attr;
 public int at_prompt;
@@ -22,7 +22,6 @@ extern int sigs;
 extern int sc_width;
 extern int so_s_width, so_e_width;
 extern int screen_trashed;
-extern int any_display;
 extern int is_tty;
 extern int oldbot;
 
@@ -35,7 +34,7 @@ extern int so_fg_color, so_bg_color;
 extern int bl_fg_color, bl_bg_color;
 extern int sgr_mode;
 #if MSDOS_COMPILER==WIN32C
-extern int have_ul;
+extern int vt_enabled;
 #endif
 #endif
 
@@ -75,6 +74,7 @@ put_line(VOID_PARAM)
 
 static char obuf[OUTBUF_SIZE];
 static char *ob = obuf;
+static int outfd = 2; /* stderr */
 
 /*
  * Flush buffered output.
@@ -103,7 +103,7 @@ flush(VOID_PARAM)
 		return;
 
 #if MSDOS_COMPILER==MSOFTC
-	if (is_tty && any_display)
+	if (interactive())
 	{
 		*ob = '\0';
 		_outtext(obuf);
@@ -112,10 +112,10 @@ flush(VOID_PARAM)
 	}
 #else
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
-	if (is_tty && any_display)
+	if (interactive())
 	{
 		*ob = '\0';
-		if (ctldisp != OPT_ONPLUS)
+		if (ctldisp != OPT_ONPLUS || (vt_enabled && sgr_mode))
 			WIN32textout(obuf, ob - obuf);
 		else
 		{
@@ -250,21 +250,16 @@ flush(VOID_PARAM)
 								bgi = nm_bg_color & 8;
 							}
 							break;
-						case 1:	/* bold on */
+						case 1: /* bold on */
 							fgi = 8;
 							at |= 1;
 							break;
-						case 3:	/* italic on */
+						case 3: /* italic on */
 						case 7: /* inverse on */
 							at |= 2;
 							break;
 						case 4: /* underline on */
-#if MSDOS_COMPILER==WIN32C
-							if (have_ul)
-								bgi = COMMON_LVB_UNDERSCORE >> 4;
-							else
-#endif
-								bgi = 8;
+							bgi = 8;
 							at |= 4;
 							break;
 						case 5: /* slow blink on */
@@ -272,7 +267,7 @@ flush(VOID_PARAM)
 							bgi = 8;
 							at |= 8;
 							break;
-						case 8:	/* concealed on */
+						case 8: /* concealed on */
 							at |= 16;
 							break;
 						case 22: /* bold off */
@@ -360,11 +355,7 @@ flush(VOID_PARAM)
 					if (at & 16)
 						f = b ^ 8;
 					f &= 0xf;
-#if MSDOS_COMPILER==WIN32C
-					b &= 0xf | (COMMON_LVB_UNDERSCORE >> 4);
-#else
- 					b &= 0xf;
-#endif
+					b &= 0xf;
 					WIN32setcolors(f, b);
 					p_next = anchor = p + 1;
 				} else
@@ -379,10 +370,21 @@ flush(VOID_PARAM)
 	}
 #endif
 #endif
-	fd = (any_display) ? 1 : 2;
-	if (write(fd, obuf, n) != n)
+
+	if (write(outfd, obuf, n) != n)
 		screen_trashed = 1;
 	ob = obuf;
+}
+
+/*
+ * Set the output file descriptor (1=stdout or 2=stderr).
+ */
+	public void
+set_output(fd)
+	int fd;
+{
+	flush();
+	outfd = fd;
 }
 
 /*
@@ -527,8 +529,11 @@ iprint_linenum(num)
 /*
  * This function implements printf-like functionality
  * using a more portable argument list mechanism than printf's.
+ *
+ * {{ This paranoia about the portability of printf dates from experiences
+ *    with systems in the 1980s and is of course no longer necessary. }}
  */
-	static int
+	public int
 less_printf(fmt, parg)
 	char *fmt;
 	PARG *parg;
@@ -564,6 +569,10 @@ less_printf(fmt, parg)
 			case 'n':
 				col += iprint_linenum(parg->p_linenum);
 				parg++;
+				break;
+			case 'c':
+				putchr(parg->p_char);
+				col++;
 				break;
 			case '%':
 				putchr('%');
@@ -608,24 +617,20 @@ error(fmt, parg)
 
 	errmsgs++;
 
-	if (any_display && is_tty)
+	if (!interactive())
 	{
-		if (!oldbot)
-			squish_check();
-		at_exit();
-		clear_bot();
-		at_enter(AT_STANDOUT);
-		col += so_s_width;
-	}
-
-	col += less_printf(fmt, parg);
-
-	if (!(any_display && is_tty))
-	{
+		less_printf(fmt, parg);
 		putchr('\n');
 		return;
 	}
 
+	if (!oldbot)
+		squish_check();
+	at_exit();
+	clear_bot();
+	at_enter(AT_STANDOUT);
+	col += so_s_width;
+	col += less_printf(fmt, parg);
 	putstr(return_to_continue);
 	at_exit();
 	col += sizeof(return_to_continue) + so_e_width;
@@ -680,13 +685,13 @@ query(fmt, parg)
 	int c;
 	int col = 0;
 
-	if (any_display && is_tty)
+	if (interactive())
 		clear_bot();
 
 	(void) less_printf(fmt, parg);
 	c = getchr();
 
-	if (!(any_display && is_tty))
+	if (!interactive())
 	{
 		putchr('\n');
 		return (c);

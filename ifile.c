@@ -14,7 +14,7 @@
 
 #include "less.h"
 
-extern IFILE	curr_ifile;
+extern IFILE    curr_ifile;
 
 struct ifile {
 	struct ifile *h_next;           /* Links for command line list */
@@ -34,8 +34,8 @@ struct ifile {
  * Convert an IFILE (external representation)
  * to a struct file (internal representation), and vice versa.
  */
-#define int_ifile(h)	((struct ifile *)(h))
-#define ext_ifile(h)	((IFILE)(h))
+#define int_ifile(h)    ((struct ifile *)(h))
+#define ext_ifile(h)    ((IFILE)(h))
 
 /*
  * Anchor for linked list.

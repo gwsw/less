@@ -31,10 +31,10 @@ struct mark
  * Each mark is identified by a lowercase or uppercase letter.
  * The final one is lmark, for the "last mark"; addressed by the apostrophe.
  */
-#define	NMARKS		((2*26)+2)	/* a-z, A-Z, mousemark, lastmark */
-#define	NUMARKS		((2*26)+1)	/* user marks (not lastmark) */
-#define	MOUSEMARK	(NMARKS-2)
-#define	LASTMARK	(NMARKS-1)
+#define NMARKS          ((2*26)+2)      /* a-z, A-Z, mousemark, lastmark */
+#define NUMARKS         ((2*26)+1)      /* user marks (not lastmark) */
+#define MOUSEMARK       (NMARKS-2)
+#define LASTMARK        (NMARKS-1)
 static struct mark marks[NMARKS];
 public int marks_modified = 0;
 
@@ -109,13 +109,17 @@ mark_get_ifile(m)
 getumark(c)
 	int c;
 {
+	PARG parg;
 	if (c >= 'a' && c <= 'z')
 		return (&marks[c-'a']);
 	if (c >= 'A' && c <= 'Z')
 		return (&marks[c-'A'+26]);
+	if (c == '\'')
+		return (&marks[LASTMARK]);
 	if (c == '#')
 		return (&marks[MOUSEMARK]);
-	error("Invalid mark letter", NULL_PARG);
+	parg.p_char = (char) c;
+	error("Invalid mark letter %c", &parg);
 	return (NULL);
 }
 
@@ -252,6 +256,7 @@ lastmark(VOID_PARAM)
 	if (scrpos.pos == NULL_POSITION)
 		return;
 	cmark(&marks[LASTMARK], curr_ifile, scrpos.pos, scrpos.ln);
+	marks_modified = 1;
 }
 
 /*
@@ -395,7 +400,7 @@ save_marks(fout, hdr)
 		return;
 
 	fprintf(fout, "%s\n", hdr);
-	for (i = 0;  i < NUMARKS;  i++)
+	for (i = 0;  i < NMARKS;  i++)
 	{
 		char *filename;
 		struct mark *m = &marks[i];

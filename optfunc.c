@@ -12,9 +12,9 @@
  * Each handling function is passed a "type" and, if it is a string
  * option, the string which should be "assigned" to the option.
  * The type may be one of:
- *	INIT	The option is being initialized from the command line.
- *	TOGGLE	The option is being changed from within the program.
- *	QUERY	The setting of the option is merely being queried.
+ *      INIT    The option is being initialized from the command line.
+ *      TOGGLE  The option is being changed from within the program.
+ *      QUERY   The setting of the option is merely being queried.
  */
 
 #include "less.h"
@@ -29,7 +29,7 @@ extern int sc_width;
 extern int sc_height;
 extern int secure;
 extern int dohelp;
-extern int any_display;
+extern int is_tty;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
@@ -48,6 +48,8 @@ extern int rscroll_attr;
 extern int mousecap;
 extern int wheel_lines;
 extern int less_is_more;
+extern int linenum_width;
+extern int status_col_width;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -388,13 +390,13 @@ opt_p(type, s)
 		} else
 		{
 			plusoption = TRUE;
-			ungetcc(CHAR_END_COMMAND);
-			ungetsc(s);
 			 /*
 			  * {{ This won't work if the "/" command is
 			  *    changed or invalidated by a .lesskey file. }}
 			  */
 			ungetsc("/");
+			ungetsc(s);
+			ungetcc_back(CHAR_END_COMMAND);
 		}
 		break;
 	}
@@ -420,13 +422,13 @@ opt__P(type, s)
 		 */
 		switch (*s)
 		{
-		case 's':  proto = &prproto[PR_SHORT];	s++;	break;
-		case 'm':  proto = &prproto[PR_MEDIUM];	s++;	break;
-		case 'M':  proto = &prproto[PR_LONG];	s++;	break;
-		case '=':  proto = &eqproto;		s++;	break;
-		case 'h':  proto = &hproto;		s++;	break;
-		case 'w':  proto = &wproto;		s++;	break;
-		default:   proto = &prproto[PR_SHORT];		break;
+		case 's':  proto = &prproto[PR_SHORT];  s++;    break;
+		case 'm':  proto = &prproto[PR_MEDIUM]; s++;    break;
+		case 'M':  proto = &prproto[PR_LONG];   s++;    break;
+		case '=':  proto = &eqproto;            s++;    break;
+		case 'h':  proto = &hproto;             s++;    break;
+		case 'w':  proto = &wproto;             s++;    break;
+		default:   proto = &prproto[PR_SHORT];          break;
 		}
 		free(*proto);
 		*proto = save(s);
@@ -497,20 +499,28 @@ opt__V(type, s)
 		dispversion();
 		break;
 	case INIT:
-		/*
-		 * Force output to stdout per GNU standard for --version output.
-		 */
-		any_display = 1;
+		set_output(1); /* Force output to stdout per GNU standard for --version output. */
 		putstr("less ");
 		putstr(version);
 		putstr(" (");
 		putstr(pattern_lib_name());
 		putstr(" regular expressions)\n");
-		putstr("@@copyright_oneline@@\n\n");
+		{
+			char constant *copyright = "@@copyright_oneline@@\n\n";
+			if (copyright[0] == '@')
+				copyright = "Copyright (C) 1984  Mark Nudelman\n\n";
+			putstr(copyright);
+		}
+		if (version[strlen(version)-1] == 'x')
+		{
+			putstr("** This is an EXPERIMENTAL build of the 'less' software,\n");
+			putstr("** and may not function correctly.\n");
+			putstr("** Obtain release builds from the web page below.\n\n");
+		}
 		putstr("less comes with NO WARRANTY, to the extent permitted by law.\n");
 		putstr("For information about the terms of redistribution,\n");
 		putstr("see the file named README in the less distribution.\n");
-		putstr("Home page: http://www.greenwoodsoftware.com/less\n");
+		putstr("Home page: https://greenwoodsoftware.com/less\n");
 		quit(QUIT_OK);
 		break;
 	}
@@ -520,7 +530,7 @@ opt__V(type, s)
 /*
  * Parse an MSDOS color descriptor.
  */
-   	static void
+	static void
 colordesc(s, fg_color, bg_color)
 	char *s;
 	int *fg_color;
@@ -530,7 +540,7 @@ colordesc(s, fg_color, bg_color)
 	int err;
 #if MSDOS_COMPILER==WIN32C
 	int ul = 0;
- 	
+ 
 	if (*s == 'u')
 	{
 		ul = COMMON_LVB_UNDERSCORE;
@@ -821,6 +831,60 @@ opt_wheel_lines(type, s)
 	case TOGGLE:
 		if (wheel_lines <= 0)
 			wheel_lines = default_wheel_lines();
+		break;
+	case QUERY:
+		break;
+	}
+}
+
+/*
+ * Handler for the --line-number-width option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_linenum_width(type, s)
+	int type;
+	char *s;
+{
+	PARG parg;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		if (linenum_width > MAX_LINENUM_WIDTH)
+		{
+			parg.p_int = MAX_LINENUM_WIDTH;
+			error("Line number width must not be larger than %d", &parg);
+			linenum_width = MIN_LINENUM_WIDTH;
+		} 
+		break;
+	case QUERY:
+		break;
+	}
+}
+
+/*
+ * Handler for the --status-column-width option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_status_col_width(type, s)
+	int type;
+	char *s;
+{
+	PARG parg;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		if (status_col_width > MAX_STATUSCOL_WIDTH)
+		{
+			parg.p_int = MAX_STATUSCOL_WIDTH;
+			error("Status column width must not be larger than %d", &parg);
+			status_col_width = 2;
+		}
 		break;
 	case QUERY:
 		break;

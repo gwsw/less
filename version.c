@@ -892,7 +892,20 @@ v565  11/3/20   Add ESC-U command, optimize calls to realpath().
 v566  11/25/20  Fix crash when reopening a file while using LESSOPEN;
                 support OSC 8 hyperlinks.
 v567  11/25/20  Fix typo.
-v568            Fix some hyperlink bugs.
+v568  11/29/20  Fix some hyperlink bugs; add ^W search modifier
+                (thanks to Arminius); allow Makefile.aut to use Python 
+                instead of Perl (thanks to Charlie Lin).
+v569  12/1/20   Allow multiple & filters (thanks to Mattias Johansson),
+                allow ^X to exit F command.
+v570  12/12/20  Better handling of multiple + or -p options;
+                fix bugs in horizontal scrolling.
+v571  12/30/20  Add --line-num-width and --status-col-width options.
+v572  1/4/21    Save lastmark in history file; don't toggle mouse reporting;
+                implement termcap delays.
+v573  1/9/21    Limit eof bell to 1 per second.
+v574  1/13/21   Add incremental search.
+v575  1/17/21   Fix build without HILITE_SEARCH;
+                fix bug with ^K in lesskey extra string.
 */
 
-char version[] = "568x";
+char version[] = "575";

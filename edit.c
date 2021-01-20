@@ -13,13 +13,12 @@
 public int fd0 = 0;
 
 extern int new_file;
-extern int errmsgs;
 extern int cbufs;
 extern char *every_first_cmd;
-extern int any_display;
 extern int force_open;
 extern int is_tty;
 extern int sigs;
+extern int hshift;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -39,7 +38,6 @@ extern char *namelogfile;
 public dev_t curr_dev;
 public ino_t curr_ino;
 #endif
-
 
 /*
  * Textlist functions deal with a list of words separated by spaces.
@@ -235,7 +233,6 @@ edit_ifile(ifile)
 {
 	int f;
 	int answer;
-	int no_display;
 	int chflags;
 	char *filename;
 	char *open_filename;
@@ -455,14 +452,12 @@ edit_ifile(ifile)
 #endif
 		if (every_first_cmd != NULL)
 		{
-			ungetcc(CHAR_END_COMMAND);
 			ungetsc(every_first_cmd);
+			ungetcc_back(CHAR_END_COMMAND);
 		}
 	}
 
-	no_display = !any_display;
 	flush();
-	any_display = TRUE;
 
 	if (is_tty)
 	{
@@ -478,6 +473,7 @@ edit_ifile(ifile)
 #if HILITE_SEARCH
 		clr_hilite();
 #endif
+		hshift = 0;
 		if (strcmp(filename, FAKE_HELPFILE) && strcmp(filename, FAKE_EMPTYFILE))
 		{
 			char *qfilename = shell_quote(filename);
@@ -485,17 +481,6 @@ edit_ifile(ifile)
 			free(qfilename);
 		}
 
-		if (no_display && errmsgs > 0)
-		{
-			/*
-			 * We displayed some messages on error output
-			 * (file descriptor 2; see error() function).
-			 * Before erasing the screen contents,
-			 * display the file name and wait for a keystroke.
-			 */
-			parg.p_string = filename;
-			error("%s", &parg);
-		}
 	}
 	free(filename);
 	return (0);

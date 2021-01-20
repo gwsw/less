@@ -135,11 +135,11 @@ getchr(VOID_PARAM)
 
 	do
 	{
+		flush();
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
 		/*
 		 * In raw read, we don't see ^C so look here for it.
 		 */
-		flush();
 #if MSDOS_COMPILER==WIN32C
 		if (ABORT_SIGS())
 			return (READ_INTR);
