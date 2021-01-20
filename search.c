@@ -28,6 +28,8 @@ extern int utf_mode;
 extern int screen_trashed;
 extern int sc_width;
 extern int sc_height;
+extern int chopline;
+extern int hshift;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int size_linebuf;
@@ -1217,6 +1219,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pbo
 	int cvt_len;
 	int *chpos;
 	POSITION linepos, oldpos;
+	int swidth = sc_width - line_pfx_width();
 
 	linenum = find_linenum(pos);
 	oldpos = pos;
@@ -1394,22 +1397,41 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pbo
 						hilite_line(linepos, cline, line_len, chpos, sp, ep, cvt_ops);
 					}
 #endif
-					if (pbotpos != NULL)
+					if (chopline)
 					{
 						/*
-						 * It may be the line is so long that the highlighted match
+						 * If necessary, shift horizontally to make sure 
+						 * search match is fully visible.
+						 */
+						int start_off = sp - cline;
+						int end_off = ep - cline;
+						int min_hshift = end_off - swidth + 1;
+						int max_hshift = start_off;
+						int new_hshift = hshift;
+						if (new_hshift > max_hshift)
+							new_hshift = max_hshift;
+						if (new_hshift < min_hshift)
+							new_hshift = min_hshift;
+						if (new_hshift != hshift)
+						{
+							hshift = new_hshift;
+							screen_trashed = 1;
+						}
+					} else if (pbotpos != NULL)
+					{
+						/*
+						 * If the line is so long that the highlighted match
 						 * won't be seen when the line is displayed normally
 						 * (starting at the first char) because it fills the whole 
-						 * screen and more. In that case, we (effectively) scroll
-						 * forward until at least one char of the match appears in 
-						 * the last line on the screen.
+						 * screen and more, scroll forward until the last char
+						 * of the match appears in the last line on the screen.
 						 * botpos is the position of the first char of that last line.
 						 */
-						int height = sc_height - sindex_from_sline(jump_sline) - 1;
-						int scr_size = sc_width * height;
-						int match_off = sp - cline;
-						if (match_off >= scr_size)
-							*pbotpos = linepos + chpos[(match_off / sc_width) * sc_width];
+						int sheight = sc_height - sindex_from_sline(jump_sline) - 1;
+						int scr_size = swidth * sheight;
+						int end_off = ep - cline;
+						if (end_off >= scr_size)
+							*pbotpos = linepos + chpos[(end_off / swidth) * swidth];
 					}
 					free(cline);
 					free(chpos);

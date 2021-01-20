@@ -301,6 +301,21 @@ plinestart(pos)
 }
 
 /*
+ * Return the width of the line prefix (status column and line number).
+ * {{ Actual line number can be wider than linenum_width. }}
+ */
+	public int
+line_pfx_width(VOID_PARAM)
+{
+	int width = 0;
+	if (status_col)
+		width += status_col_width;
+	if (linenums == OPT_ONPLUS)
+		width += linenum_width + 1;
+	return width;
+}
+
+/*
  * Add char to the shifted_ansi buffer.
  */
 	static void
