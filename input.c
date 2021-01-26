@@ -34,9 +34,10 @@ extern int show_attn;
  * a line.  The new position is the position of the first character
  * of the NEXT line.  The line obtained is the line starting at curr_pos.
  */
-	public POSITION
-forw_line(curr_pos)
+	static POSITION
+forw_line2(curr_pos, psegpos)
 	POSITION curr_pos;
+	int *psegpos;
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -192,6 +193,8 @@ get_forw_line:
 			} else
 			{
 				new_pos = ch_tell() - backchars;
+				if (psegpos != NULL)
+					*psegpos = new_pos;
 				endline = FALSE;
 			}
 			break;
@@ -242,6 +245,22 @@ get_forw_line:
 	}
 
 	return (new_pos);
+}
+
+	public POSITION
+forw_line(curr_pos)
+	POSITION curr_pos;
+{
+	return forw_line2(curr_pos, NULL);
+}
+
+	public POSITION
+forw_line_seg(curr_pos)
+	POSITION curr_pos;
+{
+	POSITION segpos;
+	(void) forw_line2(curr_pos, &segpos);
+	return segpos;
 }
 
 /*

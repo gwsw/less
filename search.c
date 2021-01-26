@@ -38,6 +38,7 @@ extern int can_goto_line;
 static int hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
+extern POSITION xxpos;
 
 /*
  * Structures for maintaining a set of ranges for hilites and filtered-out
@@ -1191,10 +1192,55 @@ matches_filters(pos, cline, line_len, chpos, linepos, sp, ep)
 #endif
 
 /*
+ * Get the position of the first char in the screen line which
+ * puts tpos on screen.
+ */
+	static POSITION
+get_lastlinepos(pos, tpos, sheight)
+	POSITION pos;
+	POSITION tpos;
+	int sheight;
+{
+	int nlines;
+
+	for (nlines = 0;;  nlines++)
+	{
+		POSITION npos = forw_line(pos);
+		if (npos > tpos)
+		{
+			if (nlines < sheight)
+				return NULL_POSITION;
+			return pos;
+		}
+		pos = npos;
+	}
+}
+
+/*
+ * Get the segment index of tpos in the line starting at pos.
+ * A segment is a string of printable chars that fills the screen width.
+ */
+	static int
+get_seg(pos, tpos)
+	POSITION pos;
+	POSITION tpos;
+{
+	int seg;
+
+	for (seg = 0;;  seg++)
+	{
+		POSITION segpos = forw_line_seg(pos);
+		if (segpos > tpos)
+			return seg;
+		pos = segpos;
+	}
+}
+
+/*
  * Search a subset of the file, specified by start/end position.
  */
 	static int
-search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pbotpos)
+search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, plastlinepos)
 	POSITION pos;
 	POSITION endpos;
 	int search_type;
@@ -1202,7 +1248,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pbo
 	int maxlines;
 	POSITION *plinepos;
 	POSITION *pendpos;
-	POSITION *pbotpos;
+	POSITION *plastlinepos;
 {
 	char *line;
 	char *cline;
@@ -1215,6 +1261,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pbo
 	int *chpos;
 	POSITION linepos, oldpos;
 	int swidth = sc_width - line_pfx_width();
+	int sheight = sc_height - sindex_from_sline(jump_sline);
 
 	linenum = find_linenum(pos);
 	oldpos = pos;
@@ -1400,19 +1447,26 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pbo
 						 */
 						int start_off = sp - cline;
 						int end_off = ep - cline;
-						int min_hshift = end_off - swidth + 1;
-						int max_hshift = start_off;
-						int new_hshift = hshift;
-						if (new_hshift > max_hshift)
-							new_hshift = max_hshift;
-						if (new_hshift < min_hshift)
-							new_hshift = min_hshift;
-						if (new_hshift != hshift)
+						int save_hshift = hshift;
+						int sshift;
+						int eshift;
+						hshift = 0; /* make get_seg count screen lines */
+						chopline = FALSE;
+						//start_off += 1;
+						//if (start_off >= cvt_len)
+						//	start_off = cvt_len - 1;
+						sshift = swidth * get_seg(linepos, linepos + chpos[start_off]);
+						eshift = swidth * get_seg(linepos, linepos + chpos[end_off]);
+						chopline = TRUE;
+						if (sshift >= save_hshift && eshift <= save_hshift)
 						{
-							hshift = new_hshift;
+							hshift = save_hshift;
+						} else
+						{
+							hshift = sshift;
 							screen_trashed = 1;
 						}
-					} else if (pbotpos != NULL)
+					} else if (plastlinepos != NULL)
 					{
 						/*
 						 * If the line is so long that the highlighted match
@@ -1420,13 +1474,11 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pbo
 						 * (starting at the first char) because it fills the whole 
 						 * screen and more, scroll forward until the last char
 						 * of the match appears in the last line on the screen.
-						 * botpos is the position of the first char of that last line.
+						 * lastlinepos is the position of the first char of that last line.
 						 */
-						int sheight = sc_height - sindex_from_sline(jump_sline) - 1;
-						int scr_size = swidth * sheight;
 						int end_off = ep - cline;
-						if (end_off >= scr_size)
-							*pbotpos = linepos + chpos[(end_off / swidth) * swidth];
+						if (end_off >= swidth * sheight / 4) /* heuristic */
+							*plastlinepos = get_lastlinepos(linepos, linepos + chpos[end_off], sheight);
 					}
 					free(cline);
 					free(chpos);
@@ -1511,7 +1563,7 @@ search(search_type, pattern, n)
 {
 	POSITION pos;
 	POSITION opos;
-	POSITION botpos = NULL_POSITION;
+	POSITION lastlinepos = NULL_POSITION;
 
 	if (pattern == NULL || *pattern == '\0')
 	{
@@ -1604,7 +1656,7 @@ search(search_type, pattern, n)
 	}
 
 	n = search_range(pos, NULL_POSITION, search_type, n, -1,
-			&pos, (POSITION*)NULL, &botpos);
+			&pos, (POSITION*)NULL, &lastlinepos);
 	if (n != 0)
 	{
 		/*
@@ -1625,8 +1677,8 @@ search(search_type, pattern, n)
 		/*
 		 * Go to the matching line.
 		 */
-		if (botpos != NULL_POSITION)
-			jump_loc(botpos, BOTTOM);
+		if (lastlinepos != NULL_POSITION)
+			jump_loc(lastlinepos, BOTTOM);
 		else if (pos != opos)
 			jump_loc(pos, jump_sline);
 	}
