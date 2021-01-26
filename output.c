@@ -76,7 +76,7 @@ static char obuf[OUTBUF_SIZE];
 static char *ob = obuf;
 static int outfd = 2; /* stderr */
 
-#if MSDOS_COMPILER==MSOFTC || MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
+#if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	static void
 win_flush(VOID_PARAM)
 {
