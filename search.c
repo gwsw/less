@@ -1229,10 +1229,10 @@ get_seg(pos, tpos)
 
 	for (seg = 0;;  seg++)
 	{
-		POSITION segpos = forw_line_seg(pos);
-		if (segpos > tpos)
+		POSITION npos = forw_line_seg(pos, TRUE);
+		if (npos > tpos)
 			return seg;
-		pos = segpos;
+		pos = npos;
 	}
 }
 
