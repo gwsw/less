@@ -404,7 +404,7 @@ attr_ewidth(a)
  * Adding a character with a given attribute may cause an enter or exit
  * attribute sequence to be inserted, so this must be taken into account.
  */
-	static int
+	public int
 pwidth(ch, a, prev_ch, prev_a)
 	LWCHAR ch;
 	int a;
@@ -655,8 +655,9 @@ store_char(ch, a, rep, pos)
 		w = 0;
 	} else {
 		char *p = &linebuf.buf[linebuf.end];
-		LWCHAR prev_ch = step_char(&p, -1, linebuf.buf);
-		w = pwidth(ch, a, prev_ch, linebuf.attr[linebuf.end-1]);
+		LWCHAR prev_ch = (linebuf.end > 0) ? step_char(&p, -1, linebuf.buf) : 0;
+		int prev_a = (linebuf.end > 0) ? linebuf.attr[linebuf.end-1] : 0;
+		w = pwidth(ch, a, prev_ch, prev_a);
 	}
 
 	if (ctldisp != OPT_ON && end_column - cshift + w + attr_ewidth(a) > sc_width)

@@ -216,18 +216,13 @@ init_search(VOID_PARAM)
 get_cvt_ops(VOID_PARAM)
 {
 	int ops = 0;
-	if (is_caseless || bs_mode == BS_SPECIAL)
-	{
-		if (is_caseless) 
-			ops |= CVT_TO_LC;
-		if (bs_mode == BS_SPECIAL)
-			ops |= CVT_BS;
-		if (bs_mode != BS_CONTROL)
-			ops |= CVT_CRLF;
-	} else if (bs_mode != BS_CONTROL)
-	{
+
+	if (is_caseless) 
+		ops |= CVT_TO_LC;
+	if (bs_mode == BS_SPECIAL)
+		ops |= CVT_BS;
+	if (bs_mode != BS_CONTROL)
 		ops |= CVT_CRLF;
-	}
 	if (ctldisp == OPT_ONPLUS)
 		ops |= CVT_ANSI;
 	return (ops);
