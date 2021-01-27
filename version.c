@@ -906,6 +906,7 @@ v573  1/9/21    Limit eof bell to 1 per second.
 v574  1/13/21   Add incremental search.
 v575  1/17/21   Fix build without HILITE_SEARCH;
                 fix bug with ^K in lesskey extra string.
+v576            Make sure search result is visible.
 */
 
-char version[] = "575";
+char version[] = "576x";
