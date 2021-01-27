@@ -570,7 +570,76 @@ The \-d option does not otherwise change the behavior of
 .I less
 on a dumb terminal.
 .IP "\-D\fBx\fP\fIcolor\fP or \-\-color=\fBx\fP\fIcolor\fP"
-[MS-DOS only]
+[this section is for non-MS-DOS systems only; for MS-DOS systems see below]
+.br
+When the \-\-use-color option is enabled, this option 
+changes the color of different parts of the displayed text.
+\fBx\fP is a single character which selects the type of text 
+whose color is being set:
+.RS
+.IP "B"
+Binary characters.
+.IP "C"
+Control characters.
+.IP "E"
+Errors and informational messages.
+.IP "M"
+Mark letters in the status column.
+.IP "N"
+Line numbers enabled via the \-N option.
+.IP "P"
+Prompts.
+.IP "R"
+The rscroll character.
+.IP "S"
+Search results.
+.IP "W"
+The highlight enabled via the \-w option.
+.RE
+.PP
+.RS
+\fIcolor\fP is either a 4-bit color string or a 6-bit color string:
+.PP
+A 4-bit color string is one or two characters where 
+the first character specifies the foreground color and 
+the second specifies the background color as follows:
+.IP "b"
+Blue
+.IP "c"
+Cyan
+.IP "g"
+Green
+.IP "k"
+Black
+.IP "m"
+Magenta
+.IP "r"
+Red
+.IP "w"
+White
+.IP "y"
+Yellow
+.PP
+The corresponding upper-case letter denotes a brighter shade of the color.
+For example, \-DLGk displays line numbers as bright green text on a black 
+background, and \-DEbR displays error messages as blue text on a 
+bright red background.
+If either character is a "-", the corresponding color is not changed.
+If the background character is omitted, the background color is not changed.
+.PP
+A 6-bit color string is one or two decimal integers separated by a dot,
+where the first integer specifies the foreground color and 
+the second specifies the background color.
+Each integer is a value between 0 and 255 inclusive which selects
+a CSI 38;5 color (see
+.br
+https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters)
+If either integer is a "-", the corresponding color is not changed.
+If the dot and background integer are omitted, the background color is not changed.
+.RE
+.IP "\-D\fBx\fP\fIcolor\fP or \-\-color=\fBx\fP\fIcolor\fP"
+[this section is for MS-DOS systems only]
+.br
 Sets the color of the text displayed.
 \fBx\fP is a single character which selects the type of text whose color is
 being set: n=normal, s=standout, d=bold, u=underlined, k=blink.
@@ -1023,6 +1092,11 @@ This option changes the interpretations of options which follow this one.
 After the \-\-use-backslash option, any backslash in an option string is
 removed and the following character is taken literally.
 This allows a dollar sign to be included in option strings.
+.IP "\-\-use-color"
+Enables the colored text in various places.
+The -D option can be used to change the colors.
+Colored text works only if the terminal supports 
+ANSI color escape sequences (ECMA-48 SGR).
 .IP "\-\-wheel-lines=\fIn\fP"
 Set the number of lines to scroll when the mouse wheel is scrolled
 and the \-\-mouse or \-\-MOUSE option is in effect.

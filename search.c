@@ -601,7 +601,7 @@ prev_unfiltered(pos)
  * If nohide is nonzero, don't consider hide_hilite.
  */
 	public int
-is_hilited(pos, epos, nohide, p_matches)
+is_hilited_attr(pos, epos, nohide, p_matches)
 	POSITION pos;
 	POSITION epos;
 	int nohide;
@@ -619,7 +619,7 @@ is_hilited(pos, epos, nohide, p_matches)
 		/*
 		 * The attn line overlaps this range.
 		 */
-		return (1);
+		return (AT_HILITE|AT_COLOR_ATTN);
 
 	match = is_hilited_range(pos, epos);
 	if (!match)
@@ -631,7 +631,7 @@ is_hilited(pos, epos, nohide, p_matches)
 		 * hilite in status column. In this case we want to return
 		 * hilite status even if hiliting is disabled or hidden.
 		 */
-		return (1);
+		return (AT_HILITE|AT_COLOR_SEARCH);
 
 	/*
 	 * Report matches, even if we're hiding highlights.
@@ -650,7 +650,7 @@ is_hilited(pos, epos, nohide, p_matches)
 		 */
 		return (0);
 
-	return (1);
+	return (AT_HILITE|AT_COLOR_SEARCH);
 }
 
 /*

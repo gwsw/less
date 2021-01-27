@@ -244,6 +244,7 @@ extern int quit_if_one_screen;
 extern int oldbot;
 extern int mousecap;
 extern int is_tty;
+extern int use_color;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -2347,11 +2348,132 @@ clear_bot(VOID_PARAM)
 	}
 }
 
+#if !MSDOS_COMPILER
+
+	static int
+sgr_4bit_color(ch)
+	char ch;
+{
+	switch (ch)
+	{
+	case 'k': return 30;
+	case 'r': return 31;
+	case 'g': return 32;
+	case 'y': return 33;
+	case 'b': return 34;
+	case 'm': return 35;
+	case 'c': return 36;
+	case 'w': return 37;
+	case 'K': return 90;
+	case 'R': return 91;
+	case 'G': return 92;
+	case 'Y': return 93;
+	case 'B': return 94;
+	case 'M': return 95;
+	case 'C': return 96;
+	case 'W': return 97;
+	case '-': return 0;
+	default:  return -1;
+	}
+}
+
+	static int
+sgr_6bit_color(ps)
+	char **ps;
+{
+	int color;
+
+	if (**ps == '-')
+	{
+		color = 0;
+		(*ps)++;
+	} else
+	{
+		char *ops = *ps;
+		color = lstrtoi(ops, ps);
+		if (*ps == ops)
+			return -1;
+	}
+	return color;
+}
+
+/*
+ * Color string may be "x[y]" where x and y are 4-bit color chars,
+ * or "N[.M]" where N and M are decimal integers >= 16 and <= 255.
+ * Any of x,y,N,M may also be "-" to mean transparent (unchanged).
+ */
+	public int
+tput_color(colorstr, f_putc)
+	char *colorstr;
+	int (*f_putc)(int);
+{
+	char buf[16];
+	int fg_color;
+	int bg_color;
+
+	if (colorstr == NULL)
+		return -1;
+	if (*colorstr == '\0')
+	{
+		/* Special case: reset to normal */
+		ltputs(ESCS"[m", 1, f_putc);
+		return 0;
+	}
+	fg_color = sgr_4bit_color(colorstr[0]);
+	bg_color = sgr_4bit_color((strlen(colorstr) < 2) ? '-' : colorstr[1]);
+	if (fg_color >= 0 && bg_color >= 0)
+	{
+		/* 4-bit color */
+		if (fg_color > 0)
+		{
+			SNPRINTF1(buf, sizeof(buf), ESCS"[%dm", fg_color);
+			ltputs(buf, 1, f_putc);
+		}
+		if (bg_color > 0)
+		{
+			SNPRINTF1(buf, sizeof(buf), ESCS"[%dm", bg_color+10);
+			ltputs(buf, 1, f_putc);
+		}
+	} else
+	{
+		fg_color = sgr_6bit_color(&colorstr);
+		bg_color = (fg_color >= 0 && *colorstr++ == '.') ? sgr_6bit_color(&colorstr) : 0;
+		if (fg_color >= 0 && bg_color >= 0)
+		{
+			/* 6-bit color */
+			if (fg_color > 0)
+			{
+				SNPRINTF1(buf, sizeof(buf), ESCS"[38;5;%dm", fg_color);
+				ltputs(buf, 1, f_putc);
+			}
+			if (bg_color > 0)
+			{
+				SNPRINTF1(buf, sizeof(buf), ESCS"[48;5;%dm", bg_color);
+				ltputs(buf, 1, f_putc);
+			}
+		} else
+			return -1;
+	}
+	return 0;
+}
+
+	static void
+tput_attr_color(attr, f_putc)
+	int attr;
+	int (*f_putc)(int);
+{
+	char *colorstr = (attr & AT_COLOR) ? get_color_map(attr) : "";
+	tput_color(colorstr, f_putc);
+}
+#endif
+
 	public void
 at_enter(attr)
 	int attr;
 {
+	int in_color;
 	attr = apply_at_specials(attr);
+	in_color = use_color && (attr & AT_COLOR);
 
 #if !MSDOS_COMPILER
 	/* The one with the most priority is last.  */
@@ -2361,8 +2483,10 @@ at_enter(attr)
 		ltputs(sc_b_in, 1, putchr);
 	if (attr & AT_BLINK)
 		ltputs(sc_bl_in, 1, putchr);
-	if (attr & AT_STANDOUT)
+	if ((attr & AT_STANDOUT) && !in_color)
 		ltputs(sc_s_in, 1, putchr);
+	if ((attr & (AT_UNDERLINE|AT_BOLD)) == 0 && in_color)
+		tput_attr_color(attr, putchr);
 #else
 	flush();
 	/* The one with the most priority is first.  */
@@ -2390,8 +2514,12 @@ at_enter(attr)
 at_exit(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
+	int in_color = use_color && (attrmode & AT_COLOR);
+
 	/* Undo things in the reverse order we did them.  */
-	if (attrmode & AT_STANDOUT)
+	if ((attrmode & (AT_UNDERLINE|AT_BOLD)) == 0 && in_color)
+		tput_attr_color(0, putchr);
+	if ((attrmode & AT_STANDOUT) && !in_color)
 		ltputs(sc_s_out, 1, putchr);
 	if (attrmode & AT_BLINK)
 		ltputs(sc_bl_out, 1, putchr);
@@ -2726,3 +2854,4 @@ WIN32textout(text, len)
 #endif
 }
 #endif
+

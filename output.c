@@ -492,8 +492,8 @@ type funcname(buf, ebuf) \
 	char **ebuf; \
 { \
 	type val = 0; \
-	for (;;) { \
-		char c = *buf++; \
+	for (;; buf++) { \
+		char c = *buf; \
 		if (c < '0' || c > '9') break; \
 		val = 10 * val + c - '0'; \
 	} \
@@ -634,7 +634,7 @@ error(fmt, parg)
 		squish_check();
 	at_exit();
 	clear_bot();
-	at_enter(AT_STANDOUT);
+	at_enter(AT_STANDOUT|AT_COLOR_ERROR);
 	col += so_s_width;
 	col += less_printf(fmt, parg);
 	putstr(return_to_continue);
@@ -671,7 +671,7 @@ ierror(fmt, parg)
 {
 	at_exit();
 	clear_bot();
-	at_enter(AT_STANDOUT);
+	at_enter(AT_STANDOUT|AT_COLOR_ERROR);
 	(void) less_printf(fmt, parg);
 	putstr(intr_to_abort);
 	at_exit();

@@ -18,11 +18,11 @@
 #define MAX_PFX_WIDTH (MAX_LINENUM_WIDTH + MAX_STATUSCOL_WIDTH + 1)
 static struct {
 	char *buf;    /* Buffer which holds the current output line */
-	char *attr;   /* Parallel to buf, to hold attributes */
+	int *attr;   /* Parallel to buf, to hold attributes */
 	int print;    /* Index in buf of first printable char */
 	int end;      /* Number of chars in buf */
 	char pfx[MAX_PFX_WIDTH]; /* Holds status column and line number */
-	char pfx_attr[MAX_PFX_WIDTH];
+	int pfx_attr[MAX_PFX_WIDTH];
 	int pfx_end;  /* Number of chars in pfx */
 } linebuf;
 
@@ -76,11 +76,25 @@ extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 extern char rscroll_char;
 extern int rscroll_attr;
+extern int use_color;
 
 static char mbc_buf[MAX_UTF_CHAR_LEN];
 static int mbc_buf_len = 0;
 static int mbc_buf_index = 0;
 static POSITION mbc_pos;
+
+/* Configurable color map */
+static char color_map[AT_NUM_COLORS][12] = {
+	"Wm",  /* AT_COLOR_ATTN */
+	"kR",  /* AT_COLOR_BIN */
+	"kR",  /* AT_COLOR_CTRL */
+	"kY",  /* AT_COLOR_ERROR */
+	"c",   /* AT_COLOR_LINENUM */
+	"Wb",  /* AT_COLOR_MARK */
+	"kC",  /* AT_COLOR_PROMPT */
+	"kc",  /* AT_COLOR_RSCROLL */
+	"kG",  /* AT_COLOR_SEARCH */
+};
 
 /* State while processing an ANSI escape sequence */
 struct ansi_state {
@@ -104,7 +118,7 @@ init_line(VOID_PARAM)
 		mid_ansi_chars = "0123456789:;[?!\"'#%()*+ ";
 
 	linebuf.buf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
-	linebuf.attr = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
+	linebuf.attr = (int *) ecalloc(LINEBUF_SIZE, sizeof(int));
 	size_linebuf = LINEBUF_SIZE;
 	shifted_ansi.buf = NULL;
 	shifted_ansi.size = 0;
@@ -122,10 +136,10 @@ expand_linebuf(VOID_PARAM)
 	/* Just realloc to expand the buffer, if we can. */
 #if HAVE_REALLOC
 	char *new_buf = (char *) realloc(linebuf.buf, new_size);
-	char *new_attr = (char *) realloc(linebuf.attr, new_size);
+	int *new_attr = (int *) realloc(linebuf.attr, new_size*sizeof(int));
 #else
 	char *new_buf = (char *) calloc(new_size, sizeof(char));
-	char *new_attr = (char *) calloc(new_size, sizeof(char));
+	int *new_attr = (int *) calloc(new_size, sizeof(int));
 #endif
 	if (new_buf == NULL || new_attr == NULL)
 	{
@@ -140,7 +154,7 @@ expand_linebuf(VOID_PARAM)
 	 * We just calloc'd the buffers; copy the old contents.
 	 */
 	memcpy(new_buf, linebuf.buf, size_linebuf * sizeof(char));
-	memcpy(new_attr, linebuf.attr, size_linebuf * sizeof(char));
+	memcpy(new_attr, linebuf.attr, size_linebuf * sizeof(int));
 	free(linebuf.attr);
 	free(linebuf.buf);
 #endif
@@ -190,25 +204,25 @@ prewind(VOID_PARAM)
  * Set a character in the line buffer.
  */
 	static void
-set_linebuf(n, ch, a)
+set_linebuf(n, ch, attr)
 	int n;
 	char ch;
-	char a;
+	int attr;
 {
 	linebuf.buf[n] = ch;
-	linebuf.attr[n] = a;
+	linebuf.attr[n] = attr;
 }
 
 /*
  * Append a character to the line buffer.
  */
 	static void
-add_linebuf(ch, a, w)
+add_linebuf(ch, attr, w)
 	char ch;
-	char a;
+	int attr;
 	int w;
 {
-	set_linebuf(linebuf.end++, ch, a);
+	set_linebuf(linebuf.end++, ch, attr);
 	end_column += w;
 }
 
@@ -216,24 +230,24 @@ add_linebuf(ch, a, w)
  * Set a character in the line prefix buffer.
  */
 	static void
-set_pfx(n, ch, a)
+set_pfx(n, ch, attr)
 	int n;
 	char ch;
-	int a;
+	int attr;
 {
 	linebuf.pfx[n] = ch;
-	linebuf.pfx_attr[n] = a;
+	linebuf.pfx_attr[n] = attr;
 }
 
 /*
  * Append a character to the line prefix buffer.
  */
 	static void
-add_pfx(ch, a)
+add_pfx(ch, attr)
 	char ch;
-	int a;
+	int attr;
 {
-	set_pfx(linebuf.pfx_end++, ch, a);
+	set_pfx(linebuf.pfx_end++, ch, attr);
 }
 
 /*
@@ -267,13 +281,13 @@ plinestart(pos)
 		int a = AT_NORMAL;
 		char c = posmark(pos);
 		if (c != 0)
-			a |= AT_HILITE;
+			a |= AT_HILITE|AT_COLOR_MARK;
 		else 
 		{
 			c = ' ';
 			if (start_attnpos != NULL_POSITION &&
 			    pos >= start_attnpos && pos <= end_attnpos)
-				a |= AT_HILITE;
+				a |= AT_HILITE|AT_COLOR_ATTN;
 		}
 		add_pfx(c, a); /* column 0: status */
 		while (linebuf.pfx_end < status_col_width)
@@ -294,7 +308,7 @@ plinestart(pos)
 		for (i = 0; i < linenum_width - len; i++)
 			add_pfx(' ', AT_NORMAL);
 		for (i = 0; i < len; i++)
-			add_pfx(buf[i], AT_NORMAL);
+			add_pfx(buf[i], AT_NORMAL|AT_COLOR_LINENUM);
 		add_pfx(' ', AT_NORMAL);
 	}
 	end_column = linebuf.pfx_end;
@@ -635,7 +649,8 @@ store_char(ch, a, rep, pos)
 #if HILITE_SEARCH
 	{
 		int matches;
-		if (is_hilited(pos, pos+1, 0, &matches))
+		int hl_attr = is_hilited_attr(pos, pos+1, 0, &matches);
+		if (hl_attr)
 		{
 			/*
 			 * This character should be highlighted.
@@ -645,7 +660,7 @@ store_char(ch, a, rep, pos)
 			{
 				if (highest_hilite != NULL_POSITION && pos > highest_hilite)
 					highest_hilite = pos;
-				a |= AT_HILITE;
+				a |= hl_attr;
 			}
 		}
 	}
@@ -768,10 +783,8 @@ store_prchar(c, pos)
 	 * Convert to printable representation.
 	 */
 	s = prchar(c);
-
 	for ( ;  *s != 0;  s++)
-		STORE_CHAR(*s, AT_BINARY, NULL, pos);
-
+		STORE_CHAR(*s, AT_BINARY|AT_COLOR_CTRL, NULL, pos);
 	return 0;
 }
 
@@ -784,7 +797,6 @@ flush_mbc_buf(pos)
 	for (i = 0; i < mbc_buf_index; i++)
 		if (store_prchar(mbc_buf[i], pos))
 			return mbc_buf_index - i;
-
 	return 0;
 }
 
@@ -1181,10 +1193,11 @@ pdone(endline, chopped, forw)
  *
  */
 	public void
-set_status_col(c)
+set_status_col(c, attr)
 	int c;
+	int attr;
 {
-	set_pfx(0, c, AT_HILITE);
+	set_pfx(0, c, attr);
 }
 
 /*
@@ -1385,4 +1398,58 @@ rrshift(VOID_PARAM)
 	if (longest < sc_width)
 		return 0;
 	return longest - sc_width;
+}
+
+/*
+ * Get the color_map index associated with a given attribute.
+ */
+	static int
+color_index(attr)
+	int attr;
+{
+	int cx = (attr & AT_COLOR) >> AT_COLOR_SHIFT;
+	if (cx == 0 || cx > AT_NUM_COLORS)
+		return -1;
+	return cx-1;
+}
+
+	static int
+null_putc(ch)
+	int ch;
+{
+	return ch;
+}
+
+/*
+ * Set the color string to use for a given attribute.
+ */
+	public int
+set_color_map(attr, colorstr)
+	int attr;
+	char *colorstr;
+{
+	int cx = color_index(attr);
+	if (cx < 0)
+		return -1;
+	if (tput_color(colorstr, null_putc) < 0)
+		return -1;
+	strncpy(color_map[cx], colorstr, sizeof(color_map[cx]));
+	color_map[cx][strlen(colorstr)] = '\0';
+	return 0;
+}
+
+/*
+ * Get the color string to use for a given attribute.
+ */
+	public char *
+get_color_map(attr)
+	int attr;
+{
+	int cx;
+	if (!use_color)
+		return NULL;
+	cx = color_index(attr);
+	if (cx < 0)
+		return NULL;
+	return color_map[cx];
 }

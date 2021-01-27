@@ -221,8 +221,12 @@ get_forw_line:
 		goto get_forw_line;
 	}
 
-	if (status_col && is_hilited(base_pos, ch_tell()-1, 1, NULL))
-		set_status_col('*');
+	if (status_col)
+	{
+		int attr = is_hilited_attr(base_pos, ch_tell()-1, 1, NULL);
+		if (attr)
+			set_status_col('*', attr);
+	}
 #endif
 
 	if (squeeze && blankline)
@@ -433,8 +437,12 @@ get_back_line:
 		goto get_back_line;
 	}
 
-	if (status_col && curr_pos > 0 && is_hilited(base_pos, curr_pos-1, 1, NULL))
-		set_status_col('*');
+	if (status_col && curr_pos > 0)
+	{
+		int attr = is_hilited_attr(base_pos, curr_pos-1, 1, NULL);
+		if (attr)
+			set_status_col('*', attr);
+	}
 #endif
 
 	return (begin_new_pos);

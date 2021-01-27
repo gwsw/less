@@ -637,6 +637,59 @@ opt_D(type, s)
 		break;
 	}
 }
+#else
+
+	static int
+color_from_namechar(namechar)
+	char namechar;
+{
+	switch (namechar)
+	{
+	case 'A': return AT_COLOR_ATTN;
+	case 'B': return AT_COLOR_BIN;
+	case 'C': return AT_COLOR_CTRL;
+	case 'E': return AT_COLOR_ERROR;
+	case 'M': return AT_COLOR_MARK;
+	case 'N': return AT_COLOR_LINENUM;
+	case 'P': return AT_COLOR_PROMPT;
+	case 'R': return AT_COLOR_RSCROLL;
+	case 'S': return AT_COLOR_SEARCH;
+	default:  return 0;
+	}
+}
+
+/*
+ * Handler for the -D option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_D(type, s)
+	int type;
+	char *s;
+{
+	PARG p;
+	int attr;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		attr = color_from_namechar(s[0]);
+		if (attr <= 0)
+		{
+			p.p_char = s[0];
+			error("Invalid color specifier '%c'", &p);
+			return;
+		}
+		if (set_color_map(attr, s+1) < 0)
+		{
+			p.p_string = s+1;
+			error("Invalid color string \"%s\"", &p);
+			return;
+		}
+		break;
+	}
+}
 #endif
 
 /*
@@ -762,7 +815,7 @@ opt_rscroll(type, s)
 		} else
 		{
 			rscroll_char = *fmt ? *fmt : '>';
-			rscroll_attr = attr;
+			rscroll_attr = attr|AT_COLOR_RSCROLL;
 		}
 		break; }
 	case QUERY: {
