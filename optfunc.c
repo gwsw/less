@@ -50,6 +50,7 @@ extern int wheel_lines;
 extern int less_is_more;
 extern int linenum_width;
 extern int status_col_width;
+extern int use_color;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -585,59 +586,7 @@ colordesc(s, fg_color, bg_color)
 	*fg_color = fg;
 	*bg_color = bg;
 }
-
-/*
- * Handler for the -D option.
- */
-	/*ARGSUSED*/
-	public void
-opt_D(type, s)
-	int type;
-	char *s;
-{
-	PARG p;
-
-	switch (type)
-	{
-	case INIT:
-	case TOGGLE:
-		switch (*s++)
-		{
-		case 'n':
-			colordesc(s, &nm_fg_color, &nm_bg_color);
-			break;
-		case 'd':
-			colordesc(s, &bo_fg_color, &bo_bg_color);
-			break;
-		case 'u':
-			colordesc(s, &ul_fg_color, &ul_bg_color);
-			break;
-		case 'k':
-			colordesc(s, &bl_fg_color, &bl_bg_color);
-			break;
-		case 's':
-			colordesc(s, &so_fg_color, &so_bg_color);
-			break;
-		case 'a':
-			sgr_mode = !sgr_mode;
-			break;
-		default:
-			error("-D must be followed by n, d, u, k, s or a", NULL_PARG);
-			break;
-		}
-		if (type == TOGGLE)
-		{
-			at_enter(AT_STANDOUT);
-			at_exit();
-		}
-		break;
-	case QUERY:
-		p.p_string = (sgr_mode) ? "on" : "off";
-		error("SGR mode is %s", &p);
-		break;
-	}
-}
-#else
+#endif
 
 	static int
 color_from_namechar(namechar)
@@ -654,6 +603,10 @@ color_from_namechar(namechar)
 	case 'P': return AT_COLOR_PROMPT;
 	case 'R': return AT_COLOR_RSCROLL;
 	case 'S': return AT_COLOR_SEARCH;
+	case 's': return AT_STANDOUT;
+	case 'd': return AT_BOLD;
+	case 'u': return AT_UNDERLINE;
+	case 'k': return AT_BLINK;
 	default:  return 0;
 	}
 }
@@ -674,13 +627,53 @@ opt_D(type, s)
 	{
 	case INIT:
 	case TOGGLE:
+#if MSDOS_COMPILER
+		if (*s == 'a')
+		{
+			sgr_mode = !sgr_mode;
+			break;
+		}
+#endif
 		attr = color_from_namechar(s[0]);
-		if (attr <= 0)
+		if (attr == 0)
 		{
 			p.p_char = s[0];
 			error("Invalid color specifier '%c'", &p);
 			return;
 		}
+		if (!use_color && (attr & AT_COLOR))
+		{
+			error("Set --use-color before changing colors", NULL_PARG);
+			return;
+		}
+#if MSDOS_COMPILER
+		if (!(attr & AT_COLOR))
+		{
+			switch (attr)
+			{
+			case AT_NORMAL:
+				colordesc(s, &nm_fg_color, &nm_bg_color);
+				break;
+			case AT_BOLD:
+				colordesc(s, &bo_fg_color, &bo_bg_color);
+				break;
+			case AT_UNDERLINE:
+				colordesc(s, &ul_fg_color, &ul_bg_color);
+				break;
+			case AT_BLINK:
+				colordesc(s, &bl_fg_color, &bl_bg_color);
+				break;
+			case AT_STANDOUT:
+				colordesc(s, &so_fg_color, &so_bg_color);
+				break;
+			}
+			if (type == TOGGLE)
+			{
+				at_enter(AT_STANDOUT);
+				at_exit();
+			}
+		} else
+#endif
 		if (set_color_map(attr, s+1) < 0)
 		{
 			p.p_string = s+1;
@@ -688,9 +681,14 @@ opt_D(type, s)
 			return;
 		}
 		break;
+#if MSDOS_COMPILER
+	case QUERY:
+		p.p_string = (sgr_mode) ? "on" : "off";
+		error("SGR mode is %s", &p);
+		break;
+#endif
 	}
 }
-#endif
 
 /*
  * Handler for the -x option.

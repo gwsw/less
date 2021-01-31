@@ -88,7 +88,9 @@ static char *windowid;
 static int videopages;
 static long msec_loops;
 static int flash_created = 0;
-#define SETCOLORS(fg,bg)        { _settextcolor(fg); _setbkcolor(bg); }
+#define SET_FG_COLOR(fg)        _settextcolor(fg)
+#define SET_BG_COLOR(bg)        _setbkcolor(bg)
+#define SETCOLORS(fg,bg)        { SET_FG_COLOR(fg); SET_BG_COLOR(bg); }
 #endif
 
 #if MSDOS_COMPILER==BORLANDC
@@ -99,7 +101,9 @@ static int flash_created = 0;
 #define _settextposition(y,x)   gotoxy(x,y)
 #define _clearscreen(m)         clrscr()
 #define _outtext(s)             cputs(s)
-#define SETCOLORS(fg,bg)        { textcolor(fg); textbackground(bg); }
+#define SET_FG_COLOR(fg)        textcolor(fg)
+#define SET_BG_COLOR(bg)        textbackground(bg)
+#define SETCOLORS(fg,bg)        { SET_FG_COLOR(fg); SET_BG_COLOR(bg); }
 extern int sc_height;
 #endif
 
@@ -132,9 +136,11 @@ static void win32_deinit_term();
 #define FG_COLORS       (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)
 #define BG_COLORS       (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)
 #define MAKEATTR(fg,bg)         ((WORD)((fg)|((bg)<<4)))
-#define SETCOLORS(fg,bg)        { curr_attr = MAKEATTR(fg,bg); \
-                                if (SetConsoleTextAttribute(con_out, curr_attr) == 0) \
-                                error("SETCOLORS failed", NULL_PARG); }
+#define APPLY_COLORS()          { if (SetConsoleTextAttribute(con_out, curr_attr) == 0) \
+                                  error("SETCOLORS failed", NULL_PARG); }
+#define SET_FG_COLOR(fg)        { curr_attr |= (fg); APPLY_COLORS(); }
+#define SET_BG_COLOR(bg)        { curr_attr |= ((bg)<<4); APPLY_COLORS(); }
+#define SETCOLORS(fg,bg)        { curr_attr = MAKEATTR(fg,bg); APPLY_COLORS(); }
 #endif
 
 #if MSDOS_COMPILER
@@ -2348,7 +2354,59 @@ clear_bot(VOID_PARAM)
 	}
 }
 
-#if !MSDOS_COMPILER
+#if MSDOS_COMPILER
+
+	static int
+win_4bit_color(ch)
+	char ch;
+{
+	int bright = (ch >= 'A' && ch <= 'Z') ? FOREGROUND_BRIGHT : 0;
+	if (bright)
+		ch += 'a' - 'A';
+	switch (ch)
+	{
+	case 'k': return bright;
+	case 'r': return bright|FOREGROUND_RED;
+	case 'g': return bright|FOREGROUND_GREEN;
+	case 'y': return bright|FOREGROUND_RED|FOREGROUND_GREEN;
+	case 'b': return bright|FOREGROUND_BLUE;
+	case 'm': return bright|FOREGROUND_RED|FOREGROUND_BLUE;
+	case 'c': return bright|FOREGROUND_GREEN|FOREGROUND_BLUE;
+	case 'w': return bright|FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE;
+	case '-': return -2; /* no change */
+	default:  return -1;
+	}
+}
+
+	static void
+win_set_4bit_color(attr)
+	int attr;
+{
+	int fg_color;
+	int bg_color;
+	int out = FALSE;
+	char *colorstr = get_color_map(attr);
+	if (colorstr == NULL || colorstr[0] == '\0')
+		return FALSE;
+	fg_color = win_4bit_color(colorstr[0]);
+	bg_color = win_4bit_color((strlen(colorstr) < 2) ? '-' : colorstr[1]);
+	if (fg_color >= 0 && bg_color >= 0)
+	{
+		SETCOLORS(fg_color, bg_color);
+		out = TRUE;
+	} else if (fg_color >= 0)
+	{
+		SET_FG_COLOR(fg_color);
+		out = TRUE;
+	} else if (bg_color >= 0)
+	{
+		SET_BG_COLOR(bg_color);
+		out = TRUE;
+	}
+	return out;
+}
+
+#else /* MSDOS_COMPILER */
 
 	static int
 sgr_4bit_color(ch)
@@ -2372,7 +2430,7 @@ sgr_4bit_color(ch)
 	case 'M': return 95;
 	case 'C': return 96;
 	case 'W': return 97;
-	case '-': return 0;
+	case '-': return 0; /* no change */
 	default:  return -1;
 	}
 }
@@ -2410,14 +2468,15 @@ tput_color(colorstr, f_putc)
 	char buf[16];
 	int fg_color;
 	int bg_color;
+	int out = FALSE;
 
-	if (colorstr == NULL)
-		return -1;
-	if (*colorstr == '\0')
+	if (colorstr == NULL || colorstr[0] == '\0')
+		return FALSE;
+	if (strcmp(colorstr, "*") == 0)
 	{
 		/* Special case: reset to normal */
 		ltputs(ESCS"[m", 1, f_putc);
-		return 0;
+		return TRUE;
 	}
 	fg_color = sgr_4bit_color(colorstr[0]);
 	bg_color = sgr_4bit_color((strlen(colorstr) < 2) ? '-' : colorstr[1]);
@@ -2428,11 +2487,13 @@ tput_color(colorstr, f_putc)
 		{
 			SNPRINTF1(buf, sizeof(buf), ESCS"[%dm", fg_color);
 			ltputs(buf, 1, f_putc);
+			out = TRUE;
 		}
 		if (bg_color > 0)
 		{
 			SNPRINTF1(buf, sizeof(buf), ESCS"[%dm", bg_color+10);
 			ltputs(buf, 1, f_putc);
+			out = TRUE;
 		}
 	} else
 	{
@@ -2445,94 +2506,92 @@ tput_color(colorstr, f_putc)
 			{
 				SNPRINTF1(buf, sizeof(buf), ESCS"[38;5;%dm", fg_color);
 				ltputs(buf, 1, f_putc);
+				out = TRUE;
 			}
 			if (bg_color > 0)
 			{
 				SNPRINTF1(buf, sizeof(buf), ESCS"[48;5;%dm", bg_color);
 				ltputs(buf, 1, f_putc);
+				out = TRUE;
 			}
-		} else
-			return -1;
+		} 
 	}
-	return 0;
+	return out;
 }
 
-	static void
-tput_attr_color(attr, f_putc)
+	static int
+tput_mode(mode_str, enter, attr, f_putc)
+	char *mode_str;
+	int enter;
 	int attr;
 	int (*f_putc)(int);
 {
-	char *colorstr = (attr & AT_COLOR) ? get_color_map(attr) : "";
-	tput_color(colorstr, f_putc);
+	char *colorstr = enter ? get_color_map(attr) : "*";
+	if (colorstr == NULL || *colorstr == '\0')
+	{
+		ltputs(mode_str, 1, f_putc);
+		return TRUE;
+	}
+	/* Color overrides mode string */
+	return tput_color(colorstr, f_putc);
 }
-#endif
+
+#endif /* MSDOS_COMPILER */
 
 	public void
 at_enter(attr)
 	int attr;
 {
-	int in_color;
 	attr = apply_at_specials(attr);
-	in_color = use_color && (attr & AT_COLOR);
 
 #if !MSDOS_COMPILER
 	/* The one with the most priority is last.  */
-	if (attr & AT_UNDERLINE)
-		ltputs(sc_u_in, 1, putchr);
-	if (attr & AT_BOLD)
-		ltputs(sc_b_in, 1, putchr);
-	if (attr & AT_BLINK)
-		ltputs(sc_bl_in, 1, putchr);
-	if ((attr & AT_STANDOUT) && !in_color)
-		ltputs(sc_s_in, 1, putchr);
-	if ((attr & (AT_UNDERLINE|AT_BOLD)) == 0 && in_color)
-		tput_attr_color(attr, putchr);
+	if ((attr & AT_UNDERLINE) && tput_mode(sc_u_in, TRUE, AT_UNDERLINE, putchr))
+		attrmode |= AT_UNDERLINE;
+	if ((attr & AT_BOLD) && tput_mode(sc_b_in, TRUE, AT_BOLD, putchr))
+		attrmode |= AT_BOLD;
+	if ((attr & AT_BLINK) && tput_mode(sc_bl_in, TRUE, AT_BLINK, putchr))
+		attrmode |= AT_BLINK;
+	/* Don't use standout and color at the same time. */
+	if ((attr & AT_COLOR) && use_color && tput_color(get_color_map(attr), putchr))
+		attrmode |= (attr & AT_COLOR);
+	else if ((attr & AT_STANDOUT) && tput_mode(sc_s_in, TRUE, AT_STANDOUT, putchr))
+		attrmode |= AT_STANDOUT;
 #else
 	flush();
 	/* The one with the most priority is first.  */
-	if (attr & AT_STANDOUT)
-	{
+	if ((attr & AT_COLOR) && use_color)
+		win_set_4bit_color(attr);
+	else if (attr & AT_STANDOUT)
 		SETCOLORS(so_fg_color, so_bg_color);
-	} else if (attr & AT_BLINK)
-	{
+	else if (attr & AT_BLINK)
 		SETCOLORS(bl_fg_color, bl_bg_color);
-	}
 	else if (attr & AT_BOLD)
-	{
 		SETCOLORS(bo_fg_color, bo_bg_color);
-	}
 	else if (attr & AT_UNDERLINE)
-	{
 		SETCOLORS(ul_fg_color, ul_bg_color);
-	}
 #endif
-
-	attrmode = attr;
 }
 
 	public void
 at_exit(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
-	int in_color = use_color && (attrmode & AT_COLOR);
-
 	/* Undo things in the reverse order we did them.  */
-	if ((attrmode & (AT_UNDERLINE|AT_BOLD)) == 0 && in_color)
-		tput_attr_color(0, putchr);
-	if ((attrmode & AT_STANDOUT) && !in_color)
-		ltputs(sc_s_out, 1, putchr);
-	if (attrmode & AT_BLINK)
-		ltputs(sc_bl_out, 1, putchr);
-	if (attrmode & AT_BOLD)
-		ltputs(sc_b_out, 1, putchr);
-	if (attrmode & AT_UNDERLINE)
-		ltputs(sc_u_out, 1, putchr);
+	if ((attrmode & AT_COLOR) && tput_color("*", putchr))
+		attrmode &= ~AT_COLOR;
+	if ((attrmode & AT_STANDOUT) && tput_mode(sc_s_out, FALSE, AT_STANDOUT, putchr))
+		attrmode &= ~AT_STANDOUT;
+	if ((attrmode & AT_BLINK) && tput_mode(sc_bl_out, FALSE, AT_BLINK, putchr))
+		attrmode &= ~AT_BLINK;
+	if ((attrmode & AT_BOLD) && tput_mode(sc_b_out, FALSE, AT_BOLD, putchr))
+		attrmode &= ~AT_BOLD;
+	if ((attrmode & AT_UNDERLINE) && tput_mode(sc_u_out, FALSE, AT_UNDERLINE, putchr))
+		attrmode &= ~AT_UNDERLINE;
 #else
 	flush();
 	SETCOLORS(nm_fg_color, nm_bg_color);
 #endif
-
-	attrmode = AT_NORMAL;
 }
 
 	public void
@@ -2572,57 +2631,6 @@ apply_at_specials(attr)
 
 	return attr;
 }
-
-#if 0 /* No longer used */
-/*
- * Erase the character to the left of the cursor 
- * and move the cursor left.
- */
-	public void
-backspace(VOID_PARAM)
-{
-#if !MSDOS_COMPILER
-	/* 
-	 * Erase the previous character by overstriking with a space.
-	 */
-	ltputs(sc_backspace, 1, putchr);
-	putchr(' ');
-	ltputs(sc_backspace, 1, putchr);
-#else
-#if MSDOS_COMPILER==MSOFTC
-	struct rccoord tpos;
-	
-	flush();
-	tpos = _gettextposition();
-	if (tpos.col <= 1)
-		return;
-	_settextposition(tpos.row, tpos.col-1);
-	_outtext(" ");
-	_settextposition(tpos.row, tpos.col-1);
-#else
-#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
-	cputs("\b");
-#else
-#if MSDOS_COMPILER==WIN32C
-	COORD cpos;
-	DWORD cChars;
-	CONSOLE_SCREEN_BUFFER_INFO scr;
-
-	flush();
-	GetConsoleScreenBufferInfo(con_out, &scr);
-	cpos = scr.dwCursorPosition;
-	if (cpos.X <= 0)
-		return;
-	cpos.X--;
-	SetConsoleCursorPosition(con_out, cpos);
-	FillConsoleOutputCharacter(con_out, (TCHAR)' ', 1, cpos, &cChars);
-	SetConsoleCursorPosition(con_out, cpos);
-#endif
-#endif
-#endif
-#endif
-}
-#endif /* 0 */
 
 /*
  * Output a plain backspace, without erasing the previous char.

@@ -94,6 +94,10 @@ static char color_map[AT_NUM_COLORS][12] = {
 	"kC",  /* AT_COLOR_PROMPT */
 	"kc",  /* AT_COLOR_RSCROLL */
 	"kG",  /* AT_COLOR_SEARCH */
+	"",    /* AT_UNDERLINE */
+	"",    /* AT_BOLD */
+	"",    /* AT_BLINK */
+	"",    /* AT_STANDOUT */
 };
 
 /* State while processing an ANSI escape sequence */
@@ -953,7 +957,8 @@ store_bs(ch, rep, pos)
 {
 	if (bs_mode == BS_CONTROL)
 		return store_control_char(ch, rep, pos);
-	if (linebuf.end <= linebuf.print ||
+	if (linebuf.end > 0 &&
+		(linebuf.end <= linebuf.print && linebuf.buf[linebuf.end-1] == '\0') ||
 	    (linebuf.end > 0 && linebuf.attr[linebuf.end - 1] & (AT_ANSI|AT_BINARY)))
 		STORE_PRCHAR('\b', pos);
 	else if (bs_mode == BS_NORMAL)
@@ -1407,10 +1412,30 @@ rrshift(VOID_PARAM)
 color_index(attr)
 	int attr;
 {
-	int cx = (attr & AT_COLOR) >> AT_COLOR_SHIFT;
-	if (cx == 0 || cx > AT_NUM_COLORS)
-		return -1;
-	return cx-1;
+	if (use_color)
+	{
+		switch (attr & AT_COLOR)
+		{
+		case AT_COLOR_ATTN:    return 0;
+		case AT_COLOR_BIN:     return 1;
+		case AT_COLOR_CTRL:    return 2;
+		case AT_COLOR_ERROR:   return 3;
+		case AT_COLOR_LINENUM: return 4;
+		case AT_COLOR_MARK:    return 5;
+		case AT_COLOR_PROMPT:  return 6;
+		case AT_COLOR_RSCROLL: return 7;
+		case AT_COLOR_SEARCH:  return 8;
+		}
+	}
+	if (attr & AT_UNDERLINE)
+		return 9;
+	if (attr & AT_BOLD)
+		return 10;
+	if (attr & AT_BLINK)
+		return 11;
+	if (attr & AT_STANDOUT)
+		return 12;
+	return -1;
 }
 
 	static int
@@ -1431,10 +1456,11 @@ set_color_map(attr, colorstr)
 	int cx = color_index(attr);
 	if (cx < 0)
 		return -1;
-	if (tput_color(colorstr, null_putc) < 0)
+	if (*colorstr != '\0' && tput_color(colorstr, null_putc) < 0)
 		return -1;
-	strncpy(color_map[cx], colorstr, sizeof(color_map[cx]));
-	color_map[cx][strlen(colorstr)] = '\0';
+	if (strlen(colorstr)+1 > sizeof(color_map[cx]))
+		return -1;
+	strcpy(color_map[cx], colorstr);
 	return 0;
 }
 
@@ -1445,10 +1471,7 @@ set_color_map(attr, colorstr)
 get_color_map(attr)
 	int attr;
 {
-	int cx;
-	if (!use_color)
-		return NULL;
-	cx = color_index(attr);
+	int cx = color_index(attr);
 	if (cx < 0)
 		return NULL;
 	return color_map[cx];
