@@ -2391,7 +2391,7 @@ win_4bit_color(ch)
 	}
 }
 
-	static void
+	static int
 win_set_4bit_color(attr)
 	int attr;
 {
