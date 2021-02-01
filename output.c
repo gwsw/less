@@ -372,7 +372,7 @@ flush(VOID_PARAM)
 	if (interactive())
 	{
 		obuf[n] = '\0';
-		win_flush(obuf, n);
+		win_flush();
 		return;
 	}
 #endif

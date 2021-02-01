@@ -28,6 +28,19 @@ extern int fd0;
 #endif
 #include <time.h>
 
+#ifndef FOREGROUND_BLUE
+#define FOREGROUND_BLUE      0x0001	
+#endif
+#ifndef FOREGROUND_GREEN
+#define FOREGROUND_GREEN     0x0002	
+#endif
+#ifndef FOREGROUND_RED
+#define FOREGROUND_RED       0x0004	
+#endif
+#ifndef FOREGROUND_INTENSITY
+#define FOREGROUND_INTENSITY 0x0008
+#endif
+
 #else
 
 #if HAVE_SYS_IOCTL_H
@@ -2360,7 +2373,7 @@ clear_bot(VOID_PARAM)
 win_4bit_color(ch)
 	char ch;
 {
-	int bright = (ch >= 'A' && ch <= 'Z') ? FOREGROUND_BRIGHT : 0;
+	int bright = (ch >= 'A' && ch <= 'Z') ? FOREGROUND_INTENSITY : 0;
 	if (bright)
 		ch += 'a' - 'A';
 	switch (ch)
