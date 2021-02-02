@@ -1440,7 +1440,7 @@ color_index(attr)
 
 #if MSDOS_COMPILER
 /*FIXME*/
-#define tput_color(a,b) FALSE
+#define tput_color(a,b) 0
 #else
 	static int
 null_putc(ch)
