@@ -1720,6 +1720,7 @@ init(VOID_PARAM)
 	}
 	win32_init_vt_term();
 #endif
+	init_done = 1;
 	initcolor();
 	flush();
 #endif
@@ -2028,25 +2029,27 @@ line_left(VOID_PARAM)
 #if !MSDOS_COMPILER
 	ltputs(sc_return, 1, putchr);
 #else
-	int row;
-	flush();
-#if MSDOS_COMPILER==WIN32C
 	{
-		CONSOLE_SCREEN_BUFFER_INFO scr;
-		GetConsoleScreenBufferInfo(con_out, &scr);
-		row = scr.dwCursorPosition.Y - scr.srWindow.Top + 1;
-	}
+		int row;
+		flush();
+#if MSDOS_COMPILER==WIN32C
+		{
+			CONSOLE_SCREEN_BUFFER_INFO scr;
+			GetConsoleScreenBufferInfo(con_out, &scr);
+			row = scr.dwCursorPosition.Y - scr.srWindow.Top + 1;
+		}
 #else
 #if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
-		row = wherey();
+			row = wherey();
 #else
-	{
-		struct rccoord tpos = _gettextposition();
-		row = tpos.row;
+		{
+			struct rccoord tpos = _gettextposition();
+			row = tpos.row;
+		}
+#endif
+#endif
+		_settextposition(row, 1);
 	}
-#endif
-#endif
-	_settextposition(row, 1);
 #endif
 }
 
@@ -2369,7 +2372,7 @@ clear_bot(VOID_PARAM)
 
 #if MSDOS_COMPILER
 
-	static int
+	public int
 win_4bit_color(ch)
 	char ch;
 {
@@ -2574,15 +2577,26 @@ at_enter(attr)
 	flush();
 	/* The one with the most priority is first.  */
 	if ((attr & AT_COLOR) && use_color)
+	{
 		win_set_4bit_color(attr);
-	else if (attr & AT_STANDOUT)
+		attrmode = AT_COLOR;
+	} else if (attr & AT_STANDOUT)
+	{
 		SETCOLORS(so_fg_color, so_bg_color);
-	else if (attr & AT_BLINK)
+		attrmode = AT_STANDOUT;
+	} else if (attr & AT_BLINK)
+	{
 		SETCOLORS(bl_fg_color, bl_bg_color);
-	else if (attr & AT_BOLD)
+		attrmode = AT_BLINK;
+	} else if (attr & AT_BOLD)
+	{
 		SETCOLORS(bo_fg_color, bo_bg_color);
-	else if (attr & AT_UNDERLINE)
+		attrmode = AT_BOLD;
+	} else if (attr & AT_UNDERLINE)
+	{
 		SETCOLORS(ul_fg_color, ul_bg_color);
+		attrmode = AT_UNDERLINE;
+	}
 #endif
 }
 
@@ -2604,6 +2618,7 @@ at_exit(VOID_PARAM)
 #else
 	flush();
 	SETCOLORS(nm_fg_color, nm_bg_color);
+	attrmode = AT_NORMAL;
 #endif
 }
 

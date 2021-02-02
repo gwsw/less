@@ -188,11 +188,7 @@ static struct loption option[] =
 		STRING|REPAINT|NO_QUERY, 0, NULL, opt_D,
 		{
 			"color desc: ", 
-#if MSDOS_COMPILER
-			"Dadknsu0123456789.",
-#else
 			NULL,
-#endif
 			NULL
 		}
 	},

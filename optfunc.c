@@ -548,30 +548,48 @@ colordesc(s, fg_color, bg_color)
 		++s;
 	}
 #endif
-	fg = getnum(&s, "D", &err);
-	if (err)
+	fg = win_4bit_color(*s);
+	if (fg == -1)
 	{
-#if MSDOS_COMPILER==WIN32C
-		if (ul)
-			fg = nm_fg_color;
-		else
-#endif
-		{
-			error("Missing fg color in -D", NULL_PARG);
-			return;
-		}
-	}
-	if (*s != '.')
-		bg = nm_bg_color;
-	else
-	{
-		s++;
-		bg = getnum(&s, "D", &err);
+		fg = getnum(&s, "D", &err);
 		if (err)
 		{
-			error("Missing bg color in -D", NULL_PARG);
-			return;
+#if MSDOS_COMPILER==WIN32C
+			if (ul)
+				fg = nm_fg_color;
+			else
+#endif
+			{
+				error("Missing fg color in -D", NULL_PARG);
+				return;
+			}
 		}
+	} else
+	{
+		s++;
+		if (fg == -2)
+			fg = nm_fg_color;
+	}
+	bg = win_4bit_color(*s);
+	if (bg == -1)
+	{
+		if (*s != '.')
+			bg = nm_bg_color;
+		else
+		{
+			s++;
+			bg = getnum(&s, "D", &err);
+			if (err)
+			{
+				error("Missing bg color in -D", NULL_PARG);
+				return;
+			}
+		}
+	} else
+	{
+		s++;
+		if (bg == -2)
+			bg = nm_bg_color;
 	}
 #if MSDOS_COMPILER==WIN32C
 	if (*s == 'u')
@@ -603,11 +621,12 @@ color_from_namechar(namechar)
 	case 'P': return AT_COLOR_PROMPT;
 	case 'R': return AT_COLOR_RSCROLL;
 	case 'S': return AT_COLOR_SEARCH;
+	case 'n': return AT_NORMAL;
 	case 's': return AT_STANDOUT;
 	case 'd': return AT_BOLD;
 	case 'u': return AT_UNDERLINE;
 	case 'k': return AT_BLINK;
-	default:  return 0;
+	default:  return -1;
 	}
 }
 
@@ -635,7 +654,7 @@ opt_D(type, s)
 		}
 #endif
 		attr = color_from_namechar(s[0]);
-		if (attr == 0)
+		if (attr < 0)
 		{
 			p.p_char = s[0];
 			error("Invalid color specifier '%c'", &p);
@@ -646,6 +665,7 @@ opt_D(type, s)
 			error("Set --use-color before changing colors", NULL_PARG);
 			return;
 		}
+		s++;
 #if MSDOS_COMPILER
 		if (!(attr & AT_COLOR))
 		{
@@ -674,9 +694,9 @@ opt_D(type, s)
 			}
 		} else
 #endif
-		if (set_color_map(attr, s+1) < 0)
+		if (set_color_map(attr, s) < 0)
 		{
-			p.p_string = s+1;
+			p.p_string = s;
 			error("Invalid color string \"%s\"", &p);
 			return;
 		}

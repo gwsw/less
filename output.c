@@ -330,6 +330,7 @@ win_flush(VOID_PARAM)
 		/* Output what's left in the buffer.  */
 		WIN32textout(anchor, ob - anchor);
 	}
+	ob = obuf;
 }
 #endif
 
@@ -353,7 +354,6 @@ win_flush(VOID_PARAM)
 flush(VOID_PARAM)
 {
 	int n;
-	int fd;
 
 	n = (int) (ob - obuf);
 	if (n == 0)
@@ -371,7 +371,8 @@ flush(VOID_PARAM)
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 	if (interactive())
 	{
-		obuf[n] = '\0';
+		ob = obuf + n;
+		*ob = '\0';
 		win_flush();
 		return;
 	}

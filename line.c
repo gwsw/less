@@ -1438,12 +1438,17 @@ color_index(attr)
 	return -1;
 }
 
+#if MSDOS_COMPILER
+/*FIXME*/
+#define tput_color(a,b) FALSE
+#else
 	static int
 null_putc(ch)
 	int ch;
 {
 	return ch;
 }
+#endif
 
 /*
  * Set the color string to use for a given attribute.
