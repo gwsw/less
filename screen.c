@@ -2445,6 +2445,8 @@ parse_color(str, p_fg, p_bg)
 
 	if (str == NULL || *str == '\0')
 		return CT_NULL;
+	if (*str == '+')
+		str++; /* ignore leading + */
 
 	fg = parse_color4(str[0]);
 	bg = parse_color4((strlen(str) < 2) ? '-' : str[1]);
@@ -2546,10 +2548,12 @@ tput_mode(mode_str, str, f_putc)
 	char *str;
 	int (*f_putc)(int);
 {
-	if (str == NULL || *str == '\0')
+	if (str == NULL || *str == '\0' || *str == '+')
 	{
 		ltputs(mode_str, 1, f_putc);
-		return TRUE;
+		if (*str != '+')
+			return TRUE;
+		str++;
 	}
 	/* Color overrides mode string */
 	return tput_color(str, f_putc);
