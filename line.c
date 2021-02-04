@@ -1438,18 +1438,6 @@ color_index(attr)
 	return -1;
 }
 
-#if MSDOS_COMPILER
-/*FIXME*/
-#define tput_color(a,b) 0
-#else
-	static int
-null_putc(ch)
-	int ch;
-{
-	return ch;
-}
-#endif
-
 /*
  * Set the color string to use for a given attribute.
  */
@@ -1461,9 +1449,9 @@ set_color_map(attr, colorstr)
 	int cx = color_index(attr);
 	if (cx < 0)
 		return -1;
-	if (*colorstr != '\0' && tput_color(colorstr, null_putc) < 0)
-		return -1;
 	if (strlen(colorstr)+1 > sizeof(color_map[cx]))
+		return -1;
+	if (*colorstr != '\0' && parse_color(colorstr, NULL, NULL) == CT_NULL)
 		return -1;
 	strcpy(color_map[cx], colorstr);
 	return 0;

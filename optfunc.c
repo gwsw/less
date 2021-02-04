@@ -538,71 +538,38 @@ colordesc(s, fg_color, bg_color)
 	int *bg_color;
 {
 	int fg, bg;
-	int err;
 #if MSDOS_COMPILER==WIN32C
 	int ul = 0;
  
 	if (*s == 'u')
 	{
 		ul = COMMON_LVB_UNDERSCORE;
-		++s;
+		s++;
+		if (*s == '\0')
+		{
+			*fg_color = nm_fg_color | ul;
+			*bg_color = nm_bg_color;
+			return;
+		}
 	}
 #endif
-	fg = win_4bit_color(*s);
-	if (fg == -1)
+	if (parse_color(s, &fg, &bg) == CT_NULL)
 	{
-		fg = getnum(&s, "D", &err);
-		if (err)
-		{
-#if MSDOS_COMPILER==WIN32C
-			if (ul)
-				fg = nm_fg_color;
-			else
-#endif
-			{
-				error("Missing fg color in -D", NULL_PARG);
-				return;
-			}
-		}
+		PARG p;
+		p.p_string = s;
+		error("Invalid color string \"%s\"", &p);
 	} else
 	{
-		s++;
-		if (fg == -2)
+		if (fg == CV_NOCHANGE)
 			fg = nm_fg_color;
-	}
-	bg = win_4bit_color(*s);
-	if (bg == -1)
-	{
-		if (*s != '.')
+		if (bg == CV_NOCHANGE)
 			bg = nm_bg_color;
-		else
-		{
-			s++;
-			bg = getnum(&s, "D", &err);
-			if (err)
-			{
-				error("Missing bg color in -D", NULL_PARG);
-				return;
-			}
-		}
-	} else
-	{
-		s++;
-		if (bg == -2)
-			bg = nm_bg_color;
-	}
 #if MSDOS_COMPILER==WIN32C
-	if (*s == 'u')
-	{
-		ul = COMMON_LVB_UNDERSCORE;
-		++s;
-	}
-	fg |= ul;
+		fg |= ul;
 #endif
-	if (*s != '\0')
-		error("Extra characters at end of -D option", NULL_PARG);
-	*fg_color = fg;
-	*bg_color = bg;
+		*fg_color = fg;
+		*bg_color = bg;
+	}
 }
 #endif
 

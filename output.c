@@ -319,7 +319,11 @@ win_flush(VOID_PARAM)
 				}
 				if (at & 16)
 					f = b ^ 8;
+#if MSDOS_COMPILER==WIN32C
+				f &= 0xf | COMMON_LVB_UNDERSCORE;
+#else
 				f &= 0xf;
+#endif
 				b &= 0xf;
 				WIN32setcolors(f, b);
 				p_next = anchor = p + 1;

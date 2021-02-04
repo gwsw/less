@@ -2370,186 +2370,249 @@ clear_bot(VOID_PARAM)
 	}
 }
 
-#if MSDOS_COMPILER
+/*
+ * Color string may be "x[y]" where x and y are 4-bit color chars,
+ * or "N[.M]" where N and M are decimal integers>
+ * Any of x,y,N,M may also be "-" to mean "unchanged".
+ */
 
-	public int
-win_4bit_color(ch)
-	char ch;
-{
-	int bright = (ch >= 'A' && ch <= 'Z') ? FOREGROUND_INTENSITY : 0;
-	if (bright)
-		ch += 'a' - 'A';
-	switch (ch)
-	{
-	case 'k': return bright;
-	case 'r': return bright|FOREGROUND_RED;
-	case 'g': return bright|FOREGROUND_GREEN;
-	case 'y': return bright|FOREGROUND_RED|FOREGROUND_GREEN;
-	case 'b': return bright|FOREGROUND_BLUE;
-	case 'm': return bright|FOREGROUND_RED|FOREGROUND_BLUE;
-	case 'c': return bright|FOREGROUND_GREEN|FOREGROUND_BLUE;
-	case 'w': return bright|FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE;
-	case '-': return -2; /* no change */
-	default:  return -1;
-	}
-}
-
+/*
+ * Parse a 4-bit color char.
+ */
 	static int
-win_set_4bit_color(attr)
-	int attr;
-{
-	int fg_color;
-	int bg_color;
-	int out = FALSE;
-	char *colorstr = get_color_map(attr);
-	if (colorstr == NULL || colorstr[0] == '\0')
-		return FALSE;
-	fg_color = win_4bit_color(colorstr[0]);
-	bg_color = win_4bit_color((strlen(colorstr) < 2) ? '-' : colorstr[1]);
-	if (fg_color >= 0 && bg_color >= 0)
-	{
-		SETCOLORS(fg_color, bg_color);
-		out = TRUE;
-	} else if (fg_color >= 0)
-	{
-		SET_FG_COLOR(fg_color);
-		out = TRUE;
-	} else if (bg_color >= 0)
-	{
-		SET_BG_COLOR(bg_color);
-		out = TRUE;
-	}
-	return out;
-}
-
-#else /* MSDOS_COMPILER */
-
-	static int
-sgr_4bit_color(ch)
+parse_color4(ch)
 	char ch;
 {
 	switch (ch)
 	{
-	case 'k': return 30;
-	case 'r': return 31;
-	case 'g': return 32;
-	case 'y': return 33;
-	case 'b': return 34;
-	case 'm': return 35;
-	case 'c': return 36;
-	case 'w': return 37;
-	case 'K': return 90;
-	case 'R': return 91;
-	case 'G': return 92;
-	case 'Y': return 93;
-	case 'B': return 94;
-	case 'M': return 95;
-	case 'C': return 96;
-	case 'W': return 97;
-	case '-': return 0; /* no change */
-	default:  return -1;
+	case 'k': return 0;
+	case 'r': return CV_RED;
+	case 'g': return CV_GREEN;
+	case 'y': return CV_RED|CV_GREEN;
+	case 'b': return CV_BLUE;
+	case 'm': return CV_RED|CV_BLUE;
+	case 'c': return CV_GREEN|CV_BLUE;
+	case 'w': return CV_RED|CV_GREEN|CV_BLUE;
+	case 'K': return 0|CV_BRIGHT;
+	case 'R': return CV_RED|CV_BRIGHT;
+	case 'G': return CV_GREEN|CV_BRIGHT;
+	case 'Y': return CV_RED|CV_GREEN|CV_BRIGHT;
+	case 'B': return CV_BLUE|CV_BRIGHT;
+	case 'M': return CV_RED|CV_BLUE|CV_BRIGHT;
+	case 'C': return CV_GREEN|CV_BLUE|CV_BRIGHT;
+	case 'W': return CV_RED|CV_GREEN|CV_BLUE|CV_BRIGHT;
+	case '-': return CV_NOCHANGE;
+	default:  return CV_ERROR;
 	}
-}
-
-	static int
-sgr_6bit_color(ps)
-	char **ps;
-{
-	int color;
-
-	if (**ps == '-')
-	{
-		color = 0;
-		(*ps)++;
-	} else
-	{
-		char *ops = *ps;
-		color = lstrtoi(ops, ps);
-		if (*ps == ops)
-			return -1;
-	}
-	return color;
 }
 
 /*
- * Color string may be "x[y]" where x and y are 4-bit color chars,
- * or "N[.M]" where N and M are decimal integers >= 16 and <= 255.
- * Any of x,y,N,M may also be "-" to mean transparent (unchanged).
+ * Parse a color as a decimal integer.
  */
-	public int
-tput_color(colorstr, f_putc)
-	char *colorstr;
+	static int
+parse_color6(ps)
+	char **ps;
+{
+	if (**ps == '-')
+	{
+		(*ps)++;
+		return CV_NOCHANGE;
+	} else
+	{
+		char *ops = *ps;
+		int color = lstrtoi(ops, ps);
+		if (*ps == ops)
+			return CV_ERROR;
+		return color;
+	}
+}
+
+/*
+ * Parse a color pair and return the foreground/background values.
+ * Return type of color specifier:
+ *  CV_4BIT: fg/bg values are OR of CV_{RGB} bits.
+ *  CV_6BIT: fg/bg values are integers entered by user.
+ */
+	public COLOR_TYPE
+parse_color(str, p_fg, p_bg)
+	char *str;
+	int *p_fg;
+	int *p_bg;
+{
+	int fg;
+	int bg;
+	COLOR_TYPE type = CT_NULL;
+
+	if (str == NULL || *str == '\0')
+		return CT_NULL;
+
+	fg = parse_color4(str[0]);
+	bg = parse_color4((strlen(str) < 2) ? '-' : str[1]);
+	if (fg != CV_ERROR && bg != CV_ERROR)
+		type = CT_4BIT;
+	else
+	{
+		fg = parse_color6(&str);
+		bg = (fg != CV_ERROR && *str++ == '.') ? parse_color6(&str) : CV_NOCHANGE;
+		if (fg != CV_ERROR && bg != CV_ERROR)
+			type = CT_6BIT;
+	}
+	if (p_fg != NULL) *p_fg = fg;
+	if (p_bg != NULL) *p_bg = bg;
+	return type;
+}
+
+#if !MSDOS_COMPILER
+
+	static int
+sgr_color(color)
+	int color;
+{
+	switch (color)
+	{
+	case 0:                                    return 30;
+	case CV_RED:                               return 31;
+	case CV_GREEN:                             return 32;
+	case CV_RED|CV_GREEN:                      return 33;
+	case CV_BLUE:                              return 34;
+	case CV_RED|CV_BLUE:                       return 35;
+	case CV_GREEN|CV_BLUE:                     return 36;
+	case CV_RED|CV_GREEN|CV_BLUE:              return 37;
+
+	case CV_BRIGHT:                            return 90;
+	case CV_RED|CV_BRIGHT:                     return 91;
+	case CV_GREEN|CV_BRIGHT:                   return 92;
+	case CV_RED|CV_GREEN|CV_BRIGHT:            return 93;
+	case CV_BLUE|CV_BRIGHT:                    return 94;
+	case CV_RED|CV_BLUE|CV_BRIGHT:             return 95;
+	case CV_GREEN|CV_BLUE|CV_BRIGHT:           return 96;
+	case CV_RED|CV_GREEN|CV_BLUE|CV_BRIGHT:    return 97;
+
+	default: return color;
+	}
+}
+
+	static int
+tput_fmt(fmt, val, f_putc)
+	char *fmt;
+	int val;
 	int (*f_putc)(int);
 {
 	char buf[16];
-	int fg_color;
-	int bg_color;
+	SNPRINTF1(buf, sizeof(buf), fmt, val);
+	ltputs(buf, 1, f_putc);
+	return TRUE;
+}
+
+	public int
+tput_color(str, f_putc)
+	char *str;
+	int (*f_putc)(int);
+{
+	char buf[16];
+	int fg;
+	int bg;
 	int out = FALSE;
 
-	if (colorstr == NULL || colorstr[0] == '\0')
-		return FALSE;
-	if (strcmp(colorstr, "*") == 0)
+	if (str != NULL && strcmp(str, "*") == 0)
 	{
 		/* Special case: reset to normal */
 		ltputs(ESCS"[m", 1, f_putc);
 		return TRUE;
 	}
-	fg_color = sgr_4bit_color(colorstr[0]);
-	bg_color = sgr_4bit_color((strlen(colorstr) < 2) ? '-' : colorstr[1]);
-	if (fg_color >= 0 && bg_color >= 0)
+	switch (parse_color(str, &fg, &bg))
 	{
-		/* 4-bit color */
-		if (fg_color > 0)
-		{
-			SNPRINTF1(buf, sizeof(buf), ESCS"[%dm", fg_color);
-			ltputs(buf, 1, f_putc);
-			out = TRUE;
-		}
-		if (bg_color > 0)
-		{
-			SNPRINTF1(buf, sizeof(buf), ESCS"[%dm", bg_color+10);
-			ltputs(buf, 1, f_putc);
-			out = TRUE;
-		}
-	} else
-	{
-		fg_color = sgr_6bit_color(&colorstr);
-		bg_color = (fg_color >= 0 && *colorstr++ == '.') ? sgr_6bit_color(&colorstr) : 0;
-		if (fg_color >= 0 && bg_color >= 0)
-		{
-			/* 6-bit color */
-			if (fg_color > 0)
-			{
-				SNPRINTF1(buf, sizeof(buf), ESCS"[38;5;%dm", fg_color);
-				ltputs(buf, 1, f_putc);
-				out = TRUE;
-			}
-			if (bg_color > 0)
-			{
-				SNPRINTF1(buf, sizeof(buf), ESCS"[48;5;%dm", bg_color);
-				ltputs(buf, 1, f_putc);
-				out = TRUE;
-			}
-		} 
+	case CT_4BIT:
+		if (fg >= 0)
+			out = tput_fmt(ESCS"[%dm", sgr_color(fg), f_putc);
+		if (bg >= 0)
+			out = tput_fmt(ESCS"[%dm", sgr_color(bg)+10, f_putc);
+		break;
+	case CT_6BIT:
+		if (fg >= 0)
+			out = tput_fmt(ESCS"[38;5;%dm", fg, f_putc);
+		if (bg >= 0)
+			out = tput_fmt(ESCS"[48;5;%dm", bg, f_putc);
+		break;
+	default:
+		break;
 	}
 	return out;
 }
 
 	static int
-tput_mode(mode_str, enter, attr, f_putc)
+tput_mode(mode_str, str, f_putc)
 	char *mode_str;
-	int enter;
-	int attr;
+	char *str;
 	int (*f_putc)(int);
 {
-	char *colorstr = enter ? get_color_map(attr) : "*";
-	if (colorstr == NULL || *colorstr == '\0')
+	if (str == NULL || *str == '\0')
 	{
 		ltputs(mode_str, 1, f_putc);
 		return TRUE;
 	}
 	/* Color overrides mode string */
-	return tput_color(colorstr, f_putc);
+	return tput_color(str, f_putc);
+}
+
+
+#else /* MSDOS_COMPILER */
+
+#if MSDOS_COMPILER==WIN32C
+	static int
+WIN32put_fmt(fmt, val)
+	char *fmt;
+	int val;
+{
+	char buf[16];
+	int len = SNPRINTF1(buf, sizeof(buf), fmt, val);
+	WIN32textout(buf, len);
+	return TRUE;
+}
+#endif
+
+	static int
+win_set_color(attr)
+	int attr;
+{
+	int fg;
+	int bg;
+	int out = FALSE;
+	char *str = get_color_map(attr);
+	if (str == NULL || str[0] == '\0')
+		return FALSE;
+	switch (parse_color(str, &fg, &bg))
+	{
+	case CT_4BIT:
+		if (fg >= 0 && bg >= 0)
+		{
+			SETCOLORS(fg, bg);
+			out = TRUE;
+		} else if (fg >= 0)
+		{
+			SET_FG_COLOR(fg);
+			out = TRUE;
+		} else if (bg >= 0)
+		{
+			SET_BG_COLOR(bg);
+			out = TRUE;
+		}
+		break;
+#if MSDOS_COMPILER==WIN32C
+	case CT_6BIT:
+		if (vt_enabled)
+		{
+			if (fg > 0)
+				out = WIN32put_fmt(ESCS"[38;5;%dm", fg);
+			if (bg > 0)
+				out = WIN32put_fmt(ESCS"[48;5;%dm", bg);
+		}
+		break;
+#endif
+	default:
+		break;
+	}
+	return out;
 }
 
 #endif /* MSDOS_COMPILER */
@@ -2562,23 +2625,23 @@ at_enter(attr)
 
 #if !MSDOS_COMPILER
 	/* The one with the most priority is last.  */
-	if ((attr & AT_UNDERLINE) && tput_mode(sc_u_in, TRUE, AT_UNDERLINE, putchr))
+	if ((attr & AT_UNDERLINE) && tput_mode(sc_u_in, get_color_map(AT_UNDERLINE), putchr))
 		attrmode |= AT_UNDERLINE;
-	if ((attr & AT_BOLD) && tput_mode(sc_b_in, TRUE, AT_BOLD, putchr))
+	if ((attr & AT_BOLD) && tput_mode(sc_b_in, get_color_map(AT_BOLD), putchr))
 		attrmode |= AT_BOLD;
-	if ((attr & AT_BLINK) && tput_mode(sc_bl_in, TRUE, AT_BLINK, putchr))
+	if ((attr & AT_BLINK) && tput_mode(sc_bl_in, get_color_map(AT_BLINK), putchr))
 		attrmode |= AT_BLINK;
 	/* Don't use standout and color at the same time. */
 	if ((attr & AT_COLOR) && use_color && tput_color(get_color_map(attr), putchr))
 		attrmode |= (attr & AT_COLOR);
-	else if ((attr & AT_STANDOUT) && tput_mode(sc_s_in, TRUE, AT_STANDOUT, putchr))
+	else if ((attr & AT_STANDOUT) && tput_mode(sc_s_in, get_color_map(AT_STANDOUT), putchr))
 		attrmode |= AT_STANDOUT;
 #else
 	flush();
 	/* The one with the most priority is first.  */
 	if ((attr & AT_COLOR) && use_color)
 	{
-		win_set_4bit_color(attr);
+		win_set_color(attr);
 		attrmode = AT_COLOR;
 	} else if (attr & AT_STANDOUT)
 	{
@@ -2607,13 +2670,13 @@ at_exit(VOID_PARAM)
 	/* Undo things in the reverse order we did them.  */
 	if ((attrmode & AT_COLOR) && tput_color("*", putchr))
 		attrmode &= ~AT_COLOR;
-	if ((attrmode & AT_STANDOUT) && tput_mode(sc_s_out, FALSE, AT_STANDOUT, putchr))
+	if ((attrmode & AT_STANDOUT) && tput_mode(sc_s_out, "*", putchr))
 		attrmode &= ~AT_STANDOUT;
-	if ((attrmode & AT_BLINK) && tput_mode(sc_bl_out, FALSE, AT_BLINK, putchr))
+	if ((attrmode & AT_BLINK) && tput_mode(sc_bl_out, "*", putchr))
 		attrmode &= ~AT_BLINK;
-	if ((attrmode & AT_BOLD) && tput_mode(sc_b_out, FALSE, AT_BOLD, putchr))
+	if ((attrmode & AT_BOLD) && tput_mode(sc_b_out, "*", putchr))
 		attrmode &= ~AT_BOLD;
-	if ((attrmode & AT_UNDERLINE) && tput_mode(sc_u_out, FALSE, AT_UNDERLINE, putchr))
+	if ((attrmode & AT_UNDERLINE) && tput_mode(sc_u_out, "*", putchr))
 		attrmode &= ~AT_UNDERLINE;
 #else
 	flush();
