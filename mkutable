@@ -22,6 +22,11 @@ my %force_space = (
     0x0d => 1, # carriage return
 );
 
+# Override Unicode tables to treat the following chars as binary.
+my %force_binary = (
+    0xfeff => 1, # byte order mark
+);
+
 # Hangul Jamo medial vowels and final consonants should be zero width.
 my @force_compose = (
     [0x1160, 0x11ff],
@@ -74,7 +79,7 @@ sub main {
         $type =~ s/\s//g;
         for ($last_code = $lo_code; $last_code <= $hi_code; ++$last_code) {
             output(\%out, $last_code,
-                $force_space{$last_code} ? 'Zs' : $force_compose{$last_code} ? 'Mn' : $type);
+                $force_space{$last_code} ? 'Zs' : $force_binary{$last_code} ? 'Cc' : $force_compose{$last_code} ? 'Mn' : $type);
         }
     }
     output(\%out, $last_code);
