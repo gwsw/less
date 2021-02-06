@@ -69,9 +69,9 @@ open_getchr(VOID_PARAM)
 	 */
 #if OS2
 	/* The __open() system call translates "/dev/tty" to "con". */
-	tty = __open("/dev/tty", OPEN_READ);
+	tty = __open(ttyname (0), OPEN_READ);
 #else
-	tty = open("/dev/tty", OPEN_READ);
+	tty = open(ttyname (0), OPEN_READ);
 #endif
 	if (tty < 0)
 		tty = 2;
