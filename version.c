@@ -907,6 +907,7 @@ v574  1/13/21   Add incremental search.
 v575  1/17/21   Fix build without HILITE_SEARCH;
                 fix bug with ^K in lesskey extra string.
 v576  2/4/21    Make sure search result is visible; add --use-color and --color.
+v577  
 */
 
-char version[] = "576";
+char version[] = "577x";

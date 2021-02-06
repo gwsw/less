@@ -274,7 +274,7 @@ AC_TRY_COMPILE([], [int f(int a) { return a; }],
 
 # Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([fchmod fsync nanosleep poll popen realpath _setjmp sigprocmask sigsetmask snprintf stat system usleep])
+AC_CHECK_FUNCS([fchmod fsync nanosleep poll popen realpath _setjmp sigprocmask sigsetmask snprintf stat system ttyname usleep])
 
 # AC_CHECK_FUNCS may not work for inline functions, so test these separately.
 AC_MSG_CHECKING(for memcpy)

@@ -111,9 +111,9 @@ lsystem(cmd, donemsg)
 	close(0);
 #if OS2
 	/* The __open() system call translates "/dev/tty" to "con". */
-	if (__open("/dev/tty", OPEN_READ) < 0)
+	if (__open(tty_device(), OPEN_READ) < 0)
 #else
-	if (open("/dev/tty", OPEN_READ) < 0)
+	if (open(tty_device(), OPEN_READ) < 0)
 #endif
 		dup(inp);
 #endif
