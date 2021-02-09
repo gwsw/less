@@ -959,6 +959,8 @@ using the terminal's hardware boldface capability.
 Other backspaces are deleted, along with the preceding character.
 Carriage returns immediately followed by a newline are deleted.
 Other carriage returns are handled as specified by the \-r option.
+Unicode formatting characters, such as the Byte Order Mark,
+are sent to the terminal.
 Text which is overstruck or underlined can be searched for
 if neither \-u nor \-U is in effect.
 .IP "\-V or \-\-version"
