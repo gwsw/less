@@ -908,7 +908,7 @@ v575  1/17/21   Fix build without HILITE_SEARCH;
                 fix bug with ^K in lesskey extra string.
 v576  2/4/21    Make sure search result is visible; add --use-color and --color.
 v577  2/9/21    Use ttyname to get name of tty device.
-v578  
+v578  2/9/21    Doc
 */
 
-char version[] = "578x";
+char version[] = "578";
