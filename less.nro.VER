@@ -654,14 +654,20 @@ the second specifies the background color.
 Each integer is a value between 0 and 255 inclusive which selects
 a CSI 38;5 color (see
 .br
+.nh
 https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters)
+.hy
 If either integer is a "-" or is omitted,
 the corresponding color is set to that of normal text.
 On MS-DOS versions of 
 .IR less ,
 8-bit color is not supported; instead, decimal values are interpreted as 4-bit
 CHAR_INFO.Attributes values
-(see https://docs.microsoft.com/en-us/windows/console/char-info-str).
+(see 
+.br
+.nh
+https://docs.microsoft.com/en-us/windows/console/char-info-str).
+.hy
 .RE
 .IP "\-e or \-\-quit-at-eof"
 Causes
@@ -931,7 +937,10 @@ If the environment variable LESSGLOBALTAGS is set, it is taken to be
 the name of a command compatible with
 .IR global (1),
 and that command is executed to find the tag.
-(See http://www.gnu.org/software/global/global.html).
+(See 
+.nh
+http://www.gnu.org/software/global/global.html).
+.hy
 The \-t option may also be specified from within
 .I less
 (using the \- command) as a way of examining a new file.
@@ -1108,7 +1117,12 @@ This allows a dollar sign to be included in option strings.
 Enables the colored text in various places.
 The -D option can be used to change the colors.
 Colored text works only if the terminal supports 
-ANSI color escape sequences (ECMA-48 SGR).
+ANSI color escape sequences (as defined in ECMA-48 SGR;
+see 
+.br
+.nh
+https://www.ecma-international.org/publications-and-standards/standards/ecma-48).
+.hy
 .IP "\-\-wheel-lines=\fIn\fP"
 Set the number of lines to scroll when the mouse wheel is scrolled
 and the \-\-mouse or \-\-MOUSE option is in effect.
