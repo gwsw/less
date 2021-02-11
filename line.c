@@ -179,6 +179,20 @@ is_ascii_char(ch)
 }
 
 /*
+ */
+	static void
+inc_end_column(w)
+	int w;
+{
+	if (end_column > right_column && w > 0)
+	{
+		right_column = end_column;
+		right_curr = linebuf.end;
+	}
+	end_column += w;
+}
+
+/*
  * Rewind the line buffer.
  */
 	public void
@@ -227,7 +241,7 @@ add_linebuf(ch, attr, w)
 	int w;
 {
 	set_linebuf(linebuf.end++, ch, attr);
-	end_column += w;
+	inc_end_column(w);
 }
 
 /*
@@ -508,6 +522,7 @@ backc(VOID_PARAM)
 		prev_ch = step_char(&p, -1, linebuf.buf);
 		width = pwidth(ch, linebuf.attr[linebuf.end], prev_ch, linebuf.attr[linebuf.end-1]);
 		end_column -= width;
+		/* {{ right_column? }} */
 		if (width > 0)
 			break;
 		ch = prev_ch;
@@ -704,12 +719,6 @@ store_char(ch, a, rep, pos)
 			return (1);
 	}
 
-	if (end_column > right_column && w > 0)
-	{
-		right_column = end_column;
-		right_curr = linebuf.end;
-	}
-
 	if (cshift == hshift && shifted_ansi.end > 0)
 	{
 		/* Copy shifted ANSI sequences to beginning of line. */
@@ -717,9 +726,9 @@ store_char(ch, a, rep, pos)
 			add_linebuf(shifted_ansi.buf[i], AT_ANSI, 0);
 		shifted_ansi.end = 0;
 	}
+	inc_end_column(w);
 	for (i = 0;  i < replen;  i++)
 		add_linebuf(*rep++, a, 0);
-	end_column += w;
 
 	if (cshift < hshift)
 	{
@@ -1132,14 +1141,14 @@ pdone(endline, chopped, forw)
 		 * If we've already filled the rightmost screen char 
 		 * (in the buffer), overwrite it.
 		 */
-		if (end_column >= sc_width)
+		if (end_column >= sc_width + cshift)
 		{
 			/* We've already written in the rightmost char. */
 			end_column = right_column;
 			linebuf.end = right_curr;
 		}
 		add_attr_normal();
-		while (end_column < sc_width-1)
+		while (end_column < sc_width-1 + cshift) 
 		{
 			/*
 			 * Space to last (rightmost) char on screen.
