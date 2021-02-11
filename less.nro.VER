@@ -619,7 +619,7 @@ For example, \-Dug displays underlined text as green without underlining;
 the green color has replaced the usual underline formatting.
 But \-Du+g displays underlined text as both green and in underlined format.
 .PP
-\fIcolor\fP is either a 4-bit color string or a 8-bit color string:
+\fIcolor\fP is either a 4-bit color string or an 8-bit color string:
 .PP
 A 4-bit color string is zero, one or two characters, where 
 the first character specifies the foreground color and 
@@ -648,11 +648,11 @@ bright red background.
 If either character is a "-" or is omitted, the corresponding color 
 is set to that of normal text.
 .PP
-A 8-bit color string is one or two decimal integers separated by a dot,
+An 8-bit color string is one or two decimal integers separated by a dot,
 where the first integer specifies the foreground color and 
 the second specifies the background color.
 Each integer is a value between 0 and 255 inclusive which selects
-a CSI 38;5 color (see
+a "CSI 38;5" color value (see
 .br
 .nh
 https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters)
@@ -891,6 +891,7 @@ In other words, the beginning of each line is assumed to be
 normal (non-colored), regardless of any escape sequences in previous lines.
 For the purpose of keeping track of screen appearance,
 these escape sequences are assumed to not move the cursor.
+.sp
 OSC 8 hyperlinks are sequences of the form:
 .sp
 	ESC ] 8 ; \&...\& \\7
