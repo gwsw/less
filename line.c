@@ -743,6 +743,11 @@ store_char(ch, a, rep, pos)
 			memcpy(&linebuf.attr[0], &linebuf.attr[replen], linebuf.print);
 			linebuf.end -= replen;
 			cshift += w;
+			/*
+			 * If the char we just left-shifted was double width,
+			 * the 2 spaces we shifted may be too much.
+			 * Represent the "half char" at start of line with a highlighted space.
+			 */
 			while (cshift > hshift)
 			{
 				add_linebuf(' ', rscroll_attr, 0);
@@ -1180,11 +1185,11 @@ pdone(endline, chopped, forw)
 	 * the next line is blank.  In that case the single newline output for
 	 * that blank line would be ignored!)
 	 */
-	if (end_column < sc_width || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
+	if (end_column < sc_width + cshift || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
 	{
 		add_linebuf('\n', AT_NORMAL, 0);
 	} 
-	else if (ignaw && end_column >= sc_width && forw)
+	else if (ignaw && end_column >= sc_width + cshift && forw)
 	{
 		/*
 		 * Terminals with "ignaw" don't wrap until they *really* need
