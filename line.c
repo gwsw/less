@@ -726,23 +726,26 @@ store_char(ch, a, rep, pos)
 			add_linebuf(shifted_ansi.buf[i], AT_ANSI, 0);
 		shifted_ansi.end = 0;
 	}
+	/* Add the char to the buf, even if we will left-shift it next. */
 	inc_end_column(w);
 	for (i = 0;  i < replen;  i++)
 		add_linebuf(*rep++, a, 0);
 
 	if (cshift < hshift)
 	{
+		/* We haven't left-shifted enough yet. */
 		if (a == AT_ANSI)
-			add_ansi(ch);
+			add_ansi(ch); /* Save ANSI attributes */
 		if (linebuf.end > linebuf.print)
 		{
+			/* Shift left enough to put last byte of this char at print-1. */
 			memcpy(&linebuf.buf[0], &linebuf.buf[replen], linebuf.print);
 			memcpy(&linebuf.attr[0], &linebuf.attr[replen], linebuf.print);
 			linebuf.end -= replen;
 			cshift += w;
 			while (cshift > hshift)
 			{
-				add_linebuf(' ', AT_NORMAL, 1);
+				add_linebuf(' ', rscroll_attr, 0);
 				cshift--;
 			}
 		}
