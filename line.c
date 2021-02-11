@@ -1163,7 +1163,7 @@ pdone(endline, chopped, forw)
 			 * This may be necessary if the char we overwrote
 			 * was double-width.
 			 */
-			add_linebuf(' ', AT_NORMAL, 1);
+			add_linebuf(' ', rscroll_attr, 1);
 		}
 		/* Print rscroll char. It must be single-width. */
 		add_linebuf(rscroll_char, rscroll_attr, 1);
