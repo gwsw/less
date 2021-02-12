@@ -1445,26 +1445,26 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
 						 * If necessary, shift horizontally to make sure 
 						 * search match is fully visible.
 						 */
-						int start_off = sp - cline;
-						int end_off = ep - cline;
-						int save_hshift = hshift;
-						int sshift;
-						int eshift;
-						hshift = 0; /* make get_seg count screen lines */
-						chopline = FALSE;
-						//start_off += 1;
-						//if (start_off >= cvt_len)
-						//	start_off = cvt_len - 1;
-						sshift = swidth * get_seg(linepos, linepos + chpos[start_off]);
-						eshift = swidth * get_seg(linepos, linepos + chpos[end_off]);
-						chopline = TRUE;
-						if (sshift >= save_hshift && eshift <= save_hshift)
+						if (sp != NULL && ep != NULL)
 						{
-							hshift = save_hshift;
-						} else
-						{
-							hshift = sshift;
-							screen_trashed = 1;
+							int start_off = sp - cline;
+							int end_off = ep - cline;
+							int save_hshift = hshift;
+							int sshift;
+							int eshift;
+							hshift = 0; /* make get_seg count screen lines */
+							chopline = FALSE;
+							sshift = swidth * get_seg(linepos, linepos + chpos[start_off]);
+							eshift = swidth * get_seg(linepos, linepos + chpos[end_off]);
+							chopline = TRUE;
+							if (sshift >= save_hshift && eshift <= save_hshift)
+							{
+								hshift = save_hshift;
+							} else
+							{
+								hshift = sshift;
+								screen_trashed = 1;
+							}
 						}
 					} else if (plastlinepos != NULL)
 					{
@@ -1476,9 +1476,12 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
 						 * of the match appears in the last line on the screen.
 						 * lastlinepos is the position of the first char of that last line.
 						 */
-						int end_off = ep - cline;
-						if (end_off >= swidth * sheight / 4) /* heuristic */
-							*plastlinepos = get_lastlinepos(linepos, linepos + chpos[end_off], sheight);
+						if (ep != NULL)
+						{
+							int end_off = ep - cline;
+							if (end_off >= swidth * sheight / 4) /* heuristic */
+								*plastlinepos = get_lastlinepos(linepos, linepos + chpos[end_off], sheight);
+						}
 					}
 					free(cline);
 					free(chpos);
