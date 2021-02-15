@@ -909,7 +909,7 @@ v575  1/17/21   Fix build without HILITE_SEARCH;
 v576  2/4/21    Make sure search result is visible; add --use-color and --color.
 v577  2/9/21    Use ttyname to get name of tty device.
 v578  2/9/21    Doc
-v579  
+v579  2/14/21   Fix double-width char bugs and non-match search crash.
 */
 
-char version[] = "579x";
+char version[] = "579";
