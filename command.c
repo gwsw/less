@@ -821,8 +821,11 @@ prompt(VOID_PARAM)
 		putstr("& ");
 #endif
 	if (p == NULL || *p == '\0')
+	{
+		at_enter(AT_NORMAL|AT_COLOR_PROMPT);
 		putchr(':');
-	else
+		at_exit();
+	} else
 	{
 #if MSDOS_COMPILER==WIN32C
 		WCHAR w[MAX_PATH*2];
@@ -832,7 +835,7 @@ prompt(VOID_PARAM)
 		                    0, w, -1, a, sizeof(a), NULL, NULL);
 		p = a;
 #endif
-		at_enter(AT_STANDOUT);
+		at_enter(AT_STANDOUT|AT_COLOR_PROMPT);
 		putstr(p);
 		at_exit();
 	}

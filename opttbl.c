@@ -55,6 +55,7 @@ public int perma_marks;         /* Save marks in history file */
 public int linenum_width;       /* Width of line numbers */
 public int status_col_width;    /* Width of status column */
 public int incr_search;         /* Incremental search */
+public int use_color;           /* Use UI color */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -69,9 +70,7 @@ static struct optname b_optname      = { "buffers",              NULL };
 static struct optname B__optname     = { "auto-buffers",         NULL };
 static struct optname c_optname      = { "clear-screen",         NULL };
 static struct optname d_optname      = { "dumb",                 NULL };
-#if MSDOS_COMPILER
 static struct optname D__optname     = { "color",                NULL };
-#endif
 static struct optname e_optname      = { "quit-at-eof",          NULL };
 static struct optname f_optname      = { "force",                NULL };
 static struct optname F__optname     = { "quit-if-one-screen",   NULL };
@@ -127,6 +126,7 @@ static struct optname perma_marks_optname = { "save-marks",      NULL };
 static struct optname linenum_width_optname = { "line-num-width", NULL };
 static struct optname status_col_width_optname = { "status-col-width", NULL };
 static struct optname incr_search_optname = { "incsearch",       NULL };
+static struct optname use_color_optname = { "use-color",         NULL };
 
 
 /*
@@ -184,16 +184,14 @@ static struct loption option[] =
 			NULL
 		}
 	},
-#if MSDOS_COMPILER
 	{ 'D', &D__optname,
-		STRING|REPAINT, 0, NULL, opt_D,
+		STRING|REPAINT|NO_QUERY, 0, NULL, opt_D,
 		{
 			"color desc: ", 
-			"Dadknsu0123456789.",
+			NULL,
 			NULL
 		}
 	},
-#endif
 	{ 'e', &e_optname,
 		TRIPLE, OPT_OFF, &quit_at_eof, NULL,
 		{
@@ -523,6 +521,14 @@ static struct loption option[] =
 		{
 			"Incremental search is off",
 			"Incremental search is on",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &use_color_optname,
+		BOOL|REPAINT, OPT_OFF, &use_color, NULL,
+		{
+			"Don't use color",
+			"Use color",
 			NULL
 		}
 	},

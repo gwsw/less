@@ -26,6 +26,23 @@ extern int utf_mode;
 extern int wheel_lines;
 
 /*
+ * Get name of tty device.
+ */
+#if !MSDOS_COMPILER
+	public char *
+tty_device(VOID_PARAM)
+{
+	char *dev = NULL;
+#if HAVE_TTYNAME
+	dev = ttyname(2);
+#endif
+	if (dev == NULL)
+		dev = "/dev/tty";
+	return dev;
+}
+#endif /* MSDOS_COMPILER */
+
+/*
  * Open keyboard for input.
  */
 	public void
@@ -69,9 +86,9 @@ open_getchr(VOID_PARAM)
 	 */
 #if OS2
 	/* The __open() system call translates "/dev/tty" to "con". */
-	tty = __open("/dev/tty", OPEN_READ);
+	tty = __open(tty_device(), OPEN_READ);
 #else
-	tty = open("/dev/tty", OPEN_READ);
+	tty = open(tty_device(), OPEN_READ);
 #endif
 	if (tty < 0)
 		tty = 2;

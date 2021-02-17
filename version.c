@@ -906,6 +906,10 @@ v573  1/9/21    Limit eof bell to 1 per second.
 v574  1/13/21   Add incremental search.
 v575  1/17/21   Fix build without HILITE_SEARCH;
                 fix bug with ^K in lesskey extra string.
+v576  2/4/21    Make sure search result is visible; add --use-color and --color.
+v577  2/9/21    Use ttyname to get name of tty device.
+v578  2/9/21    Doc
+v579  2/14/21   Fix double-width char bugs and non-match search crash.
 */
 
-char version[] = "575";
+char version[] = "579";

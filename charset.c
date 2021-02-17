@@ -114,7 +114,7 @@ struct cs_alias {
 static char chardef[256];
 static char *binfmt = NULL;
 static char *utfbinfmt = NULL;
-public int binattr = AT_STANDOUT;
+public int binattr = AT_STANDOUT|AT_COLOR_BIN;
 
 
 /*

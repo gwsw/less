@@ -35,8 +35,9 @@ extern int show_attn;
  * of the NEXT line.  The line obtained is the line starting at curr_pos.
  */
 	public POSITION
-forw_line(curr_pos)
+forw_line_seg(curr_pos, get_segpos)
 	POSITION curr_pos;
+	int get_segpos;
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -174,8 +175,9 @@ get_forw_line:
 			 * is too long to print in the screen width.
 			 * End the line here.
 			 */
-			if (chopline || hshift > 0)
+			if ((chopline || hshift > 0) && !get_segpos)
 			{
+				/* Read to end of line. */
 				do
 				{
 					if (ABORT_SIGS())
@@ -219,8 +221,12 @@ get_forw_line:
 		goto get_forw_line;
 	}
 
-	if (status_col && is_hilited(base_pos, ch_tell()-1, 1, NULL))
-		set_status_col('*');
+	if (status_col)
+	{
+		int attr = is_hilited_attr(base_pos, ch_tell()-1, 1, NULL);
+		if (attr)
+			set_status_col('*', attr);
+	}
 #endif
 
 	if (squeeze && blankline)
@@ -242,6 +248,13 @@ get_forw_line:
 	}
 
 	return (new_pos);
+}
+
+	public POSITION
+forw_line(curr_pos)
+	POSITION curr_pos;
+{
+	return forw_line_seg(curr_pos, FALSE);
 }
 
 /*
@@ -424,8 +437,12 @@ get_back_line:
 		goto get_back_line;
 	}
 
-	if (status_col && curr_pos > 0 && is_hilited(base_pos, curr_pos-1, 1, NULL))
-		set_status_col('*');
+	if (status_col && curr_pos > 0)
+	{
+		int attr = is_hilited_attr(base_pos, curr_pos-1, 1, NULL);
+		if (attr)
+			set_status_col('*', attr);
+	}
 #endif
 
 	return (begin_new_pos);

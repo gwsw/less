@@ -387,6 +387,30 @@ struct wchar_range_table
 #define AT_BINARY       (1 << 5)  /* LESS*BINFMT representation */
 #define AT_HILITE       (1 << 6)  /* Internal highlights (e.g., for search) */
 
+#define AT_COLOR_SHIFT    8
+#define AT_NUM_COLORS     16
+#define AT_COLOR          ((AT_NUM_COLORS-1) << AT_COLOR_SHIFT)
+#define AT_COLOR_ATTN     (1 << AT_COLOR_SHIFT)
+#define AT_COLOR_BIN      (2 << AT_COLOR_SHIFT)
+#define AT_COLOR_CTRL     (3 << AT_COLOR_SHIFT)
+#define AT_COLOR_ERROR    (4 << AT_COLOR_SHIFT)
+#define AT_COLOR_LINENUM  (5 << AT_COLOR_SHIFT)
+#define AT_COLOR_MARK     (6 << AT_COLOR_SHIFT)
+#define AT_COLOR_PROMPT   (7 << AT_COLOR_SHIFT)
+#define AT_COLOR_RSCROLL  (8 << AT_COLOR_SHIFT)
+#define AT_COLOR_SEARCH   (9 << AT_COLOR_SHIFT)
+
+typedef enum { CT_NULL, CT_4BIT, CT_6BIT } COLOR_TYPE;
+
+typedef enum {
+	CV_BLUE     = 1,
+	CV_GREEN    = 2,
+	CV_RED      = 4,
+	CV_BRIGHT   = 8,
+	CV_NOCHANGE = -2,
+	CV_ERROR    = -1
+} COLOR_VALUE;
+
 /* ANSI states */
 #define ANSI_MID    1
 #define ANSI_ERR    2

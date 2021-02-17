@@ -18,11 +18,11 @@
 #define MAX_PFX_WIDTH (MAX_LINENUM_WIDTH + MAX_STATUSCOL_WIDTH + 1)
 static struct {
 	char *buf;    /* Buffer which holds the current output line */
-	char *attr;   /* Parallel to buf, to hold attributes */
+	int *attr;   /* Parallel to buf, to hold attributes */
 	int print;    /* Index in buf of first printable char */
 	int end;      /* Number of chars in buf */
 	char pfx[MAX_PFX_WIDTH]; /* Holds status column and line number */
-	char pfx_attr[MAX_PFX_WIDTH];
+	int pfx_attr[MAX_PFX_WIDTH];
 	int pfx_end;  /* Number of chars in pfx */
 } linebuf;
 
@@ -76,11 +76,29 @@ extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 extern char rscroll_char;
 extern int rscroll_attr;
+extern int use_color;
 
 static char mbc_buf[MAX_UTF_CHAR_LEN];
 static int mbc_buf_len = 0;
 static int mbc_buf_index = 0;
 static POSITION mbc_pos;
+
+/* Configurable color map */
+static char color_map[AT_NUM_COLORS][12] = {
+	"Wm",  /* AT_COLOR_ATTN */
+	"kR",  /* AT_COLOR_BIN */
+	"kR",  /* AT_COLOR_CTRL */
+	"kY",  /* AT_COLOR_ERROR */
+	"c",   /* AT_COLOR_LINENUM */
+	"Wb",  /* AT_COLOR_MARK */
+	"kC",  /* AT_COLOR_PROMPT */
+	"kc",  /* AT_COLOR_RSCROLL */
+	"kG",  /* AT_COLOR_SEARCH */
+	"",    /* AT_UNDERLINE */
+	"",    /* AT_BOLD */
+	"",    /* AT_BLINK */
+	"",    /* AT_STANDOUT */
+};
 
 /* State while processing an ANSI escape sequence */
 struct ansi_state {
@@ -104,7 +122,7 @@ init_line(VOID_PARAM)
 		mid_ansi_chars = "0123456789:;[?!\"'#%()*+ ";
 
 	linebuf.buf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
-	linebuf.attr = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
+	linebuf.attr = (int *) ecalloc(LINEBUF_SIZE, sizeof(int));
 	size_linebuf = LINEBUF_SIZE;
 	shifted_ansi.buf = NULL;
 	shifted_ansi.size = 0;
@@ -122,10 +140,10 @@ expand_linebuf(VOID_PARAM)
 	/* Just realloc to expand the buffer, if we can. */
 #if HAVE_REALLOC
 	char *new_buf = (char *) realloc(linebuf.buf, new_size);
-	char *new_attr = (char *) realloc(linebuf.attr, new_size);
+	int *new_attr = (int *) realloc(linebuf.attr, new_size*sizeof(int));
 #else
 	char *new_buf = (char *) calloc(new_size, sizeof(char));
-	char *new_attr = (char *) calloc(new_size, sizeof(char));
+	int *new_attr = (int *) calloc(new_size, sizeof(int));
 #endif
 	if (new_buf == NULL || new_attr == NULL)
 	{
@@ -140,7 +158,7 @@ expand_linebuf(VOID_PARAM)
 	 * We just calloc'd the buffers; copy the old contents.
 	 */
 	memcpy(new_buf, linebuf.buf, size_linebuf * sizeof(char));
-	memcpy(new_attr, linebuf.attr, size_linebuf * sizeof(char));
+	memcpy(new_attr, linebuf.attr, size_linebuf * sizeof(int));
 	free(linebuf.attr);
 	free(linebuf.buf);
 #endif
@@ -158,6 +176,20 @@ is_ascii_char(ch)
 	LWCHAR ch;
 {
 	return (ch <= 0x7F);
+}
+
+/*
+ */
+	static void
+inc_end_column(w)
+	int w;
+{
+	if (end_column > right_column && w > 0)
+	{
+		right_column = end_column;
+		right_curr = linebuf.end;
+	}
+	end_column += w;
 }
 
 /*
@@ -190,50 +222,50 @@ prewind(VOID_PARAM)
  * Set a character in the line buffer.
  */
 	static void
-set_linebuf(n, ch, a)
+set_linebuf(n, ch, attr)
 	int n;
 	char ch;
-	char a;
+	int attr;
 {
 	linebuf.buf[n] = ch;
-	linebuf.attr[n] = a;
+	linebuf.attr[n] = attr;
 }
 
 /*
  * Append a character to the line buffer.
  */
 	static void
-add_linebuf(ch, a, w)
+add_linebuf(ch, attr, w)
 	char ch;
-	char a;
+	int attr;
 	int w;
 {
-	set_linebuf(linebuf.end++, ch, a);
-	end_column += w;
+	set_linebuf(linebuf.end++, ch, attr);
+	inc_end_column(w);
 }
 
 /*
  * Set a character in the line prefix buffer.
  */
 	static void
-set_pfx(n, ch, a)
+set_pfx(n, ch, attr)
 	int n;
 	char ch;
-	int a;
+	int attr;
 {
 	linebuf.pfx[n] = ch;
-	linebuf.pfx_attr[n] = a;
+	linebuf.pfx_attr[n] = attr;
 }
 
 /*
  * Append a character to the line prefix buffer.
  */
 	static void
-add_pfx(ch, a)
+add_pfx(ch, attr)
 	char ch;
-	int a;
+	int attr;
 {
-	set_pfx(linebuf.pfx_end++, ch, a);
+	set_pfx(linebuf.pfx_end++, ch, attr);
 }
 
 /*
@@ -267,13 +299,13 @@ plinestart(pos)
 		int a = AT_NORMAL;
 		char c = posmark(pos);
 		if (c != 0)
-			a |= AT_HILITE;
+			a |= AT_HILITE|AT_COLOR_MARK;
 		else 
 		{
 			c = ' ';
 			if (start_attnpos != NULL_POSITION &&
 			    pos >= start_attnpos && pos <= end_attnpos)
-				a |= AT_HILITE;
+				a |= AT_HILITE|AT_COLOR_ATTN;
 		}
 		add_pfx(c, a); /* column 0: status */
 		while (linebuf.pfx_end < status_col_width)
@@ -294,7 +326,7 @@ plinestart(pos)
 		for (i = 0; i < linenum_width - len; i++)
 			add_pfx(' ', AT_NORMAL);
 		for (i = 0; i < len; i++)
-			add_pfx(buf[i], AT_NORMAL);
+			add_pfx(buf[i], AT_NORMAL|AT_COLOR_LINENUM);
 		add_pfx(' ', AT_NORMAL);
 	}
 	end_column = linebuf.pfx_end;
@@ -404,7 +436,7 @@ attr_ewidth(a)
  * Adding a character with a given attribute may cause an enter or exit
  * attribute sequence to be inserted, so this must be taken into account.
  */
-	static int
+	public int
 pwidth(ch, a, prev_ch, prev_a)
 	LWCHAR ch;
 	int a;
@@ -490,6 +522,7 @@ backc(VOID_PARAM)
 		prev_ch = step_char(&p, -1, linebuf.buf);
 		width = pwidth(ch, linebuf.attr[linebuf.end], prev_ch, linebuf.attr[linebuf.end-1]);
 		end_column -= width;
+		/* {{ right_column? }} */
 		if (width > 0)
 			break;
 		ch = prev_ch;
@@ -635,7 +668,8 @@ store_char(ch, a, rep, pos)
 #if HILITE_SEARCH
 	{
 		int matches;
-		if (is_hilited(pos, pos+1, 0, &matches))
+		int hl_attr = is_hilited_attr(pos, pos+1, 0, &matches);
+		if (hl_attr)
 		{
 			/*
 			 * This character should be highlighted.
@@ -645,7 +679,7 @@ store_char(ch, a, rep, pos)
 			{
 				if (highest_hilite != NULL_POSITION && pos > highest_hilite)
 					highest_hilite = pos;
-				a |= AT_HILITE;
+				a |= hl_attr;
 			}
 		}
 	}
@@ -655,8 +689,9 @@ store_char(ch, a, rep, pos)
 		w = 0;
 	} else {
 		char *p = &linebuf.buf[linebuf.end];
-		LWCHAR prev_ch = step_char(&p, -1, linebuf.buf);
-		w = pwidth(ch, a, prev_ch, linebuf.attr[linebuf.end-1]);
+		LWCHAR prev_ch = (linebuf.end > 0) ? step_char(&p, -1, linebuf.buf) : 0;
+		int prev_a = (linebuf.end > 0) ? linebuf.attr[linebuf.end-1] : 0;
+		w = pwidth(ch, a, prev_ch, prev_a);
 	}
 
 	if (ctldisp != OPT_ON && end_column - cshift + w + attr_ewidth(a) > sc_width)
@@ -684,12 +719,6 @@ store_char(ch, a, rep, pos)
 			return (1);
 	}
 
-	if (end_column > right_column && w > 0)
-	{
-		right_column = end_column;
-		right_curr = linebuf.end;
-	}
-
 	if (cshift == hshift && shifted_ansi.end > 0)
 	{
 		/* Copy shifted ANSI sequences to beginning of line. */
@@ -697,23 +726,31 @@ store_char(ch, a, rep, pos)
 			add_linebuf(shifted_ansi.buf[i], AT_ANSI, 0);
 		shifted_ansi.end = 0;
 	}
+	/* Add the char to the buf, even if we will left-shift it next. */
+	inc_end_column(w);
 	for (i = 0;  i < replen;  i++)
 		add_linebuf(*rep++, a, 0);
-	end_column += w;
 
 	if (cshift < hshift)
 	{
+		/* We haven't left-shifted enough yet. */
 		if (a == AT_ANSI)
-			add_ansi(ch);
+			add_ansi(ch); /* Save ANSI attributes */
 		if (linebuf.end > linebuf.print)
 		{
+			/* Shift left enough to put last byte of this char at print-1. */
 			memcpy(&linebuf.buf[0], &linebuf.buf[replen], linebuf.print);
 			memcpy(&linebuf.attr[0], &linebuf.attr[replen], linebuf.print);
 			linebuf.end -= replen;
 			cshift += w;
+			/*
+			 * If the char we just left-shifted was double width,
+			 * the 2 spaces we shifted may be too much.
+			 * Represent the "half char" at start of line with a highlighted space.
+			 */
 			while (cshift > hshift)
 			{
-				add_linebuf(' ', AT_NORMAL, 1);
+				add_linebuf(' ', rscroll_attr, 0);
 				cshift--;
 			}
 		}
@@ -767,10 +804,8 @@ store_prchar(c, pos)
 	 * Convert to printable representation.
 	 */
 	s = prchar(c);
-
 	for ( ;  *s != 0;  s++)
-		STORE_CHAR(*s, AT_BINARY, NULL, pos);
-
+		STORE_CHAR(*s, AT_BINARY|AT_COLOR_CTRL, NULL, pos);
 	return 0;
 }
 
@@ -783,7 +818,6 @@ flush_mbc_buf(pos)
 	for (i = 0; i < mbc_buf_index; i++)
 		if (store_prchar(mbc_buf[i], pos))
 			return mbc_buf_index - i;
-
 	return 0;
 }
 
@@ -940,7 +974,8 @@ store_bs(ch, rep, pos)
 {
 	if (bs_mode == BS_CONTROL)
 		return store_control_char(ch, rep, pos);
-	if (linebuf.end <= linebuf.print ||
+	if (linebuf.end > 0 &&
+		(linebuf.end <= linebuf.print && linebuf.buf[linebuf.end-1] == '\0') ||
 	    (linebuf.end > 0 && linebuf.attr[linebuf.end - 1] & (AT_ANSI|AT_BINARY)))
 		STORE_PRCHAR('\b', pos);
 	else if (bs_mode == BS_NORMAL)
@@ -1114,21 +1149,21 @@ pdone(endline, chopped, forw)
 		 * If we've already filled the rightmost screen char 
 		 * (in the buffer), overwrite it.
 		 */
-		if (end_column >= sc_width)
+		if (end_column >= sc_width + cshift)
 		{
 			/* We've already written in the rightmost char. */
 			end_column = right_column;
 			linebuf.end = right_curr;
 		}
 		add_attr_normal();
-		while (end_column < sc_width-1)
+		while (end_column < sc_width-1 + cshift) 
 		{
 			/*
 			 * Space to last (rightmost) char on screen.
 			 * This may be necessary if the char we overwrote
 			 * was double-width.
 			 */
-			add_linebuf(' ', AT_NORMAL, 1);
+			add_linebuf(' ', rscroll_attr, 1);
 		}
 		/* Print rscroll char. It must be single-width. */
 		add_linebuf(rscroll_char, rscroll_attr, 1);
@@ -1150,11 +1185,11 @@ pdone(endline, chopped, forw)
 	 * the next line is blank.  In that case the single newline output for
 	 * that blank line would be ignored!)
 	 */
-	if (end_column < sc_width || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
+	if (end_column < sc_width + cshift || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
 	{
 		add_linebuf('\n', AT_NORMAL, 0);
 	} 
-	else if (ignaw && end_column >= sc_width && forw)
+	else if (ignaw && end_column >= sc_width + cshift && forw)
 	{
 		/*
 		 * Terminals with "ignaw" don't wrap until they *really* need
@@ -1180,10 +1215,11 @@ pdone(endline, chopped, forw)
  *
  */
 	public void
-set_status_col(c)
+set_status_col(c, attr)
 	int c;
+	int attr;
 {
-	set_pfx(0, c, AT_HILITE);
+	set_pfx(0, c, attr);
 }
 
 /*
@@ -1384,4 +1420,69 @@ rrshift(VOID_PARAM)
 	if (longest < sc_width)
 		return 0;
 	return longest - sc_width;
+}
+
+/*
+ * Get the color_map index associated with a given attribute.
+ */
+	static int
+color_index(attr)
+	int attr;
+{
+	if (use_color)
+	{
+		switch (attr & AT_COLOR)
+		{
+		case AT_COLOR_ATTN:    return 0;
+		case AT_COLOR_BIN:     return 1;
+		case AT_COLOR_CTRL:    return 2;
+		case AT_COLOR_ERROR:   return 3;
+		case AT_COLOR_LINENUM: return 4;
+		case AT_COLOR_MARK:    return 5;
+		case AT_COLOR_PROMPT:  return 6;
+		case AT_COLOR_RSCROLL: return 7;
+		case AT_COLOR_SEARCH:  return 8;
+		}
+	}
+	if (attr & AT_UNDERLINE)
+		return 9;
+	if (attr & AT_BOLD)
+		return 10;
+	if (attr & AT_BLINK)
+		return 11;
+	if (attr & AT_STANDOUT)
+		return 12;
+	return -1;
+}
+
+/*
+ * Set the color string to use for a given attribute.
+ */
+	public int
+set_color_map(attr, colorstr)
+	int attr;
+	char *colorstr;
+{
+	int cx = color_index(attr);
+	if (cx < 0)
+		return -1;
+	if (strlen(colorstr)+1 > sizeof(color_map[cx]))
+		return -1;
+	if (*colorstr != '\0' && parse_color(colorstr, NULL, NULL) == CT_NULL)
+		return -1;
+	strcpy(color_map[cx], colorstr);
+	return 0;
+}
+
+/*
+ * Get the color string to use for a given attribute.
+ */
+	public char *
+get_color_map(attr)
+	int attr;
+{
+	int cx = color_index(attr);
+	if (cx < 0)
+		return NULL;
+	return color_map[cx];
 }
