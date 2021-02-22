@@ -1829,7 +1829,7 @@ prep_hilite(spos, epos, maxlines)
 		search_type |= (search_info.search_type & SRCH_NO_REGEX);
 		for (;;) 
 		{
-			result = search_range(spos, epos, search_type, 0, maxlines, (POSITION*)NULL, &new_epos, (POSITION*)NULL, (POSITION*)NULL);
+			result = search_range(spos, epos, search_type, 0, maxlines, (POSITION*)NULL, &new_epos, (POSITION*)NULL);
 			if (result < 0)
 				return;
 			if (prep_endpos == NULL_POSITION || new_epos > prep_endpos)
