@@ -20,6 +20,7 @@ public DWORD console_mode;
 public HANDLE tty;
 #else
 public int tty;
+public char *ttyin_name = NULL;
 #endif
 extern int sigs;
 extern int utf_mode;
@@ -38,6 +39,8 @@ tty_device(VOID_PARAM)
 #endif
 	if (dev == NULL)
 		dev = "/dev/tty";
+	if (ttyin_name != NULL)
+		dev = ttyin_name;
 	return dev;
 }
 #endif /* MSDOS_COMPILER */

@@ -30,6 +30,7 @@ extern int sc_height;
 extern int secure;
 extern int dohelp;
 extern int is_tty;
+extern char *ttyin_name;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
@@ -925,6 +926,26 @@ opt_status_col_width(type, s)
 		}
 		break;
 	case QUERY:
+		break;
+	}
+}
+
+/*
+ * Handler for the --tty option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_ttyin_name(type, s)
+	int type;
+	char *s;
+{
+	PARG parg;
+
+	switch (type)
+	{
+	case INIT:
+		ttyin_name = s;
+		is_tty = 1;
 		break;
 	}
 }

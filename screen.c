@@ -231,6 +231,7 @@ static int attrcolor = -1;
 static int termcap_debug = -1;
 extern int binattr;
 extern int one_screen;
+extern char *ttyin_name;
 
 #if !MSDOS_COMPILER
 static char *cheaper LESSPARAMS((char *t1, char *t2, char *def));
@@ -1600,11 +1601,10 @@ do_tputs(str, affcnt, f_putc)
 	int affcnt;
 	int (*f_putc)(int);
 {
-#if LESSTEST
-	putstr(str);
-#else
-	tputs(str, affcnt, f_putc);
-#endif
+	if (ttyin_name != NULL)
+		putstr(str);
+	else
+		tputs(str, affcnt, f_putc);
 }
 
 /*
