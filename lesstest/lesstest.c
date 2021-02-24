@@ -1,23 +1,11 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <termcap.h>
 #include <time.h>
 #include <errno.h>
 #include <sys/ioctl.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
 #include "lesstest.h"
-
-typedef struct TestSetup {
-	char* setup_name;
-	char* textfile;
-	char** argv;
-	int argc;
-	FILE* testfile;
-} TestSetup;
 
 int verbose = 0;
 static char* testfile = NULL;
@@ -26,9 +14,8 @@ static int screen_out;
 static int screen_width;
 static int screen_height;
 static pid_t screen_pid = -1;
-static FILE* logf = NULL;
 static int run_less = 1;
-static int child_died = 0;
+///static int child_died = 0;
 static int screen_ready = 0;
 static char backspace_key = '\b';
 static char* enter_underline;
@@ -42,6 +29,7 @@ static char* exit_standout;
 static char* clear_screen;
 static char* cursor_move;
 static char* testdir = ".";
+static char* testname = NULL;
 
 int usage(void) {
 	fprintf(stderr, "usage: lt_gen\n");
@@ -140,89 +128,37 @@ void print_strings(char const* title, char* const* strings) {
 
 // ------------------------------------------------------------------
 
-int log_header(void) {
-	fprintf(logf, "!lesstest!\n");
-	return 1;
-}
-int log_test_header(char const* testname) {
-	fprintf(logf, "[ \"%s\"\n", testname);
-	return 1;
-}
-
-int log_test_footer(void) {
-	fprintf(logf, "]\n");
-	return 1;
-}
-
-int log_tty_char(char ch) {
-	fprintf(logf, "+%x\n", ch);
-	return 1;
-}
-
-int log_screen(char const* img, int len) {
-	fwrite("=", 1, 1, logf);
-	fwrite(img, 1, len, logf);
-	fwrite("\n", 1, 1, logf);
-	return 1;
-}
-
-int log_command(char* const* argv, int argc) {
-	fprintf(logf, "L");
-	int a;
-	for (a = 0; a < argc; ++a)
-		fprintf(logf, " \"%s\"", argv[a]);
-	fprintf(logf, "\n");
-	return 1;
-}
-
-int log_textfile(char const* textfile) {
-	struct stat st;
-	if (stat(textfile, &st) < 0) {
-		fprintf(stderr, "cannot stat %s\n", textfile);
-		return 0;
-	}
-	FILE* fd = fopen(textfile, "r");
-	if (fd == NULL) {
-		fprintf(stderr, "cannot open %s\n", textfile);
-		return 0;
-	}
-	char const* basename = rindex(textfile, '/');
-	if (basename == NULL) basename = textfile; else ++basename;
-	fprintf(logf, "F \"%s\" %ld\n", basename, (long) st.st_size);
-	off_t nread = 0;
-	while (nread < st.st_size) {
-		char buf[4096];
-		size_t n = fread(buf, 1, sizeof(buf), fd);
-		if (n <= 0) {
-			fprintf(stderr, "read only %ld/%ld from %s\n", (long) nread, (long) st.st_size, textfile);
-			fclose(fd);
-			return 0;
-		}
-		nread += n;
-		fwrite(buf, 1, n, logf);
-	}
-	fclose(fd);
-	return 1;
-}
-
 void send_char(char ch) {
 	if (verbose) fprintf(stderr, "send %x\n", ch);
 	write(less_in, &ch, 1);
 }
 
-void read_screen(void) {
+int read_screen(char* buf, int buflen) {
 	if (verbose) fprintf(stderr, "gen: read screen\n");
 	kill(screen_pid, LTSIG_SCREEN_DUMP);
-	char rbuf[8192];
 	int rn = 0;
-	for (; rn <= sizeof(rbuf); ++rn) {
-		if (read(screen_out, &rbuf[rn], 1) != 1)
+	for (; rn <= buflen; ++rn) {
+		if (read(screen_out, &buf[rn], 1) != 1)
 			break;
-		if (rbuf[rn] == '\n')
+		if (buf[rn] == '\n')
 			break;
 	}
+	return rn;
+}
+
+void read_and_display_screen(void) {
+	char rbuf[8192];
+	int rn = read_screen(rbuf, sizeof(rbuf));
 	display_screen(rbuf, rn);
 	log_screen(rbuf, rn);
+}
+
+int curr_screen_is(char const* img, int imglen) {
+	char curr[8192];
+	int currlen = read_screen(curr, sizeof(curr));
+	if (currlen != imglen)
+		return 0;
+	return (memcmp(img, curr, imglen) == 0);
 }
 
 // ------------------------------------------------------------------
@@ -297,7 +233,7 @@ void child_handler(int signum) {
 	int status;
 	pid_t child = wait(&status);
 	if (verbose) fprintf(stderr, "child %d died, status 0x%x\n", child, status);
-	child_died = 1;
+	///child_died = 1;
 }
 
 void screen_ready_handler(int signum) {
@@ -340,7 +276,6 @@ int setup_term(void) {
 
 int setup(int argc, char* const* argv) {
 	char* logfile = NULL;
-	char* testname = NULL;
 	if (!get_screen_size()) {
 		fprintf(stderr, "cannot get screen size\n");
 		return 0;
@@ -376,32 +311,27 @@ int setup(int argc, char* const* argv) {
 			return usage();
 		}
 	}
-	if (optind+2 > argc)
+	if (optind+2 > argc && testfile == NULL)
 		return usage();
 	if (logfile != NULL) {
-		logf = (strcmp(logfile, "-") == 0) ? stdout : fopen(logfile, "w");
-		if (logf == NULL) {
-			fprintf(stderr, "cannot create %s\n", logfile);
-			return 0;
-		}
+		log_open(logfile);
 		log_header();
 	}
-	if (!create_less_pipeline(testname, argv+optind, argc-optind, less_envp(), 
-			screen_width, screen_height, &less_in, &screen_out, &screen_pid))
-		return 0;
 	return 1;
 }
 
-int run_interactive(void) {
+int run_interactive(char* const* argv, int argc) {
+	if (!create_less_pipeline(testname, argv+optind, argc-optind, less_envp(), 
+			screen_width, screen_height, &less_in, &screen_out, &screen_pid))
+		return 0;
 	setup_term();
 	int tty = 0;
 	raw_mode(tty, 1);
 //	while (!screen_ready)
 		sleep(1);
-	read_screen();
+	read_and_display_screen();
 	for (;;) {
-		if (child_died)
-			break;
+		/// if (child_died) break;
 		char ch;
 		int n = read(tty, &ch, 1);
 		if (n <= 0)
@@ -412,60 +342,10 @@ int run_interactive(void) {
 		log_tty_char(ch);
 		send_char(ch);
 		sleep_ms(100); // FIXME
-		read_screen();
+		read_and_display_screen();
 	}
 	raw_mode(tty, 0);
-	if (logf != stdout)
-		fclose(logf);
-	return 1;
-}
-
-char* parse_qstring(const char* * s) {
-	while (*(*s) == ' ') ++(*s);
-	if (*(*s)++ != '"') return NULL;
-	char const* start = *s;
-	while (*(*s) != '"' && *(*s) != '\0') ++(*s);
-	char* ret = strndup(start, (*s)-start);
-	if (*(*s) == '"') ++(*s);
-	return ret;
-}
-
-int parse_setup_name(TestSetup* setup, char const* line) {
-	setup->setup_name = parse_qstring(&line);
-	return 1;
-}
-
-int parse_command(TestSetup* setup, char const* line) {
-	setup->argv = (char**) malloc(32*sizeof(char const*));
-	setup->argc = 0;
-	for (;;) {
-		char const* arg = parse_qstring(&line);
-		setup->argv[setup->argc++] = (char*) arg;
-		if (arg == NULL) break;
-	}
-	return 1;
-}
-
-int parse_textfile(TestSetup* setup, char const* line, FILE* fd) {
-	char const* filename = parse_qstring(&line);
-	char const* fsize_str = parse_qstring(&line);
-	int fsize = atoi(fsize_str);
-	int len = strlen(testdir)+strlen(filename)+10;
-	setup->textfile = malloc(len);
-	snprintf(setup->textfile, len, "%s/%06d-%s", testdir, rand() % 1000000, filename);
-	FILE* textfd = fopen(setup->textfile, "w");
-	if (textfd == NULL) {
-		fprintf(stderr, "cannot create %s\n", setup->textfile);
-		return 0;
-	}
-	int nread = 0;
-	while (nread < fsize) {
-		char buf[4096];
-		int chunk = fsize - nread;
-		if (chunk > sizeof(buf)) chunk = sizeof(buf);
-		size_t nread = fread(buf, 1, chunk, fd);
-		fwrite(buf, 1, nread, textfd);
-	}
+	log_close();
 	return 1;
 }
 
@@ -486,14 +366,10 @@ TestSetup* read_test_setup(FILE* fd) {
 	setup->textfile = NULL;
 	setup->argv = NULL;
 	setup->argc = 0;
+	setup->width = setup->height = 0;
 	char line[10000];
 	while (fgets(line, sizeof(line), fd) != NULL) {
 		switch (line[0]) {
-		case '\0':
-		case '\n':
-			break;
-		case '!':
-			break;
 		case ']':
 			return setup;
 		case '[':
@@ -509,10 +385,14 @@ TestSetup* read_test_setup(FILE* fd) {
 			}
 			break;
 		case 'F':
-			if (!parse_textfile(setup, line+1, fd)) {
+			if (!parse_textfile(setup, line+1, testdir, fd)) {
 				free_test_setup(setup);
 				return NULL;
 			}
+			break;
+		case '!':
+			break;
+		default:
 			break;
 		}
 	}
@@ -521,9 +401,45 @@ TestSetup* read_test_setup(FILE* fd) {
 	return setup;
 }
 
-int run_test(TestSetup* setup) {
+int read_zline(FILE* fd, char* line, int line_len) {
+	int nread = 0;
+	while (nread < line_len) {
+		int ch = fgetc(fd);
+		if (ch == EOF || ch == '\n') break;
+		line[nread++] = (char) ch;
+	}
+	return nread;
+}
+
+int run_test(TestSetup* setup, FILE* fd) {
 	fprintf(stderr, "run %s\n", setup->setup_name);
-	return 0;
+	if (!create_less_pipeline(setup->setup_name, setup->argv, setup->argc, less_envp(),
+			setup->width, setup->height, &less_in, &screen_out, &screen_pid))
+		return 0;
+	for (;;) {
+		char line[10000];
+		int line_len = read_zline(fd, line, sizeof(line));
+		if (line_len < 0)
+			break;
+		if (line_len < 1)
+			continue;
+		switch (line[0]) {
+		case '+':
+			send_char((char) strtol(line+1, NULL, 16));
+			break;
+		case '=': 
+			if (!curr_screen_is(line+1, line_len-1)) {
+				fprintf(stderr, "FAIL %s\n", setup->setup_name);
+			}
+			break;
+		case '\n':
+		case '!':
+			break;
+		default:
+			return 1;
+		}
+	}
+	return 1;
 }
 
 int run_testfile(void) {
@@ -537,7 +453,7 @@ int run_testfile(void) {
 		TestSetup* setup = read_test_setup(fd);
 		if (setup == NULL)
 			break;
-		ok = run_test(setup);
+		ok = run_test(setup, fd);
 		free_test_setup(setup);
 		if (!ok) break;
 	}
@@ -550,6 +466,6 @@ int main(int argc, char* const* argv) {
 	signal(LTSIG_SCREEN_READY, screen_ready_handler);
 	if (!setup(argc, argv))
 		return 1;
-	int ok = (testfile == NULL) ? run_interactive() : run_testfile();
+	int ok = (testfile == NULL) ? run_interactive(argv+optind, argc-optind) : run_testfile();
 	return !ok;
 }
