@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <termios.h>
@@ -9,17 +8,25 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include "lesstest.h"
-#define RD 0
-#define WR 1
 
+typedef struct TestSetup {
+	char* setup_name;
+	char* textfile;
+	char** argv;
+	int argc;
+	FILE* testfile;
+} TestSetup;
+
+int verbose = 0;
+static char* testfile = NULL;
 static int less_in;
 static int screen_out;
 static int screen_width;
 static int screen_height;
-static pid_t screen_pid;
+static pid_t screen_pid = -1;
 static FILE* logf = NULL;
-static int verbose = 0;
 static int run_less = 1;
 static int child_died = 0;
 static int screen_ready = 0;
@@ -34,8 +41,9 @@ static char* enter_standout;
 static char* exit_standout;
 static char* clear_screen;
 static char* cursor_move;
+static char* testdir = ".";
 
-int usage() {
+int usage(void) {
 	fprintf(stderr, "usage: lt_gen\n");
 	return 0;
 }
@@ -132,20 +140,42 @@ void print_strings(char const* title, char* const* strings) {
 
 // ------------------------------------------------------------------
 
-void log_char(char ch) {
-	if (logf == NULL) return;
-	fprintf(logf, "+%x\n", ch);
+int log_header(void) {
+	fprintf(logf, "!lesstest!\n");
+	return 1;
+}
+int log_test_header(char const* testname) {
+	fprintf(logf, "[ \"%s\"\n", testname);
+	return 1;
 }
 
-void log_screen(char const* img, int len) {
-	if (logf == NULL) return;
+int log_test_footer(void) {
+	fprintf(logf, "]\n");
+	return 1;
+}
+
+int log_tty_char(char ch) {
+	fprintf(logf, "+%x\n", ch);
+	return 1;
+}
+
+int log_screen(char const* img, int len) {
 	fwrite("=", 1, 1, logf);
 	fwrite(img, 1, len, logf);
 	fwrite("\n", 1, 1, logf);
+	return 1;
+}
+
+int log_command(char* const* argv, int argc) {
+	fprintf(logf, "L");
+	int a;
+	for (a = 0; a < argc; ++a)
+		fprintf(logf, " \"%s\"", argv[a]);
+	fprintf(logf, "\n");
+	return 1;
 }
 
 int log_textfile(char const* textfile) {
-	if (logf == NULL) return 0;
 	struct stat st;
 	if (stat(textfile, &st) < 0) {
 		fprintf(stderr, "cannot stat %s\n", textfile);
@@ -156,7 +186,9 @@ int log_textfile(char const* textfile) {
 		fprintf(stderr, "cannot open %s\n", textfile);
 		return 0;
 	}
-	fprintf(logf, "F %s %ld\n", textfile, (long) st.st_size);
+	char const* basename = rindex(textfile, '/');
+	if (basename == NULL) basename = textfile; else ++basename;
+	fprintf(logf, "F \"%s\" %ld\n", basename, (long) st.st_size);
 	off_t nread = 0;
 	while (nread < st.st_size) {
 		char buf[4096];
@@ -178,7 +210,7 @@ void send_char(char ch) {
 	write(less_in, &ch, 1);
 }
 
-void read_screen() {
+void read_screen(void) {
 	if (verbose) fprintf(stderr, "gen: read screen\n");
 	kill(screen_pid, LTSIG_SCREEN_DUMP);
 	char rbuf[8192];
@@ -213,7 +245,7 @@ void raw_mode(int tty, int on)
 	tcsetattr(tty, TCSADRAIN, &s);
 }
 
-char* const* less_envp() {
+char* const* less_envp(void) {
 	static char lines[32];
 	static char columns[32];
 	static char* envp[] = {
@@ -247,7 +279,7 @@ int env_number(char const* s) {
 	return (s == NULL) ? 0 : atoi(s);
 }
 
-int get_screen_size()
+int get_screen_size(void)
 {
 	screen_width = env_number("COLUMNS");
 	screen_height = env_number("ROWS");
@@ -261,15 +293,10 @@ int get_screen_size()
 	return (screen_width > 0 && screen_height > 0);
 }
 
-void dup_and_close(int fd0, int fd1, int close0, int close1) {
-	if (close0 >= 0) close(close0);
-	if (close1 >= 0) close(close1);
-	if (fd0 >= 0) dup2(fd0, 0);
-	if (fd1 >= 0) dup2(fd1, 1);
-}
-
 void child_handler(int signum) {
-	if (verbose) fprintf(stderr, "child died\n");
+	int status;
+	pid_t child = wait(&status);
+	if (verbose) fprintf(stderr, "child %d died, status 0x%x\n", child, status);
 	child_died = 1;
 }
 
@@ -287,7 +314,7 @@ void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char** exit_s
 	if (*exit_str == NULL) *exit_str = "";
 }
 
-int setup_term() {
+int setup_term(void) {
 	static char termbuf[4096];
 	static char sbuf[4096];
 	char* term = getenv("TERM");
@@ -302,7 +329,9 @@ int setup_term() {
 	setup_mode("md", "me", &enter_bold, &exit_bold, &sp);
 	setup_mode("mb", "me", &enter_blink, &exit_blink, &sp);
 	cursor_move = tgetstr("cm", &sp);
+	if (cursor_move == NULL) cursor_move = "";
 	clear_screen = tgetstr("cl", &sp);
+	if (clear_screen == NULL) clear_screen = "";
 	char* bs = tgetstr("kb", &sp);
 	if (bs != NULL && strlen(bs) == 1)
 		backspace_key = *bs;
@@ -310,23 +339,29 @@ int setup_term() {
 }
 
 int setup(int argc, char* const* argv) {
-	char* logfile = "-";
-	char* lt_screen = "lt_screen";
+	char* logfile = NULL;
+	char* testname = NULL;
 	if (!get_screen_size()) {
 		fprintf(stderr, "cannot get screen size\n");
 		return 0;
 	}
 	int ch;
-	while ((ch = getopt(argc, argv, "h:o:s:St:vw:")) != -1) {
+	while ((ch = getopt(argc, argv, "d:h:n:o:St:vw:")) != -1) {
 		switch (ch) {
+		case 'd':
+			testdir = optarg;
+			break;
 		case 'h':
 			screen_height = atoi(optarg);
+			break;
+		case 'n':
+			testname = optarg;
 			break;
 		case 'o':
 			logfile = optarg;
 			break;
-		case 's':
-			lt_screen = optarg;
+		case 't':
+			testfile = optarg;
 			break;
 		case 'v':
 			verbose = 1;
@@ -341,101 +376,28 @@ int setup(int argc, char* const* argv) {
 			return usage();
 		}
 	}
-	logf = (strcmp(logfile, "-") == 0) ? stdout : fopen(logfile, "w");
-	if (logf == NULL) {
-		fprintf(stderr, "cannot create %s\n", logfile);
-		return 0;
-	}
-	fprintf(logf, "!lesstest!\n");
-
-
-	int screen_in_pipe[2];
-	if (pipe(screen_in_pipe) < 0)
-		return 0;
-	if (verbose) fprintf(stderr, "less out pipe %d,%d\n", screen_in_pipe[0], screen_in_pipe[1]);
-	int less_in_pipe[2];
-	if (run_less) {
-		if (pipe(less_in_pipe) < 0)
+	if (optind+2 > argc)
+		return usage();
+	if (logfile != NULL) {
+		logf = (strcmp(logfile, "-") == 0) ? stdout : fopen(logfile, "w");
+		if (logf == NULL) {
+			fprintf(stderr, "cannot create %s\n", logfile);
 			return 0;
-		if (verbose) fprintf(stderr, "less in pipe %d,%d\n", less_in_pipe[RD], less_in_pipe[WR]);
-		if (optind+2 > argc)
-			return usage();
-		char* less = argv[optind++];
-		char* textfile = argv[argc-1];
-		if (verbose) fprintf(stderr, "testing %s on %s\n", less, textfile);
-		if (!log_textfile(textfile))
-			return 0;
-		char* const* lessenvp = less_envp();
-		pid_t pid = fork();
-		if (pid < 0)
-			return 0;
-		if (!pid) { // child: less
-			char** less_argv = malloc(sizeof(char*) * argc-optind+3);
-			int less_argc = 0;
-			less_argv[less_argc++] = less;
-			less_argv[less_argc++] = "--tty";
-			less_argv[less_argc++] = "/dev/stdin";
-			while (argv[optind] != NULL)
-				less_argv[less_argc++] = argv[optind++];
-			less_argv[less_argc] = NULL;
-			if (verbose) fprintf(stderr, "less child: in %d, out %d, close %d,%d\n", less_in_pipe[RD], screen_in_pipe[WR], less_in_pipe[WR], screen_in_pipe[RD]);
-			dup_and_close(less_in_pipe[RD], screen_in_pipe[WR],
-			              less_in_pipe[WR], screen_in_pipe[RD]);
-			if (verbose) print_strings("less argv", less_argv);
-			if (verbose) print_strings("less envp", lessenvp);
-			execve(less, less_argv, lessenvp);
-			fprintf(stderr, "cannot exec %s\n", less);
-			exit(1);
 		}
-		if (verbose) fprintf(stderr, "less child %ld\n", (long)pid);
-		close(less_in_pipe[RD]);
-		close(screen_in_pipe[WR]);
+		log_header();
 	}
-	int screen_out_pipe[2];
-	if (pipe(screen_out_pipe) < 0)
+	if (!create_less_pipeline(testname, argv+optind, argc-optind, less_envp(), 
+			screen_width, screen_height, &less_in, &screen_out, &screen_pid))
 		return 0;
-	if (verbose) fprintf(stderr, "screen out pipe %d,%d\n", screen_out_pipe[RD], screen_out_pipe[WR]);
-	screen_pid = fork();
-	pid_t gen_pid = getpid();
-	if (!screen_pid) { // child: lt_screen
-		if (verbose) fprintf(stderr, "screen child: in %d, out %d, close %d\n", screen_in_pipe[RD], screen_out_pipe[WR], screen_out_pipe[RD]);
-		dup_and_close(screen_in_pipe[RD], screen_out_pipe[WR], screen_out_pipe[RD], -1);
-		char sw[16];
-		char sh[16];
-		char gen_pid_str[32];
-		snprintf(sw, sizeof(sw), "%d", screen_width);
-		snprintf(sh, sizeof(sh), "%d", screen_height);
-		snprintf(gen_pid_str, sizeof(gen_pid_str), "%lld", (long long) gen_pid);
-		char* lts_argv[] = { lt_screen, "-w", sw, "-h", sh, /*"-r", gen_pid_str,*/ "-q", NULL, NULL };
-		if (verbose) lts_argv[6] = "-v";
-		char* const lts_envp[] = { NULL };
-		if (verbose) print_strings("screen argv", lts_argv);
-		execve(lt_screen, lts_argv, lts_envp);
-		fprintf(stderr, "cannot exec %s\n", lt_screen);
-		exit(1);
-	}
-	if (verbose) fprintf(stderr, "screen child %ld\n", (long)screen_pid);
-	close(screen_out_pipe[WR]);
-	close(screen_in_pipe[RD]);
-	less_in = run_less ? less_in_pipe[WR] : screen_in_pipe[WR];
-	screen_out = screen_out_pipe[RD];
-	if (verbose) fprintf(stderr, "less in %d, screen out %d\n", less_in, screen_out);
 	return 1;
 }
 
-int main(int argc, char* const* argv) {
-	signal(SIGCHLD, child_handler);
-	signal(LTSIG_SCREEN_READY, screen_ready_handler);
-	if (!setup(argc, argv))
-		return 1;
+int run_interactive(void) {
 	setup_term();
 	int tty = 0;
 	raw_mode(tty, 1);
 //	while (!screen_ready)
 		sleep(1);
-//fprintf(stderr, "sleep(2000)\n"); fflush(stderr);
-//sleep_ms(5000);
-//fprintf(stderr, "sleep done\n"); fflush(stderr);
 	read_screen();
 	for (;;) {
 		if (child_died)
@@ -447,13 +409,147 @@ int main(int argc, char* const* argv) {
 		if (ch == backspace_key)
 			ch = '\b';
 		if (verbose) fprintf(stderr, "tty %c (%02x)\n", ch >= ' ' && ch < 0x7f ? ch : '.', ch);
-		log_char(ch);
+		log_tty_char(ch);
 		send_char(ch);
-		sleep_ms(100);
+		sleep_ms(100); // FIXME
 		read_screen();
 	}
 	raw_mode(tty, 0);
 	if (logf != stdout)
 		fclose(logf);
+	return 1;
+}
+
+char* parse_qstring(const char* * s) {
+	while (*(*s) == ' ') ++(*s);
+	if (*(*s)++ != '"') return NULL;
+	char const* start = *s;
+	while (*(*s) != '"' && *(*s) != '\0') ++(*s);
+	char* ret = strndup(start, (*s)-start);
+	if (*(*s) == '"') ++(*s);
+	return ret;
+}
+
+int parse_setup_name(TestSetup* setup, char const* line) {
+	setup->setup_name = parse_qstring(&line);
+	return 1;
+}
+
+int parse_command(TestSetup* setup, char const* line) {
+	setup->argv = (char**) malloc(32*sizeof(char const*));
+	setup->argc = 0;
+	for (;;) {
+		char const* arg = parse_qstring(&line);
+		setup->argv[setup->argc++] = (char*) arg;
+		if (arg == NULL) break;
+	}
+	return 1;
+}
+
+int parse_textfile(TestSetup* setup, char const* line, FILE* fd) {
+	char const* filename = parse_qstring(&line);
+	char const* fsize_str = parse_qstring(&line);
+	int fsize = atoi(fsize_str);
+	int len = strlen(testdir)+strlen(filename)+10;
+	setup->textfile = malloc(len);
+	snprintf(setup->textfile, len, "%s/%06d-%s", testdir, rand() % 1000000, filename);
+	FILE* textfd = fopen(setup->textfile, "w");
+	if (textfd == NULL) {
+		fprintf(stderr, "cannot create %s\n", setup->textfile);
+		return 0;
+	}
+	int nread = 0;
+	while (nread < fsize) {
+		char buf[4096];
+		int chunk = fsize - nread;
+		if (chunk > sizeof(buf)) chunk = sizeof(buf);
+		size_t nread = fread(buf, 1, chunk, fd);
+		fwrite(buf, 1, nread, textfd);
+	}
+	return 1;
+}
+
+void free_test_setup(TestSetup* setup) {
+	unlink(setup->textfile);
+	free(setup->setup_name);
+	free(setup->textfile);
+	int i;
+	for (i = 0; i < setup->argc; ++i)
+		free(setup->argv[i]);
+	free((void*)setup->argv);
+	free(setup);
+}
+
+TestSetup* read_test_setup(FILE* fd) {
+	TestSetup* setup = (TestSetup*) malloc(sizeof(TestSetup));
+	setup->setup_name = NULL;
+	setup->textfile = NULL;
+	setup->argv = NULL;
+	setup->argc = 0;
+	char line[10000];
+	while (fgets(line, sizeof(line), fd) != NULL) {
+		switch (line[0]) {
+		case '\0':
+		case '\n':
+			break;
+		case '!':
+			break;
+		case ']':
+			return setup;
+		case '[':
+			if (!parse_setup_name(setup, line+1)) {
+				free_test_setup(setup);
+				return NULL;
+			}
+			break;
+		case 'L':
+			if (!parse_command(setup, line+1)) {
+				free_test_setup(setup);
+				return NULL;
+			}
+			break;
+		case 'F':
+			if (!parse_textfile(setup, line+1, fd)) {
+				free_test_setup(setup);
+				return NULL;
+			}
+			break;
+		}
+	}
+	free(setup->argv[setup->argc-1]);
+	setup->argv[setup->argc-1] = strdup(setup->textfile);
+	return setup;
+}
+
+int run_test(TestSetup* setup) {
+	fprintf(stderr, "run %s\n", setup->setup_name);
 	return 0;
+}
+
+int run_testfile(void) {
+	FILE* fd = fopen(testfile, "r");
+	if (fd == NULL) {
+		fprintf(stderr, "cannot open %s\n", testfile);
+		return 0;
+	}
+	int ok = 1;
+	for (;;) {
+		TestSetup* setup = read_test_setup(fd);
+		if (setup == NULL)
+			break;
+		ok = run_test(setup);
+		free_test_setup(setup);
+		if (!ok) break;
+	}
+	fclose(fd);
+	return ok;
+}
+
+int main(int argc, char* const* argv) {
+	signal(SIGCHLD, child_handler);
+	signal(LTSIG_SCREEN_READY, screen_ready_handler);
+	if (!setup(argc, argv))
+		return 1;
+	int ok = (testfile == NULL) ? run_interactive() : run_testfile();
+	return !ok;
 }
