@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <errno.h>
 
 #define ESC                '\33'
 
@@ -19,7 +20,6 @@ typedef struct TestSetup {
 	char* textfile;
 	char** argv;
 	int argc;
-	FILE* testfile;
 	int width;
 	int height;
 } TestSetup;
@@ -33,9 +33,9 @@ int log_tty_char(char ch);
 int log_screen(char const* img, int len);
 int log_command(char* const* argv, int argc);
 int log_textfile(char const* textfile);
-int create_less_pipeline(char const* testname, char* const* less_argv, int less_argc, char* const* less_envp, int screen_width, int screen_height, int* p_less_in, int* p_screen_out, pid_t* p_screen_pid);
+int create_less_pipeline(char const* testname, char* const* less_argv, int less_argc, char* const* less_envp, char const* testdir, int screen_width, int screen_height, int* p_less_in, int* p_screen_out, pid_t* p_screen_pid);
 void print_strings(char const* title, char* const* strings);
-char* parse_qstring(const char* * s);
-int parse_setup_name(TestSetup* setup, char const* line);
-int parse_command(TestSetup* setup, char const* line);
-int parse_textfile(TestSetup* setup, char const* line, char const* testdir, FILE* fd);
+char* parse_qstring(const char** s);
+int parse_setup_name(TestSetup* setup, char const* line, int line_len);
+int parse_command(TestSetup* setup, char const* line, int line_len);
+int parse_textfile(TestSetup* setup, char const* line, int line_len, char const* testdir, FILE* fd);

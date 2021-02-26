@@ -17,7 +17,7 @@ static void dup_and_close(int dup0, int dup1, int close0, int close1) {
 	if (dup1 >= 0) dup2(dup1, 1);
 }
 
-int create_less_pipeline(char const* testname, char* const* less_argv, int less_argc, char* const* less_envp, int screen_width, int screen_height, int* p_less_in, int* p_screen_out, pid_t* p_screen_pid) {
+int create_less_pipeline(char const* testname, char* const* less_argv, int less_argc, char* const* less_envp, char const* testdir, int screen_width, int screen_height, int* p_less_in, int* p_screen_out, pid_t* p_screen_pid) {
 	int run_less = 1;
 	int screen_in_pipe[2];
 	if (pipe(screen_in_pipe) < 0)
@@ -49,8 +49,12 @@ int create_less_pipeline(char const* testname, char* const* less_argv, int less_
 			dup_and_close(less_in_pipe[RD], screen_in_pipe[WR],
 			              less_in_pipe[WR], screen_in_pipe[RD]);
 			if (verbose) { print_strings("less argv", less_argv); print_strings("less envp", less_envp); }
+			if (chdir(testdir) < 0) {
+				fprintf(stderr, "cannot chdir to %s: errno %d\n", testdir, errno);
+				exit(1);
+			}
 			execve(less, less_argv, less_envp);
-			fprintf(stderr, "cannot exec %s\n", less);
+			fprintf(stderr, "cannot exec %s: errno %d\n", less, errno);
 			exit(1);
 		}
 		if (verbose) fprintf(stderr, "less child %ld\n", (long) less_pid);
@@ -92,7 +96,7 @@ int create_less_pipeline(char const* testname, char* const* less_argv, int less_
 		if (verbose) print_strings("screen argv", screen_argv);
 		char* const screen_envp[] = { NULL };
 		execve(lt_screen, screen_argv, screen_envp);
-		fprintf(stderr, "cannot exec %s\n", lt_screen);
+		fprintf(stderr, "cannot exec %s: errno %d\n", lt_screen, errno);
 		exit(1);
 	}
 	if (verbose) fprintf(stderr, "screen child %ld\n", (long)*p_screen_pid);
@@ -101,5 +105,6 @@ int create_less_pipeline(char const* testname, char* const* less_argv, int less_
 	*p_less_in = run_less ? less_in_pipe[WR] : screen_in_pipe[WR];
 	*p_screen_out = screen_out_pipe[RD];
 	if (verbose) fprintf(stderr, "less in %d, screen out %d\n", *p_less_in, *p_screen_out);
+sleep(1);
 	return 1;
 }

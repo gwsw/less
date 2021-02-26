@@ -7,7 +7,7 @@
 static FILE* logf = NULL;
 
 int log_open(char const* logfile) {
-	if (logf == NULL) return 1;
+	if (logf != NULL) fclose(logf);
 	logf = (strcmp(logfile, "-") == 0) ? stdout : fopen(logfile, "w");
 	if (logf == NULL) {
 		fprintf(stderr, "cannot create %s\n", logfile);

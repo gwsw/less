@@ -74,7 +74,6 @@ printf("{%x/%x}", fg_color, bg_color);
 }
 
 void display_screen(char const* img, int imglen) {
-	printf("%s", clear_screen);
 	int x = 0;
 	int y = 0;
 	int cursor_x = 0;
@@ -149,16 +148,21 @@ int read_screen(char* buf, int buflen) {
 void read_and_display_screen(void) {
 	char rbuf[8192];
 	int rn = read_screen(rbuf, sizeof(rbuf));
+	printf("%s", clear_screen);
 	display_screen(rbuf, rn);
 	log_screen(rbuf, rn);
 }
 
-int curr_screen_is(char const* img, int imglen) {
+int curr_screen_match(char const* img, int imglen) {
 	char curr[8192];
 	int currlen = read_screen(curr, sizeof(curr));
-	if (currlen != imglen)
-		return 0;
-	return (memcmp(img, curr, imglen) == 0);
+	if (currlen == imglen && memcmp(img, curr, imglen) == 0)
+		return 1;
+	fprintf(stderr, "MISMATCH: expect:\n");
+	display_screen(img, imglen);
+	fprintf(stderr, "got:\n");
+	display_screen(curr, currlen);
+	return 0;
 }
 
 // ------------------------------------------------------------------
@@ -311,8 +315,6 @@ int setup(int argc, char* const* argv) {
 			return usage();
 		}
 	}
-	if (optind+2 > argc && testfile == NULL)
-		return usage();
 	if (logfile != NULL) {
 		log_open(logfile);
 		log_header();
@@ -321,14 +323,14 @@ int setup(int argc, char* const* argv) {
 }
 
 int run_interactive(char* const* argv, int argc) {
-	if (!create_less_pipeline(testname, argv+optind, argc-optind, less_envp(), 
+	if (!create_less_pipeline(testname, argv, argc, less_envp(), testdir,
 			screen_width, screen_height, &less_in, &screen_out, &screen_pid))
 		return 0;
 	setup_term();
 	int tty = 0;
 	raw_mode(tty, 1);
 //	while (!screen_ready)
-		sleep(1);
+//		sleep(1);
 	read_and_display_screen();
 	for (;;) {
 		/// if (child_died) break;
@@ -349,6 +351,17 @@ int run_interactive(char* const* argv, int argc) {
 	return 1;
 }
 
+int read_zline(FILE* fd, char* line, int line_len) {
+	int nread = 0;
+	while (nread < line_len) {
+		int ch = fgetc(fd);
+		if (ch == EOF) return -1;
+		if (ch == '\n') break;
+		line[nread++] = (char) ch;
+	}
+	return nread;
+}
+
 void free_test_setup(TestSetup* setup) {
 	unlink(setup->textfile);
 	free(setup->setup_name);
@@ -367,25 +380,32 @@ TestSetup* read_test_setup(FILE* fd) {
 	setup->argv = NULL;
 	setup->argc = 0;
 	setup->width = setup->height = 0;
-	char line[10000];
-	while (fgets(line, sizeof(line), fd) != NULL) {
+	int hdr_complete = 0;
+	while (!hdr_complete) {
+		char line[10000];
+		int line_len = read_zline(fd, line, sizeof(line));
+		if (line_len < 0)
+			break;
+		if (line_len < 1)
+			continue;
 		switch (line[0]) {
 		case ']':
-			return setup;
+			hdr_complete = 1;
+			break;
 		case '[':
-			if (!parse_setup_name(setup, line+1)) {
+			if (!parse_setup_name(setup, line+1, line_len-1)) {
 				free_test_setup(setup);
 				return NULL;
 			}
 			break;
 		case 'L':
-			if (!parse_command(setup, line+1)) {
+			if (!parse_command(setup, line+1, line_len-1)) {
 				free_test_setup(setup);
 				return NULL;
 			}
 			break;
 		case 'F':
-			if (!parse_textfile(setup, line+1, testdir, fd)) {
+			if (!parse_textfile(setup, line+1, line_len-1, testdir, fd)) {
 				free_test_setup(setup);
 				return NULL;
 			}
@@ -396,24 +416,21 @@ TestSetup* read_test_setup(FILE* fd) {
 			break;
 		}
 	}
-	free(setup->argv[setup->argc-1]);
-	setup->argv[setup->argc-1] = strdup(setup->textfile);
-	return setup;
-}
-
-int read_zline(FILE* fd, char* line, int line_len) {
-	int nread = 0;
-	while (nread < line_len) {
-		int ch = fgetc(fd);
-		if (ch == EOF || ch == '\n') break;
-		line[nread++] = (char) ch;
+	if (setup->textfile == NULL || setup->argv == NULL || setup->width < 1 || setup->height < 1) {
+		free_test_setup(setup);
+		return NULL;
 	}
-	return nread;
+	//free(setup->argv[setup->argc-1]);
+	//setup->argv[setup->argc-1] = strdup(setup->textfile);
+	if (verbose) { fprintf(stderr, "setup: [%s] textfile %s, %dx%d\n", setup->setup_name, setup->textfile, setup->width, setup->height); print_strings("argv:", setup->argv); }
+	return setup;
 }
 
 int run_test(TestSetup* setup, FILE* fd) {
 	fprintf(stderr, "run %s\n", setup->setup_name);
-	if (!create_less_pipeline(setup->setup_name, setup->argv, setup->argc, less_envp(),
+	screen_width = setup->width;
+	screen_height = setup->height;
+	if (!create_less_pipeline(setup->setup_name, setup->argv, setup->argc, less_envp(), testdir,
 			setup->width, setup->height, &less_in, &screen_out, &screen_pid))
 		return 0;
 	for (;;) {
@@ -426,9 +443,12 @@ int run_test(TestSetup* setup, FILE* fd) {
 		switch (line[0]) {
 		case '+':
 			send_char((char) strtol(line+1, NULL, 16));
+sleep_ms(500);
 			break;
 		case '=': 
-			if (!curr_screen_is(line+1, line_len-1)) {
+			if (curr_screen_match(line+1, line_len-1)) {
+				fprintf(stderr, "OK   %s\n", setup->setup_name);
+			} else {
 				fprintf(stderr, "FAIL %s\n", setup->setup_name);
 			}
 			break;
@@ -466,6 +486,13 @@ int main(int argc, char* const* argv) {
 	signal(LTSIG_SCREEN_READY, screen_ready_handler);
 	if (!setup(argc, argv))
 		return 1;
-	int ok = (testfile == NULL) ? run_interactive(argv+optind, argc-optind) : run_testfile();
+	int ok = 0;
+	if (testfile != NULL) {
+		ok = run_testfile();
+	} else {
+		if (optind+2 > argc)
+			return usage();
+		ok = run_interactive(argv+optind, argc-optind);
+	}
 	return !ok;
 }

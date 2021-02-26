@@ -15,14 +15,14 @@ int parse_int(const char** s) {
 	return (int) strtol(*s, (char**)s, 0);
 }
 
-int parse_setup_name(TestSetup* setup, char const* line) {
+int parse_setup_name(TestSetup* setup, char const* line, int line_len) {
 	setup->setup_name = parse_qstring(&line);
 	setup->width = parse_int(&line);
 	setup->height = parse_int(&line);
 	return 1;
 }
 
-int parse_command(TestSetup* setup, char const* line) {
+int parse_command(TestSetup* setup, char const* line, int line_len) {
 	setup->argv = (char**) malloc(32*sizeof(char const*));
 	setup->argc = 0;
 	for (;;) {
@@ -34,12 +34,12 @@ int parse_command(TestSetup* setup, char const* line) {
 	return 1;
 }
 
-int parse_textfile(TestSetup* setup, char const* line, char const* testdir, FILE* fd) {
+int parse_textfile(TestSetup* setup, char const* line, int line_len, char const* testdir, FILE* fd) {
 	char const* filename = parse_qstring(&line);
 	int fsize = parse_int(&line);
 	int len = strlen(testdir)+strlen(filename)+10;
 	setup->textfile = malloc(len);
-	snprintf(setup->textfile, len, "%s/%06d-%s", testdir, rand() % 1000000, filename);
+	snprintf(setup->textfile, len, "%s/%s", testdir, filename);
 	FILE* textfd = fopen(setup->textfile, "w");
 	if (textfd == NULL) {
 		fprintf(stderr, "cannot create %s\n", setup->textfile);
