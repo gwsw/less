@@ -30,7 +30,6 @@ extern int sc_height;
 extern int secure;
 extern int dohelp;
 extern int is_tty;
-extern char *ttyin_name;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
@@ -62,6 +61,10 @@ public char *tagoption = NULL;
 extern char *tags;
 extern char ztags[];
 #endif
+#if LESSTEST
+extern char *ttyin_name;
+extern int rstat_file;
+#endif /*LESSTEST*/
 #if MSDOS_COMPILER
 extern int nm_fg_color, nm_bg_color;
 extern int bo_fg_color, bo_bg_color;
@@ -930,6 +933,7 @@ opt_status_col_width(type, s)
 	}
 }
 
+#if LESSTEST
 /*
  * Handler for the --tty option.
  */
@@ -939,8 +943,6 @@ opt_ttyin_name(type, s)
 	int type;
 	char *s;
 {
-	PARG parg;
-
 	switch (type)
 	{
 	case INIT:
@@ -949,6 +951,30 @@ opt_ttyin_name(type, s)
 		break;
 	}
 }
+
+/*
+ * Handler for the --rstat option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_rstat(type, s)
+	int type;
+	char *s;
+{
+	switch (type)
+	{
+	case INIT:
+		rstat_file = open(s, O_WRONLY|O_CREAT, 0664);
+		if (rstat_file < 0)
+		{
+			PARG parg;
+			parg.p_string = s;
+			error("Cannot create rstat file \"%s\"", &parg);
+		}
+		break;
+	}
+}
+#endif /*LESSTEST*/
 
 /*
  * Get the "screen window" size.

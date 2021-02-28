@@ -20,8 +20,11 @@ public DWORD console_mode;
 public HANDLE tty;
 #else
 public int tty;
-public char *ttyin_name = NULL;
 #endif
+#if LESSTEST
+public char *ttyin_name = NULL;
+public int rstat_file = -1;
+#endif /*LESSTEST*/
 extern int sigs;
 extern int utf_mode;
 extern int wheel_lines;
@@ -39,8 +42,10 @@ tty_device(VOID_PARAM)
 #endif
 	if (dev == NULL)
 		dev = "/dev/tty";
+#if LESSTEST
 	if (ttyin_name != NULL)
 		dev = ttyin_name;
+#endif /*LESSTEST*/
 	return dev;
 }
 #endif /* MSDOS_COMPILER */
@@ -144,6 +149,18 @@ default_wheel_lines(VOID_PARAM)
 	return lines;
 }
 
+#if LESSTEST
+	public void
+rstat(st)
+	char st;
+{
+	if (rstat_file < 0)
+		return;
+	lseek(rstat_file, SEEK_SET, 0);
+	write(rstat_file, &st, 1);
+}
+#endif /*LESSTEST*/
+
 /*
  * Get a character from the keyboard.
  */
@@ -171,11 +188,17 @@ getchr(VOID_PARAM)
 		if (c == '\003')
 			return (READ_INTR);
 #else
+#if LESSTEST
+		rstat('R');
+#endif /*LESSTEST*/
 		{
 			unsigned char uc;
 			result = iread(tty, &uc, sizeof(char));
 			c = (char) uc;
 		}
+#if LESSTEST
+		rstat('B');
+#endif /*LESSTEST*/
 		if (result == READ_INTR)
 			return (READ_INTR);
 		if (result < 0)

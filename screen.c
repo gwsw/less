@@ -205,6 +205,8 @@ static char
 	*sc_e_mousecap,         /* End mouse capture mode */
 	*sc_init,               /* Startup terminal initialization */
 	*sc_deinit;             /* Exit terminal de-initialization */
+
+static int attrcolor = -1;
 #endif
 
 static int init_done = 0;
@@ -227,11 +229,12 @@ public int missing_cap = 0;     /* Some capability is missing */
 public char *kent = NULL;       /* Keypad ENTER sequence */
 
 static int attrmode = AT_NORMAL;
-static int attrcolor = -1;
 static int termcap_debug = -1;
 extern int binattr;
 extern int one_screen;
+#if LESSTEST
 extern char *ttyin_name;
+#endif /*LESSTEST*/
 
 #if !MSDOS_COMPILER
 static char *cheaper LESSPARAMS((char *t1, char *t2, char *def));
@@ -1601,9 +1604,11 @@ do_tputs(str, affcnt, f_putc)
 	int affcnt;
 	int (*f_putc)(int);
 {
+#if LESSTEST
 	if (ttyin_name != NULL)
 		putstr(str);
 	else
+#endif /*LESSTEST*/
 		tputs(str, affcnt, f_putc);
 }
 
@@ -2527,7 +2532,6 @@ tput_color(str, f_putc)
 	char *str;
 	int (*f_putc)(int);
 {
-	char buf[16];
 	int fg;
 	int bg;
 

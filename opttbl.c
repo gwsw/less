@@ -127,7 +127,10 @@ static struct optname linenum_width_optname = { "line-num-width", NULL };
 static struct optname status_col_width_optname = { "status-col-width", NULL };
 static struct optname incr_search_optname = { "incsearch",       NULL };
 static struct optname use_color_optname = { "use-color",         NULL };
+#if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
+static struct optname rstat_optname  = { "rstat",                NULL };
+#endif /*LESSTEST*/
 
 
 /*
@@ -533,6 +536,7 @@ static struct loption option[] =
 			NULL
 		}
 	},
+#if LESSTEST
 	{ OLETTER_NONE, &ttyin_name_optname,
 		STRING|NO_TOGGLE, 0, NULL, opt_ttyin_name,
 		{
@@ -541,6 +545,15 @@ static struct loption option[] =
 			NULL
 		}
 	},
+	{ OLETTER_NONE, &rstat_optname,
+		STRING|NO_TOGGLE, 0, NULL, opt_rstat,
+		{
+			NULL,
+			NULL,
+			NULL
+		}
+	},
+#endif /*LESSTEST*/
 	{ '\0', NULL, NOVAR, 0, NULL, NULL, { NULL, NULL, NULL } }
 };
 
