@@ -360,9 +360,7 @@ int setup(int argc, char** argv)
 			return 0;
 		}
 	}
-fprintf(stderr, "set dump hdlr\n");
 	signal(LTSIG_SCREEN_DUMP, screen_dump_handler);
-fprintf(stderr, "signal ready %ld\n", (long)ready_pid);
 	if (ready_pid != 0)
 		kill(ready_pid, LTSIG_SCREEN_READY);
 	return 1;

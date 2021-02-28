@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -O2
 TERMLIB = -ltinfo
 
-LESSTEST_OBJ = lesstest.o parse.o pipeline.o log.o
+LESSTEST_OBJ = display.o lesstest.o parse.o pipeline.o log.o term.o
 all: lesstest lt_screen 
 
 lesstest: $(LESSTEST_OBJ)
