@@ -975,8 +975,8 @@ store_bs(ch, rep, pos)
 	if (bs_mode == BS_CONTROL)
 		return store_control_char(ch, rep, pos);
 	if (linebuf.end > 0 &&
-		(linebuf.end <= linebuf.print && linebuf.buf[linebuf.end-1] == '\0') ||
-	    (linebuf.end > 0 && linebuf.attr[linebuf.end - 1] & (AT_ANSI|AT_BINARY)))
+		((linebuf.end <= linebuf.print && linebuf.buf[linebuf.end-1] == '\0') ||
+	     (linebuf.end > 0 && linebuf.attr[linebuf.end - 1] & (AT_ANSI|AT_BINARY))))
 		STORE_PRCHAR('\b', pos);
 	else if (bs_mode == BS_NORMAL)
 		STORE_CHAR(ch, AT_NORMAL, NULL, pos);

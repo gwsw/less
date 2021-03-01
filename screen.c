@@ -205,6 +205,8 @@ static char
 	*sc_e_mousecap,         /* End mouse capture mode */
 	*sc_init,               /* Startup terminal initialization */
 	*sc_deinit;             /* Exit terminal de-initialization */
+
+static int attrcolor = -1;
 #endif
 
 static int init_done = 0;
@@ -230,6 +232,9 @@ static int attrmode = AT_NORMAL;
 static int termcap_debug = -1;
 extern int binattr;
 extern int one_screen;
+#if LESSTEST
+extern char *ttyin_name;
+#endif /*LESSTEST*/
 
 #if !MSDOS_COMPILER
 static char *cheaper LESSPARAMS((char *t1, char *t2, char *def));
@@ -831,10 +836,10 @@ scrsize(VOID_PARAM)
 #endif
 #endif
 
-	if (sys_height > 0)
-		sc_height = sys_height;
-	else if ((s = lgetenv("LINES")) != NULL)
+	if ((s = lgetenv("LINES")) != NULL)
 		sc_height = atoi(s);
+	else if (sys_height > 0)
+		sc_height = sys_height;
 #if !MSDOS_COMPILER
 	else if ((n = ltgetnum("li")) > 0)
 		sc_height = n;
@@ -842,10 +847,10 @@ scrsize(VOID_PARAM)
 	if (sc_height <= 0)
 		sc_height = DEF_SC_HEIGHT;
 
-	if (sys_width > 0)
-		sc_width = sys_width;
-	else if ((s = lgetenv("COLUMNS")) != NULL)
+	if ((s = lgetenv("COLUMNS")) != NULL)
 		sc_width = atoi(s);
+	else if (sys_width > 0)
+		sc_width = sys_width;
 #if !MSDOS_COMPILER
 	else if ((n = ltgetnum("co")) > 0)
 		sc_width = n;
@@ -1593,6 +1598,20 @@ win32_deinit_term(VOID_PARAM)
 #endif
 
 #if !MSDOS_COMPILER
+	static void
+do_tputs(str, affcnt, f_putc)
+	char *str;
+	int affcnt;
+	int (*f_putc)(int);
+{
+#if LESSTEST
+	if (ttyin_name != NULL)
+		putstr(str);
+	else
+#endif /*LESSTEST*/
+		tputs(str, affcnt, f_putc);
+}
+
 /*
  * Like tputs but we handle $<...> delay strings here because
  * some implementations of tputs don't perform delays correctly.
@@ -1617,7 +1636,7 @@ ltputs(str, affcnt, f_putc)
 				/* Output first part of string (before "$<"). */
 				memcpy(str2, str, slen);
 				str2[slen] = '\0';
-				tputs(str2, affcnt, f_putc);
+				do_tputs(str2, affcnt, f_putc);
 				str += slen + 2;
 				/* Perform the delay. */
 				delay = lstrtoi(str, &str);
@@ -1634,7 +1653,7 @@ ltputs(str, affcnt, f_putc)
 		}
 #endif
 		/* Pass the rest of the string to tputs and we're done. */
-		tputs(str, affcnt, f_putc);
+		do_tputs(str, affcnt, f_putc);
 		break;
 	}
 }
@@ -2494,82 +2513,95 @@ sgr_color(color)
 	}
 }
 
-	static int
-tput_fmt(fmt, val, f_putc)
+	static void
+tput_fmt(fmt, color, f_putc)
 	char *fmt;
-	int val;
+	int color;
 	int (*f_putc)(int);
 {
 	char buf[16];
-	SNPRINTF1(buf, sizeof(buf), fmt, val);
+	if (color == attrcolor)
+		return;
+	SNPRINTF1(buf, sizeof(buf), fmt, color);
 	ltputs(buf, 1, f_putc);
-	return TRUE;
+	attrcolor = color;
 }
 
-	public int
+	static void
 tput_color(str, f_putc)
 	char *str;
 	int (*f_putc)(int);
 {
-	char buf[16];
 	int fg;
 	int bg;
-	int out = FALSE;
 
 	if (str != NULL && strcmp(str, "*") == 0)
 	{
 		/* Special case: reset to normal */
-		ltputs(ESCS"[m", 1, f_putc);
-		return TRUE;
+		tput_fmt(ESCS"[m", -1, f_putc);
+		return;
 	}
 	switch (parse_color(str, &fg, &bg))
 	{
 	case CT_4BIT:
 		if (fg >= 0)
-			out = tput_fmt(ESCS"[%dm", sgr_color(fg), f_putc);
+			tput_fmt(ESCS"[%dm", sgr_color(fg), f_putc);
 		if (bg >= 0)
-			out = tput_fmt(ESCS"[%dm", sgr_color(bg)+10, f_putc);
+			tput_fmt(ESCS"[%dm", sgr_color(bg)+10, f_putc);
 		break;
 	case CT_6BIT:
 		if (fg >= 0)
-			out = tput_fmt(ESCS"[38;5;%dm", fg, f_putc);
+			tput_fmt(ESCS"[38;5;%dm", fg, f_putc);
 		if (bg >= 0)
-			out = tput_fmt(ESCS"[48;5;%dm", bg, f_putc);
+			tput_fmt(ESCS"[48;5;%dm", bg, f_putc);
 		break;
 	default:
 		break;
 	}
-	return out;
 }
 
-	static int
-tput_mode(mode_str, str, f_putc)
+	static void
+tput_inmode(mode_str, attr, attr_bit, f_putc)
 	char *mode_str;
-	char *str;
+	int attr;
+	int attr_bit;
 	int (*f_putc)(int);
 {
-	if (str == NULL || *str == '\0' || *str == '+')
+	char *color_str;
+	if ((attr & attr_bit) == 0)
+		return;
+	color_str = get_color_map(attr_bit);
+	if (color_str == NULL || *color_str == '\0' || *color_str == '+')
 	{
 		ltputs(mode_str, 1, f_putc);
-		if (*str != '+')
-			return TRUE;
-		str++;
+		if (color_str == NULL || *color_str++ != '+')
+			return;
 	}
 	/* Color overrides mode string */
-	return tput_color(str, f_putc);
+	tput_color(color_str, f_putc);
 }
 
+	static void
+tput_outmode(mode_str, attr_bit, f_putc)
+	char *mode_str;
+	int attr_bit;
+	int (*f_putc)(int);
+{
+	if ((attrmode & attr_bit) == 0)
+		return;
+	ltputs(mode_str, 1, f_putc);
+}
 
 #else /* MSDOS_COMPILER */
 
 #if MSDOS_COMPILER==WIN32C
 	static int
-WIN32put_fmt(fmt, val)
+WIN32put_fmt(fmt, color)
 	char *fmt;
-	int val;
+	int color;
 {
 	char buf[16];
-	int len = SNPRINTF1(buf, sizeof(buf), fmt, val);
+	int len = SNPRINTF1(buf, sizeof(buf), fmt, color);
 	WIN32textout(buf, len);
 	return TRUE;
 }
@@ -2626,45 +2658,37 @@ at_enter(attr)
 	int attr;
 {
 	attr = apply_at_specials(attr);
-
 #if !MSDOS_COMPILER
 	/* The one with the most priority is last.  */
-	if ((attr & AT_UNDERLINE) && tput_mode(sc_u_in, get_color_map(AT_UNDERLINE), putchr))
-		attrmode |= AT_UNDERLINE;
-	if ((attr & AT_BOLD) && tput_mode(sc_b_in, get_color_map(AT_BOLD), putchr))
-		attrmode |= AT_BOLD;
-	if ((attr & AT_BLINK) && tput_mode(sc_bl_in, get_color_map(AT_BLINK), putchr))
-		attrmode |= AT_BLINK;
+	tput_inmode(sc_u_in, attr, AT_UNDERLINE, putchr);
+	tput_inmode(sc_b_in, attr, AT_BOLD, putchr);
+	tput_inmode(sc_bl_in, attr, AT_BLINK, putchr);
 	/* Don't use standout and color at the same time. */
-	if ((attr & AT_COLOR) && use_color && tput_color(get_color_map(attr), putchr))
-		attrmode |= (attr & AT_COLOR);
-	else if ((attr & AT_STANDOUT) && tput_mode(sc_s_in, get_color_map(AT_STANDOUT), putchr))
-		attrmode |= AT_STANDOUT;
+	if (use_color && (attr & AT_COLOR))
+		tput_color(get_color_map(attr), putchr);
+	else
+		tput_inmode(sc_s_in, attr, AT_STANDOUT, putchr);
 #else
 	flush();
 	/* The one with the most priority is first.  */
 	if ((attr & AT_COLOR) && use_color)
 	{
 		win_set_color(attr);
-		attrmode = AT_COLOR;
 	} else if (attr & AT_STANDOUT)
 	{
 		SETCOLORS(so_fg_color, so_bg_color);
-		attrmode = AT_STANDOUT;
 	} else if (attr & AT_BLINK)
 	{
 		SETCOLORS(bl_fg_color, bl_bg_color);
-		attrmode = AT_BLINK;
 	} else if (attr & AT_BOLD)
 	{
 		SETCOLORS(bo_fg_color, bo_bg_color);
-		attrmode = AT_BOLD;
 	} else if (attr & AT_UNDERLINE)
 	{
 		SETCOLORS(ul_fg_color, ul_bg_color);
-		attrmode = AT_UNDERLINE;
 	}
 #endif
+	attrmode = attr;
 }
 
 	public void
@@ -2672,21 +2696,16 @@ at_exit(VOID_PARAM)
 {
 #if !MSDOS_COMPILER
 	/* Undo things in the reverse order we did them.  */
-	if ((attrmode & AT_COLOR) && tput_color("*", putchr))
-		attrmode &= ~AT_COLOR;
-	if ((attrmode & AT_STANDOUT) && tput_mode(sc_s_out, "*", putchr))
-		attrmode &= ~AT_STANDOUT;
-	if ((attrmode & AT_BLINK) && tput_mode(sc_bl_out, "*", putchr))
-		attrmode &= ~AT_BLINK;
-	if ((attrmode & AT_BOLD) && tput_mode(sc_b_out, "*", putchr))
-		attrmode &= ~AT_BOLD;
-	if ((attrmode & AT_UNDERLINE) && tput_mode(sc_u_out, "*", putchr))
-		attrmode &= ~AT_UNDERLINE;
+	tput_color("*", putchr);
+	tput_outmode(sc_s_out, AT_STANDOUT, putchr);
+	tput_outmode(sc_bl_out, AT_BLINK, putchr);
+	tput_outmode(sc_b_out, AT_BOLD, putchr);
+	tput_outmode(sc_u_out, AT_UNDERLINE, putchr);
 #else
 	flush();
 	SETCOLORS(nm_fg_color, nm_bg_color);
-	attrmode = AT_NORMAL;
 #endif
+	attrmode = AT_NORMAL;
 }
 
 	public void
