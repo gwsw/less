@@ -50,7 +50,7 @@ int log_textfile(char const* textfile);
 int create_less_pipeline(char const* testname, char* const* less_argv, int less_argc, char* const* less_envp, int screen_width, int screen_height, int* p_less_in, int* p_screen_out, pid_t* p_screen_pid);
 void print_strings(char const* title, char* const* strings);
 void free_test_setup(TestSetup* setup);
-TestSetup* read_test_setup(FILE* fd);
+TestSetup* read_test_setup(FILE* fd, char const* less);
 int read_zline(FILE* fd, char* line, int line_len);
 void raw_mode(int tty, int on);
 int get_screen_size(void);

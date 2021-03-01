@@ -59,7 +59,7 @@ int log_command(char* const* argv, int argc) {
 	if (logf == NULL) return 1;
 	fprintf(logf, "L");
 	int a;
-	for (a = 0; a < argc; ++a)
+	for (a = 1; a < argc; ++a)
 		fprintf(logf, " \"%s\"", argv[a]);
 	fprintf(logf, "\n");
 	return 1;

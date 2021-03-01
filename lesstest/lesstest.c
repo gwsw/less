@@ -179,7 +179,7 @@ int setup(int argc, char* const* argv) {
 }
 
 int run_interactive(char* const* argv, int argc) {
-	if (create_less_pipeline(testname, argv, argc, less_envp(), 
+	if (!create_less_pipeline(testname, argv, argc, less_envp(), 
 			screen_width, screen_height, &less_in, &screen_out, &screen_pid))
 		return 0;
 	less_quit = 0;
@@ -251,7 +251,7 @@ int run_test(TestSetup* setup, FILE* fd) {
 	return ok;
 }
 
-int run_testfile(void) {
+int run_testfile(char const* less) {
 	FILE* fd = fopen(testfile, "r");
 	if (fd == NULL) {
 		fprintf(stderr, "cannot open %s\n", testfile);
@@ -261,7 +261,7 @@ int run_testfile(void) {
 	int fails = 0;
 	int tests = 0;
 	for (;;) {
-		TestSetup* setup = read_test_setup(fd);
+		TestSetup* setup = read_test_setup(fd, less);
 		if (setup == NULL)
 			break;
 		++tests;
@@ -282,7 +282,9 @@ int main(int argc, char* const* argv) {
 	setup_term();
 	int ok = 0;
 	if (testfile != NULL) {
-		ok = run_testfile();
+		if (optind+1 != argc)
+			return usage();
+		ok = run_testfile(argv[optind]);
 	} else {
 		if (optind+2 > argc)
 			return usage();

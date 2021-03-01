@@ -24,9 +24,10 @@ int parse_setup_name(TestSetup* setup, char const* line, int line_len) {
 	return 1;
 }
 
-int parse_command(TestSetup* setup, char const* line, int line_len) {
+int parse_command(TestSetup* setup, char const* less, char const* line, int line_len) {
 	setup->argv = (char**) malloc(32*sizeof(char const*));
-	setup->argc = 0;
+	setup->argc = 1;
+	setup->argv[0] = (char*) less;
 	for (;;) {
 		char const* arg = parse_qstring(&line);
 		setup->argv[setup->argc] = (char*) arg;
@@ -79,7 +80,7 @@ void free_test_setup(TestSetup* setup) {
 	free(setup->setup_name);
 	free(setup->textfile);
 	int i;
-	for (i = 0; i < setup->argc; ++i)
+	for (i = 1; i < setup->argc; ++i)
 		free(setup->argv[i]);
 	free((void*)setup->argv);
 	free(setup);
@@ -96,7 +97,7 @@ int read_zline(FILE* fd, char* line, int line_len) {
 	return nread;
 }
 
-TestSetup* read_test_setup(FILE* fd) {
+TestSetup* read_test_setup(FILE* fd, char const* less) {
 	TestSetup* setup = new_test_setup();
 	int hdr_complete = 0;
 	while (!hdr_complete) {
@@ -117,7 +118,7 @@ TestSetup* read_test_setup(FILE* fd) {
 			}
 			break;
 		case 'L':
-			if (!parse_command(setup, line+1, line_len-1)) {
+			if (!parse_command(setup, less, line+1, line_len-1)) {
 				free_test_setup(setup);
 				return NULL;
 			}
