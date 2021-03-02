@@ -27,7 +27,7 @@ void raw_mode(int tty, int on) {
 	tcsetattr(tty, TCSADRAIN, &s);
 }
 
-int env_number(char const* s) {
+int env_number(const char* s) {
 	return (s == NULL) ? 0 : atoi(s);
 }
 

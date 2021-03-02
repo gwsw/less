@@ -19,7 +19,7 @@ static void dup_and_close(int dup0, int dup1, int close0, int close1) {
 	if (dup1 >= 0) dup2(dup1, 1);
 }
 
-int create_less_pipeline(char const* testname, char* const* less_argv, int less_argc, char* const* less_envp, int screen_width, int screen_height, int* p_less_in, int* p_screen_out, pid_t* p_screen_pid) {
+int create_less_pipeline(const char* testname, char* const* argv, int argc, char* const* less_envp, int screen_width, int screen_height, int* p_less_in, int* p_screen_out, pid_t* p_screen_pid) {
 	int run_less = 1;
 	int screen_in_pipe[2];
 	if (pipe(screen_in_pipe) < 0)
@@ -36,14 +36,14 @@ int create_less_pipeline(char const* testname, char* const* less_argv, int less_
 		if (pipe(less_in_pipe) < 0)
 			return 0;
 		if (verbose) fprintf(stderr, "less in pipe %d,%d\n", less_in_pipe[RD], less_in_pipe[WR]);
-		char* less = less_argv[0];
-		char* textfile = less_argv[less_argc-1];
+		char* less = argv[0];
+		char* textfile = argv[argc-1];
 		if (testname == NULL)
 			testname = textfile;
 		if (verbose) fprintf(stderr, "test '%s': testing %s on %s\n", testname, less, textfile);
 		if (!log_test_header(testname, screen_width, screen_height))
 			return 0;
-		if (!log_command(less_argv, less_argc))
+		if (!log_command(argv, argc))
 			return 0;
 		if (!log_textfile(textfile))
 			return 0;
@@ -56,6 +56,16 @@ int create_less_pipeline(char const* testname, char* const* less_argv, int less_
 			if (verbose) fprintf(stderr, "less child: in %d, out %d, close %d,%d\n", less_in_pipe[RD], screen_in_pipe[WR], less_in_pipe[WR], screen_in_pipe[RD]);
 			dup_and_close(less_in_pipe[RD], screen_in_pipe[WR],
 			              less_in_pipe[WR], screen_in_pipe[RD]);
+			char** less_argv = malloc(sizeof(char*) * (argc + 5));
+			less_argv[0] = less;
+			less_argv[1] = "--tty";
+			less_argv[2] = "/dev/stdin";
+			less_argv[3] = "--rstat";
+			less_argv[4] = rstat_file_name;
+			int less_argc = 5;
+			while (--argc > 0)
+				less_argv[less_argc++] = *++argv;
+			less_argv[less_argc] = NULL;
 			if (verbose) { print_strings("less argv", less_argv); print_strings("less envp", less_envp); }
 			execve(less, less_argv, less_envp);
 			fprintf(stderr, "cannot exec %s: errno %d\n", less, errno);
@@ -76,8 +86,7 @@ int create_less_pipeline(char const* testname, char* const* less_argv, int less_
 	if (!*p_screen_pid) { // child: lt_screen
 		if (verbose) fprintf(stderr, "screen child: in %d, out %d, close %d\n", screen_in_pipe[RD], screen_out_pipe[WR], screen_out_pipe[RD]);
 		dup_and_close(screen_in_pipe[RD], screen_out_pipe[WR], screen_out_pipe[RD], -1);
-		//char gen_pid_str[32];
-		char* screen_argv[32];
+		char* screen_argv[10];
 		int screen_argc = 0;
 		char sw[16];
 		char sh[16];

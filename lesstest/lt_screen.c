@@ -1,14 +1,14 @@
-int prc=0;
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include "lesstest.h"
+#include "lt_types.h"
+#include "wchar.h"
 #undef countof
 #define countof(a) (sizeof(a)/sizeof(*a))
 
-const char version[] = "lt_screen|v=1";
+static const char version[] = "lt_screen|v=1";
 
 int usage() {
 	fprintf(stderr, "usage: lt_screen\n");
@@ -20,10 +20,10 @@ int usage() {
 #define MAX_PARAMS         3
 
 typedef struct ScreenChar {
-	char ch;
-	unsigned char attr;
-	unsigned char fg_color;
-	unsigned char bg_color;
+	wchar ch;
+	Attr attr;
+	Color fg_color;
+	Color bg_color;
 } ScreenChar;
 
 typedef struct ScreenState {
@@ -32,9 +32,9 @@ typedef struct ScreenState {
 	int h;
 	int cx;
 	int cy;
-	unsigned char curr_attr;
-	unsigned char curr_fg_color;
-	unsigned char curr_bg_color;
+	Attr curr_attr;
+	Color curr_fg_color;
+	Color curr_bg_color;
 	int param_top;
 	int params[MAX_PARAMS+1];
 	int in_esc;
@@ -102,7 +102,7 @@ int screen_incr(int* px, int* py) {
 	return 1;
 }
 
-void screen_char_set(ScreenChar* sc, char ch, unsigned char attr, unsigned char fg_color, unsigned char bg_color) {
+void screen_char_set(ScreenChar* sc, wchar ch, Attr attr, Color fg_color, Color bg_color) {
 	sc->ch = ch;
 	sc->attr = attr;
 	sc->fg_color = fg_color;
@@ -128,8 +128,8 @@ int screen_read(int x, int y, int count) {
 	int fg_color = 0;
 	int bg_color = 0;
 	while (count-- > 0) {
-		char buf[32];
-		char* bufp = buf;
+		char1 buf[32];
+		char1* bufp = buf;
 		ScreenChar* sc = screen_char(x, y);
 		if (sc->attr != attr) {
 			attr = sc->attr;
@@ -145,7 +145,7 @@ int screen_read(int x, int y, int count) {
 		}
 		if (sc->ch == '@' || sc->ch == '$' || sc->ch == '\\' || sc->ch == '#')
 			*bufp++ = '\\';
-		*bufp++ = sc->ch;
+		store_wchar(&bufp, sc->ch);
 		if (x == screen.cx && y == screen.cy)
 			*bufp++ = '#';
 		write(ttyout, buf, bufp-buf);
@@ -203,7 +203,7 @@ void beep() {
 		fprintf(stderr, "\7");
 }
 
-int exec_esc(char ch)
+int exec_esc(char1 ch)
 {
 	int x, y, count;
 	if (verbose) {
@@ -264,8 +264,8 @@ int exec_esc(char ch)
 	}
 }
 
-int add_char(char ch) {
-	if (verbose) fprintf(stderr, "add %c at %d,%d\n", ch, screen.cx, screen.cy);
+int add_char(wchar ch) {
+	if (verbose) fprintf(stderr, "add %lx at %d,%d\n", ch, screen.cx, screen.cy);
 	ScreenChar* sc = screen_char(screen.cx, screen.cy);
 	screen_char_set(sc, ch, screen.curr_attr, screen.curr_fg_color, screen.curr_bg_color);
 	if (!screen_incr(&screen.cx, &screen.cy)) {
@@ -276,7 +276,7 @@ int add_char(char ch) {
 	return 1;
 }
 
-int process_char(char ch)
+int process_char(wchar ch)
 {
 	int ok = 1;
 	if (screen.in_esc) {
@@ -286,7 +286,7 @@ int process_char(char ch)
 			param_push(0);
 		} else {
 			screen.in_esc = 0;
-			ok = exec_esc(ch);
+			ok = exec_esc((char1)ch);
 		}
 	} else if (ch == ESC) {
 		screen.in_esc = 1;
@@ -311,12 +311,7 @@ int process_char(char ch)
 void screen_dump_handler(int signum) {
 	// (signum == LTSIG_READ_SCREEN)
 	if (verbose) fprintf(stderr, "screen: rcv dump signal\n");
-	if (prc) {
-fprintf(stderr, "******* BUSY???\n");
-		screen_busy();
-	} else {
-		(void) screen_read(0, 0, screen.w * screen.h);
-	}
+	(void) screen_read(0, 0, screen.w * screen.h);
 }
 
 // ------------------------------------------------------------------ 
@@ -371,17 +366,12 @@ int main(int argc, char** argv)
 	if (!setup(argc, argv))
 		return 1;
 	for (;;) {
-		char ch;
-		int n = read(ttyin, &ch, 1);
-		if (n < 0)
-			return 0;
-		if (n == 0)
+		wchar ch = read_wchar(ttyin);
+		if (verbose) fprintf(stderr, "screen read %c (%lx)\n", ch >= ' ' && ch < 0x7f ? (char1)ch : '.', ch);
+		if (ch == 0)
 			break;
-		if (verbose) fprintf(stderr, "screen read %c (%02x)\n", ch >= ' ' && ch < 0x7f ? ch : '.', ch);
-prc=1;
 		if (!process_char(ch))
 			beep();
-prc=0;
 	}
 	return 1;
 }

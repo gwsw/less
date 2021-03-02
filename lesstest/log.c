@@ -6,7 +6,7 @@
 
 static FILE* logf = NULL;
 
-int log_open(char const* logfile) {
+int log_open(const char* logfile) {
 	if (logf != NULL) fclose(logf);
 	logf = (strcmp(logfile, "-") == 0) ? stdout : fopen(logfile, "w");
 	if (logf == NULL) {
@@ -29,7 +29,7 @@ int log_header(void) {
 	return 1;
 }
 
-int log_test_header(char const* testname, int screen_width, int screen_height) {
+int log_test_header(const char* testname, int screen_width, int screen_height) {
 	if (logf == NULL) return 1;
 	fprintf(logf, "[ \"%s\" %d %d\n", testname, screen_width, screen_height);
 	return 1;
@@ -41,13 +41,13 @@ int log_test_footer(void) {
 	return 1;
 }
 
-int log_tty_char(char ch) {
+int log_tty_char(wchar ch) {
 	if (logf == NULL) return 1;
-	fprintf(logf, "+%x\n", ch);
+	fprintf(logf, "+%lx\n", ch);
 	return 1;
 }
 
-int log_screen(char const* img, int len) {
+int log_screen(const char1* img, int len) {
 	if (logf == NULL) return 1;
 	fwrite("=", 1, 1, logf);
 	fwrite(img, 1, len, logf);
@@ -65,7 +65,7 @@ int log_command(char* const* argv, int argc) {
 	return 1;
 }
 
-int log_textfile(char const* textfile) {
+int log_textfile(const char* textfile) {
 	if (logf == NULL) return 1;
 	struct stat st;
 	if (stat(textfile, &st) < 0) {
@@ -77,7 +77,7 @@ int log_textfile(char const* textfile) {
 		fprintf(stderr, "cannot open %s\n", textfile);
 		return 0;
 	}
-	char const* basename = rindex(textfile, '/');
+	const char* basename = rindex(textfile, '/');
 	if (basename == NULL) basename = textfile; else ++basename;
 	fprintf(logf, "F \"%s\" %ld\n", basename, (long) st.st_size);
 	off_t nread = 0;

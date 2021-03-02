@@ -34,9 +34,12 @@ void sleep_ms(int ms) {
 		fprintf(stderr, "sleep err %d\n", errno);
 }
 
-void send_char(char ch) {
-	if (verbose) fprintf(stderr, "send %x\n", ch);
-	write(less_in, &ch, 1);
+void send_char(wchar ch) {
+	if (verbose) fprintf(stderr, "send %lx\n", ch);
+	char1 cbuf[4];
+	char1* p = cbuf;
+	store_wchar(&p, ch);
+	write(less_in, cbuf, p-cbuf);
 }
 
 void wait_less_ready(void) {
@@ -55,10 +58,10 @@ void wait_less_ready(void) {
 		}
 		sleep_ms(1);
 	}
-	sleep_ms(1);
+	sleep_ms(10);
 }
 
-int read_screen(char* buf, int buflen) {
+int read_screen(char1* buf, int buflen) {
 	if (verbose) fprintf(stderr, "gen: read screen\n");
 	wait_less_ready();
 	if (less_quit)
@@ -75,7 +78,7 @@ int read_screen(char* buf, int buflen) {
 }
 
 void read_and_display_screen(void) {
-	char rbuf[8192];
+	char1 rbuf[8192];
 	int rn = read_screen(rbuf, sizeof(rbuf));
 	if (rn == 0) return;
 	printf("%s", terminfo.clear_screen);
@@ -83,8 +86,8 @@ void read_and_display_screen(void) {
 	log_screen(rbuf, rn);
 }
 
-int curr_screen_match(char const* img, int imglen) {
-	char curr[8192];
+int curr_screen_match(const char1* img, int imglen) {
+	char1 curr[8192];
 	int currlen = read_screen(curr, sizeof(curr));
 	if (currlen == imglen && memcmp(img, curr, imglen) == 0)
 		return 1;
@@ -100,9 +103,11 @@ int curr_screen_match(char const* img, int imglen) {
 char* const* less_envp(void) {
 	static char lines[32];
 	static char columns[32];
+	static char charset[100];
 	static char* envp[] = {
 		lines,
 		columns,
+		charset,
 		"LESS_TERMCAP_am=1",
 		"LESS_TERMCAP_cd=\33S",
 		"LESS_TERMCAP_ce=\33L",
@@ -122,8 +127,11 @@ char* const* less_envp(void) {
 		"LESS_TERMCAP_vb=\33g",
 		NULL,
 	};
+	char* cs = getenv("LESSCHARSET");
+	if (cs == NULL) cs = "";
 	snprintf(lines, sizeof(lines), "LINES=%d", screen_height);
 	snprintf(columns, sizeof(columns), "COLUMNS=%d", screen_width);
+	snprintf(charset, sizeof(charset), "LESSCHARSET=%s", cs);
 	return envp;
 }
 
@@ -187,14 +195,10 @@ int run_interactive(char* const* argv, int argc) {
 	raw_mode(tty, 1);
 	read_and_display_screen();
 	while (!less_quit) {
-		/// if (child_died) break;
-		char ch;
-		int n = read(tty, &ch, 1);
-		if (n <= 0)
-			break;
+		wchar ch = read_wchar(tty);
 		if (ch == terminfo.backspace_key)
 			ch = '\b';
-		if (verbose) fprintf(stderr, "tty %c (%02x)\n", ch >= ' ' && ch < 0x7f ? ch : '.', ch);
+		if (verbose) fprintf(stderr, "tty %c (%lx)\n", ch >= ' ' && ch < 0x7f ? (char)ch : '.', ch);
 		log_tty_char(ch);
 		send_char(ch);
 		read_and_display_screen();
@@ -212,7 +216,7 @@ int run_test(TestSetup* setup, FILE* fd) {
 			setup->width, setup->height, &less_in, &screen_out, &screen_pid))
 		return 0;
 	less_quit = 0;
-	char last_char = 0;
+	wchar last_char = 0;
 	int ok = 1;
 	while (!less_quit) {
 		char line[10000];
@@ -223,21 +227,15 @@ int run_test(TestSetup* setup, FILE* fd) {
 			continue;
 		switch (line[0]) {
 		case '+':
-			last_char = (char) strtol(line+1, NULL, 16);
+			last_char = (wchar) strtol(line+1, NULL, 16);
 			send_char(last_char);
 			break;
 		case '=': 
-			if (curr_screen_match(line+1, line_len-1)) {
-				fprintf(stderr, ".");
-			} else {
+			if (!curr_screen_match((char1*)line+1, line_len-1)) {
 				ok = 0;
-				fprintf(stderr, "FAIL %s on ", setup->setup_name);
-				if (last_char >= ' ' && last_char < 0x7f)
-					fprintf(stderr, "%c", last_char);
-				else
-					fprintf(stderr, "0x%02x", last_char);
+				fprintf(stderr, "FAIL %s on %c (%lx)\n", setup->setup_name,
+					(last_char >= ' ' && last_char < 0x7f) ? (char) last_char : '.', last_char);
 			}
-			fflush(stderr);
 			break;
 		case '\n':
 		case '!':
@@ -247,11 +245,11 @@ int run_test(TestSetup* setup, FILE* fd) {
 			return 0;
 		}
 	}
-	fprintf(stderr, "\nEND %s\n", setup->setup_name);
+	fprintf(stderr, "END %s %s\n", setup->setup_name, ok ? "OK" : "FAILED");
 	return ok;
 }
 
-int run_testfile(char const* less) {
+int run_testfile(const char* less) {
 	FILE* fd = fopen(testfile, "r");
 	if (fd == NULL) {
 		fprintf(stderr, "cannot open %s\n", testfile);

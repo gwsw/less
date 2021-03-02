@@ -5,8 +5,8 @@ extern TermInfo terminfo;
 extern int screen_width;
 extern int screen_height;
 
-void display_attr(unsigned char attr) {
-	static unsigned char prev_attr = 0;
+void display_attr(Attr attr) {
+	static Attr prev_attr = 0;
 	if (attr == prev_attr)
 		return;
 	if (prev_attr & ATTR_STANDOUT)
@@ -28,26 +28,26 @@ void display_attr(unsigned char attr) {
 	prev_attr = attr;
 }
 
-void display_color(unsigned char fg_color, unsigned char bg_color) {
+void display_color(Color fg_color, Color bg_color) {
 printf("{%x/%x}", fg_color, bg_color);
 }
 
-void display_screen(char const* img, int imglen, int move_cursor) {
+void display_screen(const char1* img, int imglen, int move_cursor) {
 	int x = 0;
 	int y = 0;
 	int cursor_x = 0;
 	int cursor_y = 0;
 	while (imglen-- > 0) {
-		char ch = *img++;
+		wchar ch = load_wchar(&img);
 		if (ch == '\\') {
 			ch = *img++;
 		} else if (ch == '@') {
-			char attr = *img++;
+			Attr attr = *img++;
 			display_attr(attr);
 			continue;
 		} else if (ch == '$') {
-			char fg_color = *img++;
-			char bg_color = *img++;
+			Color fg_color = *img++;
+			Color bg_color = *img++;
 			display_color(fg_color, bg_color);
 			continue;
 		} else if (ch == '#') {
@@ -55,8 +55,10 @@ void display_screen(char const* img, int imglen, int move_cursor) {
 			cursor_y = y;
 			continue;
 		}
-		//if (y == screen_height-1 && x == screen_width-3) break;
-		printf("%c", ch);
+		char1 cbuf[4];
+		char1* p = cbuf;
+		store_wchar(&p, ch);
+		fwrite(cbuf, 1, p-cbuf, stdout);
 		if (++x >= screen_width) {
 			printf("\n");
 			x = 0;
@@ -68,17 +70,17 @@ void display_screen(char const* img, int imglen, int move_cursor) {
 		printf("%s", tgoto(terminfo.cursor_move, cursor_x, cursor_y)); //FIXME
 }
 
-void print_strings(char const* title, char* const* strings) {
+void print_strings(const char* title, char* const* strings) {
 	fprintf(stderr, "%s:\n", title);
 	char* const* s;
 	for (s = strings; *s != NULL; ++s) {
 		fprintf(stderr, " ");
-		char const* p;
+		const char* p;
 		for (p = *s; *p != '\0'; ++p) {
-			if (*p < 0x20 || *p >= 0x7f)
-				fprintf(stderr, "\\x%02x", *p);
+			if (*p >= 0x20 && *p < 0x7f)
+				fprintf(stderr, "%c", (char) *p);
 			else
-				fprintf(stderr, "%c", *p);
+				fprintf(stderr, "\\x%x", *p);
 		}
 		fprintf(stderr, "\n");
 	}

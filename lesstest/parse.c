@@ -6,7 +6,7 @@ extern int verbose;
 char* parse_qstring(const char** s) {
 	while (*(*s) == ' ') ++(*s);
 	if (*(*s)++ != '"') return NULL;
-	char const* start = *s;
+	const char* start = *s;
 	while (*(*s) != '"' && *(*s) != '\0') ++(*s);
 	char* ret = strndup(start, (*s)-start);
 	if (*(*s) == '"') ++(*s);
@@ -17,19 +17,19 @@ int parse_int(const char** s) {
 	return (int) strtol(*s, (char**)s, 0);
 }
 
-int parse_setup_name(TestSetup* setup, char const* line, int line_len) {
+int parse_setup_name(TestSetup* setup, const char* line, int line_len) {
 	setup->setup_name = parse_qstring(&line);
 	setup->width = parse_int(&line);
 	setup->height = parse_int(&line);
 	return 1;
 }
 
-int parse_command(TestSetup* setup, char const* less, char const* line, int line_len) {
-	setup->argv = (char**) malloc(32*sizeof(char const*));
+int parse_command(TestSetup* setup, const char* less, const char* line, int line_len) {
+	setup->argv = (char**) malloc(32*sizeof(const char*));
 	setup->argc = 1;
 	setup->argv[0] = (char*) less;
 	for (;;) {
-		char const* arg = parse_qstring(&line);
+		const char* arg = parse_qstring(&line);
 		setup->argv[setup->argc] = (char*) arg;
 		if (arg == NULL) break;
 		setup->argc++;
@@ -37,8 +37,8 @@ int parse_command(TestSetup* setup, char const* less, char const* line, int line
 	return 1;
 }
 
-int parse_textfile(TestSetup* setup, char const* line, int line_len, FILE* fd) {
-	char const* filename = parse_qstring(&line);
+int parse_textfile(TestSetup* setup, const char* line, int line_len, FILE* fd) {
+	const char* filename = parse_qstring(&line);
 	if (access(filename, F_OK) == 0) {
 		fprintf(stderr, "%s already exists\n", filename);
 		return 0;
@@ -97,7 +97,7 @@ int read_zline(FILE* fd, char* line, int line_len) {
 	return nread;
 }
 
-TestSetup* read_test_setup(FILE* fd, char const* less) {
+TestSetup* read_test_setup(FILE* fd, const char* less) {
 	TestSetup* setup = new_test_setup();
 	int hdr_complete = 0;
 	while (!hdr_complete) {
