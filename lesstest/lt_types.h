@@ -1,7 +1,7 @@
 #include <signal.h>
 
 typedef unsigned long wchar;
-typedef unsigned char char1;
+typedef unsigned char byte;
 typedef unsigned char Attr;
 typedef unsigned char Color;
 
@@ -15,3 +15,5 @@ typedef unsigned char Color;
 #define LTSIG_SCREEN_READY  SIGUSR1
 #define LTSIG_SCREEN_DUMP   SIGUSR2
 
+#undef countof
+#define countof(a) (sizeof(a)/sizeof(*a))

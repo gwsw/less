@@ -32,7 +32,7 @@ void display_color(Color fg_color, Color bg_color) {
 printf("{%x/%x}", fg_color, bg_color);
 }
 
-void display_screen(const char1* img, int imglen, int move_cursor) {
+void display_screen(const byte* img, int imglen, int move_cursor) {
 	int x = 0;
 	int y = 0;
 	int cursor_x = 0;
@@ -55,10 +55,12 @@ void display_screen(const char1* img, int imglen, int move_cursor) {
 			cursor_y = y;
 			continue;
 		}
-		char1 cbuf[4];
-		char1* p = cbuf;
-		store_wchar(&p, ch);
-		fwrite(cbuf, 1, p-cbuf, stdout);
+		if (ch != 0) {
+			byte cbuf[4];
+			byte* cp = cbuf;
+			store_wchar(&cp, ch);
+			fwrite(cbuf, 1, cp-cbuf, stdout);
+		}
 		if (++x >= screen_width) {
 			printf("\n");
 			x = 0;

@@ -36,10 +36,10 @@ void sleep_ms(int ms) {
 
 void send_char(wchar ch) {
 	if (verbose) fprintf(stderr, "send %lx\n", ch);
-	char1 cbuf[4];
-	char1* p = cbuf;
-	store_wchar(&p, ch);
-	write(less_in, cbuf, p-cbuf);
+	byte cbuf[4];
+	byte* cp = cbuf;
+	store_wchar(&cp, ch);
+	write(less_in, cbuf, cp-cbuf);
 }
 
 void wait_less_ready(void) {
@@ -61,7 +61,7 @@ void wait_less_ready(void) {
 	sleep_ms(10);
 }
 
-int read_screen(char1* buf, int buflen) {
+int read_screen(byte* buf, int buflen) {
 	if (verbose) fprintf(stderr, "gen: read screen\n");
 	wait_less_ready();
 	if (less_quit)
@@ -78,7 +78,7 @@ int read_screen(char1* buf, int buflen) {
 }
 
 void read_and_display_screen(void) {
-	char1 rbuf[8192];
+	byte rbuf[8192];
 	int rn = read_screen(rbuf, sizeof(rbuf));
 	if (rn == 0) return;
 	printf("%s", terminfo.clear_screen);
@@ -86,8 +86,8 @@ void read_and_display_screen(void) {
 	log_screen(rbuf, rn);
 }
 
-int curr_screen_match(const char1* img, int imglen) {
-	char1 curr[8192];
+int curr_screen_match(const byte* img, int imglen) {
+	byte curr[8192];
 	int currlen = read_screen(curr, sizeof(curr));
 	if (currlen == imglen && memcmp(img, curr, imglen) == 0)
 		return 1;
@@ -104,10 +104,22 @@ char* const* less_envp(void) {
 	static char lines[32];
 	static char columns[32];
 	static char charset[100];
+	static char key_right[32];
+	static char key_left[32];
+	static char key_up[32];
+	static char key_down[32];
+	static char key_home[32];
+	static char key_end[32];
 	static char* envp[] = {
 		lines,
 		columns,
 		charset,
+		key_right,
+		key_left,
+		key_up,
+		key_down,
+		key_home,
+		key_end,
 		"LESS_TERMCAP_am=1",
 		"LESS_TERMCAP_cd=\33S",
 		"LESS_TERMCAP_ce=\33L",
@@ -132,6 +144,12 @@ char* const* less_envp(void) {
 	snprintf(lines, sizeof(lines), "LINES=%d", screen_height);
 	snprintf(columns, sizeof(columns), "COLUMNS=%d", screen_width);
 	snprintf(charset, sizeof(charset), "LESSCHARSET=%s", cs);
+	snprintf(key_right, sizeof(key_right), "LESS_TERMCAP_kr=%s", terminfo.key_right ? terminfo.key_right : "");
+	snprintf(key_left, sizeof(key_left), "LESS_TERMCAP_kl=%s", terminfo.key_left ? terminfo.key_left : "");
+	snprintf(key_up, sizeof(key_up), "LESS_TERMCAP_ku=%s", terminfo.key_up ? terminfo.key_up : "");
+	snprintf(key_down, sizeof(key_down), "LESS_TERMCAP_kd=%s", terminfo.key_down ? terminfo.key_down : "");
+	snprintf(key_home, sizeof(key_home), "LESS_TERMCAP_kh=%s", terminfo.key_home ? terminfo.key_home : "");
+	snprintf(key_end, sizeof(key_end), "LESS_TERMCAP_@7=%s", terminfo.key_end ? terminfo.key_end : "");
 	return envp;
 }
 
@@ -231,7 +249,7 @@ int run_test(TestSetup* setup, FILE* fd) {
 			send_char(last_char);
 			break;
 		case '=': 
-			if (!curr_screen_match((char1*)line+1, line_len-1)) {
+			if (!curr_screen_match((byte*)line+1, line_len-1)) {
 				ok = 0;
 				fprintf(stderr, "FAIL %s on %c (%lx)\n", setup->setup_name,
 					(last_char >= ' ' && last_char < 0x7f) ? (char) last_char : '.', last_char);
@@ -278,6 +296,7 @@ int main(int argc, char* const* argv) {
 	if (!setup(argc, argv))
 		return 1;
 	setup_term();
+	printf("%s%s", terminfo.init_term, terminfo.enter_keypad);
 	int ok = 0;
 	if (testfile != NULL) {
 		if (optind+1 != argc)
@@ -288,5 +307,6 @@ int main(int argc, char* const* argv) {
 			return usage();
 		ok = run_interactive(argv+optind, argc-optind);
 	}
+	printf("%s%s", terminfo.exit_keypad, terminfo.deinit_term);
 	return !ok;
 }

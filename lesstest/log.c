@@ -47,7 +47,7 @@ int log_tty_char(wchar ch) {
 	return 1;
 }
 
-int log_screen(const char1* img, int len) {
+int log_screen(const byte* img, int len) {
 	if (logf == NULL) return 1;
 	fwrite("=", 1, 1, logf);
 	fwrite(img, 1, len, logf);

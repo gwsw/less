@@ -5,8 +5,6 @@
 #include <fcntl.h>
 #include "lt_types.h"
 #include "wchar.h"
-#undef countof
-#define countof(a) (sizeof(a)/sizeof(*a))
 
 static const char version[] = "lt_screen|v=1";
 
@@ -102,7 +100,8 @@ int screen_incr(int* px, int* py) {
 	return 1;
 }
 
-void screen_char_set(ScreenChar* sc, wchar ch, Attr attr, Color fg_color, Color bg_color) {
+void screen_char_set(int x, int y, wchar ch, Attr attr, Color fg_color, Color bg_color) {
+	ScreenChar* sc = screen_char(x, y);
 	sc->ch = ch;
 	sc->attr = attr;
 	sc->fg_color = fg_color;
@@ -111,8 +110,7 @@ void screen_char_set(ScreenChar* sc, wchar ch, Attr attr, Color fg_color, Color 
 
 int screen_clear(int x, int y, int count) {
 	while (count-- > 0) {
-		ScreenChar* sc = screen_char(x, y);
-		screen_char_set(sc, '_', 0, 0, 0);
+		screen_char_set(x, y, '_', 0, 0, 0);
 		screen_incr(&x, &y);
 	}
 	return 1;
@@ -128,8 +126,8 @@ int screen_read(int x, int y, int count) {
 	int fg_color = 0;
 	int bg_color = 0;
 	while (count-- > 0) {
-		char1 buf[32];
-		char1* bufp = buf;
+		byte buf[32];
+		byte* bufp = buf;
 		ScreenChar* sc = screen_char(x, y);
 		if (sc->attr != attr) {
 			attr = sc->attr;
@@ -203,11 +201,10 @@ void beep() {
 		fprintf(stderr, "\7");
 }
 
-int exec_esc(char1 ch)
-{
+int exec_esc(wchar ch) {
 	int x, y, count;
 	if (verbose) {
-		fprintf(stderr, "exec ESC-%c ", ch);
+		fprintf(stderr, "exec ESC-%c ", (char)ch);
 		int i;
 		for (i = 0; i <= screen.param_top; ++i)
 			fprintf(stderr, "%d ", screen.params[i]);
@@ -216,9 +213,9 @@ int exec_esc(char1 ch)
 	switch (ch) {
 	case 'A': // clear all 
 		return screen_clear(0, 0, screen.w * screen.h);
-	case 'L': // clear to end of line 
+	case 'L': // clear from cursor to end of line 
 		return screen_clear(screen.cx, screen.cy, screen.w - screen.cx);
-	case 'S': // clear to end of screen 
+	case 'S': // clear from cursor to end of screen 
 		return screen_clear(screen.cx, screen.cy, 
 			(screen.w - screen.cx) + (screen.h - screen.cy -1) * screen.w);
 	case 'R': // read 
@@ -226,37 +223,37 @@ int exec_esc(char1 ch)
 		y = param_pop();
 		x = param_pop();
 		return screen_read(x, y, count);
-	case 'j': // move 
+	case 'j': // cursor jump to address
 		y = param_pop();
 		x = param_pop();
 		return screen_move(x, y);
 	case 'g': // visual bell 
 		return 0;
-	case 'h': // home 
+	case 'h': // cursor home 
 		return screen_move(0, 0);
-	case 'l': // lower left 
+	case 'l': // cursor lower left 
 		return screen_move(0, screen.h-1);
-	case 'r':
+	case 'r': // reverse scroll
 		return screen_rscroll();
-	case '<': // cursor left
+	case '<': // cursor left to start of line
 		return screen_cr();
-	case 's':
+	case 's': // enter standout
 		return screen_set_attr(ATTR_STANDOUT);
-	case 't':
+	case 't': // exit standout
 		return screen_clear_attr(ATTR_STANDOUT);
-	case 'u':
+	case 'u': // enter underline
 		return screen_set_attr(ATTR_UNDERLINE);
-	case 'v':
+	case 'v': // exit underline
 		return screen_clear_attr(ATTR_UNDERLINE);
-	case 'd':
+	case 'd': // enter bold
 		return screen_set_attr(ATTR_BOLD);
-	case 'e':
+	case 'e': // exit bold
 		return screen_clear_attr(ATTR_BOLD);
-	case 'b':
+	case 'b': // enter blink
 		return screen_set_attr(ATTR_BLINK);
-	case 'c':
+	case 'c': // exit blink
 		return screen_clear_attr(ATTR_BLINK);
-	case '?':
+	case '?': // print version string
 		write(ttyout, version, strlen(version));
 		return 1;
 	default:
@@ -266,9 +263,13 @@ int exec_esc(char1 ch)
 
 int add_char(wchar ch) {
 	if (verbose) fprintf(stderr, "add %lx at %d,%d\n", ch, screen.cx, screen.cy);
-	ScreenChar* sc = screen_char(screen.cx, screen.cy);
-	screen_char_set(sc, ch, screen.curr_attr, screen.curr_fg_color, screen.curr_bg_color);
-	if (!screen_incr(&screen.cx, &screen.cy)) {
+	screen_char_set(screen.cx, screen.cy, ch, screen.curr_attr, screen.curr_fg_color, screen.curr_bg_color);
+	int fits = screen_incr(&screen.cx, &screen.cy);
+	if (fits && is_wide_char(ch)) {
+		screen_char_set(screen.cx, screen.cy, 0, 0, 0, 0);
+		fits = screen_incr(&screen.cx, &screen.cy);
+	}
+	if (!fits) { // Wrap at bottom of screen = scroll
 		screen.cx = 0;
 		screen.cy = screen.h-1;
 		return screen_scroll();
@@ -276,8 +277,7 @@ int add_char(wchar ch) {
 	return 1;
 }
 
-int process_char(wchar ch)
-{
+int process_char(wchar ch) {
 	int ok = 1;
 	if (screen.in_esc) {
 		if (ch >= '0' && ch <= '9') {
@@ -286,7 +286,7 @@ int process_char(wchar ch)
 			param_push(0);
 		} else {
 			screen.in_esc = 0;
-			ok = exec_esc((char1)ch);
+			ok = exec_esc(ch);
 		}
 	} else if (ch == ESC) {
 		screen.in_esc = 1;
@@ -316,8 +316,7 @@ void screen_dump_handler(int signum) {
 
 // ------------------------------------------------------------------ 
 
-int setup(int argc, char** argv)
-{
+int setup(int argc, char** argv) {
 	int ch;
 	int ready_pid = 0;
 	screen_init();
@@ -361,13 +360,12 @@ int setup(int argc, char** argv)
 	return 1;
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
 	if (!setup(argc, argv))
 		return 1;
 	for (;;) {
 		wchar ch = read_wchar(ttyin);
-		if (verbose) fprintf(stderr, "screen read %c (%lx)\n", ch >= ' ' && ch < 0x7f ? (char1)ch : '.', ch);
+		if (verbose) fprintf(stderr, "screen read %c (%lx)\n", ch >= ' ' && ch < 0x7f ? (char)ch : '.', ch);
 		if (ch == 0)
 			break;
 		if (!process_char(ch))

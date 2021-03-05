@@ -72,6 +72,15 @@ int setup_term(void) {
 	if (terminfo.clear_screen == NULL) terminfo.clear_screen = "";
 	char* bs = tgetstr("kb", &sp);
 	terminfo.backspace_key = (bs != NULL && strlen(bs) == 1) ? *bs : '\b';
+	terminfo.init_term = tgetstr("ti", &sp);
+	terminfo.deinit_term = tgetstr("te", &sp);
+	terminfo.enter_keypad = tgetstr("ks", &sp);
+	terminfo.exit_keypad = tgetstr("ke", &sp);
+	terminfo.key_right = tgetstr("kr", &sp);
+	terminfo.key_left = tgetstr("kl", &sp);
+	terminfo.key_up = tgetstr("ku", &sp);
+	terminfo.key_down = tgetstr("kd", &sp);
+	terminfo.key_home = tgetstr("kh", &sp);
+	terminfo.key_end = tgetstr("@7", &sp);
 	return 1;
 }
-
