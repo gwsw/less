@@ -37,26 +37,31 @@ void display_screen(const byte* img, int imglen, int move_cursor) {
 	int y = 0;
 	int cursor_x = 0;
 	int cursor_y = 0;
+	int literal = 0;
 	while (imglen-- > 0) {
 		wchar ch = load_wchar(&img);
-		if (ch == '\\') {
-			ch = *img++;
-		} else if (ch == '@') {
-			Attr attr = *img++;
-			display_attr(attr);
-			continue;
-		} else if (ch == '$') {
-			Color fg_color = *img++;
-			Color bg_color = *img++;
-			display_color(fg_color, bg_color);
-			continue;
-		} else if (ch == '#') {
-			cursor_x = x;
-			cursor_y = y;
-			continue;
+		if (!literal) {
+			if (ch == '\\') {
+				literal = 1;
+				continue;
+			} else if (ch == '@') {
+				Attr attr = *img++;
+				display_attr(attr);
+				continue;
+			} else if (ch == '$') {
+				Color fg_color = *img++;
+				Color bg_color = *img++;
+				display_color(fg_color, bg_color);
+				continue;
+			} else if (ch == '#') {
+				cursor_x = x;
+				cursor_y = y;
+				continue;
+			}
 		}
+		literal = 0;
 		if (ch != 0) {
-			byte cbuf[4];
+			byte cbuf[UNICODE_MAX_BYTES];
 			byte* cp = cbuf;
 			store_wchar(&cp, ch);
 			fwrite(cbuf, 1, cp-cbuf, stdout);
@@ -69,7 +74,7 @@ void display_screen(const byte* img, int imglen, int move_cursor) {
 		}
 	}
 	if (move_cursor)
-		printf("%s", tgoto(terminfo.cursor_move, cursor_x, cursor_y)); //FIXME
+		printf("%s", tgoto(terminfo.cursor_move, cursor_x, cursor_y));
 }
 
 void print_strings(const char* title, char* const* strings) {

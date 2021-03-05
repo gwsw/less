@@ -41,7 +41,7 @@ int create_less_pipeline(const char* testname, char* const* argv, int argc, char
 		if (testname == NULL)
 			testname = textfile;
 		if (verbose) fprintf(stderr, "test '%s': testing %s on %s\n", testname, less, textfile);
-		if (!log_test_header(testname, screen_width, screen_height))
+		if (!log_test_header(testname, screen_width, screen_height, get_envp(less_envp, "LESSCHARSET")))
 			return 0;
 		if (!log_command(argv, argc))
 			return 0;

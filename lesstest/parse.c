@@ -21,6 +21,7 @@ int parse_setup_name(TestSetup* setup, const char* line, int line_len) {
 	setup->setup_name = parse_qstring(&line);
 	setup->width = parse_int(&line);
 	setup->height = parse_int(&line);
+	setup->charset = parse_qstring(&line);
 	return 1;
 }
 
@@ -69,6 +70,7 @@ TestSetup* new_test_setup(void) {
 	TestSetup* setup = (TestSetup*) malloc(sizeof(TestSetup));
 	setup->setup_name = NULL;
 	setup->textfile = NULL;
+	setup->charset = NULL;
 	setup->argv = NULL;
 	setup->argc = 0;
 	setup->width = setup->height = 0;
@@ -79,6 +81,7 @@ void free_test_setup(TestSetup* setup) {
 	unlink(setup->textfile);
 	free(setup->setup_name);
 	free(setup->textfile);
+	free(setup->charset);
 	int i;
 	for (i = 1; i < setup->argc; ++i)
 		free(setup->argv[i]);
@@ -107,6 +110,7 @@ TestSetup* read_test_setup(FILE* fd, const char* less) {
 			break;
 		if (line_len < 1)
 			continue;
+		line[line_len] = '\0';
 		switch (line[0]) {
 		case ']':
 			hdr_complete = 1;

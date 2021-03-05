@@ -36,7 +36,7 @@ void sleep_ms(int ms) {
 
 void send_char(wchar ch) {
 	if (verbose) fprintf(stderr, "send %lx\n", ch);
-	byte cbuf[4];
+	byte cbuf[UNICODE_MAX_BYTES];
 	byte* cp = cbuf;
 	store_wchar(&cp, ch);
 	write(less_in, cbuf, cp-cbuf);
@@ -100,7 +100,7 @@ int curr_screen_match(const byte* img, int imglen) {
 
 // ------------------------------------------------------------------
 
-char* const* less_envp(void) {
+char* const* less_envp(const char* lesscharset) {
 	static char lines[32];
 	static char columns[32];
 	static char charset[100];
@@ -139,11 +139,9 @@ char* const* less_envp(void) {
 		"LESS_TERMCAP_vb=\33g",
 		NULL,
 	};
-	char* cs = getenv("LESSCHARSET");
-	if (cs == NULL) cs = "";
 	snprintf(lines, sizeof(lines), "LINES=%d", screen_height);
 	snprintf(columns, sizeof(columns), "COLUMNS=%d", screen_width);
-	snprintf(charset, sizeof(charset), "LESSCHARSET=%s", cs);
+	snprintf(charset, sizeof(charset), "LESSCHARSET=%s", lesscharset);
 	snprintf(key_right, sizeof(key_right), "LESS_TERMCAP_kr=%s", terminfo.key_right ? terminfo.key_right : "");
 	snprintf(key_left, sizeof(key_left), "LESS_TERMCAP_kl=%s", terminfo.key_left ? terminfo.key_left : "");
 	snprintf(key_up, sizeof(key_up), "LESS_TERMCAP_ku=%s", terminfo.key_up ? terminfo.key_up : "");
@@ -151,6 +149,17 @@ char* const* less_envp(void) {
 	snprintf(key_home, sizeof(key_home), "LESS_TERMCAP_kh=%s", terminfo.key_home ? terminfo.key_home : "");
 	snprintf(key_end, sizeof(key_end), "LESS_TERMCAP_@7=%s", terminfo.key_end ? terminfo.key_end : "");
 	return envp;
+}
+
+const char* get_envp(char* const* envp, const char* name) {
+	int i;
+	for (i = 0; envp[i] != NULL; ++i) {
+		const char* eq = strchr(envp[i], '=');
+		if (eq == NULL) continue;
+		if (strncmp(name, envp[i], eq-envp[i]) == 0)
+			return eq+1;
+	}
+	return NULL;
 }
 
 void child_handler(int signum) {
@@ -205,7 +214,9 @@ int setup(int argc, char* const* argv) {
 }
 
 int run_interactive(char* const* argv, int argc) {
-	if (!create_less_pipeline(testname, argv, argc, less_envp(), 
+	char* charset = getenv("LESSCHARSET");
+	if (charset == NULL) charset = "";
+	if (!create_less_pipeline(testname, argv, argc, less_envp(charset), 
 			screen_width, screen_height, &less_in, &screen_out, &screen_pid))
 		return 0;
 	less_quit = 0;
@@ -230,7 +241,7 @@ int run_test(TestSetup* setup, FILE* fd) {
 	fprintf(stderr, "RUN %s\n", setup->setup_name);
 	screen_width = setup->width;
 	screen_height = setup->height;
-	if (!create_less_pipeline(setup->setup_name, setup->argv, setup->argc, less_envp(), 
+	if (!create_less_pipeline(setup->setup_name, setup->argv, setup->argc, less_envp(setup->charset), 
 			setup->width, setup->height, &less_in, &screen_out, &screen_pid))
 		return 0;
 	less_quit = 0;
@@ -273,21 +284,20 @@ int run_testfile(const char* less) {
 		fprintf(stderr, "cannot open %s\n", testfile);
 		return 0;
 	}
-	int ok = 1;
-	int fails = 0;
 	int tests = 0;
+	int fails = 0;
 	for (;;) {
 		TestSetup* setup = read_test_setup(fd, less);
 		if (setup == NULL)
 			break;
 		++tests;
-		ok = run_test(setup, fd);
+		int ok = run_test(setup, fd);
 		free_test_setup(setup);
 		if (!ok) ++fails;
 	}
-	fprintf(stderr, "%d tests, %d failed\n", tests, fails);
+	fprintf(stderr, "%d tests\n%d ok\n%d failed\n", tests, tests-fails, fails);
 	fclose(fd);
-	return ok;
+	return (fails == 0);
 }
 
 int main(int argc, char* const* argv) {
@@ -296,7 +306,6 @@ int main(int argc, char* const* argv) {
 	if (!setup(argc, argv))
 		return 1;
 	setup_term();
-	printf("%s%s", terminfo.init_term, terminfo.enter_keypad);
 	int ok = 0;
 	if (testfile != NULL) {
 		if (optind+1 != argc)
@@ -305,8 +314,9 @@ int main(int argc, char* const* argv) {
 	} else {
 		if (optind+2 > argc)
 			return usage();
+		printf("%s%s", terminfo.init_term, terminfo.enter_keypad);
 		ok = run_interactive(argv+optind, argc-optind);
+		printf("%s%s", terminfo.exit_keypad, terminfo.deinit_term);
 	}
-	printf("%s%s", terminfo.exit_keypad, terminfo.deinit_term);
 	return !ok;
 }

@@ -13,6 +13,7 @@ typedef struct TestSetup {
 	int argc;
 	int width;
 	int height;
+	char* charset;
 } TestSetup;
 
 typedef struct TermInfo {
@@ -42,7 +43,7 @@ typedef struct TermInfo {
 int log_open(char const* logfile);
 void log_close(void);
 int log_header(void);
-int log_test_header(char const* testname, int screen_width, int screen_height);
+int log_test_header(const char* testname, int screen_width, int screen_height, const char* charset);
 int log_test_footer(void);
 int log_tty_char(wchar ch);
 int log_screen(byte const* img, int len);
@@ -57,3 +58,4 @@ void raw_mode(int tty, int on);
 int get_screen_size(void);
 int setup_term(void);
 void display_screen(const byte* img, int imglen, int move_cursor);
+const char* get_envp(char* const* envp, const char* name);

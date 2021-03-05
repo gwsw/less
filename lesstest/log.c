@@ -29,9 +29,9 @@ int log_header(void) {
 	return 1;
 }
 
-int log_test_header(const char* testname, int screen_width, int screen_height) {
+int log_test_header(const char* testname, int screen_width, int screen_height, const char* charset) {
 	if (logf == NULL) return 1;
-	fprintf(logf, "[ \"%s\" %d %d\n", testname, screen_width, screen_height);
+	fprintf(logf, "[ \"%s\" %d %d \"%s\"\n", testname, screen_width, screen_height, charset != NULL ? charset : "");
 	return 1;
 }
 

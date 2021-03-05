@@ -53,7 +53,7 @@ wchar load_wchar(const byte** p) {
 }
 
 wchar read_wchar(int fd) {
-	byte cbuf[4];;
+	byte cbuf[UNICODE_MAX_BYTES];
 	int n = read(fd, &cbuf[0], 1);
 	if (n <= 0)
 		return 0;
