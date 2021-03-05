@@ -91,12 +91,13 @@ void free_test_setup(TestSetup* setup) {
 
 int read_zline(FILE* fd, char* line, int line_len) {
 	int nread = 0;
-	while (nread < line_len) {
+	while (nread < line_len-1) {
 		int ch = fgetc(fd);
 		if (ch == EOF) return -1;
 		if (ch == '\n') break;
 		line[nread++] = (char) ch;
 	}
+	line[nread] = '\0';
 	return nread;
 }
 
@@ -110,7 +111,6 @@ TestSetup* read_test_setup(FILE* fd, const char* less) {
 			break;
 		if (line_len < 1)
 			continue;
-		line[line_len] = '\0';
 		switch (line[0]) {
 		case ']':
 			hdr_complete = 1;

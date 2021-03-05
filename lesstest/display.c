@@ -84,10 +84,10 @@ void print_strings(const char* title, char* const* strings) {
 		fprintf(stderr, " ");
 		const char* p;
 		for (p = *s; *p != '\0'; ++p) {
-			if (*p >= 0x20 && *p < 0x7f)
+			if (is_ascii(*p))
 				fprintf(stderr, "%c", (char) *p);
 			else
-				fprintf(stderr, "\\x%x", *p);
+				fprintf(stderr, "\\x%04x", *p);
 		}
 		fprintf(stderr, "\n");
 	}

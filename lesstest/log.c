@@ -23,32 +23,31 @@ void log_close(void) {
 	logf = NULL;
 }
 
-int log_header(void) {
-	if (logf == NULL) return 1;
+int log_file_header(void) {
+	if (logf == NULL) return 0;
 	fprintf(logf, "!lesstest!\n");
 	return 1;
 }
 
-int log_test_header(const char* testname, int screen_width, int screen_height, const char* charset) {
-	if (logf == NULL) return 1;
+int log_test_header(const char* testname, int screen_width, int screen_height, const char* charset, char* const* argv, int argc, const char* textfile) {
+	if (logf == NULL) return 0;
 	fprintf(logf, "[ \"%s\" %d %d \"%s\"\n", testname, screen_width, screen_height, charset != NULL ? charset : "");
-	return 1;
-}
-
-int log_test_footer(void) {
-	if (logf == NULL) return 1;
+	if (!log_command(argv, argc))
+		return 0;
+	if (!log_textfile(textfile))
+		return 0;
 	fprintf(logf, "]\n");
 	return 1;
 }
 
 int log_tty_char(wchar ch) {
-	if (logf == NULL) return 1;
+	if (logf == NULL) return 0;
 	fprintf(logf, "+%lx\n", ch);
 	return 1;
 }
 
 int log_screen(const byte* img, int len) {
-	if (logf == NULL) return 1;
+	if (logf == NULL) return 0;
 	fwrite("=", 1, 1, logf);
 	fwrite(img, 1, len, logf);
 	fwrite("\n", 1, 1, logf);
@@ -56,7 +55,7 @@ int log_screen(const byte* img, int len) {
 }
 
 int log_command(char* const* argv, int argc) {
-	if (logf == NULL) return 1;
+	if (logf == NULL) return 0;
 	fprintf(logf, "L");
 	int a;
 	for (a = 1; a < argc; ++a)
@@ -66,7 +65,7 @@ int log_command(char* const* argv, int argc) {
 }
 
 int log_textfile(const char* textfile) {
-	if (logf == NULL) return 1;
+	if (logf == NULL) return 0;
 	struct stat st;
 	if (stat(textfile, &st) < 0) {
 		fprintf(stderr, "cannot stat %s\n", textfile);

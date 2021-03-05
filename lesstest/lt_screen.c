@@ -365,7 +365,7 @@ int main(int argc, char** argv) {
 		return 1;
 	for (;;) {
 		wchar ch = read_wchar(ttyin);
-		if (verbose) fprintf(stderr, "screen read %c (%lx)\n", ch >= ' ' && ch < 0x7f ? (char)ch : '.', ch);
+		if (verbose) fprintf(stderr, "screen read %c (%lx)\n", pr_ascii(ch), ch);
 		if (ch == 0)
 			break;
 		if (!process_char(ch))
