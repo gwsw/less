@@ -16,6 +16,17 @@ typedef struct TestSetup {
 	char* charset;
 } TestSetup;
 
+typedef struct LessPipeline {
+	int less_in;
+	int screen_out;
+	int rstat_file;
+	pid_t screen_pid;
+	char* tempfile;
+	int less_in_pipe[2];
+	int screen_in_pipe[2];
+	int screen_out_pipe[2];
+} LessPipeline;
+
 typedef struct TermInfo {
 	char backspace_key;
 	char* enter_underline;
@@ -46,9 +57,8 @@ int log_file_header(void);
 int log_test_header(const char* testname, int screen_width, int screen_height, const char* charset, char* const* argv, int argc, const char* textfile);
 int log_tty_char(wchar ch);
 int log_screen(byte const* img, int len);
-int log_command(char* const* argv, int argc);
-int log_textfile(char const* textfile);
-int create_less_pipeline(char const* testname, char* const* less_argv, int less_argc, char* const* less_envp, int screen_width, int screen_height, int do_log, int* p_less_in, int* p_screen_out, pid_t* p_screen_pid);
+LessPipeline* create_less_pipeline(const char* testname, char* const* argv, int argc, char* const* envp, int screen_width, int screen_height, int do_log);
+void destroy_less_pipeline(LessPipeline* pipeline);
 void print_strings(const char* title, char* const* strings);
 void free_test_setup(TestSetup* setup);
 TestSetup* read_test_setup(FILE* fd, char const* less);

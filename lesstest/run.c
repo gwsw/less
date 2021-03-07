@@ -11,12 +11,6 @@ extern int less_quit;
 extern int details;
 extern TermInfo terminfo;
 
-int rstat_file = -1;
-
-static int less_in = -1;
-static int screen_out = -1;
-static pid_t screen_pid = 0;
-
 void sleep_ms(int ms) {
 	#define NS_PER_MS (1000*1000)
 	struct timespec tm;
@@ -26,20 +20,21 @@ void sleep_ms(int ms) {
 		fprintf(stderr, "sleep error: %s\n", strerror(errno));
 }
 
-void send_char(wchar ch) {
+void send_char(LessPipeline* pipeline, wchar ch) {
 	if (verbose) fprintf(stderr, "send %lx\n", ch);
 	byte cbuf[UNICODE_MAX_BYTES];
 	byte* cp = cbuf;
 	store_wchar(&cp, ch);
-	write(less_in, cbuf, cp-cbuf);
+	write(pipeline->less_in, cbuf, cp-cbuf);
 }
 
-void wait_less_ready(void) {
-	if (rstat_file < 0) return;
+	
+void wait_less_ready(LessPipeline* pipeline) {
+	if (pipeline->rstat_file < 0) return;
 	for (;;) {
-		lseek(rstat_file, SEEK_SET, 0);
+		lseek(pipeline->rstat_file, SEEK_SET, 0);
 		char st;
-		if (read(rstat_file, &st, 1) == 1) {
+		if (read(pipeline->rstat_file, &st, 1) == 1) {
 			if (st == 'R')
 				break;
 			if (st == 'Q') {
@@ -53,15 +48,15 @@ void wait_less_ready(void) {
 	sleep_ms(10);
 }
 
-int read_screen(byte* buf, int buflen) {
+int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
 	if (verbose) fprintf(stderr, "gen: read screen\n");
-	wait_less_ready();
+	wait_less_ready(pipeline);
 	if (less_quit)
 		return 0;
-	kill(screen_pid, LTSIG_SCREEN_DUMP);
+	kill(pipeline->screen_pid, LTSIG_SCREEN_DUMP);
 	int rn = 0;
 	for (; rn <= buflen; ++rn) {
-		if (read(screen_out, &buf[rn], 1) != 1)
+		if (read(pipeline->screen_out, &buf[rn], 1) != 1)
 			break;
 		if (buf[rn] == '\n')
 			break;
@@ -69,18 +64,18 @@ int read_screen(byte* buf, int buflen) {
 	return rn;
 }
 
-void read_and_display_screen(void) {
+void read_and_display_screen(LessPipeline* pipeline) {
 	byte rbuf[MAX_SCREENBUF_SIZE];
-	int rn = read_screen(rbuf, sizeof(rbuf));
+	int rn = read_screen(pipeline, rbuf, sizeof(rbuf));
 	if (rn == 0) return;
 	printf("%s", terminfo.clear_screen);
 	display_screen(rbuf, rn, 1);
 	log_screen(rbuf, rn);
 }
 
-int curr_screen_match(const byte* img, int imglen) {
+int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen) {
 	byte curr[MAX_SCREENBUF_SIZE];
-	int currlen = read_screen(curr, sizeof(curr));
+	int currlen = read_screen(pipeline, curr, sizeof(curr));
 	if (currlen == imglen && memcmp(img, curr, imglen) == 0)
 		return 1;
 	if (details) {
@@ -154,40 +149,29 @@ const char* get_envp(char* const* envp, const char* name) {
 	return NULL;
 }
 
+	
 int run_interactive(char* const* argv, int argc) {
-	const char* textfile = argv[argc-1];
-	const char* slash = strrchr(textfile, '/');
-	const char* temp = NULL;
-	if (slash != NULL) {
-		temp = slash+1;
-		if (link(textfile, temp) < 0) {
-			fprintf(stderr, "cannot link %s to %s: %s\n", textfile, temp, strerror(errno));
-			return 0;
-		}
-	}
 	const char* charset = getenv("LESSCHARSET");
 	if (charset == NULL) charset = "";
-	if (!create_less_pipeline(testname, argv, argc, 
-			less_envp(charset), screen_width, screen_height, 1,
-			&less_in, &screen_out, &screen_pid)) {
-		if (temp != NULL) unlink(temp);
+	LessPipeline* pipeline = create_less_pipeline(testname, argv, argc, 
+			less_envp(charset), screen_width, screen_height, 1);
+	if (pipeline == NULL)
 		return 0;
-	}
 	less_quit = 0;
-	int tty = 0;
-	raw_mode(tty, 1);
-	read_and_display_screen();
+	int ttyin = 0; // stdin
+	raw_mode(ttyin, 1);
+	read_and_display_screen(pipeline);
 	while (!less_quit) {
-		wchar ch = read_wchar(tty);
+		wchar ch = read_wchar(ttyin);
 		if (ch == terminfo.backspace_key)
 			ch = '\b';
 		if (verbose) fprintf(stderr, "tty %c (%lx)\n", pr_ascii(ch), ch);
 		log_tty_char(ch);
-		send_char(ch);
-		read_and_display_screen();
+		send_char(pipeline, ch);
+		read_and_display_screen(pipeline);
 	}
-	raw_mode(tty, 0);
-	if (temp != NULL) unlink(temp);
+	raw_mode(ttyin, 0);
+	destroy_less_pipeline(pipeline);
 	return 1;
 }
 
@@ -195,9 +179,9 @@ int run_test(TestSetup* setup, FILE* testfd) {
 	fprintf(stderr, "RUN  %s\n", setup->setup_name);
 	screen_width = setup->width;
 	screen_height = setup->height;
-	if (!create_less_pipeline(setup->setup_name, setup->argv, setup->argc, 
-			less_envp(setup->charset), setup->width, setup->height, 0,
-			&less_in, &screen_out, &screen_pid))
+	LessPipeline* pipeline = create_less_pipeline(setup->setup_name, setup->argv, setup->argc, 
+			less_envp(setup->charset), setup->width, setup->height, 0);
+	if (pipeline == NULL)
 		return 0;
 	less_quit = 0;
 	wchar last_char = 0;
@@ -213,11 +197,11 @@ int run_test(TestSetup* setup, FILE* testfd) {
 		switch (line[0]) {
 		case '+':
 			last_char = (wchar) strtol(line+1, NULL, 16);
-			send_char(last_char);
+			send_char(pipeline, last_char);
 			++cmds;
 			break;
 		case '=': 
-			if (!curr_screen_match((byte*)line+1, line_len-1)) {
+			if (!curr_screen_match(pipeline, (byte*)line+1, line_len-1)) {
 				ok = 0;
 				fprintf(stderr, "FAIL %s on cmd #%d (%c %lx)\n",
 					setup->setup_name, cmds, pr_ascii(last_char), last_char);
@@ -231,6 +215,7 @@ int run_test(TestSetup* setup, FILE* testfd) {
 			return 0;
 		}
 	}
+	destroy_less_pipeline(pipeline);
 	fprintf(stderr, "END  %s (%d commands) %s\n", setup->setup_name, cmds, ok ? "OK" : "FAILED");
 	return ok;
 }
@@ -252,9 +237,9 @@ int run_testfile(const char* testfile, const char* less) {
 		free_test_setup(setup);
 		if (!ok) ++fails;
 	}
-	fprintf(stderr, "DONE %d test%s: %d ok", tests, tests>1?"s":"", tests-fails);
-	if (fails > 0)
-		fprintf(stderr, ", %d failed", fails);
+	fprintf(stderr, "DONE %d test%s", tests, tests==1?"":"s");
+	if (tests > fails)  fprintf(stderr, ", %d ok",  tests-fails);
+	if (fails > 0)      fprintf(stderr, ", %d failed", fails);
 	fprintf(stderr, "\n");
 	fclose(testfd);
 	return (fails == 0);

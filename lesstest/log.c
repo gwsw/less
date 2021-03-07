@@ -29,17 +29,6 @@ int log_file_header(void) {
 	return 1;
 }
 
-int log_test_header(const char* testname, int screen_width, int screen_height, const char* charset, char* const* argv, int argc, const char* textfile) {
-	if (logf == NULL) return 0;
-	fprintf(logf, "[ \"%s\" %d %d \"%s\"\n", testname, screen_width, screen_height, charset != NULL ? charset : "");
-	if (!log_command(argv, argc))
-		return 0;
-	if (!log_textfile(textfile))
-		return 0;
-	fprintf(logf, "]\n");
-	return 1;
-}
-
 int log_tty_char(wchar ch) {
 	if (logf == NULL) return 0;
 	fprintf(logf, "+%lx\n", ch);
@@ -54,12 +43,12 @@ int log_screen(const byte* img, int len) {
 	return 1;
 }
 
-int log_command(char* const* argv, int argc) {
+int log_command(char* const* argv, int argc, const char* textfile) {
 	if (logf == NULL) return 0;
 	fprintf(logf, "L");
 	int a;
 	for (a = 1; a < argc; ++a)
-		fprintf(logf, " \"%s\"", argv[a]);
+		fprintf(logf, " \"%s\"", (a < argc-1) ? argv[a] : textfile);
 	fprintf(logf, "\n");
 	return 1;
 }
@@ -76,9 +65,7 @@ int log_textfile(const char* textfile) {
 		fprintf(stderr, "cannot open %s\n", textfile);
 		return 0;
 	}
-	const char* basename = rindex(textfile, '/');
-	if (basename == NULL) basename = textfile; else ++basename;
-	fprintf(logf, "F \"%s\" %ld\n", basename, (long) st.st_size);
+	fprintf(logf, "F \"%s\" %ld\n", textfile, (long) st.st_size);
 	off_t nread = 0;
 	while (nread < st.st_size) {
 		char buf[4096];
@@ -94,3 +81,15 @@ int log_textfile(const char* textfile) {
 	fclose(fd);
 	return 1;
 }
+
+int log_test_header(const char* testname, int screen_width, int screen_height, const char* charset, char* const* argv, int argc, const char* textfile) {
+	if (logf == NULL) return 0;
+	fprintf(logf, "[ \"%s\" %d %d \"%s\"\n", testname, screen_width, screen_height, charset != NULL ? charset : "");
+	if (!log_command(argv, argc, textfile))
+		return 0;
+	if (!log_textfile(textfile))
+		return 0;
+	fprintf(logf, "]\n");
+	return 1;
+}
+
