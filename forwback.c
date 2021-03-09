@@ -185,7 +185,7 @@ forw(n, pos, force, only_last, nblank)
 			{
 				clear();
 				home();
-			} else if (!first_time)
+			} else if (!first_time && !is_filtering())
 			{
 				putstr("...skipping...\n");
 			}
