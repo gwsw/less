@@ -14,7 +14,7 @@
     2. The Less License, in the file LICENSE.
 
     Please report any problems at https://github.com/gwsw/less/issues.
-    See @@HOMEPAGE@@ for the latest info.
+    See https://greenwoodsoftware.com/less for the latest info.
     Source repository is at https://github.com/gwsw/less.git.
 
 =========================================================================
@@ -33,7 +33,7 @@ INSTALLATION (Unix & Linux systems only):
    type "make -f Makefile.aut".
    If you are building from a numbered release package (a tar or 
    zip file with a name like less-999.tar.gz or less-999.zip downloaded 
-   from @@HOMEPAGE@@, not from github), you should skip this step. 
+   from greenwoodsoftware.com, not from github), you should skip this step. 
 
 3. Type "sh configure".
    This will generate a Makefile and a defines.h.
