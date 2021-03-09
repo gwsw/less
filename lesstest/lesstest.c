@@ -1,8 +1,6 @@
 #include <sys/wait.h>
 #include "lesstest.h"
 
-#define RUN_OK  0
-#define RUN_ERR 1
 
 extern TermInfo terminfo;
 
@@ -16,7 +14,7 @@ char* testname = NULL;
 static char* testfile = NULL;
 
 int usage(void) {
-	fprintf(stderr, "usage: lesstest -o file.lt [-n testname] [-w#] [-h#] less.exe [flags] textfile\n");
+	fprintf(stderr, "usage: lesstest -o file.lt [-n testname] [-w#] [-h#] [--] less.exe [flags] textfile\n");
 	fprintf(stderr, "   or: lesstest -t file.lt less.exe\n");
 	return 0;
 }

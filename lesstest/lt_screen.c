@@ -40,7 +40,7 @@ typedef struct ScreenState {
 
 static ScreenState screen;
 static int ttyin; // input text and control sequences
-static int ttyout; // output for R command etc.
+static int ttyout; // output for screen dump
 static int quiet = 0;
 static int verbose = 0;
 
@@ -218,7 +218,7 @@ int exec_esc(wchar ch) {
 	case 'S': // clear from cursor to end of screen 
 		return screen_clear(screen.cx, screen.cy, 
 			(screen.w - screen.cx) + (screen.h - screen.cy -1) * screen.w);
-	case 'R': // read 
+	case 'R': // read screen contents
 		count = param_pop();
 		y = param_pop();
 		x = param_pop();
@@ -300,6 +300,8 @@ int process_char(wchar ch) {
 		else 
 			screen_scroll();
 		screen.cx = 0; // auto CR
+	} else if (ch == '\7') {
+		beep();
 	} else if (ch == '\t') {
 		ok = add_char(' ');
 	} else if (ch >= '\40') {
@@ -362,7 +364,7 @@ int setup(int argc, char** argv) {
 
 int main(int argc, char** argv) {
 	if (!setup(argc, argv))
-		return 1;
+		return RUN_ERR;
 	for (;;) {
 		wchar ch = read_wchar(ttyin);
 		if (verbose) fprintf(stderr, "screen read %c (%lx)\n", pr_ascii(ch), ch);
@@ -371,5 +373,5 @@ int main(int argc, char** argv) {
 		if (!process_char(ch))
 			beep();
 	}
-	return 1;
+	return RUN_OK;
 }

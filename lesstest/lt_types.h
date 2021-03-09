@@ -17,6 +17,9 @@ typedef unsigned char Color;
 #define LTSIG_SCREEN_READY  SIGUSR1
 #define LTSIG_SCREEN_DUMP   SIGUSR2
 
+#define RUN_OK              0
+#define RUN_ERR             1
+
 #define is_ascii(ch)        ((ch) >= ' ' && (ch) < 0x7f)
 #define pr_ascii(ch)        (is_ascii(ch) ? ((char)ch) : '.')
 

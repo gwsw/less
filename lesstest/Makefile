@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -g
-TERMLIB = -ltinfo
+TERMLIB = -lncurses
 
 all: lesstest lt_screen 
 

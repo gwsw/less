@@ -155,13 +155,14 @@ LessPipeline* create_less_pipeline(const char* testname, char* const* argv, int 
 }
 
 void destroy_less_pipeline(LessPipeline* pipeline) {
-	if (pipeline->tempfile != NULL)
-		unlink(pipeline->tempfile);
 	close(pipeline->rstat_file);
 	close(pipeline->less_in);
 	close(pipeline->screen_out);
 	close(pipeline->less_in_pipe[0]); close(pipeline->less_in_pipe[1]);
 	close(pipeline->screen_in_pipe[0]); close(pipeline->screen_in_pipe[1]);
 	close(pipeline->screen_out_pipe[0]); close(pipeline->screen_out_pipe[1]);
+	if (pipeline->tempfile != NULL)
+		unlink(pipeline->tempfile);
+	unlink(rstat_file_name);
 	free(pipeline);
 }
