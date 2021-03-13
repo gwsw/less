@@ -8,8 +8,8 @@
 #define WR 1
 
 extern int verbose;
+extern char* lt_screen;
 static char* rstat_file_name = "less.rstat";
-static char* lt_screen = "./lt_screen"; // FIXME
 static const int run_less = 1;
 
 static void dup_and_close(int dup0, int dup1, int close0, int close1) {

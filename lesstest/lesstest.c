@@ -10,6 +10,7 @@ int screen_height = 0;
 int less_quit = 0;
 int details = 0;
 char* testname = NULL;
+char* lt_screen = "./lt_screen";
 
 static char* testfile = NULL;
 
@@ -32,7 +33,7 @@ int setup(int argc, char* const* argv) {
 		return 0;
 	}
 	int ch;
-	while ((ch = getopt(argc, argv, "dh:n:o:t:vw:")) != -1) {
+	while ((ch = getopt(argc, argv, "dh:n:o:s:t:vw:")) != -1) {
 		switch (ch) {
 		case 'd':
 			details = 1;
@@ -45,6 +46,9 @@ int setup(int argc, char* const* argv) {
 			break;
 		case 'o':
 			logfile = optarg;
+			break;
+		case 's':
+			lt_screen = optarg;
 			break;
 		case 't':
 			testfile = optarg;

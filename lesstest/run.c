@@ -216,7 +216,7 @@ int run_test(TestSetup* setup, FILE* testfd) {
 		}
 	}
 	destroy_less_pipeline(pipeline);
-	fprintf(stderr, "END  %s (%d commands) %s\n", setup->setup_name, cmds, ok ? "OK" : "FAILED");
+	fprintf(stderr, "%s %s (%d commands)\n", ok ? "OK  " : "FAIL", setup->setup_name, cmds);
 	return ok;
 }
 
@@ -237,10 +237,12 @@ int run_testfile(const char* testfile, const char* less) {
 		free_test_setup(setup);
 		if (!ok) ++fails;
 	}
+#if 0
 	fprintf(stderr, "DONE %d test%s", tests, tests==1?"":"s");
 	if (tests > fails)  fprintf(stderr, ", %d ok",  tests-fails);
 	if (fails > 0)      fprintf(stderr, ", %d failed", fails);
 	fprintf(stderr, "\n");
+#endif
 	fclose(testfd);
 	return (fails == 0);
 }
