@@ -109,6 +109,7 @@ Scroll horizontally left back to the first column.
 Repaint the screen.
 .IP R
 Repaint the screen, discarding any buffered input.
+That is, reload the current file.
 Useful if the file is changing while it is being viewed.
 .IP "F"
 Scroll forward, and keep trying to read when the
