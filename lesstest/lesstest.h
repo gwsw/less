@@ -6,20 +6,27 @@
 #include "lt_types.h"
 #include "wchar.h"
 
+#define ENVBUF_SIZE 4096
+typedef struct EnvBuf {
+	char** env_list;
+	char* env_estr;
+	char* env_buf[ENVBUF_SIZE/sizeof(char*)];
+} EnvBuf;
+
 typedef struct TestSetup {
 	char* setup_name;
 	char* textfile;
 	char** argv;
 	int argc;
-	int width;
-	int height;
-	char* charset;
+	EnvBuf env;
 } TestSetup;
 
 typedef struct LessPipeline {
 	int less_in;
 	int screen_out;
 	int rstat_file;
+	int screen_width;
+	int screen_height;
 	pid_t screen_pid;
 	char* tempfile;
 	int less_in_pipe[2];
@@ -54,19 +61,26 @@ typedef struct TermInfo {
 int log_open(char const* logfile);
 void log_close(void);
 int log_file_header(void);
-int log_test_header(const char* testname, int screen_width, int screen_height, const char* charset, char* const* argv, int argc, const char* textfile);
+int log_test_header(char* const* argv, int argc, const char* textfile);
+int log_test_footer(void);
+int log_env(const char* name, int namelen, const char* value);
 int log_tty_char(wchar ch);
 int log_screen(byte const* img, int len);
-LessPipeline* create_less_pipeline(const char* testname, char* const* argv, int argc, char* const* envp, int screen_width, int screen_height, int do_log);
+LessPipeline* create_less_pipeline(char* const* argv, int argc, char* const* envp);
 void destroy_less_pipeline(LessPipeline* pipeline);
 void print_strings(const char* title, char* const* strings);
 void free_test_setup(TestSetup* setup);
 TestSetup* read_test_setup(FILE* fd, char const* less);
 int read_zline(FILE* fd, char* line, int line_len);
 void raw_mode(int tty, int on);
-int get_screen_size(void);
 int setup_term(void);
-void display_screen(const byte* img, int imglen, int move_cursor);
+void display_screen(const byte* img, int imglen, int screen_width, int screen_height, int move_cursor);
 const char* get_envp(char* const* envp, const char* name);
-int run_interactive(char* const* argv, int argc);
+int run_interactive(char* const* argv, int argc, char* const* envp);
 int run_testfile(const char* testfile, const char* less);
+void env_init(EnvBuf* env);
+void env_addchar(EnvBuf* env, char ch);
+void env_addstr(EnvBuf* env, const char* str);
+void env_addpair(EnvBuf* env, const char* name, const char* value);
+void env_setup(EnvBuf* env, char* const* prog_env, const char* env_prefix);
+char* const* less_envp(char* const* envp, const char* env_prefix);

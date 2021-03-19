@@ -141,11 +141,11 @@ int screen_read(int x, int y, int count) {
 			*bufp++ = fg_color;
 			*bufp++ = bg_color;
 		}
+		if (x == screen.cx && y == screen.cy)
+			*bufp++ = '#';
 		if (sc->ch == '@' || sc->ch == '$' || sc->ch == '\\' || sc->ch == '#')
 			*bufp++ = '\\';
 		store_wchar(&bufp, sc->ch);
-		if (x == screen.cx && y == screen.cy)
-			*bufp++ = '#';
 		write(ttyout, buf, bufp-buf);
 		screen_incr(&x, &y);
 	}

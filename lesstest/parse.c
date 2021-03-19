@@ -17,11 +17,12 @@ int parse_int(const char** s) {
 	return (int) strtol(*s, (char**)s, 0);
 }
 
-int parse_setup_name(TestSetup* setup, const char* line, int line_len) {
-	setup->setup_name = parse_qstring(&line);
-	setup->width = parse_int(&line);
-	setup->height = parse_int(&line);
-	setup->charset = parse_qstring(&line);
+int parse_env(TestSetup* setup, const char* line, int line_len) {
+	char* name = parse_qstring(&line);
+	char* value = parse_qstring(&line);
+	env_addpair(&setup->env, name, value);
+	free(name);
+	free(value);
 	return 1;
 }
 
@@ -68,20 +69,16 @@ int parse_textfile(TestSetup* setup, const char* line, int line_len, FILE* fd) {
 
 TestSetup* new_test_setup(void) {
 	TestSetup* setup = (TestSetup*) malloc(sizeof(TestSetup));
-	setup->setup_name = NULL;
 	setup->textfile = NULL;
-	setup->charset = NULL;
 	setup->argv = NULL;
 	setup->argc = 0;
-	setup->width = setup->height = 0;
+	env_init(&setup->env);
 	return setup;
 }
 
 void free_test_setup(TestSetup* setup) {
 	unlink(setup->textfile);
-	free(setup->setup_name);
 	free(setup->textfile);
-	free(setup->charset);
 	int i;
 	for (i = 1; i < setup->argc; ++i)
 		free(setup->argv[i]);
@@ -112,38 +109,40 @@ TestSetup* read_test_setup(FILE* fd, const char* less) {
 		if (line_len < 1)
 			continue;
 		switch (line[0]) {
-		case ']':
+		case '!': // file header
+			break;
+		case 'T': // test header
+			break;
+		case 'R': // end of test header; start run
 			hdr_complete = 1;
 			break;
-		case '[':
-			if (!parse_setup_name(setup, line+1, line_len-1)) {
+		case 'E': // environment variable
+			if (!parse_env(setup, line+1, line_len-1)) {
 				free_test_setup(setup);
 				return NULL;
 			}
 			break;
-		case 'L':
-			if (!parse_command(setup, less, line+1, line_len-1)) {
-				free_test_setup(setup);
-				return NULL;
-			}
-			break;
-		case 'F':
+		case 'F': // text file
 			if (!parse_textfile(setup, line+1, line_len-1, fd)) {
 				free_test_setup(setup);
 				return NULL;
 			}
 			break;
-		case '!':
+		case 'A': // less cmd line parameters
+			if (!parse_command(setup, less, line+1, line_len-1)) {
+				free_test_setup(setup);
+				return NULL;
+			}
 			break;
 		default:
 			break;
 		}
 	}
-	if (setup->textfile == NULL || setup->argv == NULL || setup->width < 1 || setup->height < 1) {
+	if (setup->textfile == NULL || setup->argv == NULL) {
 		free_test_setup(setup);
 		return NULL;
 	}
-	if (verbose) { fprintf(stderr, "setup: [%s] textfile %s, %dx%d\n", setup->setup_name, setup->textfile, setup->width, setup->height); print_strings("argv:", setup->argv); }
+	if (verbose) { fprintf(stderr, "setup: textfile %s\n", setup->textfile); print_strings("argv:", setup->argv); }
 	return setup;
 }
 

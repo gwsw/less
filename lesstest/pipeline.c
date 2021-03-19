@@ -80,10 +80,11 @@ LessPipeline* new_pipeline() {
 	pipeline->rstat_file = -1;
 	pipeline->tempfile = NULL;
 	pipeline->screen_pid = 0;
+	pipeline->screen_width = pipeline->screen_height = 0;
 	return pipeline;
 }
 
-LessPipeline* create_less_pipeline(const char* testname, char* const* argv, int argc, char* const* envp, int screen_width, int screen_height, int do_log) {
+LessPipeline* create_less_pipeline(char* const* argv, int argc, char* const* envp) {
 	// If textfile contains a slash, create a temporary link from 
 	// the named text file to its basename, and run less on the link.
 	LessPipeline* pipeline = new_pipeline();
@@ -108,6 +109,10 @@ LessPipeline* create_less_pipeline(const char* testname, char* const* argv, int 
 		destroy_less_pipeline(pipeline);
 		return NULL;
 	}
+	const char* w = get_envp(envp, "COLUMNS");
+	const char* h = get_envp(envp, "LINES");
+	if (w != NULL) pipeline->screen_width = atoi(w);
+	if (h != NULL) pipeline->screen_height = atoi(h);
 	if (verbose) fprintf(stderr, "less out pipe %d,%d\n", pipeline->screen_in_pipe[0], pipeline->screen_in_pipe[1]);
 	if (run_less) { 
 		if (pipe(pipeline->less_in_pipe) < 0) {
@@ -116,15 +121,7 @@ LessPipeline* create_less_pipeline(const char* testname, char* const* argv, int 
 		}
 		if (verbose) fprintf(stderr, "less in pipe %d,%d\n", pipeline->less_in_pipe[RD], pipeline->less_in_pipe[WR]);
 		char* less = argv[0];
-		if (testname == NULL)
-			testname = textfile;
-		if (verbose) fprintf(stderr, "test '%s': testing %s on %s\n", testname, less, textfile);
-		if (do_log) {
-			if (!log_test_header(testname, screen_width, screen_height, get_envp(envp, "LESSCHARSET"), argv, argc, textfile)) {
-				destroy_less_pipeline(pipeline);
-				return NULL;
-			}
-		}
+		if (verbose) fprintf(stderr, "testing %s on %s\n", less, textfile);
 		pid_t less_pid = fork();
 		if (less_pid < 0) {
 			destroy_less_pipeline(pipeline);
@@ -143,7 +140,7 @@ LessPipeline* create_less_pipeline(const char* testname, char* const* argv, int 
 	if (verbose) fprintf(stderr, "screen out pipe %d,%d\n", pipeline->screen_out_pipe[RD], pipeline->screen_out_pipe[WR]);
 	pipeline->screen_pid = fork();
 	if (!pipeline->screen_pid) // child: lt_screen
-		become_child_screen(lt_screen, screen_width, screen_height, pipeline->screen_in_pipe, pipeline->screen_out_pipe);
+		become_child_screen(lt_screen, pipeline->screen_width, pipeline->screen_height, pipeline->screen_in_pipe, pipeline->screen_out_pipe);
 	if (verbose) fprintf(stderr, "screen child %ld\n", (long) pipeline->screen_pid);
 	close(pipeline->screen_out_pipe[WR]); pipeline->screen_out_pipe[WR] = -1;
 	close(pipeline->screen_in_pipe[RD]); pipeline->screen_in_pipe[RD] = -1;

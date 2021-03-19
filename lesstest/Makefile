@@ -4,7 +4,7 @@ TERMLIB = -lncurses
 
 all: lesstest lt_screen 
 
-LESSTEST_OBJ = display.o lesstest.o parse.o pipeline.o log.o run.o term.o wchar.o
+LESSTEST_OBJ = display.o env.o lesstest.o parse.o pipeline.o log.o run.o term.o wchar.o
 lesstest: $(LESSTEST_OBJ)
 	$(CC) $(CFLAGS) -o lesstest $(LESSTEST_OBJ) $(TERMLIB)
 

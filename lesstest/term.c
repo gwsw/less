@@ -5,9 +5,6 @@
 #include <sys/ioctl.h>
 #include "lesstest.h"
 
-extern int screen_width;
-extern int screen_height;
-
 TermInfo terminfo;
 
 void raw_mode(int tty, int on) {
@@ -31,18 +28,20 @@ int env_number(const char* s) {
 	return (s == NULL) ? 0 : atoi(s);
 }
 
-int get_screen_size(void) {
-	screen_width = env_number("COLUMNS");
-	screen_height = env_number("ROWS");
-	if (screen_width == 0 || screen_height == 0) {
+#if 0
+int get_screen_size(int* screen_width, int* screen_height) {
+	*screen_width = env_number("COLUMNS");
+	*screen_height = env_number("ROWS");
+	if (*screen_width == 0 || *screen_height == 0) {
 		struct winsize w;
 		if (ioctl(2, TIOCGWINSZ, &w) == 0) {
-			screen_height = w.ws_row;
-			screen_width = w.ws_col;
+			*screen_height = w.ws_row;
+			*screen_width = w.ws_col;
 		}
 	}
-	return (screen_width > 0 && screen_height > 0);
+	return (*screen_width > 0 && *screen_height > 0);
 }
+#endif
 
 void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char** exit_str, char** spp) {
 	*enter_str = tgetstr(enter_cap, spp);
