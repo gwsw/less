@@ -25,15 +25,13 @@ sub main {
 	my ($base) = $file;
 	if ($base =~ m|.*/([^/]+)$|) { $base = $1; }
 
-	my $outfile = "$outdir/$base.lt";
-	if (-s $outfile) {
-		my $n = 2;
-		for (;;) {
-			$outfile = "$outdir/$base-$n.lt";
-			last if not -s $outfile;
-		}
+	my $outfile;
+	for (my $n = 1;; ++$n) {
+		$outfile = "$outdir/$base-$n.lt";
+		last if not -s $outfile;
 	}
 	if (system "$lesstest -w$width -h$height -s $testdir/lt_screen -o $outfile -- " . join(' ', @ARGV)) {
 		print "$0: error running $lesstest\n";
 	}
+	return 1;
 }
