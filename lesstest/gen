@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+use strict;
+
+# Generate a lesstest file.
+
+my $usage = "usage: gen less.exe [lessflags] textfile\n";
+
+use Getopt::Std;
+
+my $width     = ($ENV{COLUMNS} or 78);
+my $height    = ($ENV{ROWS} or 24);
+my $testdir   = ".";
+my $lesstest  = "$testdir/lesstest";
+my $outdir    = "$testdir/suite";
+
+exit (main() ? 0 : 1);
+sub main {
+	my $less = $ARGV[0];
+	my $file = $ARGV[$#ARGV];
+	die $usage if not defined $less or not defined $file;
+	if (not -f $file) {
+		print "$0: cannot open $file\n";
+		return 0;
+	}
+	my ($base) = $file;
+	if ($base =~ m|.*/([^/]+)$|) { $base = $1; }
+
+	my $outfile = "$outdir/$base.lt";
+	if (-s $outfile) {
+		my $n = 2;
+		for (;;) {
+			$outfile = "$outdir/$base-$n.lt";
+			last if not -s $outfile;
+		}
+	}
+	if (system "$lesstest -w$width -h$height -s $testdir/lt_screen -o $outfile -- " . join(' ', @ARGV)) {
+		print "$0: error running $lesstest\n";
+	}
+}

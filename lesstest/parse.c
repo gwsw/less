@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include "lesstest.h"
 
+extern int verbose;
+
 char* parse_qstring(const char** s) {
 	while (*(*s) == ' ') ++(*s);
 	if (*(*s)++ != '"') return NULL;
-	char const* start = *s;
+	const char* start = *s;
 	while (*(*s) != '"' && *(*s) != '\0') ++(*s);
 	char* ret = strndup(start, (*s)-start);
 	if (*(*s) == '"') ++(*s);
@@ -15,18 +17,20 @@ int parse_int(const char** s) {
 	return (int) strtol(*s, (char**)s, 0);
 }
 
-int parse_setup_name(TestSetup* setup, char const* line, int line_len) {
+int parse_setup_name(TestSetup* setup, const char* line, int line_len) {
 	setup->setup_name = parse_qstring(&line);
 	setup->width = parse_int(&line);
 	setup->height = parse_int(&line);
+	setup->charset = parse_qstring(&line);
 	return 1;
 }
 
-int parse_command(TestSetup* setup, char const* line, int line_len) {
-	setup->argv = (char**) malloc(32*sizeof(char const*));
-	setup->argc = 0;
+int parse_command(TestSetup* setup, const char* less, const char* line, int line_len) {
+	setup->argv = (char**) malloc(32*sizeof(const char*));
+	setup->argc = 1;
+	setup->argv[0] = (char*) less;
 	for (;;) {
-		char const* arg = parse_qstring(&line);
+		const char* arg = parse_qstring(&line);
 		setup->argv[setup->argc] = (char*) arg;
 		if (arg == NULL) break;
 		setup->argc++;
@@ -34,12 +38,16 @@ int parse_command(TestSetup* setup, char const* line, int line_len) {
 	return 1;
 }
 
-int parse_textfile(TestSetup* setup, char const* line, int line_len, char const* testdir, FILE* fd) {
-	char const* filename = parse_qstring(&line);
+int parse_textfile(TestSetup* setup, const char* line, int line_len, FILE* fd) {
+	const char* filename = parse_qstring(&line);
+	if (access(filename, F_OK) == 0) {
+		fprintf(stderr, "%s already exists\n", filename);
+		return 0;
+	}
 	int fsize = parse_int(&line);
-	int len = strlen(testdir)+strlen(filename)+10;
+	int len = strlen(filename)+1;
 	setup->textfile = malloc(len);
-	snprintf(setup->textfile, len, "%s/%s", testdir, filename);
+	strcpy(setup->textfile, filename);
 	FILE* textfd = fopen(setup->textfile, "w");
 	if (textfd == NULL) {
 		fprintf(stderr, "cannot create %s\n", setup->textfile);
@@ -57,3 +65,85 @@ int parse_textfile(TestSetup* setup, char const* line, int line_len, char const*
 	fclose(textfd);
 	return 1;
 }
+
+TestSetup* new_test_setup(void) {
+	TestSetup* setup = (TestSetup*) malloc(sizeof(TestSetup));
+	setup->setup_name = NULL;
+	setup->textfile = NULL;
+	setup->charset = NULL;
+	setup->argv = NULL;
+	setup->argc = 0;
+	setup->width = setup->height = 0;
+	return setup;
+}
+
+void free_test_setup(TestSetup* setup) {
+	unlink(setup->textfile);
+	free(setup->setup_name);
+	free(setup->textfile);
+	free(setup->charset);
+	int i;
+	for (i = 1; i < setup->argc; ++i)
+		free(setup->argv[i]);
+	free((void*)setup->argv);
+	free(setup);
+}
+
+int read_zline(FILE* fd, char* line, int line_len) {
+	int nread = 0;
+	while (nread < line_len-1) {
+		int ch = fgetc(fd);
+		if (ch == EOF) return -1;
+		if (ch == '\n') break;
+		line[nread++] = (char) ch;
+	}
+	line[nread] = '\0';
+	return nread;
+}
+
+TestSetup* read_test_setup(FILE* fd, const char* less) {
+	TestSetup* setup = new_test_setup();
+	int hdr_complete = 0;
+	while (!hdr_complete) {
+		char line[10000];
+		int line_len = read_zline(fd, line, sizeof(line));
+		if (line_len < 0)
+			break;
+		if (line_len < 1)
+			continue;
+		switch (line[0]) {
+		case ']':
+			hdr_complete = 1;
+			break;
+		case '[':
+			if (!parse_setup_name(setup, line+1, line_len-1)) {
+				free_test_setup(setup);
+				return NULL;
+			}
+			break;
+		case 'L':
+			if (!parse_command(setup, less, line+1, line_len-1)) {
+				free_test_setup(setup);
+				return NULL;
+			}
+			break;
+		case 'F':
+			if (!parse_textfile(setup, line+1, line_len-1, fd)) {
+				free_test_setup(setup);
+				return NULL;
+			}
+			break;
+		case '!':
+			break;
+		default:
+			break;
+		}
+	}
+	if (setup->textfile == NULL || setup->argv == NULL || setup->width < 1 || setup->height < 1) {
+		free_test_setup(setup);
+		return NULL;
+	}
+	if (verbose) { fprintf(stderr, "setup: [%s] textfile %s, %dx%d\n", setup->setup_name, setup->textfile, setup->width, setup->height); print_strings("argv:", setup->argv); }
+	return setup;
+}
+

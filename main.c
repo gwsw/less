@@ -75,10 +75,14 @@ main(argc, argv)
 	progname = *argv++;
 	argc--;
 
+#if SECURE
+	secure = 1;
+#else
 	secure = 0;
 	s = lgetenv("LESSSECURE");
 	if (!isnullenv(s))
 		secure = 1;
+#endif
 
 #ifdef WIN32
 	if (getenv("HOME") == NULL)

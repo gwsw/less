@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+use strict;
+
+# Run one or more test files.
+
+my $usage = "usage: run [-l less.exe] file.lt...\n";
+
+use Getopt::Std;
+
+my $testdir   = ".";
+my $lesstest  = "$testdir/lesstest";
+
+exit (main() ? 0 : 1);
+sub main {
+	my %opt;
+	die $usage if not getopts('l:', \%opt);
+	die $usage if not @ARGV;
+	my $less = ($opt{l} or "$testdir/../obj/less");
+
+	my $errs = 0;
+	foreach my $file (@ARGV) {
+		if (not -f $file) {
+			print STDERR "ERR  cannot open $file\n";
+			++$errs;
+			next;
+		}
+		##print STDERR "FILE $file\n";
+		if (system "$lesstest -s $testdir/lt_screen -t $file $less") {
+			print STDERR "ERR  running $lesstest\n";
+			++$errs;
+		}
+	}
+	if ($errs > 0) {
+		print STDERR "ERRS $errs errors\n";
+		return 0;
+	}
+	return 1;
+}
