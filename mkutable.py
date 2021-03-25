@@ -1,12 +1,19 @@
 #! /usr/bin/env python
 
 from argparse import ArgumentParser
+<<<<<<< HEAD
 from sys import argv
 from subprocess import run
 import re
 import friendly
 
 friendly.install()
+=======
+from sys import exit
+from subprocess import run
+from fileinput import input
+import re
+>>>>>>> d2f9e16 (Commit more Python versions of scripts. WIP)
 
 # Override Unicode tables for certain control chars
 # that are expected to be found in normal text files.
