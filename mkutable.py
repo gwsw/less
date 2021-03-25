@@ -5,7 +5,6 @@ from sys import exit
 from subprocess import run
 from fileinput import input
 import re
->>>>>>> 27ef7b3 (Commit more Python versions of scripts. WIP)
 
 # Override Unicode tables for certain control chars
 # that are expected to be found in normal text files.
