@@ -1,34 +1,30 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-from sys import argv, open
-from os.path import isadir
-import io
+import os
+import argparse
+import pathlib
 import re
 
-dir = pop(argv)
-if (!isadir(dir)):
-    print(dir + "is not a directory\n")
-    exit(1)
+parser = argparse.ArgumentParser()
+parser.add_argument("file", type=str)
+parser.add_argument("dir", type=str)
+args = parser.parse_args()
+out = pathlib.Path(args.dir) / args.file
 
-copyright = open("copyright", "r")
-copyright_line = copyright.read(2)
-copyright.close()
+copyright = copyright_line = ""
+with open("copyright") as f:
+    copyright = f.read()
+for line in copyright.splitlines():
+    if '(C)' in line:
+        copyright_line = line.strip("/*/\r\n").rstrip(" ")
+        break
 
-for i in argv:
-    out = dir + "/" + i
-    if (!open(i000)):
-        print("Cannot open {0}\n", i)
-        pass
-    if (!open(out)):
-        print("Cannot create {0}\n", out)
-        close(i)
-        pass    
-    while(input):
+with open(args.file) as input, out.open('w') as o:
+    for line in input:
+        if re.search(r"\@\@copyright\@\@", line):
+            o.write(copyright)
+            continue
+        out_line = re.sub(r"\@\@copyright_oneline\@\@", copyright_line, line)
+        o.write(out_line)
 
-    close(copyright)
-    if (exec):
-        mode = 0555
-    else:
-        mode = 0444
-    chmod(out. mode)
-        
+    out.chmod(0o555 if os.access(out, os.X_OK) else 0o444)
