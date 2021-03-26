@@ -12,9 +12,11 @@ REL := $(shell sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q $
 ifeq ($(USE_PYTHON),1)
 	MKHELP = mkhelp.py
 	MKFUNCS = mkfuncs.py
+	ADD_COPYRIGHT = add_copyright.py
 else
 	MKHELP = mkhelp.pl
 	MKFUNCS = mkfuncs.pl
+	ADD_COPYRIGHT = add_copyright
 endif
 
 SRC = \
