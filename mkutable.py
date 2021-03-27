@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 
 from argparse import ArgumentParser
-from sys import exit
+import sys
 from subprocess import run
-from fileinput import input
 import re
 
 # Override Unicode tables for certain control chars
@@ -66,6 +65,8 @@ def main() -> int:
                 hi_code = int(m.group(2), 16)
             else:
                 lo_code = hi_code = int(codes, 16)
+            print(fields)
+            print(type_field)
             type = fields[type_field]
             type = re.match(r"s/\s//g", type)
             for last_code in range(lo_code, hi_code):
@@ -73,7 +74,6 @@ def main() -> int:
                        if force_compose[last_code] else type)
     output(out, last_code)
     return 1
-
 
 def output(out: dict, code: int, type: str = None):
     type_ok = type is not None and type in out['types'].keys()
