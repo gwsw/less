@@ -33,7 +33,6 @@ def main() -> int:
     parser.add_argument("-f", help="Zero-based type field (default 2)",
                         type=int, default=2)
     parser.add_argument("types", nargs='+', type=str)
-
     # Kludge: cannot specify alternate var for dest= parameter when the positional
     # argument's name contains a dot.
     parser.add_argument("data_file", type=open, metavar="UnicodeData.txt")
@@ -56,8 +55,7 @@ def main() -> int:
 
     last_code = 0
     with args.data_file as file:
-        for line in file:
-            line.rstrip('\r\n')
+        for line in file:line.rstrip('\r\n')
             line = re.sub(r"s/#.*//", '', line)
             fields = line.split(';')
             if not fields:
@@ -69,6 +67,8 @@ def main() -> int:
                 hi_code = int(m.group(2), 16)
             else:
                 lo_code = hi_code = int(codes, 16)
+            print(fields)
+            print(type_field)
             type = fields[type_field]
             type = re.match(r"s/\s//g", type)
             for last_code in range(lo_code, hi_code):
@@ -77,11 +77,11 @@ def main() -> int:
     output(out, last_code)
     return 1
 
-def output(out: dict, code: int, type: str = None):
-    type_ok = type is not None and type in out['types'].keys()
+def output(out: dict, code: int, type: str):
+    type_ok = type and out['types'][type]
     if opt_n:
         type_ok = not type_ok
-    prev_code = out['prev_code']
+    prev_code = out["prev_code"]
 
     print(out['types'].keys())
     import pprint
