@@ -85,6 +85,7 @@ def output(out: dict, code: int, type: str = None):
         type_ok = not type_ok
     prev_code = out['prev_code']
 
+    print(type)
     if not type_ok:
         end_run(out, prev_code)
     elif (not out["in_run"] or type != out["run_type"] or code != prev_code+1):
