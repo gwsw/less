@@ -481,8 +481,10 @@ bin_file(f)
 			LWCHAR c = step_char(&p, +1, edata);
 			struct ansi_state *pansi;
 			if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(c)) != NULL)
+			{
 				skip_ansi(pansi, &p, edata);
-			else if (binary_char(c))
+				ansi_done(pansi);
+			} else if (binary_char(c))
 				bin_count++;
 		}
 	}
