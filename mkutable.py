@@ -4,6 +4,9 @@ from argparse import ArgumentParser
 from sys import argv
 from subprocess import run
 import re
+import friendly
+
+friendly.install()
 
 # Override Unicode tables for certain control chars
 # that are expected to be found in normal text files.
@@ -67,8 +70,6 @@ def main() -> int:
                 hi_code=int(m.group(2), 16)
             else:
                 lo_code = hi_code = int(codes, 16)
-            print(fields)
-            print(type_field)
             type = fields[type_field]
             type = re.match(r"s/\s//g", type)
             for last_code in range(lo_code, hi_code):
@@ -78,11 +79,16 @@ def main() -> int:
     return 1
 
 
-def output(out: dict, code: int, type: str):
-    type_ok = type and out['types'][type]
+def output(out: dict, code: int, type: str = None):
+    type_ok = type is not None and type in out['types'].keys()
     if opt_n:
         type_ok = not type_ok
-    prev_code = out["prev_code"]
+    prev_code = out['prev_code']
+
+    print(out['types'].keys())
+    import pprint
+    p = pprint.PrettyPrinter()
+    p.pprint(out)
 
     print(type)
     if not type_ok:
