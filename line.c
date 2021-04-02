@@ -569,7 +569,7 @@ skip_ansi(pansi, pp, limit)
 	LWCHAR c;
 	do {
 		c = step_char(pp, +1, limit);
-	} while (*pp < limit && ansi_step(pansi, c) != ANSI_MID);
+	} while (*pp < limit && ansi_step(pansi, c) == ANSI_MID);
 	/* Note that we discard final char, for which is_ansi_end is true. */
 }
 
@@ -961,6 +961,8 @@ store_ansi(ch, rep, pos)
 			bch = step_char(&p, -1, linebuf.buf);
 		} while (p > linebuf.buf && !IS_CSI_START(bch));
 		linebuf.end = (int) (p - linebuf.buf);
+		ansi_done(line_ansi);
+		line_ansi = NULL;
 		break; }
 	}
 	return (0);
