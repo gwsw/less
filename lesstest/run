@@ -3,20 +3,25 @@ use strict;
 
 # Run one or more test files.
 
-my $usage = "usage: run [-l less.exe] [file.lt | dir]...\n";
+my $usage = "usage: run [-l less.exe] [-o lesstest-opts] [file.lt | dir]...\n";
 
 use Getopt::Std;
 
 my $testdir   = ".";
 my $lesstest  = "$testdir/lesstest";
 my $less      = "$testdir/../obj/less";
+my $lesstest_opts = "";
+my %opt;
 
 exit (main() ? 0 : 1);
 sub main {
-	my %opt;
-	die $usage if not getopts('l:', \%opt);
+	die $usage if not getopts('l:o:v', \%opt);
 	die $usage if not @ARGV;
 	$less = $opt{l} if $opt{l};
+	$lesstest_opts = $opt{o};
+	$lesstest_opts =~ s/^\s*//;
+	$lesstest_opts =~ s/\s*$//;
+	$lesstest_opts = '-'.$lesstest_opts if $lesstest_opts and $lesstest_opts !~ /^-/;
 
 	my $errs = 0;
 	foreach my $file (@ARGV) {
@@ -43,8 +48,10 @@ sub run {
 		return 1;
 	}
 	##print STDERR "FILE $file\n";
-	if (system "$lesstest -s $testdir/lt_screen -t $file $less") {
-		print STDERR "ERR  running $lesstest\n";
+	my $cmd = "$lesstest -s $testdir/lt_screen -t $file $lesstest_opts $less";
+	print STDERR "RUN  $cmd\n" if $opt{v};
+	if (system $cmd) {
+		print STDERR "ERR  running $cmd\n";
 		return 1;
 	}
 	return 0;

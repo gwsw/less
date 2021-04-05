@@ -28,7 +28,7 @@ typedef struct LessPipeline {
 	int screen_width;
 	int screen_height;
 	pid_t screen_pid;
-	char* tempfile;
+	const char* tempfile;
 	int less_in_pipe[2];
 	int screen_in_pipe[2];
 	int screen_out_pipe[2];

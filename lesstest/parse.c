@@ -77,8 +77,10 @@ TestSetup* new_test_setup(void) {
 }
 
 void free_test_setup(TestSetup* setup) {
-	unlink(setup->textfile);
-	free(setup->textfile);
+	if (setup->textfile != NULL) {
+		unlink(setup->textfile);
+		free(setup->textfile);
+	}
 	int i;
 	for (i = 1; i < setup->argc; ++i)
 		free(setup->argv[i]);

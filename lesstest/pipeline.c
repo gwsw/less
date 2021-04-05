@@ -19,11 +19,17 @@ static void dup_and_close(int dup0, int dup1, int close0, int close1) {
 	if (dup1 >= 0) dup2(dup1, 1);
 }
 
-void become_child_less(char* less, int argc, char* const* argv, char* const* envp, char* tempfile, int less_in_pipe[2], int screen_in_pipe[2]) {
+const char* basename(const char* path) {
+	const char* slash = strrchr(path, '/');
+	if (slash == NULL) return path;
+	return slash+1;
+}
+
+void become_child_less(char* less, int argc, char* const* argv, char* const* envp, const char* tempfile, int less_in_pipe[2], int screen_in_pipe[2]) {
 	if (verbose) fprintf(stderr, "less child: in %d, out %d, close %d,%d\n", less_in_pipe[RD], screen_in_pipe[WR], less_in_pipe[WR], screen_in_pipe[RD]);
 	dup_and_close(less_in_pipe[RD], screen_in_pipe[WR],
 				  less_in_pipe[WR], screen_in_pipe[RD]);
-	char** less_argv = malloc(sizeof(char*) * (argc + 5));
+	char** less_argv = malloc(sizeof(char*) * (argc + 6));
 	less_argv[0] = less;
 	less_argv[1] = "--tty";
 	less_argv[2] = "/dev/stdin";
@@ -32,7 +38,7 @@ void become_child_less(char* less, int argc, char* const* argv, char* const* env
 	int less_argc = 5;
 	while (--argc > 0) {
 		char* arg = *++argv;
-		less_argv[less_argc++] = (argc > 1 || tempfile == NULL) ? arg : tempfile;
+		less_argv[less_argc++] = (argc > 1 || tempfile == NULL) ? arg : (char*) tempfile;
 	}
 	less_argv[less_argc] = NULL;
 	if (verbose) { print_strings("less argv", less_argv); print_strings("less envp", envp); }
@@ -89,14 +95,14 @@ LessPipeline* create_less_pipeline(char* const* argv, int argc, char* const* env
 	// the named text file to its basename, and run less on the link.
 	LessPipeline* pipeline = new_pipeline();
 	const char* textfile = argv[argc-1];
-	char* slash = strrchr(textfile, '/');
-	if (slash != NULL) {
-		pipeline->tempfile = slash+1;
-		if (link(textfile, pipeline->tempfile) < 0) {
-			fprintf(stderr, "cannot link %s to %s: %s\n", textfile, pipeline->tempfile, strerror(errno));
+	const char* textbase = basename(textfile);
+	if (textbase != textfile) {
+		pipeline->tempfile = textbase;
+		if (link(textfile, textbase) < 0) {
+			fprintf(stderr, "cannot link %s to %s: %s\n", textfile, textbase, strerror(errno));
 			return NULL;
 		}
-		textfile = pipeline->tempfile;
+		textfile = textbase;
 	}
 	if (pipe(pipeline->screen_in_pipe) < 0) {
 		destroy_less_pipeline(pipeline);

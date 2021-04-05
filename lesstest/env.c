@@ -8,8 +8,16 @@ void env_init(EnvBuf* env) {
 	*--(env->env_list) = NULL;
 }
 
+void env_check(EnvBuf* env) {
+	if (env->env_estr >= (const char*) env->env_list) {
+		fprintf(stderr, "ENVBUF_SIZE too small!\n");
+		abort();
+	}
+}
+
 void env_addchar(EnvBuf* env, char ch) {
 	*(env->env_estr)++ = ch;
+	env_check(env);
 }
 
 void env_addlstr(EnvBuf* env, const char* str, int strlen) {
@@ -23,6 +31,7 @@ void env_addstr(EnvBuf* env, const char* str) {
 
 void env_addlpair(EnvBuf* env, const char* name, int namelen, const char* value) {
 	*--(env->env_list) = env->env_estr;
+	env_check(env);
 	env_addlstr(env, name, namelen);
 	env_addstr(env, "=");
 	env_addstr(env, value);

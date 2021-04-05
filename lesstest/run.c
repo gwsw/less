@@ -1,12 +1,14 @@
 #include <time.h>
 #include <errno.h>
-//#include <sys/ioctl.h>
+#include <setjmp.h>
 #include "lesstest.h"
 
 extern int verbose;
 extern int less_quit;
 extern int details;
 extern TermInfo terminfo;
+extern int run_catching;
+extern jmp_buf run_catch;
 
 void sleep_ms(int ms) {
 	#define NS_PER_MS (1000*1000)
@@ -42,7 +44,7 @@ void wait_less_ready(LessPipeline* pipeline) {
 		}
 		sleep_ms(1);
 	}
-	sleep_ms(10);
+	sleep_ms(25); // why is this needed? rstat should prevent need for this
 }
 
 int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
@@ -89,7 +91,8 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 	LessPipeline* pipeline = create_less_pipeline(argv, argc, envp);
 	if (pipeline == NULL)
 		return 0;
-	if (!log_test_header(argv, argc, argv[argc-1])) {
+	const char* textfile = (pipeline->tempfile != NULL) ? pipeline->tempfile : argv[argc-1];
+	if (!log_test_header(argv, argc, textfile)) {
 		destroy_less_pipeline(pipeline);
 		return 0;
 	}
@@ -123,37 +126,44 @@ int run_test(TestSetup* setup, FILE* testfd) {
 	wchar last_char = 0;
 	int ok = 1;
 	int cmds = 0;
-	while (!less_quit) {
-		char line[10000];
-		int line_len = read_zline(testfd, line, sizeof(line));
-		if (line_len < 0)
-			break;
-		if (line_len < 1)
-			continue;
-		switch (line[0]) {
-		case '+':
-			last_char = (wchar) strtol(line+1, NULL, 16);
-			send_char(pipeline, last_char);
-			++cmds;
-			break;
-		case '=': 
-			if (!curr_screen_match(pipeline, (byte*)line+1, line_len-1)) {
-				ok = 0;
-				fprintf(stderr, "FAIL %s on cmd #%d (%c %lx)\n",
-					setup_name, cmds, pr_ascii(last_char), last_char);
+	if (setjmp(run_catch)) {
+		fprintf(stderr, "\nINTR test interrupted\n");
+		ok = 0;
+	} else {
+		run_catching = 1;
+		while (!less_quit) {
+			char line[10000];
+			int line_len = read_zline(testfd, line, sizeof(line));
+			if (line_len < 0)
+				break;
+			if (line_len < 1)
+				continue;
+			switch (line[0]) {
+			case '+':
+				last_char = (wchar) strtol(line+1, NULL, 16);
+				send_char(pipeline, last_char);
+				++cmds;
+				break;
+			case '=': 
+				if (!curr_screen_match(pipeline, (byte*)line+1, line_len-1)) {
+					ok = 0;
+					fprintf(stderr, "FAIL %s on cmd #%d (%c %lx)\n",
+						setup_name, cmds, pr_ascii(last_char), last_char);
+				}
+				break;
+			case 'Q':
+				less_quit = 1;
+				break;
+			case '\n':
+			case '!':
+				break;
+			default:
+				fprintf(stderr, "unrecognized char at start of \"%s\"\n", line);
+				return 0;
 			}
-			break;
-		case 'Q':
-			less_quit = 1;
-			break;
-		case '\n':
-		case '!':
-			break;
-		default:
-			fprintf(stderr, "unrecognized char at start of \"%s\"\n", line);
-			return 0;
 		}
 	}
+	run_catching = 0;
 	destroy_less_pipeline(pipeline);
 	fprintf(stderr, "%s %s (%d commands)\n", ok ? "OK  " : "FAIL", setup_name, cmds);
 	return ok;

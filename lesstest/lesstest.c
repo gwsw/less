@@ -1,4 +1,5 @@
 #include <sys/wait.h>
+#include <setjmp.h>
 #include "lesstest.h"
 
 extern TermInfo terminfo;
@@ -7,6 +8,8 @@ int verbose = 0;
 int less_quit = 0;
 int details = 0;
 char* lt_screen = "./lt_screen";
+int run_catching = 0;
+jmp_buf run_catch;
 
 static char* testfile = NULL;
 
@@ -20,6 +23,11 @@ void child_handler(int signum) {
 	int status;
 	pid_t child = wait(&status);
 	if (verbose) fprintf(stderr, "child %d died, status 0x%x\n", child, status);
+}
+
+void intr_handler(int signum) {
+	less_quit = 1;
+	if (run_catching) longjmp(run_catch, 1);
 }
 
 int setup(int argc, char* const* argv) {
@@ -55,6 +63,9 @@ int setup(int argc, char* const* argv) {
 
 int main(int argc, char* const* argv, char* const* envp) {
 	signal(SIGCHLD, child_handler);
+	signal(SIGINT,  intr_handler);
+	signal(SIGQUIT, intr_handler);
+	signal(SIGKILL, intr_handler);
 	if (!setup(argc, argv))
 		return RUN_ERR;
 	setup_term();
@@ -64,7 +75,12 @@ int main(int argc, char* const* argv, char* const* envp) {
 			usage();
 			return RUN_ERR;
 		}
-		ok = run_testfile(testfile, argv[optind]);
+		//if (setjmp(run_catch)) {
+		//	fprintf(stderr, "\nINTR test interrupted\n");
+		//	ok = 0;
+		//} else {
+			ok = run_testfile(testfile, argv[optind]);
+		//}
 	} else { // gen; create new test
 		if (optind+2 > argc) {
 			usage();
