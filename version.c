@@ -911,7 +911,7 @@ v577  2/9/21    Use ttyname to get name of tty device.
 v578  2/9/21    Doc
 v579  2/14/21   Fix double-width char bugs and non-match search crash.
 v580  3/2/21    Some color fixes; fix compiler warnings; some lesstest support.
-v581            Ignore SIGTSTP in secure mode; don't print "skipping" when filtering.
+v581  4/6/21    Ignore SIGTSTP in secure mode; don't print "skipping" when filtering.
 */
 
-char version[] = "581x";
+char version[] = "581";
