@@ -1675,6 +1675,11 @@ histfile_modified(VOID_PARAM)
 	return 0;
 }
 
+#if MSDOS_COMPILER==WIN32C
+#include "os_defs.h"
+#include <windows.h>
+#endif
+
 /*
  * Update the .lesshst file.
  */
@@ -1696,8 +1701,10 @@ save_cmdhist(VOID_PARAM)
 	histname = histfile_name();
 	if (histname == NULL)
 		return;
+	
 	tempname = make_tempname(histname);
 	fout = fopen(tempname, "w");
+
 	if (fout != NULL)
 	{
 		make_file_private(fout);
@@ -1716,14 +1723,13 @@ save_cmdhist(VOID_PARAM)
 		read_cmdhist(&copy_hist, &ctx, skip_search, skip_shell);
 		save_marks(fout, HISTFILE_MARK_SECTION);
 		fclose(fout);
+
+		// replace the file atomically
 #if MSDOS_COMPILER==WIN32C
-		/*
-		 * Windows rename doesn't remove an existing file,
-		 * making it useless for atomic operations. Sigh.
-		 */
-		remove(histname);
-#endif
+		ReplaceFileA(histname, tempname, 0,0,0,0);
+#else
 		rename(tempname, histname);
+#endif
 	}
 	free(tempname);
 	free(histname);

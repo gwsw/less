@@ -52,7 +52,8 @@
  * EDIT_PGM is the name of the (default) editor to be invoked.
  */
 #define	EDITOR		(!SECURE)
-#define	EDIT_PGM	"edit"
+#define	EDIT_PGM	"notepad"
+#define EDIT_PROTO   "%E %g"
 
 /*
  * TAGS is 1 if you wish to support tag files.
@@ -105,10 +106,10 @@
  * LESSHISTFILE is the filename of the history file
  * (in the HOME directory).
  */
-#define	LESSKEYFILE		"_less"
-#define	LESSKEYFILE_SYS		"c:\\_sysless"
-#define	DEF_LESSKEYINFILE	"_lesskey"
-#define LESSHISTFILE		"_lesshst"
+#define	LESSKEYFILE		".less"
+#define	LESSKEYFILE_SYS		"c:\\.sysless"
+#define	DEF_LESSKEYINFILE	".lesskey"
+#define LESSHISTFILE		".lesshst"
 
 
 /* Settings always true for Windows systems.  */
@@ -265,7 +266,7 @@
 #define MUST_DEFINE_OSPEED 0
 
 /* Define HAVE_LOCALE if you have locale.h and setlocale. */
-#define HAVE_LOCALE 0
+#define HAVE_LOCALE 1
 
 /* Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr */
 #define HAVE_TERMIOS_FUNCS 0

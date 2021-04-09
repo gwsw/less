@@ -9,6 +9,7 @@
 #if OS2
 #include <signal.h>
 #endif
+#include <stdbool.h>
 
 public int fd0 = 0;
 
@@ -773,7 +774,7 @@ cat_file(VOID_PARAM)
 use_logfile(filename)
 	char *filename;
 {
-	int exists;
+	bool exists;
 	int answer;
 	PARG parg;
 
@@ -783,13 +784,8 @@ use_logfile(filename)
 		 */
 		return;
 
-	/*
-	 * {{ We could use access() here. }}
-	 */
-	exists = open(filename, OPEN_READ);
-	if (exists >= 0)
-		close(exists);
-	exists = (exists >= 0);
+
+	exists = access(filename, 0) == 0;
 
 	/*
 	 * Decide whether to overwrite the log file or append to it.
@@ -814,11 +810,21 @@ loop:
 	switch (answer)
 	{
 	case 'O': case 'o':
+	{
 		/*
 		 * Overwrite: create the file.
 		 */
-		logfile = creat(filename, 0644);
+		int perms;
+
+#ifdef WIN32
+		perms = S_IREAD | S_IWRITE;
+#else
+		perms = 0644; // u=rw,g=r,o=r
+#endif
+		
+		logfile = creat(filename, perms);
 		break;
+	}
 	case 'A': case 'a':
 		/*
 		 * Append: open the file and seek to the end.

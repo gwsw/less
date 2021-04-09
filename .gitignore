@@ -25,3 +25,5 @@ lesskey.nro
 stamp-h
 upload
 .vimrc
+.vscode/
+IGNORE/

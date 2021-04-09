@@ -10,13 +10,15 @@
 #if HAVE_LOCALE
 #include <locale.h>
 #include <ctype.h>
+#if HAVE_LANGINFO
 #include <langinfo.h>
+#endif
 #endif
 
 #include "charset.h"
 
 #if MSDOS_COMPILER==WIN32C
-#define WIN32_LEAN_AND_MEAN
+#include "os_defs.h"
 #include <windows.h>
 #endif
 
@@ -337,15 +339,13 @@ set_charset(VOID_PARAM)
 		return;
 	}
 
-#if HAVE_LOCALE
-#ifdef CODESET
+#if HAVE_LANGINFO && defined(CODESET)
 	/*
 	 * Try using the codeset name as the charset name.
 	 */
 	s = nl_langinfo(CODESET);
 	if (icharset(s, 1))
 		return;
-#endif
 #endif
 
 #if HAVE_STRSTR

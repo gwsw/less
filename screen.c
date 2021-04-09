@@ -22,6 +22,7 @@ extern int fd0;
 #endif
 #else
 #if MSDOS_COMPILER==WIN32C
+#include "os_defs.h"
 #include <windows.h>
 #endif
 #endif

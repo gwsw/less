@@ -10,6 +10,7 @@
 #include "less.h"
 #if MSDOS_COMPILER==WIN32C
 #include <errno.h>
+#include "os_defs.h"
 #include <windows.h>
 #endif
 
