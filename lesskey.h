@@ -30,3 +30,10 @@
 
 /* */
 #define KRADIX          64
+
+struct xbuffer
+{
+	char *buf;
+	int end;
+	int size;
+};

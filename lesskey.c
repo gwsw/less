@@ -180,8 +180,7 @@ struct cmdname editnames[] =
 struct table
 {
 	struct cmdname *names;
-	char *pbuffer;
-	char buffer[MAX_USERCMD];
+	struct xbuffer buf;
 };
 
 struct table cmdtable;
@@ -218,6 +217,31 @@ usage(VOID_PARAM)
 {
 	fprintf(stderr, "usage: lesskey [-o output] [input]\n");
 	exit(1);
+}
+
+	void
+xbuf_init(xbuf)
+	struct xbuffer *xbuf;
+{
+	xbuf->size = 16;
+	xbuf->buf = calloc(xbuf->size, sizeof(char));
+	xbuf->end = 0;
+}
+
+	void
+xbuf_add(xbuf, ch)
+	struct xbuffer *xbuf;
+	char ch;
+{
+	if (xbuf->end >= xbuf->size)
+	{
+		xbuf->size = xbuf->size * 2;
+		char *buf = calloc(xbuf->size, sizeof(char));
+		memcpy(buf, xbuf->buf, xbuf->end);
+		free(xbuf->buf);
+		xbuf->buf = buf;
+	}
+	xbuf->buf[xbuf->end++] = ch;
 }
 
 	char *
@@ -340,13 +364,13 @@ parse_args(argc, argv)
 init_tables(VOID_PARAM)
 {
 	cmdtable.names = cmdnames;
-	cmdtable.pbuffer = cmdtable.buffer;
+	xbuf_init(&cmdtable.buf);
 
 	edittable.names = editnames;
-	edittable.pbuffer = edittable.buffer;
+	xbuf_init(&edittable.buf);
 
 	vartable.names = NULL;
-	vartable.pbuffer = vartable.buffer;
+	xbuf_init(&vartable.buf);
 }
 
 /*
@@ -514,12 +538,7 @@ clean_line(s)
 add_cmd_char(c)
 	int c;
 {
-	if (currtable->pbuffer >= currtable->buffer + MAX_USERCMD)
-	{
-		error("too many commands", NULL_PARG);
-		exit(1);
-	}
-	*(currtable->pbuffer)++ = c;
+	xbuf_add(&currtable->buf, c);
 }
 
 /*
@@ -855,17 +874,17 @@ main(argc, argv)
 
 	/* Command key section */
 	fputbytes(out, cmdsection, sizeof(cmdsection));
-	fputint(out, cmdtable.pbuffer - cmdtable.buffer);
-	fputbytes(out, (char *)cmdtable.buffer, cmdtable.pbuffer-cmdtable.buffer);
+	fputint(out, cmdtable.buf.end);
+	fputbytes(out, (char *)cmdtable.buf.buf, cmdtable.buf.end);
 	/* Edit key section */
 	fputbytes(out, editsection, sizeof(editsection));
-	fputint(out, edittable.pbuffer - edittable.buffer);
-	fputbytes(out, (char *)edittable.buffer, edittable.pbuffer-edittable.buffer);
+	fputint(out, edittable.buf.end);
+	fputbytes(out, (char *)edittable.buf.buf, edittable.buf.end);
 
 	/* Environment variable section */
 	fputbytes(out, varsection, sizeof(varsection)); 
-	fputint(out, vartable.pbuffer - vartable.buffer);
-	fputbytes(out, (char *)vartable.buffer, vartable.pbuffer-vartable.buffer);
+	fputint(out, vartable.buf.end);
+	fputbytes(out, (char *)vartable.buf.buf, vartable.buf.end);
 
 	/* File trailer */
 	fputbytes(out, endsection, sizeof(endsection));
