@@ -183,10 +183,13 @@ struct table
 	struct xbuffer buf;
 };
 
-struct table cmdtable;
-struct table edittable;
-struct table vartable;
-struct table *currtable = &cmdtable;
+struct tables
+{
+	struct table *currtable;
+	struct table cmdtable;
+	struct table edittable;
+	struct table vartable;
+};
 
 char fileheader[] = {
 	C0_LESSKEY_MAGIC, 
@@ -353,24 +356,25 @@ parse_args(argc, argv)
 	 */
 	if (argc > 0)
 		infile = *argv;
-	else
-		infile = homefile(DEF_LESSKEYINFILE);
 }
 
 /*
  * Initialize data structures.
  */
 	void
-init_tables(VOID_PARAM)
+init_tables(tables)
+	struct tables *tables;
 {
-	cmdtable.names = cmdnames;
-	xbuf_init(&cmdtable.buf);
+	tables->currtable = &tables->cmdtable;
 
-	edittable.names = editnames;
-	xbuf_init(&edittable.buf);
+	tables->cmdtable.names = cmdnames;
+	xbuf_init(&tables->cmdtable.buf);
 
-	vartable.names = NULL;
-	xbuf_init(&vartable.buf);
+	tables->edittable.names = editnames;
+	xbuf_init(&tables->edittable.buf);
+
+	tables->vartable.names = NULL;
+	xbuf_init(&tables->vartable.buf);
 }
 
 /*
@@ -535,51 +539,54 @@ clean_line(s)
  * Add a byte to the output command table.
  */
 	void
-add_cmd_char(c)
+add_cmd_char(c, tables)
 	int c;
+	struct tables *tables;
 {
-	xbuf_add(&currtable->buf, c);
+	xbuf_add(&tables->currtable->buf, c);
 }
 
 /*
  * Add a string to the output command table.
  */
 	void
-add_cmd_str(s)
+add_cmd_str(s, tables)
 	char *s;
+	struct tables *tables;
 {
 	for ( ;  *s != '\0';  s++)
-		add_cmd_char(*s);
+		add_cmd_char(*s, tables);
 }
 
 /*
  * See if we have a special "control" line.
  */
 	int
-control_line(s)
+control_line(s, tables)
 	char *s;
+	struct tables *tables;
 {
 #define PREFIX(str,pat) (strncmp(str,pat,strlen(pat)) == 0)
 
 	if (PREFIX(s, "#line-edit"))
 	{
-		currtable = &edittable;
+		tables->currtable = &tables->edittable;
 		return (1);
 	}
 	if (PREFIX(s, "#command"))
 	{
-		currtable = &cmdtable;
+		tables->currtable = &tables->cmdtable;
 		return (1);
 	}
 	if (PREFIX(s, "#env"))
 	{
-		currtable = &vartable;
+		tables->currtable = &tables->vartable;
 		return (1);
 	}
 	if (PREFIX(s, "#stop"))
 	{
-		add_cmd_char('\0');
-		add_cmd_char(A_END_LIST);
+		add_cmd_char('\0', tables);
+		add_cmd_char(A_END_LIST, tables);
 		return (1);
 	}
 	return (0);
@@ -627,14 +634,15 @@ fputint(fd, val)
  * Find an action, given the name of the action.
  */
 	int
-findaction(actname)
+findaction(actname, tables)
 	char *actname;
+	struct tables *tables;
 {
 	int i;
 
-	for (i = 0;  currtable->names[i].cn_name != NULL;  i++)
-		if (strcmp(currtable->names[i].cn_name, actname) == 0)
-			return (currtable->names[i].cn_action);
+	for (i = 0;  tables->currtable->names[i].cn_name != NULL;  i++)
+		if (strcmp(tables->currtable->names[i].cn_name, actname) == 0)
+			return (tables->currtable->names[i].cn_action);
 	error("unknown action", NULL_PARG);
 	return (A_INVALID);
 }
@@ -651,8 +659,9 @@ error(s, parg)
 
 
 	void
-parse_cmdline(p)
+parse_cmdline(p, tables)
 	char *p;
+	struct tables *tables;
 {
 	int cmdlen;
 	char *actname;
@@ -671,12 +680,12 @@ parse_cmdline(p)
 		if (cmdlen > MAX_CMDLEN)
 			error("command too long", NULL_PARG);
 		else
-			add_cmd_str(s);
+			add_cmd_str(s, tables);
 	} while (*p != ' ' && *p != '\t' && *p != '\0');
 	/*
 	 * Terminate the command string with a null byte.
 	 */
-	add_cmd_char('\0');
+	add_cmd_char('\0', tables);
 
 	/*
 	 * Skip white space between the command string
@@ -697,7 +706,7 @@ parse_cmdline(p)
 	/*
 	 * Parse the action name and store it in the current table.
 	 */
-	action = findaction(actname);
+	action = findaction(actname, tables);
 
 	/*
 	 * See if an extra string follows the action name.
@@ -706,35 +715,36 @@ parse_cmdline(p)
 	p = skipsp(p);
 	if (*p == '\0')
 	{
-		add_cmd_char(action);
+		add_cmd_char(action, tables);
 	} else
 	{
 		/*
 		 * OR the special value A_EXTRA into the action byte.
 		 * Put the extra string after the action byte.
 		 */
-		add_cmd_char(action | A_EXTRA);
+		add_cmd_char(action | A_EXTRA, tables);
 		while (*p != '\0')
-			add_cmd_str(tstr(&p, 0));
-		add_cmd_char('\0');
+			add_cmd_str(tstr(&p, 0), tables);
+		add_cmd_char('\0', tables);
 	}
 }
 
 	void
-parse_varline(p)
+parse_varline(p, tables)
 	char *p;
+	struct tables *tables;
 {
 	char *s;
 
 	do
 	{
 		s = tstr(&p, 0);
-		add_cmd_str(s);
+		add_cmd_str(s, tables);
 	} while (*p != ' ' && *p != '\t' && *p != '=' && *p != '\0');
 	/*
 	 * Terminate the variable name with a null byte.
 	 */
-	add_cmd_char('\0');
+	add_cmd_char('\0', tables);
 
 	p = skipsp(p);
 	if (*p++ != '=')
@@ -743,30 +753,31 @@ parse_varline(p)
 		return;
 	}
 
-	add_cmd_char(EV_OK|A_EXTRA);
+	add_cmd_char(EV_OK|A_EXTRA, tables);
 
 	p = skipsp(p);
 	while (*p != '\0')
 	{
 		s = tstr(&p, 0);
-		add_cmd_str(s);
+		add_cmd_str(s, tables);
 	}
-	add_cmd_char('\0');
+	add_cmd_char('\0', tables);
 }
 
 /*
  * Parse a line from the lesskey file.
  */
 	void
-parse_line(line)
+parse_line(line, tables)
 	char *line;
+	struct tables *tables;
 {
 	char *p;
 
 	/*
 	 * See if it is a control line.
 	 */
-	if (control_line(line))
+	if (control_line(line, tables))
 		return;
 	/*
 	 * Skip leading white space.
@@ -777,10 +788,61 @@ parse_line(line)
 	if (*p == '\0')
 		return;
 
-	if (currtable == &vartable)
-		parse_varline(p);
+	if (tables->currtable == &tables->vartable)
+		parse_varline(p, tables);
 	else
-		parse_cmdline(p);
+		parse_cmdline(p, tables);
+}
+
+	int
+parse_lesskey(infile, tables)
+	char *infile;
+	struct tables *tables;
+{
+	FILE *desc;
+	char line[1024];
+
+	if (infile == NULL)
+		infile = homefile(DEF_LESSKEYINFILE);
+
+	init_tables(tables);
+
+	/*
+	 * Open the input file.
+	 */
+	if (strcmp(infile, "-") == 0)
+		desc = stdin;
+	else if ((desc = fopen(infile, "r")) == NULL)
+	{
+#if HAVE_PERROR
+		perror(infile);
+#else
+		fprintf(stderr, "Cannot open %s\n", infile);
+#endif
+		usage();
+	}
+
+	/*
+	 * Read and parse the input file, one line at a time.
+	 */
+	errors = 0;
+	linenum = 0;
+	while (fgets(line, sizeof(line), desc) != NULL)
+	{
+		++linenum;
+		parse_line(line, tables);
+	}
+
+	/*
+	 * Write the output file.
+	 * If no output file was specified, use "$HOME/.less"
+	 */
+	if (errors > 0)
+	{
+		fprintf(stderr, "%d errors; no output produced\n", errors);
+		exit(1);
+	}
+	return (0);
 }
 
 	int
@@ -788,9 +850,8 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	FILE *desc;
+	struct tables tables;
 	FILE *out;
-	char line[1024];
 
 #ifdef WIN32
 	if (getenv("HOME") == NULL)
@@ -817,43 +878,8 @@ main(argc, argv)
 	 * Process command line arguments.
 	 */
 	parse_args(argc, argv);
-	init_tables();
-
-	/*
-	 * Open the input file.
-	 */
-	if (strcmp(infile, "-") == 0)
-		desc = stdin;
-	else if ((desc = fopen(infile, "r")) == NULL)
-	{
-#if HAVE_PERROR
-		perror(infile);
-#else
-		fprintf(stderr, "Cannot open %s\n", infile);
-#endif
-		usage();
-	}
-
-	/*
-	 * Read and parse the input file, one line at a time.
-	 */
-	errors = 0;
-	linenum = 0;
-	while (fgets(line, sizeof(line), desc) != NULL)
-	{
-		++linenum;
-		parse_line(line);
-	}
-
-	/*
-	 * Write the output file.
-	 * If no output file was specified, use "$HOME/.less"
-	 */
-	if (errors > 0)
-	{
-		fprintf(stderr, "%d errors; no output produced\n", errors);
-		exit(1);
-	}
+	if (parse_lesskey(NULL, &tables) != 0)
+		return (1);
 
 	if (outfile == NULL)
 		outfile = getenv("LESSKEY");
@@ -874,17 +900,17 @@ main(argc, argv)
 
 	/* Command key section */
 	fputbytes(out, cmdsection, sizeof(cmdsection));
-	fputint(out, cmdtable.buf.end);
-	fputbytes(out, (char *)cmdtable.buf.buf, cmdtable.buf.end);
+	fputint(out, tables.cmdtable.buf.end);
+	fputbytes(out, (char *)tables.cmdtable.buf.buf, tables.cmdtable.buf.end);
 	/* Edit key section */
 	fputbytes(out, editsection, sizeof(editsection));
-	fputint(out, edittable.buf.end);
-	fputbytes(out, (char *)edittable.buf.buf, edittable.buf.end);
+	fputint(out, tables.edittable.buf.end);
+	fputbytes(out, (char *)tables.edittable.buf.buf, tables.edittable.buf.end);
 
 	/* Environment variable section */
 	fputbytes(out, varsection, sizeof(varsection)); 
-	fputint(out, vartable.buf.end);
-	fputbytes(out, (char *)vartable.buf.buf, vartable.buf.end);
+	fputint(out, tables.vartable.buf.end);
+	fputbytes(out, (char *)tables.vartable.buf.buf, tables.vartable.buf.end);
 
 	/* File trailer */
 	fputbytes(out, endsection, sizeof(endsection));
