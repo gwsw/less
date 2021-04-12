@@ -33,7 +33,29 @@
 
 struct xbuffer
 {
-	char *buf;
+	char *data;
 	int end;
 	int size;
 };
+
+struct lesskey_cmdname
+{
+	char *cn_name;
+	int cn_action;
+};
+
+struct lesskey_table
+{
+	struct lesskey_cmdname *names;
+	struct xbuffer buf;
+};
+
+struct lesskey_tables
+{
+	struct lesskey_table *currtable;
+	struct lesskey_table cmdtable;
+	struct lesskey_table edittable;
+	struct lesskey_table vartable;
+};
+
+extern int parse_lesskey(char *infile, struct lesskey_tables *tables);
