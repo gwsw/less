@@ -42,7 +42,7 @@ all: less lesskey lessecho
 less: ${OBJ}
 	${LD} ${LDFLAGS} ${LIBDIR}\c0x32.obj $**, $@,,${LIBS}
 
-lesskey: lesskey.obj version.obj
+lesskey: lesskey.obj lesskey_parse.obj version.obj
 	${LD} ${LDFLAGS} ${LIBDIR}\c0x32.obj $**, $@,,${LIBS}
 
 lessecho: lessecho.obj version.obj

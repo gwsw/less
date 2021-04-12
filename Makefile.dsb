@@ -35,8 +35,8 @@ less$(EXT): $(OBJ)
 	$(CC) $(LDFLAGS) -e$@ *.obj $(LIBS)
 	ren lesskey.obo lesskey.obj
 
-lesskey$(EXT): lesskey.obj version.obj
-	$(CC) $(LDFLAGS) -e$@ lesskey.obj version.obj $(LIBS)
+lesskey$(EXT): lesskey.obj lesskey_parse.obj version.obj
+	$(CC) $(LDFLAGS) -e$@ lesskey.obj lesskey_parse.obj version.obj $(LIBS)
 
 defines.h: defines.ds
 	-del defines.h

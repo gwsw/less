@@ -103,8 +103,8 @@ all: clean less lesskey lessecho
 less: ${OBJ}
 	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
 
-lesskey: lesskey.o version.o
-	${CC} ${LDFLAGS} -o $@ lesskey.o version.o
+lesskey: lesskey.o lesskey_parse.o version.o
+	${CC} ${LDFLAGS} -o $@ lesskey.o lesskey_parse.o version.o
 
 lessecho: lessecho.o version.o
 	${CC} ${LDFLAGS} -o $@ lessecho.o version.o

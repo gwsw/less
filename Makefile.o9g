@@ -33,8 +33,8 @@ all:    less lesskey
 less: ${OBJ}
 	${CC} ${OBJ} ${LDFLAGS} ${LIBS}
 
-lesskey: lesskey.${O} version.${O}
-	${CC} lesskey.${O} version.${O} ${LDFLAGS}
+lesskey: lesskey.${O} lesskey_parse.${O} version.${O}
+	${CC} lesskey.${O} lesskey_parse.${O} version.${O} ${LDFLAGS}
 
 ${OBJ}: defines.h less.h
 
