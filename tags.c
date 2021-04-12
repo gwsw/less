@@ -351,14 +351,14 @@ findctag(tag)
 			{
 				if (*p == '\\')
 					p++;
-					if (q != p)
-					{
-						*q++ = *p++;
-					} else
-					{
-						q++;
-						p++;
-					}
+				if (q != p)
+				{
+					*q++ = *p++;
+				} else
+				{
+					q++;
+					p++;
+				}
 			}
 			tagendline = (q[-1] == '$');
 			if (tagendline)
