@@ -109,6 +109,22 @@ static struct lesskey_cmdname editnames[] =
 	{ NULL, 0 }
 };
 
+/*
+ * Print a parse error message.
+ */
+	static void
+parse_error(msg)
+	char *msg;
+{
+	char buf[1024];
+	++errors;
+	snprintf(buf, sizeof(buf), "%s: line %d: %s", lesskey_file, linenum, msg);
+	lesskey_parse_error(buf);
+}
+
+/*
+ * Initialize an expandable text buffer.
+ */
 	static void
 xbuf_init(xbuf)
 	struct xbuffer *xbuf;
@@ -118,6 +134,9 @@ xbuf_init(xbuf)
 	xbuf->end = 0;
 }
 
+/*
+ * Add a char to an expandable text buffer.
+ */
 	static void
 xbuf_add(xbuf, ch)
 	struct xbuffer *xbuf;
@@ -134,18 +153,8 @@ xbuf_add(xbuf, ch)
 	xbuf->data[xbuf->end++] = ch;
 }
 
-	static void
-parse_error(msg)
-	char *msg;
-{
-	char buf[1024];
-	++errors;
-	snprintf(buf, sizeof(buf), "%s, line %d: %s", lesskey_file, linenum, msg);
-	lesskey_parse_error(buf);
-}
-
 /*
- * Initialize data structures.
+ * Initialize lesskey_tables.
  */
 	static void
 init_tables(tables)
@@ -154,12 +163,15 @@ init_tables(tables)
 	tables->currtable = &tables->cmdtable;
 
 	tables->cmdtable.names = cmdnames;
+	tables->cmdtable.is_var = 0;
 	xbuf_init(&tables->cmdtable.buf);
 
 	tables->edittable.names = editnames;
+	tables->edittable.is_var = 0;
 	xbuf_init(&tables->edittable.buf);
 
 	tables->vartable.names = NULL;
+	tables->vartable.is_var = 1;
 	xbuf_init(&tables->vartable.buf);
 }
 
@@ -279,6 +291,13 @@ tstr(pp, xlate)
 	return (buf);
 }
 
+	static int
+issp(ch)
+	char ch;
+{
+	return (ch == ' ' || ch == '\t');
+}
+
 /*
  * Skip leading spaces in a string.
  */
@@ -286,7 +305,7 @@ tstr(pp, xlate)
 skipsp(s)
 	char *s;
 {
-	while (*s == ' ' || *s == '\t')
+	while (issp(*s))
 		s++;
 	return (s);
 }
@@ -298,7 +317,7 @@ skipsp(s)
 skipnsp(s)
 	char *s;
 {
-	while (*s != '\0' && *s != ' ' && *s != '\t')
+	while (*s != '\0' && !issp(*s))
 		s++;
 	return (s);
 }
@@ -314,7 +333,7 @@ clean_line(s)
 	int i;
 
 	s = skipsp(s);
-	for (i = 0;  s[i] != '\n' && s[i] != '\r' && s[i] != '\0';  i++)
+	for (i = 0;  s[i] != '\0' && s[i] != '\n' && s[i] != '\r';  i++)
 		if (s[i] == '#' && (i == 0 || s[i-1] != '\\'))
 			break;
 	s[i] = '\0';
@@ -377,6 +396,7 @@ control_line(s, tables)
 	}
 	return (0);
 }
+
 /*
  * Find an action, given the name of the action.
  */
@@ -394,6 +414,13 @@ findaction(actname, tables)
 	return (A_INVALID);
 }
 
+/*
+ * Parse a line describing one key binding, of the form
+ *  KEY ACTION [EXTRA]
+ * where KEY is the user key sequence, ACTION is the 
+ * resulting less action, and EXTRA is an "extra" user
+ * key sequence injected after the action.
+ */
 	static void
 parse_cmdline(p, tables)
 	char *p;
@@ -414,10 +441,12 @@ parse_cmdline(p, tables)
 		s = tstr(&p, 1);
 		cmdlen += (int) strlen(s);
 		if (cmdlen > MAX_CMDLEN)
+		{
 			parse_error("command too long");
-		else
-			add_cmd_str(s, tables);
-	} while (*p != ' ' && *p != '\t' && *p != '\0');
+			break;
+		}
+		add_cmd_str(s, tables);
+	} while (*p != '\0' && !issp(*p));
 	/*
 	 * Terminate the command string with a null byte.
 	 */
@@ -465,6 +494,10 @@ parse_cmdline(p, tables)
 	}
 }
 
+/*
+ * Parse a variable definition line, of the form
+ *  NAME = VALUE
+ */
 	static void
 parse_varline(p, tables)
 	char *p;
@@ -476,7 +509,7 @@ parse_varline(p, tables)
 	{
 		s = tstr(&p, 0);
 		add_cmd_str(s, tables);
-	} while (*p != ' ' && *p != '\t' && *p != '=' && *p != '\0');
+	} while (*p != '\0' && !issp(*p) && *p != '=');
 	/*
 	 * Terminate the variable name with a null byte.
 	 */
@@ -524,12 +557,15 @@ parse_line(line, tables)
 	if (*p == '\0')
 		return;
 
-	if (tables->currtable == &tables->vartable)
+	if (tables->currtable->is_var)
 		parse_varline(p, tables);
 	else
 		parse_cmdline(p, tables);
 }
 
+/*
+ * Parse a lesskey source file and store result in tables.
+ */
 	int
 parse_lesskey(infile, tables)
 	char *infile;
@@ -543,6 +579,8 @@ parse_lesskey(infile, tables)
 	lesskey_file = infile;
 
 	init_tables(tables);
+	errors = 0;
+	linenum = 0;
 
 	/*
 	 * Open the input file.
@@ -551,19 +589,13 @@ parse_lesskey(infile, tables)
 		desc = stdin;
 	else if ((desc = fopen(infile, "r")) == NULL)
 	{
-#if HAVE_PERROR
-		perror(infile);
-#else
-		fprintf(stderr, "Cannot open %s\n", infile);
-#endif
+		parse_error("cannot open lesskey file");
 		return (-1);
 	}
 
 	/*
 	 * Read and parse the input file, one line at a time.
 	 */
-	errors = 0;
-	linenum = 0;
 	while (fgets(line, sizeof(line), desc) != NULL)
 	{
 		++linenum;
@@ -572,4 +604,3 @@ parse_lesskey(infile, tables)
 
 	return (errors);
 }
-

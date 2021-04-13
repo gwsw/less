@@ -306,7 +306,7 @@ opt_ks(type, s)
 	switch (type)
 	{
 	case INIT:
-		if (lesskey_src(s))
+		if (lesskey_src(s, 0))
 		{
 			parg.p_string = s;
 			error("Cannot use lesskey source file \"%s\"", &parg);

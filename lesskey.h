@@ -48,6 +48,7 @@ struct lesskey_table
 {
 	struct lesskey_cmdname *names;
 	struct xbuffer buf;
+	int is_var;
 };
 
 struct lesskey_tables

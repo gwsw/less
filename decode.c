@@ -339,12 +339,25 @@ init_cmds(VOID_PARAM)
 #ifdef BINDIR
 	add_hometable(NULL, BINDIR "/.sysless", 1);
 #endif
-	if (lesskey_src(NULL) != 0)
+#ifdef LESSKEYSRCFILE_SYS
+	/*
+	 * Try to add tables in system lesskey src file.
+	 */
+	(void) lesskey_src(LESSKEYSRCFILE_SYS, 1);
+#endif
+	/*
+	 * Try to add the tables in the system lesskey file.
+	 */
+	add_hometable("LESSKEY_SYSTEM", LESSKEYFILE_SYS, 1);
+	/*
+	 * Try to add tables in the lesskey src file "$HOME/.lesskey".
+	 * If it succeeds, don't load binary file. 
+	 * The binary file is likely to have been generated from 
+	 * a (possibly out of date) copy of the src file, 
+	 * so loading it is at best redundant.
+	 */
+	if (lesskey_src(NULL, 0) != 0)
 	{
-		/*
-		 * Try to add the tables in the system lesskey file.
-		 */
-		add_hometable("LESSKEY_SYSTEM", LESSKEYFILE_SYS, 1);
 		/*
 		 * Try to add the tables in the standard lesskey file "$HOME/.less".
 		 */
@@ -874,8 +887,9 @@ lesskey(filename, sysvar)
 }
 
 	public int
-lesskey_src(filename)
+lesskey_src(filename, sysvar)
 	char *filename;
+	int sysvar;
 {
 	static struct lesskey_tables tables;
 	int r = parse_lesskey(filename, &tables);
@@ -883,7 +897,8 @@ lesskey_src(filename)
 		return (r);
 	add_fcmd_table(tables.cmdtable.buf.data, tables.cmdtable.buf.end);
 	add_ecmd_table(tables.edittable.buf.data, tables.edittable.buf.end);
-	add_var_table(&list_var_tables, tables.vartable.buf.data, tables.vartable.buf.end);
+	add_var_table(sysvar ? &list_sysvar_tables : &list_var_tables,
+		tables.vartable.buf.data, tables.vartable.buf.end);
 	return (0);
 }
 

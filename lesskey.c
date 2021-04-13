@@ -305,6 +305,8 @@ main(argc, argv)
 		return (1);
 	}
 
+	fprintf(stderr, "NOTE: lesskey is deprecated.\n      It is no longer necessary to run lesskey,\n      when using less version 582 and later.\n");
+
 	/*
 	 * Write the output file.
 	 * If no output file was specified, use "$HOME/.less"
