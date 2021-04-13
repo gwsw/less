@@ -1,7 +1,7 @@
 '\" t
 .TH LESSKEY 1 "Version @@VERSION@@: @@DATE@@"
 .SH NAME
-lesskey \- specify key bindings for less
+lesskey \- specify key bindings for less (deprecated)
 .SH SYNOPSIS
 .B "lesskey [\-o output] [\-\-] [input]"
 .br
@@ -10,6 +10,19 @@ lesskey \- specify key bindings for less
 .B "lesskey \-V"
 .br
 .B "lesskey \-\-version"
+.SH NOTE
+.I less
+version 582 and later no longer requires
+.I lesskey
+to be used. Instead, the source (non-binary)
+.I lesskey
+file is read directly by 
+.IR less ,
+and any binary file produced by 
+.I lesskey
+is ignored.
+This document describes the format of the source file.
+.PP
 .SH DESCRIPTION
 .I Lesskey
 is used to specify a set of key bindings to be used by
@@ -41,7 +54,7 @@ The \-V or \-\-version option causes
 .I lesskey
 to print its version number and immediately exit.
 If \-V or \-\-version is present, other options and arguments are ignored.
-.PP
+.SH SOURCE FILE
 The input file consists of one or more
 .I sections.
 Each section starts with a line that identifies the type of section.

@@ -9,9 +9,11 @@
 #define ESC             CONTROL('[')
 
 extern void lesskey_parse_error(char *s);
+extern char *homefile(char *filename);
 
 static int linenum;
 static int errors;
+static char *lesskey_file;
 
 static struct lesskey_cmdname cmdnames[] = 
 {
@@ -107,7 +109,7 @@ static struct lesskey_cmdname editnames[] =
 	{ NULL, 0 }
 };
 
-	void
+	static void
 xbuf_init(xbuf)
 	struct xbuffer *xbuf;
 {
@@ -116,7 +118,7 @@ xbuf_init(xbuf)
 	xbuf->end = 0;
 }
 
-	void
+	static void
 xbuf_add(xbuf, ch)
 	struct xbuffer *xbuf;
 	char ch;
@@ -136,48 +138,10 @@ xbuf_add(xbuf, ch)
 parse_error(msg)
 	char *msg;
 {
-	char buf[128];
+	char buf[1024];
 	++errors;
-	snprintf(buf, sizeof(buf), "line %d: %s", linenum, msg);
+	snprintf(buf, sizeof(buf), "%s, line %d: %s", lesskey_file, linenum, msg);
 	lesskey_parse_error(buf);
-}
-
-	static char *
-mkpathname(dirname, filename)
-	char *dirname;
-	char *filename;
-{
-	char *pathname;
-
-	pathname = calloc(strlen(dirname) + strlen(filename) + 2, sizeof(char));
-	strcpy(pathname, dirname);
-	strcat(pathname, PATHNAME_SEP);
-	strcat(pathname, filename);
-	return (pathname);
-}
-
-/*
- * Figure out the name of a default file (in the user's HOME directory).
- */
-	char *
-homefile(filename)
-	char *filename;
-{
-	char *p;
-	char *pathname;
-
-	if ((p = getenv("HOME")) != NULL && *p != '\0')
-		pathname = mkpathname(p, filename);
-#if OS2
-	else if ((p = getenv("INIT")) != NULL && *p != '\0')
-		pathname = mkpathname(p, filename);
-#endif
-	else
-	{
-		fprintf(stderr, "cannot find $HOME - using current directory\n");
-		pathname = mkpathname(".", filename);
-	}
-	return (pathname);
 }
 
 /*
@@ -573,10 +537,10 @@ parse_lesskey(infile, tables)
 {
 	FILE *desc;
 	char line[1024];
-	int linenum;
 
 	if (infile == NULL)
 		infile = homefile(DEF_LESSKEYINFILE);
+	lesskey_file = infile;
 
 	init_tables(tables);
 

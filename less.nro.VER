@@ -766,6 +766,23 @@ if a lesskey file is found in a standard place (see KEY BINDINGS),
 it is also used as a
 .I lesskey
 file.
+.IP "\-\-lesskey-src=\fIfilename\fP"
+Causes
+.I less
+to open and interpret the named file as a 
+.IR lesskey (1)
+source file. The
+.I lesskey 
+source file is the file which was used as the input file to the 
+.I lesskey
+program in versions of less prior to v582.
+Current versions of
+.I less
+(v582 and later) do not require the
+.I lesskey
+program to be run, and instead interpret the
+.I lesskey
+source file directly.
 .IP "\-K or \-\-quit-on-intr"
 Causes
 .I less

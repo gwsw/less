@@ -295,6 +295,25 @@ opt_k(type, s)
 		break;
 	}
 }
+
+	public void
+opt_ks(type, s)
+	int type;
+	char *s;
+{
+	PARG parg;
+
+	switch (type)
+	{
+	case INIT:
+		if (lesskey_src(s))
+		{
+			parg.p_string = s;
+			error("Cannot use lesskey source file \"%s\"", &parg);
+		}
+		break;
+	}
+}
 #endif
 
 #if TAGS

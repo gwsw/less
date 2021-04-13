@@ -339,14 +339,17 @@ init_cmds(VOID_PARAM)
 #ifdef BINDIR
 	add_hometable(NULL, BINDIR "/.sysless", 1);
 #endif
-	/*
-	 * Try to add the tables in the system lesskey file.
-	 */
-	add_hometable("LESSKEY_SYSTEM", LESSKEYFILE_SYS, 1);
-	/*
-	 * Try to add the tables in the standard lesskey file "$HOME/.less".
-	 */
-	add_hometable("LESSKEY", LESSKEYFILE, 0);
+	if (lesskey_src(NULL) != 0)
+	{
+		/*
+		 * Try to add the tables in the system lesskey file.
+		 */
+		add_hometable("LESSKEY_SYSTEM", LESSKEYFILE_SYS, 1);
+		/*
+		 * Try to add the tables in the standard lesskey file "$HOME/.less".
+		 */
+		add_hometable("LESSKEY", LESSKEYFILE, 0);
+	}
 #endif
 }
 
@@ -868,6 +871,29 @@ lesskey(filename, sysvar)
 	    buf[2] != C2_LESSKEY_MAGIC || buf[3] != C3_LESSKEY_MAGIC)
 		return (old_lesskey(buf, (int)len));
 	return (new_lesskey(buf, (int)len, sysvar));
+}
+
+	public int
+lesskey_src(filename)
+	char *filename;
+{
+	static struct lesskey_tables tables;
+	int r = parse_lesskey(filename, &tables);
+	if (r != 0)
+		return (r);
+	add_fcmd_table(tables.cmdtable.buf.data, tables.cmdtable.buf.end);
+	add_ecmd_table(tables.edittable.buf.data, tables.edittable.buf.end);
+	add_var_table(&list_var_tables, tables.vartable.buf.data, tables.vartable.buf.end);
+	return (0);
+}
+
+	void
+lesskey_parse_error(s)
+	char *s;
+{
+	PARG parg;
+	parg.p_string = s;
+	error("%s", &parg);
 }
 
 /*

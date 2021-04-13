@@ -99,7 +99,6 @@ char endsection[1] =    { END_SECTION };
 char *infile = NULL;
 char *outfile = NULL ;
 
-extern char *homefile(char *filename);
 extern char version[];
 
 	static void
@@ -114,6 +113,44 @@ lesskey_parse_error(s)
 	char *s;
 {
 	fprintf(stderr, "%s\n", s);
+}
+
+	static char *
+mkpathname(dirname, filename)
+	char *dirname;
+	char *filename;
+{
+	char *pathname;
+
+	pathname = calloc(strlen(dirname) + strlen(filename) + 2, sizeof(char));
+	strcpy(pathname, dirname);
+	strcat(pathname, PATHNAME_SEP);
+	strcat(pathname, filename);
+	return (pathname);
+}
+
+/*
+ * Figure out the name of a default file (in the user's HOME directory).
+ */
+	char *
+homefile(filename)
+	char *filename;
+{
+	char *p;
+	char *pathname;
+
+	if ((p = getenv("HOME")) != NULL && *p != '\0')
+		pathname = mkpathname(p, filename);
+#if OS2
+	else if ((p = getenv("INIT")) != NULL && *p != '\0')
+		pathname = mkpathname(p, filename);
+#endif
+	else
+	{
+		fprintf(stderr, "cannot find $HOME - using current directory\n");
+		pathname = mkpathname(".", filename);
+	}
+	return (pathname);
 }
 
 /*
@@ -261,7 +298,7 @@ main(argc, argv)
 	 * Process command line arguments.
 	 */
 	parse_args(argc, argv);
-	errors = parse_lesskey(NULL, &tables);
+	errors = parse_lesskey(infile, &tables);
 	if (errors)
 	{
 		fprintf(stderr, "%d errors; no output produced\n", errors);

@@ -36,6 +36,8 @@
 
 * Add the --use-color and --color options.
 
+* Make less read lesskey source file, and add the --lesskey-src option.
+
 * Display -w highlight even if highlighted line is empty.
 
 * If search result is in a long line, scroll to ensure it is visible.
