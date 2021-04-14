@@ -296,6 +296,7 @@ opt_k(type, s)
 	}
 }
 
+#if HAVE_LESSKEYSRC 
 	public void
 opt_ks(type, s)
 	int type;
@@ -314,7 +315,8 @@ opt_ks(type, s)
 		break;
 	}
 }
-#endif
+#endif /* HAVE_LESSKEYSRC */
+#endif /* USERFILE */
 
 #if TAGS
 /*

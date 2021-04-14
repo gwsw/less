@@ -331,7 +331,6 @@ init_cmds(VOID_PARAM)
 	 */
 	add_fcmd_table((char*)cmdtable, sizeof(cmdtable));
 	add_ecmd_table((char*)edittable, sizeof(edittable));
-
 #if USERFILE
 #ifdef BINDIR /* For backwards compatibility */
 	/* Try to add tables in the OLD system lesskey file. */
@@ -347,7 +346,9 @@ init_cmds(VOID_PARAM)
 	/*
 	 * Try to add tables in system lesskey src file.
 	 */
+#if HAVE_LESSKEYSRC 
 	if (add_hometable(lesskey_src, "LESSKEYIN_SYSTEM", LESSKEYINFILE_SYS, 1) != 0)
+#endif
 	{
 		/*
 		 * Try to add the tables in the system lesskey binary file.
@@ -357,7 +358,9 @@ init_cmds(VOID_PARAM)
 	/*
 	 * Try to add tables in the lesskey src file "$HOME/.lesskey".
 	 */
+#if HAVE_LESSKEYSRC 
 	if (add_hometable(lesskey_src, "LESSKEYIN", DEF_LESSKEYINFILE, 0) != 0)
+#endif
 	{
 		/*
 		 * Try to add the tables in the standard lesskey binary file "$HOME/.less".
@@ -887,6 +890,7 @@ lesskey(filename, sysvar)
 	return (new_lesskey(buf, (int)len, sysvar));
 }
 
+#if HAVE_LESSKEYSRC 
 	public int
 lesskey_src(filename, sysvar)
 	char *filename;
@@ -911,6 +915,7 @@ lesskey_parse_error(s)
 	parg.p_string = s;
 	error("%s", &parg);
 }
+#endif /* HAVE_LESSKEYSRC */
 
 /*
  * Add a lesskey file.

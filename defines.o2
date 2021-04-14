@@ -162,6 +162,9 @@
  */
 #define	HAVE_DUP	1
 
+/* Define to 1 to support reading lesskey source files (not just binary). */
+#define HAVE_LESSKEYSRC 1
+
 /*
  * Sizes of various buffers.
  */
