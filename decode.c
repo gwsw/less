@@ -331,37 +331,38 @@ init_cmds(VOID_PARAM)
 	 */
 	add_fcmd_table((char*)cmdtable, sizeof(cmdtable));
 	add_ecmd_table((char*)edittable, sizeof(edittable));
+
 #if USERFILE
-	/*
-	 * For backwards compatibility,
-	 * try to add tables in the OLD system lesskey file.
-	 */
-#ifdef BINDIR
-	add_hometable(NULL, BINDIR "/.sysless", 1);
-#endif
-#ifdef LESSKEYSRCFILE_SYS
-	/*
-	 * Try to add tables in system lesskey src file.
-	 */
-	(void) lesskey_src(LESSKEYSRCFILE_SYS, 1);
+#ifdef BINDIR /* For backwards compatibility */
+	/* Try to add tables in the OLD system lesskey file. */
+	add_hometable(lesskey, NULL, BINDIR "/.sysless", 1);
 #endif
 	/*
-	 * Try to add the tables in the system lesskey file.
-	 */
-	add_hometable("LESSKEY_SYSTEM", LESSKEYFILE_SYS, 1);
-	/*
-	 * Try to add tables in the lesskey src file "$HOME/.lesskey".
-	 * If it succeeds, don't load binary file. 
+	 * Try to load lesskey source file or binary file.
+	 * If the source file succeeds, don't load binary file. 
 	 * The binary file is likely to have been generated from 
 	 * a (possibly out of date) copy of the src file, 
 	 * so loading it is at best redundant.
 	 */
-	if (lesskey_src(NULL, 0) != 0)
+	/*
+	 * Try to add tables in system lesskey src file.
+	 */
+	if (add_hometable(lesskey_src, "LESSKEYIN_SYSTEM", LESSKEYINFILE_SYS, 1) != 0)
 	{
 		/*
-		 * Try to add the tables in the standard lesskey file "$HOME/.less".
+		 * Try to add the tables in the system lesskey binary file.
 		 */
-		add_hometable("LESSKEY", LESSKEYFILE, 0);
+		add_hometable(lesskey, "LESSKEY_SYSTEM", LESSKEYFILE_SYS, 1);
+	}
+	/*
+	 * Try to add tables in the lesskey src file "$HOME/.lesskey".
+	 */
+	if (add_hometable(lesskey_src, "LESSKEYIN", DEF_LESSKEYINFILE, 0) != 0)
+	{
+		/*
+		 * Try to add the tables in the standard lesskey binary file "$HOME/.less".
+		 */
+		add_hometable(lesskey, "LESSKEY", LESSKEYFILE, 0);
 	}
 #endif
 }
@@ -912,16 +913,17 @@ lesskey_parse_error(s)
 }
 
 /*
- * Add the standard lesskey file "$HOME/.less"
+ * Add a lesskey file.
  */
-	public void
-add_hometable(envname, def_filename, sysvar)
+	public int
+add_hometable(call_lesskey, envname, def_filename, sysvar)
+	int (*call_lesskey)(char *, int);
 	char *envname;
 	char *def_filename;
 	int sysvar;
 {
 	char *filename;
-	PARG parg;
+	int r;
 
 	if (envname != NULL && (filename = lgetenv(envname)) != NULL)
 		filename = save(filename);
@@ -930,13 +932,10 @@ add_hometable(envname, def_filename, sysvar)
 	else
 		filename = homefile(def_filename);
 	if (filename == NULL)
-		return;
-	if (lesskey(filename, sysvar) < 0)
-	{
-		parg.p_string = filename;
-		error("Cannot use lesskey file \"%s\"", &parg);
-	}
+		return -1;
+	r = (*call_lesskey)(filename, sysvar);
 	free(filename);
+	return (r);
 }
 #endif
 

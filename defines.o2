@@ -108,6 +108,7 @@
 #define	LESSKEYFILE		"less.ini"
 #define	LESSKEYFILE_SYS		"C:\\sysless.ini"
 #define	DEF_LESSKEYINFILE	"lesskey.ini"
+#define	LESSKEYINFILE_SYS	"C:\\syslesskey.ini"
 #define LESSHISTFILE		"lesshst.ini"
 
 

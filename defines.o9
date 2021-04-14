@@ -107,6 +107,7 @@
 #define	LESSKEYFILE		".less"
 #define	LESSKEYFILE_SYS		"/.sysless"
 #define	DEF_LESSKEYINFILE	".lesskey"
+#define	LESSKEYINFILE_SYS	"/.syslesskey"
 #define LESSHISTFILE		".lesshst"
 
 

@@ -12,7 +12,13 @@
 
 ======================================================================
 
-	Major changes between "less" versions 563 and @@VERSION@@
+	Major changes between "less" versions 581 and @@VERSION@@
+
+* Make less read lesskey source file, and add the --lesskey-src option.
+
+======================================================================
+
+	Major changes between "less" versions 563 and 581
 
 * Change ESC-u command to toggle, not disable, highlighting per man page.
 
@@ -35,8 +41,6 @@
 * Add the --status-col-width option.
 
 * Add the --use-color and --color options.
-
-* Make less read lesskey source file, and add the --lesskey-src option.
 
 * Display -w highlight even if highlighted line is empty.
 

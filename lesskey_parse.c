@@ -8,7 +8,7 @@
 #define CONTROL(c)      ((c)&037)
 #define ESC             CONTROL('[')
 
-extern void lesskey_parse_error(char *s);
+extern void lesskey_parse_error(char *msg);
 extern char *homefile(char *filename);
 
 static int linenum;
@@ -113,12 +113,13 @@ static struct lesskey_cmdname editnames[] =
  * Print a parse error message.
  */
 	static void
-parse_error(msg)
-	char *msg;
+parse_error(s1, s2)
+	char *s1;
+	char *s2;
 {
 	char buf[1024];
 	++errors;
-	snprintf(buf, sizeof(buf), "%s: line %d: %s", lesskey_file, linenum, msg);
+	snprintf(buf, sizeof(buf), "%s: line %d: %s%s", lesskey_file, linenum, s1, s2);
 	lesskey_parse_error(buf);
 }
 
@@ -244,10 +245,10 @@ tstr(pp, xlate)
 				case 'h': ch = SK_HOME; break;
 				case 'e': ch = SK_END; break;
 				case 'x': ch = SK_DELETE; break;
-				default:
-					parse_error("illegal char after \\k");
+				default: { char buf[2]; buf[0] = *p; buf[1] = '\0';
+					parse_error("illegal escape sequence \\k", buf);
 					*pp = p+1;
-					return ("");
+					return (""); }
 				}
 				*pp = p+1;
 				buf[0] = SK_SPECIAL_KEY;
@@ -410,7 +411,7 @@ findaction(actname, tables)
 	for (i = 0;  tables->currtable->names[i].cn_name != NULL;  i++)
 		if (strcmp(tables->currtable->names[i].cn_name, actname) == 0)
 			return (tables->currtable->names[i].cn_action);
-	parse_error("unknown action");
+	parse_error("unknown action: ", actname);
 	return (A_INVALID);
 }
 
@@ -426,7 +427,6 @@ parse_cmdline(p, tables)
 	char *p;
 	struct lesskey_tables *tables;
 {
-	int cmdlen;
 	char *actname;
 	int action;
 	char *s;
@@ -435,16 +435,9 @@ parse_cmdline(p, tables)
 	/*
 	 * Parse the command string and store it in the current table.
 	 */
-	cmdlen = 0;
 	do
 	{
 		s = tstr(&p, 1);
-		cmdlen += (int) strlen(s);
-		if (cmdlen > MAX_CMDLEN)
-		{
-			parse_error("command too long");
-			break;
-		}
 		add_cmd_str(s, tables);
 	} while (*p != '\0' && !issp(*p));
 	/*
@@ -460,7 +453,7 @@ parse_cmdline(p, tables)
 	p = skipsp(p);
 	if (*p == '\0')
 	{
-		parse_error("missing action");
+		parse_error("missing action", "");
 		return;
 	}
 	actname = p;
@@ -499,11 +492,12 @@ parse_cmdline(p, tables)
  *  NAME = VALUE
  */
 	static void
-parse_varline(p, tables)
-	char *p;
+parse_varline(line, tables)
+	char *line;
 	struct lesskey_tables *tables;
 {
 	char *s;
+	char *p = line;
 
 	do
 	{
@@ -518,7 +512,7 @@ parse_varline(p, tables)
 	p = skipsp(p);
 	if (*p++ != '=')
 	{
-		parse_error("missing =");
+		parse_error("missing = in: ", line);
 		return;
 	}
 
@@ -589,7 +583,7 @@ parse_lesskey(infile, tables)
 		desc = stdin;
 	else if ((desc = fopen(infile, "r")) == NULL)
 	{
-		parse_error("cannot open lesskey file");
+		/* parse_error("cannot open lesskey file ", infile); */
 		return (-1);
 	}
 
