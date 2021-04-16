@@ -946,10 +946,13 @@ open_altfile(filename, pf, pfd)
 	cmd = readfd(fd);
 	pclose(fd);
 	if (*cmd == '\0')
+	{
 		/*
 		 * Pipe is empty.  This means there is no alt file.
 		 */
+		free(cmd);
 		return (NULL);
+	}
 	return (cmd);
 #endif /* HAVE_POPEN */
 }
