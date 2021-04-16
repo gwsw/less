@@ -700,6 +700,9 @@ AH_TOP([
 /* Define to 1 if you have the strstr() function. */
 #define HAVE_STRSTR 1
 
+/* Define to 1 to support reading lesskey source files (not just binary). */
+#define HAVE_LESSKEYSRC 1
+
 /*
  * Sizes of various buffers.
  */
