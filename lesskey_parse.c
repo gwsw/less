@@ -10,6 +10,7 @@
 
 extern void lesskey_parse_error(char *msg);
 extern char *homefile(char *filename);
+extern void *ecalloc(int count, unsigned int size);
 
 static int linenum;
 static int errors;
@@ -131,7 +132,7 @@ xbuf_init(xbuf)
 	struct xbuffer *xbuf;
 {
 	xbuf->size = 16;
-	xbuf->data = calloc(xbuf->size, sizeof(char));
+	xbuf->data = ecalloc(xbuf->size, sizeof(char));
 	xbuf->end = 0;
 }
 
@@ -146,7 +147,7 @@ xbuf_add(xbuf, ch)
 	if (xbuf->end >= xbuf->size)
 	{
 		xbuf->size = xbuf->size * 2;
-		char *data = calloc(xbuf->size, sizeof(char));
+		char *data = ecalloc(xbuf->size, sizeof(char));
 		memcpy(data, xbuf->data, xbuf->end);
 		free(xbuf->data);
 		xbuf->data = data;

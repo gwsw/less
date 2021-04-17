@@ -2519,7 +2519,7 @@ tput_fmt(fmt, color, f_putc)
 	int color;
 	int (*f_putc)(int);
 {
-	char buf[16];
+	char buf[32];
 	if (color == attrcolor)
 		return;
 	SNPRINTF1(buf, sizeof(buf), fmt, color);

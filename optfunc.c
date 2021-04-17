@@ -156,7 +156,7 @@ opt_j(type, s)
 	char *s;
 {
 	PARG parg;
-	char buf[16];
+	char buf[24];
 	int len;
 	int err;
 
@@ -192,7 +192,7 @@ opt_j(type, s)
 		} else
 		{
 
-			sprintf(buf, ".%06ld", jump_sline_fraction);
+			SNPRINTF1(buf, sizeof(buf), ".%06ld", jump_sline_fraction);
 			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
 				len--;
@@ -221,7 +221,7 @@ opt_shift(type, s)
 	char *s;
 {
 	PARG parg;
-	char buf[16];
+	char buf[24];
 	int len;
 	int err;
 
@@ -257,7 +257,7 @@ opt_shift(type, s)
 		} else
 		{
 
-			sprintf(buf, ".%06ld", shift_count_fraction);
+			SNPRINTF1(buf, sizeof(buf), ".%06ld", shift_count_fraction);
 			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
 				len--;
@@ -268,6 +268,7 @@ opt_shift(type, s)
 		break;
 	}
 }
+
 	public void
 calc_shift_count(VOID_PARAM)
 {

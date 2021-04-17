@@ -270,7 +270,7 @@ homefile(filename)
 	/*
 	 * Look for the file anywhere on search path.
 	 */
-	pathname = (char *) calloc(_MAX_PATH, sizeof(char));
+	pathname = (char *) ecalloc(_MAX_PATH, sizeof(char));
 #if MSDOS_COMPILER==DJGPPC
 	{
 		char *res = searchpath(filename);

@@ -115,6 +115,20 @@ lesskey_parse_error(s)
 	fprintf(stderr, "%s\n", s);
 }
 
+	void *
+ecalloc(count, size)
+	int count;
+	unsigned int size;
+{
+	void *p;
+
+	p = calloc(count, size);
+	if (p != NULL)
+		return (p);
+	fprintf(stderr, "lesskey: cannot allocate %d bytes of memory\n", count*size);
+    exit(1);
+}
+
 	static char *
 mkpathname(dirname, filename)
 	char *dirname;
@@ -122,7 +136,7 @@ mkpathname(dirname, filename)
 {
 	char *pathname;
 
-	pathname = calloc(strlen(dirname) + strlen(filename) + 2, sizeof(char));
+	pathname = ecalloc(strlen(dirname) + strlen(filename) + 2, sizeof(char));
 	strcpy(pathname, dirname);
 	strcat(pathname, PATHNAME_SEP);
 	strcat(pathname, filename);
@@ -284,7 +298,7 @@ main(argc, argv)
 		char *path  = getenv("HOMEPATH");
 		if (drive != NULL && path != NULL)
 		{
-			char *env = (char *) calloc(strlen(drive) + 
+			char *env = (char *) ecalloc(strlen(drive) + 
 					strlen(path) + 6, sizeof(char));
 			strcpy(env, "HOME=");
 			strcat(env, drive);
