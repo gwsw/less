@@ -19,6 +19,11 @@
 
 =========================================================================
 
+IMPORTANT: You should build from a clone of a git repository 
+ONLY IF you are doing development on the less source itself.
+If you are merely using less as a tool, you should download a release
+from http://greenwoodsoftware.com and NOT from github.
+
 The formatted manual page is in less.man.
 The manual page nroff source is in less.nro.
 Major changes made since the last posted version are in NEWS.
