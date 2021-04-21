@@ -932,10 +932,16 @@ add_hometable(call_lesskey, envname, def_filename, sysvar)
 
 	if (envname != NULL && (filename = lgetenv(envname)) != NULL)
 		filename = save(filename);
-	else if (sysvar)
+	else if (sysvar) /* def_filename is full path */
 		filename = save(def_filename);
-	else
-		filename = homefile(def_filename);
+	else /* def_filename is just basename */
+	{
+		char *xdg = lgetenv("XDG_CONFIG_HOME");
+		if (!isnullenv(xdg))
+			filename = dirfile(xdg, def_filename+1, 1);
+		if (filename == NULL)
+			filename = homefile(def_filename);
+	}
 	if (filename == NULL)
 		return -1;
 	r = (*call_lesskey)(filename, sysvar);

@@ -27,7 +27,8 @@ source file into a format understood by
 This compilation step is no longer required and the
 .I lesskey
 program is therefore deprecated although the file format remains supported by
-.IR less .
+.I less
+itself.
 .PP
 .SH FILE FORMAT
 The input file consists of one or more
