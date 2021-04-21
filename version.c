@@ -914,6 +914,7 @@ v580  3/2/21    Some color fixes; fix compiler warnings; some lesstest support.
 v581  4/6/21    Ignore SIGTSTP in secure mode; don't print "skipping" when filtering.
 v582  4/21/21   Less now reads lesskey source file rather than binary;
                 fix bug in finding tags with backslashes.
+v583  4/21/21   Use XDG_CONFIG_HOME and XDG_DATA_HOME to find files.
 */
 
-char version[] = "582";
+char version[] = "583x";

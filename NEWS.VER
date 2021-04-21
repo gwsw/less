@@ -16,6 +16,12 @@
 
 * Make less read lesskey source file, and add the --lesskey-src option.
 
+* If XDG_CONFIG_HOME is set, find lesskey source file 
+  in $XDG_CONFIG_HOME/lesskey rather than $HOME/.lesskey.
+
+* If XDG_DATA_HOME is set, find and store history file 
+  in $XDG_DATA_HOME/lesshst rather than $HOME/.lesshst.
+
 ======================================================================
 
 	Major changes between "less" versions 563 and 581
