@@ -2,8 +2,6 @@
 #include "lesstest.h"
 
 extern TermInfo terminfo;
-extern int screen_width;
-extern int screen_height;
 
 void display_attr(Attr attr) {
 	static Attr prev_attr = 0;
@@ -32,7 +30,7 @@ void display_color(Color fg_color, Color bg_color) {
 printf("{%x/%x}", fg_color, bg_color);
 }
 
-void display_screen(const byte* img, int imglen, int move_cursor) {
+void display_screen(const byte* img, int imglen, int screen_width, int screen_height, int move_cursor) {
 	int x = 0;
 	int y = 0;
 	int cursor_x = 0;
@@ -75,6 +73,7 @@ void display_screen(const byte* img, int imglen, int move_cursor) {
 	}
 	if (move_cursor)
 		printf("%s", tgoto(terminfo.cursor_move, cursor_x, cursor_y));
+	fflush(stdout);
 }
 
 void print_strings(const char* title, char* const* strings) {

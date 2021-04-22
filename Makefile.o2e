@@ -31,8 +31,8 @@ all:    less.exe lesskey.exe scrsize.exe
 less.exe: ${OBJ}
 	${CC} ${OBJ} -o $@ ${LDFLAGS} ${LIBS}
 
-lesskey.exe: lesskey.${O} version.${O}
-	${CC} lesskey.${O} version.${O} -o $@ ${LDFLAGS}
+lesskey.exe: lesskey.${O} lesskey_parse.${O} version.${O}
+	${CC} lesskey.${O} lesskey_parse.${O} version.${O} -o $@ ${LDFLAGS}
 
 scrsize.exe: scrsize.c
 	${CC} ${CFLAGS} -D__ST_MT_ERRNO__ -s -Zmtd -lX11 $<

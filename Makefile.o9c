@@ -35,8 +35,8 @@ all: less lessecho lesskey
 less: ${OBJ}
 	${CC} ${OBJ} -f=$@ ${LDFLAGS} ${LIBS}
 
-lesskey: lesskey.${O} version.${O}
-	${CC} lesskey.${O} version.${O} -f=$@ ${LDFLAGS}
+lesskey: lesskey.${O} lesskey_parse.${O} version.${O}
+	${CC} lesskey.${O} lesskey_parse.${O} version.${O} -f=$@ ${LDFLAGS}
 
 lessecho: lessecho.${O} version.${O}
 	${CC} lessecho.${O} version.${O} -f=$@ ${LDFLAGS}

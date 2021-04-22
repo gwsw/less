@@ -34,7 +34,7 @@ UNICODE_FILES = \
 DISTFILES = \
 	${SRC} regexp.c regexp.h \
 	COPYING INSTALL LICENSE Makefile.in Makefile.aut NEWS README \
-	configure.ac lesskey.c lessecho.c scrsize.c \
+	configure.ac lesskey.c lesskey_parse.c lessecho.c scrsize.c \
 	charset.h cmd.h funcs.h lglob.h less.h lesskey.h option.h \
 	pckeys.h pattern.h position.h \
 	install.sh defines.h.in mkinstalldirs \

@@ -36,8 +36,8 @@ all: less.exe lesskey.exe
 less.exe: $(OBJ)
 	$(LD) $(LDFLAGS) $** $(LIBS) /out:$@
 
-lesskey.exe: lesskey.obj version.obj
-	$(LD) $(LDFLAGS) lesskey.obj version.obj $(LIBS) /out:$@
+lesskey.exe: lesskey.obj lesskey_parse.obj version.obj
+	$(LD) $(LDFLAGS) lesskey.obj lesskey_parse.obj version.obj $(LIBS) /out:$@
 
 defines.h: defines.wn
 	-del defines.h

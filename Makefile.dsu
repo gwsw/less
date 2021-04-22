@@ -43,8 +43,8 @@ less: $(OBJ)
 	-if exist lesskey.obj del lesskey.obj
 	$(CC) $(LDFLAGS) -o $@ *.obj $(LIBS)
 
-lesskey: lesskey.obj version.obj
-	$(CC) $(LDFLAGS) -o $@ lesskey.obj version.obj $(LIBS)
+lesskey: lesskey.obj lesskey_parse.obj version.obj
+	$(CC) $(LDFLAGS) -o $@ lesskey.obj lesskey_parse.obj version.obj $(LIBS)
 
 defines.h: defines.ds
 	-del defines.h

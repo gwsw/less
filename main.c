@@ -291,8 +291,8 @@ main(argc, argv)
 		get_return();
 		putchr('\n');
 	}
-	init();
 	set_output(1);
+	init();
 	commands();
 	quit(QUIT_OK);
 	/*NOTREACHED*/

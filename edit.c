@@ -762,6 +762,8 @@ cat_file(VOID_PARAM)
 
 #if LOGFILE
 
+#define OVERWRITE_OPTIONS "Overwrite, Append, Don't log, or Quit?"
+
 /*
  * If the user asked for a log file and our input file
  * is standard input, create the log file.  
@@ -805,7 +807,7 @@ use_logfile(filename)
 		 * Ask user what to do.
 		 */
 		parg.p_string = filename;
-		answer = query("Warning: \"%s\" exists; Overwrite, Append or Don't log? ", &parg);
+		answer = query("Warning: \"%s\" exists; "OVERWRITE_OPTIONS" ", &parg);
 	}
 
 loop:
@@ -833,14 +835,12 @@ loop:
 		 * Don't do anything.
 		 */
 		return;
-	case 'q':
-		quit(QUIT_OK);
-		/*NOTREACHED*/
 	default:
 		/*
 		 * Eh?
 		 */
-		answer = query("Overwrite, Append, or Don't log? (Type \"O\", \"A\", \"D\" or \"q\") ", NULL_PARG);
+
+		answer = query(OVERWRITE_OPTIONS" (Type \"O\", \"A\", \"D\" or \"Q\") ", NULL_PARG);
 		goto loop;
 	}
 

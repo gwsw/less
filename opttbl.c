@@ -83,6 +83,9 @@ static struct optname j_optname      = { "jump-target",          NULL };
 static struct optname J__optname     = { "status-column",        NULL };
 #if USERFILE
 static struct optname k_optname      = { "lesskey-file",         NULL };
+#if HAVE_LESSKEYSRC 
+static struct optname ks_optname     = { "lesskey-src",          NULL };
+#endif /* HAVE_LESSKEYSRC */
 #endif
 static struct optname K__optname     = { "quit-on-intr",         NULL };
 static struct optname L__optname     = { "no-lessopen",          NULL };
@@ -267,6 +270,12 @@ static struct loption option[] =
 		STRING|NO_TOGGLE|NO_QUERY, 0, NULL, opt_k,
 		{ NULL, NULL, NULL }
 	},
+#if HAVE_LESSKEYSRC 
+	{ OLETTER_NONE, &ks_optname,
+		STRING|NO_TOGGLE|NO_QUERY, 0, NULL, opt_ks,
+		{ NULL, NULL, NULL }
+	},
+#endif /* HAVE_LESSKEYSRC */
 #endif
 	{ 'K', &K__optname,
 		BOOL, OPT_OFF, &quit_on_intr, NULL,

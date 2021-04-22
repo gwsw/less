@@ -3,18 +3,25 @@ use strict;
 
 # Generate a lesstest file.
 
-my $usage = "usage: gen less.exe [lessflags] textfile\n";
+my $usage = "usage: [LT_LESSVAR=value]... gen [-w#] [-h#] less.exe [lessflags] textfile\n";
 
 use Getopt::Std;
 
-my $width     = ($ENV{COLUMNS} or 78);
-my $height    = ($ENV{ROWS} or 24);
 my $testdir   = ".";
 my $lesstest  = "$testdir/lesstest";
 my $outdir    = "$testdir/suite";
 
 exit (main() ? 0 : 1);
 sub main {
+	my %opt;
+	die $usage if not getopts('h:w:', \%opt);
+	my ($width, $height) = term_size();
+	$width -= 2 if $width > 2;
+	$height -= 1 if $height > 1;
+	$width = $opt{w} if $opt{w};
+	$height = $opt{h} if $opt{h};
+
+	die $usage if @ARGV < 2;
 	my $less = $ARGV[0];
 	my $file = $ARGV[$#ARGV];
 	die $usage if not defined $less or not defined $file;
@@ -25,15 +32,25 @@ sub main {
 	my ($base) = $file;
 	if ($base =~ m|.*/([^/]+)$|) { $base = $1; }
 
-	my $outfile = "$outdir/$base.lt";
-	if (-s $outfile) {
-		my $n = 2;
-		for (;;) {
-			$outfile = "$outdir/$base-$n.lt";
-			last if not -s $outfile;
-		}
+	my $outfile;
+	for (my $n = 1;; ++$n) {
+		$outfile = "$outdir/$base-$n.lt";
+		last if not -s $outfile;
 	}
-	if (system "$lesstest -w$width -h$height -s $testdir/lt_screen -o $outfile -- " . join(' ', @ARGV)) {
+
+	my $cmd = '';
+	$cmd .= "LT_COLUMNS=$width " if $width > 0;
+	$cmd .= "LT_LINES=$height " if $height > 0;
+	$cmd .= "$lesstest -s $testdir/lt_screen -o $outfile -- " . join(' ', @ARGV);
+	if (system $cmd) {
 		print "$0: error running $lesstest\n";
 	}
+	return 1;
+}
+
+sub term_size {
+	my $stty = `stty -a`;
+	my ($x, $lines) = $stty =~ /(rows|lines)\s+(\d+)/;
+	my ($columns) = $stty =~ /columns\s+(\d+)/;
+	return ($columns, $lines);
 }

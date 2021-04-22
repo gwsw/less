@@ -13,6 +13,7 @@ typedef unsigned char Color;
 #define ESC                '\33'
 #define UNICODE_MAX_BYTES   4
 #define MAX_SCREENBUF_SIZE  8192
+#define LT_ENV_PREFIX       "LT_"
 
 #define LTSIG_SCREEN_READY  SIGUSR1
 #define LTSIG_SCREEN_DUMP   SIGUSR2

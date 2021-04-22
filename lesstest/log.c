@@ -29,6 +29,12 @@ int log_file_header(void) {
 	return 1;
 }
 
+int log_env(const char* name, int namelen, const char* value) {
+	if (logf == NULL) return 0;
+	fprintf(logf, "E \"%.*s\" \"%s\"\n", namelen, name, value);
+	return 1;
+}
+
 int log_tty_char(wchar ch) {
 	if (logf == NULL) return 0;
 	fprintf(logf, "+%lx\n", ch);
@@ -45,7 +51,7 @@ int log_screen(const byte* img, int len) {
 
 int log_command(char* const* argv, int argc, const char* textfile) {
 	if (logf == NULL) return 0;
-	fprintf(logf, "L");
+	fprintf(logf, "A");
 	int a;
 	for (a = 1; a < argc; ++a)
 		fprintf(logf, " \"%s\"", (a < argc-1) ? argv[a] : textfile);
@@ -82,14 +88,19 @@ int log_textfile(const char* textfile) {
 	return 1;
 }
 
-int log_test_header(const char* testname, int screen_width, int screen_height, const char* charset, char* const* argv, int argc, const char* textfile) {
+int log_test_header(char* const* argv, int argc, const char* textfile) {
 	if (logf == NULL) return 0;
-	fprintf(logf, "[ \"%s\" %d %d \"%s\"\n", testname, screen_width, screen_height, charset != NULL ? charset : "");
+	fprintf(logf, "T \"%s\"\n", textfile);
 	if (!log_command(argv, argc, textfile))
 		return 0;
 	if (!log_textfile(textfile))
 		return 0;
-	fprintf(logf, "]\n");
+	fprintf(logf, "R\n");
 	return 1;
 }
 
+int log_test_footer(void) {
+	if (logf == NULL) return 0;
+	fprintf(logf, "Q\n");
+	return 1;
+}

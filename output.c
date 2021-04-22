@@ -702,16 +702,18 @@ query(fmt, parg)
 	(void) less_printf(fmt, parg);
 	c = getchr();
 
-	if (!interactive())
+	if (interactive())
+	{
+		lower_left();
+		if (col >= sc_width)
+			screen_trashed = 1;
+		flush();
+	} else
 	{
 		putchr('\n');
-		return (c);
 	}
 
-	lower_left();
-	if (col >= sc_width)
-		screen_trashed = 1;
-	flush();
-
+	if (c == 'Q')
+		quit(QUIT_OK);
 	return (c);
 }
