@@ -89,7 +89,7 @@ endif
 OBJ = \
 	main.o screen.o brac.o ch.o charset.o cmdbuf.o \
 	command.o cvt.o decode.o edit.o filename.o forwback.o \
-	help.o ifile.o input.o jump.o line.o linenum.o \
+	help.o ifile.o input.o jump.o lesskey_parse.o line.o linenum.o \
 	lsystem.o mark.o optfunc.o option.o opttbl.o os.o \
 	output.o pattern.o position.o prompt.o search.o signal.o \
 	tags.o ttyin.o version.o
