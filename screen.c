@@ -1666,8 +1666,6 @@ ltputs(str, affcnt, f_putc)
 	public void
 init_mouse(VOID_PARAM)
 {
-	if (!mousecap)
-		return;
 #if !MSDOS_COMPILER
 	ltputs(sc_s_mousecap, sc_height, putchr);
 #else
@@ -1686,8 +1684,6 @@ init_mouse(VOID_PARAM)
 	public void
 deinit_mouse(VOID_PARAM)
 {
-	if (!mousecap)
-		return;
 #if !MSDOS_COMPILER
 	ltputs(sc_e_mousecap, sc_height, putchr);
 #else
@@ -1711,7 +1707,8 @@ init(VOID_PARAM)
 			ltputs(sc_init, sc_height, putchr);
 		if (!no_keypad)
 			ltputs(sc_s_keypad, sc_height, putchr);
-		init_mouse();
+		if (mousecap)
+			init_mouse();
 	}
 	init_done = 1;
 	if (top_scroll) 
@@ -1734,7 +1731,8 @@ init(VOID_PARAM)
 	{
 		if (!no_init)
 			win32_init_term();
-		init_mouse();
+		if (mousecap)
+			init_mouse();
 
 	}
 	win32_init_vt_term();
@@ -1756,7 +1754,8 @@ deinit(VOID_PARAM)
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
 	{
-		deinit_mouse();
+		if (mousecap)
+			deinit_mouse();
 		if (!no_keypad)
 			ltputs(sc_e_keypad, sc_height, putchr);
 		if (!no_init)
@@ -1769,7 +1768,8 @@ deinit(VOID_PARAM)
 	win32_deinit_vt_term();
 	if (!(quit_if_one_screen && one_screen))
 	{
-		deinit_mouse();
+		if (mousecap)
+			deinit_mouse();
 		if (!no_init)
 			win32_deinit_term();
 	}
