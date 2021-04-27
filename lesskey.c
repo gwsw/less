@@ -126,7 +126,7 @@ ecalloc(count, size)
 	if (p != NULL)
 		return (p);
 	fprintf(stderr, "lesskey: cannot allocate %d bytes of memory\n", count*size);
-    exit(1);
+	exit(1);
 }
 
 	static char *
