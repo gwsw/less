@@ -508,6 +508,7 @@ seek_filesize(f)
 	return ((POSITION) spos);
 }
 
+#if HAVE_POPEN
 /*
  * Read a string from a file.
  * Return a pointer to the string in memory.
@@ -550,10 +551,6 @@ readfd(fd)
 	*p = '\0';
 	return (buf);
 }
-
-
-
-#if HAVE_POPEN
 
 /*
  * Execute a shell command.
@@ -803,6 +800,7 @@ lrealpath(path)
 	return (save(path));
 }
 
+#if HAVE_POPEN
 /*
  * Return number of %s escapes in a string.
  * Return a large number if there are any other % escapes besides %s.
@@ -828,6 +826,7 @@ num_pct_s(lessopen)
 	}
 	return (num);
 }
+#endif
 
 /*
  * See if we should open a "replacement file" 
