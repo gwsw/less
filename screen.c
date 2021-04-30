@@ -836,10 +836,10 @@ scrsize(VOID_PARAM)
 #endif
 #endif
 
-	if ((s = lgetenv("LINES")) != NULL)
-		sc_height = atoi(s);
-	else if (sys_height > 0)
+	if (sys_height > 0)
 		sc_height = sys_height;
+	else if ((s = lgetenv("LINES")) != NULL)
+		sc_height = atoi(s);
 #if !MSDOS_COMPILER
 	else if ((n = ltgetnum("li")) > 0)
 		sc_height = n;
@@ -847,10 +847,10 @@ scrsize(VOID_PARAM)
 	if (sc_height <= 0)
 		sc_height = DEF_SC_HEIGHT;
 
-	if ((s = lgetenv("COLUMNS")) != NULL)
-		sc_width = atoi(s);
-	else if (sys_width > 0)
+	if (sys_width > 0)
 		sc_width = sys_width;
+	else if ((s = lgetenv("COLUMNS")) != NULL)
+		sc_width = atoi(s);
 #if !MSDOS_COMPILER
 	else if ((n = ltgetnum("co")) > 0)
 		sc_width = n;
