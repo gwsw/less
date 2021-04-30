@@ -51,6 +51,7 @@ extern int less_is_more;
 extern int linenum_width;
 extern int status_col_width;
 extern int use_color;
+extern int want_filesize;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -949,6 +950,27 @@ opt_status_col_width(type, s)
 			error("Status column width must not be larger than %d", &parg);
 			status_col_width = 2;
 		}
+		break;
+	case QUERY:
+		break;
+	}
+}
+
+/*
+ * Handler for the --file-size option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_filesize(type, s)
+	int type;
+	char *s;
+{
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		if (want_filesize && curr_ifile != NULL && ch_length() == NULL_POSITION)
+            scan_eof();
 		break;
 	case QUERY:
 		break;

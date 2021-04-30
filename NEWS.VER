@@ -23,6 +23,8 @@
 * If XDG_DATA_HOME is set, find and store history file 
   in $XDG_DATA_HOME/lesshst rather than $HOME/.lesshst.
 
+* Add the --file-size option.
+
 * Fix bug which could leave terminal in mouse-reporting mode 
   after exiting less.
 

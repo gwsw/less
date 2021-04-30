@@ -19,6 +19,7 @@ extern int force_open;
 extern int is_tty;
 extern int sigs;
 extern int hshift;
+extern int want_filesize;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -480,7 +481,8 @@ edit_ifile(ifile)
 			cmd_addhist(ml_examine, qfilename, 1);
 			free(qfilename);
 		}
-
+		if (want_filesize)
+			scan_eof();
 	}
 	free(filename);
 	return (0);

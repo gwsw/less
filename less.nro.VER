@@ -1079,6 +1079,12 @@ If the number is specified as a fraction, the actual number of
 scroll positions is recalculated if the terminal window is resized,
 so that the actual scroll remains at the specified fraction
 of the screen width.
+.IP "\-\-file-size"
+If \-\-file-size is specified,
+.I less
+will determine the size of the file 
+immediately after opening the file.
+Normally this is not done, because it can be slow if the input file is large.
 .IP "\-\-follow-name"
 Normally, if the input file is renamed while an F command is executing,
 .I less
