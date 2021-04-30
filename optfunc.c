@@ -606,7 +606,7 @@ color_from_namechar(namechar)
 {
 	switch (namechar)
 	{
-	case 'A': return AT_COLOR_ATTN;
+	case 'W': case 'A': return AT_COLOR_ATTN;
 	case 'B': return AT_COLOR_BIN;
 	case 'C': return AT_COLOR_CTRL;
 	case 'E': return AT_COLOR_ERROR;
