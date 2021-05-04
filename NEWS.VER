@@ -14,8 +14,7 @@
 
 	Major changes between "less" versions 581 and @@VERSION@@
 
-* Make less able to read lesskey source files (deprecating lesskey),
-  enabled by the --lesskey-src option.
+* Make less able to read lesskey source files (deprecating lesskey).
 
 * If XDG_CONFIG_HOME is set, find lesskey source file 
   in $XDG_CONFIG_HOME/lesskey rather than $HOME/.lesskey.
@@ -23,10 +22,14 @@
 * If XDG_DATA_HOME is set, find and store history file 
   in $XDG_DATA_HOME/lesshst rather than $HOME/.lesshst.
 
+* Add the --lesskey-src option.
+
 * Add the --file-size option.
 
 * Fix bug which could leave terminal in mouse-reporting mode 
   after exiting less.
+
+* Fix bug which caused failure to respond to window resize.
 
 * Fix backslash bug searching in tag file.
 

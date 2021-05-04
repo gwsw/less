@@ -341,8 +341,8 @@ static struct loption option[] =
 		TRIPLE|REPAINT, OPT_OFF, &ctldisp, NULL,
 		{
 			"Display control characters as ^X",
-			"Display control characters directly",
-			"Display control characters directly, processing ANSI sequences"
+			"Display control characters directly (not recommended)",
+			"Display ANSI sequences directly, other control characters as ^X"
 		}
 	},
 	{ 's', &s_optname,
