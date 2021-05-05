@@ -3,8 +3,7 @@
 
 ======================================================================
 
-  For the latest news about less, see the "less" Web page:
-      @@HOMEPAGE@@
+  For the latest news about less, see https://greenwoodsoftware.com/less
   You can also download the latest version of less from there.
 
   Report bugs, suggestions or comments at 
@@ -12,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 581 and @@VERSION@@
+	Major changes between "less" versions 581 and 586
 
 * Make less able to read lesskey source files (deprecating lesskey).
 

@@ -1,7 +1,5 @@
 
-                            Less, version @@VERSION@@
-
-    This is the distribution of less, version @@VERSION@@, released @@DATE@@.
+    This is the source code distribution of "less".
     This program is part of the GNU project (http://www.gnu.org).
 
     This program is free software.  You may redistribute it and/or
