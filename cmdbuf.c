@@ -1426,12 +1426,12 @@ histfile_name(must_exist)
 	if (!must_exist)
 	{
 	 	/* If we're writing the file and the file already exists, use it. */
-		name = dirfile(xdg, LESSHISTFILE+1, 1);
+		name = dirfile(xdg, &LESSHISTFILE[1], 1);
 		if (name == NULL)
 			name = dirfile(home, LESSHISTFILE, 1);
 	}
 	if (name == NULL)
-		name = dirfile(xdg, LESSHISTFILE+1, must_exist);
+		name = dirfile(xdg, &LESSHISTFILE[1], must_exist);
 	if (name == NULL)
 		name = dirfile(home, LESSHISTFILE, must_exist);
 	return (name);
