@@ -75,7 +75,6 @@ lint:
 clean: 
 	rm -f Makefile config.status config.log config.cache defines.h stamp-h \
 		configure defines.h.in funcs.h help.c \
-		README NEWS \
 		less.nro less.man lesskey.nro lesskey.man lessecho.nro lessecho.man 
 
 distclean: clean
@@ -91,10 +90,6 @@ REPLACE_VERSION = \
 		-e "s;@@DATE@@;$$DT;" \
 		-e "s;@@HOMEPAGE@@;${HOMEPAGE};" >$@
 
-${srcdir}/README: ${srcdir}/README.VER ${srcdir}/version.c
-	${REPLACE_VERSION} ${srcdir}/README.VER
-${srcdir}/NEWS: ${srcdir}/NEWS.VER ${srcdir}/version.c
-	${REPLACE_VERSION} ${srcdir}/NEWS.VER
 ${srcdir}/less.nro: ${srcdir}/less.nro.VER ${srcdir}/version.c
 	${REPLACE_VERSION} ${srcdir}/less.nro.VER
 ${srcdir}/lesskey.nro: ${srcdir}/lesskey.nro.VER ${srcdir}/version.c
