@@ -33,6 +33,7 @@ def main() -> int:
     parser.add_argument("-f", help="Zero-based type field (default 2)",
                         type=int, default=2)
     parser.add_argument("types", nargs='+', type=str)
+
     # Kludge: cannot specify alternate var for dest= parameter when the positional
     # argument's name contains a dot.
     parser.add_argument("data_file", type=open, metavar="UnicodeData.txt")
@@ -110,7 +111,6 @@ def end_run(out: dict, code: int):
     print("\t{ 0x%04x, 0x%04x }, /* %s */" % out["start_code"], code,
           out["run_type"])
     out["in_run"] = False
-
 
 if __name__ == "__main__":
     exit(0 if main() else 1)
