@@ -740,8 +740,8 @@ store_char(ch, a, rep, pos)
 		if (linebuf.end > linebuf.print)
 		{
 			/* Shift left enough to put last byte of this char at print-1. */
-			memcpy(&linebuf.buf[0], &linebuf.buf[replen], linebuf.print);
-			memcpy(&linebuf.attr[0], &linebuf.attr[replen], linebuf.print);
+			memmove(&linebuf.buf[0], &linebuf.buf[replen], linebuf.print);
+			memmove(&linebuf.attr[0], &linebuf.attr[replen], linebuf.print);
 			linebuf.end -= replen;
 			cshift += w;
 			/*
