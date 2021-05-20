@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 
 from argparse import ArgumentParser
-from sys import argv
+from sys import exit
 from subprocess import run
+from fileinput import input
 import re
-import friendly
-
-friendly.install()
+>>>>>>> 27ef7b3 (Commit more Python versions of scripts. WIP)
 
 # Override Unicode tables for certain control chars
 # that are expected to be found in normal text files.
@@ -110,7 +109,6 @@ def end_run(out: dict, code: int):
     print("\t{ 0x%04x, 0x%04x }, /* %s */" % out["start_code"], code,
           out["run_type"])
     out["in_run"] = False
-
 
 if __name__ == "__main__":
     exit(0 if main() else 1)
