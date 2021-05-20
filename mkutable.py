@@ -5,7 +5,6 @@ from sys import exit
 from subprocess import run
 from fileinput import input
 import re
->>>>>>> 27ef7b3 (Commit more Python versions of scripts. WIP)
 
 # Override Unicode tables for certain control chars
 # that are expected to be found in normal text files.
@@ -32,6 +31,7 @@ def main() -> int:
     parser.add_argument("-f", help="Zero-based type field (default 2)",
                         type=int, default=2)
     parser.add_argument("types", nargs='+', type=str)
+
     # Kludge: cannot specify alternate var for dest= parameter when the positional
     # argument's name contains a dot.
     parser.add_argument("data_file", type=open, metavar="UnicodeData.txt")
