@@ -146,8 +146,9 @@ xbuf_add(xbuf, ch)
 {
 	if (xbuf->end >= xbuf->size)
 	{
+		char *data;
 		xbuf->size = xbuf->size * 2;
-		char *data = ecalloc(xbuf->size, sizeof(char));
+		data = ecalloc(xbuf->size, sizeof(char));
 		memcpy(data, xbuf->data, xbuf->end);
 		free(xbuf->data);
 		xbuf->data = data;

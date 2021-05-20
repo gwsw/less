@@ -1700,6 +1700,7 @@ deinit_mouse(VOID_PARAM)
 	public void
 init(VOID_PARAM)
 {
+	clear_bot_if_needed();
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
 	{
