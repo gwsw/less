@@ -1,4 +1,11 @@
-/*@@copyright@@*/
+/*
+ * Copyright (C) 1984-2021  Mark Nudelman
+ *
+ * You may distribute under the terms of either the GNU General Public
+ * License or the Less License, as specified in the README file.
+ *
+ * For more information, see the README file.
+ */
 
 #define IS_ASCII_OCTET(c)   (((c) & 0x80) == 0)
 #define IS_UTF8_TRAIL(c)    (((c) & 0xC0) == 0x80)

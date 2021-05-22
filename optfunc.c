@@ -1,4 +1,11 @@
-/*@@copyright@@*/
+/*
+ * Copyright (C) 1984-2021  Mark Nudelman
+ *
+ * You may distribute under the terms of either the GNU General Public
+ * License or the Less License, as specified in the README file.
+ *
+ * For more information, see the README file.
+ */
 
 
 /*
@@ -534,9 +541,8 @@ opt__V(type, s)
 		putstr(pattern_lib_name());
 		putstr(" regular expressions)\n");
 		{
-			char constant *copyright = "@@copyright_oneline@@\n\n";
-			if (copyright[0] == '@')
-				copyright = "Copyright (C) 1984  Mark Nudelman\n\n";
+			char constant *copyright = 
+				"Copyright (C) 1984-2021  Mark Nudelman\n\n";
 			putstr(copyright);
 		}
 		if (version[strlen(version)-1] == 'x')

@@ -360,7 +360,7 @@ which start with a NUL character (0).
 This NUL character should be represented as \e340 in a lesskey file.
 .
 .SH COPYRIGHT
-@@copyright_oneline@@
+Copyright (C) 1984-2021  Mark Nudelman
 .PP
 less is part of the GNU project and is free software.
 You can redistribute it and/or modify it
