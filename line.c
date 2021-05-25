@@ -26,11 +26,7 @@ static struct {
 	int pfx_end;  /* Number of chars in pfx */
 } linebuf;
 
-static struct {
-	char *buf;
-	int size;
-	int end;
-} shifted_ansi;
+struct xbuffer shifted_ansi;
 
 public int size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
@@ -124,8 +120,7 @@ init_line(VOID_PARAM)
 	linebuf.buf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
 	linebuf.attr = (int *) ecalloc(LINEBUF_SIZE, sizeof(int));
 	size_linebuf = LINEBUF_SIZE;
-	shifted_ansi.buf = NULL;
-	shifted_ansi.size = 0;
+	xbuf_init(&shifted_ansi);
 }
 
 /*
@@ -215,7 +210,7 @@ prewind(VOID_PARAM)
 	mbc_buf_len = 0;
 	is_null_line = 0;
 	pendc = '\0';
-	shifted_ansi.end = 0;
+	xbuf_reset(&shifted_ansi);
 }
 
 /*
@@ -354,17 +349,7 @@ line_pfx_width(VOID_PARAM)
 add_ansi(ch)
 	char ch;
 {
-	if (shifted_ansi.end == shifted_ansi.size)
-	{
-		/* Expand shifted_ansi buffer. */
-		int size = (shifted_ansi.size == 0) ? 8 : shifted_ansi.size * 2;
-		char *buf = (char *) ecalloc(size, sizeof(char));
-		memcpy(buf, shifted_ansi.buf, shifted_ansi.size);
-		if (shifted_ansi.buf != NULL) free(shifted_ansi.buf);
-		shifted_ansi.buf = buf;
-		shifted_ansi.size = size;
-	}
-	shifted_ansi.buf[shifted_ansi.end++] = ch;
+	xbuf_add(&shifted_ansi, ch);
 }
 
 /*
@@ -724,8 +709,8 @@ store_char(ch, a, rep, pos)
 	{
 		/* Copy shifted ANSI sequences to beginning of line. */
 		for (i = 0;  i < shifted_ansi.end;  i++)
-			add_linebuf(shifted_ansi.buf[i], AT_ANSI, 0);
-		shifted_ansi.end = 0;
+			add_linebuf(shifted_ansi.data[i], AT_ANSI, 0);
+		xbuf_reset(&shifted_ansi);
 	}
 	/* Add the char to the buf, even if we will left-shift it next. */
 	inc_end_column(w);
@@ -960,7 +945,7 @@ store_ansi(ch, rep, pos)
 		break;
 	case ANSI_ERR: {
 		/* Remove whole unrecognized sequence.  */
-		char *start = (cshift < hshift) ? shifted_ansi.buf : linebuf.buf;
+		char *start = (cshift < hshift) ? shifted_ansi.data : linebuf.buf;
 		int *end = (cshift < hshift) ? &shifted_ansi.end : &linebuf.end;
 		char *p = start + *end;
 		LWCHAR bch;

@@ -13,12 +13,19 @@ xbuf_init(xbuf)
 }
 
 	public void
-xbuf_reset(xbuf)
+xbuf_deinit(xbuf)
 	struct xbuffer *xbuf;
 {
 	if (xbuf->data != NULL)
 		free(xbuf->data);
 	xbuf_init(xbuf);
+}
+
+	public void
+xbuf_reset(xbuf)
+	struct xbuffer *xbuf;
+{
+	xbuf->end = 0;
 }
 
 /*
@@ -33,7 +40,7 @@ xbuf_add(xbuf, ch)
 	{
 		char *data;
 		xbuf->size = (xbuf->size == 0) ? 16 : xbuf->size * 2;
-		data = ecalloc(xbuf->size, sizeof(char));
+		data = (char *) ecalloc(xbuf->size, sizeof(char));
 		if (xbuf->data != NULL)
 		{
 			memcpy(data, xbuf->data, xbuf->end);
