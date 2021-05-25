@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "lesskey.h"
 #include "cmd.h"
+#include "xbuf.h"
 #include "defines.h"
 
 #define CONTROL(c)      ((c)&037)
@@ -122,38 +123,6 @@ parse_error(s1, s2)
 	++errors;
 	snprintf(buf, sizeof(buf), "%s: line %d: %s%s", lesskey_file, linenum, s1, s2);
 	lesskey_parse_error(buf);
-}
-
-/*
- * Initialize an expandable text buffer.
- */
-	static void
-xbuf_init(xbuf)
-	struct xbuffer *xbuf;
-{
-	xbuf->size = 16;
-	xbuf->data = ecalloc(xbuf->size, sizeof(char));
-	xbuf->end = 0;
-}
-
-/*
- * Add a char to an expandable text buffer.
- */
-	static void
-xbuf_add(xbuf, ch)
-	struct xbuffer *xbuf;
-	char ch;
-{
-	if (xbuf->end >= xbuf->size)
-	{
-		char *data;
-		xbuf->size = xbuf->size * 2;
-		data = ecalloc(xbuf->size, sizeof(char));
-		memcpy(data, xbuf->data, xbuf->end);
-		free(xbuf->data);
-		xbuf->data = data;
-	}
-	xbuf->data[xbuf->end++] = ch;
 }
 
 /*
