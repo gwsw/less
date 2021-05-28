@@ -87,8 +87,7 @@ REPLACE_VERSION = \
 	rm -f $@; \
 	sed \
 		-e "s;@@VERSION@@;$$REL;" \
-		-e "s;@@DATE@@;$$DT;" \
-		-e "s;@@HOMEPAGE@@;${HOMEPAGE};" >$@
+		-e "s;@@DATE@@;$$DT;" >$@
 
 ${srcdir}/less.nro: ${srcdir}/less.nro.VER ${srcdir}/version.c
 	${REPLACE_VERSION} ${srcdir}/less.nro.VER
