@@ -7,6 +7,7 @@
  * For more information, see the README file.
  */
 
+#include "xbuf.h"
 
 /*
  * Format of a lesskey file:
@@ -37,13 +38,6 @@
 
 /* */
 #define KRADIX          64
-
-struct xbuffer
-{
-	char *data;
-	int end;
-	int size;
-};
 
 struct lesskey_cmdname
 {

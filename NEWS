@@ -25,6 +25,8 @@
 
 * Add the --file-size option.
 
+* With -F, if screen is resized to make file fit on one screen, don't exit.
+
 * Fix bug which could leave terminal in mouse-reporting mode 
   after exiting less.
 

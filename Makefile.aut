@@ -22,7 +22,7 @@ SRC = \
 	help.c ifile.c input.c jump.c line.c linenum.c \
 	lsystem.c mark.c optfunc.c option.c opttbl.c os.c \
 	output.c pattern.c position.c prompt.c search.c signal.c \
-	tags.c ttyin.c version.c
+	tags.c ttyin.c version.c xbuf.c
 DISTFILES_W = \
 	defines.ds  Makefile.dsb Makefile.dsg Makefile.dsu \
 	defines.o2  Makefile.o2e \
@@ -36,7 +36,7 @@ DISTFILES = \
 	COPYING INSTALL LICENSE Makefile.in Makefile.aut NEWS README \
 	configure.ac lesskey.c lesskey_parse.c lessecho.c scrsize.c \
 	charset.h cmd.h funcs.h lglob.h less.h lesskey.h option.h \
-	pckeys.h pattern.h position.h \
+	pckeys.h pattern.h position.h xbuf.h \
 	install.sh defines.h.in mkinstalldirs \
 	less.nro less.man lesskey.nro lesskey.man lessecho.nro lessecho.man \
 	less.hlp \
