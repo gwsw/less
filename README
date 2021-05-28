@@ -33,7 +33,8 @@ INSTALLATION (Unix & Linux systems only):
    if you have not already done so.  
 
 2. If you are building from a clone of a git repository,
-   type "make -f Makefile.aut".
+   type "make -f Makefile.aut". If you would like to use Python versions of
+   build scripts, define "USE_PYTHON=1" before typing make.
    If you are building from a numbered release package (a tar or 
    zip file with a name like less-999.tar.gz or less-999.zip downloaded 
    from greenwoodsoftware.com, not from github), you should skip this step. 
