@@ -929,7 +929,7 @@ v587  5/27/21   Fix --with-secure; fix --file-size message on Windows;
                 fix colored search hilite in colored text; don't exit
                 if -F and screen is resized; fix memcpy usage.
 v588  5/27/21   Fix release.
-v589
+v589  5/29/21   Copyright & build changes.
 */
 
-char version[] = "589x";
+char version[] = "589";
