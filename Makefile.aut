@@ -7,6 +7,7 @@ GIT = git
 NROFF = nroff -t -man
 
 srcdir = .
+REL := $(shell sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q ${srcdir}/version.c)
 
 ifeq ($(USE_PYTHON),1)
 	MKHELP = mkhelp.py
@@ -48,6 +49,7 @@ DISTFILES = \
 all: help.c funcs.h $(UNICODE_FILES) ${srcdir}/configure 
 
 release: .FORCE
+	@if grep -s 'Major changes between .*${REL}' NEWS ; then :; else echo '*** NEWS is not updated for ${REL}'; exit 1; fi
 	${MAKE} -f Makefile.aut tagall 
 	${MAKE} -f Makefile.aut all 
 	${MAKE} -f Makefile.aut clean 
@@ -81,12 +83,11 @@ distclean: clean
 realclean: clean
 
 REPLACE_VERSION = \
-	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q ${srcdir}/version.c`; \
 	DT=`date '+%d %h %Y'`; \
-	echo "Stuffing version number $$REL into $@"; \
+	echo "Stuffing version number ${REL} into $@"; \
 	rm -f $@; \
 	sed \
-		-e "s;@@VERSION@@;$$REL;" \
+		-e "s;@@VERSION@@;${REL};" \
 		-e "s;@@DATE@@;$$DT;" >$@
 
 ${srcdir}/less.nro: ${srcdir}/less.nro.VER ${srcdir}/version.c
@@ -123,32 +124,30 @@ distfiles: ${DISTFILES}
 
 dist: ${DISTFILES}
 	if [ ! -d ${srcdir}/release ]; then mkdir ${srcdir}/release; fi
-	@cd ${srcdir}; \
-	REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/less-\1/' -e q version.c`; \
-	rm -rf release/$$REL; mkdir release/$$REL; \
-	echo "Preparing $$REL"; \
-	rm -rf $$REL; mkdir $$REL; \
-	cp ${DISTFILES} $$REL; \
-	cd $$REL; chmod -w *; chmod +w ${DISTFILES_W}; chmod +x configure; cd ..; \
-	echo "Creating release/$$REL/$$REL.tar.gz"; \
-	tar -cf - $$REL | gzip -c >release/$$REL/$$REL.tar.gz; \
-	echo "Signing release/$$REL/$$REL.tar.gz"; \
-	gpg --detach-sign release/$$REL/$$REL.tar.gz; \
-	mv release/$$REL/$$REL.tar.gz.sig release/$$REL/$$REL.sig; \
-	echo "Creating release/$$REL/$$REL.zip"; \
-	zip -rq release/$$REL/$$REL.zip $$REL; \
-	rm -rf $$REL
+	@cd ${srcdir} && \
+	rm -rf release/${REL} && mkdir release/${REL} && \
+	echo "Preparing ${REL}" && \
+	rm -rf ${REL} && mkdir ${REL} && \
+	cp ${DISTFILES} ${REL} && \
+	cd ${REL} && chmod -w * && chmod +w ${DISTFILES_W} && chmod +x configure && cd .. && \
+	echo "Creating release/${REL}/${REL}.tar.gz" && \
+	tar -cf - ${REL} | gzip -c >release/${REL}/${REL}.tar.gz && \
+	echo "Signing release/${REL}/${REL}.tar.gz" && \
+	gpg --detach-sign release/${REL}/${REL}.tar.gz && \
+	mv release/${REL}/${REL}.tar.gz.sig release/${REL}/${REL}.sig && \
+	echo "Creating release/${REL}/${REL}.zip" && \
+	zip -rq release/${REL}/${REL}.zip ${REL} && \
+	rm -rf ${REL}
 
 tagall:
-	@REL=`sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/v\1/' -e q ${srcdir}/version.c`; \
-	echo "tagging $$REL"; \
-	$(GIT) tag -a -f -m "$$REL" "$$REL"
+	echo "tagging ${REL}"; \
+	$(GIT) tag -a -f -m "${REL}" "${REL}"
 
 gnu.upload:
-	@if [ -z "$$REL" ]; then echo "Please set REL=nnn"; exit 1; fi; \
-	if [ ! -s release/less-$$REL/less-$$REL.tar.gz ]; then echo "release/less-$$REL/less-$$REL.tar.gz does not exist"; exit 1; fi; \
-	cd release/less-$$REL && \
-	gpg -b less-$$REL.tar.gz && \
-	( echo "version: 1.2"; echo "directory: less"; echo "filename: less-$$REL.tar.gz" ) > less-$$REL.tar.gz.directive && \
-	gpg --clearsign less-$$REL.tar.gz.directive
-	@echo "upload ready: cd release/less-$$REL; ftp ftp-upload.gnu.org; cd /incoming/ftp; put less-$$REL.tar.gz less-$$REL.tar.gz.sig less-$$REL.tar.gz.directive.asc" 
+	@if [ -z "${REL}" ]; then echo "Please set REL=nnn"; exit 1; fi; \
+	if [ ! -s release/less-${REL}/less-${REL}.tar.gz ]; then echo "release/less-${REL}/less-${REL}.tar.gz does not exist"; exit 1; fi; \
+	cd release/less-${REL} && \
+	gpg -b less-${REL}.tar.gz && \
+	( echo "version: 1.2"; echo "directory: less"; echo "filename: less-${REL}.tar.gz" ) > less-${REL}.tar.gz.directive && \
+	gpg --clearsign less-${REL}.tar.gz.directive
+	@echo "upload ready: cd release/less-${REL}; ftp ftp-upload.gnu.org; cd /incoming/ftp; put less-${REL}.tar.gz less-${REL}.tar.gz.sig less-${REL}.tar.gz.directive.asc" 

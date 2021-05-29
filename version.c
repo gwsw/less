@@ -930,6 +930,7 @@ v587  5/27/21   Fix --with-secure; fix --file-size message on Windows;
                 if -F and screen is resized; fix memcpy usage.
 v588  5/27/21   Fix release.
 v589  5/29/21   Copyright & build changes.
+v590 
 */
 
-char version[] = "589";
+char version[] = "590x";
