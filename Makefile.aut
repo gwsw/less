@@ -122,6 +122,9 @@ unicode/EastAsianWidth.txt:
 
 distfiles: ${DISTFILES}
 
+echo_distfiles: 
+	echo ${DISTFILES}
+
 dist: ${DISTFILES}
 	if [ ! -d ${srcdir}/release ]; then mkdir ${srcdir}/release; fi
 	@cd ${srcdir} && \
@@ -143,7 +146,7 @@ tagall:
 	echo "tagging ${REL}"; \
 	$(GIT) tag -a -f -m "${REL}" "${REL}"
 
-gnu.upload:
+gnu_upload:
 	@if [ -z "${REL}" ]; then echo "Please set REL=nnn"; exit 1; fi; \
 	if [ ! -s release/less-${REL}/less-${REL}.tar.gz ]; then echo "release/less-${REL}/less-${REL}.tar.gz does not exist"; exit 1; fi; \
 	cd release/less-${REL} && \
