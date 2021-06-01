@@ -26,15 +26,15 @@ OBJ = \
 	help.${O} ifile.${O} input.${O} jump.${O} lesskey_parse.${O} line.${O} linenum.${O} \
 	lsystem.${O} mark.${O} optfunc.${O} option.${O} opttbl.${O} os.${O} \
 	output.${O} pattern.${O} position.${O} prompt.${O} search.${O} signal.${O} \
-	tags.${O} ttyin.${O} version.${O}  regexp.${O}
+	tags.${O} ttyin.${O} version.${O} xbuf.${O}  regexp.${O}
 
 all:    less lesskey
 
 less: ${OBJ}
 	${CC} ${OBJ} ${LDFLAGS} ${LIBS}
 
-lesskey: lesskey.${O} lesskey_parse.${O} version.${O}
-	${CC} lesskey.${O} lesskey_parse.${O} version.${O} ${LDFLAGS}
+lesskey: lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O}
+	${CC} lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O} ${LDFLAGS}
 
 ${OBJ}: defines.h less.h
 
