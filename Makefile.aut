@@ -144,8 +144,8 @@ dist: ${DISTFILES}
 	rm -rf $$LESSREL
 
 tagall:
-	echo "tagging ${REL}"; \
-	$(GIT) tag -a -f -m "${REL}" "${REL}"
+	echo "tagging less-${REL}"; \
+	$(GIT) tag -a -f -m "less-${REL}" "less-${REL}"
 
 gnu_upload:
 	@if [ -z "${REL}" ]; then echo "Please set REL=nnn"; exit 1; fi; \
