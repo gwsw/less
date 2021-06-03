@@ -127,20 +127,21 @@ echo_distfiles:
 
 dist: ${DISTFILES}
 	if [ ! -d ${srcdir}/release ]; then mkdir ${srcdir}/release; fi
-	@cd ${srcdir} && \
-	rm -rf release/${REL} && mkdir release/${REL} && \
-	echo "Preparing ${REL}" && \
-	rm -rf ${REL} && mkdir ${REL} && \
-	cp ${DISTFILES} ${REL} && \
-	cd ${REL} && chmod -w * && chmod +w ${DISTFILES_W} && chmod +x configure && cd .. && \
-	echo "Creating release/${REL}/${REL}.tar.gz" && \
-	tar -cf - ${REL} | gzip -c >release/${REL}/${REL}.tar.gz && \
-	echo "Signing release/${REL}/${REL}.tar.gz" && \
-	gpg --detach-sign release/${REL}/${REL}.tar.gz && \
-	mv release/${REL}/${REL}.tar.gz.sig release/${REL}/${REL}.sig && \
-	echo "Creating release/${REL}/${REL}.zip" && \
-	zip -rq release/${REL}/${REL}.zip ${REL} && \
-	rm -rf ${REL}
+	@LESSREL=less-${REL} && RELDIR=release/$$LESSREL && \
+	cd ${srcdir} && \
+	rm -rf $$RELDIR && mkdir $$RELDIR && \
+	echo "Preparing $$LESSREL" && \
+	rm -rf $$LESSREL && mkdir $$LESSREL && \
+	cp ${DISTFILES} $$LESSREL && \
+	cd $$LESSREL && chmod -w * && chmod +w ${DISTFILES_W} && chmod +x configure && cd .. && \
+	echo "Creating $$RELDIR/${REL}.tar.gz" && \
+	tar -cf - $$LESSREL | gzip -c >$$RELDIR/$$LESSREL.tar.gz && \
+	echo "Signing $$RELDIR/$$LESSREL.tar.gz" && \
+	gpg --detach-sign $$RELDIR/$$LESSREL.tar.gz && \
+	mv $$RELDIR/$$LESSREL.tar.gz.sig $$RELDIR/$$LESSREL.sig && \
+	echo "Creating $$RELDIR/$$LESSREL.zip" && \
+	zip -rq $$RELDIR/$$LESSREL.zip $$LESSREL && \
+	rm -rf $$LESSREL
 
 tagall:
 	echo "tagging ${REL}"; \
