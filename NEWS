@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 581 and 589
+	Major changes between "less" versions 581 and 590
 
 * Make less able to read lesskey source files (deprecating lesskey).
 
