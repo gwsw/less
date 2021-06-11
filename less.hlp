@@ -219,6 +219,8 @@
                   Don't send termcap keypad init/deinit strings.
                 --no-histdups
                   Remove duplicates from command history.
+                --repeat-search-skip-screen
+                  Repeated search (n/N) skips current screen.
                 --rscroll=C
                   Set the character used to mark truncated lines.
                 --save-marks

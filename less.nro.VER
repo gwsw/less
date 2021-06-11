@@ -518,8 +518,9 @@ it may be necessary to quote the question mark, thus: "\-\e?".)
 By default, forward searches start at the top of the displayed screen
 and backwards searches start at the bottom of the displayed screen
 (except for repeated searches invoked by the n or N commands,
-which start after or before the "target" line respectively;
-see the \-j option for more about the target line).
+which by default start after or before the "target" line respectively;
+see the \-j option for more about the target line
+and \-\-repeat-search-skip-screen to modify this behavior).
 The \-a option causes forward searches to instead start at
 the bottom of the screen
 and backward searches to start at the top of the screen,
@@ -1131,6 +1132,9 @@ file name is typed in, and the same string is already in the history list,
 the existing copy is removed from the history list before the new one is added.
 Thus, a given string will appear only once in the history list.
 Normally, a string may appear multiple times.
+.IP "\-\-repeat-search-skip-screen"
+Causes repeated searches (the n and N commands) to ignore matches on the
+current screen.  This can be useful coupled with search highlighting.
 .IP "\-\-rscroll"
 This option changes the character used to mark truncated lines.
 It may begin with a two-character attribute indicator like LESSBINFMT does.

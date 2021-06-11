@@ -28,6 +28,7 @@ extern int jump_sline;
 extern int bs_mode;
 extern int ctldisp;
 extern int status_col;
+extern int repeat_skip_screen;
 extern void *ml_search;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
@@ -1105,7 +1106,7 @@ search_pos(search_type)
 	{
 		int add_one = 0;
 
-		if (how_search == OPT_ON)
+		if (how_search == OPT_ON || (repeat_skip_screen && (search_type & SRCH_AFTER_TARGET)))
 		{
 			/*
 			 * Search does not include current screen.
