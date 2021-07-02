@@ -392,7 +392,11 @@ edit_ifile(ifile)
 			}
 			reedit_ifile(was_curr_ifile);
 			return (1);
+#ifdef OPEN_READ_NB
+		} else if ((f = open(open_filename, OPEN_READ_NB)) < 0)
+#else
 		} else if ((f = open(open_filename, OPEN_READ)) < 0)
+#endif
 		{
 			/*
 			 * Got an error trying to open it.

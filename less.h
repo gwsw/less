@@ -245,6 +245,7 @@ typedef off_t           LINENUM;
 #else
 #ifdef O_RDONLY
 #define OPEN_READ       (O_RDONLY)
+#define OPEN_READ_NB    (O_RDONLY|O_NONBLOCK)
 #else
 #define OPEN_READ       (0)
 #endif
