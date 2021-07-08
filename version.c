@@ -931,6 +931,7 @@ v587  5/27/21   Fix --with-secure; fix --file-size message on Windows;
 v588  5/27/21   Fix release.
 v589  5/29/21   Copyright & build changes.
 v590  6/3/21    Fix non-autoconf Makefiles.
+v591
 */
 
-char version[] = "590";
+char version[] = "591x";
