@@ -4,8 +4,6 @@ release/**
 *.o
 *.old
 Makefile
-NEWS
-README
 config.status
 configure
 defines.h
