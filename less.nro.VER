@@ -1445,11 +1445,11 @@ Note that a preprocessor cannot output an empty file, since that
 is interpreted as meaning there is no replacement, and
 the original file is used.
 To avoid this, if LESSOPEN starts with two vertical bars,
-the exit status of the script becomes meaningful.
-If the exit status is zero, the output is considered to be
-replacement text, even if it is empty.
-If the exit status is nonzero, any output is ignored and the
-original file is used.
+the exit status of the script determines the behavior when the output is empty.
+If the output is empty and the exit status is zero, 
+the empty output is considered to be replacement text.
+If the output is empty and the exit status is nonzero, 
+the original file is used.
 For compatibility with previous versions of
 .IR less ,
 if LESSOPEN starts with only one vertical bar, the exit status
