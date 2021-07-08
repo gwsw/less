@@ -61,6 +61,7 @@
 #endif
 
 public int reading;
+public int consecutive_nulls = 0;
 
 static jmp_buf read_label;
 
@@ -193,7 +194,6 @@ start:
 	{
 		if (!ignore_eoi)
 		{
-			static int consecutive_nulls = 0;
 			if (n == 0)
 				consecutive_nulls++;
 			else
