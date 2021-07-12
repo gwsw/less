@@ -930,6 +930,7 @@ special_key_str(key)
 	static char k_delete[]          = { '\340', PCK_DELETE, 0  };
 	static char k_ctl_delete[]      = { '\340', PCK_CTL_DELETE, 0  };
 	static char k_ctl_backspace[]   = { '\177', 0 };
+	static char k_backspace[]       = { '\b', 0 };
 	static char k_home[]            = { '\340', PCK_HOME, 0 };
 	static char k_end[]             = { '\340', PCK_END, 0 };
 	static char k_up[]              = { '\340', PCK_UP, 0 };
@@ -1029,6 +1030,9 @@ special_key_str(key)
 	case SK_CTL_DELETE:
 		s = k_ctl_delete;
 		break;
+	case SK_BACKSPACE:
+		s = k_backspace;
+		break;
 	case SK_F1:
 		s = k_f1;
 		break;
@@ -1065,6 +1069,15 @@ special_key_str(key)
 		if (s == NULL)
 		{
 				tbuf[0] = '\177';
+				tbuf[1] = '\0';
+				s = tbuf;
+		}
+		break;
+	case SK_BACKSPACE:
+		s = ltgetstr("kb", &sp);
+		if (s == NULL)
+		{
+				tbuf[0] = '\b';
 				tbuf[1] = '\0';
 				s = tbuf;
 		}

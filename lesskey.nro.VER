@@ -84,6 +84,10 @@ DOWN ARROW
 RIGHT ARROW
 .IP \ekl
 LEFT ARROW
+.IP \ek>
+ctrl-RIGHT ARROW
+.IP \ek<
+ctrl-LEFT ARROW
 .IP \ekU
 PAGE UP
 .IP \ekD
@@ -94,6 +98,14 @@ HOME
 END
 .IP \ekx
 DELETE
+.IP \ekX
+ctrl-DELETE
+.IP \eki
+INSERT
+.IP \ekt
+BACKTAB
+.IP \ek1
+F1
 .PP
 A backslash followed by any other character indicates that character is
 to be taken literally.

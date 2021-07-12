@@ -206,7 +206,7 @@ static unsigned char edittable[] =
 	ESC,SK(SK_DELETE),0,            EC_W_DELETE,    /* ESC DELETE */
 	SK(SK_CTL_DELETE),0,            EC_W_DELETE,    /* CTRL-DELETE */
 	SK(SK_CTL_BACKSPACE),0,         EC_W_BACKSPACE, /* CTRL-BACKSPACE */
-	ESC,'\b',0,                     EC_W_BACKSPACE, /* ESC BACKSPACE */
+	ESC,SK(SK_BACKSPACE),0,         EC_W_BACKSPACE, /* ESC BACKSPACE */
 	ESC,'0',0,                      EC_HOME,        /* ESC 0 */
 	SK(SK_HOME),0,                  EC_HOME,        /* HOME */
 	ESC,'$',0,                      EC_END,         /* ESC $ */
