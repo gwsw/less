@@ -10,6 +10,6 @@ struct xbuffer
 
 void xbuf_init(struct xbuffer *xbuf);
 void xbuf_reset(struct xbuffer *xbuf);
-void xbuf_add(struct xbuffer *xbuf, char ch);
+void xbuf_add(struct xbuffer *xbuf, int ch);
 
 #endif
