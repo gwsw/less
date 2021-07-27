@@ -34,7 +34,7 @@ xbuf_reset(xbuf)
 	public void
 xbuf_add(xbuf, ch)
 	struct xbuffer *xbuf;
-	char ch;
+	int ch;
 {
 	if (xbuf->end >= xbuf->size)
 	{
