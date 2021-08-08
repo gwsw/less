@@ -66,46 +66,33 @@ A backslash followed by one to three octal digits may be used to
 specify a character by its octal value.
 A backslash followed by certain characters specifies input
 characters as follows:
-.IP \eb
-BACKSPACE
-.IP \ee
-ESCAPE
-.IP \en
-NEWLINE
-.IP \er
-RETURN
-.IP \et
-TAB
-.IP \eku
-UP ARROW
-.IP \ekd
-DOWN ARROW
-.IP \ekr
-RIGHT ARROW
-.IP \ekl
-LEFT ARROW
-.IP \ek>
-ctrl-RIGHT ARROW
-.IP \ek<
-ctrl-LEFT ARROW
-.IP \ekU
-PAGE UP
-.IP \ekD
-PAGE DOWN
-.IP \ekh
-HOME
-.IP \eke
-END
-.IP \ekx
-DELETE
-.IP \ekX
-ctrl-DELETE
-.IP \eki
-INSERT
-.IP \ekt
-BACKTAB
-.IP \ek1
-F1
+.RS 5m
+.TS
+l l.
+\eb	BACKSPACE (that is, 0x08)
+\ee	ESCAPE
+\en	NEWLINE
+\er	RETURN
+\et	TAB
+\ekb	BACKSPACE (that is, the char(s) produced when the BACKSPACE key is pressed)
+\ekB	ctrl-BACKSPACE
+\ekd	DOWN ARROW
+\ekD	PAGE DOWN
+\eke	END
+\ekh	HOME
+\eki	INSERT
+\ekl	LEFT ARROW
+\ekr	RIGHT ARROW
+\ekt	BACKTAB
+\eku	UP ARROW
+\ekU	PAGE UP
+\ekx	DELETE
+\ekX	ctrl-DELETE
+\ek>	ctrl-RIGHT ARROW
+\ek<	ctrl-LEFT ARROW
+\ek1	F1
+.TE
+
 .PP
 A backslash followed by any other character indicates that character is
 to be taken literally.

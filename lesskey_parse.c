@@ -217,6 +217,7 @@ tstr(pp, xlate)
 				switch (*++p)
 				{
 				case 'b': ch = SK_BACKSPACE; break;
+				case 'B': ch = SK_CTL_BACKSPACE; break;
 				case 'd': ch = SK_DOWN_ARROW; break;
 				case 'D': ch = SK_PAGE_DOWN; break;
 				case 'e': ch = SK_END; break;
