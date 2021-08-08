@@ -10,6 +10,13 @@
   https://github.com/gwsw/less/issues.
 
 ======================================================================
+	Major changes between "less" versions 590 and 591
+
+* Fix ESC-BACKSPACE command when BACKSPACE key does not send 0x08.
+
+* Add more \k codes to lesskey format.
+
+======================================================================
 
 	Major changes between "less" versions 581 and 590
 
