@@ -800,7 +800,7 @@ prompt(VOID_PARAM)
 	if (!(ch_getflags() & CH_HELPFILE))
 	{
 		WCHAR w[MAX_PATH+16];
-		p = pr_expand("Less?f - %f.", 0);
+		p = pr_expand("Less?f - %f.");
 		MultiByteToWideChar(CP_ACP, 0, p, -1, w, sizeof(w)/sizeof(*w));
 		SetConsoleTitleW(w);
 	}
@@ -843,9 +843,8 @@ prompt(VOID_PARAM)
 		                    0, w, -1, a, sizeof(a), NULL, NULL);
 		p = a;
 #endif
-		at_enter(AT_STANDOUT|AT_COLOR_PROMPT);
-		putstr(p);
-		at_exit();
+		load_line(p);
+		put_line();
 	}
 	clear_eol();
 }
@@ -1735,7 +1734,7 @@ commands(VOID_PARAM)
 				 */
 				make_display();
 				cmd_exec();
-				lsystem(pr_expand(editproto, 0), (char*)NULL);
+				lsystem(pr_expand(editproto), (char*)NULL);
 				break;
 			}
 #endif

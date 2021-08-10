@@ -657,7 +657,9 @@ store_char(ch, a, rep, pos)
 	{
 		int matches;
 		int resend_last = 0;
-		int hl_attr = is_hilited_attr(pos, pos+1, 0, &matches);
+		/* pos==NULL_POSITION is used for the prompt line. */
+		int hl_attr = (pos == NULL_POSITION) ? AT_STANDOUT|AT_COLOR_PROMPT :
+		              is_hilited_attr(pos, pos+1, 0, &matches);
 		if (hl_attr)
 		{
 			/*
@@ -666,9 +668,9 @@ store_char(ch, a, rep, pos)
 			 */
 			if (a != AT_ANSI)
 			{
-				if (highest_hilite != NULL_POSITION && pos > highest_hilite)
+				if (highest_hilite != NULL_POSITION && pos != NULL_POSITION && pos > highest_hilite)
 					highest_hilite = pos;
-				a |= hl_attr;
+                a |= hl_attr;
 			}
 			in_hilite = 1;
 		} else 
@@ -1417,6 +1419,45 @@ back_raw_line(curr_pos, linep, line_lenp)
 	if (line_lenp != NULL)
 		*line_lenp = size_linebuf - 1 - n;
 	return (new_pos);
+}
+
+/*
+ * Append a string to the line buffer.
+ */
+	static int
+pappstr(str)
+	char *str;
+{
+	while (*str != '\0')
+	{
+		if (pappend(*str++, NULL_POSITION))
+            /* Doesn't fit on screen. */
+			return 1;
+	}
+	return 0;
+}
+
+/*
+ * Load a string into the line buffer.
+ * If the string is too long to fit on the screen,
+ * truncate the beginning of the string to fit.
+ */
+	public void
+load_line(str)
+	constant char *str;
+{
+	int save_hshift = hshift;
+
+	hshift = 0;
+	for (;;)
+	{
+		prewind();
+		if (pappstr(str) == 0)
+			break;
+		hshift += 1;
+	}
+	set_linebuf(linebuf.end, '\0', AT_NORMAL);
+	hshift = save_hshift;
 }
 
 /*

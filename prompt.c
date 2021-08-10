@@ -484,9 +484,8 @@ wherechar(p, wp)
  * Construct a message based on a prototype string.
  */
 	public char *
-pr_expand(proto, maxwidth)
+pr_expand(proto)
 	constant char *proto;
-	int maxwidth;
 {
 	constant char *p;
 	int c;
@@ -545,14 +544,6 @@ pr_expand(proto, maxwidth)
 
 	if (mp == message)
 		return ("");
-	if (maxwidth > 0 && mp >= message + maxwidth)
-	{
-		/*
-		 * Message is too long.
-		 * Return just the final portion of it.
-		 */
-		return (mp - maxwidth);
-	}
 	return (message);
 }
 
@@ -562,7 +553,7 @@ pr_expand(proto, maxwidth)
 	public char *
 eq_message(VOID_PARAM)
 {
-	return (pr_expand(eqproto, 0));
+	return (pr_expand(eqproto));
 }
 
 /*
@@ -579,8 +570,7 @@ pr_string(VOID_PARAM)
 
 	type = (!less_is_more) ? pr_type : pr_type ? 0 : 1;
 	prompt = pr_expand((ch_getflags() & CH_HELPFILE) ?
-				hproto : prproto[type],
-			sc_width-so_s_width-so_e_width-2);
+				hproto : prproto[type]);
 	new_file = 0;
 	return (prompt);
 }
@@ -591,5 +581,5 @@ pr_string(VOID_PARAM)
 	public char *
 wait_message(VOID_PARAM)
 {
-	return (pr_expand(wproto, sc_width-so_s_width-so_e_width-2));
+	return (pr_expand(wproto));
 }
