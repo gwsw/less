@@ -1459,6 +1459,11 @@ load_line(str)
 		prewind();
 		if (pappstr(str) == 0)
 			break;
+        /*
+         * Didn't fit on screen; increase left shift by one.
+         * {{ This gets very inefficient if the string
+         * is much longer than the screen width. }}
+         */
 		hshift += 1;
 	}
 	set_linebuf(linebuf.end, '\0', AT_NORMAL);
