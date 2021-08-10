@@ -38,6 +38,7 @@ struct xbuffer last_ansi;
 
 public int size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
+static int ansi_in_line;
 static int cshift;   /* Current left-shift of output line buffer */
 public int hshift;   /* Desired left-shift of output line buffer */
 public int tabstops[TABSTOP_MAX] = { 0 }; /* Custom tabstops */
@@ -221,6 +222,7 @@ prewind(VOID_PARAM)
 	is_null_line = 0;
 	pendc = '\0';
 	in_hilite = 0;
+	ansi_in_line = 0;
 	xbuf_reset(&shifted_ansi);
 	xbuf_reset(&last_ansi);
 }
@@ -657,9 +659,9 @@ store_char(ch, a, rep, pos)
 	{
 		int matches;
 		int resend_last = 0;
-		/* pos==NULL_POSITION is used for the prompt line. */
-		int hl_attr = (pos == NULL_POSITION) ? AT_STANDOUT|AT_COLOR_PROMPT :
-		              is_hilited_attr(pos, pos+1, 0, &matches);
+		int hl_attr = (pos != NULL_POSITION) ?
+			is_hilited_attr(pos, pos+1, 0, &matches) :
+			(!ansi_in_line) ? AT_STANDOUT|AT_COLOR_PROMPT : 0;
 		if (hl_attr)
 		{
 			/*
@@ -670,7 +672,7 @@ store_char(ch, a, rep, pos)
 			{
 				if (highest_hilite != NULL_POSITION && pos != NULL_POSITION && pos > highest_hilite)
 					highest_hilite = pos;
-                a |= hl_attr;
+				a |= hl_attr;
 			}
 			in_hilite = 1;
 		} else 
@@ -1015,7 +1017,10 @@ do_append(ch, rep, pos)
 	{
 		line_ansi = ansi_start(ch);
 		if (line_ansi != NULL)
+		{
 			xbuf_reset(&last_ansi);
+			ansi_in_line = 1;
+		}
 	}
 
 	if (line_ansi != NULL)
@@ -1431,7 +1436,7 @@ pappstr(str)
 	while (*str != '\0')
 	{
 		if (pappend(*str++, NULL_POSITION))
-            /* Doesn't fit on screen. */
+			/* Doesn't fit on screen. */
 			return 1;
 	}
 	return 0;
