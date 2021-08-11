@@ -217,6 +217,8 @@ AH_TEMPLATE([HAVE_CONST],
 	[Define HAVE_CONST if your compiler supports the "const" modifier.])
 AH_TEMPLATE([HAVE_STAT_INO],
 	[Define HAVE_STAT_INO if your struct stat has st_ino and st_dev.])
+AH_TEMPLATE([HAVE_STATFS],
+	[Define HAVE_STATFS if have have fstatfs with f_type.])
 AH_TEMPLATE([HAVE_TIME_T],
 	[Define HAVE_TIME_T if your system supports the "time_t" type.])
 AH_TEMPLATE([HAVE_STRERROR],
@@ -266,6 +268,10 @@ AC_TRY_COMPILE([#include <sys/types.h>
 #include <sys/stat.h>],
   [struct stat s; dev_t dev = s.st_dev; ino_t ino = s.st_ino;],
   [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STAT_INO)], [AC_MSG_RESULT(no)])
+AC_MSG_CHECKING(for statfs)
+AC_TRY_COMPILE([#include <sys/statfs.h>],
+  [struct statfs s; s.f_type = PROC_SUPER_MAGIC; (void) fstatfs(0,&s); ],
+  [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STATFS)], [AC_MSG_RESULT(no)])
 
 # Checks for ANSI function prototypes.
 AC_MSG_CHECKING(for ANSI function prototypes)

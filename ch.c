@@ -26,6 +26,10 @@ extern dev_t curr_dev;
 extern ino_t curr_ino;
 #endif
 
+#if HAVE_STATFS
+#include <sys/statfs.h>
+#endif
+
 typedef POSITION BLOCKNUM;
 
 public int ignore_eoi;
@@ -685,6 +689,30 @@ ch_setbufspace(bufspace)
 }
 
 /*
+ */
+	static int
+trust_size(file, fsize)
+	int file;
+	POSITION fsize;
+{
+	if (fsize != 0)
+	{
+		/* Nontrustable files always say their size is 0, so this isn't one. */
+        return 1;
+	}
+#if HAVE_STATFS
+    /* Cannot trust procfs files. */
+	struct statfs st;
+	if (fstatfs(file, &st) == 0)
+		return (st.f_type != PROC_SUPER_MAGIC);
+#else
+	(void) file;
+#endif
+	/* If we can't tell the file type, be safe and say it's not trustable. */
+	return 0;
+}
+
+/*
  * Flush (discard) any saved file state, including buffer contents.
  */
 	public void
@@ -732,7 +760,7 @@ ch_flush(VOID_PARAM)
 	 * data.  They are sometimes, but not always, seekable.
 	 * Force them to be non-seekable here.
 	 */
-	if (ch_fsize == 0)
+	if (!trust_size(ch_file, ch_fsize))
 	{
 		ch_fsize = NULL_POSITION;
 		ch_flags &= ~CH_CANSEEK;
