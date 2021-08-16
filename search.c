@@ -1908,7 +1908,11 @@ set_filter_pattern(pattern, search_type)
 		/* Create a new filter and add it to the filter_infos list. */
 		filter = ecalloc(1, sizeof(struct pattern_info));
 		init_pattern(filter);
-		set_pattern(filter, pattern, search_type, 1);
+		if (set_pattern(filter, pattern, search_type, 1) < 0)
+		{
+			free(filter);
+			return;
+		}
 		filter->next = filter_infos;
 		filter_infos = filter;
 	}

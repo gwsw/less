@@ -12,9 +12,13 @@ REL := $(shell sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q $
 ifeq ($(USE_PYTHON),1)
 	MKHELP = mkhelp.py
 	MKFUNCS = mkfuncs.py
+	MKUTABLE = mkutable.py
+	ADD_COPYRIGHT = add_copyright.py
 else
 	MKHELP = mkhelp.pl
 	MKFUNCS = mkfuncs.pl
+	MKUTABLE = mkutable.pl
+	ADD_COPYRIGHT = add_copyright.pl
 endif
 
 SRC = \
@@ -105,13 +109,13 @@ ${srcdir}/lessecho.man: ${srcdir}/lessecho.nro
 	${NROFF} ${srcdir}/lessecho.nro >${srcdir}/lessecho.man
 
 compose.uni: unicode/UnicodeData.txt
-	./mkutable -f2 Mn Me -- unicode/UnicodeData.txt > $@
+	${srcdir}/${MKUTABLE} -f2 Mn Me -- unicode/UnicodeData.txt > $@
 fmt.uni: unicode/UnicodeData.txt
-	./mkutable -f2 Cf -- unicode/UnicodeData.txt > $@
+	${srcdir}/${MKUTABLE} -f2 Cf -- unicode/UnicodeData.txt > $@
 ubin.uni: unicode/UnicodeData.txt
-	./mkutable -f2 Cc Cs Co Zl Zp -- unicode/UnicodeData.txt > $@
+	${srcdir}/${MKUTABLE} -f2 Cc Cs Co Zl Zp -- unicode/UnicodeData.txt > $@
 wide.uni: unicode/EastAsianWidth.txt
-	./mkutable -f1 W F -- unicode/EastAsianWidth.txt > $@
+	${srcdir}/${MKUTABLE} -f1 W F -- unicode/EastAsianWidth.txt > $@
 
 unicode/UnicodeData.txt:
 	mkdir -p unicode
