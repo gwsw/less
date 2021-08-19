@@ -68,13 +68,18 @@ A backslash followed by certain characters specifies input
 characters as follows:
 .RS 5m
 .TS
+l l l.
+\eb	BACKSPACE	(0x08)
+\ee	ESCAPE	(0x1B)
+\en	NEWLINE	(0x0A)
+\er	RETURN	(0x0D)
+\et	TAB	(0x09)
+.TE
+.sp
+\ek followed by a single character represents the char(s) produced when one of these keys is pressed:
+.TS
 l l.
-\eb	BACKSPACE (that is, 0x08)
-\ee	ESCAPE
-\en	NEWLINE
-\er	RETURN
-\et	TAB
-\ekb	BACKSPACE (that is, the char(s) produced when the BACKSPACE key is pressed)
+\ekb	BACKSPACE (the BACKSPACE key)
 \ekB	ctrl-BACKSPACE
 \ekd	DOWN ARROW
 \ekD	PAGE DOWN
@@ -82,14 +87,14 @@ l l.
 \ekh	HOME
 \eki	INSERT
 \ekl	LEFT ARROW
+\ekL	ctrl-LEFT ARROW
 \ekr	RIGHT ARROW
+\ekR	ctrl-RIGHT ARROW
 \ekt	BACKTAB
 \eku	UP ARROW
 \ekU	PAGE UP
 \ekx	DELETE
 \ekX	ctrl-DELETE
-\ek>	ctrl-RIGHT ARROW
-\ek<	ctrl-LEFT ARROW
 \ek1	F1
 .TE
 
