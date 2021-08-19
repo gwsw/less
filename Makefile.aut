@@ -13,12 +13,10 @@ ifeq ($(USE_PYTHON),1)
 	MKHELP = mkhelp.py
 	MKFUNCS = mkfuncs.py
 	MKUTABLE = mkutable.py
-	ADD_COPYRIGHT = add_copyright.py
 else
 	MKHELP = mkhelp.pl
 	MKFUNCS = mkfuncs.pl
 	MKUTABLE = mkutable.pl
-	ADD_COPYRIGHT = add_copyright.pl
 endif
 
 SRC = \
