@@ -933,7 +933,7 @@ v589  5/29/21   Copyright & build changes.
 v590  6/3/21    Fix non-autoconf Makefiles.
 v591  8/8/21    Use \kB for backspace key in lesskey; add more \k codes;
                 handle multibyte chars in prompt.
-v592
+v592            Add --status-line option.
 */
 
 char version[] = "592x";

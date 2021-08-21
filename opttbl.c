@@ -64,6 +64,7 @@ public int status_col_width;    /* Width of status column */
 public int incr_search;         /* Incremental search */
 public int use_color;           /* Use UI color */
 public int want_filesize;       /* */
+public int status_line;           /* */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -139,6 +140,7 @@ static struct optname status_col_width_optname = { "status-col-width", NULL };
 static struct optname incr_search_optname = { "incsearch",       NULL };
 static struct optname use_color_optname = { "use-color",         NULL };
 static struct optname want_filesize_optname = { "file-size",     NULL };
+static struct optname status_line_optname = { "status-line",     NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 static struct optname rstat_optname  = { "rstat",                NULL };
@@ -559,6 +561,14 @@ static struct loption option[] =
 		{
 			"Don't get size of each file",
 			"Get size of each file",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &status_line_optname,
+		BOOL|REPAINT, OPT_OFF, &status_line, NULL,
+		{
+			"Don't color each line with its status column color",
+			"Color each line with its status column color",
 			NULL
 		}
 	},
