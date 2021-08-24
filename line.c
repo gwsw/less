@@ -39,6 +39,7 @@ struct xbuffer last_ansi;
 public int size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
 static int ansi_in_line;
+static int line_mark_attr;
 static int cshift;   /* Current left-shift of output line buffer */
 public int hshift;   /* Desired left-shift of output line buffer */
 public int tabstops[TABSTOP_MAX] = { 0 }; /* Custom tabstops */
@@ -83,6 +84,7 @@ extern POSITION end_attnpos;
 extern char rscroll_char;
 extern int rscroll_attr;
 extern int use_color;
+extern int status_line;
 
 static char mbc_buf[MAX_UTF_CHAR_LEN];
 static int mbc_buf_len = 0;
@@ -223,6 +225,7 @@ prewind(VOID_PARAM)
 	pendc = '\0';
 	in_hilite = 0;
 	ansi_in_line = 0;
+	line_mark_attr = 0;
 	xbuf_reset(&shifted_ansi);
 	xbuf_reset(&last_ansi);
 }
@@ -303,22 +306,20 @@ plinestart(pos)
 	/*
 	 * Display a status column if the -J option is set.
 	 */
-	if (status_col)
+	if (status_col || status_line)
 	{
-		int a = AT_NORMAL;
 		char c = posmark(pos);
 		if (c != 0)
-			a |= AT_HILITE|AT_COLOR_MARK;
-		else 
+			line_mark_attr = AT_HILITE|AT_COLOR_MARK;
+		else if (start_attnpos != NULL_POSITION &&
+		         pos >= start_attnpos && pos <= end_attnpos)
+			line_mark_attr = AT_HILITE|AT_COLOR_ATTN;
+		if (status_col)
 		{
-			c = ' ';
-			if (start_attnpos != NULL_POSITION &&
-			    pos >= start_attnpos && pos <= end_attnpos)
-				a |= AT_HILITE|AT_COLOR_ATTN;
+			add_pfx(c ? c : ' ', line_mark_attr); /* column 0: status */
+			while (linebuf.pfx_end < status_col_width)
+				add_pfx(' ', AT_NORMAL);
 		}
-		add_pfx(c, a); /* column 0: status */
-		while (linebuf.pfx_end < status_col_width)
-			add_pfx(' ', AT_NORMAL);
 	}
 
 	/*
@@ -659,9 +660,18 @@ store_char(ch, a, rep, pos)
 	{
 		int matches;
 		int resend_last = 0;
-		int hl_attr = (pos != NULL_POSITION) ?
-			is_hilited_attr(pos, pos+1, 0, &matches) :
-			(!ansi_in_line) ? AT_STANDOUT|AT_COLOR_PROMPT : 0;
+		int hl_attr;
+
+		if (pos == NULL_POSITION)
+		{
+			/* Color the prompt unless it has ansi sequences in it. */
+			hl_attr = ansi_in_line ? 0 : AT_STANDOUT|AT_COLOR_PROMPT;
+		} else
+		{
+			hl_attr = is_hilited_attr(pos, pos+1, 0, &matches);
+			if (hl_attr == 0 && status_line)
+				hl_attr = line_mark_attr;
+		}
 		if (hl_attr)
 		{
 			/*
@@ -1203,6 +1213,14 @@ pdone(endline, chopped, forw)
 	}
 
 	/*
+	 * If we're coloring a status line, fill out the line with spaces.
+	 */
+	if (status_line && line_mark_attr != 0) {
+		while (end_column +1 < sc_width + cshift)
+			add_linebuf(' ', line_mark_attr, 1);
+	}
+
+	/*
 	 * Add a newline if necessary,
 	 * and append a '\0' to the end of the line.
 	 * We output a newline if we're not at the right edge of the screen,
@@ -1459,11 +1477,11 @@ load_line(str)
 		prewind();
 		if (pappstr(str) == 0)
 			break;
-        /*
-         * Didn't fit on screen; increase left shift by one.
-         * {{ This gets very inefficient if the string
-         * is much longer than the screen width. }}
-         */
+		/*
+		 * Didn't fit on screen; increase left shift by one.
+		 * {{ This gets very inefficient if the string
+		 * is much longer than the screen width. }}
+		 */
 		hshift += 1;
 	}
 	set_linebuf(linebuf.end, '\0', AT_NORMAL);

@@ -1011,7 +1011,10 @@ The first "new" line is the line immediately following the line previously
 at the bottom of the screen.
 Also highlights the target line after a g or p command.
 The highlight is removed at the next command which causes movement.
-The entire line is highlighted, unless the \-J option is in effect,
+If the \-\-status-line option is in effect, the entire line
+(the width of the screen) is highlighted.
+Otherwise, only the text in the line is highlighted,
+unless the \-J option is in effect,
 in which case only the status column is highlighted.
 .IP "\-W or \-\-HILITE-UNREAD"
 Like \-w, but temporarily highlights the first new line after any
@@ -1143,6 +1146,12 @@ across different invocations of
 .IP "\-\-status-col-width"
 Sets the width of the status column when the \-J option is in effect.
 The default is 2 characters.
+.IP "\-\-status-line"
+If a line is marked, the entire line (rather than just the status column)
+is highlighted.
+Also lines highlighted due to the \-w option will have
+the entire line highlighted.
+If \-\-use-color is set, the line is colored rather than highlighted.
 .IP "\-\-use-backslash"
 This option changes the interpretations of options which follow this one.
 After the \-\-use-backslash option, any backslash in an option string is

@@ -10,7 +10,9 @@
   https://github.com/gwsw/less/issues.
 
 ======================================================================
-	Major changes between "less" versions 590 and 591
+	Major changes between "less" versions 590 and 592
+
+* Add the --status-line option.
 
 * Fix display of multibyte and double-width chars in prompt.
 

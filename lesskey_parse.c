@@ -224,15 +224,15 @@ tstr(pp, xlate)
 				case 'h': ch = SK_HOME; break;
 				case 'i': ch = SK_INSERT; break;
 				case 'l': ch = SK_LEFT_ARROW; break;
+				case 'L': ch = SK_CTL_LEFT_ARROW; break;
 				case 'r': ch = SK_RIGHT_ARROW; break;
+				case 'R': ch = SK_CTL_RIGHT_ARROW; break;
 				case 't': ch = SK_BACKTAB; break;
 				case 'u': ch = SK_UP_ARROW; break;
 				case 'U': ch = SK_PAGE_UP; break;
 				case 'x': ch = SK_DELETE; break;
 				case 'X': ch = SK_CTL_DELETE; break;
 				case '1': ch = SK_F1; break;
-				case '<': ch = SK_CTL_LEFT_ARROW; break;
-				case '>': ch = SK_CTL_RIGHT_ARROW; break;
 				default: { char buf[2]; buf[0] = *p; buf[1] = '\0';
 					parse_error("illegal escape sequence \\k", buf);
 					*pp = p+1;
