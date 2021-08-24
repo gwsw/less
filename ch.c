@@ -26,7 +26,7 @@ extern dev_t curr_dev;
 extern ino_t curr_ino;
 #endif
 
-#if HAVE_STATFS
+#if HAVE_PROCFS
 #include <sys/statfs.h>
 #endif
 
@@ -689,30 +689,6 @@ ch_setbufspace(bufspace)
 }
 
 /*
- */
-	static int
-trust_size(file, fsize)
-	int file;
-	POSITION fsize;
-{
-	if (fsize != 0)
-	{
-		/* Nontrustable files always say their size is 0, so this isn't one. */
-        return 1;
-	}
-#if HAVE_STATFS
-    /* Cannot trust procfs files. */
-	struct statfs st;
-	if (fstatfs(file, &st) == 0)
-		return (st.f_type != PROC_SUPER_MAGIC);
-#else
-	(void) file;
-#endif
-	/* If we can't tell the file type, be safe and say it's not trustable. */
-	return 0;
-}
-
-/*
  * Flush (discard) any saved file state, including buffer contents.
  */
 	public void
@@ -753,17 +729,24 @@ ch_flush(VOID_PARAM)
 	ch_block = 0; /* ch_fpos / LBUFSIZE; */
 	ch_offset = 0; /* ch_fpos % LBUFSIZE; */
 
-#if 1
+#if HAVE_PROCFS
 	/*
 	 * This is a kludge to workaround a Linux kernel bug: files in
 	 * /proc have a size of 0 according to fstat() but have readable 
 	 * data.  They are sometimes, but not always, seekable.
 	 * Force them to be non-seekable here.
 	 */
-	if (!trust_size(ch_file, ch_fsize))
+	if (ch_fsize == 0)
 	{
-		ch_fsize = NULL_POSITION;
-		ch_flags &= ~CH_CANSEEK;
+		struct statfs st;
+		if (fstatfs(ch_file, &st) == 0)
+		{
+			if (st.f_type == PROC_SUPER_MAGIC)
+			{
+				ch_fsize = NULL_POSITION;
+				ch_flags &= ~CH_CANSEEK;
+			}
+		}
 	}
 #endif
 
