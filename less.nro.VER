@@ -1101,6 +1101,11 @@ If the reopen succeeds and the file is a different file from the original
 with the same name as the original (now renamed) file),
 .I less
 will display the contents of that new file.
+.IP "\-\-header"
+Sets the number of header lines displayed on the screen.
+The header lines replace the lines normally displayed at the top
+of the screen, so the header appears "frozen" on the screen.
+The header lines are read from the beginning of the file.
 .IP "\-\-incsearch"
 Subsequent search commands will be "incremental"; that is,
 .I less

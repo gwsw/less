@@ -63,8 +63,9 @@ public int linenum_width;       /* Width of line numbers */
 public int status_col_width;    /* Width of status column */
 public int incr_search;         /* Incremental search */
 public int use_color;           /* Use UI color */
-public int want_filesize;       /* */
-public int status_line;           /* */
+public int want_filesize;       /* Scan to EOF if necessary to get file size */
+public int status_line;         /* Highlight entire marked lines */
+public int header_lines;        /* Freeze header lines at top of screen */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -141,6 +142,7 @@ static struct optname incr_search_optname = { "incsearch",       NULL };
 static struct optname use_color_optname = { "use-color",         NULL };
 static struct optname want_filesize_optname = { "file-size",     NULL };
 static struct optname status_line_optname = { "status-line",     NULL };
+static struct optname header_lines_optname = { "header",         NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 static struct optname rstat_optname  = { "rstat",                NULL };
@@ -569,6 +571,14 @@ static struct loption option[] =
 		{
 			"Don't color each line with its status column color",
 			"Color each line with its status column color",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &header_lines_optname,
+		NUMBER|REPAINT, 0, &header_lines, NULL,
+		{
+			"Header lines: ",
+			"%d header lines",
 			NULL
 		}
 	},

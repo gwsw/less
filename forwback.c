@@ -31,6 +31,7 @@ extern int back_scroll;
 extern int ignore_eoi;
 extern int clear_bg;
 extern int final_attr;
+extern int header_lines;
 extern int oldbot;
 #if HILITE_SEARCH
 extern int size_linebuf;
@@ -117,6 +118,27 @@ squish_check(VOID_PARAM)
 		return;
 	squished = 0;
 	repaint();
+}
+
+/*
+ * Display file header lines, overlaying lines already drawn
+ * at top of screen.
+ */
+	static void
+disp_header_lines(VOID_PARAM)
+{
+	POSITION pos = 0;
+	int n;
+	if (header_lines == 0)
+		return;
+	home();
+	for (n = 0; n < header_lines; ++n)
+	{
+		pos = forw_line(pos);
+		clear_eol();
+		put_line();
+	}
+	lower_left();
 }
 
 /*
@@ -295,6 +317,8 @@ forw(n, pos, force, only_last, nblank)
 		eof_bell();
 	else if (do_repaint)
 		repaint();
+	else
+		disp_header_lines();
 	first_time = 0;
 	(void) currline(BOTTOM);
 }
@@ -353,7 +377,7 @@ back(n, pos, force, only_last)
 
 	if (nlines == 0)
 		eof_bell();
-	else if (do_repaint)
+	else if (do_repaint || header_lines)
 		repaint();
 	else if (!oldbot)
 		lower_left();

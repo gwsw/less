@@ -12,6 +12,8 @@
 ======================================================================
 	Major changes between "less" versions 590 and 592
 
+* Add the --header option.
+
 * Add the --status-line option.
 
 * Fix display of multibyte and double-width chars in prompt.
