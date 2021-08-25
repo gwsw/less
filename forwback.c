@@ -125,13 +125,15 @@ squish_check(VOID_PARAM)
  * at top of screen.
  */
 	static void
-disp_header_lines(VOID_PARAM)
+overlay_header(VOID_PARAM)
 {
-	POSITION pos = 0;
+	POSITION pos;
 	int n;
+
 	if (header_lines == 0)
 		return;
 	home();
+	pos = 0;
 	for (n = 0; n < header_lines; ++n)
 	{
 		pos = forw_line(pos);
@@ -318,7 +320,7 @@ forw(n, pos, force, only_last, nblank)
 	else if (do_repaint)
 		repaint();
 	else
-		disp_header_lines();
+		overlay_header();
 	first_time = 0;
 	(void) currline(BOTTOM);
 }
