@@ -463,7 +463,7 @@ mca_opt_char(c)
 	if (optgetname)
 	{
 		/* We're getting a long option name.  */
-		if (!is_newline_char(c))
+		if (!is_newline_char(c) && c != '=')
 			return (mca_opt_nonfirst_char(c));
 		if (curropt == NULL)
 		{
