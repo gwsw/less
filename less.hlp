@@ -209,6 +209,8 @@
                   Automatically determine the size of the input file.
                 --follow-name
                   The F command changes files if the input file is renamed.
+                --header=[_N[,_M]]
+                  Use N lines and M columns to display file headers.
                 --incsearch
                   Search file as each pattern character is typed in.
                 --line-num-width=N

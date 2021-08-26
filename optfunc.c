@@ -59,6 +59,8 @@ extern int linenum_width;
 extern int status_col_width;
 extern int use_color;
 extern int want_filesize;
+extern int header_lines;
+extern int header_cols;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -976,9 +978,55 @@ opt_filesize(type, s)
 	case INIT:
 	case TOGGLE:
 		if (want_filesize && curr_ifile != NULL && ch_length() == NULL_POSITION)
-            scan_eof();
+			scan_eof();
 		break;
 	case QUERY:
+		break;
+	}
+}
+
+/*
+ * Handler for the --header option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_header(type, s)
+	int type;
+	char *s;
+{
+	int err;
+	int n;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		n = getnum(&s, "header", &err);
+		if (err)
+			error("invalid number of lines", NULL_PARG);
+		else
+		{
+			header_lines = n;
+			header_cols = 0;
+			if (*s == ',')
+			{
+				++s;
+				n = getnum(&s, "header", &err);
+				if (err)
+					error("invalid number of columns", NULL_PARG);
+				else
+					header_cols = n;
+			}
+		}
+		break;
+	case QUERY:
+		{
+			char buf[16];
+			PARG parg;
+			SNPRINTF2(buf, sizeof(buf), "%d,%d", header_lines, header_cols);
+			parg.p_string = buf;
+			error("header (lines,columns) is %s", &parg);
+		}
 		break;
 	}
 }

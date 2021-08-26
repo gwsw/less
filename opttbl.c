@@ -66,6 +66,7 @@ public int use_color;           /* Use UI color */
 public int want_filesize;       /* Scan to EOF if necessary to get file size */
 public int status_line;         /* Highlight entire marked lines */
 public int header_lines;        /* Freeze header lines at top of screen */
+public int header_cols;         /* Freeze header columns at left of screen */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -142,7 +143,7 @@ static struct optname incr_search_optname = { "incsearch",       NULL };
 static struct optname use_color_optname = { "use-color",         NULL };
 static struct optname want_filesize_optname = { "file-size",     NULL };
 static struct optname status_line_optname = { "status-line",     NULL };
-static struct optname header_lines_optname = { "header",         NULL };
+static struct optname header_optname = { "header",               NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 static struct optname rstat_optname  = { "rstat",                NULL };
@@ -574,8 +575,8 @@ static struct loption option[] =
 			NULL
 		}
 	},
-	{ OLETTER_NONE, &header_lines_optname,
-		NUMBER|REPAINT, 0, &header_lines, NULL,
+	{ OLETTER_NONE, &header_optname,
+		STRING|REPAINT, 0, NULL, opt_header,
 		{
 			"Header lines: ",
 			"%d header lines",

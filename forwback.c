@@ -25,6 +25,8 @@ extern int sigs;
 extern int top_scroll;
 extern int quiet;
 extern int sc_width, sc_height;
+extern int hshift;
+extern int auto_wrap;
 extern int plusoption;
 extern int forw_scroll;
 extern int back_scroll;
@@ -32,6 +34,7 @@ extern int ignore_eoi;
 extern int clear_bg;
 extern int final_attr;
 extern int header_lines;
+extern int header_cols;
 extern int oldbot;
 #if HILITE_SEARCH
 extern int size_linebuf;
@@ -121,26 +124,72 @@ squish_check(VOID_PARAM)
 }
 
 /*
- * Display file header lines, overlaying lines already drawn
- * at top of screen.
+ * Read the first pfx columns of the next line.
+ * If skipeol==0 stop there, otherwise read and discard chars to end of line.
+ */
+	static POSITION
+forw_line_pfx(pos, pfx, skipeol)
+	POSITION pos;
+	int pfx;
+	int skipeol;
+{
+	int save_sc_width = sc_width;
+	int save_auto_wrap = auto_wrap;
+	int save_hshift = hshift;
+    /* Set fake sc_width to force only pfx chars to be read. */
+	sc_width = pfx + line_pfx_width();
+	auto_wrap = 0;
+	hshift = 0;
+	pos = forw_line_seg(pos, skipeol, FALSE);
+	sc_width = save_sc_width;
+	auto_wrap = save_auto_wrap;
+	hshift = save_hshift;
+	return pos;
+}
+
+/*
+ * Display file headers, overlaying text already drawn
+ * at top and left of screen.
  */
 	static void
 overlay_header(VOID_PARAM)
 {
 	POSITION pos;
-	int n;
+	int ln;
 
-	if (header_lines == 0)
-		return;
-	home();
-	pos = 0;
-	for (n = 0; n < header_lines; ++n)
+	if (header_lines > 0)
 	{
-		pos = forw_line(pos);
-		clear_eol();
-		put_line();
+		/* Draw header_lines lines from start of file at top of screen. */
+		home();
+		pos = 0;
+		for (ln = 0; ln < header_lines; ++ln)
+		{
+			pos = forw_line(pos);
+			clear_eol();
+			put_line();
+		}
+		if (header_cols == 0)
+			lower_left();
 	}
-	lower_left();
+	if (header_cols > 0 && hshift > 0)
+	{
+		/* Draw header_cols columns at left of each line. */
+		home();
+		pos = 0; /* Start with cols from header lines */
+		for (ln = 0; ln < sc_height-1; ++ln)
+		{
+			if (ln >= header_lines) /* switch from header lines to normal lines */
+				pos = position(ln);
+			if (pos == NULL_POSITION)
+				putchr('\n');
+			else 
+			{
+                /* Need skipeol for all header lines except the last one. */
+				pos = forw_line_pfx(pos, header_cols, ln+1 < header_lines);
+				put_line();
+			}
+		}
+	}
 }
 
 /*
@@ -339,7 +388,7 @@ back(n, pos, force, only_last)
 	int do_repaint;
 
 	squish_check();
-	do_repaint = (n > get_back_scroll() || (only_last && n > sc_height-1));
+	do_repaint = (n > get_back_scroll() || (only_last && n > sc_height-1) || header_lines > 0);
 #if HILITE_SEARCH
 	if (hilite_search == OPT_ONPLUS || is_filtering() || status_col) {
 		prep_hilite((pos < 3*size_linebuf) ?  0 : pos - 3*size_linebuf, pos, -1);
@@ -379,7 +428,7 @@ back(n, pos, force, only_last)
 
 	if (nlines == 0)
 		eof_bell();
-	else if (do_repaint || header_lines)
+	else if (do_repaint)
 		repaint();
 	else if (!oldbot)
 		lower_left();

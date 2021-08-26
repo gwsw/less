@@ -1236,7 +1236,7 @@ get_seg(pos, tpos)
 
 	for (seg = 0;;  seg++)
 	{
-		POSITION npos = forw_line_seg(pos, TRUE);
+		POSITION npos = forw_line_seg(pos, FALSE, FALSE);
 		if (npos > tpos)
 			return seg;
 		pos = npos;

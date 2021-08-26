@@ -42,9 +42,10 @@ extern int show_attn;
  * of the NEXT line.  The line obtained is the line starting at curr_pos.
  */
 	public POSITION
-forw_line_seg(curr_pos, get_segpos)
+forw_line_seg(curr_pos, skipeol, rscroll)
 	POSITION curr_pos;
-	int get_segpos;
+	int skipeol;
+	int rscroll;
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -182,7 +183,7 @@ get_forw_line:
 			 * is too long to print in the screen width.
 			 * End the line here.
 			 */
-			if ((chopline || hshift > 0) && !get_segpos)
+			if (skipeol)
 			{
 				/* Read to end of line. */
 				do
@@ -215,7 +216,7 @@ get_forw_line:
 		pappend(' ', ch_tell()-1);
 	}
 #endif
-	pdone(endline, chopped, 1);
+	pdone(endline, rscroll && chopped, 1);
 
 #if HILITE_SEARCH
 	if (is_filtered(base_pos))
@@ -261,7 +262,8 @@ get_forw_line:
 forw_line(curr_pos)
 	POSITION curr_pos;
 {
-	return forw_line_seg(curr_pos, FALSE);
+
+	return forw_line_seg(curr_pos, (chopline || hshift > 0), TRUE);
 }
 
 /*
