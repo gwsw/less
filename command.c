@@ -48,6 +48,7 @@ extern IFILE curr_ifile;
 extern void *ml_search;
 extern void *ml_examine;
 extern int wheel_lines;
+extern int header_lines;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif

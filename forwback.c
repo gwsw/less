@@ -136,7 +136,7 @@ forw_line_pfx(pos, pfx, skipeol)
 	int save_sc_width = sc_width;
 	int save_auto_wrap = auto_wrap;
 	int save_hshift = hshift;
-    /* Set fake sc_width to force only pfx chars to be read. */
+	/* Set fake sc_width to force only pfx chars to be read. */
 	sc_width = pfx + line_pfx_width();
 	auto_wrap = 0;
 	hshift = 0;
@@ -165,6 +165,12 @@ overlay_header(VOID_PARAM)
 		for (ln = 0; ln < header_lines; ++ln)
 		{
 			pos = forw_line(pos);
+			/*
+			 * Underline last line of header, unless 
+			 * we are at beginning of file.
+			 */
+			if (ln+1 == header_lines && position(0) != ch_zero())
+				punderline();
 			clear_eol();
 			put_line();
 		}
@@ -184,7 +190,7 @@ overlay_header(VOID_PARAM)
 				putchr('\n');
 			else 
 			{
-                /* Need skipeol for all header lines except the last one. */
+				/* Need skipeol for all header lines except the last one. */
 				pos = forw_line_pfx(pos, header_cols, ln+1 < header_lines);
 				put_line();
 			}
@@ -364,6 +370,18 @@ forw(n, pos, force, only_last, nblank)
 		forw_prompt = 1;
 	}
 
+	if (header_lines > 0)
+	{
+        /*
+         * Don't allow ch_zero to appear on screen except at top of screen.
+         * Otherwise duplicate header lines may be displayed.
+         */
+		if (onscreen(ch_zero()) > 0)
+		{
+			jump_loc(ch_zero(), 0); /* {{ yuck }} */
+			return;
+		}
+	}
 	if (nlines == 0 && !ignore_eoi)
 		eof_bell();
 	else if (do_repaint)

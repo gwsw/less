@@ -934,7 +934,7 @@ v590  6/3/21    Fix non-autoconf Makefiles.
 v591  8/8/21    Use \kB for backspace key in lesskey; add more \k codes;
                 handle multibyte chars in prompt.
 v592  8/24/21   Add --status-line option; limit use of /proc kludge; add --header.
-v593
+v593            Add header columns, --no-number-headers.
 */
 
 char version[] = "593x";

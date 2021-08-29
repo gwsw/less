@@ -1082,6 +1082,6 @@ get_swindow(VOID_PARAM)
 {
 	if (swindow > 0)
 		return (swindow);
-	return (sc_height + swindow);
+	return (sc_height - header_lines + swindow);
 }
 

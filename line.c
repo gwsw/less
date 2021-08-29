@@ -331,8 +331,14 @@ plinestart(pos)
 		char buf[INT_STRLEN_BOUND(linenum) + 2];
 		int len;
 
-		linenumtoa(linenum, buf);
-		len = (int) strlen(buf);
+		linenum = vlinenum(linenum);
+		if (linenum == 0)
+			len = 0;
+		else
+		{
+			linenumtoa(linenum, buf);
+			len = (int) strlen(buf);
+		}
 		for (i = 0; i < linenum_width - len; i++)
 			add_pfx(' ', AT_NORMAL);
 		for (i = 0; i < len; i++)
@@ -1260,7 +1266,19 @@ pdone(endline, chopped, forw)
 }
 
 /*
- *
+ * Underline the line in the line buffer.
+ */
+	public void
+punderline(VOID_PARAM)
+{
+	int i;
+
+	for (i = linebuf.print;  i < linebuf.end;  i++)
+		linebuf.attr[i] |= AT_UNDERLINE;
+}
+
+/*
+ * Set the char to be displayed in the status column.
  */
 	public void
 set_status_col(c, attr)

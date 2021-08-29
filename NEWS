@@ -14,6 +14,8 @@
 
 * Add the --header option.
 
+* Add the --no-number-headers option.
+
 * Add the --status-line option.
 
 * Fix display of multibyte and double-width chars in prompt.

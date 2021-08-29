@@ -221,6 +221,8 @@
                   Don't send termcap keypad init/deinit strings.
                 --no-histdups
                   Remove duplicates from command history.
+                --no-number-headers
+                  Don't give line numbers to header lines.
                 --rscroll=C
                   Set the character used to mark truncated lines.
                 --save-marks

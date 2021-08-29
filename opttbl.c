@@ -67,6 +67,7 @@ public int want_filesize;       /* Scan to EOF if necessary to get file size */
 public int status_line;         /* Highlight entire marked lines */
 public int header_lines;        /* Freeze header lines at top of screen */
 public int header_cols;         /* Freeze header columns at left of screen */
+public int nonum_headers;       /* Don't give headers line numbers */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -144,6 +145,7 @@ static struct optname use_color_optname = { "use-color",         NULL };
 static struct optname want_filesize_optname = { "file-size",     NULL };
 static struct optname status_line_optname = { "status-line",     NULL };
 static struct optname header_optname = { "header",               NULL };
+static struct optname nonum_headers_optname = { "no-number-headers", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 static struct optname rstat_optname  = { "rstat",                NULL };
@@ -580,6 +582,14 @@ static struct loption option[] =
 		{
 			"Header lines: ",
 			"%d header lines",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &nonum_headers_optname,
+		BOOL|REPAINT, 0, &nonum_headers, NULL,
+		{
+			"Number header lines",
+			"Don't number header lines",
 			NULL
 		}
 	},

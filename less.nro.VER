@@ -1116,6 +1116,8 @@ even if the rest of the line is scrolled horizontally.
 If either N or M is zero, 
 .I less
 stops displaying header lines or columns, respectively.
+(Note that it may be neccessary to change the setting of the \-j option
+to ensure that the target line is not obscured by the header line(s).)
 .IP "\-\-incsearch"
 Subsequent search commands will be "incremental"; that is,
 .I less
@@ -1149,6 +1151,9 @@ file name is typed in, and the same string is already in the history list,
 the existing copy is removed from the history list before the new one is added.
 Thus, a given string will appear only once in the history list.
 Normally, a string may appear multiple times.
+.IP "\-\-no-number-headers"
+Header lines (defined via the \-\-header option) are not assigned line numbers.
+Line number 1 is assigned to the first line after any header lines.
 .IP "\-\-rscroll"
 This option changes the character used to mark truncated lines.
 It may begin with a two-character attribute indicator like LESSBINFMT does.
