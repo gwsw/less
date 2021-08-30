@@ -156,6 +156,7 @@ overlay_header(VOID_PARAM)
 {
 	POSITION pos;
 	int ln;
+	int need_ll = FALSE;
 
 	if (header_lines > 0)
 	{
@@ -174,8 +175,7 @@ overlay_header(VOID_PARAM)
 			clear_eol();
 			put_line();
 		}
-		if (header_cols == 0)
-			lower_left();
+		need_ll = TRUE;
 	}
 	if (header_cols > 0 && hshift > 0)
 	{
@@ -195,7 +195,10 @@ overlay_header(VOID_PARAM)
 				put_line();
 			}
 		}
+		need_ll = TRUE;
 	}
+	if (need_ll)
+		lower_left();
 }
 
 /*
