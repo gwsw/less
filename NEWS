@@ -10,7 +10,7 @@
   https://github.com/gwsw/less/issues.
 
 ======================================================================
-	Major changes between "less" versions 590 and 592
+	Major changes between "less" versions 590 and 593
 
 * Add the --header option.
 
@@ -23,6 +23,8 @@
 * Fix ESC-BACKSPACE command when BACKSPACE key does not send 0x08.
 
 * Add more \k codes to lesskey format.
+
+* Fix bug when empty file is modified while viewing it.
 
 ======================================================================
 
