@@ -151,6 +151,19 @@ forw_line_pfx(pos, pfx, skipeol)
  * Display file headers, overlaying text already drawn
  * at top and left of screen.
  */
+
+/*
+ * Underline last line of headers, but not at beginning of file
+ * (where there is no gap between the last header line and the next line).
+ */
+	static void
+underline_last_header(ln)
+	int ln;
+{
+	if (ln+1 == header_lines && position(0) != ch_zero())
+		punderline();
+}
+
 	static void
 overlay_header(VOID_PARAM)
 {
@@ -166,12 +179,7 @@ overlay_header(VOID_PARAM)
 		for (ln = 0; ln < header_lines; ++ln)
 		{
 			pos = forw_line(pos);
-			/*
-			 * Underline last line of header, unless 
-			 * we are at beginning of file.
-			 */
-			if (ln+1 == header_lines && position(0) != ch_zero())
-				punderline();
+			underline_last_header(ln);
 			clear_eol();
 			put_line();
 		}
@@ -192,6 +200,7 @@ overlay_header(VOID_PARAM)
 			{
 				/* Need skipeol for all header lines except the last one. */
 				pos = forw_line_pfx(pos, header_cols, ln+1 < header_lines);
+				underline_last_header(ln);
 				put_line();
 			}
 		}
@@ -375,10 +384,10 @@ forw(n, pos, force, only_last, nblank)
 
 	if (header_lines > 0)
 	{
-        /*
-         * Don't allow ch_zero to appear on screen except at top of screen.
-         * Otherwise duplicate header lines may be displayed.
-         */
+		/*
+		 * Don't allow ch_zero to appear on screen except at top of screen.
+		 * Otherwise duplicate header lines may be displayed.
+		 */
 		if (onscreen(ch_zero()) > 0)
 		{
 			jump_loc(ch_zero(), 0); /* {{ yuck }} */
