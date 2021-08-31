@@ -937,4 +937,4 @@ v592  8/24/21   Add --status-line option; limit use of /proc kludge; add --heade
 v593            Add header columns, --no-number-headers.
 */
 
-char version[] = "593x";
+char version[] = "593";
