@@ -85,7 +85,7 @@ compile_pattern2(pattern, search_type, comp_pattern, show_error)
 	PCRE2_SIZE erroffset;
 	PARG parg;
 	pcre2_code *comp = pcre2_compile((PCRE2_SPTR)pattern, strlen(pattern),
-			(caseless == OPT_ONPLUS) ? PCRE_CASELESS : 0,
+			(caseless == OPT_ONPLUS) ? PCRE2_CASELESS : 0,
 			&errcode, &erroffset, NULL);
 	if (comp == NULL)
 	{
