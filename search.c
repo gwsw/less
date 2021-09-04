@@ -120,7 +120,7 @@ struct pattern_info {
 	
 static struct pattern_info search_info;
 static int is_ucase_pattern;
-static int is_caseless;
+public int is_caseless;
 
 /*
  * Are there any uppercase letters in this string?
@@ -166,6 +166,12 @@ set_pattern(info, pattern, search_type, show_error)
 	int search_type;
 	int show_error;
 {
+	/*
+	 * Ignore case if -I is set OR
+	 * -i is set AND the pattern is all lowercase.
+	 */
+	is_ucase_pattern = (pattern == NULL) ? FALSE : is_ucase(pattern);
+    is_caseless = (is_ucase_pattern && caseless != OPT_ONPLUS) ? 0 : caseless;
 #if !NO_REGEX
 	if (pattern == NULL)
 		SET_NULL_PATTERN(info->compiled);
@@ -182,16 +188,6 @@ set_pattern(info, pattern, search_type, show_error)
 		strcpy(info->text, pattern);
 	}
 	info->search_type = search_type;
-
-	/*
-	 * Ignore case if -I is set OR
-	 * -i is set AND the pattern is all lowercase.
-	 */
-	is_ucase_pattern = is_ucase(pattern);
-	if (is_ucase_pattern && caseless != OPT_ONPLUS)
-		is_caseless = 0;
-	else
-		is_caseless = caseless;
 	return 0;
 }
 
@@ -1540,20 +1536,25 @@ hist_pattern(search_type)
 chg_caseless(VOID_PARAM)
 {
 	if (!is_ucase_pattern)
-		/*
-		 * Pattern did not have uppercase.
-		 * Just set the search caselessness to the global caselessness.
-		 */
-		is_caseless = caseless;
-	else
 	{
 		/*
-		 * Pattern did have uppercase.
-		 * Regenerate the pattern using the new state.
+		 * Pattern did not have uppercase.
+		 * Set the search caselessness to the global caselessness.
 		 */
-		clear_pattern(&search_info);
-		(void) hist_pattern(search_info.search_type);
+		is_caseless = caseless;
+		/*
+		 * If regex handles caseless, we need to discard 
+		 * the pattern which was compiled with the old caseless.
+		 */
+		if (!re_handles_caseless)
+			/* We handle caseless, so the pattern doesn't change. */
+			return;
 	}
+	/*
+	 * Regenerate the pattern using the new state.
+	 */
+	clear_pattern(&search_info);
+	(void) hist_pattern(search_info.search_type);
 }
 
 /*
