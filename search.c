@@ -225,7 +225,7 @@ get_cvt_ops(VOID_PARAM)
 {
 	int ops = 0;
 
-	if (is_caseless) 
+	if (is_caseless && !re_handles_caseless)
 		ops |= CVT_TO_LC;
 	if (bs_mode == BS_SPECIAL)
 		ops |= CVT_BS;
