@@ -223,6 +223,8 @@
                   Remove duplicates from command history.
                 --no-number-headers
                   Don't give line numbers to header lines.
+                --redraw-on-quit
+                  Redraw final screen when quitting.
                 --rscroll=C
                   Set the character used to mark truncated lines.
                 --save-marks

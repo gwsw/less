@@ -68,6 +68,7 @@ public int status_line;         /* Highlight entire marked lines */
 public int header_lines;        /* Freeze header lines at top of screen */
 public int header_cols;         /* Freeze header columns at left of screen */
 public int nonum_headers;       /* Don't give headers line numbers */
+public int redraw_on_quit;      /* Redraw last screen after term deinit */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -146,6 +147,7 @@ static struct optname want_filesize_optname = { "file-size",     NULL };
 static struct optname status_line_optname = { "status-line",     NULL };
 static struct optname header_optname = { "header",               NULL };
 static struct optname nonum_headers_optname = { "no-number-headers", NULL };
+static struct optname redraw_on_quit_optname = { "redraw-on-quit", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 static struct optname rstat_optname  = { "rstat",                NULL };
@@ -590,6 +592,14 @@ static struct loption option[] =
 		{
 			"Number header lines",
 			"Don't number header lines",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &redraw_on_quit_optname,
+		BOOL, OPT_OFF, &redraw_on_quit, NULL,
+		{
+			"Don't redraw screen when quitting",
+			"Redraw last screen when quitting",
 			NULL
 		}
 	},

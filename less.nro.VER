@@ -1159,6 +1159,14 @@ This option changes the character used to mark truncated lines.
 It may begin with a two-character attribute indicator like LESSBINFMT does.
 If there is no attribute indicator, standout is used.
 If set to "\-", truncated lines are not marked.
+.IP "\-\-redraw-on-quit"
+When quitting, after sending the terminal deinitialization string,
+redraws the entire last screen.
+On terminals whose terminal deinitialization string causes the
+terminal to switch from an alternate screen, 
+this makes the last screenful of the current file remain visible after
+.I less
+has quit.
 .IP "\-\-save-marks"
 Save marks in the history file, so marks are retained
 across different invocations of

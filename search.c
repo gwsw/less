@@ -171,7 +171,7 @@ set_pattern(info, pattern, search_type, show_error)
 	 * -i is set AND the pattern is all lowercase.
 	 */
 	is_ucase_pattern = (pattern == NULL) ? FALSE : is_ucase(pattern);
-    is_caseless = (is_ucase_pattern && caseless != OPT_ONPLUS) ? 0 : caseless;
+	is_caseless = (is_ucase_pattern && caseless != OPT_ONPLUS) ? 0 : caseless;
 #if !NO_REGEX
 	if (pattern == NULL)
 		SET_NULL_PATTERN(info->compiled);

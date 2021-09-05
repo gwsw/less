@@ -60,8 +60,8 @@ extern int      know_dumb;
 extern int      pr_type;
 extern int      quit_if_one_screen;
 extern int      no_init;
-extern int errmsgs;
-
+extern int      errmsgs;
+extern int      redraw_on_quit;
 
 /*
  * Entry point.
@@ -409,12 +409,17 @@ quit(status)
 	rstat('Q');
 #endif /*LESSTEST*/
 	quitting = 1;
-	edit((char*)NULL);
 	save_cmdhist();
 	if (interactive())
 		clear_bot();
 	deinit();
 	flush();
+	if (redraw_on_quit)
+	{
+		repaint();
+		flush();
+	}
+	edit((char*)NULL);
 	raw_mode(0);
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
 	/* 
