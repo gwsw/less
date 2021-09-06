@@ -122,6 +122,14 @@ lesskey_parse_error(s)
 	fprintf(stderr, "%s\n", s);
 }
 
+	int
+lstrtoi(buf, ebuf)
+	char *buf;
+	char **ebuf;
+{
+	return (int) strtol(buf, ebuf, 10);
+}
+
 	void *
 ecalloc(count, size)
 	int count;

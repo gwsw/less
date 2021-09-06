@@ -26,7 +26,7 @@ source file into a format understood by
 .IR less .
 This compilation step is no longer required and the
 .I lesskey
-program is therefore deprecated although the file format remains supported by
+program is therefore deprecated, although the file format remains supported by
 .I less
 itself.
 .PP
@@ -43,7 +43,7 @@ Defines new line-editing keys.
 Defines environment variables.
 .PP
 Blank lines and lines which start with a pound sign (#) are ignored,
-except for the special section header lines.
+except as noted below.
 .
 .SH "COMMAND SECTION"
 The command section begins with the line
@@ -354,6 +354,40 @@ is run, and specifies the character set to be "latin1":
 	LESSCHARSET = latin1
 .fi
 .sp
+.
+.SH CONDITIONAL CONFIGURATION
+If a line begins with #version followed by a relational operator and a version number,
+the remainder of the line is parsed if and only if the running version of
+.I less
+(or
+.IR lesskey )
+matches the operator.
+This can be helpful if a lesskey file is used by different versions of
+.IR less .
+For example, suppose that a new command named 'sideways-search' is added in version 777.
+Then the following line would assign the command to the Q key, but only in versions of
+.I less
+which support it. The line would be ignored in earlier versions.
+.sp
+.nf
+	#version >= 777  Q sideways-search
+.fi
+.sp
+These six operators are supported:
+.RS 5m
+.TS
+l l.
+ >	Greater than
+ <	Less than
+ >=	Greater than or equal to
+ <=	Less than or equal to
+ =	Equal to
+ <>	Not equal to
+.TE
+.RE
+.sp
+In version 594 and earlier, all #version lines are ignored,
+regardless of the result of the relational operator.
 .
 .SH "SEE ALSO"
 .BR less (1)

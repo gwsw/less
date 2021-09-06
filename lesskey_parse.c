@@ -21,9 +21,12 @@
 extern void lesskey_parse_error(char *msg);
 extern char *homefile(char *filename);
 extern void *ecalloc(int count, unsigned int size);
+extern int lstrtoi(char *str, char **end);
+extern char version[];
 
 static int linenum;
 static int errors;
+static int less_version = 0;
 static char *lesskey_file;
 
 static struct lesskey_cmdname cmdnames[] = 
@@ -353,9 +356,75 @@ add_cmd_str(s, tables)
 }
 
 /*
- * See if we have a special "control" line.
+ * Does a given version number match the running version?
+ * Operator compares the running version to the given version.
  */
 	static int
+match_version(op, ver)
+	char op;
+	int ver;
+{
+	switch (op)
+	{
+	case '>': return less_version > ver;
+	case '<': return less_version < ver;
+	case '+': return less_version >= ver;
+	case '-': return less_version <= ver;
+	case '=': return less_version == ver;
+	case '!': return less_version != ver;
+	default: {
+		char sop[2] = { op, '\0' };
+		parse_error("invalid operator in #version: ", sop);
+		return 0; }
+	}
+}
+
+/*
+ * Handle a #version line.
+ * If the version matches, return the part of the line that should be executed.
+ * Otherwise, return NULL.
+ */
+	static char *
+version_line(s, tables)
+	char *s;
+	struct lesskey_tables *tables;
+{
+	char op;
+	int ver;
+	char *e;
+
+	s += strlen("#version");
+	s = skipsp(s);
+	op = *s++;
+	if (op == '<' && *s == '=')
+	{
+		op = '-';
+		s++;
+	} else if (op == '>' && *s == '=')
+	{
+		op = '+';
+		s++;
+	} else if (op == '<' && *s == '>')
+	{
+		op = '!';
+		s++;
+	}
+	s = skipsp(s);
+	ver = lstrtoi(s, &e);
+	if (e == s)
+	{
+		parse_error("invalid version number in #version: ", s);
+		return (NULL);
+	}
+	if (!match_version(op, ver))
+		return (NULL);
+	return (e);
+}
+
+/*
+ * See if we have a special "control" line.
+ */
+	static char *
 control_line(s, tables)
 	char *s;
 	struct lesskey_tables *tables;
@@ -365,25 +434,29 @@ control_line(s, tables)
 	if (PREFIX(s, "#line-edit"))
 	{
 		tables->currtable = &tables->edittable;
-		return (1);
+		return (NULL);
 	}
 	if (PREFIX(s, "#command"))
 	{
 		tables->currtable = &tables->cmdtable;
-		return (1);
+		return (NULL);
 	}
 	if (PREFIX(s, "#env"))
 	{
 		tables->currtable = &tables->vartable;
-		return (1);
+		return (NULL);
 	}
 	if (PREFIX(s, "#stop"))
 	{
 		add_cmd_char('\0', tables);
 		add_cmd_char(A_END_LIST, tables);
-		return (1);
+		return (NULL);
 	}
-	return (0);
+	if (PREFIX(s, "#version"))
+	{
+		return (version_line(s, tables));
+	}
+	return (s);
 }
 
 /*
@@ -528,14 +601,15 @@ parse_line(line, tables)
 	/*
 	 * See if it is a control line.
 	 */
-	if (control_line(line, tables))
+	p = control_line(line, tables);
+	if (p == NULL)
 		return;
 	/*
 	 * Skip leading white space.
 	 * Replace the final newline with a null byte.
 	 * Ignore blank lines and comments.
 	 */
-	p = clean_line(line);
+	p = clean_line(p);
 	if (*p == '\0')
 		return;
 
@@ -563,6 +637,8 @@ parse_lesskey(infile, tables)
 	init_tables(tables);
 	errors = 0;
 	linenum = 0;
+	if (less_version == 0)
+		less_version = lstrtoi(version, NULL);
 
 	/*
 	 * Open the input file.
