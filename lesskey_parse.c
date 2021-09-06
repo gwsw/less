@@ -127,13 +127,14 @@ static struct lesskey_cmdname editnames[] =
  * Print a parse error message.
  */
 	static void
-parse_error(s1, s2)
-	char *s1;
-	char *s2;
+parse_error(fmt, arg1)
+	char *fmt;
+	char *arg1;
 {
 	char buf[1024];
+	int n = snprintf(buf, sizeof(buf), "%s: line %d: ", lesskey_file, linenum);
+	snprintf(buf+n, sizeof(buf)-n, fmt, arg1);
 	++errors;
-	snprintf(buf, sizeof(buf), "%s: line %d: %s%s", lesskey_file, linenum, s1, s2);
 	lesskey_parse_error(buf);
 }
 
@@ -237,7 +238,7 @@ tstr(pp, xlate)
 				case 'X': ch = SK_CTL_DELETE; break;
 				case '1': ch = SK_F1; break;
 				default: { char buf[2]; buf[0] = *p; buf[1] = '\0';
-					parse_error("illegal escape sequence \\k", buf);
+					parse_error("invalid escape sequence \"\\k%s\"", buf);
 					*pp = p+1;
 					return (""); }
 				}
@@ -374,7 +375,7 @@ match_version(op, ver)
 	case '!': return less_version != ver;
 	default: {
 		char sop[2] = { op, '\0' };
-		parse_error("invalid operator in #version: ", sop);
+		parse_error("invalid operator '%s' in #version", sop);
 		return 0; }
 	}
 }
@@ -396,24 +397,19 @@ version_line(s, tables)
 	s += strlen("#version");
 	s = skipsp(s);
 	op = *s++;
-	if (op == '<' && *s == '=')
+	/* Simplify 2-char op to one char. */
+	switch (op)
 	{
-		op = '-';
-		s++;
-	} else if (op == '>' && *s == '=')
-	{
-		op = '+';
-		s++;
-	} else if (op == '<' && *s == '>')
-	{
-		op = '!';
-		s++;
+	case '<': if (*s == '=') { s++; op = '-'; } break;
+	case '>': if (*s == '=') { s++; op = '+'; } break;
+	case '=': if (*s == '=') { s++; } break;
+	case '!': if (*s == '=') { s++; } break;
 	}
 	s = skipsp(s);
 	ver = lstrtoi(s, &e);
 	if (e == s)
 	{
-		parse_error("invalid version number in #version: ", s);
+		parse_error("non-numeric version number in #version", "");
 		return (NULL);
 	}
 	if (!match_version(op, ver))
@@ -472,7 +468,7 @@ findaction(actname, tables)
 	for (i = 0;  tables->currtable->names[i].cn_name != NULL;  i++)
 		if (strcmp(tables->currtable->names[i].cn_name, actname) == 0)
 			return (tables->currtable->names[i].cn_action);
-	parse_error("unknown action: ", actname);
+	parse_error("unknown action: \"%s\"", actname);
 	return (A_INVALID);
 }
 
@@ -573,7 +569,7 @@ parse_varline(line, tables)
 	p = skipsp(p);
 	if (*p++ != '=')
 	{
-		parse_error("missing = in: ", line);
+		parse_error("missing = in variable definition", "");
 		return;
 	}
 
@@ -647,7 +643,7 @@ parse_lesskey(infile, tables)
 		desc = stdin;
 	else if ((desc = fopen(infile, "r")) == NULL)
 	{
-		/* parse_error("cannot open lesskey file ", infile); */
+		/* parse_error("cannot open lesskey file %s", infile); */
 		return (-1);
 	}
 

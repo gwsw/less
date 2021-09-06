@@ -367,7 +367,7 @@ This can be helpful if a lesskey file is used by different versions of
 For example, suppose that a new command named 'sideways-search' is added in version 777.
 Then the following line would assign the command to the Q key, but only in versions of
 .I less
-which support it. The line would be ignored in earlier versions.
+which support it. The line would be ignored by earlier versions.
 .sp
 .nf
 	#version >= 777  Q sideways-search
@@ -382,11 +382,12 @@ l l.
  >=	Greater than or equal to
  <=	Less than or equal to
  =	Equal to
- <>	Not equal to
+ !=	Not equal to
 .TE
 .RE
 .sp
-In version 594 and earlier, all #version lines are ignored,
+Due to lack of both foresight and time travel,
+all #version lines are ignored in version 594 and all earlier versions, 
 regardless of the result of the relational operator.
 .
 .SH "SEE ALSO"
