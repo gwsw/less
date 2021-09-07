@@ -160,6 +160,22 @@ init_tables(tables)
 	xbuf_init(&tables->vartable.buf);
 }
 
+	static char *
+char_string(buf, ch)
+	char *buf;
+	int ch;
+{
+	if (ch >= 0x20 && ch < 0x7f)
+	{
+		buf[0] = ch;
+		buf[1] = '\0';
+	} else
+	{
+		snprintf(buf, 5, "\\x%02x", ch);
+	}
+	return buf;
+}
+
 /*
  * Parse one character of a string.
  */
@@ -195,17 +211,13 @@ tstr(pp, xlate)
 			*pp = p;
 			if (xlate && ch == CONTROL('K'))
 				return tstr_control_k;
-			buf[0] = ch;
-			buf[1] = '\0';
-			return (buf);
+			return char_string(buf, ch);
 		case 'b':
 			*pp = p+1;
 			return ("\b");
 		case 'e':
 			*pp = p+1;
-			buf[0] = ESC;
-			buf[1] = '\0';
-			return (buf);
+			return char_string(buf, ESC);
 		case 'n':
 			*pp = p+1;
 			return ("\n");
@@ -237,10 +249,10 @@ tstr(pp, xlate)
 				case 'x': ch = SK_DELETE; break;
 				case 'X': ch = SK_CTL_DELETE; break;
 				case '1': ch = SK_F1; break;
-				default: { char buf[2]; buf[0] = *p; buf[1] = '\0';
-					parse_error("invalid escape sequence \"\\k%s\"", buf);
+				default:
+					parse_error("invalid escape sequence \"\\k%s\"", char_string(buf, *p));
 					*pp = p+1;
-					return (""); }
+					return ("");
 				}
 				*pp = p+1;
 				buf[0] = SK_SPECIAL_KEY;
@@ -259,8 +271,7 @@ tstr(pp, xlate)
 			 * just means that char.
 			 */
 			*pp = p+1;
-			buf[0] = *p;
-			buf[1] = '\0';
+			char_string(buf, *p);
 			if (xlate && buf[0] == CONTROL('K'))
 				return tstr_control_k;
 			return (buf);
@@ -270,15 +281,13 @@ tstr(pp, xlate)
 		 * Caret means CONTROL.
 		 */
 		*pp = p+2;
-		buf[0] = CONTROL(p[1]);
-		buf[1] = '\0';
+		char_string(buf, CONTROL(p[1]));
 		if (xlate && buf[0] == CONTROL('K'))
 			return tstr_control_k;
 		return (buf);
 	}
 	*pp = p+1;
-	buf[0] = *p;
-	buf[1] = '\0';
+	char_string(buf, *p);
 	if (xlate && buf[0] == CONTROL('K'))
 		return tstr_control_k;
 	return (buf);
@@ -373,10 +382,7 @@ match_version(op, ver)
 	case '-': return less_version <= ver;
 	case '=': return less_version == ver;
 	case '!': return less_version != ver;
-	default: {
-		char sop[2] = { op, '\0' };
-		parse_error("invalid operator '%s' in #version", sop);
-		return 0; }
+	default: return 0; /* cannot happen */
 	}
 }
 
@@ -393,6 +399,7 @@ version_line(s, tables)
 	char op;
 	int ver;
 	char *e;
+	char buf[8];
 
 	s += strlen("#version");
 	s = skipsp(s);
@@ -404,12 +411,15 @@ version_line(s, tables)
 	case '>': if (*s == '=') { s++; op = '+'; } break;
 	case '=': if (*s == '=') { s++; } break;
 	case '!': if (*s == '=') { s++; } break;
+	default: 
+		parse_error("invalid operator '%s' in #version line", char_string(buf, op));
+		return (NULL);
 	}
 	s = skipsp(s);
 	ver = lstrtoi(s, &e);
 	if (e == s)
 	{
-		parse_error("non-numeric version number in #version", "");
+		parse_error("non-numeric version number in #version line", "");
 		return (NULL);
 	}
 	if (!match_version(op, ver))
