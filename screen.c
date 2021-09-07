@@ -234,6 +234,7 @@ public int can_goto_line;               /* Can move cursor to any line */
 public int clear_bg;            /* Clear fills with background color */
 public int missing_cap = 0;     /* Some capability is missing */
 public char *kent = NULL;       /* Keypad ENTER sequence */
+public int term_init_done = FALSE;
 
 static int attrmode = AT_NORMAL;
 static int termcap_debug = -1;
@@ -1725,7 +1726,10 @@ init(VOID_PARAM)
 	if (!(quit_if_one_screen && one_screen))
 	{
 		if (!no_init)
+		{
 			ltputs(sc_init, sc_height, putchr);
+			term_init_done = 1;
+		}
 		if (!no_keypad)
 			ltputs(sc_s_keypad, sc_height, putchr);
 		if (mousecap)
@@ -1751,7 +1755,10 @@ init(VOID_PARAM)
 	if (!(quit_if_one_screen && one_screen))
 	{
 		if (!no_init)
+		{
 			win32_init_term();
+			term_init_done = 1;
+		}
 		if (mousecap)
 			init_mouse();
 

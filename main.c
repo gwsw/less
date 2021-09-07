@@ -62,6 +62,7 @@ extern int      quit_if_one_screen;
 extern int      no_init;
 extern int      errmsgs;
 extern int      redraw_on_quit;
+extern int      term_init_done;
 
 /*
  * Entry point.
@@ -414,8 +415,13 @@ quit(status)
 		clear_bot();
 	deinit();
 	flush();
-	if (redraw_on_quit)
+	if (redraw_on_quit && term_init_done)
 	{
+		/*
+		 * The last file text displayed might have been on an 
+		 * alternate screen, which now (since deinit) cannot be seen.
+		 * redraw_on_quit tells us to redraw it on the main screen.
+		 */
 		repaint();
 		flush();
 	}
