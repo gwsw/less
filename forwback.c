@@ -148,11 +148,6 @@ forw_line_pfx(pos, pfx, skipeol)
 }
 
 /*
- * Display file headers, overlaying text already drawn
- * at top and left of screen.
- */
-
-/*
  * Underline last line of headers, but not at beginning of file
  * (where there is no gap between the last header line and the next line).
  */
@@ -164,10 +159,14 @@ underline_last_header(ln)
 		punderline();
 }
 
+/*
+ * Display file headers, overlaying text already drawn
+ * at top and left of screen.
+ */
 	static void
 overlay_header(VOID_PARAM)
 {
-	POSITION pos;
+	POSITION pos = ch_zero(); /* header lines are at beginning of file */
 	int ln;
 	int need_ll = FALSE;
 
@@ -175,7 +174,6 @@ overlay_header(VOID_PARAM)
 	{
 		/* Draw header_lines lines from start of file at top of screen. */
 		home();
-		pos = 0;
 		for (ln = 0; ln < header_lines; ++ln)
 		{
 			pos = forw_line(pos);
@@ -189,7 +187,6 @@ overlay_header(VOID_PARAM)
 	{
 		/* Draw header_cols columns at left of each line. */
 		home();
-		pos = 0; /* Start with cols from header lines */
 		for (ln = 0; ln < sc_height-1; ++ln)
 		{
 			if (ln >= header_lines) /* switch from header lines to normal lines */
