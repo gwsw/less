@@ -364,10 +364,13 @@ the remainder of the line is parsed if and only if the running version of
 matches the operator.
 This can be helpful if a lesskey file is used by different versions of
 .IR less .
-For example, suppose that a new command named 'sideways-search' is added in version 777.
+.sp
+For example, suppose that a new command named 'sideways-search' is added in 
+.I less
+version 777.
 Then the following line would assign the command to the Q key, but only in versions of
 .I less
-which support it. The line would be ignored by earlier versions.
+which support it. The line would be ignored by versions earlier than 777.
 .sp
 .nf
 	#version >= 777  Q sideways-search
@@ -386,9 +389,12 @@ l l.
 .TE
 .RE
 .sp
-Due to lack of both foresight and time travel,
-all #version lines are ignored in version 594 and all earlier versions, 
-regardless of the result of the relational operator.
+The #version feature is not supported in
+.I less
+and
+.I lesskey
+version 594 and earlier.
+In those older versions, all #version lines are ignored.
 .
 .SH "SEE ALSO"
 .BR less (1)
