@@ -785,6 +785,7 @@ new_lesskey(buf, len, sysvar)
 	int sysvar;
 {
 	char *p;
+	char *end;
 	int c;
 	int n;
 
@@ -797,6 +798,7 @@ new_lesskey(buf, len, sysvar)
 	    buf[len-1] != C2_END_LESSKEY_MAGIC)
 		return (-1);
 	p = buf + 4;
+	end = buf + len;
 	for (;;)
 	{
 		c = *p++;
@@ -804,16 +806,22 @@ new_lesskey(buf, len, sysvar)
 		{
 		case CMD_SECTION:
 			n = gint(&p);
+			if (n < 0 || p+n >= end)
+				return (-1);
 			add_fcmd_table(p, n);
 			p += n;
 			break;
 		case EDIT_SECTION:
 			n = gint(&p);
+			if (n < 0 || p+n >= end)
+				return (-1);
 			add_ecmd_table(p, n);
 			p += n;
 			break;
 		case VAR_SECTION:
 			n = gint(&p);
+			if (n < 0 || p+n >= end)
+				return (-1);
 			add_var_table((sysvar) ? 
 				&list_sysvar_tables : &list_var_tables, p, n);
 			p += n;
