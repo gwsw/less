@@ -205,10 +205,14 @@ main(argc, argv)
 				pr_error("Missing number after -p");
 			break;
 		case 'm':
+			if (num_metachars > 62)
+				pr_error("Too many metachars supplied");
 			metachars[num_metachars++] = *++arg;
 			metachars[num_metachars] = '\0';
 			break;
 		case 'n':
+			if (num_metachars > 62)
+				pr_error("Too many metachars supplied");
 			metachars[num_metachars++] = lstrtol(++arg, 0, &s);
 			if (s == arg)
 				pr_error("Missing number after -n");
