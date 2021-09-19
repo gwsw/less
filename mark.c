@@ -436,6 +436,8 @@ restore_mark(line)
 	POSITION pos;
 
 #define skip_whitespace while (*line == ' ') line++
+	if (secure)
+		return;
 	if (*line++ != 'm')
 		return;
 	skip_whitespace;
