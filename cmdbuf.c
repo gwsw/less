@@ -24,6 +24,7 @@ extern int sc_width;
 extern int utf_mode;
 extern int no_hist_dups;
 extern int marks_modified;
+extern int secure;
 
 static char cmdbuf[CMDBUF_SIZE]; /* Buffer for holding a multi-char command */
 static int cmd_col;              /* Current column of the cursor */
@@ -1524,6 +1525,8 @@ read_cmdhist(action, uparam, skip_search, skip_shell)
 	int skip_search;
 	int skip_shell;
 {
+	if (secure)
+		return;
 	read_cmdhist2(action, uparam, skip_search, skip_shell);
 	(*action)(uparam, NULL, NULL); /* signal end of file */
 }
@@ -1673,6 +1676,7 @@ make_file_private(f)
 /*
  * Does the history file need to be updated?
  */
+#if CMD_HISTORY
 	static int
 histfile_modified(VOID_PARAM)
 {
@@ -1682,12 +1686,11 @@ histfile_modified(VOID_PARAM)
 	if (mlist_shell.modified)
 		return 1;
 #endif
-#if CMD_HISTORY
 	if (marks_modified)
 		return 1;
-#endif
 	return 0;
 }
+#endif
 
 /*
  * Update the .lesshst file.
@@ -1705,7 +1708,7 @@ save_cmdhist(VOID_PARAM)
 	FILE *fout = NULL;
 	int histsize = 0;
 
-	if (!histfile_modified())
+	if (secure || !histfile_modified())
 		return;
 	histname = histfile_name(0);
 	if (histname == NULL)

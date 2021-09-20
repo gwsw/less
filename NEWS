@@ -24,6 +24,8 @@
 
 * Allow option name in -- command to end with '=' in addition to '\n'.
 
+* Don't read or write history file in secure mode.
+
 * Fix display of multibyte and double-width chars in prompt.
 
 * Fix ESC-BACKSPACE command when BACKSPACE key does not send 0x08.
@@ -31,6 +33,10 @@
 * Add more \k codes to lesskey format.
 
 * Fix bug when empty file is modified while viewing it.
+
+* Fix bug when parsing a malformed lesskey file.
+
+* Fix buffer overflow when invoking lessecho with more than 63 -m/-n options.
 
 ======================================================================
 
