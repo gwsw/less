@@ -760,7 +760,7 @@ lglob(filename)
 	SNPRINTF4(cmd, len, "%s -p0x%x -d0x%x -e%s ", lessecho, openquote, closequote, esc);
 	free(esc);
 	for (s = metachars();  *s != '\0';  s++)
-		sprintf(cmd + strlen(cmd), "-n0x%x ", *s);
+		sprintf(cmd + strlen(cmd), "-n0x%x ", (unsigned char) *s);
 	sprintf(cmd + strlen(cmd), "-- %s", filename);
 	fd = shellcmd(cmd);
 	free(cmd);
