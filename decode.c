@@ -868,7 +868,7 @@ lesskey(filename, sysvar)
 	 *    rely on the lesskey program to generate a good .less file. }}
 	 */
 	len = filesize(f);
-	if (len == NULL_POSITION || len < 3)
+	if (len == NULL_POSITION || len < 4)
 	{
 		/*
 		 * Bad file (valid file must have at least 3 chars).
