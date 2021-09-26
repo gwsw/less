@@ -723,7 +723,7 @@ opt_x(type, s)
 	extern int tabstops[];
 	extern int ntabstops;
 	extern int tabdefault;
-	char msg[60+(4*TABSTOP_MAX)];
+	char msg[60+((INT_STRLEN_BOUND(int)+1)*TABSTOP_MAX)];
 	int i;
 	PARG p;
 
