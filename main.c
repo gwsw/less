@@ -140,7 +140,7 @@ main(argc, argv)
 
 	s = lgetenv(less_is_more ? "MORE" : "LESS");
 	if (s != NULL)
-		scan_option(save(s));
+		scan_option(s);
 
 #define isoptstring(s)  (((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
 	while (argc > 0 && (isoptstring(*argv) || isoptpending()))
