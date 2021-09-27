@@ -150,6 +150,9 @@ add_metachar(ch)
 		char *p;
 		size_metachars = (size_metachars > 0) ? size_metachars*2 : 16;
 		p = (char *) malloc(size_metachars);
+		if (p == NULL)
+			pr_error("Cannot allocate memory");
+
 		if (metachars != NULL)
 		{
 			strcpy(p, metachars);
