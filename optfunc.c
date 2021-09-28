@@ -1021,7 +1021,7 @@ opt_header(type, s)
 		break;
 	case QUERY:
 		{
-			char buf[16];
+			char buf[INT_STRLEN_BOUND(int)+4];
 			PARG parg;
 			SNPRINTF2(buf, sizeof(buf), "%d,%d", header_lines, header_cols);
 			parg.p_string = buf;
