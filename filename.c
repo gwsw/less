@@ -757,7 +757,8 @@ lglob(filename)
 	 */
 	len = (int) (strlen(lessecho) + strlen(filename) + (7*strlen(metachars())) + 24);
 	cmd = (char *) ecalloc(len, sizeof(char));
-	SNPRINTF4(cmd, len, "%s -p0x%x -d0x%x -e%s ", lessecho, openquote, closequote, esc);
+	SNPRINTF4(cmd, len, "%s -p0x%x -d0x%x -e%s ", lessecho,
+		(unsigned char) openquote, (unsigned char) closequote, esc);
 	free(esc);
 	for (s = metachars();  *s != '\0';  s++)
 		sprintf(cmd + strlen(cmd), "-n0x%x ", (unsigned char) *s);
