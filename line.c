@@ -654,6 +654,20 @@ ansi_done(pansi)
 }
 
 /*
+ * Will w characters in attribute a fit on the screen?
+ */
+	static int
+fits_on_screen(w, a)
+	int w;
+	int a;
+{
+	if (ctldisp == OPT_ON)
+		/* We're not counting, so say that everything fits. */
+		return 1;
+	return (end_column - cshift + w + attr_ewidth(a) <= sc_width);
+}
+
+/*
  * Append a character and attribute to the line buffer.
  */
 #define STORE_CHAR(ch,a,rep,pos) \
@@ -735,10 +749,7 @@ store_char(ch, a, rep, pos)
 		w = pwidth(ch, a, prev_ch, prev_a);
 	}
 
-	if (ctldisp != OPT_ON && end_column - cshift + w + attr_ewidth(a) > sc_width)
-		/*
-		 * Won't fit on screen.
-		 */
+	if (!fits_on_screen(w, a))
 		return (1);
 
 	if (rep == NULL)
@@ -803,6 +814,22 @@ store_char(ch, a, rep, pos)
 	return (0);
 }
 
+#define STORE_STRING(s,a,pos) \
+	do { if (store_string((s),(a),(pos))) return (1); } while (0)
+
+	static int
+store_string(s, a, pos)
+	char *s;
+	int a;
+	POSITION pos;
+{
+	if (!fits_on_screen(strlen(s), a))
+		return 1;
+	for ( ;  *s != 0;  s++)
+		STORE_CHAR(*s, a, NULL, pos);
+	return 0;
+}
+
 /*
  * Append a tab to the line buffer.
  * Store spaces to represent the tab.
@@ -843,14 +870,10 @@ store_prchar(c, pos)
 	LWCHAR c;
 	POSITION pos;
 {
-	char *s;
-
 	/*
 	 * Convert to printable representation.
 	 */
-	s = prchar(c);
-	for ( ;  *s != 0;  s++)
-		STORE_CHAR(*s, AT_BINARY|AT_COLOR_CTRL, NULL, pos);
+	STORE_STRING(prchar(c), AT_BINARY|AT_COLOR_CTRL, pos);
 	return 0;
 }
 
@@ -1145,9 +1168,7 @@ do_append(ch, rep, pos)
 		return store_control_char(ch, rep, pos);
 	} else if (utf_mode && ctldisp != OPT_ON && is_ubin_char(ch))
 	{
-		char *s = prutfchar(ch);
-		for ( ;  *s != 0;  s++)
-			STORE_CHAR(*s, AT_BINARY, NULL, pos);
+		STORE_STRING(prutfchar(ch), AT_BINARY, pos);
 	} else
 	{
 		STORE_CHAR(ch, a, rep, pos);
