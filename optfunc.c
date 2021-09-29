@@ -166,7 +166,6 @@ opt_j(type, s)
 	char *s;
 {
 	PARG parg;
-	char buf[24];
 	int len;
 	int err;
 
@@ -201,7 +200,7 @@ opt_j(type, s)
 			error("Position target at screen line %d", &parg);
 		} else
 		{
-
+			char buf[24];
 			SNPRINTF1(buf, sizeof(buf), ".%06ld", jump_sline_fraction);
 			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
@@ -231,7 +230,6 @@ opt_shift(type, s)
 	char *s;
 {
 	PARG parg;
-	char buf[24];
 	int len;
 	int err;
 
@@ -266,7 +264,7 @@ opt_shift(type, s)
 			error("Horizontal shift %d columns", &parg);
 		} else
 		{
-
+			char buf[24];
 			SNPRINTF1(buf, sizeof(buf), ".%06ld", shift_count_fraction);
 			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
@@ -1021,7 +1019,7 @@ opt_header(type, s)
 		break;
 	case QUERY:
 		{
-			char buf[16];
+			char buf[2*INT_STRLEN_BOUND(int)+2];
 			PARG parg;
 			SNPRINTF2(buf, sizeof(buf), "%d,%d", header_lines, header_cols);
 			parg.p_string = buf;
