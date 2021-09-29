@@ -39,6 +39,7 @@ struct xbuffer last_ansi;
 public int size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
 static int ansi_in_line;
+static int hlink_in_line;
 static int line_mark_attr;
 static int cshift;   /* Current left-shift of output line buffer */
 public int hshift;   /* Desired left-shift of output line buffer */
@@ -225,6 +226,7 @@ prewind(VOID_PARAM)
 	pendc = '\0';
 	in_hilite = 0;
 	ansi_in_line = 0;
+	hlink_in_line = 0;
 	line_mark_attr = 0;
 	xbuf_reset(&shifted_ansi);
 	xbuf_reset(&last_ansi);
@@ -254,6 +256,19 @@ add_linebuf(ch, attr, w)
 {
 	set_linebuf(linebuf.end++, ch, attr);
 	inc_end_column(w);
+}
+
+/*
+ * Append a string to the line buffer.
+ */
+	static void
+addstr_linebuf(s, attr, cw)
+	char *s;
+	int attr;
+	int cw;
+{
+	for ( ;  *s != '\0';  s++)
+		add_linebuf(*s, attr, cw);
 }
 
 /*
@@ -978,6 +993,8 @@ store_ansi(ch, rep, pos)
 	case ANSI_MID:
 		if (!in_hilite)
 			STORE_CHAR(ch, AT_ANSI, rep, pos);
+		if (line_ansi->hlink)
+			hlink_in_line = 1;
 		break;
 	case ANSI_END:
 		if (!in_hilite)
@@ -1161,12 +1178,11 @@ pflushmbc(VOID_PARAM)
 	static void
 add_attr_normal(VOID_PARAM)
 {
-	char *p = "\033[m";
-
 	if (ctldisp != OPT_ONPLUS || !is_ansi_end('m'))
 		return;
-	for ( ;  *p != '\0';  p++)
-		add_linebuf(*p, AT_ANSI, 0);
+	addstr_linebuf("\033[m", AT_ANSI, 0);
+	if (hlink_in_line) /* Don't send hyperlink clear if we know we don't need to. */
+		addstr_linebuf("\033]8;;\033\\", AT_ANSI, 0);
 }
 
 /*
