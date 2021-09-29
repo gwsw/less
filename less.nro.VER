@@ -1862,6 +1862,8 @@ use of tags files
 metacharacters in filenames, such as *
 .IP
 filename completion (TAB, ^L)
+.IP
+history file
 .RE
 .PP
 Less can also be compiled to be permanently in "secure" mode.
