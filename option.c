@@ -55,7 +55,7 @@ opt_desc(o)
 propt(c)
 	int c;
 {
-	static char buf[8];
+	static char buf[MAX_PRCHAR_LEN+2];
 
 	sprintf(buf, "-%s", prchar(c));
 	return (buf);

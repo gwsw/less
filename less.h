@@ -231,6 +231,7 @@ typedef off_t           LINENUM;
 #define MAX_LINENUM_WIDTH   16  /* Max width of a line number */
 #define MAX_STATUSCOL_WIDTH 4   /* Max width of the status column */
 #define MAX_UTF_CHAR_LEN    6   /* Max bytes in one UTF-8 char */
+#define MAX_PRCHAR_LEN      31  /* Max chars in prchar() result */
 
 #define NULL_POSITION   ((POSITION)(-1))
 

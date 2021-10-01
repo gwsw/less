@@ -2547,7 +2547,7 @@ tput_fmt(fmt, color, f_putc)
 	int color;
 	int (*f_putc)(int);
 {
-	char buf[32];
+	char buf[INT_STRLEN_BOUND(int)+16];
 	if (color == attrcolor)
 		return;
 	SNPRINTF1(buf, sizeof(buf), fmt, color);
@@ -2628,7 +2628,7 @@ WIN32put_fmt(fmt, color)
 	char *fmt;
 	int color;
 {
-	char buf[16];
+	char buf[INT_STRLEN_BOUND(int)+16];
 	int len = SNPRINTF1(buf, sizeof(buf), fmt, color);
 	WIN32textout(buf, len);
 	return TRUE;

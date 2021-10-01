@@ -445,7 +445,7 @@ prchar(c)
 	LWCHAR c;
 {
 	/* {{ This buffer can be overrun if LESSBINFMT is a long string. }} */
-	static char buf[32];
+	static char buf[MAX_PRCHAR_LEN+1];
 
 	c &= 0377;
 	if ((c < 128 || !utf_mode) && !control_char(c))
@@ -480,7 +480,7 @@ prchar(c)
 prutfchar(ch)
 	LWCHAR ch;
 {
-	static char buf[32];
+	static char buf[MAX_PRCHAR_LEN+1];
 
 	if (ch == ESC)
 		strcpy(buf, "ESC");

@@ -508,7 +508,7 @@ findgtag(tag, type)
 	char *tag;              /* tag to load */
 	int type;               /* tags type */
 {
-	char buf[256];
+	char buf[1024];
 	FILE *fp;
 	struct tag *tp;
 

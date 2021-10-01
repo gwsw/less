@@ -259,7 +259,7 @@ get_time(VOID_PARAM)
 strerror(err)
 	int err;
 {
-	static char buf[16];
+	static char buf[INT_STRLEN_BOUND(int)+12];
 #if HAVE_SYS_ERRLIST
 	extern char *sys_errlist[];
 	extern int sys_nerr;

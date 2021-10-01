@@ -160,6 +160,8 @@ init_tables(tables)
 	xbuf_init(&tables->vartable.buf);
 }
 
+#define CHAR_STRING_LEN 8
+
 	static char *
 char_string(buf, ch)
 	char *buf;
@@ -171,7 +173,7 @@ char_string(buf, ch)
 		buf[1] = '\0';
 	} else
 	{
-		snprintf(buf, 5, "\\x%02x", ch);
+		snprintf(buf, CHAR_STRING_LEN, "\\x%02x", ch);
 	}
 	return buf;
 }
@@ -187,7 +189,7 @@ tstr(pp, xlate)
 	char *p;
 	char ch;
 	int i;
-	static char buf[10];
+	static char buf[CHAR_STRING_LEN];
 	static char tstr_control_k[] =
 		{ SK_SPECIAL_KEY, SK_CONTROL_K, 6, 1, 1, 1, '\0' };
 
@@ -399,7 +401,7 @@ version_line(s, tables)
 	char op;
 	int ver;
 	char *e;
-	char buf[8];
+	char buf[CHAR_STRING_LEN];
 
 	s += strlen("#version");
 	s = skipsp(s);
