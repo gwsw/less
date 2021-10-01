@@ -939,4 +939,4 @@ v594            Let regex library handle caseless; add --redraw-on-quit option;
                 add #version to lesskey.
 */
 
-char version[] = "594x";
+char version[] = "594";
