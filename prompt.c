@@ -277,7 +277,7 @@ protochar(c, where, iseditproto)
 		break;
 	case 'd': /* Current page number */
 		linenum = currline(where);
-		if (linenum > 0 && sc_height > 1)
+		if (linenum > 0 && sc_height > header_lines + 1)
 			ap_linenum(PAGE_NUM(linenum));
 		else
 			ap_quest();
