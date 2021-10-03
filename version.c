@@ -937,6 +937,7 @@ v592  8/24/21   Add --status-line option; limit use of /proc kludge; add --heade
 v593  8/30/21   Add header columns, --no-number-headers.
 v594            Let regex library handle caseless; add --redraw-on-quit option;
                 add #version to lesskey.
+v595
 */
 
-char version[] = "594";
+char version[] = "595x";
