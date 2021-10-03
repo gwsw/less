@@ -596,6 +596,7 @@ less_printf(fmt, parg)
 			case 'c':
 				putchr(parg->p_char);
 				col++;
+				parg++;
 				break;
 			case '%':
 				putchr('%');
