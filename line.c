@@ -103,6 +103,7 @@ static char color_map[AT_NUM_COLORS][12] = {
 	"kC",  /* AT_COLOR_PROMPT */
 	"kc",  /* AT_COLOR_RSCROLL */
 	"kG",  /* AT_COLOR_SEARCH */
+	"",    /* AT_COLOR_HEADER */
 	"",    /* AT_UNDERLINE */
 	"",    /* AT_BOLD */
 	"",    /* AT_BLINK */
@@ -1303,15 +1304,16 @@ pdone(endline, chopped, forw)
 }
 
 /*
- * Underline the line in the line buffer.
+ * Set an attribute on each char of the line in the line buffer.
  */
 	public void
-punderline(VOID_PARAM)
+set_attr_line(a)
+	int a;
 {
 	int i;
 
 	for (i = linebuf.print;  i < linebuf.end;  i++)
-		linebuf.attr[i] |= AT_UNDERLINE;
+		linebuf.attr[i] |= a;
 }
 
 /*
@@ -1589,16 +1591,17 @@ color_index(attr)
 		case AT_COLOR_PROMPT:  return 6;
 		case AT_COLOR_RSCROLL: return 7;
 		case AT_COLOR_SEARCH:  return 8;
+		case AT_COLOR_HEADER:  return 9;
 		}
 	}
 	if (attr & AT_UNDERLINE)
-		return 9;
-	if (attr & AT_BOLD)
 		return 10;
-	if (attr & AT_BLINK)
+	if (attr & AT_BOLD)
 		return 11;
-	if (attr & AT_STANDOUT)
+	if (attr & AT_BLINK)
 		return 12;
+	if (attr & AT_STANDOUT)
+		return 13;
 	return -1;
 }
 

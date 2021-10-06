@@ -10,7 +10,7 @@
   https://github.com/gwsw/less/issues.
 
 ======================================================================
-	Major changes between "less" versions 590 and 594
+	Major changes between "less" versions 590 and 595
 
 * Add the --header option.
 
@@ -19,6 +19,8 @@
 * Add the --status-line option.
 
 * Add the --redraw-on-quit option.
+
+* Add 'H' color type to set color of header lines.
 
 * Add #version conditional to lesskey.
 

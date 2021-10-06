@@ -581,6 +581,8 @@ Binary characters.
 Control characters.
 .IP "E"
 Errors and informational messages.
+.IP "H"
+Header lines and columns, set via the \-\-header option.
 .IP "M"
 Mark letters in the status column.
 .IP "N"

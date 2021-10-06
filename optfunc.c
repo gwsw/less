@@ -612,15 +612,16 @@ color_from_namechar(namechar)
 {
 	switch (namechar)
 	{
-	case 'W': case 'A': return AT_COLOR_ATTN;
 	case 'B': return AT_COLOR_BIN;
 	case 'C': return AT_COLOR_CTRL;
 	case 'E': return AT_COLOR_ERROR;
+	case 'H': return AT_COLOR_HEADER;
 	case 'M': return AT_COLOR_MARK;
 	case 'N': return AT_COLOR_LINENUM;
 	case 'P': return AT_COLOR_PROMPT;
 	case 'R': return AT_COLOR_RSCROLL;
 	case 'S': return AT_COLOR_SEARCH;
+	case 'W': case 'A': return AT_COLOR_ATTN;
 	case 'n': return AT_NORMAL;
 	case 's': return AT_STANDOUT;
 	case 'd': return AT_BOLD;

@@ -148,15 +148,17 @@ forw_line_pfx(pos, pfx, skipeol)
 }
 
 /*
+ * Set header text color.
  * Underline last line of headers, but not at beginning of file
  * (where there is no gap between the last header line and the next line).
  */
 	static void
-underline_last_header(ln)
+set_attr_header(ln)
 	int ln;
 {
+	set_attr_line(AT_COLOR_HEADER);
 	if (ln+1 == header_lines && position(0) != ch_zero())
-		punderline();
+		set_attr_line(AT_UNDERLINE);
 }
 
 /*
@@ -177,13 +179,13 @@ overlay_header(VOID_PARAM)
 		for (ln = 0; ln < header_lines; ++ln)
 		{
 			pos = forw_line(pos);
-			underline_last_header(ln);
+			set_attr_header(ln);
 			clear_eol();
 			put_line();
 		}
 		need_ll = TRUE;
 	}
-	if (header_cols > 0 && hshift > 0)
+	if (header_cols > 0)
 	{
 		/* Draw header_cols columns at left of each line. */
 		home();
@@ -197,7 +199,7 @@ overlay_header(VOID_PARAM)
 			{
 				/* Need skipeol for all header lines except the last one. */
 				pos = forw_line_pfx(pos, header_cols, ln+1 < header_lines);
-				underline_last_header(ln);
+				set_attr_header(ln);
 				put_line();
 			}
 		}

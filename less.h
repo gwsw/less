@@ -407,6 +407,7 @@ struct wchar_range_table
 #define AT_COLOR_PROMPT   (7 << AT_COLOR_SHIFT)
 #define AT_COLOR_RSCROLL  (8 << AT_COLOR_SHIFT)
 #define AT_COLOR_SEARCH   (9 << AT_COLOR_SHIFT)
+#define AT_COLOR_HEADER   (11 << AT_COLOR_SHIFT)
 
 typedef enum { CT_NULL, CT_4BIT, CT_6BIT } COLOR_TYPE;
 
