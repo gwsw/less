@@ -11,5 +11,6 @@ struct xbuffer
 void xbuf_init(struct xbuffer *xbuf);
 void xbuf_reset(struct xbuffer *xbuf);
 void xbuf_add(struct xbuffer *xbuf, int ch);
+int xbuf_pop(struct xbuffer *xbuf);
 
 #endif

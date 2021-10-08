@@ -50,3 +50,12 @@ xbuf_add(xbuf, ch)
 	}
 	xbuf->data[xbuf->end++] = ch;
 }
+
+	public int
+xbuf_pop(buf)
+	struct xbuffer *buf;
+{
+	if (buf->end == 0)
+		return -1;
+	return buf->data[--(buf->end)];
+}

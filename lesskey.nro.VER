@@ -337,23 +337,15 @@ Variables assigned in this way are visible only to
 .IR less .
 If a variable is specified in the system environment and also in a
 lesskey file, the value in the lesskey file takes precedence.
-Although the lesskey file can be used to override variables set in the
-environment, the main purpose of assigning variables in the lesskey file
-is simply to have all
-.I less
-configuration information stored in one file.
 .
-.SH EXAMPLE
-The following input file sets the \-i option whenever
-.I less
-is run, and specifies the character set to be "latin1":
 .sp
-.nf
-	#env
-	LESS = \-i
-	LESSCHARSET = latin1
-.fi
-.sp
+If the variable name is followed by += rather than =,
+the string is appended to the variable's existing value.
+This currently works only if any += lines immediately follow
+the same variable's original definition (with an = line),
+without any intervening definitions of other variables.
+It can append only to a variable defined earlier in the file;
+it cannot append to a variable in the system environment.
 .
 .SH CONDITIONAL CONFIGURATION
 If a line begins with #version followed by a relational operator and a version number,
@@ -393,8 +385,19 @@ The #version feature is not supported in
 .I less
 and
 .I lesskey
-version 594 and earlier.
+before version 594.
 In those older versions, all #version lines are ignored.
+.
+.SH EXAMPLE
+The following input file sets the \-i and \-S options when
+.less
+is run and, on version 595 and higher, adds a \-\-color option.
+.sp
+.nf
+	#env
+	LESS = \-i\ \-S
+	#version\ >=\ 595\ \ LESS\ +=\ \-\-color=Hkc
+.fi
 .
 .SH "SEE ALSO"
 .BR less (1)

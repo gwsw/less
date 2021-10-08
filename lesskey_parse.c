@@ -355,6 +355,13 @@ add_cmd_char(c, tables)
 	xbuf_add(&tables->currtable->buf, c);
 }
 
+	static void
+erase_cmd_char(tables)
+	struct lesskey_tables *tables;
+{
+	xbuf_pop(&tables->currtable->buf);
+}
+
 /*
  * Add a string to the output command table.
  */
@@ -567,26 +574,37 @@ parse_varline(line, tables)
 {
 	char *s;
 	char *p = line;
+	char *eq;
 
-	do
+	eq = strchr(line, '=');
+	if (eq != NULL && eq > line && eq[-1] == '+')
 	{
-		s = tstr(&p, 0);
-		add_cmd_str(s, tables);
-	} while (*p != '\0' && !issp(*p) && *p != '=');
-	/*
-	 * Terminate the variable name with a null byte.
-	 */
-	add_cmd_char('\0', tables);
-
-	p = skipsp(p);
-	if (*p++ != '=')
+		/*
+		 * Rather ugly way of handling a += line.
+		 * {{ Note that we ignore the variable name and 
+		 *    just append to the previously defined variable. }}
+		 */
+		erase_cmd_char(tables); /* backspace over the final null */
+		p = eq+1;
+	} else
 	{
-		parse_error("missing = in variable definition", "");
-		return;
+		do
+		{
+			s = tstr(&p, 0);
+			add_cmd_str(s, tables);
+		} while (*p != '\0' && !issp(*p) && *p != '=');
+		/*
+		 * Terminate the variable name with a null byte.
+		 */
+		add_cmd_char('\0', tables);
+		p = skipsp(p);
+		if (*p++ != '=')
+		{
+			parse_error("missing = in variable definition", "");
+			return;
+		}
+		add_cmd_char(EV_OK|A_EXTRA, tables);
 	}
-
-	add_cmd_char(EV_OK|A_EXTRA, tables);
-
 	p = skipsp(p);
 	while (*p != '\0')
 	{

@@ -24,6 +24,8 @@
 
 * Add #version conditional to lesskey.
 
+* Add += syntax to variable section in lesskey files.
+
 * Allow option name in -- command to end with '=' in addition to '\n'.
 
 * Don't read or write history file in secure mode.
