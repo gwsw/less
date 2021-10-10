@@ -59,6 +59,9 @@ cmark(m, ifile, pos, ln)
 	m->m_ifile = ifile;
 	m->m_scrpos.pos = pos;
 	m->m_scrpos.ln = ln;
+	if (m->m_filename != NULL)
+		/* Normally should not happen but a corrupt lesshst file can do it. */
+		free(m->m_filename);
 	m->m_filename = NULL;
 }
 
