@@ -229,6 +229,8 @@
                   Set the character used to mark truncated lines.
                 --save-marks
                   Retain marks across invocations of less.
+                --search-options=[EFKNRW-]
+                  Set default options for every search.
                 --status-col-width=N
                   Set the width of the -J status column to N characters.
                 --status-line

@@ -49,6 +49,7 @@ extern void *ml_search;
 extern void *ml_examine;
 extern int wheel_lines;
 extern int header_lines;
+extern int def_search_type;
 extern int updown_match;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
@@ -517,6 +518,19 @@ mca_opt_char(c)
 }
 
 /*
+ * Normalize search type.
+ */
+	public int
+norm_search_type(st)
+	int st;
+{
+	/* WRAP and PAST_EOF are mutually exclusive. */
+	if ((st & (SRCH_PAST_EOF|SRCH_WRAP)) == (SRCH_PAST_EOF|SRCH_WRAP))
+		st ^= SRCH_PAST_EOF;
+	return st;
+}
+
+/*
  * Handle a char of a search command.
  */
 	static int
@@ -566,8 +580,7 @@ mca_search_char(c)
 
 	if (flag != 0)
 	{
-		/* Toggle flag, but keep PAST_EOF and WRAP mutually exclusive. */
-		search_type ^= flag | (search_type & (SRCH_PAST_EOF|SRCH_WRAP));
+		search_type = norm_search_type(search_type ^ flag);
 		mca_search();
 		return (MCA_MORE);
 	}
@@ -1618,7 +1631,7 @@ commands(VOID_PARAM)
 			 * Search forward for a pattern.
 			 * Get the first char of the pattern.
 			 */
-			search_type = SRCH_FORW;
+			search_type = SRCH_FORW | def_search_type;
 			if (number <= 0)
 				number = 1;
 			mca_search();
@@ -1630,7 +1643,7 @@ commands(VOID_PARAM)
 			 * Search backward for a pattern.
 			 * Get the first char of the pattern.
 			 */
-			search_type = SRCH_BACK;
+			search_type = SRCH_BACK | def_search_type;
 			if (number <= 0)
 				number = 1;
 			mca_search();

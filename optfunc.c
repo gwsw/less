@@ -61,6 +61,7 @@ extern int use_color;
 extern int want_filesize;
 extern int header_lines;
 extern int header_cols;
+extern int def_search_type;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -1026,6 +1027,62 @@ opt_header(type, s)
 			parg.p_string = buf;
 			error("header (lines,columns) is %s", &parg);
 		}
+		break;
+	}
+}
+
+/*
+ * Handler for the --search-options option.
+ */
+	/*ARGSUSED*/
+	public void
+opt_search_type(type, s)
+	int type;
+	char *s;
+{
+	int st;
+	PARG parg;
+	char buf[16];
+	char *bp;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		st = 0;
+		for (;  *s != '\0';  s++)
+		{
+			switch (*s)
+			{
+			case 'E': case 'e': case CONTROL('E'): st |= SRCH_PAST_EOF;   break;
+			case 'F': case 'f': case CONTROL('F'): st |= SRCH_FIRST_FILE; break;
+			case 'K': case 'k': case CONTROL('K'): st |= SRCH_NO_MOVE;    break;
+			case 'N': case 'n': case CONTROL('N'): st |= SRCH_NO_MATCH;   break;
+			case 'R': case 'r': case CONTROL('R'): st |= SRCH_NO_REGEX;   break;
+			case 'W': case 'w': case CONTROL('W'): st |= SRCH_WRAP;       break;
+			case '-': st = 0; break;
+			case '^': break;
+			default:
+				parg.p_char = *s;
+				error("invalid search option '%c'", &parg);
+				return;
+			}
+		}
+		def_search_type = norm_search_type(st);
+		break;
+	case QUERY:
+		bp = buf;
+		if (def_search_type & SRCH_PAST_EOF)   *bp++ = 'E'; 
+		if (def_search_type & SRCH_FIRST_FILE) *bp++ = 'F'; 
+		if (def_search_type & SRCH_NO_MOVE)    *bp++ = 'K'; 
+		if (def_search_type & SRCH_NO_MATCH)   *bp++ = 'N'; 
+		if (def_search_type & SRCH_NO_REGEX)   *bp++ = 'R'; 
+		if (def_search_type & SRCH_WRAP)       *bp++ = 'W'; 
+		if (bp == buf)
+			*bp++ = '-';
+		*bp = '\0';
+		parg.p_string = buf;
+		error("search options: %s", &parg);
 		break;
 	}
 }

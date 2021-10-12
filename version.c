@@ -935,9 +935,11 @@ v591  8/8/21    Use \kB for backspace key in lesskey; add more \k codes;
                 handle multibyte chars in prompt.
 v592  8/24/21   Add --status-line option; limit use of /proc kludge; add --header.
 v593  8/30/21   Add header columns, --no-number-headers.
-v594            Let regex library handle caseless; add --redraw-on-quit option;
+v594  10/1/21   Let regex library handle caseless; add --redraw-on-quit option;
                 add #version to lesskey.
-v595            Add H color type; add += to lesskey var section.
+v595            Add H color type; add += to lesskey var section; 
+                add --search-options.
+     
 */
 
 char version[] = "595x";

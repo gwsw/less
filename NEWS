@@ -20,6 +20,8 @@
 
 * Add the --redraw-on-quit option.
 
+* Add the --search-options option.
+
 * Add 'H' color type to set color of header lines.
 
 * Add #version conditional to lesskey.
@@ -39,6 +41,8 @@
 * Fix bug when empty file is modified while viewing it.
 
 * Fix bug when parsing a malformed lesskey file.
+
+* Fix bug scrolling history when --incsearch is set.
 
 * Fix buffer overflow when invoking lessecho with more than 63 -m/-n options.
 

@@ -234,6 +234,7 @@ WRAP around the current file.
 That is, if the search reaches the end of the current file
 without finding a match, the search continues from the first line of the
 current file up to the line where it started.
+If the ^W modifier is set, the ^E modifier is ignored.
 .RE
 .IP ?pattern
 Search backward in the file for the N-th line containing the pattern.
@@ -1173,6 +1174,15 @@ has quit.
 Save marks in the history file, so marks are retained
 across different invocations of
 .IR less .
+.IP "\-\-search-options"
+Sets default search modifiers. 
+The value is a string of one or more of the characters
+E, F, K, N, R or W.
+Setting any of these has the same effect as typing that
+control character at the beginning of every search pattern.
+For example, setting \-\-search-options=W is the same as
+typing ^W at the beginning of every pattern.
+The value "-" disables all default search modifiers.
 .IP "\-\-status-col-width"
 Sets the width of the status column when the \-J option is in effect.
 The default is 2 characters.
