@@ -1315,7 +1315,7 @@ Otherwise,
 looks in a standard place for the lesskey source file:
 On Unix systems,
 .I less
-looks for a lesskey file called "$XDG_CONFIG_HOME/lesskey" or "$HOME/.lesskey".
+looks for a lesskey file called "$XDG_CONFIG_HOME/lesskey" or "$HOME/.config/lesskey" or "$HOME/.lesskey".
 On MS-DOS and Windows systems,
 .I less
 looks for a lesskey file called "$HOME/_lesskey", and if it is not found there,

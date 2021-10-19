@@ -952,9 +952,20 @@ add_hometable(call_lesskey, envname, def_filename, sysvar)
 		filename = save(def_filename);
 	else /* def_filename is just basename */
 	{
+		/* Remove first char (normally a dot) unless stored in $HOME. */
 		char *xdg = lgetenv("XDG_CONFIG_HOME");
 		if (!isnullenv(xdg))
-			filename = dirfile(xdg, def_filename+1, 1);
+			filename = dirfile(xdg, &def_filename[1], 1);
+		if (filename == NULL)
+		{
+			char *home = lgetenv("HOME");
+			if (!isnullenv(home))
+			{
+				char *cfg_dir = dirfile(home, ".config", 0);
+				filename = dirfile(cfg_dir, &def_filename[1], 1);
+				free(cfg_dir);
+			}
+		}
 		if (filename == NULL)
 			filename = homefile(def_filename);
 	}
