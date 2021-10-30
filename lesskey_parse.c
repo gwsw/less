@@ -163,11 +163,12 @@ init_tables(tables)
 #define CHAR_STRING_LEN 8
 
 	static char *
-char_string(buf, ch)
+char_string(buf, ch, lit)
 	char *buf;
 	int ch;
+	int lit;
 {
-	if (ch >= 0x20 && ch < 0x7f)
+	if (lit || (ch >= 0x20 && ch < 0x7f))
 	{
 		buf[0] = ch;
 		buf[1] = '\0';
@@ -213,13 +214,13 @@ tstr(pp, xlate)
 			*pp = p;
 			if (xlate && ch == CONTROL('K'))
 				return tstr_control_k;
-			return char_string(buf, ch);
+			return char_string(buf, ch, 1);
 		case 'b':
 			*pp = p+1;
 			return ("\b");
 		case 'e':
 			*pp = p+1;
-			return char_string(buf, ESC);
+			return char_string(buf, ESC, 1);
 		case 'n':
 			*pp = p+1;
 			return ("\n");
@@ -252,7 +253,7 @@ tstr(pp, xlate)
 				case 'X': ch = SK_CTL_DELETE; break;
 				case '1': ch = SK_F1; break;
 				default:
-					parse_error("invalid escape sequence \"\\k%s\"", char_string(buf, *p));
+					parse_error("invalid escape sequence \"\\k%s\"", char_string(buf, *p, 0));
 					*pp = p+1;
 					return ("");
 				}
@@ -273,7 +274,7 @@ tstr(pp, xlate)
 			 * just means that char.
 			 */
 			*pp = p+1;
-			char_string(buf, *p);
+			char_string(buf, *p, 1);
 			if (xlate && buf[0] == CONTROL('K'))
 				return tstr_control_k;
 			return (buf);
@@ -283,13 +284,13 @@ tstr(pp, xlate)
 		 * Caret means CONTROL.
 		 */
 		*pp = p+2;
-		char_string(buf, CONTROL(p[1]));
+		char_string(buf, CONTROL(p[1]), 1);
 		if (xlate && buf[0] == CONTROL('K'))
 			return tstr_control_k;
 		return (buf);
 	}
 	*pp = p+1;
-	char_string(buf, *p);
+	char_string(buf, *p, 1);
 	if (xlate && buf[0] == CONTROL('K'))
 		return tstr_control_k;
 	return (buf);
@@ -421,7 +422,7 @@ version_line(s, tables)
 	case '=': if (*s == '=') { s++; } break;
 	case '!': if (*s == '=') { s++; } break;
 	default: 
-		parse_error("invalid operator '%s' in #version line", char_string(buf, op));
+		parse_error("invalid operator '%s' in #version line", char_string(buf, op, 0));
 		return (NULL);
 	}
 	s = skipsp(s);
