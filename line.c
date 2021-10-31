@@ -1026,19 +1026,22 @@ store_ansi(ch, rep, pos)
 		ansi_done(line_ansi);
 		line_ansi = NULL;
 		break;
-	case ANSI_ERR: {
-		/* Remove whole unrecognized sequence.  */
-		char *start = (cshift < hshift) ? shifted_ansi.data : linebuf.buf;
-		int *end = (cshift < hshift) ? &shifted_ansi.end : &linebuf.end;
-		char *p = start + *end;
-		LWCHAR bch;
-		do {
-			bch = step_char(&p, -1, start);
-		} while (p > start && !IS_CSI_START(bch));
-		*end = (int) (p - start);
+	case ANSI_ERR:
+		if (!in_hilite)
+		{
+			/* Remove whole unrecognized sequence.  */
+			char *start = (cshift < hshift) ? shifted_ansi.data : linebuf.buf;
+			int *end = (cshift < hshift) ? &shifted_ansi.end : &linebuf.end;
+			char *p = start + *end;
+			LWCHAR bch;
+			do {
+				bch = step_char(&p, -1, start);
+			} while (p > start && !IS_CSI_START(bch));
+			*end = (int) (p - start);
+		}
 		ansi_done(line_ansi);
 		line_ansi = NULL;
-		break; }
+		break;
 	}
 	return (0);
 } 
