@@ -33,8 +33,22 @@ static struct {
 	int pfx_end;  /* Number of chars in pfx */
 } linebuf;
 
+/*
+ * Buffer of ansi sequences which have been shifted off the left edge 
+ * of the screen. 
+ */
 struct xbuffer shifted_ansi;
-struct xbuffer last_ansi;
+
+/*
+ * Ring buffer of last ansi sequences sent.
+ * While sending a line, these will be resent at the end
+ * of any hilighted string, to restore text modes.
+ * {{ Not ideal, since we don't really know how many to resend. }}
+ */
+#define NUM_LAST_ANSIS 3
+static struct xbuffer last_ansi;
+static struct xbuffer last_ansis[NUM_LAST_ANSIS];
+static int curr_last_ansi;
 
 public int size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
@@ -123,6 +137,8 @@ struct ansi_state {
 	public void
 init_line(VOID_PARAM)
 {
+	int ax;
+
 	end_ansi_chars = lgetenv("LESSANSIENDCHARS");
 	if (isnullenv(end_ansi_chars))
 		end_ansi_chars = "m";
@@ -136,6 +152,9 @@ init_line(VOID_PARAM)
 	size_linebuf = LINEBUF_SIZE;
 	xbuf_init(&shifted_ansi);
 	xbuf_init(&last_ansi);
+	for (ax = 0;  ax < NUM_LAST_ANSIS;  ax++)
+		xbuf_init(&last_ansis[ax]);
+	curr_last_ansi = 0;
 }
 
 /*
@@ -208,6 +227,8 @@ inc_end_column(w)
 	public void
 prewind(VOID_PARAM)
 {
+	int ax;
+
 	linebuf.print = 6; /* big enough for longest UTF-8 sequence */
 	linebuf.pfx_end = 0;
 	for (linebuf.end = 0; linebuf.end < linebuf.print; linebuf.end++)
@@ -231,6 +252,9 @@ prewind(VOID_PARAM)
 	line_mark_attr = 0;
 	xbuf_reset(&shifted_ansi);
 	xbuf_reset(&last_ansi);
+	for (ax = 0;  ax < NUM_LAST_ANSIS;  ax++)
+		xbuf_reset(&last_ansis[ax]);
+	curr_last_ansi = 0;
 }
 
 /*
@@ -735,8 +759,13 @@ store_char(ch, a, rep, pos)
 		}
 		if (resend_last)
 		{
-			for (i = 0;  i < last_ansi.end;  i++)
-				STORE_CHAR(last_ansi.data[i], AT_ANSI, NULL, pos);
+			int ai;
+			for (ai = 0;  ai < NUM_LAST_ANSIS;  ai++)
+			{
+				int ax = (curr_last_ansi + ai) % NUM_LAST_ANSIS;
+				for (i = 0;  i < last_ansis[ax].end;  i++)
+					STORE_CHAR(last_ansis[ax].data[i], AT_ANSI, NULL, pos);
+			}
 		}
 	}
 #endif
@@ -1019,12 +1048,17 @@ store_ansi(ch, rep, pos)
 			STORE_CHAR(ch, AT_ANSI, rep, pos);
 		if (line_ansi->hlink)
 			hlink_in_line = 1;
+		xbuf_add(&last_ansi, ch);
 		break;
 	case ANSI_END:
 		if (!in_hilite)
 			STORE_CHAR(ch, AT_ANSI, rep, pos);
 		ansi_done(line_ansi);
 		line_ansi = NULL;
+		xbuf_add(&last_ansi, ch);
+		xbuf_set(&last_ansis[curr_last_ansi], &last_ansi);
+		xbuf_reset(&last_ansi);
+		curr_last_ansi = (curr_last_ansi + 1) % NUM_LAST_ANSIS;
 		break;
 	case ANSI_ERR:
 		if (!in_hilite)
@@ -1039,6 +1073,7 @@ store_ansi(ch, rep, pos)
 			} while (p > start && !IS_CSI_START(bch));
 			*end = (int) (p - start);
 		}
+		xbuf_reset(&last_ansi);
 		ansi_done(line_ansi);
 		line_ansi = NULL;
 		break;
@@ -1077,17 +1112,11 @@ do_append(ch, rep, pos)
 	{
 		line_ansi = ansi_start(ch);
 		if (line_ansi != NULL)
-		{
-			xbuf_reset(&last_ansi);
 			ansi_in_line = 1;
-		}
 	}
 
 	if (line_ansi != NULL)
-	{
-		xbuf_add(&last_ansi, ch);
 		return store_ansi(ch, rep, pos);
-	}
 
 	if (ch == '\b')
 		return store_bs(ch, rep, pos);

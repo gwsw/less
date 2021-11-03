@@ -59,3 +59,15 @@ xbuf_pop(buf)
 		return -1;
 	return buf->data[--(buf->end)];
 }
+
+	public void
+xbuf_set(dst, src)
+	struct xbuffer *dst;
+	struct xbuffer *src;
+{
+	int i;
+
+	xbuf_reset(dst);
+	for (i = 0;  i < src->end;  i++)
+		xbuf_add(dst, src->data[i]);
+}
