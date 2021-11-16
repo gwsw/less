@@ -10,9 +10,12 @@
   https://github.com/gwsw/less/issues.
 
 ======================================================================
-	Major changes between "less" versions 595 and 596
+
+	Major changes between "less" versions 595 and 597
 
 * Add $HOME/.config to possible locations of lesskey file.
+
+======================================================================
 
 	Major changes between "less" versions 590 and 595
 

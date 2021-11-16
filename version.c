@@ -940,6 +940,7 @@ v594  10/1/21   Let regex library handle caseless; add --redraw-on-quit option;
 v595  10/12/21  Add H color type; add += to lesskey var section; 
                 add --search-options.
 v596  11/8/21   Look for lesskey in $HOME/.config.
+v597
 */
 
-char version[] = "596";
+char version[] = "597x";
