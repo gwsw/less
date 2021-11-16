@@ -35,7 +35,6 @@ extern int clear_bg;
 extern int final_attr;
 extern int header_lines;
 extern int header_cols;
-extern int oldbot;
 #if HILITE_SEARCH
 extern int size_linebuf;
 extern int hilite_search;
@@ -140,7 +139,7 @@ forw_line_pfx(pos, pfx, skipeol)
 	sc_width = pfx + line_pfx_width();
 	auto_wrap = 0;
 	hshift = 0;
-	pos = forw_line_seg(pos, skipeol, FALSE);
+	pos = forw_line_seg(pos, skipeol, FALSE, FALSE);
 	sc_width = save_sc_width;
 	auto_wrap = save_auto_wrap;
 	hshift = save_hshift;
@@ -165,7 +164,7 @@ set_attr_header(ln)
  * Display file headers, overlaying text already drawn
  * at top and left of screen.
  */
-	static void
+	public int
 overlay_header(VOID_PARAM)
 {
 	POSITION pos = ch_zero(); /* header lines are at beginning of file */
@@ -189,6 +188,7 @@ overlay_header(VOID_PARAM)
 	{
 		/* Draw header_cols columns at left of each line. */
 		home();
+		pos = ch_zero();
 		for (ln = 0; ln < sc_height-1; ++ln)
 		{
 			if (ln >= header_lines) /* switch from header lines to normal lines */
@@ -207,6 +207,7 @@ overlay_header(VOID_PARAM)
 	}
 	if (need_ll)
 		lower_left();
+	return need_ll;
 }
 
 /*
@@ -398,7 +399,10 @@ forw(n, pos, force, only_last, nblank)
 	else if (do_repaint)
 		repaint();
 	else
+	{
 		overlay_header();
+		lower_left();
+	}
 	first_time = 0;
 	(void) currline(BOTTOM);
 }
@@ -454,13 +458,15 @@ back(n, pos, force, only_last)
 			put_line();
 		}
 	}
-
 	if (nlines == 0)
 		eof_bell();
 	else if (do_repaint)
 		repaint();
-	else if (!oldbot)
+	else
+	{
+		overlay_header();
 		lower_left();
+	}
 	(void) currline(BOTTOM);
 }
 

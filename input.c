@@ -20,7 +20,6 @@
 #include "less.h"
 
 extern int squeeze;
-extern int chopline;
 extern int hshift;
 extern int quit_if_one_screen;
 extern int sigs;
@@ -42,10 +41,11 @@ extern int show_attn;
  * of the NEXT line.  The line obtained is the line starting at curr_pos.
  */
 	public POSITION
-forw_line_seg(curr_pos, skipeol, rscroll)
+forw_line_seg(curr_pos, skipeol, rscroll, nochop)
 	POSITION curr_pos;
 	int skipeol;
 	int rscroll;
+	int nochop;
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -161,7 +161,7 @@ get_forw_line:
 			 */
 			backchars = pflushmbc();
 			new_pos = ch_tell();
-			if (backchars > 0 && !chopline && hshift == 0)
+			if (backchars > 0 && (nochop || !chop_line()) && hshift == 0)
 			{
 				new_pos -= backchars + 1;
 				endline = FALSE;
@@ -263,7 +263,7 @@ forw_line(curr_pos)
 	POSITION curr_pos;
 {
 
-	return forw_line_seg(curr_pos, (chopline || hshift > 0), TRUE);
+	return forw_line_seg(curr_pos, (chop_line() || hshift > 0), TRUE, FALSE);
 }
 
 /*
@@ -399,7 +399,7 @@ get_back_line:
 		if (c == '\n')
 		{
 			backchars = pflushmbc();
-			if (backchars > 0 && !chopline && hshift == 0)
+			if (backchars > 0 && !chop_line() && hshift == 0)
 			{
 				backchars++;
 				goto shift;
@@ -415,7 +415,7 @@ get_back_line:
 			 * reached our curr_pos yet.  Discard the line
 			 * and start a new one.
 			 */
-			if (chopline || hshift > 0)
+			if (chop_line() || hshift > 0)
 			{
 				endline = TRUE;
 				chopped = TRUE;

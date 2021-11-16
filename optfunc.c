@@ -62,6 +62,7 @@ extern int want_filesize;
 extern int header_lines;
 extern int header_cols;
 extern int def_search_type;
+extern int chopline;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -1129,6 +1130,12 @@ opt_rstat(type, s)
 	}
 }
 #endif /*LESSTEST*/
+
+	public int
+chop_line(VOID_PARAM)
+{
+	return (chopline || header_cols > 0);
+}
 
 /*
  * Get the "screen window" size.

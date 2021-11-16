@@ -35,7 +35,6 @@ extern int utf_mode;
 extern int screen_trashed;
 extern int sc_width;
 extern int sc_height;
-extern int chopline;
 extern int hshift;
 #if HILITE_SEARCH
 extern int hilite_search;
@@ -287,6 +286,7 @@ repaint_hilite(on)
 		goto_line(sindex);
 		put_line();
 	}
+	overlay_header();
 	lower_left();
 	hide_hilite = save_hide_hilite;
 }
@@ -335,6 +335,8 @@ clear_attn(VOID_PARAM)
 			moved = 1;
 		}
 	}
+	if (overlay_header())
+		moved = 1;
 	if (moved)
 		lower_left();
 #endif
@@ -1232,7 +1234,7 @@ get_seg(pos, tpos)
 
 	for (seg = 0;;  seg++)
 	{
-		POSITION npos = forw_line_seg(pos, FALSE, FALSE);
+		POSITION npos = forw_line_seg(pos, FALSE, FALSE, TRUE);
 		if (npos > tpos)
 			return seg;
 		pos = npos;
@@ -1442,7 +1444,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
 						hilite_line(linepos, cline, line_len, chpos, sp, ep, cvt_ops);
 					}
 #endif
-					if (chopline)
+					if (chop_line())
 					{
 						/*
 						 * If necessary, shift horizontally to make sure 
@@ -1456,10 +1458,8 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
 							int sshift;
 							int eshift;
 							hshift = 0; /* make get_seg count screen lines */
-							chopline = FALSE;
 							sshift = swidth * get_seg(linepos, linepos + chpos[start_off]);
 							eshift = swidth * get_seg(linepos, linepos + chpos[end_off]);
-							chopline = TRUE;
 							if (sshift >= save_hshift && eshift <= save_hshift)
 							{
 								hshift = save_hshift;
