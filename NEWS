@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 595 and 597
+	Major changes between "less" versions 595 and 598
 
 * Add $HOME/.config to possible locations of lesskey file.
 

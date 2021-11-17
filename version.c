@@ -941,6 +941,7 @@ v595  10/12/21  Add H color type; add += to lesskey var section;
                 add --search-options.
 v596  11/8/21   Look for lesskey in $HOME/.config.
 v597  11/16/21  Fix bugs in --header.
+v598
 */
 
-char version[] = "597";
+char version[] = "598x";
