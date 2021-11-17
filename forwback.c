@@ -169,7 +169,7 @@ overlay_header(VOID_PARAM)
 {
 	POSITION pos = ch_zero(); /* header lines are at beginning of file */
 	int ln;
-	int need_ll = FALSE;
+	int moved = FALSE;
 
 	if (header_lines > 0)
 	{
@@ -182,7 +182,7 @@ overlay_header(VOID_PARAM)
 			clear_eol();
 			put_line();
 		}
-		need_ll = TRUE;
+		moved = TRUE;
 	}
 	if (header_cols > 0)
 	{
@@ -203,11 +203,9 @@ overlay_header(VOID_PARAM)
 				put_line();
 			}
 		}
-		need_ll = TRUE;
+		moved = TRUE;
 	}
-	if (need_ll)
-		lower_left();
-	return need_ll;
+	return moved;
 }
 
 /*
