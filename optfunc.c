@@ -1134,7 +1134,7 @@ opt_rstat(type, s)
 	public int
 chop_line(VOID_PARAM)
 {
-	return (chopline || header_cols > 0);
+	return (chopline || header_cols > 0 || header_lines > 0);
 }
 
 /*

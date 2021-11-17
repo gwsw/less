@@ -618,7 +618,7 @@ overstriking with backspaces (see the \-u option),
 not to text using ANSI escape sequences with the \-R option.
 .PP
 A lowercase letter may be followed by a + to indicate that
-both the normal format change and the specified color should both be used.
+the normal format change and the specified color should both be used.
 For example, \-Dug displays underlined text as green without underlining;
 the green color has replaced the usual underline formatting.
 But \-Du+g displays underlined text as both green and in underlined format.
