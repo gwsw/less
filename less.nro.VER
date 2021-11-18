@@ -1976,7 +1976,7 @@ Name of the history file used to remember search commands and
 shell commands between invocations of
 .IR less .
 If set to "\-" or "/dev/null", a history file is not used.
-The default is "$XDG_DATA_HOME/lesshst" or "$HOME/.lesshst" on Unix systems,
+The default is "$XDG_STATE_HOME/lesshst", "$XDG_DATA_HOME" or "$HOME/.lesshst" on Unix systems,
 "$HOME/_lesshst" on DOS and Windows systems,
 or "$HOME/lesshst.ini" or "$INIT/lesshst.ini"
 on OS/2 systems.

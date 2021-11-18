@@ -1406,7 +1406,8 @@ histfile_name(must_exist)
 	int must_exist;
 {
 	char *home;
-	char *xdg;
+	char *xdg_data;
+	char *xdg_state;
 	char *name;
 
 	/* See if filename is explicitly specified by $LESSHISTFILE. */
@@ -1423,8 +1424,9 @@ histfile_name(must_exist)
 	if (strcmp(LESSHISTFILE, "") == 0 || strcmp(LESSHISTFILE, "-") == 0)
 		return (NULL);
 
-	/* Try in $XDG_DATA_HOME first, then in $HOME. */
-	xdg = lgetenv("XDG_DATA_HOME");
+	/* Try in $XDG_STATE_HOME first, then $XDG_DATA_HOME and $HOME. */
+	xdg_data = lgetenv("XDG_DATA_HOME");
+	xdg_state = lgetenv("XDG_STATE_HOME");
 	home = lgetenv("HOME");
 #if OS2
 	if (isnullenv(home))
@@ -1434,12 +1436,16 @@ histfile_name(must_exist)
 	if (!must_exist)
 	{
 		/* If we're writing the file and the file already exists, use it. */
-		name = dirfile(xdg, &LESSHISTFILE[1], 1);
+		name = dirfile(xdg_state, &LESSHISTFILE[1], 1);
+		if (name == NULL)
+			name = dirfile(xdg_data, &LESSHISTFILE[1], 1);
 		if (name == NULL)
 			name = dirfile(home, LESSHISTFILE, 1);
 	}
 	if (name == NULL)
-		name = dirfile(xdg, &LESSHISTFILE[1], must_exist);
+		name = dirfile(xdg_state, &LESSHISTFILE[1], must_exist);
+	if (name == NULL)
+		name = dirfile(xdg_data, &LESSHISTFILE[1], must_exist);
 	if (name == NULL)
 		name = dirfile(home, LESSHISTFILE, must_exist);
 	return (name);
