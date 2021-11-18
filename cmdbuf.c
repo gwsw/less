@@ -78,16 +78,16 @@ struct mlist
 /*
  * These are the various command histories that exist.
  */
-struct mlist mlist_search =  
+struct mlist mlist_search =
 	{ &mlist_search,  &mlist_search,  &mlist_search,  NULL, 0 };
 public void *ml_search = (void *) &mlist_search;
 
-struct mlist mlist_examine = 
+struct mlist mlist_examine =
 	{ &mlist_examine, &mlist_examine, &mlist_examine, NULL, 0 };
 public void *ml_examine = (void *) &mlist_examine;
 
 #if SHELL_ESCAPE || PIPEC
-struct mlist mlist_shell =   
+struct mlist mlist_shell =
 	{ &mlist_shell,   &mlist_shell,   &mlist_shell,   NULL, 0 };
 public void *ml_shell = (void *) &mlist_shell;
 #endif
@@ -403,7 +403,7 @@ cmd_right(VOID_PARAM)
 	char *pr;
 	char *ncp;
 	int width;
-	
+
 	if (*cp == '\0')
 	{
 		/* Already at the end of the line. */
@@ -469,14 +469,14 @@ cmd_ichar(cs, clen)
 	int clen;
 {
 	char *s;
-	
+
 	if (strlen(cmdbuf) + clen >= sizeof(cmdbuf)-1)
 	{
 		/* No room in the command buffer for another char. */
 		bell();
 		return (CC_ERROR);
 	}
-		
+
 	/*
 	 * Make room for the new character (shift the tail of the buffer right).
 	 */
@@ -536,7 +536,7 @@ cmd_erase(VOID_PARAM)
 	 */
 	updown_match = -1;
 	cmd_repaint(cp);
-	
+
 	/*
 	 * We say that erasing the entire command string causes us
 	 * to abort the current command, if CF_QUIT_ON_ERASE is set.
@@ -673,7 +673,7 @@ cmd_updown(action)
 {
 	constant char *s;
 	struct mlist *ml;
-	
+
 	if (curr_mlist == NULL)
 	{
 		/*
@@ -764,7 +764,7 @@ cmd_addhist(mlist, cmd, modified)
 {
 #if CMD_HISTORY
 	struct mlist *ml;
-	
+
 	/*
 	 * Don't save a trivial command.
 	 */
@@ -848,7 +848,7 @@ cmd_edit(c)
 #else
 #define not_in_completion(VOID_PARAM)
 #endif
-	
+
 	/*
 	 * See if the char is indeed a line-editing command.
 	 */
@@ -959,7 +959,7 @@ cmd_istr(str)
 	char *s;
 	int action;
 	char *endline = str + strlen(str);
-	
+
 	for (s = str;  *s != '\0';  )
 	{
 		char *os = s;
@@ -988,7 +988,7 @@ delimit_word(VOID_PARAM)
 	constant char *esc = get_meta_escape();
 	int esclen = (int) strlen(esc);
 #endif
-	
+
 	/*
 	 * Move cursor to end of word.
 	 */
@@ -1061,7 +1061,7 @@ delimit_word(VOID_PARAM)
 
 /*
  * Set things up to enter completion mode.
- * Expand the word under the cursor into a list of filenames 
+ * Expand the word under the cursor into a list of filenames
  * which start with that word, and set tk_text to that list.
  */
 	static void
@@ -1069,7 +1069,7 @@ init_compl(VOID_PARAM)
 {
 	char *word;
 	char c;
-	
+
 	/*
 	 * Get rid of any previous tk_text.
 	 */
@@ -1158,8 +1158,8 @@ cmd_complete(action)
 	if (!in_completion || action == EC_EXPAND)
 	{
 		/*
-		 * Expand the word under the cursor and 
-		 * use the first word in the expansion 
+		 * Expand the word under the cursor and
+		 * use the first word in the expansion
 		 * (or the entire expansion if we're doing EC_EXPAND).
 		 */
 		init_compl();
@@ -1191,13 +1191,13 @@ cmd_complete(action)
 		 */
 		tk_trial = next_compl(action, tk_trial);
 	}
-	
+
 	/*
 	 * Remove the original word, or the previous trial completion.
 	 */
 	while (cp > tk_ipoint)
 		(void) cmd_erase();
-	
+
 	if (tk_trial == NULL)
 	{
 		/*
@@ -1228,9 +1228,9 @@ cmd_complete(action)
 				goto fail;
 		}
 	}
-	
+
 	return (CC_OK);
-	
+
 fail:
 	in_completion = 0;
 	bell();
@@ -1318,7 +1318,7 @@ cmd_char(c)
 		literal = 0;
 		return (cmd_ichar(cmd_mbc_buf, len));
 	}
-		
+
 	/*
 	 * See if it is a line-editing character.
 	 */
@@ -1334,7 +1334,7 @@ cmd_char(c)
 			break;
 		}
 	}
-	
+
 	/*
 	 * Insert the char into the command buffer.
 	 */
@@ -1408,7 +1408,7 @@ histfile_name(must_exist)
 	char *home;
 	char *xdg;
 	char *name;
-	
+
 	/* See if filename is explicitly specified by $LESSHISTFILE. */
 	name = lgetenv("LESSHISTFILE");
 	if (!isnullenv(name))
@@ -1433,7 +1433,7 @@ histfile_name(must_exist)
 	name = NULL;
 	if (!must_exist)
 	{
-	 	/* If we're writing the file and the file already exists, use it. */
+		/* If we're writing the file and the file already exists, use it. */
 		name = dirfile(xdg, &LESSHISTFILE[1], 1);
 		if (name == NULL)
 			name = dirfile(home, LESSHISTFILE, 1);

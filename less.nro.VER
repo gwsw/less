@@ -573,7 +573,7 @@ The \-d option does not otherwise change the behavior of
 on a dumb terminal.
 .IP "\-D\fBx\fP\fIcolor\fP or \-\-color=\fBx\fP\fIcolor\fP"
 Changes the color of different parts of the displayed text.
-\fBx\fP is a single character which selects the type of text 
+\fBx\fP is a single character which selects the type of text
 whose color is being set:
 .RS
 .IP "B"
@@ -605,16 +605,16 @@ Standout text.
 .IP "u"
 Underlined text.
 .RE
- 
+
 .RS
 The uppercase letters can be used only when the \-\-use-color option is enabled.
 When text color is specified by both an uppercase letter and a lowercase letter,
-the uppercase letter takes precedence. 
+the uppercase letter takes precedence.
 For example, error messages are normally displayed as standout text.
 So if both "s" and "E" are given a color, the "E" color applies
 to error messages, and the "s" color applies to other standout text.
-The "d" and "u" letters refer to bold and underline text formed by 
-overstriking with backspaces (see the \-u option), 
+The "d" and "u" letters refer to bold and underline text formed by
+overstriking with backspaces (see the \-u option),
 not to text using ANSI escape sequences with the \-R option.
 .PP
 A lowercase letter may be followed by a + to indicate that
@@ -625,8 +625,8 @@ But \-Du+g displays underlined text as both green and in underlined format.
 .PP
 \fIcolor\fP is either a 4-bit color string or an 8-bit color string:
 .PP
-A 4-bit color string is zero, one or two characters, where 
-the first character specifies the foreground color and 
+A 4-bit color string is zero, one or two characters, where
+the first character specifies the foreground color and
 the second specifies the background color as follows:
 .IP "b"
 Blue
@@ -646,14 +646,14 @@ White
 Yellow
 .PP
 The corresponding upper-case letter denotes a brighter shade of the color.
-For example, \-DNGk displays line numbers as bright green text on a black 
-background, and \-DEbR displays error messages as blue text on a 
+For example, \-DNGk displays line numbers as bright green text on a black
+background, and \-DEbR displays error messages as blue text on a
 bright red background.
-If either character is a "-" or is omitted, the corresponding color 
+If either character is a "-" or is omitted, the corresponding color
 is set to that of normal text.
 .PP
 An 8-bit color string is one or two decimal integers separated by a dot,
-where the first integer specifies the foreground color and 
+where the first integer specifies the foreground color and
 the second specifies the background color.
 Each integer is a value between 0 and 255 inclusive which selects
 a "CSI 38;5" color value (see
@@ -663,11 +663,11 @@ https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters)
 .hy
 If either integer is a "-" or is omitted,
 the corresponding color is set to that of normal text.
-On MS-DOS versions of 
+On MS-DOS versions of
 .IR less ,
 8-bit color is not supported; instead, decimal values are interpreted as 4-bit
 CHAR_INFO.Attributes values
-(see 
+(see
 .br
 .nh
 https://docs.microsoft.com/en-us/windows/console/char-info-str).
@@ -772,9 +772,9 @@ file.
 .IP "\-\-lesskey-src=\fIfilename\fP"
 Causes
 .I less
-to open and interpret the named file as a 
+to open and interpret the named file as a
 .IR lesskey (1)
-source file. 
+source file.
 If the LESSKEYIN or LESSKEYIN_SYSTEM environment variable is set, or
 if a lesskey source file is found in a standard place (see KEY BINDINGS),
 it is also used as a
@@ -782,9 +782,9 @@ it is also used as a
 file.
 Prior to version 582, the
 .I lesskey
-program needed to be run to convert a 
+program needed to be run to convert a
 .I "lesskey source"
-file to a 
+file to a
 .I "lesskey binary"
 file for
 .I less
@@ -914,10 +914,10 @@ USE OF THE \-r OPTION IS NOT RECOMMENDED.
 Like \-r, but only ANSI "color" escape sequences and OSC 8 hyperlink
 sequences are output in "raw" form.
 Unlike \-r, the screen appearance is maintained correctly,
-provided that there are no escape sequences in the file 
+provided that there are no escape sequences in the file
 other than these types of escape sequences.
 Color escape sequences are only supported when the color
-is changed within one line, not across lines. 
+is changed within one line, not across lines.
 In other words, the beginning of each line is assumed to be
 normal (non-colored), regardless of any escape sequences in previous lines.
 For the purpose of keeping track of screen appearance,
@@ -927,7 +927,7 @@ OSC 8 hyperlinks are sequences of the form:
 .sp
 	ESC ] 8 ; \&...\& \\7
 .sp
-The terminating sequence may be either a BEL character (\\7) 
+The terminating sequence may be either a BEL character (\\7)
 or the two-character sequence "ESC \\".
 .sp
 ANSI color escape sequences are sequences of the form:
@@ -969,7 +969,7 @@ If the environment variable LESSGLOBALTAGS is set, it is taken to be
 the name of a command compatible with
 .IR global (1),
 and that command is executed to find the tag.
-(See 
+(See
 .nh
 http://www.gnu.org/software/global/global.html).
 .hy
@@ -1088,7 +1088,7 @@ of the screen width.
 .IP "\-\-file-size"
 If \-\-file-size is specified,
 .I less
-will determine the size of the file 
+will determine the size of the file
 immediately after opening the file.
 Normally this is not done, because it can be slow if the input file is large.
 .IP "\-\-follow-name"
@@ -1108,15 +1108,15 @@ will display the contents of that new file.
 Sets the number of header lines and columns displayed on the screen.
 The value may be of the form "N,M" where N and M are integers,
 to set the header lines to N and the header columns to M,
-or it may be a single integer "N" which sets the header lines to N 
+or it may be a single integer "N" which sets the header lines to N
 and the header columns to zero.
 When N is nonzero, the first N lines at the top
 of the screen are replaced with the first N lines of the file,
 regardless of what part of the file are being viewed.
-When M is nonzero, the characters displayed at the 
+When M is nonzero, the characters displayed at the
 beginning of each line are replaced with the first M characters of the line,
 even if the rest of the line is scrolled horizontally.
-If either N or M is zero, 
+If either N or M is zero,
 .I less
 stops displaying header lines or columns, respectively.
 (Note that it may be neccessary to change the setting of the \-j option
@@ -1124,7 +1124,7 @@ to ensure that the target line is not obscured by the header line(s).)
 .IP "\-\-incsearch"
 Subsequent search commands will be "incremental"; that is,
 .I less
-will advance to the next line containing the search pattern 
+will advance to the next line containing the search pattern
 as each character of the pattern is typed in.
 .IP "\-\-line-num-width"
 Sets the minimum width of the line number field when the \-N option is in effect.
@@ -1166,7 +1166,7 @@ If set to "\-", truncated lines are not marked.
 When quitting, after sending the terminal deinitialization string,
 redraws the entire last screen.
 On terminals whose terminal deinitialization string causes the
-terminal to switch from an alternate screen, 
+terminal to switch from an alternate screen,
 this makes the last screenful of the current file remain visible after
 .I less
 has quit.
@@ -1175,7 +1175,7 @@ Save marks in the history file, so marks are retained
 across different invocations of
 .IR less .
 .IP "\-\-search-options"
-Sets default search modifiers. 
+Sets default search modifiers.
 The value is a string of one or more of the characters
 E, F, K, N, R or W.
 Setting any of these has the same effect as typing that
@@ -1200,9 +1200,9 @@ This allows a dollar sign to be included in option strings.
 .IP "\-\-use-color"
 Enables the colored text in various places.
 The -D option can be used to change the colors.
-Colored text works only if the terminal supports 
+Colored text works only if the terminal supports
 ANSI color escape sequences (as defined in ECMA-48 SGR;
-see 
+see
 .br
 .nh
 https://www.ecma-international.org/publications-and-standards/standards/ecma-48).
@@ -1495,9 +1495,9 @@ is interpreted as meaning there is no replacement, and
 the original file is used.
 To avoid this, if LESSOPEN starts with two vertical bars,
 the exit status of the script determines the behavior when the output is empty.
-If the output is empty and the exit status is zero, 
+If the output is empty and the exit status is zero,
 the empty output is considered to be replacement text.
-If the output is empty and the exit status is nonzero, 
+If the output is empty and the exit status is nonzero,
 the original file is used.
 For compatibility with previous versions of
 .IR less ,
