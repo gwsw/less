@@ -805,18 +805,6 @@ is_ubin_char(ch)
 {
 	int ubin = is_in_table(ch, &ubin_table) ||
 	           (bs_mode == BS_CONTROL && is_in_table(ch, &fmt_table));
-#if MSDOS_COMPILER==WIN32C
-	if (!ubin && utf_mode == 2 && ch < 0x10000)
-	{
-		/*
-		 * Consider it binary if it can't be converted.
-		 */
-		BOOL used_default = TRUE;
-		WideCharToMultiByte(GetConsoleOutputCP(), WC_NO_BEST_FIT_CHARS, (LPCWSTR) &ch, 1, NULL, 0, NULL, &used_default);
-		if (used_default)
-			ubin = 1;
-	}
-#endif
 	return ubin;
 }
 
