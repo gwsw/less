@@ -1408,7 +1408,7 @@ histfile_find(must_exist)
 	char *home = lgetenv("HOME");
 	char *name = NULL;
 
-	/* Try in $XDG_DATA_STATE, then in $HOME/.local/state, then in $XDG_DATA_HOME, then in $HOME. */
+	/* Try in $XDG_STATE_HOME, then in $HOME/.local/state, then in $XDG_DATA_HOME, then in $HOME. */
 #if OS2
 	if (isnullenv(home))
 		home = lgetenv("INIT");
