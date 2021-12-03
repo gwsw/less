@@ -15,6 +15,15 @@
 
 * Add $HOME/.config to possible locations of lesskey file.
 
+* Add $XDG_STATE_HOME and $HOME/.local/state to possible locations
+  of history file.
+
+* Fix display bugs with --header.
+
+* Fix bug restoring color at end of highlighted text.
+
+* Fix bug in parsing lesskey file.
+
 ======================================================================
 
 	Major changes between "less" versions 590 and 595
