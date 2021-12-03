@@ -1402,13 +1402,40 @@ mlist_size(ml)
  * Get the name of the history file.
  */
 	static char *
+histfile_find(must_exist)
+	int must_exist;
+{
+	char *home = lgetenv("HOME");
+	char *name = NULL;
+
+	/* Try in $XDG_DATA_STATE, then in $HOME/.local/state, then in $XDG_DATA_HOME, then in $HOME. */
+#if OS2
+	if (isnullenv(home))
+		home = lgetenv("INIT");
+#endif
+	name = dirfile(lgetenv("XDG_STATE_HOME"), &LESSHISTFILE[1], must_exist);
+	if (name == NULL)
+	{
+		char *dir = dirfile(home, ".local/state", 1);
+		if (dir != NULL)
+		{
+			name = dirfile(dir, &LESSHISTFILE[1], must_exist);
+			free(dir);
+		}
+	}
+	if (name == NULL)
+		name = dirfile(lgetenv("XDG_DATA_HOME"), &LESSHISTFILE[1], must_exist);
+	if (name == NULL)
+		name = dirfile(home, LESSHISTFILE, must_exist);
+	return (name);
+}
+
+	static char *
 histfile_name(must_exist)
 	int must_exist;
 {
-	char *home;
-	char *xdg;
 	char *name;
-	
+
 	/* See if filename is explicitly specified by $LESSHISTFILE. */
 	name = lgetenv("LESSHISTFILE");
 	if (!isnullenv(name))
@@ -1423,25 +1450,14 @@ histfile_name(must_exist)
 	if (strcmp(LESSHISTFILE, "") == 0 || strcmp(LESSHISTFILE, "-") == 0)
 		return (NULL);
 
-	/* Try in $XDG_DATA_HOME first, then in $HOME. */
-	xdg = lgetenv("XDG_DATA_HOME");
-	home = lgetenv("HOME");
-#if OS2
-	if (isnullenv(home))
-		home = lgetenv("INIT");
-#endif
 	name = NULL;
 	if (!must_exist)
 	{
 	 	/* If we're writing the file and the file already exists, use it. */
-		name = dirfile(xdg, &LESSHISTFILE[1], 1);
-		if (name == NULL)
-			name = dirfile(home, LESSHISTFILE, 1);
+		name = histfile_find(1);
 	}
 	if (name == NULL)
-		name = dirfile(xdg, &LESSHISTFILE[1], must_exist);
-	if (name == NULL)
-		name = dirfile(home, LESSHISTFILE, must_exist);
+		name = histfile_find(must_exist);
 	return (name);
 }
 
