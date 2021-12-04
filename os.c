@@ -158,7 +158,10 @@ start:
 		FD_ZERO(&readfds);
 		FD_SET(fd, &readfds);
 		if (select(fd+1, &readfds, 0, 0, 0) == -1)
+		{
+			reading = 0;
 			return (-1);
+		}
 	}
 #endif
 #if USE_POLL
@@ -167,11 +170,13 @@ start:
 		if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
 		{
 			sigs |= S_INTERRUPT;
+			reading = 0;
 			return (READ_INTR);
 		}
 		if (poll_events(fd, POLLERR|POLLHUP))
 		{
 			sigs |= S_INTERRUPT;
+			reading = 0;
 			return (READ_INTR);
 		}
 	}
@@ -180,6 +185,7 @@ start:
 	if (win32_kbhit() && WIN32getch() == CONTROL('X'))
 	{
 		sigs |= S_INTERRUPT;
+		reading = 0;
 		return (READ_INTR);
 	}
 #endif
@@ -199,7 +205,10 @@ start:
 			else
 				consecutive_nulls = 0;
 			if (consecutive_nulls > 20)
+			{
+				reading = 0;
 				quit(QUIT_ERROR);
+			}
 		}
 	}
 #endif
