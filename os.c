@@ -158,7 +158,10 @@ start:
 		FD_ZERO(&readfds);
 		FD_SET(fd, &readfds);
 		if (select(fd+1, &readfds, 0, 0, 0) == -1)
+		{
+			reading = 0;
 			return (-1);
+		}
 	}
 #endif
 #if USE_POLL
@@ -167,11 +170,13 @@ start:
 		if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
 		{
 			sigs |= S_INTERRUPT;
+			reading = 0;
 			return (READ_INTR);
 		}
 		if (poll_events(fd, POLLERR|POLLHUP))
 		{
 			sigs |= S_INTERRUPT;
+			reading = 0;
 			return (READ_INTR);
 		}
 	}
@@ -180,11 +185,13 @@ start:
 	if (win32_kbhit() && WIN32getch() == CONTROL('X'))
 	{
 		sigs |= S_INTERRUPT;
+		reading = 0;
 		return (READ_INTR);
 	}
 #endif
 #endif
 	n = read(fd, buf, len);
+	reading = 0;
 #if 1
 	/*
 	 * This is a kludge to workaround a problem on some systems
@@ -203,7 +210,6 @@ start:
 		}
 	}
 #endif
-	reading = 0;
 	if (n < 0)
 	{
 #if HAVE_ERRNO
