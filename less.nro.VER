@@ -154,7 +154,7 @@ on the screen,
 the } command will go to the matching left curly bracket.
 The matching left curly bracket is positioned on the top
 line of the screen.
-If there is more than one right curly bracket on the top line,
+If there is more than one right curly bracket on the bottom line,
 a number N may be used to specify the N-th bracket on the line.
 .IP "("
 Like {, but applies to parentheses rather than curly brackets.
