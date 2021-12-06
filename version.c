@@ -941,7 +941,7 @@ v595  10/12/21  Add H color type; add += to lesskey var section;
                 add --search-options.
 v596  11/8/21   Look for lesskey in $HOME/.config.
 v597  11/16/21  Fix bugs in --header.
-v598            Look for lesshst in $XDG_STATE_HOME and $HOME/.local/state.
+v598  12/6/21   Look for lesshst in $XDG_STATE_HOME and $HOME/.local/state.
 */
 
-char version[] = "598x";
+char version[] = "598";
