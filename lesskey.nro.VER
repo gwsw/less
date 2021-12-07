@@ -30,6 +30,12 @@ program is therefore deprecated, although the file format remains supported by
 .I less
 itself.
 .PP
+.SH DESCRIPTION
+A
+.I lesskey
+file specifies a set of key bindings and environment variables
+to be used by subsequent invocations of
+.I less.
 .SH FILE FORMAT
 The input file consists of one or more
 .I sections.

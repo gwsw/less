@@ -659,7 +659,7 @@ Each integer is a value between 0 and 255 inclusive which selects
 a "CSI 38;5" color value (see
 .br
 .nh
-https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters)
+https://en.wikipedia.org/wiki/ANSI_escape_code#SGR)
 .hy
 If either integer is a "-" or is omitted,
 the corresponding color is set to that of normal text.
