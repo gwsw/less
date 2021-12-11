@@ -1119,7 +1119,7 @@ even if the rest of the line is scrolled horizontally.
 If either N or M is zero, 
 .I less
 stops displaying header lines or columns, respectively.
-(Note that it may be neccessary to change the setting of the \-j option
+(Note that it may be necessary to change the setting of the \-j option
 to ensure that the target line is not obscured by the header line(s).)
 .IP "\-\-incsearch"
 Subsequent search commands will be "incremental"; that is,
