@@ -268,7 +268,7 @@ expand_special_keys(table, len)
 			}
 			/*
 			 * After SK_SPECIAL_KEY, next byte is the type
-			 * of special key (one of the SK_* contants),
+			 * of special key (one of the SK_* constants),
 			 * and the byte after that is the number of bytes,
 			 * N, reserved by the abbreviation (including the
 			 * SK_SPECIAL_KEY and key type bytes).

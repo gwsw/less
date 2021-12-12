@@ -42,7 +42,7 @@ struct xbuffer shifted_ansi;
 /*
  * Ring buffer of last ansi sequences sent.
  * While sending a line, these will be resent at the end
- * of any hilighted string, to restore text modes.
+ * of any highlighted string, to restore text modes.
  * {{ Not ideal, since we don't really know how many to resend. }}
  */
 #define NUM_LAST_ANSIS 3
