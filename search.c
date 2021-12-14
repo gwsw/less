@@ -944,7 +944,7 @@ add_hilite(anchor, hl)
 }
 
 /*
- * Hilight every character in a range of displayed characters.
+ * Highlight every character in a range of displayed characters.
  */
 	static void
 create_hilites(linepos, start_index, end_index, chpos)

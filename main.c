@@ -63,6 +63,7 @@ extern int      no_init;
 extern int      errmsgs;
 extern int      redraw_on_quit;
 extern int      term_init_done;
+extern int      first_time;
 
 /*
  * Entry point.
@@ -422,6 +423,7 @@ quit(status)
 		 * alternate screen, which now (since deinit) cannot be seen.
 		 * redraw_on_quit tells us to redraw it on the main screen.
 		 */
+		first_time = 1; /* Don't print "skipping" or tildes */
 		repaint();
 		flush();
 	}
