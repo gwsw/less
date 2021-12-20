@@ -133,7 +133,8 @@ parse_error(fmt, arg1)
 {
 	char buf[1024];
 	int n = snprintf(buf, sizeof(buf), "%s: line %d: ", lesskey_file, linenum);
-	snprintf(buf+n, sizeof(buf)-n, fmt, arg1);
+	if (n >= 0 && n < sizeof(buf))
+		snprintf(buf+n, sizeof(buf)-n, fmt, arg1);
 	++errors;
 	lesskey_parse_error(buf);
 }
