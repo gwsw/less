@@ -374,5 +374,6 @@ main(argc, argv)
 	/* File trailer */
 	fputbytes(out, endsection, sizeof(endsection));
 	fputbytes(out, filetrailer, sizeof(filetrailer));
+	fclose(out);
 	return (0);
 }

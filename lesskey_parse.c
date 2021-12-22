@@ -687,6 +687,6 @@ parse_lesskey(infile, tables)
 		++linenum;
 		parse_line(line, tables);
 	}
-
+	fclose(desc);
 	return (errors);
 }
