@@ -181,6 +181,18 @@ char_string(buf, ch, lit)
 }
 
 /*
+ * Increment char pointer by one up to terminating nul byte.
+ */
+	static char *
+increment_pointer(p)
+	char *p;
+{
+	if (*p == '\0')
+		return p;
+	return p+1;
+}
+
+/*
  * Parse one character of a string.
  */
 	static char *
@@ -255,7 +267,7 @@ tstr(pp, xlate)
 				case '1': ch = SK_F1; break;
 				default:
 					parse_error("invalid escape sequence \"\\k%s\"", char_string(buf, *p, 0));
-					*pp = p+1;
+					*pp = increment_pointer(p);
 					return ("");
 				}
 				*pp = p+1;
@@ -274,7 +286,7 @@ tstr(pp, xlate)
 			 * Backslash followed by any other char 
 			 * just means that char.
 			 */
-			*pp = p+1;
+			*pp = increment_pointer(p);
 			char_string(buf, *p, 1);
 			if (xlate && buf[0] == CONTROL('K'))
 				return tstr_control_k;
@@ -284,13 +296,13 @@ tstr(pp, xlate)
 		/*
 		 * Caret means CONTROL.
 		 */
-		*pp = p+2;
+		*pp = increment_pointer(p+1);
 		char_string(buf, CONTROL(p[1]), 1);
 		if (xlate && buf[0] == CONTROL('K'))
 			return tstr_control_k;
 		return (buf);
 	}
-	*pp = p+1;
+	*pp = increment_pointer(p);
 	char_string(buf, *p, 1);
 	if (xlate && buf[0] == CONTROL('K'))
 		return tstr_control_k;
