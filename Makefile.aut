@@ -69,7 +69,6 @@ ${srcdir}/configure ${srcdir}/defines.h.in: ${srcdir}/configure.ac ${srcdir}/Mak
 funcs.h: ${SRC:%=${srcdir}/%}
 	-mv -f ${srcdir}/funcs.h ${srcdir}/funcs.h.old
 	${srcdir}/${MKFUNCS} ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
-	if cmp -s funcs.h funcs.h.old; then mv -f funcs.h.old funcs.h; fi
 
 lint:
 	lint -I. ${CPPFLAGS} ${SRC}
