@@ -54,21 +54,28 @@ void screen_init() {
 	screen.in_esc = 0;
 	screen.curr_attr = 0;
 	screen.curr_fg_color = screen.curr_bg_color = 0;
-	screen.param_top = 0;
-	screen.params[0] = 0; // start with a 0 on the stack
+	screen.param_top = -1;
+	screen.params[0] = 0;
+}
+
+void param_print() {
+	int i;
+	fprintf(stderr, "(");
+	for (i = 0; i <= screen.param_top; ++i)
+		fprintf(stderr, "%d ", screen.params[i]);
+	fprintf(stderr, ")");
 }
 
 void param_push(int v) {
-	if (screen.param_top >= countof(screen.params)-1)
+	if (screen.param_top >= (int) countof(screen.params)-1)
 		return;
 	screen.params[++screen.param_top] = v;
 }
 
-int param_pop() {
-	int v = screen.params[screen.param_top];
-	if (screen.param_top > 0)
-		--screen.param_top;
-	return v;
+int param_pop(){
+	if (screen.param_top < 0)
+		return 0; // missing param is assumed to be 0
+	return screen.params[screen.param_top--];
 }
 
 int screen_x(int x) {
@@ -205,9 +212,7 @@ int exec_esc(wchar ch) {
 	int x, y, count;
 	if (verbose) {
 		fprintf(stderr, "exec ESC-%c ", (char)ch);
-		int i;
-		for (i = 0; i <= screen.param_top; ++i)
-			fprintf(stderr, "%d ", screen.params[i]);
+		param_print();
 		fprintf(stderr, "\n");
 	}
 	switch (ch) {
@@ -218,12 +223,12 @@ int exec_esc(wchar ch) {
 	case 'S': // clear from cursor to end of screen 
 		return screen_clear(screen.cx, screen.cy, 
 			(screen.w - screen.cx) + (screen.h - screen.cy -1) * screen.w);
-	case 'R': // read screen contents
+	case 'R': // read N3 chars starting at (N1,N2)
 		count = param_pop();
 		y = param_pop();
 		x = param_pop();
 		return screen_read(x, y, count);
-	case 'j': // cursor jump to address
+	case 'j': // jump cursor to (N1,N2)
 		y = param_pop();
 		x = param_pop();
 		return screen_move(x, y);
@@ -334,7 +339,7 @@ int setup(int argc, char** argv) {
 			ready_pid = atoi(optarg);
 			break;
 		case 'v':
-			verbose = 1;
+			++verbose;
 			break;
 		case 'w':
 			screen.w = atoi(optarg);

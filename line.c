@@ -1538,7 +1538,7 @@ back_raw_line(curr_pos, linep, line_lenp)
  */
 	static int
 pappstr(str)
-	char *str;
+	constant char *str;
 {
 	while (*str != '\0')
 	{
