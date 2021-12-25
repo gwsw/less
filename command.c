@@ -950,8 +950,8 @@ getccu(VOID_PARAM)
  */
 	static LWCHAR
 getcc_repl(orig, repl, gr_getc, gr_ungetc)
-	char const* orig;
-	char const* repl;
+	char constant* orig;
+	char constant* repl;
 	LWCHAR (*gr_getc)(VOID_PARAM);
 	void (*gr_ungetc)(LWCHAR);
 {

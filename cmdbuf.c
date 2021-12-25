@@ -1548,7 +1548,10 @@ read_cmdhist(action, uparam, skip_search, skip_shell)
 }
 
 	static void
-addhist_init(void *uparam, struct mlist *ml, char *string)
+addhist_init(uparam, ml, string)
+	void *uparam;
+	struct mlist *ml;
+	char constant *string;
 {
 	if (ml != NULL)
 		cmd_addhist(ml, string, 0);
@@ -1630,7 +1633,10 @@ struct save_ctx
  * created during this session.
  */
 	static void
-copy_hist(void *uparam, struct mlist *ml, char *string)
+copy_hist(uparam, ml, string)
+	void *uparam;
+	struct mlist *ml;
+	char constant *string;
 {
 	struct save_ctx *ctx = (struct save_ctx *) uparam;
 

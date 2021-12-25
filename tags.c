@@ -396,7 +396,9 @@ edit_tagfile(VOID_PARAM)
 }
 
 	static int
-curtag_match(char const *line, POSITION linepos)
+curtag_match(line, linepos)
+	char constant *line;
+	POSITION linepos;
 {
 	/*
 	 * Test the line to see if we have a match.
