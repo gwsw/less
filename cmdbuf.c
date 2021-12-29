@@ -861,9 +861,10 @@ cmd_edit(c)
 		flags |= ECF_NOHISTORY;
 #endif
 #if TAB_COMPLETE_FILENAME
-	if (curr_mlist == ml_search)
+	if (curr_mlist == ml_search || curr_mlist == NULL)
 		/*
-		 * In a search command; don't accept file-completion cmds.
+		 * Don't accept file-completion cmds in contexts 
+		 * such as search pattern, digits, long option name, etc.
 		 */
 		flags |= ECF_NOCOMPLETE;
 #endif

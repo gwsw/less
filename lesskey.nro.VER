@@ -1,7 +1,7 @@
 '\" t
 .TH LESSKEY 1 "Version @@VERSION@@: @@DATE@@"
 .SH NAME
-lesskey \- specify key bindings for less
+lesskey \- customize key bindings for less
 .SH "SYNOPSIS (deprecated)"
 .B "lesskey [\-o output] [\-\-] [input]"
 .br
@@ -42,9 +42,9 @@ The input file consists of one or more
 Each section starts with a line that identifies the type of section.
 Possible sections are:
 .IP #command
-Defines new command keys.
+Customizes command key bindings.
 .IP #line-edit
-Defines new line-editing keys.
+Customizes line-editing key bindings.
 .IP #env
 Defines environment variables.
 .PP
