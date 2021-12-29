@@ -399,7 +399,7 @@ forw(n, pos, force, only_last, nblank)
 	else
 	{
 		overlay_header();
-		lower_left();
+		/* lower_left(); {{ considered harmful? }} */
 	}
 	first_time = 0;
 	(void) currline(BOTTOM);
