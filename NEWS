@@ -11,6 +11,14 @@
 
 ======================================================================
 
+	Major changes between "less" versions 598 and 599
+
+* Defer moving cursor to lower left in some more cases.
+
+* Suppress TAB filename expansion in some cases where it doesn't make sense.
+
+======================================================================
+
 	Major changes between "less" versions 595 and 598
 
 * Add $HOME/.config to possible locations of lesskey file.
