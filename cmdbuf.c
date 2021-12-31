@@ -861,9 +861,10 @@ cmd_edit(c)
 		flags |= ECF_NOHISTORY;
 #endif
 #if TAB_COMPLETE_FILENAME
-	if (curr_mlist == ml_search)
+	if (curr_mlist == ml_search || curr_mlist == NULL)
 		/*
-		 * In a search command; don't accept file-completion cmds.
+		 * Don't accept file-completion cmds in contexts 
+		 * such as search pattern, digits, long option name, etc.
 		 */
 		flags |= ECF_NOCOMPLETE;
 #endif
@@ -1548,7 +1549,10 @@ read_cmdhist(action, uparam, skip_search, skip_shell)
 }
 
 	static void
-addhist_init(void *uparam, struct mlist *ml, char *string)
+addhist_init(uparam, ml, string)
+	void *uparam;
+	struct mlist *ml;
+	char constant *string;
 {
 	if (ml != NULL)
 		cmd_addhist(ml, string, 0);
@@ -1630,7 +1634,10 @@ struct save_ctx
  * created during this session.
  */
 	static void
-copy_hist(void *uparam, struct mlist *ml, char *string)
+copy_hist(uparam, ml, string)
+	void *uparam;
+	struct mlist *ml;
+	char constant *string;
 {
 	struct save_ctx *ctx = (struct save_ctx *) uparam;
 
