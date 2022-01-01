@@ -1355,8 +1355,13 @@ cmd_int(frac)
 
 	for (p = cmdbuf;  *p >= '0' && *p <= '9';  p++)
 	{
-		int digit = *p - '0';
-		n = (n > (INT_MAX-digit) / 10) ? INT_MAX : (n * 10) + digit;
+		LINENUM nn = (n * 10) + (*p - '0');
+		if (nn < n)
+		{
+			error("Integer is too big", NULL_PARG);
+			return (0);
+		}
+		n = nn;
 	}
 	*frac = 0;
 	if (*p++ == '.')
