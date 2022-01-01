@@ -1354,7 +1354,10 @@ cmd_int(frac)
 	int err;
 
 	for (p = cmdbuf;  *p >= '0' && *p <= '9';  p++)
-		n = (n * 10) + (*p - '0');
+	{
+		int digit = *p - '0';
+		n = (n > (INT_MAX-digit) / 10) ? INT_MAX : (n * 10) + digit;
+	}
 	*frac = 0;
 	if (*p++ == '.')
 	{
@@ -1557,7 +1560,7 @@ addhist_init(uparam, ml, string)
 	if (ml != NULL)
 		cmd_addhist(ml, string, 0);
 	else if (string != NULL)
-		restore_mark(string);
+		restore_mark((char*)string); /* stupid const cast */
 }
 #endif /* CMD_HISTORY */
 
