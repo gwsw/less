@@ -11,30 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 598 and 599
-
-* Defer moving cursor to lower left in some more cases.
-
-* Suppress TAB filename expansion in some cases where it doesn't make sense.
-
-======================================================================
-
-	Major changes between "less" versions 595 and 598
-
-* Add $HOME/.config to possible locations of lesskey file.
-
-* Add $XDG_STATE_HOME and $HOME/.local/state to possible locations
-  of history file.
-
-* Fix display bugs with --header.
-
-* Fix bug restoring color at end of highlighted text.
-
-* Fix bug in parsing lesskey file.
-
-======================================================================
-
-	Major changes between "less" versions 590 and 595
+	Major changes between "less" versions 590 and 600
 
 * Add the --header option.
 
@@ -69,6 +46,21 @@
 * Fix bug scrolling history when --incsearch is set.
 
 * Fix buffer overflow when invoking lessecho with more than 63 -m/-n options.
+
+* Add $HOME/.config to possible locations of lesskey file.
+
+* Add $XDG_STATE_HOME and $HOME/.local/state to possible locations
+  of history file.
+
+* Defer moving cursor to lower left in some more cases.
+
+* Suppress TAB filename expansion in some cases where it doesn't make sense.
+
+* Fix display bugs with --header.
+
+* Fix bug restoring color at end of highlighted text.
+
+* Fix bug in parsing lesskey file.
 
 ======================================================================
 
