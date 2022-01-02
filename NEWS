@@ -31,6 +31,11 @@
 
 * Allow option name in -- command to end with '=' in addition to '\n'.
 
+* Add $HOME/.config to possible locations of lesskey file.
+
+* Add $XDG_STATE_HOME and $HOME/.local/state to possible locations
+  of history file.
+
 * Don't read or write history file in secure mode.
 
 * Fix display of multibyte and double-width chars in prompt.
@@ -47,20 +52,15 @@
 
 * Fix buffer overflow when invoking lessecho with more than 63 -m/-n options.
 
-* Add $HOME/.config to possible locations of lesskey file.
-
-* Add $XDG_STATE_HOME and $HOME/.local/state to possible locations
-  of history file.
-
-* Defer moving cursor to lower left in some more cases.
-
-* Suppress TAB filename expansion in some cases where it doesn't make sense.
-
 * Fix display bugs with --header.
 
 * Fix bug restoring color at end of highlighted text.
 
 * Fix bug in parsing lesskey file.
+
+* Defer moving cursor to lower left in some more cases.
+
+* Suppress TAB filename expansion in some cases where it doesn't make sense.
 
 ======================================================================
 
