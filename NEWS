@@ -52,8 +52,6 @@
 
 * Fix buffer overflow when invoking lessecho with more than 63 -m/-n options.
 
-* Fix display bugs with --header.
-
 * Fix bug restoring color at end of highlighted text.
 
 * Fix bug in parsing lesskey file.
