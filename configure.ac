@@ -426,18 +426,17 @@ if test $WANT_REGEX = auto -o $WANT_REGEX = posix; then
 # So we run a test program.  If we're cross-compiling, do it the old way.
 AC_MSG_CHECKING(for POSIX regcomp)
 AC_TRY_RUN([
-#include <stdlib.h>
 #include <sys/types.h>
 #include <regex.h>
 int main() { regex_t r; regmatch_t rm; char *text = "xabcy";
-if (regcomp(&r, "abc", 0)) exit(1);
-if (regexec(&r, text, 1, &rm, 0)) exit(1);
+if (regcomp(&r, "abc", 0)) return (1);
+if (regexec(&r, text, 1, &rm, 0)) return (1);
 #ifndef __WATCOMC__
-if (rm.rm_so != 1) exit(1); /* check for correct offset */
+if (rm.rm_so != 1) return (1); /* check for correct offset */
 #else
-if (rm.rm_sp != text + 1) exit(1); /* check for correct offset */
+if (rm.rm_sp != text + 1) return (1); /* check for correct offset */
 #endif
-exit(0); }],
+return (0); }],
   have_posix_regex=yes, have_posix_regex=no, have_posix_regex=unknown)
 if test $have_posix_regex = yes; then
   AC_MSG_RESULT(yes)
