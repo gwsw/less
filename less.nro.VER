@@ -1090,7 +1090,8 @@ If \-\-file-size is specified,
 .I less
 will determine the size of the file 
 immediately after opening the file.
-Normally this is not done, because it can be slow if the input file is large.
+Normally this is not done, because it can be slow if the input file 
+is non-seekable (such as a pipe) and is large.
 .IP "\-\-follow-name"
 Normally, if the input file is renamed while an F command is executing,
 .I less
