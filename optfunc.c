@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-2021  Mark Nudelman
+ * Copyright (C) 1984-2022  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -544,7 +544,7 @@ opt__V(type, s)
 		putstr(" regular expressions)\n");
 		{
 			char constant *copyright = 
-				"Copyright (C) 1984-2021  Mark Nudelman\n\n";
+				"Copyright (C) 1984-2022  Mark Nudelman\n\n";
 			putstr(copyright);
 		}
 		if (version[strlen(version)-1] == 'x')
