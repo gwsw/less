@@ -735,10 +735,9 @@ opt_x(type, s)
 		/* Start at 1 because tabstops[0] is always zero. */
 		for (i = 1;  i < TABSTOP_MAX;  )
 		{
-			int n = 0;
+			int n;
 			s = skipsp(s);
-			while (*s >= '0' && *s <= '9')
-				n = (10 * n) + (*s++ - '0');
+			n = lstrtoi(s, &s);
 			if (n > tabstops[i-1])
 				tabstops[i++] = n;
 			s = skipsp(s);

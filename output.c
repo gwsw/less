@@ -502,19 +502,29 @@ TYPE_TO_A_FUNC(inttoa, int)
 
 /*
  * Convert an string to an integral type.
+ * Return -1 if number does not fit into integral type.
  */
 #define STR_TO_TYPE_FUNC(funcname, type) \
 type funcname(buf, ebuf) \
 	char *buf; \
 	char **ebuf; \
 { \
-	type val = 0; \
+	unsigned long long val = 0; \
+	type res = 0; \
 	for (;; buf++) { \
 		char c = *buf; \
+		int digit; \
 		if (c < '0' || c > '9') break; \
-		val = 10 * val + c - '0'; \
+		digit = c - '0'; \
+		if (val < LLONG_MAX / 10 || \
+		    (val == LLONG_MAX / 10 && digit <= LLONG_MAX % 10)) \
+			val = 10 * val + digit; \
+		else \
+			val = ULONG_MAX; \
 	} \
 	if (ebuf != NULL) *ebuf = buf; \
+	if ((type) val < 0 || (type) val != (long long) val || val > LLONG_MAX) \
+		return -1; \
 	return val; \
 }
 

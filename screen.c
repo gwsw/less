@@ -1664,7 +1664,8 @@ ltputs(str, affcnt, f_putc)
 				if (*str == '*')
 					delay *= affcnt;
 				flush();
-				sleep_ms(delay);
+				if (delay >= 0)
+					sleep_ms(delay);
 				/* Skip past closing ">" at end of delay string. */
 				str = strstr(str, ">");
 				if (str != NULL)
@@ -2468,7 +2469,7 @@ parse_color6(ps)
 	{
 		char *ops = *ps;
 		int color = lstrtoi(ops, ps);
-		if (*ps == ops)
+		if (*ps == ops || color == -1)
 			return CV_ERROR;
 		return color;
 	}

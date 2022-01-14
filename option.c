@@ -654,6 +654,7 @@ getnum(sp, printopt, errp)
 	int *errp;
 {
 	char *s;
+	int digit;
 	int n;
 	int neg;
 
@@ -667,9 +668,9 @@ getnum(sp, printopt, errp)
 	if (*s < '0' || *s > '9')
 		return (num_error(printopt, errp));
 
-	n = 0;
-	while (*s >= '0' && *s <= '9')
-		n = 10 * n + *s++ - '0';
+	n = lstrtoi(s, &s);
+	if (n == -1)
+		n = INT_MAX;
 	*sp = s;
 	if (errp != NULL)
 		*errp = FALSE;
@@ -699,16 +700,13 @@ getfraction(sp, printopt, errp)
 		return (num_error(printopt, errp));
 
 	for ( ;  *s >= '0' && *s <= '9';  s++)
-	{
-		frac = (frac * 10) + (*s - '0');
-		fraclen++;
-	}
-	if (fraclen > NUM_LOG_FRAC_DENOM)
-		while (fraclen-- > NUM_LOG_FRAC_DENOM)
-			frac /= 10;
-	else
-		while (fraclen++ < NUM_LOG_FRAC_DENOM)
-			frac *= 10;
+		if (fraclen < NUM_LOG_FRAC_DENOM)
+		{
+			frac = (frac * 10) + (*s - '0');
+			fraclen++;
+		}
+	while (fraclen++ < NUM_LOG_FRAC_DENOM)
+		frac *= 10;
 	*sp = s;
 	if (errp != NULL)
 		*errp = FALSE;

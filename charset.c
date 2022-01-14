@@ -143,6 +143,7 @@ ichardef(s)
 	char *s;
 {
 	char *cp;
+	int digit;
 	int n;
 	char v;
 
@@ -165,7 +166,15 @@ ichardef(s)
 
 		case '0': case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8': case '9':
-			n = (10 * n) + (s[-1] - '0');
+			digit = s[-1] - '0';
+			if (n < INT_MAX / 10 ||
+			    (n == INT_MAX / 10 && digit <= INT_MAX % 10))
+				n = 10 * n + digit;
+			else
+			{
+				error("invalid chardef", NULL_PARG);
+				quit(QUIT_ERROR);
+			}
 			continue;
 
 		default:

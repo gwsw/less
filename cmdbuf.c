@@ -1350,18 +1350,13 @@ cmd_int(frac)
 	long *frac;
 {
 	char *p;
-	LINENUM n = 0;
 	int err;
+	LINENUM n = lstrtopos(cmdbuf, &p);
 
-	for (p = cmdbuf;  *p >= '0' && *p <= '9';  p++)
+	if (n == -1)
 	{
-		int digit = *p - '0';
-		if (n > INT_MAX / 10 || (n == INT_MAX / 10 && digit > INT_MAX % 10))
-		{
-			error("Integer is too big", NULL_PARG);
-			return (0);
-		}
-		n = (n * 10) + digit;
+		error("Integer is too big", NULL_PARG);
+		return (0);
 	}
 	*frac = 0;
 	if (*p++ == '.')

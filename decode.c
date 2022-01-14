@@ -490,6 +490,7 @@ getcc_int(pterm)
 {
 	int num = 0;
 	int digits = 0;
+	int digit;
 	for (;;)
 	{
 		char ch = getcc();
@@ -500,8 +501,13 @@ getcc_int(pterm)
 				return (-1);
 			return (num);
 		}
-		num = (10 * num) + (ch - '0');
-		++digits;
+		digit = ch - '0';
+		if (num < INT_MAX / 10 ||
+		    (num == INT_MAX / 10 && digit <= INT_MAX % 10))
+			num = 10 * num + digit;
+		else
+			num = INT_MAX;
+		digits = 1;
 	}
 }
 

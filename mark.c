@@ -447,12 +447,16 @@ restore_mark(line)
 		return;
 	skip_whitespace;
 	ln = lstrtoi(line, &line);
+	if (ln == -1)
+		return;
 	if (ln < 1)
 		ln = 1;
 	if (ln > sc_height)
 		ln = sc_height;
 	skip_whitespace;
 	pos = lstrtopos(line, &line);
+	if (pos == -1)
+		return;
 	skip_whitespace;
 	cmark(m, NULL_IFILE, pos, ln);
 	m->m_filename = save(line);
