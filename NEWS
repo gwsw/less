@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 590 and 600
+	Major changes between "less" versions 590 and 601
 
 * Add the --header option.
 
@@ -22,6 +22,8 @@
 * Add the --redraw-on-quit option.
 
 * Add the --search-options option.
+
+* Add the --exit-follow-on-close option.
 
 * Add 'H' color type to set color of header lines.
 

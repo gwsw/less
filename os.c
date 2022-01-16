@@ -67,6 +67,7 @@ static jmp_buf read_label;
 
 extern int sigs;
 extern int ignore_eoi;
+extern int exit_F_on_close;
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
@@ -167,13 +168,14 @@ start:
 #if USE_POLL
 	if (ignore_eoi && fd != tty)
 	{
+		int close_events = exit_F_on_close ? POLLERR|POLLHUP : POLLERR;
 		if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
 		{
 			sigs |= S_INTERRUPT;
 			reading = 0;
 			return (READ_INTR);
 		}
-		if (poll_events(fd, POLLERR|POLLHUP))
+		if (poll_events(fd, close_events))
 		{
 			sigs |= S_INTERRUPT;
 			reading = 0;

@@ -120,6 +120,10 @@ while it is being viewed.
 (The behavior is similar to the "tail \-f" command.)
 To stop waiting for more data, enter the interrupt character (usually ^C).
 On some systems you can also use ^X.
+If the input is a pipe and the \-\-exit-follow-on-close option is in effect,
+.I less
+will automatically stop waiting for data when the input side 
+of the pipe is closed.
 .IP "ESC-F"
 Like F, but as soon as a line is found which matches
 the last search pattern, the terminal bell is rung
@@ -878,7 +882,7 @@ to that string.
  \-PM changes the long (\-M) prompt.
  \-Ph changes the prompt for the help screen.
  \-P= changes the message printed by the = command.
- \-Pw changes the message printed while waiting for data (in the F command).
+ \-Pw changes the message printed while waiting for data (in the "F" command).
 .sp 1
 All prompt strings consist of a sequence of
 letters and special escape sequences.
@@ -1085,6 +1089,11 @@ If the number is specified as a fraction, the actual number of
 scroll positions is recalculated if the terminal window is resized,
 so that the actual scroll remains at the specified fraction
 of the screen width.
+.IP "\-\-exit-follow-on-close"
+When using the "F" command on a pipe,
+.I less
+will automatically stop waiting for more data when the input side of the 
+pipe is closed.
 .IP "\-\-file-size"
 If \-\-file-size is specified,
 .I less
@@ -1199,7 +1208,7 @@ After the \-\-use-backslash option, any backslash in an option string is
 removed and the following character is taken literally.
 This allows a dollar sign to be included in option strings.
 .IP "\-\-use-color"
-Enables the colored text in various places.
+Enables colored text in various places.
 The -D option can be used to change the colors.
 Colored text works only if the terminal supports 
 ANSI color escape sequences (as defined in ECMA-48 SGR;

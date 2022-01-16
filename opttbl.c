@@ -70,6 +70,7 @@ public int header_cols;         /* Freeze header columns at left of screen */
 public int nonum_headers;       /* Don't give headers line numbers */
 public int redraw_on_quit;      /* Redraw last screen after term deinit */
 public int def_search_type;     /* */
+public int exit_F_on_close;     /* Exit F command when input closes */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -150,6 +151,7 @@ static struct optname header_optname = { "header",               NULL };
 static struct optname nonum_headers_optname = { "no-number-headers", NULL };
 static struct optname redraw_on_quit_optname = { "redraw-on-quit", NULL };
 static struct optname search_type_optname = { "search-options", NULL };
+static struct optname exit_F_on_close_optname = { "exit-follow-on-close", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 static struct optname rstat_optname  = { "rstat",                NULL };
@@ -610,6 +612,14 @@ static struct loption option[] =
 		{
 			"Search options: ",
 			NULL,
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &exit_F_on_close_optname,
+		BOOL, OPT_OFF, &exit_F_on_close, NULL,
+		{
+			"Don't exit F command when input closes",
+			"Exit F command when input closes",
 			NULL
 		}
 	},
