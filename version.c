@@ -945,6 +945,7 @@ v598  12/6/21   Look for lesshst in $XDG_STATE_HOME and $HOME/.local/state.
 v599  12/28/21  Defer moving to lower left in some cases; 
                 suppress TAB expansion in some cases.
 v600  1/7/22    Use /dev/tty if cannot open ttyname().
+v601            Add --exit-follow-on-close option.
 */
 
-char version[] = "600";
+char version[] = "601x";
