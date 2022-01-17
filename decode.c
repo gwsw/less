@@ -179,7 +179,12 @@ static unsigned char cmdtable[] =
 	'Q',0,                          A_QUIT,
 	':','q',0,                      A_QUIT,
 	':','Q',0,                      A_QUIT,
-	'Z','Z',0,                      A_QUIT
+	'Z','Z',0,                      A_QUIT,
+	CONTROL('O'),CONTROL('I'),0,    A_OSC8_ID_SEARCH,
+	CONTROL('O'),CONTROL('L'),0,    A_OSC8_ID_SEARCH_LOAD,
+	CONTROL('O'),CONTROL('N'),0,    A_OSC8_GOTO_N,
+	CONTROL('O'),CONTROL('P'),0,    A_OSC8_GOTO_P,
+	CONTROL('O'),CONTROL('O'),0,    A_OSC8_OPEN
 };
 
 static unsigned char edittable[] =

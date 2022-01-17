@@ -130,6 +130,20 @@ struct pattern_info {
 static struct pattern_info search_info;
 public int is_caseless;
 
+#if OSC8_SEARCH
+struct osc8_node
+{
+	struct osc8_node *prev;
+	struct osc8_node *next;
+	char *id;
+	char *link;
+	unsigned int id_len;
+	unsigned int link_len;
+};
+
+static struct osc8_node *osc8_match_list;
+#endif
+
 /*
  * Are there any uppercase letters in this string?
  */
@@ -1220,6 +1234,467 @@ static POSITION get_lastlinepos(POSITION pos, POSITION tpos, int sheight)
 	}
 }
 
+/* OSC 8 search */
+#if OSC8_SEARCH
+static void osc8_reset(void)
+{
+	if (osc8_match_list == NULL)
+		return;
+
+	while (osc8_match_list->prev != NULL)
+		osc8_match_list = osc8_match_list->prev;
+
+	while (osc8_match_list != NULL)
+	{
+		struct osc8_node *tmp;
+
+		tmp = osc8_match_list;
+		osc8_match_list = tmp->next;
+		free(tmp);
+	}
+}
+
+static struct osc8_node * osc8_dup(struct osc8_node *tonp)
+{
+	/* (less uses int for _line_ lengths) */
+	struct osc8_node *nonp;
+	void *vp;
+
+	vp = ecalloc(1, sizeof(*nonp) + tonp->id_len +1 + tonp->link_len +1);
+
+	nonp = (struct osc8_node *)vp;
+	vp = (char *)vp + sizeof(*nonp);
+	nonp->id = (char *)vp;
+	nonp->id_len = tonp->id_len;
+	vp = (char *)vp + tonp->id_len +1;
+	nonp->link = (char *)vp;
+	nonp->link_len = tonp->link_len;
+
+	if (nonp->id_len > 0)
+	{
+		memcpy(nonp->id, tonp->id, nonp->id_len);
+		nonp->id[nonp->id_len] = '\0';
+	}
+	if (nonp->link_len > 0)
+	{
+		memcpy(nonp->link, tonp->link, nonp->link_len);
+		nonp->link[nonp->link_len] = '\0';
+	}
+
+	if ((tonp = osc8_match_list) != NULL)
+		while (tonp->next != NULL)
+			tonp = tonp->next;
+	if ((nonp->prev = tonp) != NULL)
+		tonp->next = nonp;
+	else
+		osc8_match_list = nonp;
+
+	return (nonp);
+}
+
+static void osc8_search_xy(char const *cbuf, int mode, int only_search)
+{
+	struct pattern_info si_safe;
+	PARG parg;
+# if HILITE_SEARCH
+        int save_hilite_search, d;
+# endif
+	char *cp;
+	int save_how_search;
+
+	/* We bypass the current pattern */
+	memcpy(&si_safe, &search_info, sizeof(search_info));
+	memset(&search_info, 0, sizeof(search_info));
+# if HILITE_SEARCH
+	clr_hilite();
+	repaint_hilite(0);
+	save_hilite_search = hilite_search;
+	hilite_search = 0;
+# endif
+	save_how_search = how_search;
+
+	if (cbuf != NULL)
+	{
+		osc8_reset();
+
+		/* xxx winding ways, useless searches */
+		how_search = OPT_ONPLUS;
+		cp = (char *)cbuf;
+		if (search(SRCH_FORW | SRCH_NO_REGEX | SRCH_OSC8, cp, 1) != 0 &&
+		   search(SRCH_BACK | SRCH_NO_REGEX | SRCH_OSC8, cp, 1) != 0)
+		{
+			error("Pattern not found", NULL_PARG);
+			cp = NULL;
+		} else if(!only_search)
+			osc8_open();
+	} else
+	{
+		/* Determine if we can use osc_match_list of current line */
+		static struct scrpos osp;
+		struct scrpos sp;
+
+		get_scrpos(&sp, TOP);
+
+		how_search = OPT_OFF;
+		if (sp.ln != osp.ln || sp.pos != osp.pos || sp.pos == NULL_POSITION)
+		{}
+		/* Try to use relative matches on current line */
+		else if (osc8_match_list != NULL)
+		{
+			if (mode & SRCH_FORW)
+			{
+				if (osc8_match_list->next != NULL)
+				{
+					osc8_match_list = osc8_match_list->next;
+					goto jgoto_found;
+				}
+			}
+			else if (osc8_match_list->prev != NULL)
+			{
+				osc8_match_list = osc8_match_list->prev;
+				goto jgoto_found;
+			}
+		}
+		else
+			how_search = OPT_ONPLUS;
+
+		osc8_reset();
+
+		/* We must not use NULL or "" as the search pattern xxx */
+		mode |= SRCH_WRAP | SRCH_NO_REGEX | SRCH_OSC8;
+		if (search(mode, "\005", 1) == 0)
+		{
+			if (mode & SRCH_BACK)
+				while (osc8_match_list->next != NULL)
+					osc8_match_list = osc8_match_list->next;
+
+jgoto_found:
+			cbuf = parg.p_string = osc8_match_list->link;
+		}
+
+		/* Repaint after ^O^[NP] for a clean screen without user input.
+		 * And avoid repaint_hilite() repaint()s once again! */
+		repaint();
+		squished = 0;
+
+		get_scrpos(&osp, TOP);
+
+		if(cbuf != NULL)
+		{
+			if(only_search)
+				error("OSC 8 link: %s", &parg);
+			else
+				osc8_open();
+		} else
+			error("No OSC 8 link found", NULL_PARG);
+	}
+
+	/* Restore search state, and possibly repaint as necessary */
+	memcpy(&search_info, &si_safe, sizeof(search_info));
+	how_search = save_how_search;
+# if HILITE_SEARCH
+	if((hilite_search = save_hilite_search) != 0 && search_info.text != NULL)
+		repaint_hilite(1);
+# endif
+}
+
+public void osc8_id_search(char const *cbuf, int only_search)
+{
+	osc8_search_xy(cbuf, 0, only_search);
+}
+
+public void osc8_goto(int mode)
+{
+	osc8_search_xy(NULL, mode, TRUE);
+}
+
+public void osc8_open(void)
+{
+	PARG parg;
+# if HAVE_SYSTEM
+	char *cp;
+	unsigned int len;
+	char const *cmd;
+	int isman;
+# endif
+	char *buf, c;
+
+	if (osc8_match_list == NULL)
+	{
+		error("No current OSC 8 link", NULL_PARG);
+		return;
+	}
+
+	/* Only id= is silent */
+	if (osc8_match_list->link[0] == '\0')
+		return;
+
+	/* Local reference via ourself */
+	if (osc8_match_list->link[0] == '#')
+	{
+		buf = (char *)ecalloc(1, osc8_match_list->link_len);
+		memcpy(buf, &osc8_match_list->link[1],
+			osc8_match_list->link_len);
+		osc8_id_search(buf, TRUE);
+		goto jfree;
+	}
+
+	parg.p_string = osc8_match_list->link;
+
+# if !HAVE_SYSTEM
+	error("Command not available, cannot open %s", &parg);
+# else
+	isman = (osc8_match_list->link_len > 4 &&
+		!memcmp(osc8_match_list->link, "man:", 4));
+
+	cmd = lgetenv("LESSOSC8OPEN");
+	if (cmd == NULL)
+	{
+		if (!isman)
+		{
+			error("LESSOSC8OPEN not set, cannot open %s", &parg);
+			return;
+		}
+		cmd = "man";
+		len = sizeof("man") -1;
+	}
+	else if ((len = strlen(cmd)) >= (unsigned int)(INT_MAX >> 2) ||
+		osc8_match_list->link_len >= (unsigned int)(INT_MAX >> 4))
+	{
+		error("LESSOSC8OPEN and/or link value too long", NULL_PARG);
+		return;
+	}
+	else
+		isman = 0;
+
+	/* We want to pass exactly one properly quoted argument, except in the
+	 * built-in isman case, were we may pass two.
+	 * sh(1) quoting is bitter, so simply perform single quote quoting;
+	 * to deal with single quotes, we need to close, double-quote it, then
+	 * reopen the single-quote: '"'"'.
+	 * xxx We do not care to properly quote the command */
+	buf = (char *)ecalloc(1, 2 + 2 + len + 5*osc8_match_list->link_len);
+
+	cp = buf;
+	cp[0] = '!';
+	cp[1] = ' ';
+	cp += 2;
+	memcpy(cp, cmd, len);
+	cp += len;
+
+	/* The link, single quote quoted */
+	cp[0] = ' ';
+	cp[1] = '\'';
+	cp += 2;
+
+	/* For built-in: is there a "man:name(\(\d+\))?" section number? */
+	if (isman && (cmd = strchr(osc8_match_list->link, '(')) != NULL)
+	{
+		while (*++cmd != ')')
+		{
+			if (*cmd == '\'')
+			{
+				error("Bogus man(1)ual link: %s", &parg);
+				goto jfree;
+			}
+			*cp++ = *cmd;
+		}
+
+		cp[0] = '\'';
+		cp[1] = ' ';
+		cp[2] = '\'';
+		cp += 3;
+	}
+
+	for (cmd = osc8_match_list->link; *cmd != '\0'; ++cmd)
+	{
+		if (isman > 0)
+		{
+			if (*cmd == ':')
+				isman = -1;
+		}
+		else if (*cmd != '\'')
+		{
+			if (isman && *cmd == '(')
+				break;
+			*cp++ = *cmd;
+		}
+		else
+		{
+			cp[0] = '\'';
+			cp[1] = '"';
+			cp[2] = '\'';
+			cp[3] = '"';
+			cp[4] = '\'';
+			cp += 5;
+		}
+	}
+
+	cp[0] = '\'';
+	cp[1] = '\0';
+
+	if (1 /*XXX secure*/)
+	{
+		clear_bot();
+		cmd_putstr(buf);
+		if ((c = getcc()) != '\n' && c != '\r')
+			goto jfree;
+	}
+
+	lsystem(buf, "!done");
+# endif /* HAVE_SYSTEM */
+
+jfree:
+	free(buf);
+}
+
+static struct osc8_node * osc8_inspect(char const *tpattern, char const *ps, char const *pe, char const *us, char const *ue)
+{
+	struct osc8_node on, *onp;
+	unsigned int len, idlen; /* (int used for _line_ lengths: ok) */
+
+	memset(&on, 0, sizeof(on));
+	onp = NULL;
+
+	/* Parameters.  In order to apply the "#" URI case below, always search for id= */
+	if (/*tpattern != NULL &&*/ ps != pe)
+	{
+		for (len = (unsigned int)(pe - ps); len > sizeof("id=") -1;)
+		{
+			unsigned int pl;
+			char const *pnp;
+
+			if ((pnp = memchr(ps, ':', len)) != NULL)
+			{
+				pl = (unsigned int)(pnp++ - ps);
+				--len;
+			} else
+				pl = len;
+			len -= pl;
+
+			if ((pe = memchr(ps, '=', pl)) != NULL &&
+			   ((unsigned int)(pe - ps) == 2) &&
+			   !memcmp(ps, "id", 2))
+			{
+				on.id = (char *)pe++;
+				pl -= 3;
+				idlen = pl;
+				if (tpattern != NULL && pl == strlen(tpattern) && !memcmp(tpattern, pe, pl))
+					on.id_len = idlen;
+				break;
+			}
+
+			ps = pnp;
+		}
+	}
+
+	/* URI - ignore sole "#" local anchor URIs _if_ there was an id= parameter */
+	if (us != ue && ((len = (unsigned int)(ue - us)) != 1 || *us != '#' || idlen == 0))
+	{
+		on.link = (char *)us;
+		on.link_len = len;
+	}
+
+	/* Just put anything sensible in osc8_match_list */
+	if (on.id_len > 0 || on.link_len > 0)
+	{
+		onp = osc8_dup(&on);
+
+		/* (Only) For ID searches an ID match is success! */
+		if (tpattern == NULL || on.id_len == 0)
+			onp = NULL;
+	}
+
+	return (onp);
+}
+
+static int matches_osc8(constant char *tpattern, constant char *line, int line_len)
+{
+	/* We unroll handling as much as possible, no cvt_text(), no match() */
+	constant char *line_end;
+	struct osc8_node *onp;
+
+	/* xxx Is it _not_ an ID search? <-> osc8_goto() */
+	if (tpattern != NULL && tpattern[0] == '\005' && tpattern[1] == '\0')
+		tpattern = NULL;
+
+	onp = NULL;
+
+	for (line_end = &line[(unsigned int)line_len]; line < line_end;)
+	{
+		constant char *ps, *pe, *us, *ue;
+		int as;
+		struct ansi_state *pansi;
+		LWCHAR ch;
+
+		ch = step_char((char**)&line, +1, line_end); /* XXX logical const */
+		if ((pansi = ansi_start(ch)) == NULL)
+			continue;
+
+		as = ANSI_ERR;
+		ps = pe = us = ue = NULL;
+
+		/* Skip to end of ANSI escape sequence. */
+		while (line < line_end)
+		{
+			if ((as = ansi_step(pansi, ch)) != ANSI_MID)
+				break;
+
+			if (pansi->hlink)
+			{
+				/* OSC 8 prologue finished? */
+				if (ps == NULL)
+					ps = line;
+				/* End of parameters, start of URI?
+				 * Condition not verified by ansi_step() */
+				else if (pe == NULL && ch == ';')
+				{
+					pe = &line[-1];
+					us = line;
+				}
+
+			}
+			ch = *line++;
+		}
+
+		/* If we fully parsed a hlink, inspect.
+		 * Note OSC 8 links are explicitly "stream based", end markers
+		 * are optional (add_attr_normal() thus "closes it") */
+		if (as == ANSI_END && pansi->hlink && pe != NULL)
+		{
+			/* Mirror exact semantics of ansi_step()! */
+			ue = &line[-(1 + (pansi->prev_esc && ch == '\\'))];
+
+			/* Invalid?  End marker?  Or inspect it */
+			if (ps <= pe && us <= ue && (ps != pe || us != ue))
+			{
+				struct osc8_node *xonp;
+
+				xonp = osc8_inspect(tpattern, ps, pe, us, ue);
+
+				/* Only used for id= search: take first */
+				if (xonp != NULL && onp == NULL)
+					onp = xonp;
+			}
+		}
+
+		ansi_done(pansi);
+	}
+
+	/* For id= searches only an exact match is success */
+	if (tpattern != NULL)
+	{
+		if (onp != NULL)
+			osc8_match_list = onp;
+		return (onp != NULL);
+	}
+
+	/* For link searches any OSC 8 link occurrance is success */
+	/* XXX should call create_hilites() upon match with link pattern? */
+	return (osc8_match_list != NULL);
+}
+#endif /* OSC8_SEARCH */
+
 /*
  * Search a subset of the file, specified by start/end position.
  */
@@ -1355,6 +1830,20 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 		if (linenums && abs((int)(pos - oldpos)) > 2048)
 			add_lnum(linenum, pos);
 		oldpos = pos;
+
+		/* OSC 8 search does not need CVT */
+#if OSC8_SEARCH
+		if (search_type & SRCH_OSC8) {
+			if (matches_osc8(search_info.text, line, line_len))
+			{
+				if (plinepos != NULL)
+					*plinepos = linepos;
+				return (0);
+			}
+			osc8_reset();
+			continue;
+		}
+#endif
 
 #if HILITE_SEARCH
 		if (is_filtered(linepos))

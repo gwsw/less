@@ -135,13 +135,6 @@ static struct color_map color_map[] = {
 	{ AT_COLOR_SUBSEARCH(5),   "Wc" },
 };
 
-/* State while processing an ANSI escape sequence */
-struct ansi_state {
-	int hindex;   /* Index into hyperlink prefix */
-	int hlink;    /* Processing hyperlink address? */
-	int prev_esc; /* Prev char was ESC (to detect ESC-\ seq) */
-};
-
 /*
  * Initialize from environment variables.
  */

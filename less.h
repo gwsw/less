@@ -347,6 +347,14 @@ struct wchar_range_table
 	unsigned int count;
 };
 
+/* State while processing an ANSI escape sequence */
+struct ansi_state
+{
+        int hindex;   /* Index into hyperlink prefix */
+        int hlink;    /* Processing hyperlink address? */
+        int prev_esc; /* Prev char was ESC (to detect ESC-\ seq) */
+};
+
 #if HAVE_POLL
 typedef short POLL_EVENTS;
 #endif
@@ -395,6 +403,9 @@ typedef short POLL_EVENTS;
 #define SRCH_SUBSEARCH(i) (1 << (16+(i))) /* Search for subpattern */
 /* {{ Depends on NUM_SEARCH_COLORS==5 }} */
 #define SRCH_SUBSEARCH_ALL (SRCH_SUBSEARCH(1)|SRCH_SUBSEARCH(2)|SRCH_SUBSEARCH(3)|SRCH_SUBSEARCH(4)|SRCH_SUBSEARCH(5))
+#if OSC8_SEARCH
+# define SRCH_OSC8	(1 << 22) /* OSC 8 id= search */
+#endif
 
 #define SRCH_REVERSE(t) (((t) & SRCH_FORW) ? \
                                 (((t) & ~SRCH_FORW) | SRCH_BACK) : \
@@ -625,7 +636,6 @@ typedef enum {
 struct mlist;
 struct loption;
 struct hilite_tree;
-struct ansi_state;
 #include "pattern.h"
 #include "xbuf.h"
 #include "funcs.h"

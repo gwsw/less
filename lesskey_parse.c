@@ -72,6 +72,13 @@ static constant struct lesskey_cmdname cmdnames[] =
 	{ "next-tag",             A_NEXT_TAG },
 	{ "noaction",             A_NOACTION },
 	{ "no-scroll",            A_LLSHIFT },
+#if OSC8_SEARCH
+	{ "osc8-id-search",       A_OSC8_ID_SEARCH },
+	{ "osc8-id-search-load",  A_OSC8_ID_SEARCH_LOAD },
+	{ "osc8-goto-next",       A_OSC8_GOTO_N },
+	{ "osc8-goto-prev",       A_OSC8_GOTO_P },
+	{ "osc8-open",            A_OSC8_OPEN },
+#endif
 	{ "percent",              A_PERCENT },
 	{ "pipe",                 A_PIPE },
 	{ "prev-file",            A_PREV_FILE },

@@ -333,6 +333,12 @@ static void exec_mca(void)
 			error(done_msg, NULL_PARG);
 		break; }
 #endif
+#if OSC8_SEARCH
+	case A_OSC8_ID_SEARCH:
+	case A_OSC8_ID_SEARCH_LOAD:
+		osc8_id_search(cbuf, mca == A_OSC8_ID_SEARCH);
+		break;
+#endif
 	}
 }
 
@@ -2155,6 +2161,32 @@ public void commands(void)
 
 		case A_NOACTION:
 			break;
+
+#if !OSC8_SEARCH
+		case A_OSC8_ID_SEARCH:
+		case A_OSC8_ID_SEARCH_LOAD:
+		case A_OSC8_GOTO_P:
+		case A_OSC8_GOTO_N:
+		case A_OSC8_OPEN:
+			error("Command not available", NULL_PARG);
+			break;
+#else
+		case A_OSC8_ID_SEARCH:
+		case A_OSC8_ID_SEARCH_LOAD:
+			start_mca(action, "[OSC 8 id]:",
+				(void *)NULL, CF_QUIT_ON_ERASE);
+			c = getcc();
+			goto again;
+		case A_OSC8_GOTO_P:
+			osc8_goto(SRCH_BACK);
+			break;
+		case A_OSC8_GOTO_N:
+			osc8_goto(SRCH_FORW);
+			break;
+		case A_OSC8_OPEN:
+			osc8_open();
+			break;
+#endif /* OSC8_SEARCH */
 
 		default:
 			bell();

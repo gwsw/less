@@ -179,6 +179,11 @@ g	goto-line
 \ekh	goto-line
 <	goto-line
 \ee<	goto-line
+^O^I	osc8-id-search
+^O^L	osc8-id-search-load
+^O^N	osc8-goto-next
+^O^P	osc8-goto-prev
+^O^O	osc8-open
 p	percent
 %	percent
 \ee[	left-scroll
