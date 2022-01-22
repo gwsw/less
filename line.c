@@ -373,7 +373,7 @@ plinestart(pos)
 		for (i = 0; i < linenum_width - len; i++)
 			add_pfx(' ', AT_NORMAL);
 		for (i = 0; i < len; i++)
-			add_pfx(buf[i], AT_NORMAL|AT_COLOR_LINENUM);
+			add_pfx(buf[i], AT_BOLD|AT_COLOR_LINENUM);
 		add_pfx(' ', AT_NORMAL);
 	}
 	end_column = linebuf.pfx_end;
