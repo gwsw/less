@@ -186,6 +186,7 @@ AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h ter
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
 AC_C_CONST
+AC_TYPE_LONG_LONG_INT
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AC_HEADER_TIME

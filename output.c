@@ -500,8 +500,20 @@ TYPE_TO_A_FUNC(postoa, POSITION)
 TYPE_TO_A_FUNC(linenumtoa, LINENUM)
 TYPE_TO_A_FUNC(inttoa, int)
 
+#ifdef HAVE_LONG_LONG_INT
+#define STR_TYPE long long int
+#ifndef LLONG_MAX
+#define HALF (1LL << (sizeof (long long int) * CHAR_BIT - 2))
+#define LLONG_MAX (HALF - 1 + HALF)
+#endif
+#define STR_MAX LLONG_MAX
+#else
+#define STR_TYPE long
+#define STR_MAX LONG_MAX
+#endif
+
 /*
- * Convert an string to an integral type.
+ * Convert a string to an integral type.
  * Return -1 if number does not fit into integral type.
  */
 #define STR_TO_TYPE_FUNC(funcname, type) \
@@ -509,21 +521,21 @@ type funcname(buf, ebuf) \
 	char *buf; \
 	char **ebuf; \
 { \
-	unsigned long long val = 0; \
+	STR_TYPE val = 0; \
 	type res = 0; \
 	for (;; buf++) { \
 		char c = *buf; \
 		int digit; \
 		if (c < '0' || c > '9') break; \
 		digit = c - '0'; \
-		if (val < LLONG_MAX / 10 || \
-		    (val == LLONG_MAX / 10 && digit <= LLONG_MAX % 10)) \
+		if (val != -1 && (val < STR_MAX / 10 || \
+		    (val == STR_MAX / 10 && digit <= STR_MAX % 10))) \
 			val = 10 * val + digit; \
 		else \
-			val = ULONG_MAX; \
+			val = -1; \
 	} \
 	if (ebuf != NULL) *ebuf = buf; \
-	if ((type) val < 0 || (type) val != (long long) val || val > LLONG_MAX) \
+	if (val < 0 || (type) val != (STR_TYPE) val) \
 		return -1; \
 	return val; \
 }
