@@ -411,7 +411,6 @@ quit(status)
 	rstat('Q');
 #endif /*LESSTEST*/
 	quitting = 1;
-	save_cmdhist();
 	if (interactive())
 		clear_bot();
 	deinit();
@@ -428,6 +427,7 @@ quit(status)
 		flush();
 	}
 	edit((char*)NULL);
+	save_cmdhist();
 	raw_mode(0);
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
 	/* 
