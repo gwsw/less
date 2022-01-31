@@ -127,19 +127,20 @@ echo_distfiles:
 dist: ${DISTFILES}
 	if [ ! -d ${srcdir}/release ]; then mkdir ${srcdir}/release; fi
 	@LESSREL=less-${REL} && RELDIR=release/$$LESSREL && \
+	TARF=$$LESSREL-beta.tar.gz && ZIPF=$$LESSREL-beta.zip && \
 	cd ${srcdir} && \
 	rm -rf $$RELDIR && mkdir $$RELDIR && \
 	echo "Preparing $$LESSREL" && \
 	rm -rf $$LESSREL && mkdir $$LESSREL && \
 	cp ${DISTFILES} $$LESSREL && \
 	cd $$LESSREL && chmod -w * && chmod +w ${DISTFILES_W} && chmod +x configure && cd .. && \
-	echo "Creating $$RELDIR/${REL}.tar.gz" && \
-	tar -cf - $$LESSREL | gzip -c >$$RELDIR/$$LESSREL.tar.gz && \
-	echo "Signing $$RELDIR/$$LESSREL.tar.gz" && \
-	gpg --detach-sign $$RELDIR/$$LESSREL.tar.gz && \
-	mv $$RELDIR/$$LESSREL.tar.gz.sig $$RELDIR/$$LESSREL.sig && \
-	echo "Creating $$RELDIR/$$LESSREL.zip" && \
-	zip -rq $$RELDIR/$$LESSREL.zip $$LESSREL && \
+	echo "Creating $$RELDIR/$$TARF" && \
+	tar -cf - $$LESSREL | gzip -c >$$RELDIR/$$TARF && \
+	echo "Signing $$RELDIR/$$TARF" && \
+	gpg --detach-sign $$RELDIR/$$TARF && \
+	mv $$RELDIR/$$TARF.sig $$RELDIR/$$LESSREL.sig && \
+	echo "Creating $$RELDIR/$$ZIPF" && \
+	zip -rq $$RELDIR/$$ZIPF $$LESSREL && \
 	rm -rf $$LESSREL
 
 tagall:
@@ -148,9 +149,11 @@ tagall:
 
 gnu_upload:
 	@if [ -z "${REL}" ]; then echo "Please set REL=nnn"; exit 1; fi; \
-	if [ ! -s release/less-${REL}/less-${REL}.tar.gz ]; then echo "release/less-${REL}/less-${REL}.tar.gz does not exist"; exit 1; fi; \
-	cd release/less-${REL} && \
-	gpg -b less-${REL}.tar.gz && \
-	( echo "version: 1.2"; echo "directory: less"; echo "filename: less-${REL}.tar.gz" ) > less-${REL}.tar.gz.directive && \
-	gpg --clearsign less-${REL}.tar.gz.directive
-	@echo "upload ready: cd release/less-${REL}; ftp ftp-upload.gnu.org; cd /incoming/ftp; put less-${REL}.tar.gz less-${REL}.tar.gz.sig less-${REL}.tar.gz.directive.asc" 
+	LESSREL=less-${REL} && RELDIR=release/$$LESSREL && \
+    TARF=$$LESSREL-release.tar.gz && \
+	if [ ! -s $$RELDIR/$$TARF ]; then echo "$$RELDIR/$$TARF does not exist"; exit 1; fi; \
+	cd $$RELDIR && \
+	gpg -b $$TARF && \
+	( echo "version: 1.2"; echo "directory: less"; echo "filename: $$TARF" ) > $$TARF.directive && \
+	gpg --clearsign $$TARF.directive
+	@echo "upload ready: cd $$RELDIR; ftp ftp-upload.gnu.org; cd /incoming/ftp; put $$TARF $$TARF.sig $$TARF.directive.asc" 
