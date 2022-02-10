@@ -126,7 +126,8 @@ quits, the first character of the extra string is used as its exit status.
 .
 .SH EXAMPLE
 The following input file describes the set of
-default command keys used by less:
+default command keys used by 
+.IR less :
 .sp
 .RS 5m
 .TS
@@ -292,7 +293,8 @@ one per line as in the example below.
 .
 .SH EXAMPLE
 The following input file describes the set of
-default line-editing keys used by less:
+default line-editing keys used by
+.IR less :
 .sp
 .RS 5m
 .TS
