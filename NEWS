@@ -13,17 +13,17 @@
 
 	Major changes between "less" versions 590 and 601
 
-* Add the --header option.
+* Add the --header option (github #43).
 
-* Add the --no-number-headers option.
+* Add the --no-number-headers option (github #178).
 
 * Add the --status-line option.
 
-* Add the --redraw-on-quit option.
+* Add the --redraw-on-quit option (github #36).
 
-* Add the --search-options option.
+* Add the --search-options option (github #213).
 
-* Add the --exit-follow-on-close option.
+* Add the --exit-follow-on-close option (github #244).
 
 * Add 'H' color type to set color of header lines.
 
@@ -33,26 +33,28 @@
 
 * Allow option name in -- command to end with '=' in addition to '\n'.
 
-* Add $HOME/.config to possible locations of lesskey file.
+* Add $HOME/.config to possible locations of lesskey file (github #153).
 
 * Add $XDG_STATE_HOME and $HOME/.local/state to possible locations
-  of history file.
+  of history file (github #223).
 
-* Don't read or write history file in secure mode.
+* Don't read or write history file in secure mode (github #201).
 
 * Fix display of multibyte and double-width chars in prompt.
 
-* Fix ESC-BACKSPACE command when BACKSPACE key does not send 0x08.
+* Fix ESC-BACKSPACE command when BACKSPACE key does not send 0x08
+  (github #188).
 
 * Add more \k codes to lesskey format.
 
 * Fix bug when empty file is modified while viewing it.
 
-* Fix bug when parsing a malformed lesskey file.
+* Fix bug when parsing a malformed lesskey file (githb #234).
 
-* Fix bug scrolling history when --incsearch is set.
+* Fix bug scrolling history when --incsearch is set (github #214).
 
-* Fix buffer overflow when invoking lessecho with more than 63 -m/-n options.
+* Fix buffer overflow when invoking lessecho with more than 63 -m/-n 
+  options (github #198).
 
 * Fix bug restoring color at end of highlighted text.
 

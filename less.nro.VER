@@ -1209,7 +1209,7 @@ removed and the following character is taken literally.
 This allows a dollar sign to be included in option strings.
 .IP "\-\-use-color"
 Enables colored text in various places.
-The -D option can be used to change the colors.
+The \-D option can be used to change the colors.
 Colored text works only if the terminal supports 
 ANSI color escape sequences (as defined in ECMA-48 SGR;
 see 
