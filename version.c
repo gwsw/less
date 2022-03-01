@@ -946,7 +946,7 @@ v599  12/28/21  Defer moving to lower left in some cases;
                 suppress TAB expansion in some cases.
 v600  1/7/22    Use /dev/tty if cannot open ttyname().
 v601  1/31/22   Add --exit-follow-on-close option.
-v602
+v602  3/1/22    Doc changes.
 */
 
-char version[] = "602x";
+char version[] = "602";
