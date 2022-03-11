@@ -206,6 +206,8 @@ overlay_header(VOID_PARAM)
 		}
 		moved = TRUE;
 	}
+	if (moved)
+		lower_left();
 	return moved;
 }
 
