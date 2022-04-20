@@ -128,14 +128,16 @@ extern int sc_height;
 #endif
 
 #if MSDOS_COMPILER==WIN32C
+#define UTF8_MAX_LENGTH 4
 struct keyRecord
 {
+	WCHAR unicode;
 	int ascii;
 	int scan;
 } currentKey;
 
 static int keyCount = 0;
-static unsigned int utf8 = 0;
+static unsigned char utf8[UTF8_MAX_LENGTH];
 static WORD curr_attr;
 static int pending_scancode = 0;
 static char x11mousebuf[] = "[M???";    /* Mouse report, after ESC */
@@ -2888,11 +2890,10 @@ win32_kbhit(VOID_PARAM)
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL ||
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU);
 		
+	currentKey.unicode = ip.Event.KeyEvent.uChar.UnicodeChar;
 	currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
 	currentKey.scan = ip.Event.KeyEvent.wVirtualScanCode;
 	keyCount = ip.Event.KeyEvent.wRepeatCount;
-	if (ip.Event.KeyEvent.uChar.AsciiChar != ip.Event.KeyEvent.uChar.UnicodeChar)
-		WideCharToMultiByte(CP_UTF8, 0, &ip.Event.KeyEvent.uChar.UnicodeChar, 1, &utf8, sizeof(utf8), NULL, NULL);
 
 	if (ip.Event.KeyEvent.dwControlKeyState & 
 		(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
@@ -2938,13 +2939,15 @@ win32_kbhit(VOID_PARAM)
 WIN32getch(VOID_PARAM)
 {
 	char ascii;
+	static int utf8_size;
+	static int utf8_next_byte;
 
 	// Return the rest of multibyte character from the prior call
-	while (utf8 > 0) {
-    ascii = utf8 & 0xFF;
-    utf8 >>= 8;
+	if (utf8_next_byte < utf8_size) {
+		ascii = utf8[utf8_next_byte++];
 		return ascii;
-	}
+	} else
+		utf8_size = 0;
 
 	if (pending_scancode)
 	{
@@ -2962,9 +2965,10 @@ WIN32getch(VOID_PARAM)
 		}
 		keyCount --;
 		// If multibyte character, return its first byte
-		if (utf8 > 0) {
-			ascii = utf8 & 0xFF;
-			utf8 >>= 8;
+		if (currentKey.ascii != currentKey.unicode) {
+			utf8_size = WideCharToMultiByte(CP_UTF8, 0, &currentKey.unicode, 1, &utf8, sizeof(utf8), NULL, NULL);
+			ascii = utf8[0];
+			utf8_next_byte = 1;
 		} else
 			ascii = currentKey.ascii;
 		/*
