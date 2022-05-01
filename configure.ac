@@ -35,9 +35,22 @@ AC_CHECK_LIB(termlib, tgetent, [have_termlib=yes], [have_termlib=no])
 # at least on Solaris 10 (2.10)) and in -lintl on SCO Unix.
 AC_SEARCH_LIBS([regcmp], [gen intl PW])
 
+# Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h wctype.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STAT
+AC_C_CONST
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+
 # Checks for terminal libraries
 AC_MSG_CHECKING([for working terminal libraries])
 TERMLIBS=
+include_termcap_h=
+if test "x$ac_cv_header_termcap_h" = xyes; then include_termcap_h="#include <termcap.h>"; fi
 
 # Check for systems where curses is broken.
 curses_broken=0
@@ -58,7 +71,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-ltinfo"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([$include_termcap_h], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
@@ -71,7 +84,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-ltinfow"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([$include_termcap_h], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
@@ -84,7 +97,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-lxcurses"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([$include_termcap_h], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
@@ -97,7 +110,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-lncursesw"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([$include_termcap_h], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
@@ -110,7 +123,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-lncurses"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK([#include <termcap.h>], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([$include_termcap_h], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
@@ -123,7 +136,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-lcurses"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([$include_termcap_h], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
@@ -137,7 +150,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-lcurses -ltermcap"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([$include_termcap_h], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
@@ -152,7 +165,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-ltermcap"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([$include_termcap_h], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
@@ -165,7 +178,7 @@ if test "x$TERMLIBS" = x; then
     TERMLIBS="-lcurses -ltermlib"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
-    AC_TRY_LINK(, [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
+    AC_TRY_LINK([$include_termcap_h], [tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);],
       [termok=yes], [termok=no])
     LIBS=$SAVE_LIBS
     if test $termok = no; then TERMLIBS=""; fi
@@ -178,17 +191,6 @@ if test "x$TERMLIBS" = x; then
 fi
 AC_MSG_RESULT(using $TERMLIBS)
 LIBS="$LIBS $TERMLIBS"
-
-# Checks for header files.
-AC_HEADER_STDC
-AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h wctype.h])
-
-# Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STAT
-AC_C_CONST
-AC_TYPE_OFF_T
-AC_TYPE_SIZE_T
-AC_HEADER_TIME
 
 # Autoheader templates for symbols defined later by AC_DEFINE.
 AH_TEMPLATE([HAVE_GNU_REGEX],
