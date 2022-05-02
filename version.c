@@ -948,6 +948,7 @@ v600  1/7/22    Use /dev/tty if cannot open ttyname().
 v601  1/31/22   Add --exit-follow-on-close option.
 v602  3/1/22    Doc changes.
 v603  3/14/22   Fix --header.
+v604
 */
 
-char version[] = "603";
+char version[] = "604x";
