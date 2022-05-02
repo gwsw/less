@@ -128,13 +128,16 @@ extern int sc_height;
 #endif
 
 #if MSDOS_COMPILER==WIN32C
+#define UTF8_MAX_LENGTH 4
 struct keyRecord
 {
+	WCHAR unicode;
 	int ascii;
 	int scan;
 } currentKey;
 
 static int keyCount = 0;
+static unsigned char utf8[UTF8_MAX_LENGTH];
 static WORD curr_attr;
 static int pending_scancode = 0;
 static char x11mousebuf[] = "[M???";    /* Mouse report, after ESC */
@@ -2847,10 +2850,10 @@ win32_kbhit(VOID_PARAM)
 	 */
 	do
 	{
-		PeekConsoleInput(tty, &ip, 1, &read);
+		PeekConsoleInputW(tty, &ip, 1, &read);
 		if (read == 0)
 			return (FALSE);
-		ReadConsoleInput(tty, &ip, 1, &read);
+		ReadConsoleInputW(tty, &ip, 1, &read);
 		/* generate an X11 mouse sequence from the mouse event */
 		if (mousecap && ip.EventType == MOUSE_EVENT &&
 		    ip.Event.MouseEvent.dwEventFlags != MOUSE_MOVED)
@@ -2881,11 +2884,13 @@ win32_kbhit(VOID_PARAM)
 		}
 	} while (ip.EventType != KEY_EVENT ||
 		ip.Event.KeyEvent.bKeyDown != TRUE ||
-		ip.Event.KeyEvent.wVirtualScanCode == 0 ||
+		(ip.Event.KeyEvent.wVirtualScanCode == 0 && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
+		ip.Event.KeyEvent.wVirtualKeyCode == VK_KANJI ||
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL ||
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU);
 		
+	currentKey.unicode = ip.Event.KeyEvent.uChar.UnicodeChar;
 	currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
 	currentKey.scan = ip.Event.KeyEvent.wVirtualScanCode;
 	keyCount = ip.Event.KeyEvent.wRepeatCount;
@@ -2933,7 +2938,16 @@ win32_kbhit(VOID_PARAM)
 	public char
 WIN32getch(VOID_PARAM)
 {
-	int ascii;
+	char ascii;
+	static int utf8_size;
+	static int utf8_next_byte;
+
+	// Return the rest of multibyte character from the prior call
+	if (utf8_next_byte < utf8_size) {
+		ascii = utf8[utf8_next_byte++];
+		return ascii;
+	} else
+		utf8_size = 0;
 
 	if (pending_scancode)
 	{
@@ -2950,7 +2964,13 @@ WIN32getch(VOID_PARAM)
 			continue;
 		}
 		keyCount --;
-		ascii = currentKey.ascii;
+		// If multibyte character, return its first byte
+		if (currentKey.ascii != currentKey.unicode) {
+			utf8_size = WideCharToMultiByte(CP_UTF8, 0, &currentKey.unicode, 1, &utf8, sizeof(utf8), NULL, NULL);
+			ascii = utf8[0];
+			utf8_next_byte = 1;
+		} else
+			ascii = currentKey.ascii;
 		/*
 		 * On PC's, the extended keys return a 2 byte sequence beginning 
 		 * with '00', so if the ascii code is 00, the next byte will be 
@@ -2960,7 +2980,7 @@ WIN32getch(VOID_PARAM)
 	} while (pending_scancode &&
 		(currentKey.scan == PCK_CAPS_LOCK || currentKey.scan == PCK_NUM_LOCK));
 
-	return ((char)ascii);
+	return ascii;
 }
 #endif
 
