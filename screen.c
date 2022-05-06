@@ -137,7 +137,6 @@ struct keyRecord
 } currentKey;
 
 static int keyCount = 0;
-static unsigned char utf8[UTF8_MAX_LENGTH];
 static WORD curr_attr;
 static int pending_scancode = 0;
 static char x11mousebuf[] = "[M???";    /* Mouse report, after ESC */
@@ -2939,6 +2938,7 @@ win32_kbhit(VOID_PARAM)
 WIN32getch(VOID_PARAM)
 {
 	char ascii;
+	static unsigned char utf8[UTF8_MAX_LENGTH];
 	static int utf8_size;
 	static int utf8_next_byte;
 
@@ -2967,6 +2967,8 @@ WIN32getch(VOID_PARAM)
 		// If multibyte character, return its first byte
 		if (currentKey.ascii != currentKey.unicode) {
 			utf8_size = WideCharToMultiByte(CP_UTF8, 0, &currentKey.unicode, 1, &utf8, sizeof(utf8), NULL, NULL);
+			if (utf8_size == 0 )
+				return '\0';
 			ascii = utf8[0];
 			utf8_next_byte = 1;
 		} else
