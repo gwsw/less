@@ -2939,15 +2939,16 @@ WIN32getch(VOID_PARAM)
 {
 	char ascii;
 	static unsigned char utf8[UTF8_MAX_LENGTH];
-	static int utf8_size;
-	static int utf8_next_byte;
+	static int utf8_size = 0;
+	static int utf8_next_byte = 0;
 
 	// Return the rest of multibyte character from the prior call
-	if (utf8_next_byte < utf8_size) {
+	if (utf8_next_byte < utf8_size)
+	{
 		ascii = utf8[utf8_next_byte++];
 		return ascii;
-	} else
-		utf8_size = 0;
+	}
+	utf8_size = 0;
 
 	if (pending_scancode)
 	{
@@ -2965,7 +2966,8 @@ WIN32getch(VOID_PARAM)
 		}
 		keyCount --;
 		// If multibyte character, return its first byte
-		if (currentKey.ascii != currentKey.unicode) {
+		if (currentKey.ascii != currentKey.unicode)
+		{
 			utf8_size = WideCharToMultiByte(CP_UTF8, 0, &currentKey.unicode, 1, &utf8, sizeof(utf8), NULL, NULL);
 			if (utf8_size == 0 )
 				return '\0';
