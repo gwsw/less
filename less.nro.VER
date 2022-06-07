@@ -903,7 +903,8 @@ If the terminal has a "visual bell", it is used in all cases
 where the terminal bell would have been rung.
 .IP "\-r or \-\-raw-control-chars"
 Causes "raw" control characters to be displayed.
-The default is to display control characters using the caret notation;
+The default is to display control characters using the caret notation
+except for consecutive CRs immediately preceding an LF;
 for example, a control-A (octal 001) is displayed as "^A".
 Warning: when the \-r option is used,
 .I less
