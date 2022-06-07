@@ -122,7 +122,7 @@ unicode/EastAsianWidth.txt:
 distfiles: ${DISTFILES}
 
 echo_distfiles: 
-	@echo ${DISTFILES}
+	@echo $(subst .nro,.nro.VER,${DISTFILES})
 
 dist: ${DISTFILES}
 	if [ ! -d ${srcdir}/release ]; then mkdir ${srcdir}/release; fi

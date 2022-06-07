@@ -2057,7 +2057,7 @@ The name of the editor (used for the v command).
 .BR lesskey (1)
 .
 .SH COPYRIGHT
-Copyright (C) 1984-2021  Mark Nudelman
+Copyright (C) 1984-2022  Mark Nudelman
 .PP
 less is part of the GNU project and is free software.
 You can redistribute it and/or modify it
