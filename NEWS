@@ -67,7 +67,7 @@
 * Fix termlib detection when compiler doesn't accept 
   calls to undeclared functions.
 
-* Fix bug in input of non-ASCII characters on Windows.
+* Fix bug in input of non-ASCII characters on Windows (github #247)
 
 ======================================================================
 
