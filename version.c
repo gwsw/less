@@ -949,6 +949,7 @@ v601  1/31/22   Add --exit-follow-on-close option.
 v602  3/1/22    Doc changes.
 v603  3/14/22   Fix --header.
 v604  5/14/22   Fix termlib detection; fix non-ASCII input on Windows.
+v605  6/14/22   Update version number.
 */
 
-char version[] = "604";
+char version[] = "605";
