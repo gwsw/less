@@ -477,7 +477,7 @@ bin_file(f)
 	edata = &data[n];
 	for (p = data;  p < edata;  )
 	{
-		if (utf_mode && !is_utf8_well_formed(p, edata-data))
+		if (utf_mode && !is_utf8_well_formed(p, edata-p))
 		{
 			bin_count++;
 			utf_skip_to_lead(&p, edata);
@@ -972,6 +972,8 @@ close_altfile(altfilename, filename)
 {
 #if HAVE_POPEN
 	char *lessclose;
+	char *qfilename;
+	char *qaltfilename;
 	FILE *fd;
 	char *cmd;
 	int len;
@@ -986,9 +988,13 @@ close_altfile(altfilename, filename)
 		error("LESSCLOSE ignored; must contain no more than 2 %%s", NULL_PARG);
 		return;
 	}
-	len = (int) (strlen(lessclose) + strlen(filename) + strlen(altfilename) + 2);
+	qfilename = shell_quote(filename);
+	qaltfilename = shell_quote(altfilename);
+	len = (int) (strlen(lessclose) + strlen(qfilename) + strlen(qaltfilename) + 2);
 	cmd = (char *) ecalloc(len, sizeof(char));
-	SNPRINTF2(cmd, len, lessclose, filename, altfilename);
+	SNPRINTF2(cmd, len, lessclose, qfilename, qaltfilename);
+	free(qaltfilename);
+	free(qfilename);
 	fd = shellcmd(cmd);
 	free(cmd);
 	if (fd != NULL)
