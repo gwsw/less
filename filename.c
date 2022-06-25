@@ -477,7 +477,7 @@ bin_file(f)
 	edata = &data[n];
 	for (p = data;  p < edata;  )
 	{
-		if (utf_mode && !is_utf8_well_formed(p, edata-data))
+		if (utf_mode && !is_utf8_well_formed(p, edata-p))
 		{
 			bin_count++;
 			utf_skip_to_lead(&p, edata);
