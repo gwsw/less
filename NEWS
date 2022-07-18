@@ -73,7 +73,8 @@
 
 * Escape filenames when invoking LESSCLOSE.
 
-* Fix bug using multibyte UTF-8 char in search string with --incsearch.
+* Fix bug using multibyte UTF-8 char in search string 
+  with --incsearch (github #273).
 
 ======================================================================
 
