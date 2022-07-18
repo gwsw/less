@@ -56,6 +56,8 @@
 * Fix buffer overflow when invoking lessecho with more than 63 -m/-n 
   options (github #198).
 
+* Fix buffer overflow in bin_file (github #271).
+
 * Fix bug restoring color at end of highlighted text.
 
 * Fix bug in parsing lesskey file.
@@ -68,6 +70,10 @@
   calls to undeclared functions.
 
 * Fix bug in input of non-ASCII characters on Windows (github #247)
+
+* Escape filenames when invoking LESSCLOSE.
+
+* Fix bug using multibyte UTF-8 char in search string with --incsearch.
 
 ======================================================================
 

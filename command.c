@@ -242,6 +242,8 @@ exec_mca(VOID_PARAM)
 
 	cmd_exec();
 	cbuf = get_cmdbuf();
+	if (cbuf == NULL)
+		return;
 
 	switch (mca)
 	{
@@ -423,6 +425,8 @@ mca_opt_nonfirst_char(c)
 	if (cmd_char(c) == CC_QUIT)
 		return (MCA_DONE);
 	p = get_cmdbuf();
+	if (p == NULL)
+		return (MCA_MORE);
 	opt_lower = ASCII_IS_LOWER(p[0]);
 	err = 0;
 	curropt = findopt_name(&p, &oname, &err);
@@ -478,6 +482,8 @@ mca_opt_char(c)
 		if (curropt == NULL)
 		{
 			parg.p_string = get_cmdbuf();
+			if (parg.p_string == NULL)
+				return (MCA_MORE);
 			error("There is no --%s option", &parg);
 			return (MCA_DONE);
 		}
@@ -702,6 +708,8 @@ mca_char(c)
 			/* Incremental search: do a search after every input char. */
 			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX|SRCH_NO_MOVE|SRCH_WRAP));
 			char *pattern = get_cmdbuf();
+			if (pattern == NULL)
+				return (MCA_MORE);
 			/*
 			 * Must save updown_match because mca_search
 			 * reinits it. That breaks history scrolling.
@@ -1308,6 +1316,8 @@ commands(VOID_PARAM)
 				if (cmd_char(c) == CC_QUIT || len_cmdbuf() == 0)
 					continue;
 				cbuf = get_cmdbuf();
+				if (cbuf == NULL)
+					continue;
 			} else
 			{
 				/*

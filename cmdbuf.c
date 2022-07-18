@@ -1378,6 +1378,9 @@ cmd_int(frac)
 	public char *
 get_cmdbuf(VOID_PARAM)
 {
+	if (cmd_mbc_buf_index < cmd_mbc_buf_len)
+		/* Don't return buffer containing an incomplete multibyte char. */
+		return (NULL);
 	return (cmdbuf);
 }
 
