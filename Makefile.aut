@@ -114,10 +114,12 @@ wide.uni: unicode/EastAsianWidth.txt
 
 unicode/UnicodeData.txt:
 	mkdir -p unicode
-	curl -s -u 'anonymous:${EMAIL}' -o $@ ftp://ftp.unicode.org/Public/UNIDATA/UnicodeData.txt
+	lftp -c 'open -u "anonymous:${EMAIL}" ftp.unicode.org ; get Public/UNIDATA/UnicodeData.txt -o $@'
+	touch $@
 unicode/EastAsianWidth.txt:
 	mkdir -p unicode
-	curl -s -u 'anonymous:${EMAIL}' -o $@ ftp://ftp.unicode.org/Public/UNIDATA/EastAsianWidth.txt
+	lftp -c 'open -u "anonymous:${EMAIL}" ftp.unicode.org ; get Public/UNIDATA/EastAsianWidth.txt -o $@'
+	touch $@
 
 distfiles: ${DISTFILES}
 
