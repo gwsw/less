@@ -952,7 +952,7 @@ v604  5/14/22   Fix termlib detection; fix non-ASCII input on Windows.
 v605  6/14/22   Update version number.
 v606  7/17/22   Fix bug with multibyte chars and --incsearch;
                 escape filenames in LESSCLOSE; fix bin_file overrun.
-v607            Update Unicode tables.
+v607  7/19/22   Update Unicode tables.
 */
 
-char version[] = "607x";
+char version[] = "607";
