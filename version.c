@@ -950,8 +950,8 @@ v602  3/1/22    Doc changes.
 v603  3/14/22   Fix --header.
 v604  5/14/22   Fix termlib detection; fix non-ASCII input on Windows.
 v605  6/14/22   Update version number.
-v606            Fix bug with multibyte chars and --incsearch;
+v606  7/17/22   Fix bug with multibyte chars and --incsearch;
                 escape filenames in LESSCLOSE; fix bin_file overrun.
 */
 
-char version[] = "606x";
+char version[] = "606";
