@@ -953,7 +953,7 @@ v605  6/14/22   Update version number.
 v606  7/17/22   Fix bug with multibyte chars and --incsearch;
                 escape filenames in LESSCLOSE; fix bin_file overrun.
 v607  7/19/22   Update Unicode tables.
-v608
+v608  7/22/22   Fix highlighting on colored text boundaries.
 */
 
-char version[] = "608x";
+char version[] = "608";
