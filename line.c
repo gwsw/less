@@ -1035,15 +1035,13 @@ store_ansi(ch, rep, pos)
 	switch (ansi_step(line_ansi, ch))
 	{
 	case ANSI_MID:
-		if (!in_hilite)
-			STORE_CHAR(ch, AT_ANSI, rep, pos);
+		STORE_CHAR(ch, AT_ANSI, rep, pos);
 		if (line_ansi->hlink)
 			hlink_in_line = 1;
 		xbuf_add(&last_ansi, ch);
 		break;
 	case ANSI_END:
-		if (!in_hilite)
-			STORE_CHAR(ch, AT_ANSI, rep, pos);
+		STORE_CHAR(ch, AT_ANSI, rep, pos);
 		ansi_done(line_ansi);
 		line_ansi = NULL;
 		xbuf_add(&last_ansi, ch);
@@ -1052,7 +1050,6 @@ store_ansi(ch, rep, pos)
 		curr_last_ansi = (curr_last_ansi + 1) % NUM_LAST_ANSIS;
 		break;
 	case ANSI_ERR:
-		if (!in_hilite)
 		{
 			/* Remove whole unrecognized sequence.  */
 			char *start = (cshift < hshift) ? shifted_ansi.data : linebuf.buf;
