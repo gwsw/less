@@ -31,6 +31,7 @@ extern int so_s_width, so_e_width;
 extern int screen_trashed;
 extern int is_tty;
 extern int oldbot;
+extern int termcap_debug;
 
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;
@@ -72,8 +73,20 @@ put_line(VOID_PARAM)
 		final_attr = a;
 		if (c == '\b')
 			putbs();
-		else
+		else if (!termcap_debug)
 			putchr(c);
+		else
+		{
+			char *pr = prchar(c);
+			if (strlen(pr) == 1 && pr[0] == c)
+				putchr(c);
+			else
+			{
+				putchr('<');
+				putstr(pr);
+				putchr('>');
+			}
+		}
 	}
 
 	at_exit();
