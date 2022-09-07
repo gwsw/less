@@ -1095,6 +1095,7 @@ do_append(ch, rep, pos)
 	POSITION pos;
 {
 	int a = AT_NORMAL;
+	int in_overstrike = overstrike;
 
 	if (ctldisp == OPT_ONPLUS && line_ansi == NULL)
 	{
@@ -1103,13 +1104,14 @@ do_append(ch, rep, pos)
 			ansi_in_line = 1;
 	}
 
+	overstrike = 0;
 	if (line_ansi != NULL)
 		return store_ansi(ch, rep, pos);
 
 	if (ch == '\b')
 		return store_bs(ch, rep, pos);
 
-	if (overstrike > 0)
+	if (in_overstrike > 0)
 	{
 		/*
 		 * Overstrike the character at the current position
@@ -1158,7 +1160,7 @@ do_append(ch, rep, pos)
 			a |= AT_UNDERLINE;
 		}
 		/* Else we replace prev_ch, but we keep its attributes.  */
-	} else if (overstrike < 0)
+	} else if (in_overstrike < 0)
 	{
 		if (   is_composing_char(ch)
 		    || is_combining_char(get_wchar(&linebuf.buf[linebuf.end]), ch))
