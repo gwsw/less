@@ -73,20 +73,8 @@ put_line(VOID_PARAM)
 		final_attr = a;
 		if (c == '\b')
 			putbs();
-		else if (!termcap_debug)
-			putchr(c);
 		else
-		{
-			char *pr = prchar(c);
-			if (strlen(pr) == 1 && pr[0] == c)
-				putchr(c);
-			else
-			{
-				putchr('<');
-				putstr(pr);
-				putchr('>');
-			}
-		}
+			putchr(c);
 	}
 
 	at_exit();
