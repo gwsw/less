@@ -31,7 +31,6 @@ extern int so_s_width, so_e_width;
 extern int screen_trashed;
 extern int is_tty;
 extern int oldbot;
-extern int termcap_debug;
 
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;

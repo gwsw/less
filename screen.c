@@ -239,7 +239,7 @@ public char *kent = NULL;       /* Keypad ENTER sequence */
 public int term_init_done = FALSE;
 
 static int attrmode = AT_NORMAL;
-public int termcap_debug = -1;
+static int termcap_debug = -1;
 extern int binattr;
 extern int one_screen;
 #if LESSTEST
