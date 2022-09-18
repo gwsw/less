@@ -119,7 +119,7 @@ start:
 	}
 #endif
 #endif
-	if (SET_JUMP(read_label))
+	if (!reading && SET_JUMP(read_label))
 	{
 		/*
 		 * We jumped here from intread.
