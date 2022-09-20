@@ -11,6 +11,18 @@
 
 ======================================================================
 
+	Major changes between "less" versions 608 and 609
+
+* Fix ANSI color bug when overstriking with colored chars (github #276).
+
+* Fix compiler const warning (github #279).
+
+* Fix signal race in iread (github #280).
+
+* Fix reading procfs files on Linux (github #282).
+
+======================================================================
+
 	Major changes between "less" versions 590 and 608
 
 * Add the --header option (github #43).

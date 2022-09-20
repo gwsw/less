@@ -37,7 +37,7 @@ AC_SEARCH_LIBS([regcmp], [gen intl PW])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h wctype.h])
+AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h linux/magic.h sys/ioctl.h sys/stream.h wctype.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
@@ -271,7 +271,10 @@ AC_TRY_COMPILE([#include <sys/types.h>
   [struct stat s; dev_t dev = s.st_dev; ino_t ino = s.st_ino;],
   [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STAT_INO)], [AC_MSG_RESULT(no)])
 AC_MSG_CHECKING(for procfs)
-AC_TRY_COMPILE([#include <sys/statfs.h>],
+AC_TRY_COMPILE([#include <sys/statfs.h>
+#if HAVE_LINUX_MAGIC_H
+#include <linux/magic.h>
+#endif],
   [struct statfs s; s.f_type = PROC_SUPER_MAGIC; (void) fstatfs(0,&s); ],
   [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_PROCFS)], [AC_MSG_RESULT(no)])
 

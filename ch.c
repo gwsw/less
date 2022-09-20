@@ -28,6 +28,9 @@ extern ino_t curr_ino;
 
 #if HAVE_PROCFS
 #include <sys/statfs.h>
+#if HAVE_LINUX_MAGIC_H
+#include <linux/magic.h>
+#endif
 #endif
 
 typedef POSITION BLOCKNUM;
