@@ -29,18 +29,18 @@ xbuf_reset(xbuf)
 }
 
 /*
- * Add a char to an expandable text buffer.
+ * Add a byte to an expandable text buffer.
  */
 	public void
-xbuf_add(xbuf, ch)
+xbuf_add_byte(xbuf, b)
 	struct xbuffer *xbuf;
-	int ch;
+	unsigned char b;
 {
 	if (xbuf->end >= xbuf->size)
 	{
-		char *data;
+		unsigned char *data;
 		xbuf->size = (xbuf->size == 0) ? 16 : xbuf->size * 2;
-		data = (char *) ecalloc(xbuf->size, sizeof(char));
+		data = (unsigned char *) ecalloc(xbuf->size, sizeof(unsigned char));
 		if (xbuf->data != NULL)
 		{
 			memcpy(data, xbuf->data, xbuf->end);
@@ -48,7 +48,18 @@ xbuf_add(xbuf, ch)
 		}
 		xbuf->data = data;
 	}
-	xbuf->data[xbuf->end++] = ch;
+	xbuf->data[xbuf->end++] = b;
+}
+
+	public void 
+xbuf_add_data(xbuf, data, len)
+	struct xbuffer *xbuf;
+	unsigned char *data;
+	int len;
+{
+	int i;
+	for (i = 0;  i < len;  i++)
+		xbuf_add_byte(xbuf, data[i]);
 }
 
 	public int
@@ -57,7 +68,7 @@ xbuf_pop(buf)
 {
 	if (buf->end == 0)
 		return -1;
-	return buf->data[--(buf->end)];
+	return (int) buf->data[--(buf->end)];
 }
 
 	public void
@@ -65,9 +76,13 @@ xbuf_set(dst, src)
 	struct xbuffer *dst;
 	struct xbuffer *src;
 {
-	int i;
-
 	xbuf_reset(dst);
-	for (i = 0;  i < src->end;  i++)
-		xbuf_add(dst, src->data[i]);
+	xbuf_add_data(dst, src->data, src->end);
+}
+
+	public char *
+xbuf_char_data(xbuf)
+	struct xbuffer *xbuf;
+{
+	return (char *)(xbuf->data);
 }

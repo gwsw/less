@@ -404,7 +404,7 @@ pshift_all(VOID_PARAM)
 	int i;
 	for (i = linebuf.print;  i < linebuf.end;  i++)
 		if (linebuf.attr[i] == AT_ANSI)
-			xbuf_add(&shifted_ansi, linebuf.buf[i]);
+			xbuf_add_byte(&shifted_ansi, (unsigned char) linebuf.buf[i]);
 	linebuf.end = linebuf.print;
 	end_column = linebuf.pfx_end;
 }
@@ -808,7 +808,7 @@ store_char(ch, a, rep, pos)
 	{
 		/* We haven't left-shifted enough yet. */
 		if (a == AT_ANSI)
-			xbuf_add(&shifted_ansi, ch); /* Save ANSI attributes */
+			xbuf_add_byte(&shifted_ansi, (unsigned char) ch); /* Save ANSI attributes */
 		if (linebuf.end > linebuf.print)
 		{
 			/* Shift left enough to put last byte of this char at print-1. */
@@ -1038,13 +1038,13 @@ store_ansi(ch, rep, pos)
 		STORE_CHAR(ch, AT_ANSI, rep, pos);
 		if (line_ansi->hlink)
 			hlink_in_line = 1;
-		xbuf_add(&last_ansi, ch);
+		xbuf_add_byte(&last_ansi, (unsigned char) ch);
 		break;
 	case ANSI_END:
 		STORE_CHAR(ch, AT_ANSI, rep, pos);
 		ansi_done(line_ansi);
 		line_ansi = NULL;
-		xbuf_add(&last_ansi, ch);
+		xbuf_add_byte(&last_ansi, (unsigned char) ch);
 		xbuf_set(&last_ansis[curr_last_ansi], &last_ansi);
 		xbuf_reset(&last_ansi);
 		curr_last_ansi = (curr_last_ansi + 1) % NUM_LAST_ANSIS;
@@ -1052,7 +1052,7 @@ store_ansi(ch, rep, pos)
 	case ANSI_ERR:
 		{
 			/* Remove whole unrecognized sequence.  */
-			char *start = (cshift < hshift) ? shifted_ansi.data : linebuf.buf;
+			char *start = (cshift < hshift) ? xbuf_char_data(&shifted_ansi): linebuf.buf;
 			int *end = (cshift < hshift) ? &shifted_ansi.end : &linebuf.end;
 			char *p = start + *end;
 			LWCHAR bch;

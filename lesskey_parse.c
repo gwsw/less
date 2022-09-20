@@ -363,10 +363,10 @@ clean_line(s)
  */
 	static void
 add_cmd_char(c, tables)
-	int c;
+	char c;
 	struct lesskey_tables *tables;
 {
-	xbuf_add(&tables->currtable->buf, c);
+	xbuf_add_byte(&tables->currtable->buf, (unsigned char) c);
 }
 
 	static void
@@ -563,14 +563,14 @@ parse_cmdline(p, tables)
 	p = skipsp(p);
 	if (*p == '\0')
 	{
-		add_cmd_char(action, tables);
+		add_cmd_char((char) action, tables);
 	} else
 	{
 		/*
 		 * OR the special value A_EXTRA into the action byte.
 		 * Put the extra string after the action byte.
 		 */
-		add_cmd_char(action | A_EXTRA, tables);
+		add_cmd_char((char) (action | A_EXTRA), tables);
 		while (*p != '\0')
 			add_cmd_str(tstr(&p, 0), tables);
 		add_cmd_char('\0', tables);

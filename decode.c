@@ -916,10 +916,10 @@ lesskey_src(filename, sysvar)
 	int r = parse_lesskey(filename, &tables);
 	if (r != 0)
 		return (r);
-	add_fcmd_table(tables.cmdtable.buf.data, tables.cmdtable.buf.end);
-	add_ecmd_table(tables.edittable.buf.data, tables.edittable.buf.end);
+	add_fcmd_table(xbuf_char_data(&tables.cmdtable.buf), tables.cmdtable.buf.end);
+	add_ecmd_table(xbuf_char_data(&tables.edittable.buf), tables.edittable.buf.end);
 	add_var_table(sysvar ? &list_sysvar_tables : &list_var_tables,
-		tables.vartable.buf.data, tables.vartable.buf.end);
+		xbuf_char_data(&tables.vartable.buf), tables.vartable.buf.end);
 	return (0);
 }
 
