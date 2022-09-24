@@ -21,7 +21,7 @@
 extern void lesskey_parse_error(char *msg);
 extern char *homefile(char *filename);
 extern void *ecalloc(int count, unsigned int size);
-extern int lstrtoi(char *str, char **end);
+extern int lstrtoi(char *str, char **end, int radix);
 extern char version[];
 
 static int linenum;
@@ -439,7 +439,7 @@ version_line(s, tables)
 		return (NULL);
 	}
 	s = skipsp(s);
-	ver = lstrtoi(s, &e);
+	ver = lstrtoi(s, &e, 10);
 	if (e == s)
 	{
 		parse_error("non-numeric version number in #version line", "");
@@ -678,7 +678,7 @@ parse_lesskey(infile, tables)
 	errors = 0;
 	linenum = 0;
 	if (less_version == 0)
-		less_version = lstrtoi(version, NULL);
+		less_version = lstrtoi(version, NULL, 10);
 
 	/*
 	 * Open the input file.

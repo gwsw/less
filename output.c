@@ -504,15 +504,17 @@ TYPE_TO_A_FUNC(inttoa, int)
  * Convert an string to an integral type.
  */
 #define STR_TO_TYPE_FUNC(funcname, type) \
-type funcname(buf, ebuf) \
+type funcname(buf, ebuf, radix) \
 	char *buf; \
 	char **ebuf; \
+	int radix; \
 { \
 	type val = 0; \
 	for (;; buf++) { \
 		char c = *buf; \
-		if (c < '0' || c > '9') break; \
-		val = 10 * val + c - '0'; \
+		int digit = (c >= '0' && c <= '9') ? c - '0' : (c >= 'a' && c <= 'f') ? c - 'a' + 10 : (c >= 'A' && c <= 'F') ? c - 'A' + 10 : -1; \
+		if (digit < 0 || digit >= radix) break; \
+		val = radix * val + digit; \
 	} \
 	if (ebuf != NULL) *ebuf = buf; \
 	return val; \

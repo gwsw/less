@@ -1662,7 +1662,7 @@ ltputs(str, affcnt, f_putc)
 				do_tputs(str2, affcnt, f_putc);
 				str += slen + 2;
 				/* Perform the delay. */
-				delay = lstrtoi(str, &str);
+				delay = lstrtoi(str, &str, 10);
 				if (*str == '*')
 					delay *= affcnt;
 				flush();
@@ -2469,7 +2469,7 @@ parse_color6(ps)
 	} else
 	{
 		char *ops = *ps;
-		int color = lstrtoi(ops, ps);
+		int color = lstrtoi(ops, ps, 10);
 		if (*ps == ops)
 			return CV_ERROR;
 		return color;

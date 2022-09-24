@@ -70,10 +70,10 @@ pr_error(s)
 }
 
 	static long
-lstrtol(s, radix, pend)
+lstrtol(s, pend, radix)
 	char *s;
-	int radix;
 	char **pend;
+	int radix;
 {
 	int v;
 	int neg = 0;
@@ -210,7 +210,7 @@ main(argc, argv)
 			closequote = *++arg;
 			break;
 		case 'd':
-			closequote = lstrtol(++arg, 0, &s);
+			closequote = lstrtol(++arg, &s, 0);
 			if (s == arg)
 				pr_error("Missing number after -d");
 			break;
@@ -221,7 +221,7 @@ main(argc, argv)
 				meta_escape = arg;
 			break;
 		case 'f':
-			meta_escape_buf[0] = lstrtol(++arg, 0, &s);
+			meta_escape_buf[0] = lstrtol(++arg, &s, 0);
 			meta_escape_buf[1] = '\0';
 			meta_escape = meta_escape_buf;
 			if (s == arg)
@@ -231,7 +231,7 @@ main(argc, argv)
 			openquote = *++arg;
 			break;
 		case 'p':
-			openquote = lstrtol(++arg, 0, &s);
+			openquote = lstrtol(++arg, &s, 0);
 			if (s == arg)
 				pr_error("Missing number after -p");
 			break;
@@ -239,7 +239,7 @@ main(argc, argv)
 			add_metachar(*++arg);
 			break;
 		case 'n':
-			add_metachar(lstrtol(++arg, 0, &s));
+			add_metachar(lstrtol(++arg, &s, 0));
 			if (s == arg)
 				pr_error("Missing number after -n");
 			break;

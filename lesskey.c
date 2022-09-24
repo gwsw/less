@@ -123,11 +123,12 @@ lesskey_parse_error(s)
 }
 
 	int
-lstrtoi(buf, ebuf)
+lstrtoi(buf, ebuf, radix)
 	char *buf;
 	char **ebuf;
+	int radix;
 {
-	return (int) strtol(buf, ebuf, 10);
+	return (int) strtol(buf, ebuf, radix);
 }
 
 	void *
