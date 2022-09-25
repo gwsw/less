@@ -522,6 +522,7 @@ type funcname(buf, ebuf, radix) \
 
 STR_TO_TYPE_FUNC(lstrtopos, POSITION)
 STR_TO_TYPE_FUNC(lstrtoi, int)
+STR_TO_TYPE_FUNC(lstrtoul, unsigned long)
 
 /*
  * Output an integer in a given radix.

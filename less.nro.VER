@@ -1671,7 +1671,43 @@ octets of a complete but non-shortest form sequence, invalid octets,
 and stray trailing octets)
 are displayed individually using LESSBINFMT so as to facilitate diagnostic
 of how the UTF-8 file is ill-formed.
-.
+.PP
+When the character set is utf-8, in rare cases it may be desirable to
+override the Unicode definition of the type of certain characters.
+For example, characters in a Private Use Area are normally treated as control
+characters, but if you are using a custom font with printable characters
+in that range, it may be desirable to tell
+.I less
+to treat such characters as printable.
+This can be done by setting the LESSUTFCHARDEF environment variable
+to a comma-separated list of 
+.I "character type"
+definitions.
+Each character type definition consists of either one hexadecimal codepoint
+or a pair of codepoints separated by a dash,
+followed by a colon and a type character.
+Each hexadecimal codepoint may optionally be preceded by a "U" or "U+".
+If a pair of codepoints is given, the type is set for
+all characters inclusively between the two values.
+The type character may be one of:
+.RS
+.IP "p"
+A normal printable character.
+.IP "w"
+A wide (2-space) printable character.
+.IP "b"
+A binary (non-printable) character.
+.IP "c"
+A composing (zero width) character.
+.RE
+.PP
+For example, setting LESSUTFCHARDEF to
+.nf
+.sp
+	E000-F8FF:p,F0000-FFFFD:p,100000-10FFFD:p
+.sp
+.fi
+would make all Private Use Area characters be treated as printable.
 .SH "PROMPTS"
 The \-P option allows you to tailor the prompt to your preference.
 The string given to the \-P option replaces the specified prompt string.
@@ -2025,6 +2061,8 @@ See discussion under SECURITY.
 String to be appended to a directory name in filename completion.
 .IP LESSUTFBINFMT
 Format for displaying non-printable Unicode code points.
+.IP LESSUTFCHARDEF 
+Overrides the type of specified Unicode characters.
 .IP LESS_IS_MORE
 Emulate the
 .IR more (1)

@@ -21,6 +21,7 @@
 #endif
 
 #include "charset.h"
+#include "xbuf.h"
 
 #if MSDOS_COMPILER==WIN32C
 #define WIN32_LEAN_AND_MEAN
@@ -123,6 +124,118 @@ static char *binfmt = NULL;
 static char *utfbinfmt = NULL;
 public int binattr = AT_STANDOUT|AT_COLOR_BIN;
 
+static struct xbuffer user_wide_array;
+static struct xbuffer user_ubin_array;
+static struct xbuffer user_compose_array;
+static struct xbuffer user_prt_array;
+static struct wchar_range_table user_wide_table;
+static struct wchar_range_table user_ubin_table;
+static struct wchar_range_table user_compose_table;
+static struct wchar_range_table user_prt_table;
+
+/*
+ * Set a wchar_range_table to the table in an xbuffer.
+ */
+	static void
+wchar_range_table_set(tbl, arr)
+	struct wchar_range_table *tbl;
+	struct xbuffer *arr;
+{
+	tbl->table = (struct wchar_range *) arr->data;
+	tbl->count = arr->end / sizeof(struct wchar_range);
+}
+
+/*
+ * Skip over a "U" or "U+" prefix before a hex codepoint.
+ */
+	static char *
+skip_uprefix(s)
+	char *s;
+{
+	if (*s == 'U' || *s == 'u')
+		if (*++s == '+') ++s;
+	return s;
+}
+
+/*
+ * Parse a dash-separated range of hex values.
+ */
+	static void
+wchar_range_get(ss, range)
+	char **ss;
+	struct wchar_range *range;
+{
+	char *s = skip_uprefix(*ss);
+	range->first = lstrtoul(s, &s, 16);
+	if (s[0] == '-')
+	{
+		s = skip_uprefix(&s[1]);
+		range->last = lstrtoul(s, &s, 16);
+	} else 
+	{
+		range->last = range->first;
+	}
+	*ss = s;
+}
+
+/*
+ * Parse the LESSUTFCHARDEF variable.
+ */
+	static void
+ichardef_utf(s)
+	char *s;
+{
+	xbuf_init(&user_wide_array);
+	xbuf_init(&user_ubin_array);
+	xbuf_init(&user_compose_array);
+	xbuf_init(&user_prt_array);
+
+	if (s != NULL)
+	{
+		while (s[0] != '\0')
+		{
+			struct wchar_range range;
+			wchar_range_get(&s, &range);
+			if (range.last == 0)
+			{
+				error("invalid hex number(s) in LESSUTFCHARDEF", NULL_PARG);
+				quit(QUIT_ERROR);
+			}
+			if (*s++ != ':')
+			{
+				error("missing colon in LESSUTFCHARDEF", NULL_PARG);
+				quit(QUIT_ERROR);
+			}
+			switch (*s++)
+			{
+			case 'b':
+				xbuf_add_data(&user_ubin_array, (unsigned char *) &range, sizeof(range));
+				break;
+			case 'c':
+				xbuf_add_data(&user_compose_array, (unsigned char *) &range, sizeof(range));
+				break;
+			case 'w':
+				xbuf_add_data(&user_wide_array, (unsigned char *) &range, sizeof(range));
+				xbuf_add_data(&user_prt_array, (unsigned char *) &range, sizeof(range));
+				break;
+			case 'p': case '.':
+				xbuf_add_data(&user_prt_array, (unsigned char *) &range, sizeof(range));
+				break;
+			case '\0':
+				s--;
+				break;
+			default:
+				error("invalid unicode attribute in LESSUTFCHARDEF", NULL_PARG);
+				quit(QUIT_ERROR);
+			}
+			if (s[0] == ',') ++s;
+		}
+	}
+	wchar_range_table_set(&user_wide_table, &user_wide_array);
+	wchar_range_table_set(&user_ubin_table, &user_ubin_array);
+	wchar_range_table_set(&user_compose_table, &user_compose_array);
+	wchar_range_table_set(&user_prt_table, &user_prt_array);
+}
 
 /*
  * Define a charset, given a description string.
@@ -327,6 +440,9 @@ set_charset(VOID_PARAM)
 		if (icharset("utf-8", 1))
 			return;
 #endif
+
+	ichardef_utf(lgetenv("LESSUTFCHARDEF"));
+
 	/*
 	 * See if environment variable LESSCHARSET is defined.
 	 */
@@ -767,7 +883,7 @@ is_in_table(ch, table)
 	int lo;
 
 	/* Binary search in the table. */
-	if (ch < table->table[0].first)
+	if (table->table == NULL || table->count == 0 || ch < table->table[0].first)
 		return 0;
 	lo = 0;
 	hi = table->count - 1;
@@ -792,7 +908,9 @@ is_in_table(ch, table)
 is_composing_char(ch)
 	LWCHAR ch;
 {
-	return is_in_table(ch, &compose_table) ||
+	if (is_in_table(ch, &user_prt_table)) return 0;
+	return is_in_table(ch, &user_compose_table) ||
+	       is_in_table(ch, &compose_table) ||
 	       (bs_mode != BS_CONTROL && is_in_table(ch, &fmt_table));
 }
 
@@ -803,9 +921,10 @@ is_composing_char(ch)
 is_ubin_char(ch)
 	LWCHAR ch;
 {
-	int ubin = is_in_table(ch, &ubin_table) ||
-	           (bs_mode == BS_CONTROL && is_in_table(ch, &fmt_table));
-	return ubin;
+	if (is_in_table(ch, &user_prt_table)) return 0;
+	return is_in_table(ch, &user_ubin_table) ||
+	       is_in_table(ch, &ubin_table) ||
+	       (bs_mode == BS_CONTROL && is_in_table(ch, &fmt_table));
 }
 
 /*
@@ -815,7 +934,8 @@ is_ubin_char(ch)
 is_wide_char(ch)
 	LWCHAR ch;
 {
-	return is_in_table(ch, &wide_table);
+	return is_in_table(ch, &user_wide_table) ||
+	       is_in_table(ch, &wide_table);
 }
 
 /*

@@ -582,6 +582,7 @@ void linenumtoa LESSPARAMS ((LINENUM, char*));
 void inttoa LESSPARAMS ((int, char*));
 int lstrtoi LESSPARAMS ((char*, char**, int));
 POSITION lstrtopos LESSPARAMS ((char*, char**, int));
+unsigned long lstrtoul LESSPARAMS ((char*, char**, int));
 #if MSDOS_COMPILER==WIN32C
 int pclose LESSPARAMS ((FILE*));
 #endif
