@@ -1689,6 +1689,8 @@ followed by a colon and a type character.
 Each hexadecimal codepoint may optionally be preceded by a "U" or "U+".
 If a pair of codepoints is given, the type is set for
 all characters inclusively between the two values.
+If there are multiple comma-separated codepoint values,
+they must be in ascending numerical order.
 The type character may be one of:
 .RS
 .IP "p"
