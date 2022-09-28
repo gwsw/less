@@ -85,6 +85,9 @@
 #endif
 #if HAVE_STDLIB_H
 #include <stdlib.h>
+#else
+#define EXIT_SUCCESS    0
+#define EXIT_FAILURE    1
 #endif
 #if HAVE_STRING_H
 #include <string.h>
@@ -527,9 +530,9 @@ typedef enum {
 #define S_WINCH         04
 #define ABORT_SIGS()    (sigs & (S_INTERRUPT|S_STOP))
 
-#define QUIT_OK         0
-#define QUIT_ERROR      1
-#define QUIT_INTERRUPT  2
+#define QUIT_OK         EXIT_SUCCESS
+#define QUIT_ERROR      EXIT_FAILURE
+#define QUIT_INTERRUPT  (EXIT_FAILURE + 1)
 #define QUIT_SAVED_STATUS (-1)
 
 #define FOLLOW_DESC     0
