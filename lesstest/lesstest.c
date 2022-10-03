@@ -13,24 +13,24 @@ jmp_buf run_catch;
 
 static char* testfile = NULL;
 
-int usage(void) {
+static int usage(void) {
 	fprintf(stderr, "usage: lesstest -o file.lt [-w#] [-h#] [--] less.exe [flags] textfile\n");
 	fprintf(stderr, "   or: lesstest -t file.lt less.exe\n");
 	return 0;
 }
 
-void child_handler(int signum) {
+static void child_handler(int signum) {
 	int status;
 	pid_t child = wait(&status);
 	if (verbose) fprintf(stderr, "child %d died, status 0x%x\n", child, status);
 }
 
-void intr_handler(int signum) {
+static void intr_handler(int signum) {
 	less_quit = 1;
 	if (run_catching) longjmp(run_catch, 1);
 }
 
-int setup(int argc, char* const* argv) {
+static int setup(int argc, char* const* argv) {
 	char* logfile = NULL;
 	int ch;
 	while ((ch = getopt(argc, argv, "do:s:t:v")) != -1) {

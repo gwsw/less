@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdarg.h>
 #include <sys/stat.h>
 #include "lesstest.h"
 
@@ -48,6 +49,19 @@ int log_screen(const byte* img, int len) {
 	fwrite("\n", 1, 1, logf);
 	return 1;
 }
+
+#if 0
+int log_debug(char const* fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	fprintf(logf, "D ");
+	vfprintf(logf, fmt, ap);
+	fprintf(logf, "\n");
+	va_end(ap);
+	fflush(logf);
+	return 1;
+}
+#endif
 
 int log_command(char* const* argv, int argc, const char* textfile) {
 	if (logf == NULL) return 0;

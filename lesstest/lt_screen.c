@@ -46,7 +46,7 @@ static int verbose = 0;
 
 // ------------------------------------------------------------------
 
-void screen_init() {
+static void screen_init() {
 	screen.w = 80;
 	screen.h = 24;
 	screen.cx = 0;
@@ -58,7 +58,7 @@ void screen_init() {
 	screen.params[0] = 0;
 }
 
-void param_print() {
+static void param_print() {
 	int i;
 	fprintf(stderr, "(");
 	for (i = 0; i <= screen.param_top; ++i)
@@ -66,37 +66,37 @@ void param_print() {
 	fprintf(stderr, ")");
 }
 
-void param_push(int v) {
+static void param_push(int v) {
 	if (screen.param_top >= (int) countof(screen.params)-1)
 		return;
 	screen.params[++screen.param_top] = v;
 }
 
-int param_pop(){
+static int param_pop(){
 	if (screen.param_top < 0)
 		return 0; // missing param is assumed to be 0
 	return screen.params[screen.param_top--];
 }
 
-int screen_x(int x) {
+static int screen_x(int x) {
 	if (x < 0) x = 0;
 	if (x >= screen.w) x = screen.w-1;
 	return x;
 }
 
-int screen_y(int y) {
+static int screen_y(int y) {
 	if (y < 0) y = 0;
 	if (y >= screen.h) y = screen.h-1;
 	return y;
 }
 
-ScreenChar* screen_char(int x, int y) {
+static ScreenChar* screen_char(int x, int y) {
 	x = screen_x(x);
-	y = screen_x(y);
+	y = screen_y(y);
 	return &screen.chars[y * screen.w + x];
 }
 
-int screen_incr(int* px, int* py) {
+static int screen_incr(int* px, int* py) {
 	if (++(*px) >= screen.w) {
 		*px = 0;
 		if (++(*py) >= screen.h) {
@@ -107,7 +107,7 @@ int screen_incr(int* px, int* py) {
 	return 1;
 }
 
-void screen_char_set(int x, int y, wchar ch, Attr attr, Color fg_color, Color bg_color) {
+static void screen_char_set(int x, int y, wchar ch, Attr attr, Color fg_color, Color bg_color) {
 	ScreenChar* sc = screen_char(x, y);
 	sc->ch = ch;
 	sc->attr = attr;
@@ -115,7 +115,7 @@ void screen_char_set(int x, int y, wchar ch, Attr attr, Color fg_color, Color bg
 	sc->bg_color = bg_color;
 }
 
-int screen_clear(int x, int y, int count) {
+static int screen_clear(int x, int y, int count) {
 	while (count-- > 0) {
 		screen_char_set(x, y, '_', 0, 0, 0);
 		screen_incr(&x, &y);
@@ -123,11 +123,7 @@ int screen_clear(int x, int y, int count) {
 	return 1;
 }
 
-int screen_busy() {
-	write(ttyout, "*BUSY*\n", 7);
-	return 1;
-}
-int screen_read(int x, int y, int count) {
+static int screen_read(int x, int y, int count) {
 	//write(ttyout, "$|", 2);
 	int attr = 0;
 	int fg_color = 0;
@@ -160,55 +156,55 @@ int screen_read(int x, int y, int count) {
 	return 1;
 }
 
-int screen_move(int x, int y) {
+static int screen_move(int x, int y) {
 	screen.cx = x;
 	screen.cy = y;
 	return 1;
 }
 
-int screen_cr() {
+static int screen_cr() {
 	screen.cx = 0;
 	return 1;
 }
 
-int screen_bs() {
+static int screen_bs() {
 	if (screen.cx <= 0) return 0;
 	--screen.cx;
 	return 1;
 }
 
-int screen_scroll() {
+static int screen_scroll() {
 	int len = screen.w * (screen.h-1);
 	memmove(screen_char(0,0), screen_char(0,1), len * sizeof(ScreenChar));
 	screen_clear(0, screen.h-1, screen.w);
 	return 1;
 }
 
-int screen_rscroll() {
+static int screen_rscroll() {
 	int len = screen.w * (screen.h-1);
 	memmove(screen_char(0,1), screen_char(0,0), len * sizeof(ScreenChar));
 	screen_clear(0, 0, screen.w);
 	return 1;
 }
 
-int screen_set_attr(int attr) {
+static int screen_set_attr(int attr) {
 	screen.curr_attr |= attr;
 	return 0;
 }
 
-int screen_clear_attr(int attr) {
+static int screen_clear_attr(int attr) {
 	screen.curr_attr &= ~attr;
 	return 0;
 }
 
 // ------------------------------------------------------------------ 
 
-void beep() {
+static void beep() {
 	if (!quiet)
 		fprintf(stderr, "\7");
 }
 
-int exec_esc(wchar ch) {
+static int exec_esc(wchar ch) {
 	int x, y, count;
 	if (verbose) {
 		fprintf(stderr, "exec ESC-%c ", (char)ch);
@@ -266,8 +262,8 @@ int exec_esc(wchar ch) {
 	}
 }
 
-int add_char(wchar ch) {
-	if (verbose) fprintf(stderr, "add %lx at %d,%d\n", ch, screen.cx, screen.cy);
+static int add_char(wchar ch) {
+	if (verbose) fprintf(stderr, "add (%c) %lx at %d,%d\n", (char)ch, (long)ch, screen.cx, screen.cy);
 	screen_char_set(screen.cx, screen.cy, ch, screen.curr_attr, screen.curr_fg_color, screen.curr_bg_color);
 	int fits = screen_incr(&screen.cx, &screen.cy);
 	if (fits && is_wide_char(ch)) {
@@ -282,7 +278,7 @@ int add_char(wchar ch) {
 	return 1;
 }
 
-int process_char(wchar ch) {
+static int process_char(wchar ch) {
 	int ok = 1;
 	if (screen.in_esc) {
 		if (ch >= '0' && ch <= '9') {
@@ -315,28 +311,18 @@ int process_char(wchar ch) {
 	return ok;
 }
 
-void screen_dump_handler(int signum) {
-	// (signum == LTSIG_READ_SCREEN)
-	if (verbose) fprintf(stderr, "screen: rcv dump signal\n");
-	(void) screen_read(0, 0, screen.w * screen.h);
-}
-
 // ------------------------------------------------------------------ 
 
-int setup(int argc, char** argv) {
+static int setup(int argc, char** argv) {
 	int ch;
-	int ready_pid = 0;
 	screen_init();
-	while ((ch = getopt(argc, argv, "h:qr:vw:")) != -1) {
+	while ((ch = getopt(argc, argv, "h:qvw:")) != -1) {
 		switch (ch) {
 		case 'h':
 			screen.h = atoi(optarg);
 			break;
 		case 'q':
 			quiet = 1;
-			break;
-		case 'r':
-			ready_pid = atoi(optarg);
 			break;
 		case 'v':
 			++verbose;
@@ -361,9 +347,6 @@ int setup(int argc, char** argv) {
 			return 0;
 		}
 	}
-	signal(LTSIG_SCREEN_DUMP, screen_dump_handler);
-	if (ready_pid != 0)
-		kill(ready_pid, LTSIG_SCREEN_READY);
 	return 1;
 }
 

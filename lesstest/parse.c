@@ -3,7 +3,7 @@
 
 extern int verbose;
 
-char* parse_qstring(const char** s) {
+static char* parse_qstring(const char** s) {
 	while (*(*s) == ' ') ++(*s);
 	if (*(*s)++ != '"') return NULL;
 	const char* start = *s;
@@ -13,11 +13,11 @@ char* parse_qstring(const char** s) {
 	return ret;
 }
 
-int parse_int(const char** s) {
+static int parse_int(const char** s) {
 	return (int) strtol(*s, (char**)s, 0);
 }
 
-int parse_env(TestSetup* setup, const char* line, int line_len) {
+static int parse_env(TestSetup* setup, const char* line, int line_len) {
 	char* name = parse_qstring(&line);
 	char* value = parse_qstring(&line);
 	env_addpair(&setup->env, name, value);
@@ -26,7 +26,7 @@ int parse_env(TestSetup* setup, const char* line, int line_len) {
 	return 1;
 }
 
-int parse_command(TestSetup* setup, const char* less, const char* line, int line_len) {
+static int parse_command(TestSetup* setup, const char* less, const char* line, int line_len) {
 	setup->argv = (char**) malloc(32*sizeof(const char*));
 	setup->argc = 1;
 	setup->argv[0] = (char*) less;
@@ -39,7 +39,7 @@ int parse_command(TestSetup* setup, const char* less, const char* line, int line
 	return 1;
 }
 
-int parse_textfile(TestSetup* setup, const char* line, int line_len, FILE* fd) {
+static int parse_textfile(TestSetup* setup, const char* line, int line_len, FILE* fd) {
 	const char* filename = parse_qstring(&line);
 	if (access(filename, F_OK) == 0) {
 		fprintf(stderr, "%s already exists\n", filename);
@@ -67,7 +67,7 @@ int parse_textfile(TestSetup* setup, const char* line, int line_len, FILE* fd) {
 	return 1;
 }
 
-TestSetup* new_test_setup(void) {
+static TestSetup* new_test_setup(void) {
 	TestSetup* setup = (TestSetup*) malloc(sizeof(TestSetup));
 	setup->textfile = NULL;
 	setup->argv = NULL;

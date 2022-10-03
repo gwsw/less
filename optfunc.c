@@ -75,7 +75,6 @@ extern char ztags[];
 #endif
 #if LESSTEST
 extern char *ttyin_name;
-extern int rstat_file;
 #endif /*LESSTEST*/
 #if MSDOS_COMPILER
 extern int nm_fg_color, nm_bg_color;
@@ -1103,29 +1102,6 @@ opt_ttyin_name(type, s)
 	case INIT:
 		ttyin_name = s;
 		is_tty = 1;
-		break;
-	}
-}
-
-/*
- * Handler for the --rstat option.
- */
-	/*ARGSUSED*/
-	public void
-opt_rstat(type, s)
-	int type;
-	char *s;
-{
-	switch (type)
-	{
-	case INIT:
-		rstat_file = open(s, O_WRONLY|O_CREAT, 0664);
-		if (rstat_file < 0)
-		{
-			PARG parg;
-			parg.p_string = s;
-			error("Cannot create rstat file \"%s\"", &parg);
-		}
 		break;
 	}
 }

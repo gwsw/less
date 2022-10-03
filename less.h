@@ -568,6 +568,10 @@ typedef enum {
 #define X11MOUSE_WHEEL_DOWN 0x41 /* Wheel scroll down */
 #define X11MOUSE_OFFSET     0x20 /* Added to button & pos bytes to create a char */
 
+#if LESSTEST
+#define LESS_DUMP_CHAR CONTROL(']')
+#endif
+
 struct mlist;
 struct loption;
 struct hilite_tree;

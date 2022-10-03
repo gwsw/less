@@ -24,7 +24,6 @@ typedef struct TestSetup {
 typedef struct LessPipeline {
 	int less_in;
 	int screen_out;
-	int rstat_file;
 	int screen_width;
 	int screen_height;
 	pid_t screen_pid;
@@ -79,8 +78,5 @@ const char* get_envp(char* const* envp, const char* name);
 int run_interactive(char* const* argv, int argc, char* const* envp);
 int run_testfile(const char* testfile, const char* less);
 void env_init(EnvBuf* env);
-void env_addchar(EnvBuf* env, char ch);
-void env_addstr(EnvBuf* env, const char* str);
 void env_addpair(EnvBuf* env, const char* name, const char* value);
-void env_setup(EnvBuf* env, char* const* prog_env, const char* env_prefix);
 char* const* less_envp(char* const* envp, const char* env_prefix);

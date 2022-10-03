@@ -8,28 +8,28 @@ void env_init(EnvBuf* env) {
 	*--(env->env_list) = NULL;
 }
 
-void env_check(EnvBuf* env) {
+static void env_check(EnvBuf* env) {
 	if (env->env_estr >= (const char*) env->env_list) {
 		fprintf(stderr, "ENVBUF_SIZE too small!\n");
 		abort();
 	}
 }
 
-void env_addchar(EnvBuf* env, char ch) {
+static void env_addchar(EnvBuf* env, char ch) {
 	*(env->env_estr)++ = ch;
 	env_check(env);
 }
 
-void env_addlstr(EnvBuf* env, const char* str, int strlen) {
+static void env_addlstr(EnvBuf* env, const char* str, int strlen) {
 	while (strlen-- > 0)
 		env_addchar(env, *str++);
 }
 
-void env_addstr(EnvBuf* env, const char* str) {
+static void env_addstr(EnvBuf* env, const char* str) {
 	env_addlstr(env, str, strlen(str));
 }
 
-void env_addlpair(EnvBuf* env, const char* name, int namelen, const char* value) {
+static void env_addlpair(EnvBuf* env, const char* name, int namelen, const char* value) {
 	*--(env->env_list) = env->env_estr;
 	env_check(env);
 	env_addlstr(env, name, namelen);
@@ -48,7 +48,7 @@ void env_addintpair(EnvBuf* env, const char* name, int value) {
 	env_addpair(env, name, buf);
 }
 
-void env_setup(EnvBuf* env, char* const* prog_env, const char* env_prefix) {
+static void env_setup(EnvBuf* env, char* const* prog_env, const char* env_prefix) {
 	env_addpair(env, "LESS_TERMCAP_am", "1");
 	env_addpair(env, "LESS_TERMCAP_cd", "\33S");
 	env_addpair(env, "LESS_TERMCAP_ce", "\33L");
@@ -85,6 +85,10 @@ void env_setup(EnvBuf* env, char* const* prog_env, const char* env_prefix) {
 			}
 		}
 	}
+	if (get_envp(env->env_list, "LINES") == NULL)
+		env_addpair(env, "LINES", get_envp(prog_env, "LINES"));
+	if (get_envp(env->env_list, "COLUMNS") == NULL)
+		env_addpair(env, "COLUMNS", get_envp(prog_env, "COLUMNS"));
 }
 
 const char* get_envp(char* const* envp, const char* name) {

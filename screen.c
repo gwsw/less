@@ -763,6 +763,7 @@ scrsize(VOID_PARAM)
 
 	sys_width = sys_height = 0;
 
+#if !LESSTEST
 #if MSDOS_COMPILER==MSOFTC
 	{
 		struct videoconfig w;
@@ -845,6 +846,7 @@ scrsize(VOID_PARAM)
 #endif
 #endif
 #endif
+#endif /*LESSTEST*/
 
 	if (sys_height > 0)
 		sc_height = sys_height;
@@ -1628,7 +1630,7 @@ do_tputs(str, affcnt, f_putc)
 	int (*f_putc)(int);
 {
 #if LESSTEST
-	if (ttyin_name != NULL)
+	if (ttyin_name != NULL && f_putc == putchr)
 		putstr(str);
 	else
 #endif /*LESSTEST*/
@@ -1840,6 +1842,14 @@ home(VOID_PARAM)
 	flush();
 	_settextposition(1,1);
 #endif
+}
+
+	public void
+dump_screen(VOID_PARAM)
+{
+	char dump_cmd[32];
+	SNPRINTF1(dump_cmd, sizeof(dump_cmd), ESCS"0;0;%dR", sc_width * sc_height);
+	ltputs(dump_cmd, sc_height, putchr);
 }
 
 /*

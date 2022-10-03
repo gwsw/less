@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <setjmp.h>
 #include "lesstest.h"
+#include <errno.h>
 
 extern int verbose;
 extern int less_quit;
@@ -10,16 +11,7 @@ extern TermInfo terminfo;
 extern int run_catching;
 extern jmp_buf run_catch;
 
-void sleep_ms(int ms) {
-	#define NS_PER_MS (1000*1000)
-	struct timespec tm;
-	tm.tv_sec = ms / 1000;
-	tm.tv_nsec = (ms % 1000) * NS_PER_MS;
-	if (nanosleep(&tm, NULL) < 0)
-		fprintf(stderr, "sleep error: %s\n", strerror(errno));
-}
-
-void send_char(LessPipeline* pipeline, wchar ch) {
+static void send_char(LessPipeline* pipeline, wchar ch) {
 	if (verbose) fprintf(stderr, "send %lx\n", ch);
 	byte cbuf[UNICODE_MAX_BYTES];
 	byte* cp = cbuf;
@@ -27,32 +19,11 @@ void send_char(LessPipeline* pipeline, wchar ch) {
 	write(pipeline->less_in, cbuf, cp-cbuf);
 }
 
-	
-void wait_less_ready(LessPipeline* pipeline) {
-	if (pipeline->rstat_file < 0) return;
-	for (;;) {
-		lseek(pipeline->rstat_file, SEEK_SET, 0);
-		char st;
-		if (read(pipeline->rstat_file, &st, 1) == 1) {
-			if (st == 'R')
-				break;
-			if (st == 'Q') {
-				less_quit = 1;
-				fprintf(stderr, "less quit\n");
-				break;
-			}
-		}
-		sleep_ms(1);
-	}
-	sleep_ms(25); // why is this needed? rstat should prevent need for this
-}
-
-int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
+static int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
 	if (verbose) fprintf(stderr, "gen: read screen\n");
-	wait_less_ready(pipeline);
-	if (less_quit)
+	send_char(pipeline, LESS_DUMP_CHAR);
+	if (less_quit) //@@@ FIXME need?
 		return 0;
-	kill(pipeline->screen_pid, LTSIG_SCREEN_DUMP);
 	int rn = 0;
 	for (; rn <= buflen; ++rn) {
 		if (read(pipeline->screen_out, &buf[rn], 1) != 1)
@@ -63,7 +34,7 @@ int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
 	return rn;
 }
 
-void read_and_display_screen(LessPipeline* pipeline) {
+static void read_and_display_screen(LessPipeline* pipeline) {
 	byte rbuf[MAX_SCREENBUF_SIZE];
 	int rn = read_screen(pipeline, rbuf, sizeof(rbuf));
 	if (rn == 0) return;
@@ -72,7 +43,7 @@ void read_and_display_screen(LessPipeline* pipeline) {
 	log_screen(rbuf, rn);
 }
 
-int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen) {
+static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen) {
 	byte curr[MAX_SCREENBUF_SIZE];
 	int currlen = read_screen(pipeline, curr, sizeof(curr));
 	if (currlen == imglen && memcmp(img, curr, imglen) == 0)

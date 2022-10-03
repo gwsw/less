@@ -9,7 +9,6 @@
 
 extern int verbose;
 extern char* lt_screen;
-static char* rstat_file_name = "less.rstat";
 static const int run_less = 1;
 
 static void dup_and_close(int dup0, int dup1, int close0, int close1) {
@@ -19,13 +18,13 @@ static void dup_and_close(int dup0, int dup1, int close0, int close1) {
 	if (dup1 >= 0) dup2(dup1, 1);
 }
 
-const char* basename(const char* path) {
+static const char* basename(const char* path) {
 	const char* slash = strrchr(path, '/');
 	if (slash == NULL) return path;
 	return slash+1;
 }
 
-void become_child_less(char* less, int argc, char* const* argv, char* const* envp, const char* tempfile, int less_in_pipe[2], int screen_in_pipe[2]) {
+static void become_child_less(char* less, int argc, char* const* argv, char* const* envp, const char* tempfile, int less_in_pipe[2], int screen_in_pipe[2]) {
 	if (verbose) fprintf(stderr, "less child: in %d, out %d, close %d,%d\n", less_in_pipe[RD], screen_in_pipe[WR], less_in_pipe[WR], screen_in_pipe[RD]);
 	dup_and_close(less_in_pipe[RD], screen_in_pipe[WR],
 				  less_in_pipe[WR], screen_in_pipe[RD]);
@@ -33,9 +32,7 @@ void become_child_less(char* less, int argc, char* const* argv, char* const* env
 	less_argv[0] = less;
 	less_argv[1] = "--tty";
 	less_argv[2] = "/dev/stdin";
-	less_argv[3] = "--rstat";
-	less_argv[4] = rstat_file_name;
-	int less_argc = 5;
+	int less_argc = 3;//5;
 	while (--argc > 0) {
 		char* arg = *++argv;
 		less_argv[less_argc++] = (argc > 1 || tempfile == NULL) ? arg : (char*) tempfile;
@@ -47,7 +44,7 @@ void become_child_less(char* less, int argc, char* const* argv, char* const* env
 	exit(1);
 }
 
-void become_child_screen(char* lt_screen, int screen_width, int screen_height, int screen_in_pipe[2], int screen_out_pipe[2]) {
+static void become_child_screen(char* lt_screen, int screen_width, int screen_height, int screen_in_pipe[2], int screen_out_pipe[2]) {
 	if (verbose) fprintf(stderr, "screen child: in %d, out %d, close %d\n", screen_in_pipe[RD], screen_out_pipe[WR], screen_out_pipe[RD]);
 	dup_and_close(screen_in_pipe[RD], screen_out_pipe[WR], screen_out_pipe[RD], -1);
 	char* screen_argv[10];
@@ -77,13 +74,12 @@ void become_child_screen(char* lt_screen, int screen_width, int screen_height, i
 	exit(1);
 }
 
-LessPipeline* new_pipeline() {
+static LessPipeline* new_pipeline() {
 	LessPipeline* pipeline = malloc(sizeof(LessPipeline));
 	pipeline->less_in_pipe[RD] = pipeline->less_in_pipe[WR] = -1;
 	pipeline->screen_in_pipe[RD] = pipeline->screen_in_pipe[WR] = -1;
 	pipeline->screen_out_pipe[RD] = pipeline->screen_out_pipe[WR] = -1;
 	pipeline->less_in = pipeline->screen_out = -1;
-	pipeline->rstat_file = -1;
 	pipeline->tempfile = NULL;
 	pipeline->screen_pid = 0;
 	pipeline->screen_width = pipeline->screen_height = 0;
@@ -105,13 +101,6 @@ LessPipeline* create_less_pipeline(char* const* argv, int argc, char* const* env
 		textfile = textbase;
 	}
 	if (pipe(pipeline->screen_in_pipe) < 0) {
-		destroy_less_pipeline(pipeline);
-		return NULL;
-	}
-	unlink(rstat_file_name);
-	pipeline->rstat_file = open(rstat_file_name, O_CREAT|O_RDONLY, 0664);
-	if (pipeline->rstat_file < 0) {
-		fprintf(stderr, "cannot create %s: %s\n", rstat_file_name, strerror(errno));
 		destroy_less_pipeline(pipeline);
 		return NULL;
 	}
@@ -158,7 +147,6 @@ LessPipeline* create_less_pipeline(char* const* argv, int argc, char* const* env
 }
 
 void destroy_less_pipeline(LessPipeline* pipeline) {
-	close(pipeline->rstat_file);
 	close(pipeline->less_in);
 	close(pipeline->screen_out);
 	close(pipeline->less_in_pipe[0]); close(pipeline->less_in_pipe[1]);
@@ -166,6 +154,5 @@ void destroy_less_pipeline(LessPipeline* pipeline) {
 	close(pipeline->screen_out_pipe[0]); close(pipeline->screen_out_pipe[1]);
 	if (pipeline->tempfile != NULL)
 		unlink(pipeline->tempfile);
-	unlink(rstat_file_name);
 	free(pipeline);
 }

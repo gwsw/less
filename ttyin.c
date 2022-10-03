@@ -30,7 +30,6 @@ public int tty;
 #endif
 #if LESSTEST
 public char *ttyin_name = NULL;
-public int rstat_file = -1;
 #endif /*LESSTEST*/
 extern int sigs;
 extern int utf_mode;
@@ -165,18 +164,6 @@ default_wheel_lines(VOID_PARAM)
 	return lines;
 }
 
-#if LESSTEST
-	public void
-rstat(st)
-	char st;
-{
-	if (rstat_file < 0)
-		return;
-	lseek(rstat_file, SEEK_SET, 0);
-	write(rstat_file, &st, 1);
-}
-#endif /*LESSTEST*/
-
 /*
  * Get a character from the keyboard.
  */
@@ -204,17 +191,11 @@ getchr(VOID_PARAM)
 		if (c == '\003')
 			return (READ_INTR);
 #else
-#if LESSTEST
-		rstat('R');
-#endif /*LESSTEST*/
 		{
 			unsigned char uc;
 			result = iread(tty, &uc, sizeof(char));
 			c = (char) uc;
 		}
-#if LESSTEST
-		rstat('B');
-#endif /*LESSTEST*/
 		if (result == READ_INTR)
 			return (READ_INTR);
 		if (result < 0)
@@ -224,6 +205,14 @@ getchr(VOID_PARAM)
 			 * because error calls getchr!
 			 */
 			quit(QUIT_ERROR);
+		}
+#endif
+#if LESSTEST
+		if (c == LESS_DUMP_CHAR)
+		{
+			dump_screen();
+			result = 0;
+			continue;
 		}
 #endif
 #if 0 /* allow entering arbitrary hex chars for testing */

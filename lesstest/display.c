@@ -3,7 +3,7 @@
 
 extern TermInfo terminfo;
 
-void display_attr(Attr attr) {
+static void display_attr(Attr attr) {
 	static Attr prev_attr = 0;
 	if (attr == prev_attr)
 		return;
@@ -26,7 +26,7 @@ void display_attr(Attr attr) {
 	prev_attr = attr;
 }
 
-void display_color(Color fg_color, Color bg_color) {
+static void display_color(Color fg_color, Color bg_color) {
 printf("{%x/%x}", fg_color, bg_color);
 }
 
@@ -90,4 +90,5 @@ void print_strings(const char* title, char* const* strings) {
 		}
 		fprintf(stderr, "\n");
 	}
+	fprintf(stderr, "%s- end\n", title);
 }

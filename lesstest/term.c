@@ -43,7 +43,7 @@ int get_screen_size(int* screen_width, int* screen_height) {
 }
 #endif
 
-void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char** exit_str, char** spp) {
+static void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char** exit_str, char** spp) {
 	*enter_str = tgetstr(enter_cap, spp);
 	if (*enter_str == NULL) *enter_str = "";
 	*exit_str = tgetstr(exit_cap, spp);

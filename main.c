@@ -407,9 +407,6 @@ quit(status)
 		status = save_status;
 	else
 		save_status = status;
-#if LESSTEST
-	rstat('Q');
-#endif /*LESSTEST*/
 	quitting = 1;
 	if (interactive())
 		clear_bot();

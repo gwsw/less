@@ -154,7 +154,6 @@ static struct optname search_type_optname = { "search-options", NULL };
 static struct optname exit_F_on_close_optname = { "exit-follow-on-close", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
-static struct optname rstat_optname  = { "rstat",                NULL };
 #endif /*LESSTEST*/
 
 
@@ -626,14 +625,6 @@ static struct loption option[] =
 #if LESSTEST
 	{ OLETTER_NONE, &ttyin_name_optname,
 		STRING|NO_TOGGLE, 0, NULL, opt_ttyin_name,
-		{
-			NULL,
-			NULL,
-			NULL
-		}
-	},
-	{ OLETTER_NONE, &rstat_optname,
-		STRING|NO_TOGGLE, 0, NULL, opt_rstat,
 		{
 			NULL,
 			NULL,
