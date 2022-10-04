@@ -152,6 +152,7 @@ int run_test(TestSetup* setup, FILE* testfd) {
 	return ok;
 }
 
+// Should run in empty directory.
 int run_testfile(const char* testfile, const char* less) {
 	FILE* testfd = fopen(testfile, "r");
 	if (testfd == NULL) {
