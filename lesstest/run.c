@@ -1,8 +1,9 @@
 #include <time.h>
 #include <errno.h>
 #include <setjmp.h>
-#include "lesstest.h"
 #include <errno.h>
+#include <sys/wait.h>
+#include "lesstest.h"
 
 extern int verbose;
 extern int less_quit;
@@ -10,6 +11,16 @@ extern int details;
 extern TermInfo terminfo;
 extern int run_catching;
 extern jmp_buf run_catch;
+
+static pid_t less_pid;
+
+void child_handler(int signum) {
+	int status;
+	pid_t child = wait(&status);
+	if (verbose) fprintf(stderr, "child %d died, status 0x%x\n", child, status);
+	if (child == less_pid)
+		less_quit = 1;
+}
 
 static void send_char(LessPipeline* pipeline, wchar ch) {
 	if (verbose) fprintf(stderr, "send %lx\n", ch);
@@ -62,6 +73,7 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 	LessPipeline* pipeline = create_less_pipeline(argv, argc, envp);
 	if (pipeline == NULL)
 		return 0;
+	less_pid = pipeline->less_pid;
 	const char* textfile = (pipeline->tempfile != NULL) ? pipeline->tempfile : argv[argc-1];
 	if (!log_test_header(argv, argc, textfile)) {
 		destroy_less_pipeline(pipeline);

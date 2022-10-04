@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -O2
 TERMLIB = -lncurses
 
 all: lesstest lt_screen 

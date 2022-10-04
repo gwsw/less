@@ -1,4 +1,3 @@
-#include <sys/wait.h>
 #include <setjmp.h>
 #include "lesstest.h"
 
@@ -17,12 +16,6 @@ static int usage(void) {
 	fprintf(stderr, "usage: lesstest -o file.lt [-w#] [-h#] [--] less.exe [flags] textfile\n");
 	fprintf(stderr, "   or: lesstest -t file.lt less.exe\n");
 	return 0;
-}
-
-static void child_handler(int signum) {
-	int status;
-	pid_t child = wait(&status);
-	if (verbose) fprintf(stderr, "child %d died, status 0x%x\n", child, status);
 }
 
 static void intr_handler(int signum) {

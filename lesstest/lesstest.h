@@ -26,6 +26,7 @@ typedef struct LessPipeline {
 	int screen_out;
 	int screen_width;
 	int screen_height;
+	pid_t less_pid;
 	pid_t screen_pid;
 	const char* tempfile;
 	int less_in_pipe[2];
@@ -80,3 +81,4 @@ int run_testfile(const char* testfile, const char* less);
 void env_init(EnvBuf* env);
 void env_addpair(EnvBuf* env, const char* name, const char* value);
 char* const* less_envp(char* const* envp, const char* env_prefix);
+void child_handler(int signum);

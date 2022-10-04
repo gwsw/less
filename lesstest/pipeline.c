@@ -117,14 +117,14 @@ LessPipeline* create_less_pipeline(char* const* argv, int argc, char* const* env
 		if (verbose) fprintf(stderr, "less in pipe %d,%d\n", pipeline->less_in_pipe[RD], pipeline->less_in_pipe[WR]);
 		char* less = argv[0];
 		if (verbose) fprintf(stderr, "testing %s on %s\n", less, textfile);
-		pid_t less_pid = fork();
-		if (less_pid < 0) {
+		pipeline->less_pid = fork();
+		if (pipeline->less_pid < 0) {
 			destroy_less_pipeline(pipeline);
 			return NULL;
 		}
-		if (!less_pid)
+		if (!pipeline->less_pid)
 			become_child_less(less, argc, argv, envp, pipeline->tempfile, pipeline->less_in_pipe, pipeline->screen_in_pipe);
-		if (verbose) fprintf(stderr, "less child %ld\n", (long) less_pid);
+		if (verbose) fprintf(stderr, "less child %ld\n", (long) pipeline->less_pid);
 		close(pipeline->less_in_pipe[RD]); pipeline->less_in_pipe[RD] = -1;
 		close(pipeline->screen_in_pipe[WR]); pipeline->screen_in_pipe[WR] = -1;
 	}

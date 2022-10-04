@@ -763,7 +763,10 @@ scrsize(VOID_PARAM)
 
 	sys_width = sys_height = 0;
 
-#if !LESSTEST
+#if LESSTEST
+	if (ttyin_name != NULL)
+#endif /*LESSTEST*/
+	{
 #if MSDOS_COMPILER==MSOFTC
 	{
 		struct videoconfig w;
@@ -846,7 +849,7 @@ scrsize(VOID_PARAM)
 #endif
 #endif
 #endif
-#endif /*LESSTEST*/
+	}
 
 	if (sys_height > 0)
 		sc_height = sys_height;
