@@ -7,8 +7,6 @@ int verbose = 0;
 int less_quit = 0;
 int details = 0;
 char* lt_screen = "./lt_screen";
-int run_catching = 0;
-jmp_buf run_catch;
 
 static char* testfile = NULL;
 
@@ -16,11 +14,6 @@ static int usage(void) {
 	fprintf(stderr, "usage: lesstest -o file.lt [-w#] [-h#] [--] less.exe [flags] textfile\n");
 	fprintf(stderr, "   or: lesstest -t file.lt less.exe\n");
 	return 0;
-}
-
-static void intr_handler(int signum) {
-	less_quit = 1;
-	if (run_catching) longjmp(run_catch, 1);
 }
 
 static int setup(int argc, char* const* argv) {
@@ -55,10 +48,6 @@ static int setup(int argc, char* const* argv) {
 }
 
 int main(int argc, char* const* argv, char* const* envp) {
-	signal(SIGCHLD, child_handler);
-	signal(SIGINT,  intr_handler);
-	signal(SIGQUIT, intr_handler);
-	signal(SIGKILL, intr_handler);
 	if (!setup(argc, argv))
 		return RUN_ERR;
 	setup_term();
@@ -68,12 +57,7 @@ int main(int argc, char* const* argv, char* const* envp) {
 			usage();
 			return RUN_ERR;
 		}
-		//if (setjmp(run_catch)) {
-		//	fprintf(stderr, "\nINTR test interrupted\n");
-		//	ok = 0;
-		//} else {
-			ok = run_testfile(testfile, argv[optind]);
-		//}
+		ok = run_testfile(testfile, argv[optind]);
 	} else { // gen; create new test
 		if (optind+2 > argc) {
 			usage();

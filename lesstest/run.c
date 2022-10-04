@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <setjmp.h>
 #include <errno.h>
+#include <signal.h>
 #include <sys/wait.h>
 #include "lesstest.h"
 
@@ -9,17 +10,29 @@ extern int verbose;
 extern int less_quit;
 extern int details;
 extern TermInfo terminfo;
-extern int run_catching;
-extern jmp_buf run_catch;
 
 static pid_t less_pid;
+static jmp_buf run_catch;
 
 void child_handler(int signum) {
 	int status;
 	pid_t child = wait(&status);
 	if (verbose) fprintf(stderr, "child %d died, status 0x%x\n", child, status);
-	if (child == less_pid)
+	if (child == less_pid) {
+		if (verbose) fprintf(stderr, "less died\n");
 		less_quit = 1;
+	}
+}
+
+static void intr_handler(int signum) {
+	less_quit = 1;
+	longjmp(run_catch, 1);
+}
+
+static void set_intr_handler(void (*handler)(int)) {
+	signal(SIGINT,  handler);
+	signal(SIGQUIT, handler);
+	signal(SIGKILL, handler);
 }
 
 static void send_char(LessPipeline* pipeline, wchar ch) {
@@ -33,8 +46,6 @@ static void send_char(LessPipeline* pipeline, wchar ch) {
 static int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
 	if (verbose) fprintf(stderr, "gen: read screen\n");
 	send_char(pipeline, LESS_DUMP_CHAR);
-	if (less_quit) //@@@ FIXME need?
-		return 0;
 	int rn = 0;
 	for (; rn <= buflen; ++rn) {
 		if (read(pipeline->screen_out, &buf[rn], 1) != 1)
@@ -69,6 +80,7 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 }
 
 int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
+	signal(SIGCHLD, child_handler);
 	char* const* envp = less_envp(prog_envp, LT_ENV_PREFIX);
 	LessPipeline* pipeline = create_less_pipeline(argv, argc, envp);
 	if (pipeline == NULL)
@@ -99,6 +111,7 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 }
 
 int run_test(TestSetup* setup, FILE* testfd) {
+	signal(SIGCHLD, child_handler);
 	const char* setup_name = setup->argv[setup->argc-1];
 	fprintf(stderr, "RUN  %s\n", setup_name);
 	LessPipeline* pipeline = create_less_pipeline(setup->argv, setup->argc, 
@@ -113,7 +126,7 @@ int run_test(TestSetup* setup, FILE* testfd) {
 		fprintf(stderr, "\nINTR test interrupted\n");
 		ok = 0;
 	} else {
-		run_catching = 1;
+		set_intr_handler(intr_handler);
 		while (!less_quit) {
 			char line[10000];
 			int line_len = read_zline(testfd, line, sizeof(line));
@@ -145,8 +158,8 @@ int run_test(TestSetup* setup, FILE* testfd) {
 				return 0;
 			}
 		}
+		set_intr_handler(SIG_DFL);
 	}
-	run_catching = 0;
 	destroy_less_pipeline(pipeline);
 	fprintf(stderr, "%s %s (%d commands)\n", ok ? "OK  " : "FAIL", setup_name, cmds);
 	return ok;
