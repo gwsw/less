@@ -51,10 +51,11 @@ static void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char**
 	if (*exit_str == NULL) *exit_str = "";
 }
 
-int setup_term(void) {
+int setup_term(char* const* envp) {
 	static char termbuf[4096];
 	static char sbuf[4096];
-	char* term = getenv("TERM");
+	///char* term = getenv("TERM");
+	char* term = get_envp(envp, "TERM");
 	if (term == NULL) term = "dumb";
 	if (tgetent(termbuf, term) <= 0) {
 		fprintf(stderr, "cannot setup terminal %s\n", term);

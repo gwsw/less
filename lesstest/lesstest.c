@@ -50,7 +50,6 @@ static int setup(int argc, char* const* argv) {
 int main(int argc, char* const* argv, char* const* envp) {
 	if (!setup(argc, argv))
 		return RUN_ERR;
-	setup_term();
 	int ok = 0;
 	if (testfile != NULL) { // run existing test
 		if (optind+1 != argc) {

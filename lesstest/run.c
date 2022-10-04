@@ -82,6 +82,7 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 	signal(SIGCHLD, child_handler);
 	char* const* envp = less_envp(prog_envp, LT_ENV_PREFIX);
+	setup_term(envp);
 	LessPipeline* pipeline = create_less_pipeline(argv, argc, envp);
 	if (pipeline == NULL)
 		return 0;

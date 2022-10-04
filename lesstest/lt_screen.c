@@ -263,7 +263,7 @@ static int exec_esc(wchar ch) {
 }
 
 static int add_char(wchar ch) {
-	if (verbose) fprintf(stderr, "add (%c) %lx at %d,%d\n", (char)ch, (long)ch, screen.cx, screen.cy);
+	//if (verbose) fprintf(stderr, "add (%c) %lx at %d,%d\n", (char)ch, (long)ch, screen.cx, screen.cy);
 	screen_char_set(screen.cx, screen.cy, ch, screen.curr_attr, screen.curr_fg_color, screen.curr_bg_color);
 	int fits = screen_incr(&screen.cx, &screen.cy);
 	if (fits && is_wide_char(ch)) {
@@ -355,7 +355,7 @@ int main(int argc, char** argv) {
 		return RUN_ERR;
 	for (;;) {
 		wchar ch = read_wchar(ttyin);
-		if (verbose) fprintf(stderr, "screen read %c (%lx)\n", pr_ascii(ch), ch);
+		//if (verbose) fprintf(stderr, "screen read %c (%lx)\n", pr_ascii(ch), ch);
 		if (ch == 0)
 			break;
 		if (!process_char(ch))
