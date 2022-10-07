@@ -48,7 +48,21 @@ void env_addintpair(EnvBuf* env, const char* name, int value) {
 	env_addpair(env, name, buf);
 }
 
-static void env_setup(EnvBuf* env, char* const* prog_env, const char* env_prefix) {
+static int is_less_env(const char* name, int name_len) {
+	static char* const less_names[] = {
+		"LESS*", "COLUMNS", "LINES", "LANG", "LC_CTYPE", "MORE", NULL
+	};
+	for (char* const* n = less_names; *n != NULL; ++n) {
+		int ln = strlen(*n);
+		if (ln == name_len && strncmp(*n, name, ln) == 0)
+			return 1;
+		if ((*n)[ln-1] == '*' && strncmp(*n, name, ln-1) == 0)
+			return 1;
+	}
+	return 0;
+}
+
+static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
 	env_addpair(env, "LESS_TERMCAP_am", "1");
 	env_addpair(env, "LESS_TERMCAP_cd", "\33S");
 	env_addpair(env, "LESS_TERMCAP_ce", "\33L");
@@ -73,22 +87,16 @@ static void env_setup(EnvBuf* env, char* const* prog_env, const char* env_prefix
 	env_addpair(env, "LESS_TERMCAP_kh", terminfo.key_home ? terminfo.key_home : "");
 	env_addpair(env, "LESS_TERMCAP_@7", terminfo.key_end ? terminfo.key_end : "");
 
-	char* const* envp;
-	int len = strlen(env_prefix);
-	for (envp = prog_env; *envp != NULL; ++envp) {
-		if (strncmp(*envp, env_prefix, len) == 0) {
-			const char* ename = *envp + len;
+	if (interactive) {
+		for (char* const* envp = prog_env; *envp != NULL; ++envp) {
+			const char* ename = *envp;
 			const char* eq = strchr(ename, '=');
-			if (eq != NULL) {
+			if (eq != NULL && is_less_env(ename, eq-ename)) {
 				env_addlpair(env, ename, eq-ename, eq+1);
 				log_env(ename, eq-ename, eq+1);
 			}
 		}
 	}
-	if (get_envp(env->env_list, "LINES") == NULL)
-		env_addpair(env, "LINES", get_envp(prog_env, "LINES"));
-	if (get_envp(env->env_list, "COLUMNS") == NULL)
-		env_addpair(env, "COLUMNS", get_envp(prog_env, "COLUMNS"));
 }
 
 const char* get_envp(char* const* envp, const char* name) {
@@ -101,12 +109,12 @@ const char* get_envp(char* const* envp, const char* name) {
 	return NULL;
 }
 
-char* const* less_envp(char* const* envp, const char* env_prefix) {
+char* const* less_envp(char* const* envp, int interactive) {
 	static EnvBuf less_env;
 	static int init = 0;
 	if (!init) {
 		env_init(&less_env);
-		env_setup(&less_env, envp, env_prefix);
+		env_setup(&less_env, envp, interactive);
 		init = 1;
 	}
 	return less_env.env_list;

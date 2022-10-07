@@ -14,7 +14,6 @@ typedef unsigned char Color;
 #define LESS_DUMP_CHAR      '\35'
 #define UNICODE_MAX_BYTES   4
 #define MAX_SCREENBUF_SIZE  8192
-#define LT_ENV_PREFIX       "LT_"
 
 #define RUN_OK              0
 #define RUN_ERR             1

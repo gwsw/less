@@ -81,7 +81,7 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 
 int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 	signal(SIGCHLD, child_handler);
-	char* const* envp = less_envp(prog_envp, LT_ENV_PREFIX);
+	char* const* envp = less_envp(prog_envp, 1);
 	setup_term(envp);
 	LessPipeline* pipeline = create_less_pipeline(argv, argc, envp);
 	if (pipeline == NULL)
@@ -116,7 +116,7 @@ int run_test(TestSetup* setup, FILE* testfd) {
 	const char* setup_name = setup->argv[setup->argc-1];
 	fprintf(stderr, "RUN  %s\n", setup_name);
 	LessPipeline* pipeline = create_less_pipeline(setup->argv, setup->argc, 
-			less_envp(setup->env.env_list, ""));
+			less_envp(setup->env.env_list, 0));
 	if (pipeline == NULL)
 		return 0;
 	less_quit = 0;
