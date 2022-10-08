@@ -63,10 +63,7 @@ int main(int argc, char* const* argv, char* const* envp) {
 			return RUN_ERR;
 		}
 		log_file_header();
-		printf("%s%s", terminfo.init_term, terminfo.enter_keypad);
 		ok = run_interactive(argv+optind, argc-optind, envp);
-		if (verbose) fprintf(stderr, "run_interactive return %d\n", ok);
-		printf("%s%s", terminfo.exit_keypad, terminfo.deinit_term);
 		log_close();
 	}
 	return ok ? RUN_OK : RUN_ERR;

@@ -14,7 +14,15 @@ extern TermInfo terminfo;
 static pid_t less_pid;
 static jmp_buf run_catch;
 
-void child_handler(int signum) {
+static void set_signal(int signum, void (*handler)(int)) {
+	struct sigaction sa;
+	sa.sa_handler = handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sigaction(signum, &sa, NULL);
+}
+
+static void child_handler(int signum) {
 	int status;
 	pid_t child = wait(&status);
 	if (verbose) fprintf(stderr, "child %d died, status 0x%x\n", child, status);
@@ -29,10 +37,12 @@ static void intr_handler(int signum) {
 	longjmp(run_catch, 1);
 }
 
-static void set_intr_handler(void (*handler)(int)) {
-	signal(SIGINT,  handler);
-	signal(SIGQUIT, handler);
-	signal(SIGKILL, handler);
+static void set_intr_handler(int set) {
+	set_signal(SIGINT,  set ? intr_handler : SIG_DFL);
+	set_signal(SIGQUIT, set ? intr_handler : SIG_DFL);
+	set_signal(SIGKILL, set ? intr_handler : SIG_DFL);
+	set_signal(SIGCHLD, set ? child_handler : SIG_DFL);
+	set_signal(SIGPIPE, set ? SIG_IGN : SIG_DFL);
 }
 
 static void send_char(LessPipeline* pipeline, wchar ch) {
@@ -80,7 +90,6 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 }
 
 int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
-	signal(SIGCHLD, child_handler);
 	char* const* envp = less_envp(prog_envp, 1);
 	setup_term(envp);
 	LessPipeline* pipeline = create_less_pipeline(argv, argc, envp);
@@ -92,9 +101,11 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 		destroy_less_pipeline(pipeline);
 		return 0;
 	}
+	set_intr_handler(1);
 	less_quit = 0;
 	int ttyin = 0; // stdin
 	raw_mode(ttyin, 1);
+	printf("%s%s", terminfo.init_term, terminfo.enter_keypad);
 	read_and_display_screen(pipeline);
 	while (!less_quit) {
 		wchar ch = read_wchar(ttyin);
@@ -106,13 +117,14 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 		read_and_display_screen(pipeline);
 	}
 	log_test_footer();
+	printf("%s%s", terminfo.exit_keypad, terminfo.deinit_term);
 	raw_mode(ttyin, 0);
 	destroy_less_pipeline(pipeline);
+	set_intr_handler(0);
 	return 1;
 }
 
 int run_test(TestSetup* setup, FILE* testfd) {
-	signal(SIGCHLD, child_handler);
 	const char* setup_name = setup->argv[setup->argc-1];
 	fprintf(stderr, "RUN  %s\n", setup_name);
 	LessPipeline* pipeline = create_less_pipeline(setup->argv, setup->argc, 
@@ -127,7 +139,7 @@ int run_test(TestSetup* setup, FILE* testfd) {
 		fprintf(stderr, "\nINTR test interrupted\n");
 		ok = 0;
 	} else {
-		set_intr_handler(intr_handler);
+		set_intr_handler(1);
 		while (!less_quit) {
 			char line[10000];
 			int line_len = read_zline(testfd, line, sizeof(line));
@@ -159,7 +171,7 @@ int run_test(TestSetup* setup, FILE* testfd) {
 				return 0;
 			}
 		}
-		set_intr_handler(SIG_DFL);
+		set_intr_handler(0);
 	}
 	destroy_less_pipeline(pipeline);
 	fprintf(stderr, "%s %s (%d commands)\n", ok ? "OK  " : "FAIL", setup_name, cmds);

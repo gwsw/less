@@ -81,4 +81,3 @@ int run_testfile(const char* testfile, const char* less);
 void env_init(EnvBuf* env);
 void env_addpair(EnvBuf* env, const char* name, const char* value);
 char* const* less_envp(char* const* envp, int interactive);
-void child_handler(int signum);
