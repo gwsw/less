@@ -2,43 +2,44 @@
 use strict;
 
 # Run one or more test files.
-
-my $usage = "usage: run [-l less.exe] [-r temp_dir] [-o lesstest-opts] [file.lt | dir]...\n";
+my $usage = "usage: run [-d lesstest-dir] [-l less.exe] [-r temp-dir] [-s lt_screen] [-t lesstest] [file.lt | dir]...\n";
 
 use Getopt::Std;
 use Cwd;
 
-my $testdir   = ".";
-my $rundir    = ".runtest_dir";
-my $lesstest  = "$testdir/lesstest";
-my $less      = "$testdir/../obj/less";
-my $lesstest_opts = "";
-my %opt;
+my $rundir;
+my $lesstest;
+my $lt_screen;
+my $less;
 
-exit (main() ? 0 : 1);
+exit main();
 sub main {
-	die $usage if not getopts('l:o:r:v', \%opt);
+	my %opt;
+	die $usage if not getopts('d:l:r:s:t:', \%opt);
 	die $usage if not @ARGV;
-	$less = $opt{l} if $opt{l};
-	$lesstest_opts = $opt{o} if $opt{o};
-	$lesstest_opts =~ s/^\s*//;
-	$lesstest_opts =~ s/\s*$//;
-	$lesstest_opts = '-'.$lesstest_opts if $lesstest_opts and $lesstest_opts !~ /^-/;
-	my $odir = getcwd();
-	$rundir = $opt{r} if $opt{r};
-	system "rm -rf $rundir ; mkdir -p $rundir";
+
+	my $cwd = getcwd();
+	my $srcdir = ($opt{d} or $cwd);
+	$rundir     = (rfile($opt{r}, $cwd) or "$srcdir/.runtest_dir");
+	$lesstest   = (rfile($opt{t}, $cwd) or "$srcdir/lesstest");
+	$lt_screen  = (rfile($opt{s}, $cwd) or "$srcdir/lt_screen");
+	$less       = (rfile($opt{l}, $cwd) or "$srcdir/../obj/less");
+	die "cannot execute $lesstest"   if not -x $lesstest;
+	die "cannot execute $lt_screen"  if not -x $lt_screen;
+	die "cannot execute $less"       if not -x $less;
+	die "cannot create $rundir" if system "rm -rf '$rundir' && mkdir -p '$rundir'";
 	die "cannot chdir to $rundir: $!" if not chdir $rundir;
 
 	my $errs = 0;
 	foreach my $file (@ARGV) {
-		$file = "$odir/$file" unless $file =~ m|^/|;
-		$errs += run($file);
+		$errs += run(rfile($file, $cwd));
 	}
+	system "rm -rf '$rundir'";
 	if ($errs > 0) {
 		print "ERRS $errs errors\n";
-		return 0;
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
 # Run a xxx.lt file.
@@ -55,9 +56,7 @@ sub run {
 		print "ERR  cannot open $file\n";
 		return 1;
 	}
-	##print "FILE $file\n";
-	my $cmd = "$lesstest -s $testdir/lt_screen -t $file $lesstest_opts $less";
-	print "RUN  $cmd\n" if $opt{v};
+	my $cmd = "$lesstest -s '$lt_screen' -t '$file' '$less'";
 	my $err = system $cmd;
 	if ($err) {
 		print "ERR  status $err from $cmd\n";
@@ -80,4 +79,11 @@ sub run_dir {
 	}
 	closedir $dd;
 	return $errs;
+}
+
+sub rfile {
+	my ($file, $cwd) = @_;
+	return undef if not defined $file;
+	$file = "$cwd/$file" unless $file =~ m|^/|;
+	return $file;
 }
