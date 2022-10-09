@@ -87,14 +87,13 @@ static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
 	env_addpair(env, "LESS_TERMCAP_kh", terminfo.key_home ? terminfo.key_home : "");
 	env_addpair(env, "LESS_TERMCAP_@7", terminfo.key_end ? terminfo.key_end : "");
 
-	if (interactive) {
-		for (char* const* envp = prog_env; *envp != NULL; ++envp) {
-			const char* ename = *envp;
-			const char* eq = strchr(ename, '=');
-			if (eq != NULL && is_less_env(ename, eq-ename)) {
-				env_addlpair(env, ename, eq-ename, eq+1);
-				log_env(ename, eq-ename, eq+1);
-			}
+	for (char* const* envp = prog_env; *envp != NULL; ++envp) {
+		const char* ename = *envp;
+		const char* eq = strchr(ename, '=');
+		if (eq == NULL) continue;
+		if (!interactive || is_less_env(ename, eq-ename)) {
+			env_addlpair(env, ename, eq-ename, eq+1);
+			log_env(ename, eq-ename, eq+1);
 		}
 	}
 }
