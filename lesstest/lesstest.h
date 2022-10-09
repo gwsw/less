@@ -73,7 +73,7 @@ void free_test_setup(TestSetup* setup);
 TestSetup* read_test_setup(FILE* fd, char const* less);
 int read_zline(FILE* fd, char* line, int line_len);
 void raw_mode(int tty, int on);
-int setup_term(char* const* envp);
+int setup_term(void);
 void display_screen(const byte* img, int imglen, int screen_width, int screen_height, int move_cursor);
 const char* get_envp(char* const* envp, const char* name);
 int run_interactive(char* const* argv, int argc, char* const* envp);

@@ -74,7 +74,7 @@ static void become_child_screen(char* lt_screen, int screen_width, int screen_he
 	exit(1);
 }
 
-static LessPipeline* new_pipeline() {
+static LessPipeline* new_pipeline(void) {
 	LessPipeline* pipeline = malloc(sizeof(LessPipeline));
 	pipeline->less_in_pipe[RD] = pipeline->less_in_pipe[WR] = -1;
 	pipeline->screen_in_pipe[RD] = pipeline->screen_in_pipe[WR] = -1;

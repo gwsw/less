@@ -8,7 +8,7 @@
 
 static const char version[] = "lt_screen|v=1";
 
-int usage() {
+int usage(void) {
 	fprintf(stderr, "usage: lt_screen\n");
 	return 0;
 }
@@ -46,7 +46,7 @@ static int verbose = 0;
 
 // ------------------------------------------------------------------
 
-static void screen_init() {
+static void screen_init(void) {
 	screen.w = 80;
 	screen.h = 24;
 	screen.cx = 0;
@@ -58,7 +58,7 @@ static void screen_init() {
 	screen.params[0] = 0;
 }
 
-static void param_print() {
+static void param_print(void) {
 	int i;
 	fprintf(stderr, "(");
 	for (i = 0; i <= screen.param_top; ++i)
@@ -72,7 +72,7 @@ static void param_push(int v) {
 	screen.params[++screen.param_top] = v;
 }
 
-static int param_pop(){
+static int param_pop(void){
 	if (screen.param_top < 0)
 		return 0; // missing param is assumed to be 0
 	return screen.params[screen.param_top--];
@@ -162,25 +162,25 @@ static int screen_move(int x, int y) {
 	return 1;
 }
 
-static int screen_cr() {
+static int screen_cr(void) {
 	screen.cx = 0;
 	return 1;
 }
 
-static int screen_bs() {
+static int screen_bs(void) {
 	if (screen.cx <= 0) return 0;
 	--screen.cx;
 	return 1;
 }
 
-static int screen_scroll() {
+static int screen_scroll(void) {
 	int len = screen.w * (screen.h-1);
 	memmove(screen_char(0,0), screen_char(0,1), len * sizeof(ScreenChar));
 	screen_clear(0, screen.h-1, screen.w);
 	return 1;
 }
 
-static int screen_rscroll() {
+static int screen_rscroll(void) {
 	int len = screen.w * (screen.h-1);
 	memmove(screen_char(0,1), screen_char(0,0), len * sizeof(ScreenChar));
 	screen_clear(0, 0, screen.w);
@@ -199,7 +199,7 @@ static int screen_clear_attr(int attr) {
 
 // ------------------------------------------------------------------ 
 
-static void beep() {
+static void beep(void) {
 	if (!quiet)
 		fprintf(stderr, "\7");
 }
@@ -350,7 +350,18 @@ static int setup(int argc, char** argv) {
 	return 1;
 }
 
+static void set_signal(int signum, void (*handler)(int)) {
+	struct sigaction sa;
+	sa.sa_handler = handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sigaction(signum, &sa, NULL);
+}
+
 int main(int argc, char** argv) {
+	set_signal(SIGINT,  SIG_IGN);
+	set_signal(SIGQUIT, SIG_IGN);
+	set_signal(SIGKILL, SIG_IGN);
 	if (!setup(argc, argv))
 		return RUN_ERR;
 	for (;;) {

@@ -28,21 +28,6 @@ int env_number(const char* s) {
 	return (s == NULL) ? 0 : atoi(s);
 }
 
-#if 0
-int get_screen_size(int* screen_width, int* screen_height) {
-	*screen_width = env_number("COLUMNS");
-	*screen_height = env_number("ROWS");
-	if (*screen_width == 0 || *screen_height == 0) {
-		struct winsize w;
-		if (ioctl(2, TIOCGWINSZ, &w) == 0) {
-			*screen_height = w.ws_row;
-			*screen_width = w.ws_col;
-		}
-	}
-	return (*screen_width > 0 && *screen_height > 0);
-}
-#endif
-
 static void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char** exit_str, char** spp) {
 	*enter_str = tgetstr(enter_cap, spp);
 	if (*enter_str == NULL) *enter_str = "";
@@ -51,7 +36,7 @@ static void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char**
 	if (*exit_str == NULL) *exit_str = "";
 }
 
-int setup_term(char* const* envp) {
+int setup_term(void) {
 	static char termbuf[4096];
 	static char sbuf[4096];
 	char* term = getenv("TERM");

@@ -56,6 +56,7 @@ sub run {
 		print "ERR  cannot open $file\n";
 		return 1;
 	}
+	print "TEST $file\n";
 	my $cmd = "$lesstest -s '$lt_screen' -t '$file' '$less'";
 	my $err = system $cmd;
 	if ($err) {

@@ -32,17 +32,12 @@ static void child_handler(int signum) {
 	}
 }
 
-static void intr_handler(int signum) {
-	less_quit = 1;
-	longjmp(run_catch, 1);
-}
-
 static void set_intr_handler(int set) {
-	set_signal(SIGINT,  set ? intr_handler : SIG_DFL);
-	set_signal(SIGQUIT, set ? intr_handler : SIG_DFL);
-	set_signal(SIGKILL, set ? intr_handler : SIG_DFL);
-	set_signal(SIGCHLD, set ? child_handler : SIG_DFL);
+	set_signal(SIGINT,  set ? SIG_IGN : SIG_DFL);
+	set_signal(SIGQUIT, set ? SIG_IGN : SIG_DFL);
+	set_signal(SIGKILL, set ? SIG_IGN : SIG_DFL);
 	set_signal(SIGPIPE, set ? SIG_IGN : SIG_DFL);
+	set_signal(SIGCHLD, set ? child_handler : SIG_DFL);
 }
 
 static void send_char(LessPipeline* pipeline, wchar ch) {
@@ -90,8 +85,8 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 }
 
 int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
+	setup_term();
 	char* const* envp = less_envp(prog_envp, 1);
-	setup_term(envp);
 	LessPipeline* pipeline = create_less_pipeline(argv, argc, envp);
 	if (pipeline == NULL)
 		return 0;
