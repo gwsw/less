@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+use strict;
+
+# Create a test file.
+my $usage = "usage: maketest [-o lt-file] [-l less.exe] [-s lt_screen] [-t lesstest] [-w width] [-h height] textfile\n";
+
+use Getopt::Std;
+
+exit main();
+sub main {
+	my %opt;
+	die $usage if not getopts('h:l:o:s:t:w:', \%opt);
+	my $textfile = shift @ARGV;
+	die $usage if not defined $textfile;
+	my $lesstest  = ($opt{t} or "./lesstest");
+	my $lt_screen = ($opt{s} or "./lt_screen");
+	my $less      = ($opt{l} or "../obj/less");
+	my $ltfile    = ($opt{o} or "lt/$textfile.lt");
+	my $lines     = ($opt{h} or $ENV{LINES}-1);
+	my $columns   = ($opt{w} or $ENV{COLUMNS}-1);
+
+	my $cmd = "LINES=$lines COLUMNS=$columns $lesstest -o '$ltfile' -- $less '$textfile'";
+	exit system $cmd;
+}
