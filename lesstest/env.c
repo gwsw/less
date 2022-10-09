@@ -74,7 +74,7 @@ static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
 		{ "LESS_TERMCAP_ll", "\33l" },
 		{ "LESS_TERMCAP_mb", "\33b" },
 		{ "LESS_TERMCAP_md", "\33d" },
-		{ "LESS_TERMCAP_md", "\33e" },
+		{ "LESS_TERMCAP_me", "\33E" },
 		{ "LESS_TERMCAP_se", "\33t" },
 		{ "LESS_TERMCAP_so", "\33s" },
 		{ "LESS_TERMCAP_sr", "\33r" },

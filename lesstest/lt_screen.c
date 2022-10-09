@@ -254,6 +254,8 @@ static int exec_esc(wchar ch) {
 		return screen_set_attr(ATTR_BLINK);
 	case 'c': // exit blink
 		return screen_clear_attr(ATTR_BLINK);
+	case 'E': // exit bold/blink
+		return screen_clear_attr(ATTR_BOLD|ATTR_BLINK);
 	case '?': // print version string
 		write(ttyout, version, strlen(version));
 		return 1;

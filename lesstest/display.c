@@ -58,11 +58,18 @@ void display_screen(const byte* img, int imglen, int screen_width, int screen_he
 			}
 		}
 		literal = 0;
-		if (ch != 0) {
-			byte cbuf[UNICODE_MAX_BYTES];
-			byte* cp = cbuf;
-			store_wchar(&cp, ch);
-			fwrite(cbuf, 1, cp-cbuf, stdout);
+		if (move_cursor) {
+			if (ch != 0) {
+				byte cbuf[UNICODE_MAX_BYTES];
+				byte* cp = cbuf;
+				store_wchar(&cp, ch);
+				fwrite(cbuf, 1, cp-cbuf, stdout);
+			}
+		} else {
+			if (is_ascii(ch))
+				fwrite(&ch, 1, 1, stdout);
+			else
+				printf("<%lx>", (unsigned long) ch);
 		}
 		if (++x >= screen_width) {
 			printf("\n");

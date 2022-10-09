@@ -2,7 +2,7 @@
 use strict;
 
 # Run one or more test files.
-my $usage = "usage: run [-d lesstest-dir] [-l less.exe] [-r temp-dir] [-s lt_screen] [-t lesstest] [file.lt | dir]...\n";
+my $usage = "usage: run [-d lesstest-dir] [-l less.exe] [-r temp-dir] [-s lt_screen] [-t lesstest] [-O lesstest-opts] [file.lt | dir]...\n";
 
 use Getopt::Std;
 use Cwd;
@@ -11,11 +11,12 @@ my $rundir;
 my $lesstest;
 my $lt_screen;
 my $less;
+my $lt_opts;
 
 exit main();
 sub main {
 	my %opt;
-	die $usage if not getopts('d:l:r:s:t:', \%opt);
+	die $usage if not getopts('d:l:O:r:s:t:', \%opt);
 	die $usage if not @ARGV;
 
 	my $cwd = getcwd();
@@ -24,6 +25,8 @@ sub main {
 	$lesstest   = (rfile($opt{t}, $cwd) or "$srcdir/lesstest");
 	$lt_screen  = (rfile($opt{s}, $cwd) or "$srcdir/lt_screen");
 	$less       = (rfile($opt{l}, $cwd) or "$srcdir/../obj/less");
+	$lt_opts    = ($opt{O} or "");
+	$lt_opts = "-$lt_opts" if $lt_opts =~ /^[^-]/;
 	die "cannot execute $lesstest"   if not -x $lesstest;
 	die "cannot execute $lt_screen"  if not -x $lt_screen;
 	die "cannot execute $less"       if not -x $less;
@@ -57,7 +60,7 @@ sub run {
 		return 1;
 	}
 	print "TEST $file\n";
-	my $cmd = "$lesstest -s '$lt_screen' -t '$file' '$less'";
+	my $cmd = "$lesstest $lt_opts -s '$lt_screen' -t '$file' '$less'";
 	my $err = system $cmd;
 	if ($err) {
 		print "ERR  status $err from $cmd\n";
