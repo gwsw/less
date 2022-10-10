@@ -2,14 +2,14 @@
 use strict;
 
 # Create a test file.
-my $usage = "usage: maketest [-o lt-file] [-l less.exe] [-s lt_screen] [-t lesstest] [-w width] [-h height] [-O lesstest-opts] textfile\n";
+my $usage = "usage: maketest [-o lt-file] [-l less.exe] [-s lt_screen] [-t lesstest] [-w width] [-h height] [-O lesstest-opts] [-S lt_screen-opts] textfile\n";
 
 use Getopt::Std;
 
 exit main();
 sub main {
 	my %opt;
-	die $usage if not getopts('h:l:o:O:s:t:w:', \%opt);
+	die $usage if not getopts('h:l:o:O:s:S:t:w:', \%opt);
 	my $textfile = shift @ARGV;
 	die $usage if not defined $textfile;
 	my $lesstest  = ($opt{t} or "./lesstest");
@@ -17,9 +17,19 @@ sub main {
 	my $less      = ($opt{l} or "../obj/less");
 	my $lines     = ($opt{h} or $ENV{LINES}-1);
 	my $columns   = ($opt{w} or $ENV{COLUMNS}-1);
-	my $lt_opts   = ($opt{O} or "");
-	$lt_opts = "-$lt_opts" if $lt_opts =~ /^[^-]/;
+	my $lt_opts   = opts($opt{O} or "");
+	my $ls_opts   = opts($opt{S} or "");
 	my $ltfile    = $opt{o};
+	my $linked = 0;
+	if ($textfile =~ m|/|) {
+		my ($basename) = $textfile =~ m|^.*/([^/]+)$|;
+		if (not link $textfile, $basename) {
+			print "cannot link $textfile to $basename: $!\n";
+			exit 1;
+		}
+		$linked = 1;
+		$textfile = $basename;
+	}
 	if (not defined $ltfile) {
 		for (my $i = 0;; ++$i) {
 			my $suffix = $i ? $i : "";
@@ -27,12 +37,20 @@ sub main {
 			last if not -e $ltfile;
 		}
 	}
-	my $cmd = "LINES=$lines COLUMNS=$columns $lesstest $lt_opts -o '$ltfile' -- $less '$textfile'";
+	$ls_opts = "-S$ls_opts" if $ls_opts;
+	my $cmd = "LINES=$lines COLUMNS=$columns $lesstest $lt_opts $ls_opts -o '$ltfile' -- $less '$textfile'";
 	my $err = system($cmd);
 	if ($err) {
 		unlink $ltfile;
 	} else {
 		print "created $ltfile\n";
 	}
+	unlink $textfile if $linked;
 	exit $err;
+}
+
+sub opts {
+	my ($opts) = @_;
+	$opts = "-$opts" if $opts =~ /^[^-]/;
+	return $opts;
 }
