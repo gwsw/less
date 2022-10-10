@@ -5,8 +5,6 @@ extern TermInfo terminfo;
 
 static void display_attr(Attr attr) {
 	static Attr prev_attr = 0;
-	if (attr == prev_attr)
-		return;
 	if (prev_attr & ATTR_STANDOUT)
 		printf("%s", terminfo.exit_standout);
 	if (prev_attr & ATTR_BLINK)
@@ -26,8 +24,11 @@ static void display_attr(Attr attr) {
 	prev_attr = attr;
 }
 
-static void display_color(Color fg_color, Color bg_color) {
-printf("{%x/%x}", fg_color, bg_color);
+static void display_color(Color color) {
+	if (color == NULL_COLOR)
+		printf("\33[m");
+	else
+		printf("\33[%dm", color);
 }
 
 void display_screen(const byte* img, int imglen, int screen_width, int screen_height, int move_cursor) {
@@ -36,22 +37,28 @@ void display_screen(const byte* img, int imglen, int screen_width, int screen_he
 	int cursor_x = 0;
 	int cursor_y = 0;
 	int literal = 0;
+	Attr curr_attr = 0;
+	Color curr_color = NULL_COLOR;
 	while (imglen-- > 0) {
 		wchar ch = load_wchar(&img);
 		if (!literal) {
-			if (ch == '\\') {
+			switch (ch) {
+			case '\\':
 				literal = 1;
 				continue;
-			} else if (ch == '@') {
-				Attr attr = *img++;
-				display_attr(attr);
+			case LTS_CHAR_ATTR:
+				curr_attr = *img++;
+				display_attr(curr_attr);
+				if (curr_color != NULL_COLOR)
+					display_color(curr_color);
 				continue;
-			} else if (ch == '$') {
-				Color fg_color = *img++;
-				Color bg_color = *img++;
-				display_color(fg_color, bg_color);
+			case LTS_CHAR_COLOR:
+				curr_color = *img++;
+				display_color(curr_color);
+				if (curr_attr != 0)
+					display_attr(curr_attr);
 				continue;
-			} else if (ch == '#') {
+			case LTS_CHAR_CURSOR:
 				cursor_x = x;
 				cursor_y = y;
 				continue;
