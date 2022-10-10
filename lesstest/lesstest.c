@@ -7,11 +7,12 @@ int verbose = 0;
 int less_quit = 0;
 int details = 0;
 char* lt_screen = "./lt_screen";
+char* lt_screen_opts = NULL;
 
 static char* testfile = NULL;
 
 static int usage(void) {
-	fprintf(stderr, "usage: lesstest -o file.lt [-w#] [-h#] [--] less.exe [flags] textfile\n");
+	fprintf(stderr, "usage: lesstest -o file.lt [-w#] [-h#] [-dv] [-S lt_screen-opts] [--] less.exe [flags] textfile\n");
 	fprintf(stderr, "   or: lesstest -t file.lt less.exe\n");
 	return 0;
 }
@@ -19,7 +20,7 @@ static int usage(void) {
 static int setup(int argc, char* const* argv) {
 	char* logfile = NULL;
 	int ch;
-	while ((ch = getopt(argc, argv, "do:s:t:v")) != -1) {
+	while ((ch = getopt(argc, argv, "do:s:S:t:v")) != -1) {
 		switch (ch) {
 		case 'd':
 			details = 1;
@@ -29,6 +30,9 @@ static int setup(int argc, char* const* argv) {
 			break;
 		case 's':
 			lt_screen = optarg;
+			break;
+		case 'S':
+			lt_screen_opts = optarg;
 			break;
 		case 't':
 			testfile = optarg;

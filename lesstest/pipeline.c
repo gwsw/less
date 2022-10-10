@@ -9,6 +9,7 @@
 
 extern int verbose;
 extern char* lt_screen;
+extern char* lt_screen_opts;
 static const int run_less = 1;
 
 static void dup_and_close(int dup0, int dup1, int close0, int close1) {
@@ -61,6 +62,9 @@ static void become_child_screen(char* lt_screen, int screen_width, int screen_he
 		snprintf(sh, sizeof(sh), "%d", screen_height);
 		screen_argv[screen_argc++] = "-h";
 		screen_argv[screen_argc++] = sh;
+	}
+	if (lt_screen_opts != NULL) {
+		screen_argv[screen_argc++] = lt_screen_opts;
 	}
 	if (1)
 		screen_argv[screen_argc++] = "-q";
