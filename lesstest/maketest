@@ -15,12 +15,24 @@ sub main {
 	my $lesstest  = ($opt{t} or "./lesstest");
 	my $lt_screen = ($opt{s} or "./lt_screen");
 	my $less      = ($opt{l} or "../obj/less");
-	my $ltfile    = ($opt{o} or "lt/$textfile.lt");
 	my $lines     = ($opt{h} or $ENV{LINES}-1);
 	my $columns   = ($opt{w} or $ENV{COLUMNS}-1);
 	my $lt_opts   = ($opt{O} or "");
 	$lt_opts = "-$lt_opts" if $lt_opts =~ /^[^-]/;
-
+	my $ltfile    = $opt{o};
+	if (not defined $ltfile) {
+		for (my $i = 0;; ++$i) {
+			my $suffix = $i ? $i : "";
+			$ltfile = "lt/$textfile$suffix.lt";
+			last if not -e $ltfile;
+		}
+	}
 	my $cmd = "LINES=$lines COLUMNS=$columns $lesstest $lt_opts -o '$ltfile' -- $less '$textfile'";
-	exit system $cmd;
+	my $err = system($cmd);
+	if ($err) {
+		unlink $ltfile;
+	} else {
+		print "created $ltfile\n";
+	}
+	exit $err;
 }
