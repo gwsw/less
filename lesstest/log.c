@@ -2,6 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdarg.h>
+#include <time.h>
 #include <sys/stat.h>
 #include "lesstest.h"
 
@@ -26,7 +27,12 @@ void log_close(void) {
 
 int log_file_header(void) {
 	if (logf == NULL) return 0;
-	fprintf(logf, "!lesstest!\n");
+	time_t now = time(NULL);
+	struct tm* tm = gmtime(&now);
+	fprintf(logf, "!lesstest!\n!version %d\n!created %d-%02d-%02d %02d:%02d:%02d\n",
+		LESSTEST_VERSION, 
+		tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, 
+		tm->tm_hour, tm->tm_min, tm->tm_sec);
 	return 1;
 }
 

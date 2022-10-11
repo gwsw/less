@@ -9,6 +9,7 @@
 extern int verbose;
 extern int less_quit;
 extern int details;
+extern int err_only;
 extern TermInfo terminfo;
 
 static pid_t less_pid;
@@ -121,7 +122,7 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 
 int run_test(TestSetup* setup, FILE* testfd) {
 	const char* setup_name = setup->argv[setup->argc-1];
-	fprintf(stderr, "RUN  %s\n", setup_name);
+	//fprintf(stderr, "RUN  %s\n", setup_name);
 	LessPipeline* pipeline = create_less_pipeline(setup->argv, setup->argc, 
 			less_envp(setup->env.env_list, 0));
 	if (pipeline == NULL)
@@ -169,7 +170,10 @@ int run_test(TestSetup* setup, FILE* testfd) {
 		set_intr_handler(0);
 	}
 	destroy_less_pipeline(pipeline);
-	fprintf(stderr, "%s %s (%d commands)\n", ok ? "OK  " : "FAIL", setup_name, cmds);
+	if (!ok)
+		fprintf(stderr, "FAIL %s (%d commands)\n", setup_name, cmds);
+	else if (!err_only)
+		fprintf(stderr, "OK   %s (%d commands)\n", setup_name, cmds);
 	return ok;
 }
 

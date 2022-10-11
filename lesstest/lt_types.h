@@ -1,4 +1,4 @@
-#include <signal.h>
+#define LESSTEST_VERSION 1
 
 typedef unsigned long wchar;
 typedef unsigned char byte;

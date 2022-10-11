@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <signal.h>
 #include "lt_types.h"
 #include "wchar.h"
 
