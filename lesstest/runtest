@@ -2,7 +2,7 @@
 use strict;
 
 # Run one or more test files.
-my $usage = "usage: run [-e] [-d lesstest-dir] [-l less.exe] [-r temp-dir] [-s lt_screen] [-t lesstest] [-O lesstest-opts] [file.lt | dir]...\n";
+my $usage = "usage: run [-eE] [-d lesstest-dir] [-l less.exe] [-r temp-dir] [-s lt_screen] [-t lesstest] [-O lesstest-opts] [file.lt | dir]...\n";
 
 use Getopt::Std;
 use Cwd;
@@ -18,7 +18,7 @@ my $num_tests = 0;
 exit main();
 sub main {
 	my %opt;
-	die $usage if not getopts('d:el:O:r:s:t:', \%opt);
+	die $usage if not getopts('d:eEl:O:r:s:t:', \%opt);
 	die $usage if not @ARGV;
 
 	my $cwd = getcwd();
@@ -28,9 +28,9 @@ sub main {
 	$lt_screen  = (rfile($opt{s}, $cwd) or "$srcdir/lt_screen");
 	$less       = (rfile($opt{l}, $cwd) or "$srcdir/../obj/less");
 	$lt_opts    = ($opt{O} or "");
-	$err_only   = $opt{e};
+	$err_only   = $opt{E} ? 2 : $opt{e} ? 1 : 0;
 	$lt_opts = "-$lt_opts" if $lt_opts =~ /^[^-]/;
-	$lt_opts .= " -e" if $err_only;
+	$lt_opts .= ($err_only == 2) ? " -E" : $err_only ? " -e" : "";
 	die "cannot execute $lesstest"   if not -x $lesstest;
 	die "cannot execute $lt_screen"  if not -x $lt_screen;
 	die "cannot execute $less"       if not -x $less;
@@ -46,7 +46,7 @@ sub main {
 		print "ERRS $errs errors\n";
 		return 1;
 	}
-	print "RAN  $num_tests tests\n";
+	print "RAN  $num_tests tests\n" unless ($err_only == 2);
 	return 0;
 }
 
