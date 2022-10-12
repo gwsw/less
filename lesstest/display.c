@@ -31,7 +31,7 @@ static void display_color(Color color) {
 		printf("\33[%dm", color);
 }
 
-void display_screen(const byte* img, int imglen, int screen_width, int screen_height, int move_cursor) {
+void display_screen(const byte* img, int imglen, int screen_width, int screen_height) {
 	int x = 0;
 	int y = 0;
 	int cursor_x = 0;
@@ -65,18 +65,11 @@ void display_screen(const byte* img, int imglen, int screen_width, int screen_he
 			}
 		}
 		literal = 0;
-		if (move_cursor) {
-			if (ch != 0) {
-				byte cbuf[UNICODE_MAX_BYTES];
-				byte* cp = cbuf;
-				store_wchar(&cp, ch);
-				fwrite(cbuf, 1, cp-cbuf, stdout);
-			}
-		} else {
-			if (is_ascii(ch))
-				fwrite(&ch, 1, 1, stdout);
-			else
-				printf("<%lx>", (unsigned long) ch);
+		if (ch != 0) {
+			byte cbuf[UNICODE_MAX_BYTES];
+			byte* cp = cbuf;
+			store_wchar(&cp, ch);
+			fwrite(cbuf, 1, cp-cbuf, stdout);
 		}
 		if (++x >= screen_width) {
 			printf("\n");
@@ -85,8 +78,43 @@ void display_screen(const byte* img, int imglen, int screen_width, int screen_he
 				break;
 		}
 	}
-	if (move_cursor)
-		printf("%s", tgoto(terminfo.cursor_move, cursor_x, cursor_y));
+	printf("%s", tgoto(terminfo.cursor_move, cursor_x, cursor_y));
+	fflush(stdout);
+}
+
+void display_screen_debug(const byte* img, int imglen, int screen_width, int screen_height) {
+	int x = 0;
+	int y = 0;
+	int literal = 0;
+	while (imglen-- > 0) {
+		wchar ch = load_wchar(&img);
+		if (!literal) {
+			switch (ch) {
+			case '\\':
+				literal = 1;
+				continue;
+			case LTS_CHAR_ATTR:
+			case LTS_CHAR_COLOR:
+				x -= 2; // don't count LTS_CHAR or following byte
+				literal = 1;
+				break;
+			case LTS_CHAR_CURSOR:
+				x -= 1; // don't count LTS_CHAR
+				break;
+			}
+		}
+		literal = 0;
+		if (is_ascii(ch))
+			fwrite(&ch, 1, 1, stdout);
+		else
+			printf("<%lx>", (unsigned long) ch);
+		if (++x >= screen_width) {
+			printf("\n");
+			x = 0;
+			if (++y >= screen_height)
+				break;
+		}
+	}
 	fflush(stdout);
 }
 

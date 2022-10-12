@@ -42,7 +42,7 @@ static void set_intr_handler(int set) {
 }
 
 static void send_char(LessPipeline* pipeline, wchar ch) {
-	if (verbose) fprintf(stderr, "send %lx\n", ch);
+	if (verbose) fprintf(stderr, "lt.send %lx\n", ch);
 	byte cbuf[UNICODE_MAX_BYTES];
 	byte* cp = cbuf;
 	store_wchar(&cp, ch);
@@ -50,7 +50,7 @@ static void send_char(LessPipeline* pipeline, wchar ch) {
 }
 
 static int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
-	if (verbose) fprintf(stderr, "gen: read screen\n");
+	if (verbose) fprintf(stderr, "lt.gen: read screen\n");
 	send_char(pipeline, LESS_DUMP_CHAR);
 	int rn = 0;
 	for (; rn <= buflen; ++rn) {
@@ -67,7 +67,7 @@ static void read_and_display_screen(LessPipeline* pipeline) {
 	int rn = read_screen(pipeline, rbuf, sizeof(rbuf));
 	if (rn == 0) return;
 	printf("%s", terminfo.clear_screen);
-	display_screen(rbuf, rn, pipeline->screen_width, pipeline->screen_height, 1);
+	display_screen(rbuf, rn, pipeline->screen_width, pipeline->screen_height);
 	log_screen(rbuf, rn);
 }
 
@@ -77,10 +77,10 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 	if (currlen == imglen && memcmp(img, curr, imglen) == 0)
 		return 1;
 	if (details) {
-		fprintf(stderr, "MISMATCH: expect:\n");
-		display_screen(img, imglen, pipeline->screen_width, pipeline->screen_height, 0);
-		fprintf(stderr, "got:\n");
-		display_screen(curr, currlen, pipeline->screen_width, pipeline->screen_height, 0);
+		fprintf(stderr, "lt: mismatch: expect:\n");
+		display_screen_debug(img, imglen, pipeline->screen_width, pipeline->screen_height);
+		fprintf(stderr, "lt: got:\n");
+		display_screen_debug(curr, currlen, pipeline->screen_width, pipeline->screen_height);
 	}
 	return 0;
 }
@@ -152,6 +152,7 @@ int run_test(TestSetup* setup, FILE* testfd) {
 			case '=': 
 				if (!curr_screen_match(pipeline, (byte*)line+1, line_len-1)) {
 					ok = 0;
+					less_quit = 1;
 					fprintf(stderr, "FAIL %s on cmd #%d (%c %lx)\n",
 						setup_name, cmds, pr_ascii(last_char), last_char);
 				}

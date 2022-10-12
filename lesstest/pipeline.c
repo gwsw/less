@@ -68,8 +68,6 @@ static void become_child_screen(char* lt_screen, int screen_width, int screen_he
 	}
 	if (1)
 		screen_argv[screen_argc++] = "-q";
-	if (verbose)
-		screen_argv[screen_argc++] = "-v";
 	screen_argv[screen_argc] = NULL;
 	if (verbose) print_strings("screen argv", screen_argv);
 	char* const screen_envp[] = { NULL };
