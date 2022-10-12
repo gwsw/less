@@ -328,157 +328,163 @@ raw_mode(on)
 		/*
 		 * Get terminal modes.
 		 */
-		tcgetattr(tty, &s);
-
-		/*
-		 * Save modes and set certain variables dependent on modes.
-		 */
-		if (!saved_term)
+		if (tcgetattr(tty, &s) < 0)
 		{
-			save_term = s;
-			saved_term = 1;
-		}
+			erase_char = '\b';
+			kill_char = CONTROL('U');
+			werase_char = CONTROL('W');
+		} else
+		{
+			/*
+			 * Save modes and set certain variables dependent on modes.
+			 */
+			if (!saved_term)
+			{
+				save_term = s;
+				saved_term = 1;
+			}
 #if HAVE_OSPEED
-		switch (cfgetospeed(&s))
-		{
+			switch (cfgetospeed(&s))
+			{
 #ifdef B0
-		case B0: ospeed = 0; break;
+			case B0: ospeed = 0; break;
 #endif
 #ifdef B50
-		case B50: ospeed = 1; break;
+			case B50: ospeed = 1; break;
 #endif
 #ifdef B75
-		case B75: ospeed = 2; break;
+			case B75: ospeed = 2; break;
 #endif
 #ifdef B110
-		case B110: ospeed = 3; break;
+			case B110: ospeed = 3; break;
 #endif
 #ifdef B134
-		case B134: ospeed = 4; break;
+			case B134: ospeed = 4; break;
 #endif
 #ifdef B150
-		case B150: ospeed = 5; break;
+			case B150: ospeed = 5; break;
 #endif
 #ifdef B200
-		case B200: ospeed = 6; break;
+			case B200: ospeed = 6; break;
 #endif
 #ifdef B300
-		case B300: ospeed = 7; break;
+			case B300: ospeed = 7; break;
 #endif
 #ifdef B600
-		case B600: ospeed = 8; break;
+			case B600: ospeed = 8; break;
 #endif
 #ifdef B1200
-		case B1200: ospeed = 9; break;
+			case B1200: ospeed = 9; break;
 #endif
 #ifdef B1800
-		case B1800: ospeed = 10; break;
+			case B1800: ospeed = 10; break;
 #endif
 #ifdef B2400
-		case B2400: ospeed = 11; break;
+			case B2400: ospeed = 11; break;
 #endif
 #ifdef B4800
-		case B4800: ospeed = 12; break;
+			case B4800: ospeed = 12; break;
 #endif
 #ifdef B9600
-		case B9600: ospeed = 13; break;
+			case B9600: ospeed = 13; break;
 #endif
 #ifdef EXTA
-		case EXTA: ospeed = 14; break;
+			case EXTA: ospeed = 14; break;
 #endif
 #ifdef EXTB
-		case EXTB: ospeed = 15; break;
+			case EXTB: ospeed = 15; break;
 #endif
 #ifdef B57600
-		case B57600: ospeed = 16; break;
+			case B57600: ospeed = 16; break;
 #endif
 #ifdef B115200
-		case B115200: ospeed = 17; break;
+			case B115200: ospeed = 17; break;
 #endif
-		default: ;
-		}
+			default: ;
+			}
 #endif
-		erase_char = s.c_cc[VERASE];
+			erase_char = s.c_cc[VERASE];
 #ifdef VERASE2
-		erase2_char = s.c_cc[VERASE2];
+			erase2_char = s.c_cc[VERASE2];
 #endif
-		kill_char = s.c_cc[VKILL];
+			kill_char = s.c_cc[VKILL];
 #ifdef VWERASE
-		werase_char = s.c_cc[VWERASE];
+			werase_char = s.c_cc[VWERASE];
 #else
-		werase_char = CONTROL('W');
+			werase_char = CONTROL('W');
 #endif
 
-		/*
-		 * Set the modes to the way we want them.
-		 */
-		s.c_lflag &= ~(0
+			/*
+			 * Set the modes to the way we want them.
+			 */
+			s.c_lflag &= ~(0
 #ifdef ICANON
-			| ICANON
+				| ICANON
 #endif
 #ifdef ECHO
-			| ECHO
+				| ECHO
 #endif
 #ifdef ECHOE
-			| ECHOE
+				| ECHOE
 #endif
 #ifdef ECHOK
-			| ECHOK
+				| ECHOK
 #endif
 #if ECHONL
-			| ECHONL
+				| ECHONL
 #endif
-		);
+			);
 
-		s.c_oflag |= (0
+			s.c_oflag |= (0
 #ifdef OXTABS
-			| OXTABS
+				| OXTABS
 #else
 #ifdef TAB3
-			| TAB3
+				| TAB3
 #else
 #ifdef XTABS
-			| XTABS
+				| XTABS
 #endif
 #endif
 #endif
 #ifdef OPOST
-			| OPOST
+				| OPOST
 #endif
 #ifdef ONLCR
-			| ONLCR
+				| ONLCR
 #endif
-		);
+			);
 
-		s.c_oflag &= ~(0
+			s.c_oflag &= ~(0
 #ifdef ONOEOT
-			| ONOEOT
+				| ONOEOT
 #endif
 #ifdef OCRNL
-			| OCRNL
+				| OCRNL
 #endif
 #ifdef ONOCR
-			| ONOCR
+				| ONOCR
 #endif
 #ifdef ONLRET
-			| ONLRET
+				| ONLRET
 #endif
-		);
-		s.c_cc[VMIN] = 1;
-		s.c_cc[VTIME] = 0;
+			);
+			s.c_cc[VMIN] = 1;
+			s.c_cc[VTIME] = 0;
 #ifdef VLNEXT
-		s.c_cc[VLNEXT] = 0;
+			s.c_cc[VLNEXT] = 0;
 #endif
 #ifdef VDSUSP
-		s.c_cc[VDSUSP] = 0;
+			s.c_cc[VDSUSP] = 0;
 #endif
 #if MUST_SET_LINE_DISCIPLINE
-		/*
-		 * System's termios is broken; need to explicitly 
-		 * request TERMIODISC line discipline.
-		 */
-		s.c_line = TERMIODISC;
+			/*
+			 * System's termios is broken; need to explicitly 
+			 * request TERMIODISC line discipline.
+			 */
+			s.c_line = TERMIODISC;
 #endif
+		}
 	} else
 	{
 		/*
@@ -1847,13 +1853,16 @@ home(VOID_PARAM)
 #endif
 }
 
+#if LESSTEST
 	public void
 dump_screen(VOID_PARAM)
 {
 	char dump_cmd[32];
 	SNPRINTF1(dump_cmd, sizeof(dump_cmd), ESCS"0;0;%dR", sc_width * sc_height);
 	ltputs(dump_cmd, sc_height, putchr);
+	flush();
 }
+#endif /*LESSTEST*/
 
 /*
  * Add a blank line (called with cursor at home).
