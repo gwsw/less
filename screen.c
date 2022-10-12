@@ -317,6 +317,15 @@ raw_mode(on)
 	if (on == curr_on)
 			return;
 	erase2_char = '\b'; /* in case OS doesn't know about erase2 */
+#if LESSTEST
+	if (ttyin_name != NULL)
+	{
+		/* {{ For consistent conditions when running tests. }} */
+		erase_char = '\b';
+		kill_char = CONTROL('U');
+		werase_char = CONTROL('W');
+	} else
+#endif /*LESSTEST*/
 #if HAVE_TERMIOS_H && HAVE_TERMIOS_FUNCS
     {
 	struct termios s;
