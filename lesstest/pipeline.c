@@ -12,11 +12,12 @@ extern char* lt_screen;
 extern char* lt_screen_opts;
 static const int run_less = 1;
 
-static void dup_and_close(int dup0, int dup1, int close0, int close1) {
-	if (close0 >= 0) close(close0);
-	if (close1 >= 0) close(close1);
-	if (dup0 >= 0) dup2(dup0, 0);
-	if (dup1 >= 0) dup2(dup1, 1);
+/*
+ * Make 2 specified file descriptors be stdin and stdout.
+ */
+static void dup_std(int fd0, int fd1) {
+	if (fd0 >= 0) dup2(fd0, 0);
+	if (fd1 >= 0) dup2(fd1, 1);
 }
 
 static const char* basename(const char* path) {
@@ -27,8 +28,10 @@ static const char* basename(const char* path) {
 
 static void become_child_less(char* less, int argc, char* const* argv, char* const* envp, const char* tempfile, int less_in_pipe[2], int screen_in_pipe[2]) {
 	if (verbose) fprintf(stderr, "less child: in %d, out %d, close %d,%d\n", less_in_pipe[RD], screen_in_pipe[WR], less_in_pipe[WR], screen_in_pipe[RD]);
-	dup_and_close(less_in_pipe[RD], screen_in_pipe[WR],
-				  less_in_pipe[WR], screen_in_pipe[RD]);
+	close(less_in_pipe[WR]);
+	close(screen_in_pipe[RD]);
+	dup_std(less_in_pipe[RD], screen_in_pipe[WR]);
+
 	char** less_argv = malloc(sizeof(char*) * (argc + 6));
 	less_argv[0] = less;
 	less_argv[1] = "--tty";
@@ -39,7 +42,7 @@ static void become_child_less(char* less, int argc, char* const* argv, char* con
 		less_argv[less_argc++] = (argc > 1 || tempfile == NULL) ? arg : (char*) tempfile;
 	}
 	less_argv[less_argc] = NULL;
-	if (verbose) { print_strings("less argv", less_argv); print_strings("less envp", envp); }
+	//if (verbose) { print_strings("less argv", less_argv); print_strings("less envp", envp); }
 	execve(less, less_argv, envp);
 	fprintf(stderr, "cannot exec %s: %s\n", less, strerror(errno));
 	exit(1);
@@ -47,7 +50,9 @@ static void become_child_less(char* less, int argc, char* const* argv, char* con
 
 static void become_child_screen(char* lt_screen, int screen_width, int screen_height, int screen_in_pipe[2], int screen_out_pipe[2]) {
 	if (verbose) fprintf(stderr, "screen child: in %d, out %d, close %d\n", screen_in_pipe[RD], screen_out_pipe[WR], screen_out_pipe[RD]);
-	dup_and_close(screen_in_pipe[RD], screen_out_pipe[WR], screen_out_pipe[RD], -1);
+	close(screen_out_pipe[RD]);
+	dup_std(screen_in_pipe[RD], screen_out_pipe[WR]);
+
 	char* screen_argv[10];
 	int screen_argc = 0;
 	char sw[16];
@@ -69,7 +74,7 @@ static void become_child_screen(char* lt_screen, int screen_width, int screen_he
 	if (1)
 		screen_argv[screen_argc++] = "-q";
 	screen_argv[screen_argc] = NULL;
-	if (verbose) print_strings("screen argv", screen_argv);
+	//if (verbose) print_strings("screen argv", screen_argv);
 	char* const screen_envp[] = { NULL };
 	execve(lt_screen, screen_argv, screen_envp);
 	fprintf(stderr, "cannot exec %s: %s\n", lt_screen, strerror(errno));
