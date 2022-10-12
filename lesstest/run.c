@@ -120,7 +120,7 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 	return 1;
 }
 
-int run_test(TestSetup* setup, FILE* testfd) {
+static int run_test(TestSetup* setup, FILE* testfd) {
 	const char* setup_name = setup->argv[setup->argc-1];
 	//fprintf(stderr, "RUN  %s\n", setup_name);
 	LessPipeline* pipeline = create_less_pipeline(setup->argv, setup->argc, 
@@ -172,9 +172,9 @@ int run_test(TestSetup* setup, FILE* testfd) {
 	}
 	destroy_less_pipeline(pipeline);
 	if (!ok)
-		fprintf(stderr, "FAIL %s (%d commands)\n", setup_name, cmds);
+		fprintf(stderr, "FAIL %s (%d steps)\n", setup_name, cmds);
 	else if (!err_only)
-		fprintf(stderr, "OK   %s (%d commands)\n", setup_name, cmds);
+		fprintf(stderr, "OK   %s (%d steps)\n", setup_name, cmds);
 	return ok;
 }
 
