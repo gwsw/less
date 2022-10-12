@@ -42,7 +42,7 @@ static void become_child_less(char* less, int argc, char* const* argv, char* con
 		less_argv[less_argc++] = (argc > 1 || tempfile == NULL) ? arg : (char*) tempfile;
 	}
 	less_argv[less_argc] = NULL;
-	//if (verbose) { print_strings("less argv", less_argv); print_strings("less envp", envp); }
+	if (verbose) { print_strings("less argv", less_argv); print_strings("less envp", envp); }
 	execve(less, less_argv, envp);
 	fprintf(stderr, "cannot exec %s: %s\n", less, strerror(errno));
 	exit(1);
@@ -74,7 +74,7 @@ static void become_child_screen(char* lt_screen, int screen_width, int screen_he
 	if (1)
 		screen_argv[screen_argc++] = "-q";
 	screen_argv[screen_argc] = NULL;
-	//if (verbose) print_strings("screen argv", screen_argv);
+	if (verbose) print_strings("screen argv", screen_argv);
 	char* const screen_envp[] = { NULL };
 	execve(lt_screen, screen_argv, screen_envp);
 	fprintf(stderr, "cannot exec %s: %s\n", lt_screen, strerror(errno));

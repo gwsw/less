@@ -178,7 +178,8 @@ static int run_test(TestSetup* setup, FILE* testfd) {
 	return ok;
 }
 
-// Should run in empty directory.
+// Should be run in an empty temp directory;
+// it creates its own files in the current directory.
 int run_testfile(const char* testfile, const char* less) {
 	FILE* testfd = fopen(testfile, "r");
 	if (testfd == NULL) {
@@ -187,7 +188,7 @@ int run_testfile(const char* testfile, const char* less) {
 	}
 	int tests = 0;
 	int fails = 0;
-	for (;;) {
+	for (;;) { // might be multiple tests in one file
 		TestSetup* setup = read_test_setup(testfd, less);
 		if (setup == NULL)
 			break;

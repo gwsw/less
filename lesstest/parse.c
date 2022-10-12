@@ -100,6 +100,7 @@ int read_zline(FILE* fd, char* line, int line_len) {
 	return nread;
 }
 
+// Read the header of a .lt file (up to the R line).
 TestSetup* read_test_setup(FILE* fd, const char* less) {
 	TestSetup* setup = new_test_setup();
 	int hdr_complete = 0;

@@ -277,10 +277,15 @@ static int exec_esc(wchar ch) {
 static int add_char(wchar ch) {
 	//if (verbose) fprintf(stderr, "add (%c) %lx at %d,%d\n", (char)ch, (long)ch, screen.cx, screen.cy);
 	screen_char_set(screen.cx, screen.cy, ch, screen.curr_attr, screen.curr_color);
-	int fits = screen_incr(&screen.cx, &screen.cy);
-	if (fits && is_wide_char(ch)) {
-		screen_char_set(screen.cx, screen.cy, 0, 0, NULL_COLOR);
+	int fits = 1;
+	int zero_width = (is_composing_char(ch) || 
+	    (screen.cx > 0 && is_combining_char(screen_char(screen.cx-1,screen.cy)->ch, ch)));
+	if (!zero_width) {
 		fits = screen_incr(&screen.cx, &screen.cy);
+		if (fits && is_wide_char(ch)) {
+			screen_char_set(screen.cx, screen.cy, 0, 0, NULL_COLOR);
+			fits = screen_incr(&screen.cx, &screen.cy);
+		}
 	}
 	if (!fits) { // Wrap at bottom of screen = scroll
 		screen.cx = 0;
