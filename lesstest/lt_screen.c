@@ -71,6 +71,10 @@ static void param_push(int v) {
 	screen.params[++screen.param_top] = v;
 }
 
+static void param_clear(void) {
+	screen.param_top = -1;
+}
+
 static int param_pop(void){
 	if (screen.param_top < 0)
 		return -1; // missing param 
@@ -308,6 +312,7 @@ static int process_char(wchar ch) {
 		} else {
 			screen.in_esc = 0;
 			ok = exec_esc(ch);
+			param_clear();
 		}
 	} else if (ch == ESC) {
 		screen.in_esc = 1;
