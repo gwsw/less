@@ -2,7 +2,7 @@
 use strict;
 
 # Run one or more test files.
-my $usage = "usage: run [-eE] [-d lesstest-dir] [-l less.exe] [-r temp-dir] [-s lt_screen] [-t lesstest] [-O lesstest-opts] [file.lt | dir]...\n";
+my $usage = "usage: runtest [-eE] [-d lesstest-dir] [-l less.exe] [-r temp-dir] [-s lt_screen] [-t lesstest] [-O lesstest-opts] [file.lt | dir]...\n";
 
 use Getopt::Std;
 use Cwd;
@@ -42,12 +42,8 @@ sub main {
 		$errs += run(rfile($file, $cwd));
 	}
 	system "rm -rf '$rundir'";
-	if ($errs > 0) {
-		print "ERRS $errs errors\n";
-		return 1;
-	}
-	print "RAN  $num_tests tests\n" unless ($err_only == 2);
-	return 0;
+	print "RAN  $num_tests tests with $errs errors\n" if $errs > 0 or $err_only != 2;
+	return ($errs > 0);
 }
 
 # Run a xxx.lt file.

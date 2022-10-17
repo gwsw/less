@@ -33,10 +33,10 @@ static void become_child_less(char* less, int argc, char* const* argv, char* con
 	dup_std(less_in_pipe[RD], screen_in_pipe[WR]);
 
 	char** less_argv = malloc(sizeof(char*) * (argc + 6));
-	less_argv[0] = less;
-	less_argv[1] = "--tty";
-	less_argv[2] = "/dev/stdin";
-	int less_argc = 3;//5;
+	int less_argc = 0;
+	less_argv[less_argc++] = less;
+	less_argv[less_argc++] = "--tty";
+	less_argv[less_argc++] = "/dev/stdin";
 	while (--argc > 0) {
 		char* arg = *++argv;
 		less_argv[less_argc++] = (argc > 1 || tempfile == NULL) ? arg : (char*) tempfile;
