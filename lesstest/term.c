@@ -50,6 +50,7 @@ int setup_term(void) {
 	setup_mode("us", "ue", &terminfo.enter_underline, &terminfo.exit_underline, &sp);
 	setup_mode("md", "me", &terminfo.enter_bold, &terminfo.exit_bold, &sp);
 	setup_mode("mb", "me", &terminfo.enter_blink, &terminfo.exit_blink, &sp);
+	terminfo.exit_all_modes = terminfo.exit_bold;
 	terminfo.cursor_move = tgetstr("cm", &sp);
 	if (terminfo.cursor_move == NULL) terminfo.cursor_move = "";
 	terminfo.clear_screen = tgetstr("cl", &sp);

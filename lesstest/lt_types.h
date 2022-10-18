@@ -21,7 +21,8 @@ typedef unsigned char Color;
 #define RUN_ERR             1
 
 #define LTS_CHAR_ATTR       '@'
-#define LTS_CHAR_COLOR      '$'
+#define LTS_CHAR_FG_COLOR   '$'
+#define LTS_CHAR_BG_COLOR   '!'
 #define LTS_CHAR_CURSOR     '#'
 
 #define is_ascii(ch)        ((ch) >= ' ' && (ch) < 0x7f)

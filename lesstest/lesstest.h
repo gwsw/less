@@ -44,6 +44,7 @@ typedef struct TermInfo {
 	char* exit_blink;
 	char* enter_standout;
 	char* exit_standout;
+	char* exit_all_modes;
 	char* clear_screen;
 	char* cursor_move;
 	char* key_right;

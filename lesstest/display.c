@@ -3,16 +3,12 @@
 
 extern TermInfo terminfo;
 
-static void display_attr(Attr attr) {
-	static Attr prev_attr = 0;
-	if (prev_attr & ATTR_STANDOUT)
-		printf("%s", terminfo.exit_standout);
-	if (prev_attr & ATTR_BLINK)
-		printf("%s", terminfo.exit_blink);
-	if (prev_attr & ATTR_BOLD)
-		printf("%s", terminfo.exit_bold);
-	if (prev_attr & ATTR_UNDERLINE)
-		printf("%s", terminfo.exit_underline);
+static void display_attr_color(Attr attr, Color fg_color, Color bg_color) {
+	printf("%s", terminfo.exit_all_modes);
+	if (fg_color != NULL_COLOR)
+		printf("\33[%dm", fg_color);
+	if (bg_color != NULL_COLOR)
+		printf("\33[%dm", bg_color);
 	if (attr & ATTR_UNDERLINE)
 		printf("%s", terminfo.enter_underline);
 	if (attr & ATTR_BOLD)
@@ -21,14 +17,6 @@ static void display_attr(Attr attr) {
 		printf("%s", terminfo.enter_blink);
 	if (attr & ATTR_STANDOUT)
 		printf("%s", terminfo.enter_standout);
-	prev_attr = attr;
-}
-
-static void display_color(Color color) {
-	if (color == NULL_COLOR)
-		printf("\33[m");
-	else
-		printf("\33[%dm", color);
 }
 
 void display_screen(const byte* img, int imglen, int screen_width, int screen_height) {
@@ -38,7 +26,8 @@ void display_screen(const byte* img, int imglen, int screen_width, int screen_he
 	int cursor_y = 0;
 	int literal = 0;
 	Attr curr_attr = 0;
-	Color curr_color = NULL_COLOR;
+	Color curr_fg_color = NULL_COLOR;
+	Color curr_bg_color = NULL_COLOR;
 	while (imglen-- > 0) {
 		wchar ch = load_wchar(&img);
 		if (!literal) {
@@ -48,15 +37,15 @@ void display_screen(const byte* img, int imglen, int screen_width, int screen_he
 				continue;
 			case LTS_CHAR_ATTR:
 				curr_attr = *img++;
-				display_attr(curr_attr);
-				if (curr_color != NULL_COLOR)
-					display_color(curr_color);
+				display_attr_color(curr_attr, curr_fg_color, curr_bg_color);
 				continue;
-			case LTS_CHAR_COLOR:
-				curr_color = *img++;
-				display_color(curr_color);
-				if (curr_attr != 0)
-					display_attr(curr_attr);
+			case LTS_CHAR_FG_COLOR:
+				curr_fg_color = *img++;
+				display_attr_color(curr_attr, curr_fg_color, curr_bg_color);
+				continue;
+			case LTS_CHAR_BG_COLOR:
+				curr_bg_color = *img++;
+				display_attr_color(curr_attr, curr_fg_color, curr_bg_color);
 				continue;
 			case LTS_CHAR_CURSOR:
 				cursor_x = x;
@@ -94,7 +83,8 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 				literal = 1;
 				continue;
 			case LTS_CHAR_ATTR:
-			case LTS_CHAR_COLOR:
+			case LTS_CHAR_FG_COLOR:
+			case LTS_CHAR_BG_COLOR:
 				x -= 2; // don't count LTS_CHAR or following byte
 				literal = 1;
 				break;

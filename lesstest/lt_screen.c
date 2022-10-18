@@ -21,7 +21,8 @@ int usage(void) {
 typedef struct ScreenChar {
 	wchar ch;
 	Attr attr;
-	Color color;
+	Color fg_color;
+	Color bg_color;
 } ScreenChar;
 
 typedef struct ScreenState {
@@ -31,7 +32,8 @@ typedef struct ScreenState {
 	int cx;
 	int cy;
 	Attr curr_attr;
-	Color curr_color;
+	Color curr_fg_color;
+	Color curr_bg_color;
 	int param_top;
 	int params[MAX_PARAMS+1];
 	int in_esc;
@@ -52,15 +54,19 @@ static void screen_init(void) {
 	screen.cy = 0;
 	screen.in_esc = 0;
 	screen.curr_attr = 0;
-	screen.curr_color = NULL_COLOR;
+	screen.curr_fg_color = screen.curr_bg_color = NULL_COLOR;
 	screen.param_top = -1;
 	screen.params[0] = 0;
+}
+
+static int num_params(void) {
+	return screen.param_top+1;
 }
 
 static void param_print(void) {
 	int i;
 	fprintf(stderr, "(");
-	for (i = 0; i <= screen.param_top; ++i)
+	for (i = 0; i < num_params(); ++i)
 		fprintf(stderr, "%d ", screen.params[i]);
 	fprintf(stderr, ")");
 }
@@ -76,7 +82,7 @@ static void param_clear(void) {
 }
 
 static int param_pop(void){
-	if (screen.param_top < 0)
+	if (num_params() == 0)
 		return -1; // missing param 
 	return screen.params[screen.param_top--];
 }
@@ -110,16 +116,17 @@ static int screen_incr(int* px, int* py) {
 	return 1;
 }
 
-static void screen_char_set(int x, int y, wchar ch, Attr attr, Color color) {
+static void screen_char_set(int x, int y, wchar ch, Attr attr, Color fg_color, Color bg_color) {
 	ScreenChar* sc = screen_char(x, y);
 	sc->ch = ch;
 	sc->attr = attr;
-	sc->color = color;
+	sc->fg_color = fg_color;
+	sc->bg_color = bg_color;
 }
 
 static int screen_clear(int x, int y, int count) {
 	while (count-- > 0) {
-		screen_char_set(x, y, '_', 0, NULL_COLOR);
+		screen_char_set(x, y, '_', 0, NULL_COLOR, NULL_COLOR);
 		screen_incr(&x, &y);
 	}
 	return 1;
@@ -128,7 +135,8 @@ static int screen_clear(int x, int y, int count) {
 static int screen_read(int x, int y, int count) {
 	//write(ttyout, "$|", 2);
 	Attr attr = 0;
-	int color = NULL_COLOR;
+	int fg_color = NULL_COLOR;
+	int bg_color = NULL_COLOR;
 	while (count-- > 0) {
 		byte buf[32];
 		byte* bufp = buf;
@@ -138,14 +146,19 @@ static int screen_read(int x, int y, int count) {
 			*bufp++ = LTS_CHAR_ATTR;
 			*bufp++ = attr;
 		}
-		if (sc->color != color) {
-			color = sc->color;
-			*bufp++ = LTS_CHAR_COLOR;
-			*bufp++ = color;
+		if (sc->fg_color != fg_color) {
+			fg_color = sc->fg_color;
+			*bufp++ = LTS_CHAR_FG_COLOR;
+			*bufp++ = fg_color;
+		}
+		if (sc->bg_color != bg_color) {
+			bg_color = sc->bg_color;
+			*bufp++ = LTS_CHAR_BG_COLOR;
+			*bufp++ = bg_color;
 		}
 		if (x == screen.cx && y == screen.cy)
 			*bufp++ = LTS_CHAR_CURSOR;
-		if (sc->ch == '\\' || sc->ch == LTS_CHAR_ATTR || sc->ch == LTS_CHAR_COLOR || sc->ch == LTS_CHAR_CURSOR)
+		if (sc->ch == '\\' || sc->ch == LTS_CHAR_ATTR || sc->ch == LTS_CHAR_FG_COLOR || sc->ch == LTS_CHAR_BG_COLOR || sc->ch == LTS_CHAR_CURSOR)
 			*bufp++ = '\\';
 		store_wchar(&bufp, sc->ch);
 		write(ttyout, buf, bufp-buf);
@@ -199,9 +212,28 @@ static int screen_clear_attr(int attr) {
 }
 
 static int screen_set_color(int color) {
-	screen.curr_color = (color >= 0) ? color : NULL_COLOR;
-	if (verbose) fprintf(stderr, "[%d,%d] set_color(%d)=%d\n", screen.cx, screen.cy, color, screen.curr_color);
-	return 1;
+	int ret = 0;
+	switch (color) {
+	case 1:  ret = screen_set_attr(ATTR_BOLD); break;
+	case 4:  ret = screen_set_attr(ATTR_UNDERLINE); break;
+	case 5:
+	case 6:  ret = screen_set_attr(ATTR_BLINK); break;
+	case 7:  ret = screen_set_attr(ATTR_STANDOUT); break;
+	case 22: ret = screen_clear_attr(ATTR_BOLD); break;
+	case 24: ret = screen_clear_attr(ATTR_UNDERLINE); break;
+	default: 
+		if (color < 0)
+			screen.curr_fg_color = screen.curr_bg_color = NULL_COLOR;
+		else if ((color >= 30 && color <= 37) || (color >= 90 && color <= 97))
+			screen.curr_fg_color = color;
+		else if ((color >= 40 && color <= 47) || (color >= 100 && color <= 107))
+			screen.curr_bg_color = color;
+		else
+			fprintf(stderr, "unrecognized color %d\n", color);
+		if (verbose) fprintf(stderr, "[%d,%d] set_color(%d)=%d/%d\n", screen.cx, screen.cy, color, screen.curr_fg_color, screen.curr_bg_color);
+		break;
+	}
+	return ret;
 }
 
 // ------------------------------------------------------------------ 
@@ -269,7 +301,13 @@ static int exec_esc(wchar ch) {
 	case 'E': // exit bold/blink
 		return screen_clear_attr(ATTR_BOLD|ATTR_BLINK);
 	case 'm': // set color
-		return screen_set_color(param_pop());
+		if (num_params() == 0) {
+			screen_set_color(-1);
+		} else {
+			while (num_params() > 0)
+				screen_set_color(param_pop());
+		}
+		return 0;
 	case '?': // print version string
 		write(ttyout, version, strlen(version));
 		return 1;
@@ -280,14 +318,14 @@ static int exec_esc(wchar ch) {
 
 static int add_char(wchar ch) {
 	//if (verbose) fprintf(stderr, "add (%c) %lx at %d,%d\n", (char)ch, (long)ch, screen.cx, screen.cy);
-	screen_char_set(screen.cx, screen.cy, ch, screen.curr_attr, screen.curr_color);
+	screen_char_set(screen.cx, screen.cy, ch, screen.curr_attr, screen.curr_fg_color, screen.curr_bg_color);
 	int fits = 1;
 	int zero_width = (is_composing_char(ch) || 
 	    (screen.cx > 0 && is_combining_char(screen_char(screen.cx-1,screen.cy)->ch, ch)));
 	if (!zero_width) {
 		fits = screen_incr(&screen.cx, &screen.cy);
 		if (fits && is_wide_char(ch)) {
-			screen_char_set(screen.cx, screen.cy, 0, 0, NULL_COLOR);
+			screen_char_set(screen.cx, screen.cy, 0, 0, NULL_COLOR, NULL_COLOR);
 			fits = screen_incr(&screen.cx, &screen.cy);
 		}
 	}
@@ -303,7 +341,7 @@ static int process_char(wchar ch) {
 	int ok = 1;
 	if (screen.in_esc) {
 		if (ch >= '0' && ch <= '9') {
-			int d = (screen.param_top < 0) ? 0 : screen.params[screen.param_top--];
+			int d = (num_params() == 0) ? 0 : screen.params[screen.param_top--];
 			param_push(10 * d + ch - '0');
 		} else if (ch == ';') {
 			param_push(0);
