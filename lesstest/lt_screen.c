@@ -232,6 +232,7 @@ static int screen_set_color(int color) {
 	default: 
 		if (color < 0) {
 			screen.curr_fg_color = screen.curr_bg_color = NULL_COLOR;
+			screen.curr_attr = 0;
 			ret = 1;
 		} else if ((color >= 30 && color <= 37) || (color >= 90 && color <= 97)) {
 			screen.curr_fg_color = color;
