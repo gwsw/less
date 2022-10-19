@@ -211,6 +211,9 @@ static int screen_clear_attr(int attr) {
 	return 1;
 }
 
+// ------------------------------------------------------------------ 
+// lt_screen supports certain ANSI color values.
+// This simplifies testing SGR sequences with less -R.
 static int screen_set_color(int color) {
 	int ret = 0;
 	switch (color) {
@@ -219,17 +222,26 @@ static int screen_set_color(int color) {
 	case 5:
 	case 6:  ret = screen_set_attr(ATTR_BLINK); break;
 	case 7:  ret = screen_set_attr(ATTR_STANDOUT); break;
+	case 21:
 	case 22: ret = screen_clear_attr(ATTR_BOLD); break;
 	case 24: ret = screen_clear_attr(ATTR_UNDERLINE); break;
+	case 25: ret = screen_clear_attr(ATTR_BLINK); break;
+	case 27: ret = screen_clear_attr(ATTR_STANDOUT); break;
+	// case 38: break;
+	// case 48: break;
 	default: 
-		if (color < 0)
+		if (color < 0) {
 			screen.curr_fg_color = screen.curr_bg_color = NULL_COLOR;
-		else if ((color >= 30 && color <= 37) || (color >= 90 && color <= 97))
+			ret = 1;
+		} else if ((color >= 30 && color <= 37) || (color >= 90 && color <= 97)) {
 			screen.curr_fg_color = color;
-		else if ((color >= 40 && color <= 47) || (color >= 100 && color <= 107))
+			ret = 1;
+		} else if ((color >= 40 && color <= 47) || (color >= 100 && color <= 107)) {
 			screen.curr_bg_color = color;
-		else
-			fprintf(stderr, "unrecognized color %d\n", color);
+			ret = 1;
+		} else {
+			fprintf(stderr, "[%d,%d] unrecognized color %d\n", screen.cx, screen.cy, color);
+		}
 		if (verbose) fprintf(stderr, "[%d,%d] set_color(%d)=%d/%d\n", screen.cx, screen.cy, color, screen.curr_fg_color, screen.curr_bg_color);
 		break;
 	}
@@ -282,25 +294,33 @@ static int exec_esc(wchar ch) {
 		return screen_rscroll();
 	case '<': // cursor left to start of line
 		return screen_cr();
-	case 's': // enter standout
-		return screen_set_attr(ATTR_STANDOUT);
-	case 't': // exit standout
-		return screen_clear_attr(ATTR_STANDOUT);
+#if 1
 	case 'u': // enter underline
+fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
 		return screen_set_attr(ATTR_UNDERLINE);
 	case 'v': // exit underline
+fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
 		return screen_clear_attr(ATTR_UNDERLINE);
 	case 'd': // enter bold
+fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
 		return screen_set_attr(ATTR_BOLD);
+	case 'E': // exit bold/blink
+fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
+		return screen_clear_attr(ATTR_BOLD|ATTR_BLINK);
+	case 's': // enter standout
+fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
+		return screen_set_attr(ATTR_STANDOUT);
+	case 't': // exit standout
+fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
+		return screen_clear_attr(ATTR_STANDOUT);
+#endif
 	case 'e': // exit bold
 		return screen_clear_attr(ATTR_BOLD);
 	case 'b': // enter blink
 		return screen_set_attr(ATTR_BLINK);
 	case 'c': // exit blink
 		return screen_clear_attr(ATTR_BLINK);
-	case 'E': // exit bold/blink
-		return screen_clear_attr(ATTR_BOLD|ATTR_BLINK);
-	case 'm': // set color
+	case 'm': // SGR (Select  Graphics Rendition)
 		if (num_params() == 0) {
 			screen_set_color(-1);
 		} else {
@@ -346,7 +366,7 @@ static int process_char(wchar ch) {
 		} else if (ch == ';') {
 			param_push(0);
 		} else if (ch == '[') {
-			; // ANSI sequence
+			; // Ignore ANSI marker
 		} else {
 			screen.in_esc = 0;
 			ok = exec_esc(ch);
