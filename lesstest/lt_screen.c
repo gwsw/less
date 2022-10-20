@@ -230,7 +230,7 @@ static int screen_set_color(int color) {
 	// case 38: break;
 	// case 48: break;
 	default: 
-		if (color < 0) {
+		if (color <= 0) {
 			screen.curr_fg_color = screen.curr_bg_color = NULL_COLOR;
 			screen.curr_attr = 0;
 			ret = 1;
