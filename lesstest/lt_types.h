@@ -15,7 +15,7 @@ typedef unsigned char Color;
 #define ESC                 '\33'
 #define LESS_DUMP_CHAR      '\35'
 #define UNICODE_MAX_BYTES   4
-#define MAX_SCREENBUF_SIZE  8192
+#define MAX_SCREENBUF_SIZE  (16*1024)
 
 #define RUN_OK              0
 #define RUN_ERR             1

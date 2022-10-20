@@ -19,6 +19,20 @@ static void display_attr_color(Attr attr, Color fg_color, Color bg_color) {
 		printf("%s", terminfo.enter_standout);
 }
 
+static int hexval(unsigned char ch) {
+	if (ch >= '0' && ch <= '9') return ch - '0';
+	if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+	if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+	fprintf(stderr, "invalid hex char 0x%x\n", ch);
+	abort();
+}
+
+static int get_hex(unsigned char const** pp) {
+	int v1 = hexval(*(*pp)++);
+	int v2 = hexval(*(*pp)++);
+	return (v1 << 4) | v2;
+}
+
 void display_screen(const byte* img, int imglen, int screen_width, int screen_height) {
 	int x = 0;
 	int y = 0;
@@ -36,15 +50,15 @@ void display_screen(const byte* img, int imglen, int screen_width, int screen_he
 				literal = 1;
 				continue;
 			case LTS_CHAR_ATTR:
-				curr_attr = *img++;
+				curr_attr = get_hex(&img);
 				display_attr_color(curr_attr, curr_fg_color, curr_bg_color);
 				continue;
 			case LTS_CHAR_FG_COLOR:
-				curr_fg_color = *img++;
+				curr_fg_color = get_hex(&img);
 				display_attr_color(curr_attr, curr_fg_color, curr_bg_color);
 				continue;
 			case LTS_CHAR_BG_COLOR:
-				curr_bg_color = *img++;
+				curr_bg_color = get_hex(&img);
 				display_attr_color(curr_attr, curr_fg_color, curr_bg_color);
 				continue;
 			case LTS_CHAR_CURSOR:
@@ -85,7 +99,7 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 			case LTS_CHAR_ATTR:
 			case LTS_CHAR_FG_COLOR:
 			case LTS_CHAR_BG_COLOR:
-				x -= 2; // don't count LTS_CHAR or following byte
+				x -= 3; // don't count LTS_CHAR or following 2 bytes
 				literal = 1;
 				break;
 			case LTS_CHAR_CURSOR:

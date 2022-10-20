@@ -132,6 +132,12 @@ static int screen_clear(int x, int y, int count) {
 	return 1;
 }
 
+static void store_hex(byte** pp, int val) {
+	char hexchar[] = "0123456789ABCDEF";
+	*(*pp)++ = hexchar[(val >> 4) & 0xf];
+	*(*pp)++ = hexchar[val & 0xf];
+}
+
 static int screen_read(int x, int y, int count) {
 	//write(ttyout, "$|", 2);
 	Attr attr = 0;
@@ -144,17 +150,17 @@ static int screen_read(int x, int y, int count) {
 		if (sc->attr != attr) {
 			attr = sc->attr;
 			*bufp++ = LTS_CHAR_ATTR;
-			*bufp++ = attr;
+			store_hex(&bufp, attr);
 		}
 		if (sc->fg_color != fg_color) {
 			fg_color = sc->fg_color;
 			*bufp++ = LTS_CHAR_FG_COLOR;
-			*bufp++ = fg_color;
+			store_hex(&bufp, fg_color);
 		}
 		if (sc->bg_color != bg_color) {
 			bg_color = sc->bg_color;
 			*bufp++ = LTS_CHAR_BG_COLOR;
-			*bufp++ = bg_color;
+			store_hex(&bufp, bg_color);
 		}
 		if (x == screen.cx && y == screen.cy)
 			*bufp++ = LTS_CHAR_CURSOR;
