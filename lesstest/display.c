@@ -109,17 +109,17 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 		}
 		literal = 0;
 		if (is_ascii(ch))
-			fwrite(&ch, 1, 1, stdout);
+			fwrite(&ch, 1, 1, stderr);
 		else
-			printf("<%lx>", (unsigned long) ch);
+			fprintf(stderr, "<%lx>", (unsigned long) ch);
 		if (++x >= screen_width) {
-			printf("\n");
+			fprintf(stderr, "\n");
 			x = 0;
 			if (++y >= screen_height)
 				break;
 		}
 	}
-	fflush(stdout);
+	fflush(stderr);
 }
 
 void print_strings(const char* title, char* const* strings) {
