@@ -552,6 +552,9 @@ opt__V(type, s)
 			putstr("** and may not function correctly.\n");
 			putstr("** Obtain release builds from the web page below.\n\n");
 		}
+#if LESSTEST
+		putstr("This build supports LESSTEST.\n");
+#endif /*LESSTEST*/
 		putstr("less comes with NO WARRANTY, to the extent permitted by law.\n");
 		putstr("For information about the terms of redistribution,\n");
 		putstr("see the file named README in the less distribution.\n");

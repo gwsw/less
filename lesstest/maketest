@@ -21,6 +21,10 @@ sub main {
 	my $ls_opts   = opts($opt{S} or "");
 	my $ltfile    = $opt{o};
 	my $linked = 0;
+	if (not less_is_test($less)) {
+		print "$less is not compiled to support LESSTEST\n";
+		exit 1;
+	}
 	if ($textfile =~ m|/|) {
 		my ($basename) = $textfile =~ m|^.*/([^/]+)$|;
 		if (not link $textfile, $basename) {
@@ -53,4 +57,10 @@ sub opts {
 	my ($opts) = @_;
 	$opts = "-$opts" if $opts =~ /^[^-]/;
 	return $opts;
+}
+
+sub less_is_test {
+	my ($less) = @_;
+	my $ver = `$less -V`;
+	return $ver =~ /LESSTEST/;
 }

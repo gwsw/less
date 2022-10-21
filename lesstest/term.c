@@ -37,9 +37,9 @@ static void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char**
 }
 
 static char* ltgetstr(char* id, char** area) {
-    char* str = tgetstr(id, area);
-    if (str == NULL) str = "";
-    return str;
+	char* str = tgetstr(id, area);
+	if (str == NULL) str = "";
+	return str;
 }
 
 int setup_term(void) {

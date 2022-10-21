@@ -31,11 +31,12 @@ sub main {
 	$err_only   = $opt{E} ? 2 : $opt{e} ? 1 : 0;
 	$lt_opts = "-$lt_opts" if $lt_opts =~ /^[^-]/;
 	$lt_opts .= ($err_only == 2) ? " -E" : $err_only ? " -e" : "";
-	die "cannot execute $lesstest"   if not -x $lesstest;
-	die "cannot execute $lt_screen"  if not -x $lt_screen;
-	die "cannot execute $less"       if not -x $less;
-	die "cannot create $rundir" if system "rm -rf '$rundir' && mkdir -p '$rundir'";
-	die "cannot chdir to $rundir: $!" if not chdir $rundir;
+	die "cannot execute $lesstest: $!"   if not -x $lesstest;
+	die "cannot execute $lt_screen: $!"  if not -x $lt_screen;
+	die "cannot execute $less: $!"       if not -x $less;
+	die "$less is not compiled to support LESSTEST" if not less_is_test($less);
+	die "cannot create $rundir: $!"      if system "rm -rf '$rundir' && mkdir -p '$rundir'";
+	die "cannot chdir to $rundir: $!"    if not chdir $rundir;
 
 	my $errs = 0;
 	foreach my $file (@ARGV) {
@@ -93,4 +94,10 @@ sub rfile {
 	return undef if not defined $file;
 	$file = "$cwd/$file" unless $file =~ m|^/|;
 	return $file;
+}
+
+sub less_is_test {
+	my ($less) = @_;
+	my $ver = `$less -V`;
+	return $ver =~ /LESSTEST/;
 }
