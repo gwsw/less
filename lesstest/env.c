@@ -81,12 +81,12 @@ static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
 		{ "LESS_TERMCAP_ue", "\33[24m" },
 		{ "LESS_TERMCAP_us", "\33[4m" },
 		{ "LESS_TERMCAP_vb", "\33g" },
-		{ "LESS_TERMCAP_kr", terminfo.key_right ? terminfo.key_right : "" },
-		{ "LESS_TERMCAP_kl", terminfo.key_left ? terminfo.key_left : "" },
-		{ "LESS_TERMCAP_ku", terminfo.key_up ? terminfo.key_up : "" },
-		{ "LESS_TERMCAP_kd", terminfo.key_down ? terminfo.key_down : "" },
-		{ "LESS_TERMCAP_kh", terminfo.key_home ? terminfo.key_home : "" },
-		{ "LESS_TERMCAP_@7", terminfo.key_end ? terminfo.key_end : "" },
+		{ "LESS_TERMCAP_kr", terminfo.key_right },
+		{ "LESS_TERMCAP_kl", terminfo.key_left },
+		{ "LESS_TERMCAP_ku", terminfo.key_up },
+		{ "LESS_TERMCAP_kd", terminfo.key_down },
+		{ "LESS_TERMCAP_kh", terminfo.key_home },
+		{ "LESS_TERMCAP_@7", terminfo.key_end },
 	};
 	for (int i = 0; i < countof(tcvars); ++i) {
 		struct tcvar* tc = &tcvars[i];

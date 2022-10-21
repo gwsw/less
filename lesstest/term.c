@@ -36,6 +36,12 @@ static void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char**
 	if (*exit_str == NULL) *exit_str = "";
 }
 
+static char* ltgetstr(char* id, char** area) {
+    char* str = tgetstr(id, area);
+    if (str == NULL) str = "";
+    return str;
+}
+
 int setup_term(void) {
 	static char termbuf[4096];
 	static char sbuf[4096];
@@ -51,21 +57,20 @@ int setup_term(void) {
 	setup_mode("md", "me", &terminfo.enter_bold, &terminfo.exit_bold, &sp);
 	setup_mode("mb", "me", &terminfo.enter_blink, &terminfo.exit_blink, &sp);
 	terminfo.exit_all_modes = terminfo.exit_bold;
-	terminfo.cursor_move = tgetstr("cm", &sp);
-	if (terminfo.cursor_move == NULL) terminfo.cursor_move = "";
-	terminfo.clear_screen = tgetstr("cl", &sp);
-	if (terminfo.clear_screen == NULL) terminfo.clear_screen = "";
-	char* bs = tgetstr("kb", &sp);
-	terminfo.backspace_key = (bs != NULL && strlen(bs) == 1) ? *bs : '\b';
-	terminfo.init_term = tgetstr("ti", &sp);
-	terminfo.deinit_term = tgetstr("te", &sp);
-	terminfo.enter_keypad = tgetstr("ks", &sp);
-	terminfo.exit_keypad = tgetstr("ke", &sp);
-	terminfo.key_right = tgetstr("kr", &sp);
-	terminfo.key_left = tgetstr("kl", &sp);
-	terminfo.key_up = tgetstr("ku", &sp);
-	terminfo.key_down = tgetstr("kd", &sp);
-	terminfo.key_home = tgetstr("kh", &sp);
-	terminfo.key_end = tgetstr("@7", &sp);
+
+	char* bs = ltgetstr("kb", &sp);
+	terminfo.backspace_key = (strlen(bs) == 1) ? *bs : '\b';
+	terminfo.cursor_move = ltgetstr("cm", &sp);
+	terminfo.clear_screen = ltgetstr("cl", &sp);
+	terminfo.init_term = ltgetstr("ti", &sp);
+	terminfo.deinit_term = ltgetstr("te", &sp);
+	terminfo.enter_keypad = ltgetstr("ks", &sp);
+	terminfo.exit_keypad = ltgetstr("ke", &sp);
+	terminfo.key_right = ltgetstr("kr", &sp);
+	terminfo.key_left = ltgetstr("kl", &sp);
+	terminfo.key_up = ltgetstr("ku", &sp);
+	terminfo.key_down = ltgetstr("kd", &sp);
+	terminfo.key_home = ltgetstr("kh", &sp);
+	terminfo.key_end = ltgetstr("@7", &sp);
 	return 1;
 }

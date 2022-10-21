@@ -113,7 +113,7 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 		read_and_display_screen(pipeline);
 	}
 	log_test_footer();
-	printf("%s%s", terminfo.exit_keypad, terminfo.deinit_term);
+	printf("%s%s%s", terminfo.clear_screen, terminfo.exit_keypad, terminfo.deinit_term);
 	raw_mode(ttyin, 0);
 	destroy_less_pipeline(pipeline);
 	set_intr_handler(0);
