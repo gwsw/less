@@ -56,7 +56,6 @@ int setup_term(void) {
 	setup_mode("us", "ue", &terminfo.enter_underline, &terminfo.exit_underline, &sp);
 	setup_mode("md", "me", &terminfo.enter_bold, &terminfo.exit_bold, &sp);
 	setup_mode("mb", "me", &terminfo.enter_blink, &terminfo.exit_blink, &sp);
-	terminfo.exit_all_modes = terminfo.exit_bold;
 
 	char* bs = ltgetstr("kb", &sp);
 	terminfo.backspace_key = (strlen(bs) == 1) ? *bs : '\b';

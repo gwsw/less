@@ -4,7 +4,7 @@
 extern TermInfo terminfo;
 
 static void display_attr_color(Attr attr, Color fg_color, Color bg_color) {
-	printf("%s", terminfo.exit_all_modes);
+	printf("\33[m");
 	if (fg_color != NULL_COLOR)
 		printf("\33[%dm", fg_color);
 	if (bg_color != NULL_COLOR)
@@ -100,7 +100,6 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 			case LTS_CHAR_FG_COLOR:
 			case LTS_CHAR_BG_COLOR:
 				x -= 3; // don't count LTS_CHAR or following 2 bytes
-				literal = 1;
 				break;
 			case LTS_CHAR_CURSOR:
 				x -= 1; // don't count LTS_CHAR
