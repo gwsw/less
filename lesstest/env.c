@@ -88,10 +88,12 @@ static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
 		{ "LESS_TERMCAP_kh", terminfo.key_home },
 		{ "LESS_TERMCAP_@7", terminfo.key_end },
 	};
-	for (int i = 0; i < countof(tcvars); ++i) {
-		struct tcvar* tc = &tcvars[i];
-		env_addpair(env, tc->name, tc->value);
-		log_env(tc->name, strlen(tc->name), tc->value);
+	if (interactive) {
+		for (int i = 0; i < countof(tcvars); ++i) {
+			struct tcvar* tc = &tcvars[i];
+			env_addpair(env, tc->name, tc->value);
+			log_env(tc->name, strlen(tc->name), tc->value);
+		}
 	}
 	for (char* const* envp = prog_env; *envp != NULL; ++envp) {
 		const char* ename = *envp;
