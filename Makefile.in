@@ -103,7 +103,7 @@ installcheck:
 
 check:
 	if [ -x less$(EXEEXT) ] && ./less$(EXEEXT) -V | grep -q LESSTEST; then :; else make clean; make LESSTEST=1; fi
-	cd $(srcdir)/lesstest && make && ./runtest -e lt
+	objdir=$$(pwd); cd $(srcdir)/lesstest && make && ./runtest -e -l "$$objdir/less" lt
 
 TAGS:
 	cd ${srcdir} && etags *.c *.h
