@@ -47,6 +47,7 @@ static int verbose = 0;
 
 // ------------------------------------------------------------------
 
+// Initialize ScreenState.
 static void screen_init(void) {
 	screen.w = 80;
 	screen.h = 24;
@@ -99,12 +100,14 @@ static int screen_y(int y) {
 	return y;
 }
 
+// Return the char at a given screen position.
 static ScreenChar* screen_char(int x, int y) {
 	x = screen_x(x);
 	y = screen_y(y);
 	return &screen.chars[y * screen.w + x];
 }
 
+// Step the cursor after printing a char.
 static int screen_incr(int* px, int* py) {
 	if (++(*px) >= screen.w) {
 		*px = 0;
@@ -116,6 +119,7 @@ static int screen_incr(int* px, int* py) {
 	return 1;
 }
 
+// Set the value, attributes and colors of a char on the screen.
 static void screen_char_set(int x, int y, wchar ch, Attr attr, Color fg_color, Color bg_color) {
 	ScreenChar* sc = screen_char(x, y);
 	sc->ch = ch;
@@ -138,8 +142,9 @@ static void store_hex(byte** pp, int val) {
 	*(*pp)++ = hexchar[val & 0xf];
 }
 
+// Print an encoded image of the current screen to ttyout.
+// The LTS_CHAR_* metachars encode changes of color and attribute.
 static int screen_read(int x, int y, int count) {
-	//write(ttyout, "$|", 2);
 	Attr attr = 0;
 	int fg_color = NULL_COLOR;
 	int bg_color = NULL_COLOR;
@@ -219,7 +224,8 @@ static int screen_clear_attr(int attr) {
 
 // ------------------------------------------------------------------ 
 // lt_screen supports certain ANSI color values.
-// This simplifies testing SGR sequences with less -R.
+// This simplifies testing SGR sequences with less -R 
+// compared to inventing custom color sequences.
 static int screen_set_color(int color) {
 	int ret = 0;
 	switch (color) {
@@ -262,6 +268,7 @@ static void beep(void) {
 		fprintf(stderr, "\7");
 }
 
+// Execute an escape sequence ending with a given char.
 static int exec_esc(wchar ch) {
 	int x, y, count;
 	if (verbose) {
@@ -301,26 +308,6 @@ static int exec_esc(wchar ch) {
 		return screen_rscroll();
 	case '<': // cursor left to start of line
 		return screen_cr();
-#if 1
-	case 'u': // enter underline
-fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
-		return screen_set_attr(ATTR_UNDERLINE);
-	case 'v': // exit underline
-fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
-		return screen_clear_attr(ATTR_UNDERLINE);
-	case 'd': // enter bold
-fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
-		return screen_set_attr(ATTR_BOLD);
-	case 'E': // exit bold/blink
-fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
-		return screen_clear_attr(ATTR_BOLD|ATTR_BLINK);
-	case 's': // enter standout
-fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
-		return screen_set_attr(ATTR_STANDOUT);
-	case 't': // exit standout
-fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
-		return screen_clear_attr(ATTR_STANDOUT);
-#endif
 	case 'e': // exit bold
 		return screen_clear_attr(ATTR_BOLD);
 	case 'b': // enter blink
@@ -343,6 +330,8 @@ fprintf(stderr, "DEPRECATED ESC-%c\n", (char)ch);
 	}
 }
 
+// Print a char on the screen.
+// Handles cursor movement and scrolling.
 static int add_char(wchar ch) {
 	//if (verbose) fprintf(stderr, "add (%c) %lx at %d,%d\n", (char)ch, (long)ch, screen.cx, screen.cy);
 	screen_char_set(screen.cx, screen.cy, ch, screen.curr_attr, screen.curr_fg_color, screen.curr_bg_color);
@@ -364,6 +353,8 @@ static int add_char(wchar ch) {
 	return 1;
 }
 
+// Handle a char sent to the screen.
+// Normally it is just printed, but some control chars are handled specially.
 static int process_char(wchar ch) {
 	int ok = 1;
 	if (screen.in_esc) {
@@ -390,12 +381,12 @@ static int process_char(wchar ch) {
 			++screen.cy;
 		else 
 			screen_scroll();
-		screen.cx = 0; // auto CR
+		screen_cr(); // auto CR
 	} else if (ch == '\7') {
 		beep();
 	} else if (ch == '\t') {
-		ok = add_char(' ');
-	} else if (ch >= '\40') {
+		ok = add_char(' '); // hardware tabs not supported
+	} else if (ch >= '\40') { // printable char
 		ok = add_char(ch);
 	}
 	return ok;

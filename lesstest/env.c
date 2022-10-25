@@ -2,6 +2,11 @@
 
 extern TermInfo terminfo;
 
+// EnvBuf has a char buffer (env_buf) which holds both the env var 
+// string table and also the array of pointers to individual strings (env_list).
+// env_estr points to the end of the string table. 
+// The env_list array grows backwards from the end of env_buf.
+
 void env_init(EnvBuf* env) {
 	env->env_estr = (char*) env->env_buf;
 	env->env_list = env->env_buf + sizeof(env->env_buf)/sizeof(char*);
@@ -15,20 +20,25 @@ static void env_check(EnvBuf* env) {
 	}
 }
 
+// Add a char to the string table.
 static void env_addchar(EnvBuf* env, char ch) {
 	*(env->env_estr)++ = ch;
 	env_check(env);
 }
 
+// Add a delimited string to the string table.
 static void env_addlstr(EnvBuf* env, const char* str, int strlen) {
 	while (strlen-- > 0)
 		env_addchar(env, *str++);
 }
 
+// Add a null-terminated string to the string table.
 static void env_addstr(EnvBuf* env, const char* str) {
 	env_addlstr(env, str, strlen(str));
 }
 
+// Add an env variable name/value pair to an EnvBuf.
+// The name is delimited and the value is null-terminated.
 static void env_addlpair(EnvBuf* env, const char* name, int namelen, const char* value) {
 	*--(env->env_list) = env->env_estr;
 	env_check(env);
@@ -38,16 +48,19 @@ static void env_addlpair(EnvBuf* env, const char* name, int namelen, const char*
 	env_addchar(env, '\0');
 }
 
+// Add an env variable name/value pair to an EnvBuf.
 void env_addpair(EnvBuf* env, const char* name, const char* value) {
 	env_addlpair(env, name, strlen(name), value);
 }
 
+// Add an env variable name/value pair to an EnvBuf where the value is an integer.
 void env_addintpair(EnvBuf* env, const char* name, int value) {
 	char buf[64];
 	snprintf(buf, sizeof(buf), "%d", value);
 	env_addpair(env, name, buf);
 }
 
+// Is a given env var name one which should be passed to less?
 static int is_less_env(const char* name, int name_len) {
 	static char* const less_names[] = {
 		"LESS*", "COLUMNS", "LINES", "LANG", "LC_CTYPE", "MORE", NULL
@@ -62,6 +75,8 @@ static int is_less_env(const char* name, int name_len) {
 	return 0;
 }
 
+// Create a list of env vars to be given to an instance of less,
+// as an EnvBuf.
 static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
 	struct tcvar { char const* name; char const* value; } tcvars[] = {
 		{ "LESS_TERMCAP_am", "1" },
@@ -106,6 +121,7 @@ static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
 	}
 }
 
+// Return the value of a named env var.
 const char* get_envp(char* const* envp, const char* name) {
 	for (; *envp != NULL; ++envp) {
 		const char* ename = *envp;
@@ -116,6 +132,8 @@ const char* get_envp(char* const* envp, const char* name) {
 	return NULL;
 }
 
+// Return a list of env vars to be given to an instance of less,
+// as an array of strings.
 char* const* less_envp(char* const* envp, int interactive) {
 	static EnvBuf less_env;
 	static int init = 0;

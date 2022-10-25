@@ -7,6 +7,7 @@
 
 TermInfo terminfo;
 
+// Enable or disable raw mode on the given tty.
 void raw_mode(int tty, int on) {
 	struct termios s;
 	static struct termios save_term;
@@ -24,10 +25,7 @@ void raw_mode(int tty, int on) {
 	tcsetattr(tty, TCSADRAIN, &s);
 }
 
-int env_number(const char* s) {
-	return (s == NULL) ? 0 : atoi(s);
-}
-
+// Initialize the enter & exit capabilities for a given terminal mode.
 static void setup_mode(char* enter_cap, char* exit_cap, char** enter_str, char** exit_str, char** spp) {
 	*enter_str = tgetstr(enter_cap, spp);
 	if (*enter_str == NULL) *enter_str = "";
@@ -42,6 +40,7 @@ static char* ltgetstr(char* id, char** area) {
 	return str;
 }
 
+// Initialize the terminfo struct with info about the terminal $TERM.
 int setup_term(void) {
 	static char termbuf[4096];
 	static char sbuf[4096];

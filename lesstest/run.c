@@ -33,7 +33,7 @@ static void child_handler(int signum) {
 	}
 }
 
-static void set_intr_handler(int set) {
+static void set_signal_handlers(int set) {
 	set_signal(SIGINT,  set ? SIG_IGN : SIG_DFL);
 	set_signal(SIGQUIT, set ? SIG_IGN : SIG_DFL);
 	set_signal(SIGKILL, set ? SIG_IGN : SIG_DFL);
@@ -41,6 +41,7 @@ static void set_intr_handler(int set) {
 	set_signal(SIGCHLD, set ? child_handler : SIG_DFL);
 }
 
+// Send a command char to a LessPipeline.
 static void send_char(LessPipeline* pipeline, wchar ch) {
 	if (verbose) fprintf(stderr, "lt.send %lx\n", ch);
 	byte cbuf[UNICODE_MAX_BYTES];
@@ -49,6 +50,7 @@ static void send_char(LessPipeline* pipeline, wchar ch) {
 	write(pipeline->less_in, cbuf, cp-cbuf);
 }
 
+// Read the screen image from the lt_screen in a LessPipeline.
 static int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
 	if (verbose) fprintf(stderr, "lt.gen: read screen\n");
 	send_char(pipeline, LESS_DUMP_CHAR);
@@ -62,6 +64,7 @@ static int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
 	return rn;
 }
 
+// Read screen image from a LessPipeline and display it.
 static void read_and_display_screen(LessPipeline* pipeline) {
 	byte rbuf[MAX_SCREENBUF_SIZE];
 	int rn = read_screen(pipeline, rbuf, sizeof(rbuf));
@@ -71,6 +74,7 @@ static void read_and_display_screen(LessPipeline* pipeline) {
 	log_screen(rbuf, rn);
 }
 
+// Is the screen image in a LessPipeline equal to a given buffer?
 static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen) {
 	byte curr[MAX_SCREENBUF_SIZE];
 	int currlen = read_screen(pipeline, curr, sizeof(curr));
@@ -85,6 +89,11 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 	return 0;
 }
 
+// Run an interactive lesstest session to create an lt file.
+// Read individual chars from stdin and send them to a LessPipeline.
+// After each char, read the LessPipeline screen and display it 
+// on the user's screen. 
+// Also log the char and the screen image in the lt file.
 int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 	setup_term();
 	char* const* envp = less_envp(prog_envp, 1);
@@ -97,7 +106,7 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 		destroy_less_pipeline(pipeline);
 		return 0;
 	}
-	set_intr_handler(1);
+	set_signal_handlers(1);
 	less_quit = 0;
 	int ttyin = 0; // stdin
 	raw_mode(ttyin, 1);
@@ -116,10 +125,15 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 	printf("%s%s%s", terminfo.clear_screen, terminfo.exit_keypad, terminfo.deinit_term);
 	raw_mode(ttyin, 0);
 	destroy_less_pipeline(pipeline);
-	set_intr_handler(0);
+	set_signal_handlers(0);
 	return 1;
 }
 
+// Run a test of less, as directed by an open lt file.
+// Read a logged char and screen image from the lt file.
+// Send the char to a LessPipeline, then read the LessPipeline screen image
+// and compare it to the screen image from the lt file.
+// Report an error if they differ.
 static int run_test(TestSetup* setup, FILE* testfd) {
 	const char* setup_name = setup->argv[setup->argc-1];
 	//fprintf(stderr, "RUN  %s\n", setup_name);
@@ -135,7 +149,7 @@ static int run_test(TestSetup* setup, FILE* testfd) {
 		fprintf(stderr, "\nINTR test interrupted\n");
 		ok = 0;
 	} else {
-		set_intr_handler(1);
+		set_signal_handlers(1);
 		while (!less_quit) {
 			char line[10000];
 			int line_len = read_zline(testfd, line, sizeof(line));
@@ -168,7 +182,7 @@ static int run_test(TestSetup* setup, FILE* testfd) {
 				return 0;
 			}
 		}
-		set_intr_handler(0);
+		set_signal_handlers(0);
 	}
 	destroy_less_pipeline(pipeline);
 	if (!ok)
@@ -178,17 +192,19 @@ static int run_test(TestSetup* setup, FILE* testfd) {
 	return ok;
 }
 
+// Run a test of less, as directed by a named lt file.
 // Should be run in an empty temp directory;
 // it creates its own files in the current directory.
-int run_testfile(const char* testfile, const char* less) {
-	FILE* testfd = fopen(testfile, "r");
+int run_testfile(const char* ltfile, const char* less) {
+	FILE* testfd = fopen(ltfile, "r");
 	if (testfd == NULL) {
-		fprintf(stderr, "cannot open %s\n", testfile);
+		fprintf(stderr, "cannot open %s\n", ltfile);
 		return 0;
 	}
 	int tests = 0;
 	int fails = 0;
-	for (;;) { // might be multiple tests in one file
+	// This for loop is to handle multiple tests in one file.
+	for (;;) {
 		TestSetup* setup = read_test_setup(testfd, less);
 		if (setup == NULL)
 			break;

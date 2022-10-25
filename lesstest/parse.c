@@ -3,6 +3,7 @@
 
 extern int verbose;
 
+// Return the interior string of a quoted string.
 static char* parse_qstring(const char** s) {
 	while (*(*s) == ' ') ++(*s);
 	if (*(*s)++ != '"') return NULL;
@@ -17,6 +18,8 @@ static int parse_int(const char** s) {
 	return (int) strtol(*s, (char**)s, 0);
 }
 
+// Parse a quoted name and value, 
+// and add them as env vars to the Setup environment.
 static int parse_env(TestSetup* setup, const char* line, int line_len) {
 	char* name = parse_qstring(&line);
 	char* value = parse_qstring(&line);
@@ -88,6 +91,8 @@ void free_test_setup(TestSetup* setup) {
 	free(setup);
 }
 
+// Read a newline-terminated line from a file and store it
+// as a null-terminated string without the newline.
 int read_zline(FILE* fd, char* line, int line_len) {
 	int nread = 0;
 	while (nread < line_len-1) {
@@ -148,4 +153,3 @@ TestSetup* read_test_setup(FILE* fd, const char* less) {
 	if (verbose) { fprintf(stderr, "setup: textfile %s\n", setup->textfile); print_strings("argv:", setup->argv); }
 	return setup;
 }
-

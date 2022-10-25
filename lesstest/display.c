@@ -3,6 +3,7 @@
 
 extern TermInfo terminfo;
 
+// Set the user's terminal to a given attribute and colors.
 static void display_attr_color(Attr attr, Color fg_color, Color bg_color) {
 	printf("\33[m");
 	if (fg_color != NULL_COLOR)
@@ -33,6 +34,7 @@ static int get_hex(unsigned char const** pp) {
 	return (v1 << 4) | v2;
 }
 
+// Display a given screen image on the user's terminal.
 void display_screen(const byte* img, int imglen, int screen_width, int screen_height) {
 	int x = 0;
 	int y = 0;
@@ -85,6 +87,9 @@ void display_screen(const byte* img, int imglen, int screen_width, int screen_he
 	fflush(stdout);
 }
 
+// Print a given screen image on stderr.
+// Unlike display_screen which prints escape sequences to change color etc,
+// display_screen_debug only prints printable ASCII.
 void display_screen_debug(const byte* img, int imglen, int screen_width, int screen_height) {
 	int x = 0;
 	int y = 0;
@@ -121,6 +126,7 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 	fflush(stderr);
 }
 
+// Print a list of strings.
 void print_strings(const char* title, char* const* strings) {
 	if (1) return; ///
 	fprintf(stderr, "%s:\n", title);

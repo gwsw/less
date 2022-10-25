@@ -12,9 +12,7 @@ extern char* lt_screen;
 extern char* lt_screen_opts;
 static const int run_less = 1;
 
-/*
- * Make 2 specified file descriptors be stdin and stdout.
- */
+// Make 2 specified file descriptors be stdin and stdout.
 static void dup_std(int fd0, int fd1) {
 	if (fd0 >= 0) dup2(fd0, 0);
 	if (fd1 >= 0) dup2(fd1, 1);
@@ -26,6 +24,7 @@ static const char* basename(const char* path) {
 	return slash+1;
 }
 
+// Exec an instance of less in the current process.
 static void become_child_less(char* less, int argc, char* const* argv, char* const* envp, const char* tempfile, int less_in_pipe[2], int screen_in_pipe[2]) {
 	if (verbose) fprintf(stderr, "less child: in %d, out %d, close %d,%d\n", less_in_pipe[RD], screen_in_pipe[WR], less_in_pipe[WR], screen_in_pipe[RD]);
 	close(less_in_pipe[WR]);
@@ -48,6 +47,7 @@ static void become_child_less(char* less, int argc, char* const* argv, char* con
 	exit(1);
 }
 
+// Exec an instance of lt_screen in the current process.
 static void become_child_screen(char* lt_screen, int screen_width, int screen_height, int screen_in_pipe[2], int screen_out_pipe[2]) {
 	if (verbose) fprintf(stderr, "screen child: in %d, out %d, close %d\n", screen_in_pipe[RD], screen_out_pipe[WR], screen_out_pipe[RD]);
 	close(screen_out_pipe[RD]);
@@ -81,6 +81,7 @@ static void become_child_screen(char* lt_screen, int screen_width, int screen_he
 	exit(1);
 }
 
+// Create an empty LessPipeline.
 static LessPipeline* new_pipeline(void) {
 	LessPipeline* pipeline = malloc(sizeof(LessPipeline));
 	pipeline->less_in_pipe[RD] = pipeline->less_in_pipe[WR] = -1;
@@ -93,6 +94,7 @@ static LessPipeline* new_pipeline(void) {
 	return pipeline;
 }
 
+// Create a LessPipeline.
 LessPipeline* create_less_pipeline(char* const* argv, int argc, char* const* envp) {
 	// If textfile contains a slash, create a temporary link from 
 	// the named text file to its basename, and run less on the link.
