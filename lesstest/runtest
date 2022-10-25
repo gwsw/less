@@ -47,7 +47,7 @@ sub main {
 	return ($errs > 0);
 }
 
-# Run a xxx.lt file.
+# Run a test as directed by a lt file.
 sub run {
 	my ($file) = @_;
 	if (-d $file) {

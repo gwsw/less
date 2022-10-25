@@ -2,6 +2,7 @@
 use strict;
 
 # Create a test file.
+# Wrapper for lesstest, using most common options.
 my $usage = "usage: maketest [-o lt-file] [-l less.exe] [-s lt_screen] [-t lesstest] [-w width] [-h height] [-O lesstest-opts] [-S lt_screen-opts] textfile\n";
 
 use Getopt::Std;
@@ -42,7 +43,7 @@ sub main {
 		}
 	}
 	$ls_opts = "-S$ls_opts" if $ls_opts;
-	my $cmd = "LINES=$lines COLUMNS=$columns $lesstest $lt_opts $ls_opts -o '$ltfile' -- $less '$textfile'";
+	my $cmd = "LINES=$lines COLUMNS=$columns $lesstest $lt_opts $ls_opts -s '$lt_screen' -o '$ltfile' -- $less '$textfile'";
 	my $err = system($cmd);
 	if ($err) {
 		unlink $ltfile;
