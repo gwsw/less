@@ -102,8 +102,8 @@ dvi:
 installcheck:
 
 check:
-	if [ -x less$(EXEEXT) ] && ./less$(EXEEXT) -V | grep -q LESSTEST; then :; else make clean; make LESSTEST=1; fi
-	objdir=$$(pwd); cd $(srcdir)/lesstest && make && ./runtest -e -l "$$objdir/less" lt
+	if [ -x less$(EXEEXT) ] && ./less$(EXEEXT) -V | grep -q LESSTEST; then :; else ${MAKE} clean; ${MAKE} LESSTEST=1; fi
+	objdir=$$(pwd); cd $(srcdir)/lesstest && ${MAKE} && ./runtest -e -l "$$objdir/less" lt
 
 TAGS:
 	cd ${srcdir} && etags *.c *.h
@@ -132,4 +132,3 @@ distclean: clean
 
 realclean: distclean
 	rm -f TAGS
-
