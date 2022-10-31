@@ -7,6 +7,61 @@
 
 TermInfo terminfo;
 
+static void set_termio_flags(struct termios* s) {
+	s->c_lflag &= ~(0
+#ifdef ICANON
+		| ICANON
+#endif
+#ifdef ECHO
+		| ECHO
+#endif
+#ifdef ECHOE
+		| ECHOE
+#endif
+#ifdef ECHOK
+		| ECHOK
+#endif
+#if ECHONL
+		| ECHONL
+#endif
+	);
+
+	s->c_oflag |= (0
+#ifdef OXTABS
+		| OXTABS
+#else
+#ifdef TAB3
+		| TAB3
+#else
+#ifdef XTABS
+		| XTABS
+#endif
+#endif
+#endif
+#ifdef OPOST
+		| OPOST
+#endif
+#ifdef ONLCR
+		| ONLCR
+#endif
+	);
+
+	s->c_oflag &= ~(0
+#ifdef ONOEOT
+		| ONOEOT
+#endif
+#ifdef OCRNL
+		| OCRNL
+#endif
+#ifdef ONOCR
+		| ONOCR
+#endif
+#ifdef ONLRET
+		| ONLRET
+#endif
+	);
+}
+
 // Enable or disable raw mode on the given tty.
 void raw_mode(int tty, int on) {
 	struct termios s;
@@ -16,9 +71,7 @@ void raw_mode(int tty, int on) {
 	} else {
 		tcgetattr(tty, &s);
 		save_term = s;
-		s.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL);
-		s.c_oflag |= (TAB3 | OPOST | ONLCR);
-		s.c_oflag &= ~(OCRNL | ONOCR | ONLRET);
+		set_termio_flags(&s);
 		s.c_cc[VMIN] = 1;
 		s.c_cc[VTIME] = 0;
 	}

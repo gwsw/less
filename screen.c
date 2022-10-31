@@ -296,6 +296,72 @@ extern int tty;
 extern char *tgetstr();
 extern char *tgoto();
 
+#if (HAVE_TERMIOS_H && HAVE_TERMIOS_FUNCS) || defined(TCGETA)
+/*
+ * Set termio flags for use by less.
+ */
+	static void
+set_termio_flags(s)
+#ifdef TCGETA
+	struct termio *s;
+#else
+	struct termios *s;
+#endif
+{
+	s->c_lflag &= ~(0
+#ifdef ICANON
+		| ICANON
+#endif
+#ifdef ECHO
+		| ECHO
+#endif
+#ifdef ECHOE
+		| ECHOE
+#endif
+#ifdef ECHOK
+		| ECHOK
+#endif
+#if ECHONL
+		| ECHONL
+#endif
+	);
+
+	s->c_oflag |= (0
+#ifdef OXTABS
+		| OXTABS
+#else
+#ifdef TAB3
+		| TAB3
+#else
+#ifdef XTABS
+		| XTABS
+#endif
+#endif
+#endif
+#ifdef OPOST
+		| OPOST
+#endif
+#ifdef ONLCR
+		| ONLCR
+#endif
+	);
+
+	s->c_oflag &= ~(0
+#ifdef ONOEOT
+		| ONOEOT
+#endif
+#ifdef OCRNL
+		| OCRNL
+#endif
+#ifdef ONOCR
+		| ONOCR
+#endif
+#ifdef ONLRET
+		| ONLRET
+#endif
+	);
+}
+#endif
 
 /*
  * Change terminal to "raw mode", or restore to "normal" mode.
@@ -426,58 +492,7 @@ raw_mode(on)
 			/*
 			 * Set the modes to the way we want them.
 			 */
-			s.c_lflag &= ~(0
-#ifdef ICANON
-				| ICANON
-#endif
-#ifdef ECHO
-				| ECHO
-#endif
-#ifdef ECHOE
-				| ECHOE
-#endif
-#ifdef ECHOK
-				| ECHOK
-#endif
-#if ECHONL
-				| ECHONL
-#endif
-			);
-
-			s.c_oflag |= (0
-#ifdef OXTABS
-				| OXTABS
-#else
-#ifdef TAB3
-				| TAB3
-#else
-#ifdef XTABS
-				| XTABS
-#endif
-#endif
-#endif
-#ifdef OPOST
-				| OPOST
-#endif
-#ifdef ONLCR
-				| ONLCR
-#endif
-			);
-
-			s.c_oflag &= ~(0
-#ifdef ONOEOT
-				| ONOEOT
-#endif
-#ifdef OCRNL
-				| OCRNL
-#endif
-#ifdef ONOCR
-				| ONOCR
-#endif
-#ifdef ONLRET
-				| ONLRET
-#endif
-			);
+			set_termio_flags(&s);
 			s.c_cc[VMIN] = 1;
 			s.c_cc[VTIME] = 0;
 #ifdef VLNEXT
@@ -554,9 +569,7 @@ raw_mode(on)
 		/*
 		 * Set the modes to the way we want them.
 		 */
-		s.c_lflag &= ~(ICANON|ECHO|ECHOE|ECHOK|ECHONL);
-		s.c_oflag |=  (OPOST|ONLCR|TAB3);
-		s.c_oflag &= ~(OCRNL|ONOCR|ONLRET);
+		set_termio_flags(&s);
 		s.c_cc[VMIN] = 1;
 		s.c_cc[VTIME] = 0;
 	} else
