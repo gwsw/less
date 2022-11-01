@@ -152,10 +152,10 @@ tagall:
 gnu_upload:
 	@if [ -z "${REL}" ]; then echo "Please set REL=nnn"; exit 1; fi; \
 	LESSREL=less-${REL} && RELDIR=release/$$LESSREL && \
-    TARF=$$LESSREL-release.tar.gz && \
+    TARF=$$LESSREL.tar.gz && \
 	if [ ! -s $$RELDIR/$$TARF ]; then echo "$$RELDIR/$$TARF does not exist"; exit 1; fi; \
 	cd $$RELDIR && \
 	gpg -b $$TARF && \
 	( echo "version: 1.2"; echo "directory: less"; echo "filename: $$TARF" ) > $$TARF.directive && \
-	gpg --clearsign $$TARF.directive
-	@echo "upload ready: cd $$RELDIR; ftp ftp-upload.gnu.org; cd /incoming/ftp; put $$TARF $$TARF.sig $$TARF.directive.asc" 
+	gpg --clearsign $$TARF.directive && \
+	echo "upload ready: cd $$RELDIR; ftp ftp-upload.gnu.org; cd /incoming/ftp; put $$TARF $$TARF.sig $$TARF.directive.asc" 
