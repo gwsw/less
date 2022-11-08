@@ -108,6 +108,7 @@ struct pattern_info {
 	PATTERN_TYPE compiled;
 	char* text;
 	int search_type;
+	int is_ucase_pattern;
 	struct pattern_info *next;
 };
 
@@ -118,7 +119,6 @@ struct pattern_info {
 #endif
 	
 static struct pattern_info search_info;
-static int is_ucase_pattern;
 public int is_caseless;
 
 /*
@@ -169,8 +169,8 @@ set_pattern(info, pattern, search_type, show_error)
 	 * Ignore case if -I is set OR
 	 * -i is set AND the pattern is all lowercase.
 	 */
-	is_ucase_pattern = (pattern == NULL) ? FALSE : is_ucase(pattern);
-	is_caseless = (is_ucase_pattern && caseless != OPT_ONPLUS) ? 0 : caseless;
+	info->is_ucase_pattern = (pattern == NULL) ? FALSE : is_ucase(pattern);
+	is_caseless = (info->is_ucase_pattern && caseless != OPT_ONPLUS) ? 0 : caseless;
 #if !NO_REGEX
 	if (pattern == NULL)
 		SET_NULL_PATTERN(info->compiled);
@@ -1535,7 +1535,7 @@ hist_pattern(search_type)
 	public void
 chg_caseless(VOID_PARAM)
 {
-	if (!is_ucase_pattern)
+	if (!search_info.is_ucase_pattern)
 	{
 		/*
 		 * Pattern did not have uppercase.
