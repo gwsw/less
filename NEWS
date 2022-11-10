@@ -25,6 +25,10 @@
 
 * Fix reading procfs files on Linux (github #282).
 
+* Fix --ignore-case with ctrl-R (no regex) search (github #300).
+
+* Implement lesstest test suite.
+
 ======================================================================
 
 	Major changes between "less" versions 590 and 608
