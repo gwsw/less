@@ -302,10 +302,10 @@ extern char *tgoto();
  */
 	static void
 set_termio_flags(s)
-#ifdef TCGETA
-	struct termio *s;
-#else
+#if HAVE_TERMIOS_H && HAVE_TERMIOS_FUNCS
 	struct termios *s;
+#else
+	struct termio *s;
 #endif
 {
 	s->c_lflag &= ~(0
