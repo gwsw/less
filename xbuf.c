@@ -34,7 +34,7 @@ xbuf_reset(xbuf)
 	public void
 xbuf_add_byte(xbuf, b)
 	struct xbuffer *xbuf;
-	unsigned char b;
+	unsigned int b;
 {
 	if (xbuf->end >= xbuf->size)
 	{
@@ -48,7 +48,7 @@ xbuf_add_byte(xbuf, b)
 		}
 		xbuf->data = data;
 	}
-	xbuf->data[xbuf->end++] = b;
+	xbuf->data[xbuf->end++] = (unsigned char) b;
 }
 
 	public void 
