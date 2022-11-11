@@ -325,6 +325,19 @@ exec_mca(VOID_PARAM)
 }
 
 /*
+ * Set search_type to do a normal search if the previous search was a filter.
+ */
+	static void
+not_filter_search(void)
+{
+	if (search_type & SRCH_FILTER)
+	{
+		search_type &= ~SRCH_FILTER;
+		search_type ^= SRCH_NO_MATCH; /* undo toggle in exec_mca */
+	}
+}
+
+/*
  * Is a character an erase or kill char?
  */
 	static int
@@ -1635,7 +1648,6 @@ commands(VOID_PARAM)
 			cmd_exec();                     \
 			multi_search((char *)NULL, (int) number, 0);
 
-
 		case A_F_SEARCH:
 			/*
 			 * Search forward for a pattern.
@@ -1675,6 +1687,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search.
 			 */
+			not_filter_search();
 			DO_SEARCH();
 			break;
 		
@@ -1682,6 +1695,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search, multiple files.
 			 */
+			not_filter_search();
 			search_type |= SRCH_PAST_EOF;
 			DO_SEARCH();
 			break;
@@ -1690,6 +1704,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search, in reverse direction.
 			 */
+			not_filter_search();
 			save_search_type = search_type;
 			search_type = SRCH_REVERSE(search_type);
 			DO_SEARCH();
@@ -1701,6 +1716,7 @@ commands(VOID_PARAM)
 			 * Repeat previous search, 
 			 * multiple files in reverse direction.
 			 */
+			not_filter_search();
 			save_search_type = search_type;
 			search_type = SRCH_REVERSE(search_type);
 			search_type |= SRCH_PAST_EOF;

@@ -27,6 +27,8 @@
 
 * Fix --ignore-case with ctrl-R (no regex) search (github #300).
 
+* Fix bug doing repeat search after setting & filter (github #299).
+
 * Implement lesstest test suite.
 
 ======================================================================
