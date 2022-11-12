@@ -2096,7 +2096,8 @@ is being run.
 The name of the editor (used for the v command).
 .
 .SH "SEE ALSO"
-.BR lesskey (1)
+.BR lesskey (1),
+.BR lessecho (1)
 .
 .SH COPYRIGHT
 Copyright (C) 1984-2022  Mark Nudelman
