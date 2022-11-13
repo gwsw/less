@@ -72,6 +72,7 @@ static char *shellcmd = NULL;   /* For holding last shell command for "!!" */
 #endif
 static int mca;                 /* The multicharacter command (action) */
 static int search_type;         /* The previous type of search */
+static int last_search_type;    /* Type of last executed search */
 static LINENUM number;          /* The number typed by the user */
 static long fraction;           /* The fractional part of the number */
 static struct loption *curropt;
@@ -321,19 +322,6 @@ exec_mca(VOID_PARAM)
 		error("|done", NULL_PARG);
 		break;
 #endif
-	}
-}
-
-/*
- * Set search_type to do a normal search if the previous search was a filter.
- */
-	static void
-not_filter_search(void)
-{
-	if (search_type & SRCH_FILTER)
-	{
-		search_type &= ~SRCH_FILTER;
-		search_type ^= SRCH_NO_MATCH; /* undo toggle in exec_mca */
 	}
 }
 
@@ -1126,6 +1114,7 @@ multi_search(pattern, n, silent)
 		 * using a /@@ search.
 		 */
 		search_type &= ~SRCH_NO_MOVE;
+		last_search_type = search_type;
 		if (n == 0)
 		{
 			/*
@@ -1687,7 +1676,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search.
 			 */
-			not_filter_search();
+			search_type = last_search_type;
 			DO_SEARCH();
 			break;
 		
@@ -1695,7 +1684,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search, multiple files.
 			 */
-			not_filter_search();
+			search_type = last_search_type;
 			search_type |= SRCH_PAST_EOF;
 			DO_SEARCH();
 			break;
@@ -1704,7 +1693,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search, in reverse direction.
 			 */
-			not_filter_search();
+			search_type = last_search_type;
 			save_search_type = search_type;
 			search_type = SRCH_REVERSE(search_type);
 			DO_SEARCH();
@@ -1716,7 +1705,7 @@ commands(VOID_PARAM)
 			 * Repeat previous search, 
 			 * multiple files in reverse direction.
 			 */
-			not_filter_search();
+			search_type = last_search_type;
 			save_search_type = search_type;
 			search_type = SRCH_REVERSE(search_type);
 			search_type |= SRCH_PAST_EOF;
