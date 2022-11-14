@@ -318,7 +318,7 @@ ch_get(VOID_PARAM)
 				parg.p_string = wait_message();
 				ierror("%s", &parg);
 			}
-			sleep_ms(2); /* Reduce system load */
+			sleep_ms(250); /* Reduce system load */
 			slept = TRUE;
 
 #if HAVE_STAT_INO
