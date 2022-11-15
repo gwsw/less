@@ -956,8 +956,8 @@ v607  7/19/22   Update Unicode tables.
 v608  7/22/22   Fix highlighting on colored text boundaries.
 v609  11/10/22  Add LESSUTFCHARDEF; fix overstrike color bug;
                 fix procfs bug; fix signal race.
-v610            Update Unicode tables; fix again-search after filter;
+v610  11/14/22  Update Unicode tables; fix again-search after filter;
                 improve ^X to interrupt F command.
 */
 
-char version[] = "610x";
+char version[] = "610";
