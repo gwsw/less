@@ -225,8 +225,8 @@ ichardef_utf(s)
 				s--;
 				break;
 			default:
-				error("invalid unicode attribute in LESSUTFCHARDEF", NULL_PARG);
-				quit(QUIT_ERROR);
+				/* Ignore unknown character attribute. */
+				break;
 			}
 			if (s[0] == ',') ++s;
 		}

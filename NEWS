@@ -15,6 +15,10 @@
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
+* Update Unicode tables.
+
+* Improve ability of ^X to interrupt F command (github #49).
+
 * Fix incorrect handling of some Private Use Unicode characters.
 
 * Fix ANSI color bug when overstriking with colored chars (github #276).
@@ -24,6 +28,14 @@
 * Fix signal race in iread (github #280).
 
 * Fix reading procfs files on Linux (github #282).
+
+* Fix --ignore-case with ctrl-R (no regex) search (github #300).
+
+* Fix bug doing repeat search after setting & filter (github #299).
+
+* Don't retain search options from a cancelled search (github #302).
+
+* Implement lesstest test suite.
 
 ======================================================================
 

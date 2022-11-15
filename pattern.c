@@ -157,7 +157,7 @@ compile_pattern(pattern, search_type, show_error, comp_pattern)
 	char *cvt_pattern;
 	int result;
 
-	if (caseless != OPT_ONPLUS || re_handles_caseless)
+	if (caseless != OPT_ONPLUS || (re_handles_caseless && !(search_type & SRCH_NO_REGEX)))
 		cvt_pattern = pattern;
 	else
 	{

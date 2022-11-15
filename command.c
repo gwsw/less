@@ -72,6 +72,7 @@ static char *shellcmd = NULL;   /* For holding last shell command for "!!" */
 #endif
 static int mca;                 /* The multicharacter command (action) */
 static int search_type;         /* The previous type of search */
+static int last_search_type;    /* Type of last executed search */
 static LINENUM number;          /* The number typed by the user */
 static long fraction;           /* The fractional part of the number */
 static struct loption *curropt;
@@ -1113,6 +1114,7 @@ multi_search(pattern, n, silent)
 		 * using a /@@ search.
 		 */
 		search_type &= ~SRCH_NO_MOVE;
+		last_search_type = search_type;
 		if (n == 0)
 		{
 			/*
@@ -1635,7 +1637,6 @@ commands(VOID_PARAM)
 			cmd_exec();                     \
 			multi_search((char *)NULL, (int) number, 0);
 
-
 		case A_F_SEARCH:
 			/*
 			 * Search forward for a pattern.
@@ -1675,6 +1676,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search.
 			 */
+			search_type = last_search_type;
 			DO_SEARCH();
 			break;
 		
@@ -1682,6 +1684,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search, multiple files.
 			 */
+			search_type = last_search_type;
 			search_type |= SRCH_PAST_EOF;
 			DO_SEARCH();
 			break;
@@ -1690,6 +1693,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search, in reverse direction.
 			 */
+			search_type = last_search_type;
 			save_search_type = search_type;
 			search_type = SRCH_REVERSE(search_type);
 			DO_SEARCH();
@@ -1701,6 +1705,7 @@ commands(VOID_PARAM)
 			 * Repeat previous search, 
 			 * multiple files in reverse direction.
 			 */
+			search_type = last_search_type;
 			save_search_type = search_type;
 			search_type = SRCH_REVERSE(search_type);
 			search_type |= SRCH_PAST_EOF;

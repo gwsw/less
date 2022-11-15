@@ -954,8 +954,10 @@ v606  7/17/22   Fix bug with multibyte chars and --incsearch;
                 escape filenames in LESSCLOSE; fix bin_file overrun.
 v607  7/19/22   Update Unicode tables.
 v608  7/22/22   Fix highlighting on colored text boundaries.
-v609            Add LESSUTFCHARDEF; fix overstrike color bug;
+v609  11/10/22  Add LESSUTFCHARDEF; fix overstrike color bug;
                 fix procfs bug; fix signal race.
+v610  11/14/22  Update Unicode tables; fix again-search after filter;
+                improve ^X to interrupt F command.
 */
 
-char version[] = "609x";
+char version[] = "610";

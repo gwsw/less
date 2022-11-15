@@ -216,11 +216,12 @@ init_search(VOID_PARAM)
  * Determine which text conversions to perform before pattern matching.
  */
 	static int
-get_cvt_ops(VOID_PARAM)
+get_cvt_ops(search_type)
+	int search_type;
 {
 	int ops = 0;
 
-	if (is_caseless && !re_handles_caseless)
+	if (is_caseless && (!re_handles_caseless || (search_type & SRCH_NO_REGEX)))
 		ops |= CVT_TO_LC;
 	if (bs_mode == BS_SPECIAL)
 		ops |= CVT_BS;
@@ -1384,7 +1385,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
 		 * If it's a caseless search, convert the line to lowercase.
 		 * If we're doing backspace processing, delete backspaces.
 		 */
-		cvt_ops = get_cvt_ops();
+		cvt_ops = get_cvt_ops(search_type);
 		cvt_len = cvt_length(line_len, cvt_ops);
 		cline = (char *) ecalloc(1, cvt_len);
 		chpos = cvt_alloc_chpos(cvt_len);
