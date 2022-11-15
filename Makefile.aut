@@ -112,6 +112,12 @@ ubin.uni: unicode/UnicodeData.txt
 wide.uni: unicode/EastAsianWidth.txt
 	./mkutable -f1 W F -- unicode/EastAsianWidth.txt > $@
 
+unicode-check:
+	rm -rf unicode-old
+	mv -f unicode unicode-old
+	${MAKE} -f Makefile.aut unicode/UnicodeData.txt unicode/EastAsianWidth.txt
+	@if diff -q unicode-old unicode >/dev/null; then rm -rf unicode; mv -f unicode-old unicode; echo "unicode files already up to date"; else echo "unicode files updated"; fi
+
 unicode/UnicodeData.txt:
 	mkdir -p unicode
 	lftp -c 'open -u "anonymous:${EMAIL}" ftp.unicode.org ; get Public/UNIDATA/UnicodeData.txt -o $@'
