@@ -188,12 +188,14 @@ start:
 			return (READ_INTR);
 		}
 		if (!(fd_events & POLLIN))
+		{
 			/* 
-			 * Nothing to read: return here rather than
-			 * getting stuck in read() later. 
-			 * This lets us abort with ^X.
+			 * No input data: return here rather than
+			 * possibly getting stuck in a blocking read() below. 
+			 * This allows ^X to abort reading an empty pipe.
 			 */
 			return (0);
+		}
 	}
 #else
 #if MSDOS_COMPILER==WIN32C
