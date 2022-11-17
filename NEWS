@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 608 and 610
+	Major changes between "less" versions 608 and 611
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
