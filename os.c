@@ -168,33 +168,28 @@ start:
 #if USE_POLL
 	if (fd != tty)
 	{
-		int close_events = POLLERR;
-		if (ignore_eoi)
+		int close_events = (ignore_eoi && !exit_F_on_close) ? POLLERR : POLLERR|POLLHUP;
+		if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
 		{
-			if (exit_F_on_close)
-				close_events |= POLLHUP;
-			if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
-			{
-				sigs |= S_INTERRUPT;
-				reading = 0;
-				return (READ_INTR);
-			}
+			sigs |= S_INTERRUPT;
+			reading = 0;
+			return (READ_INTR);
 		}
-		int fd_events = poll_events(fd, POLLIN|close_events);
+		int fd_events = poll_events(fd, POLLIN|POLLHUP|POLLERR);
 		if (fd_events & close_events)
 		{
 			sigs |= S_INTERRUPT;
 			reading = 0;
 			return (READ_INTR);
 		}
-		if (!(fd_events & POLLIN))
+		if ((fd_events & POLLIN) == 0)
 		{
 			/* 
 			 * No input data: return here rather than
 			 * possibly getting stuck in a blocking read() below. 
 			 * This allows ^X to abort reading an empty pipe.
 			 */
-			return (0);
+			return ((fd_events & POLLHUP) ? 0 : READ_AGAIN);
 		}
 	}
 #else
