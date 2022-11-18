@@ -958,7 +958,7 @@ v609  11/10/22  Add LESSUTFCHARDEF; fix overstrike color bug;
                 fix procfs bug; fix signal race.
 v610  11/14/22  Update Unicode tables; fix again-search after filter;
                 improve ^X to interrupt F command.
-v611
+v611  11/16/22  Fix EOF bug related to ^X change.
 */
 
-char version[] = "611x";
+char version[] = "611";
