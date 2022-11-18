@@ -71,6 +71,9 @@ extern int exit_F_on_close;
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
+#if LESSTEST
+extern char *ttyin_name;
+#endif /*LESSTEST*/
 
 #if USE_POLL
 /*
@@ -168,11 +171,11 @@ start:
 #if USE_POLL
 	if (fd != tty)
 	{
-		int close_events = POLLERR;
-		if (ignore_eoi)
+		int close_events = (ignore_eoi && !exit_F_on_close) ? POLLERR : POLLERR|POLLHUP;
+#if LESSTEST
+		if (ttyin_name == NULL) /* only do this for a real tty */
+#endif /*LESSTEST*/
 		{
-			if (exit_F_on_close)
-				close_events |= POLLHUP;
 			if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
 			{
 				sigs |= S_INTERRUPT;
@@ -180,21 +183,21 @@ start:
 				return (READ_INTR);
 			}
 		}
-		int fd_events = poll_events(fd, POLLIN|close_events);
-		if (fd_events & close_events)
+		int fd_events = poll_events(fd, POLLIN|POLLHUP|POLLERR);
+		if ((fd_events & close_events) && !(fd_events & POLLIN))
 		{
 			sigs |= S_INTERRUPT;
 			reading = 0;
 			return (READ_INTR);
 		}
-		if (!(fd_events & POLLIN))
+		if ((fd_events & POLLIN) == 0)
 		{
 			/* 
 			 * No input data: return here rather than
 			 * possibly getting stuck in a blocking read() below. 
 			 * This allows ^X to abort reading an empty pipe.
 			 */
-			return (0);
+			return ((fd_events & POLLHUP) ? 0 : READ_AGAIN);
 		}
 	}
 #else

@@ -157,6 +157,7 @@ ch_get(VOID_PARAM)
 	struct bufnode *bn;
 	int n;
 	int slept;
+	int read_again;
 	int h;
 	POSITION pos;
 	POSITION len;
@@ -274,8 +275,17 @@ ch_get(VOID_PARAM)
 			(unsigned int)(LBUFSIZE - bp->datasize));
 	}
 
+	read_again = FALSE;
 	if (n == READ_INTR)
+	{
+		ch_fsize = pos;
 		return (EOI);
+	}
+	if (n == READ_AGAIN)
+	{
+		read_again = TRUE;
+		n = 0;
+	}
 	if (n < 0)
 	{
 #if MSDOS_COMPILER==WIN32C
@@ -305,13 +315,11 @@ ch_get(VOID_PARAM)
 	 */
 	if (n == 0)
 	{
-		ch_fsize = pos;
-		if (ignore_eoi)
+		if (!read_again)
+			ch_fsize = pos;
+		if (ignore_eoi || read_again)
 		{
-			/*
-			 * We are ignoring EOF.
-			 * Wait a while, then try again.
-			 */
+			/* Wait a while, then try again. */
 			if (!slept)
 			{
 				PARG parg;
@@ -322,7 +330,7 @@ ch_get(VOID_PARAM)
 			slept = TRUE;
 
 #if HAVE_STAT_INO
-			if (follow_mode == FOLLOW_NAME)
+			if (ignore_eoi && follow_mode == FOLLOW_NAME)
 			{
 				/* See whether the file's i-number has changed,
 				 * or the file has shrunk.

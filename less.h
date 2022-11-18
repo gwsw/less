@@ -335,6 +335,7 @@ struct wchar_range_table
 #define EOI             (-1)
 
 #define READ_INTR       (-2)
+#define READ_AGAIN      (-3)
 
 /* A fraction is represented by an int n; the fraction is n/NUM_FRAC_DENOM */
 #define NUM_FRAC_DENOM                  1000000
