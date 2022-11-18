@@ -71,6 +71,9 @@ extern int exit_F_on_close;
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
+#if LESSTEST
+extern char *ttyin_name;
+#endif /*LESSTEST*/
 
 #if USE_POLL
 /*
@@ -169,11 +172,16 @@ start:
 	if (fd != tty)
 	{
 		int close_events = (ignore_eoi && !exit_F_on_close) ? POLLERR : POLLERR|POLLHUP;
-		if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
+#if LESSTEST
+		if (ttyin_name == NULL) /* only do this for a real tty */
+#endif /*LESSTEST*/
 		{
-			sigs |= S_INTERRUPT;
-			reading = 0;
-			return (READ_INTR);
+			if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
+			{
+				sigs |= S_INTERRUPT;
+				reading = 0;
+				return (READ_INTR);
+			}
 		}
 		int fd_events = poll_events(fd, POLLIN|POLLHUP|POLLERR);
 		if (fd_events & close_events)
