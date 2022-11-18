@@ -184,7 +184,7 @@ start:
 			}
 		}
 		int fd_events = poll_events(fd, POLLIN|POLLHUP|POLLERR);
-		if (fd_events & close_events)
+		if ((fd_events & close_events) && !(fd_events & POLLIN))
 		{
 			sigs |= S_INTERRUPT;
 			reading = 0;
