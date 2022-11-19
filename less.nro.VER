@@ -2072,6 +2072,9 @@ Overrides the type of specified Unicode characters.
 Emulate the
 .BR more (1)
 command.
+.IP LESS_TERMCAP_xx
+Where "xx" is any two characters, overrides the definition 
+of the termcap "xx" capability for the terminal.
 .IP LINES
 Sets the number of lines on the screen.
 Takes precedence over the number of lines specified by the TERM variable.
