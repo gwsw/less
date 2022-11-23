@@ -119,7 +119,9 @@ It is a way to monitor the tail of a file which is growing
 while it is being viewed.
 (The behavior is similar to the "tail \-f" command.)
 To stop waiting for more data, enter the interrupt character (usually \(haC).
-On some systems you can also use \(haX.
+On systems which support
+.BR poll (1)
+you can also use \(haX.
 If the input is a pipe and the \-\-exit-follow-on-close option is in effect,
 .B less
 will automatically stop waiting for data when the input side 
@@ -427,7 +429,7 @@ Exits
 .BR less .
 .PP
 The following
-four
+five
 commands may or may not be valid, depending on your particular installation.
 .
 .IP v
@@ -458,6 +460,22 @@ If <m> is \&.\& or newline, the current screen is piped.
 .IP "s filename"
 Save the input to a file.
 This only works if the input is a pipe, not an ordinary file.
+.IP "\(haX"
+When the "Waiting for data" message is displayed,
+such as while in the F command, pressing \(haX
+will stop
+.B less
+from waiting and return to a prompt.
+This may cause
+.B less
+to think that the file ends at the current position,
+so it may be necessary to use the R or F command to see more data.
+The \(haX command works only on systems that support the
+.BR poll (1)
+function.
+On systems without
+.BR poll (1),
+the interrupt character (usually \(haC) can be used instead.
 .
 .SH OPTIONS
 Command line options are described below.

@@ -77,7 +77,7 @@ extern char *ttyin_name;
 
 #if USE_POLL
 /*
- * Return true if one of the events has occurred on the specified file.
+ * Return events that have occurred on the specified file.
  */
 	static int
 poll_events(fd, events)
@@ -172,31 +172,32 @@ start:
 	if (fd != tty)
 	{
 		int close_events = (ignore_eoi && !exit_F_on_close) ? POLLERR : POLLERR|POLLHUP;
+		int fd_events;
 #if LESSTEST
-		if (ttyin_name == NULL) /* only do this for a real tty */
+		if (ttyin_name == NULL) /* check for ^X only on a real tty */
 #endif /*LESSTEST*/
 		{
 			if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
 			{
-				sigs |= S_INTERRUPT;
 				reading = 0;
+				sigs |= S_INTERRUPT;
 				return (READ_INTR);
 			}
 		}
-		int fd_events = poll_events(fd, POLLIN|POLLHUP|POLLERR);
-		if ((fd_events & close_events) && !(fd_events & POLLIN))
-		{
-			sigs |= S_INTERRUPT;
-			reading = 0;
-			return (READ_INTR);
-		}
-		if ((fd_events & POLLIN) == 0)
+		fd_events = poll_events(fd, POLLIN|POLLHUP|POLLERR);
+		if (!(fd_events & POLLIN))
 		{
 			/* 
 			 * No input data: return here rather than
 			 * possibly getting stuck in a blocking read() below. 
 			 * This allows ^X to abort reading an empty pipe.
 			 */
+			reading = 0;
+			if (fd_events & close_events)
+			{
+				sigs |= S_INTERRUPT;
+				return (READ_INTR);
+			}
 			return ((fd_events & POLLHUP) ? 0 : READ_AGAIN);
 		}
 	}
