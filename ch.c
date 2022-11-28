@@ -136,6 +136,7 @@ extern int sigs;
 extern int secure;
 extern int screen_trashed;
 extern int follow_mode;
+extern int waiting_for_data;
 extern constant char helpdata[];
 extern constant int size_helpdata;
 extern IFILE curr_ifile;
@@ -156,7 +157,6 @@ ch_get(VOID_PARAM)
 	struct buf *bp;
 	struct bufnode *bn;
 	int n;
-	int slept;
 	int read_again;
 	int h;
 	POSITION pos;
@@ -176,11 +176,10 @@ ch_get(VOID_PARAM)
 			return bp->data[ch_offset];
 	}
 
-	slept = FALSE;
-
 	/*
 	 * Look for a buffer holding the desired block.
 	 */
+	waiting_for_data = FALSE;
 	h = BUFHASH(ch_block);
 	FOR_BUFS_IN_CHAIN(h, bn)
 	{
@@ -320,37 +319,36 @@ ch_get(VOID_PARAM)
 		if (ignore_eoi || read_again)
 		{
 			/* Wait a while, then try again. */
-			if (!slept)
+			if (!waiting_for_data)
 			{
 				PARG parg;
 				parg.p_string = wait_message();
 				ierror("%s", &parg);
+				waiting_for_data = TRUE;
 			}
-			sleep_ms(250); /* Reduce system load */
-			slept = TRUE;
-
-#if HAVE_STAT_INO
-			if (ignore_eoi && follow_mode == FOLLOW_NAME)
-			{
-				/* See whether the file's i-number has changed,
-				 * or the file has shrunk.
-				 * If so, force the file to be closed and
-				 * reopened. */
-				struct stat st;
-				POSITION curr_pos = ch_tell();
-				int r = stat(get_filename(curr_ifile), &st);
-				if (r == 0 && (st.st_ino != curr_ino ||
-					st.st_dev != curr_dev ||
-					(curr_pos != NULL_POSITION && st.st_size < curr_pos)))
-				{
-					/* screen_trashed=2 causes
-					 * make_display to reopen the file. */
-					screen_trashed = 2;
-					return (EOI);
-				}
-			}
-#endif
+			sleep_ms(50); /* Reduce system load */
 		}
+#if HAVE_STAT_INO
+		if (ignore_eoi && follow_mode == FOLLOW_NAME)
+		{
+			/* See whether the file's i-number has changed,
+			 * or the file has shrunk.
+			 * If so, force the file to be closed and
+			 * reopened. */
+			struct stat st;
+			POSITION curr_pos = ch_tell();
+			int r = stat(get_filename(curr_ifile), &st);
+			if (r == 0 && (st.st_ino != curr_ino ||
+				st.st_dev != curr_dev ||
+				(curr_pos != NULL_POSITION && st.st_size < curr_pos)))
+			{
+				/* screen_trashed=2 causes
+				 * make_display to reopen the file. */
+				screen_trashed = 2;
+				return (EOI);
+			}
+		}
+#endif
 		if (sigs)
 			return (EOI);
 	}

@@ -61,6 +61,7 @@
 #endif
 
 public int reading;
+public int waiting_for_data;
 public int consecutive_nulls = 0;
 
 static jmp_buf read_label;
@@ -68,6 +69,7 @@ static jmp_buf read_label;
 extern int sigs;
 extern int ignore_eoi;
 extern int exit_F_on_close;
+extern int follow_mode;
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
@@ -77,20 +79,34 @@ extern char *ttyin_name;
 
 #if USE_POLL
 /*
- * Return true if one of the events has occurred on the specified file.
+ * Check whether data is available, either from a file/pipe or from the tty.
+ * Return read action based on data.
  */
 	static int
-poll_events(fd, events)
+check_poll(fd, tty)
 	int fd;
-	int events;
+	int tty;
 {
-	struct pollfd poller = { fd, events, 0 };
-	int n = poll(&poller, 1, 0);
-	if (n <= 0)
-		return 0;
-	return (poller.revents & events);
+	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
+	int timeout = (waiting_for_data && follow_mode != FOLLOW_NAME) ? -1 : 10;
+	poll(poller, 2, timeout);
+#if LESSTEST
+	if (ttyin_name == NULL) /* Check for ^X only on a real tty. */
+#endif /*LESSTEST*/
+	{
+		if ((poller[1].revents & POLLIN) && getchr() == CONTROL('X'))
+			/* Break out of F loop. */
+			return (READ_INTR);
+	}
+	if ((poller[0].revents & (POLLIN|POLLHUP|POLLERR)) == 0)
+		/* No data available; let caller take action, then try again. */
+		return (READ_AGAIN);
+	if (ignore_eoi && exit_F_on_close && (poller[0].revents & POLLHUP))
+		/* Break out of F loop due to --exit-follow-on-close. */
+		return (READ_INTR);
+	return (0);
 }
-#endif
+#endif /* USE_POLL */
 
 /*
  * Like read() system call, but is deliberately interruptible.
@@ -171,33 +187,13 @@ start:
 #if USE_POLL
 	if (fd != tty)
 	{
-		int close_events = (ignore_eoi && !exit_F_on_close) ? POLLERR : POLLERR|POLLHUP;
-#if LESSTEST
-		if (ttyin_name == NULL) /* only do this for a real tty */
-#endif /*LESSTEST*/
+		int ret = check_poll(fd, tty);
+		if (ret != 0)
 		{
-			if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
-			{
-				sigs |= S_INTERRUPT;
-				reading = 0;
-				return (READ_INTR);
-			}
-		}
-		int fd_events = poll_events(fd, POLLIN|POLLHUP|POLLERR);
-		if ((fd_events & close_events) && !(fd_events & POLLIN))
-		{
-			sigs |= S_INTERRUPT;
 			reading = 0;
-			return (READ_INTR);
-		}
-		if ((fd_events & POLLIN) == 0)
-		{
-			/* 
-			 * No input data: return here rather than
-			 * possibly getting stuck in a blocking read() below. 
-			 * This allows ^X to abort reading an empty pipe.
-			 */
-			return ((fd_events & POLLHUP) ? 0 : READ_AGAIN);
+			if (ret == READ_INTR)
+				sigs |= S_INTERRUPT;
+			return ret;
 		}
 	}
 #else

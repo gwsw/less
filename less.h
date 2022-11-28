@@ -332,6 +332,10 @@ struct wchar_range_table
         int count;
 };
 
+#if HAVE_POLL
+typedef short POLL_EVENTS;
+#endif
+
 #define EOI             (-1)
 
 #define READ_INTR       (-2)
