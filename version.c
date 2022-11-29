@@ -964,4 +964,4 @@ v613  11/28/22  Even more ^X issues.
 v614  11/28/22  Add ^X to wait message.
 */
 
-char version[] = "614x";
+char version[] = "614";
