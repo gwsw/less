@@ -201,7 +201,7 @@ start:
 			if (ret == READ_INTR)
 				sigs |= S_INTERRUPT;
 			reading = 0;
-			return ret;
+			return (ret);
 		}
 	}
 #else
