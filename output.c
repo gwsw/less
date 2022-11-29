@@ -681,27 +681,49 @@ error(fmt, parg)
 	flush();
 }
 
-static char intr_to_abort[] = "... (interrupt to abort)";
-
 /*
  * Output a message in the lower left corner of the screen
  * and don't wait for carriage return.
  * Usually used to warn that we are beginning a potentially
  * time-consuming operation.
  */
-	public void
-ierror(fmt, parg)
+	static void
+ierror_suffix(fmt, suffix, parg)
 	char *fmt;
+	char *suffix;
 	PARG *parg;
 {
 	at_exit();
 	clear_bot();
 	at_enter(AT_STANDOUT|AT_COLOR_ERROR);
 	(void) less_printf(fmt, parg);
-	putstr(intr_to_abort);
+	putstr(suffix);
 	at_exit();
 	flush();
 	need_clr = 1;
+}
+
+	public void
+ierror(fmt, parg)
+	char *fmt;
+	PARG *parg;
+{
+	static char suffix[] = "... (interrupt to abort)";
+	ierror_suffix(fmt, suffix, parg);
+}
+
+	public void
+ixerror(fmt, parg)
+	char *fmt;
+	PARG *parg;
+{
+	if (!supports_ctrl_x())
+		ierror(fmt, parg);
+	else
+	{
+		static char suffix[] = "... (^X or interrupt to abort)";
+		ierror_suffix(fmt, suffix, parg);
+	}
 }
 
 /*

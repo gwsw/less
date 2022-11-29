@@ -116,6 +116,16 @@ check_poll(fd, tty)
 }
 #endif /* USE_POLL */
 
+	public int
+supports_ctrl_x(VOID_PARAM)
+{
+#if USE_POLL
+	return (TRUE);
+#else
+	return (FALSE);
+#endif /* USE_POLL */
+}
+
 /*
  * Like read() system call, but is deliberately interruptible.
  * A call to intread() from a signal handler will interrupt

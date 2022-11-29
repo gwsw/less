@@ -282,9 +282,9 @@ ch_get(VOID_PARAM)
 		}
 		if (n < 0)
 		{
-	#if MSDOS_COMPILER==WIN32C
+#if MSDOS_COMPILER==WIN32C
 			if (errno != EPIPE)
-	#endif
+#endif
 			{
 				error("read error", NULL_PARG);
 				clear_eol();
@@ -292,13 +292,13 @@ ch_get(VOID_PARAM)
 			n = 0;
 		}
 
-	#if LOGFILE
+#if LOGFILE
 		/*
 		 * If we have a log file, write the new data to it.
 		 */
 		if (!secure && logfile >= 0 && n > 0)
 			write(logfile, (char *) &bp->data[bp->datasize], n);
-	#endif
+#endif
 
 		ch_fpos += n;
 		bp->datasize += n;
@@ -316,7 +316,7 @@ ch_get(VOID_PARAM)
 				{
 					PARG parg;
 					parg.p_string = wait_message();
-					ierror("%s", &parg);
+					ixerror("%s", &parg);
 					waiting_for_data = TRUE;
 				}
 				sleep_ms(50); /* Reduce system load */
