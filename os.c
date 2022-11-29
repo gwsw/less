@@ -198,7 +198,7 @@ start:
 		if (select(fd+1, &readfds, 0, 0, 0) == -1)
 		{
 			reading = 0;
-			return (-1);
+			return (READ_ERR);
 		}
 	}
 #endif
@@ -262,7 +262,7 @@ start:
 			goto start;
 #endif
 #endif
-		return (-1);
+		return (READ_ERR);
 	}
 	return (n);
 }

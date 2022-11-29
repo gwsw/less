@@ -338,6 +338,7 @@ typedef short POLL_EVENTS;
 
 #define EOI             (-1)
 
+#define READ_ERR        (-1)
 #define READ_INTR       (-2)
 #define READ_AGAIN      (-3)
 

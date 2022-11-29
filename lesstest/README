@@ -13,18 +13,21 @@ of the simulated screen.
     +------------------+          (tty) +------+ (outfd)        +-------------+
     |     lesstest     |--------------->| less |--------------->|  lt_screen  |
     +------------------+   simulated    +------+    simulated   +-------------+
-        ^            ^         user                  terminal
-        |            |
-        |            |
+        ^ (stdin)   | ^        user                  terminal
+        |           | |
+        |           v | (testfile)
  +-----------+   +---------+
  | developer |   | LT file |
  +-----------+   +---------+
 
-lesstest runs in one of two modes: in the "maketest" mode it reads single
-keystrokes from the developer and sends them to less. After each keystroke 
-it then reads the lt_screen screen contents and logs the keystroke and
-the resulting screen contents to a log file, called an lt file. 
-In "runtest" mode, lesstest reads an lt file and "replays" the session;
-that is, it reads a keystroke from the lt file and sends it to less.
-After sending each keystroke, it reads the lt_screen screen contents and 
-compares it to the logged screen contents from the lt file.
+lesstest runs in one of two modes: 
+
+In the "maketest" mode it reads single keystrokes from the developer 
+and sends them to less. After each keystroke it then reads the 
+lt_screen screen contents and logs the keystroke and the resulting 
+screen contents to a log file, called an lt file. 
+
+In the "runtest" mode, lesstest reads a previously-created lt file 
+and "replays" the session; that is, it first reads a keystroke from 
+the lt file and sends it to less. It then reads the lt_screen screen 
+contents and compares it to the logged screen contents from the lt file.
