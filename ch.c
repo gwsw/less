@@ -20,12 +20,6 @@
 #include <windows.h>
 #endif
 
-#if HAVE_STAT_INO
-#include <sys/stat.h>
-extern dev_t curr_dev;
-extern ino_t curr_ino;
-#endif
-
 #if HAVE_PROCFS
 #include <sys/statfs.h>
 #if HAVE_LINUX_MAGIC_H
@@ -308,12 +302,10 @@ ch_get(VOID_PARAM)
 	ch_fpos += n;
 	bp->datasize += n;
 
-	/*
-	 * If we have read to end of file, set ch_fsize to indicate
-	 * the position of the end of file.
-	 */
 	if (n == 0)
 	{
+		/* Either end of file or no data available.
+		 * read_again indicates the latter. */
 		if (!read_again)
 			ch_fsize = pos;
 		if (ignore_eoi || read_again)
@@ -328,27 +320,12 @@ ch_get(VOID_PARAM)
 			}
 			sleep_ms(50); /* Reduce system load */
 		}
-#if HAVE_STAT_INO
-		if (ignore_eoi && follow_mode == FOLLOW_NAME)
+		if (ignore_eoi && follow_mode == FOLLOW_NAME && curr_ifile_changed())
 		{
-			/* See whether the file's i-number has changed,
-			 * or the file has shrunk.
-			 * If so, force the file to be closed and
-			 * reopened. */
-			struct stat st;
-			POSITION curr_pos = ch_tell();
-			int r = stat(get_filename(curr_ifile), &st);
-			if (r == 0 && (st.st_ino != curr_ino ||
-				st.st_dev != curr_dev ||
-				(curr_pos != NULL_POSITION && st.st_size < curr_pos)))
-			{
-				/* screen_trashed=2 causes
-				 * make_display to reopen the file. */
-				screen_trashed = 2;
-				return (EOI);
-			}
+			/* screen_trashed=2 causes make_display to reopen the file. */
+			screen_trashed = 2;
+			return (EOI);
 		}
-#endif
 		if (sigs)
 			return (EOI);
 	}

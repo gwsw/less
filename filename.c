@@ -54,6 +54,10 @@ extern IFILE old_ifile;
 extern char openquote;
 extern char closequote;
 #endif
+#if HAVE_STAT_INO
+extern ino_t curr_ino;
+extern dev_t curr_dev;
+#endif
 
 /*
  * Remove quotes around a filename.
@@ -1101,6 +1105,26 @@ filesize(f)
 #endif
 #endif
 	return (seek_filesize(f));
+}
+
+	public int
+curr_ifile_changed(VOID_PARAM)
+{
+#if HAVE_STAT_INO
+	/* 
+	 * If the file's i-number or device has changed,
+	 * or if the file is smaller than it previously was,
+	 * the file must be different.
+	 */
+	struct stat st;
+	POSITION curr_pos = ch_tell();
+	int r = stat(get_filename(curr_ifile), &st);
+	if (r == 0 && (st.st_ino != curr_ino ||
+		st.st_dev != curr_dev ||
+		(curr_pos != NULL_POSITION && st.st_size < curr_pos)))
+		return (TRUE);
+#endif
+	return (FALSE);
 }
 
 /*

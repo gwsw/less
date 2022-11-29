@@ -80,7 +80,9 @@ extern char *ttyin_name;
 #if USE_POLL
 /*
  * Check whether data is available, either from a file/pipe or from the tty.
- * Return read action based on data.
+ * Return READ_AGAIN if no data currently available, * but caller should retry later.
+ * Return READ_INTR to abort F command (forw_loop).
+ * Return 0 if safe to read from fd.
  */
 	static int
 check_poll(fd, tty)
@@ -94,16 +96,22 @@ check_poll(fd, tty)
 	if (ttyin_name == NULL) /* Check for ^X only on a real tty. */
 #endif /*LESSTEST*/
 	{
-		if ((poller[1].revents & POLLIN) && getchr() == CONTROL('X'))
-			/* Break out of F loop. */
-			return (READ_INTR);
+		if (poller[1].revents & POLLIN) 
+		{
+			LWCHAR ch = getchr();
+			if (ch == CONTROL('X'))
+				/* Break out of "waiting for data". */
+				return (READ_INTR);
+			ungetcc(ch); /* {{ Ordering problem here? }} */
+		}
 	}
+	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
+		/* Break out of F loop on HUP due to --exit-follow-on-close. */
+		return (READ_INTR);
 	if ((poller[0].revents & (POLLIN|POLLHUP|POLLERR)) == 0)
 		/* No data available; let caller take action, then try again. */
 		return (READ_AGAIN);
-	if (ignore_eoi && exit_F_on_close && (poller[0].revents & POLLHUP))
-		/* Break out of F loop due to --exit-follow-on-close. */
-		return (READ_INTR);
+	/* There is data (or HUP/ERR) available. Safe to call read() without blocking. */
 	return (0);
 }
 #endif /* USE_POLL */
@@ -190,9 +198,9 @@ start:
 		int ret = check_poll(fd, tty);
 		if (ret != 0)
 		{
-			reading = 0;
 			if (ret == READ_INTR)
 				sigs |= S_INTERRUPT;
+			reading = 0;
 			return ret;
 		}
 	}
