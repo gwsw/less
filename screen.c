@@ -266,6 +266,7 @@ char PC_, *UP, *BC;
 #endif
 
 extern int quiet;               /* If VERY_QUIET, use visual bell for bell */
+extern int no_vbell;
 extern int no_back_scroll;
 extern int swindow;
 extern int no_init;
@@ -2250,6 +2251,8 @@ create_flash(VOID_PARAM)
 	public void
 vbell(VOID_PARAM)
 {
+	if (no_vbell)
+		return;
 #if !MSDOS_COMPILER
 	if (*sc_visual_bell == '\0')
 		return;

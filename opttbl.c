@@ -19,6 +19,7 @@
  * Variables controlled by command line options.
  */
 public int quiet;               /* Should we suppress the audible bell? */
+public int no_vbell;            /* Should we suppress the visual bell? */
 public int how_search;          /* Where should forward searches start? */
 public int top_scroll;          /* Repaint screen from top?
                                    (alternative is scroll from bottom) */
@@ -152,6 +153,7 @@ static struct optname nonum_headers_optname = { "no-number-headers", NULL };
 static struct optname redraw_on_quit_optname = { "redraw-on-quit", NULL };
 static struct optname search_type_optname = { "search-options", NULL };
 static struct optname exit_F_on_close_optname = { "exit-follow-on-close", NULL };
+static struct optname no_vbell_optname = { "no-vbell", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/
@@ -619,6 +621,14 @@ static struct loption option[] =
 		{
 			"Don't exit F command when input closes",
 			"Exit F command when input closes",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &no_vbell_optname,
+		BOOL, OPT_OFF, &no_vbell, NULL,
+		{
+			"Display visual bell",
+			"Don't display visual bell",
 			NULL
 		}
 	},
