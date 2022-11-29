@@ -1684,8 +1684,7 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search, multiple files.
 			 */
-			search_type = last_search_type;
-			search_type |= SRCH_PAST_EOF;
+			search_type = last_search_type | SRCH_PAST_EOF;
 			DO_SEARCH();
 			break;
 
@@ -1693,11 +1692,10 @@ commands(VOID_PARAM)
 			/*
 			 * Repeat previous search, in reverse direction.
 			 */
-			search_type = last_search_type;
-			save_search_type = search_type;
+			save_search_type = search_type = last_search_type;
 			search_type = SRCH_REVERSE(search_type);
 			DO_SEARCH();
-			search_type = save_search_type;
+			last_search_type = save_search_type;
 			break;
 
 		case A_T_REVERSE_SEARCH:
@@ -1705,12 +1703,10 @@ commands(VOID_PARAM)
 			 * Repeat previous search, 
 			 * multiple files in reverse direction.
 			 */
-			search_type = last_search_type;
-			save_search_type = search_type;
-			search_type = SRCH_REVERSE(search_type);
-			search_type |= SRCH_PAST_EOF;
+			save_search_type = search_type = last_search_type;
+			search_type = SRCH_REVERSE(search_type) | SRCH_PAST_EOF;
 			DO_SEARCH();
-			search_type = save_search_type;
+			last_search_type = save_search_type;
 			break;
 
 		case A_UNDO_SEARCH:
