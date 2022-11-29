@@ -960,7 +960,7 @@ v610  11/14/22  Update Unicode tables; fix again-search after filter;
                 improve ^X to interrupt F command.
 v611  11/16/22  Fix EOF bug related to ^X change.
 v612  11/18/22  Fix more bugs related to ^X change.
-v613
+v613  11/28/22  Even more ^X issues.
 */
 
-char version[] = "613x";
+char version[] = "613";

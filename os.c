@@ -61,6 +61,7 @@
 #endif
 
 public int reading;
+public int waiting_for_data;
 public int consecutive_nulls = 0;
 
 static jmp_buf read_label;
@@ -68,6 +69,7 @@ static jmp_buf read_label;
 extern int sigs;
 extern int ignore_eoi;
 extern int exit_F_on_close;
+extern int follow_mode;
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
@@ -77,20 +79,42 @@ extern char *ttyin_name;
 
 #if USE_POLL
 /*
- * Return events that have occurred on the specified file.
+ * Check whether data is available, either from a file/pipe or from the tty.
+ * Return READ_AGAIN if no data currently available, * but caller should retry later.
+ * Return READ_INTR to abort F command (forw_loop).
+ * Return 0 if safe to read from fd.
  */
 	static int
-poll_events(fd, events)
+check_poll(fd, tty)
 	int fd;
-	int events;
+	int tty;
 {
-	struct pollfd poller = { fd, events, 0 };
-	int n = poll(&poller, 1, 0);
-	if (n <= 0)
-		return 0;
-	return (poller.revents & events);
+	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
+	int timeout = (waiting_for_data && follow_mode != FOLLOW_NAME) ? -1 : 10;
+	poll(poller, 2, timeout);
+#if LESSTEST
+	if (ttyin_name == NULL) /* Check for ^X only on a real tty. */
+#endif /*LESSTEST*/
+	{
+		if (poller[1].revents & POLLIN) 
+		{
+			LWCHAR ch = getchr();
+			if (ch == CONTROL('X'))
+				/* Break out of "waiting for data". */
+				return (READ_INTR);
+			ungetcc(ch); /* {{ Ordering problem here? }} */
+		}
+	}
+	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
+		/* Break out of F loop on HUP due to --exit-follow-on-close. */
+		return (READ_INTR);
+	if ((poller[0].revents & (POLLIN|POLLHUP|POLLERR)) == 0)
+		/* No data available; let caller take action, then try again. */
+		return (READ_AGAIN);
+	/* There is data (or HUP/ERR) available. Safe to call read() without blocking. */
+	return (0);
 }
-#endif
+#endif /* USE_POLL */
 
 /*
  * Like read() system call, but is deliberately interruptible.
@@ -171,34 +195,13 @@ start:
 #if USE_POLL
 	if (fd != tty)
 	{
-		int close_events = (ignore_eoi && !exit_F_on_close) ? POLLERR : POLLERR|POLLHUP;
-		int fd_events;
-#if LESSTEST
-		if (ttyin_name == NULL) /* check for ^X only on a real tty */
-#endif /*LESSTEST*/
+		int ret = check_poll(fd, tty);
+		if (ret != 0)
 		{
-			if (poll_events(tty, POLLIN) && getchr() == CONTROL('X'))
-			{
-				reading = 0;
+			if (ret == READ_INTR)
 				sigs |= S_INTERRUPT;
-				return (READ_INTR);
-			}
-		}
-		fd_events = poll_events(fd, POLLIN|POLLHUP|POLLERR);
-		if (!(fd_events & POLLIN))
-		{
-			/* 
-			 * No input data: return here rather than
-			 * possibly getting stuck in a blocking read() below. 
-			 * This allows ^X to abort reading an empty pipe.
-			 */
 			reading = 0;
-			if (fd_events & close_events)
-			{
-				sigs |= S_INTERRUPT;
-				return (READ_INTR);
-			}
-			return ((fd_events & POLLHUP) ? 0 : READ_AGAIN);
+			return (ret);
 		}
 	}
 #else
