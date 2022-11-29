@@ -80,7 +80,7 @@ extern char *ttyin_name;
 #if USE_POLL
 /*
  * Check whether data is available, either from a file/pipe or from the tty.
- * Return READ_AGAIN if no data currently available, * but caller should retry later.
+ * Return READ_AGAIN if no data currently available, but caller should retry later.
  * Return READ_INTR to abort F command (forw_loop).
  * Return 0 if safe to read from fd.
  */
