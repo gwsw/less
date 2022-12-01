@@ -102,7 +102,7 @@ check_poll(fd, tty)
 			if (ch == CONTROL('X'))
 				/* Break out of "waiting for data". */
 				return (READ_INTR);
-			ungetcc(ch); /* {{ Ordering problem here? }} */
+			ungetcc_back(ch);
 		}
 	}
 	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
