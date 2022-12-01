@@ -962,7 +962,7 @@ v611  11/16/22  Fix EOF bug related to ^X change.
 v612  11/18/22  Fix more bugs related to ^X change.
 v613  11/28/22  Even more ^X issues.
 v614  11/28/22  Add ^X to wait message.
-v615
+v615            Add --no-vbell option.
 */
 
 char version[] = "615x";

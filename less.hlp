@@ -207,6 +207,8 @@
                   Don't display tildes after end of file.
   -# [_N]  ....  --shift=[_N]
                   Set horizontal scroll amount (0 = one half screen width).
+                --exit-follow-on-close
+                  Exit F command on a pipe when writer closes pipe.
                 --file-size
                   Automatically determine the size of the input file.
                 --follow-name
@@ -225,6 +227,8 @@
                   Remove duplicates from command history.
                 --no-number-headers
                   Don't give line numbers to header lines.
+                --no-vbell
+                  Disable the terminal's visual bell.
                 --redraw-on-quit
                   Redraw final screen when quitting.
                 --rscroll=C
