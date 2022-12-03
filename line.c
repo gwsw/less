@@ -634,7 +634,7 @@ ansi_step(pansi, ch)
 		if (ch == '\7')
 			return ANSI_END;
 		if (pansi->prev_esc)
-            return (ch == '\\') ? ANSI_END : ANSI_ERR;
+			return (ch == '\\') ? ANSI_END : ANSI_ERR;
 		pansi->prev_esc = (ch == ESC);
 		return ANSI_MID;
 	}
