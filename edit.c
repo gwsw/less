@@ -233,6 +233,40 @@ edit(filename)
 }
 	
 /*
+ * Clean up what edit_ifile did before error return.
+ */
+	static int
+edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile)
+	char *filename;
+	char *alt_filename;
+	void *altpipe;
+	IFILE ifile;
+	IFILE was_curr_ifile;
+{
+	if (alt_filename != NULL)
+	{
+		close_pipe(altpipe);
+		close_altfile(alt_filename, filename);
+		free(alt_filename);
+	}
+	del_ifile(ifile);
+	free(filename);
+	/*
+	 * Re-open the current file.
+	 */
+	if (was_curr_ifile == ifile)
+	{
+		/*
+		 * Whoops.  The "current" ifile is the one we just deleted.
+		 * Just give up.
+		 */
+		quit(QUIT_ERROR);
+	}
+	reedit_ifile(was_curr_ifile);
+	return (1);
+}
+
+/*
  * Edit a new file (given its IFILE).
  * ifile == NULL means just close the current file.
  */
@@ -371,28 +405,7 @@ edit_ifile(ifile)
 			 */
 			error("%s", &parg);
 			free(parg.p_string);
-			err1:
-			if (alt_filename != NULL)
-			{
-				close_pipe(altpipe);
-				close_altfile(alt_filename, filename);
-				free(alt_filename);
-			}
-			del_ifile(ifile);
-			free(filename);
-			/*
-			 * Re-open the current file.
-			 */
-			if (was_curr_ifile == ifile)
-			{
-				/*
-				 * Whoops.  The "current" ifile is the one we just deleted.
-				 * Just give up.
-				 */
-				quit(QUIT_ERROR);
-			}
-			reedit_ifile(was_curr_ifile);
-			return (1);
+			return edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile);
 		} else if ((f = open(open_filename, OPEN_READ)) < 0)
 		{
 			/*
@@ -401,7 +414,7 @@ edit_ifile(ifile)
 			parg.p_string = errno_message(filename);
 			error("%s", &parg);
 			free(parg.p_string);
-			goto err1;
+			return edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile);
 		} else 
 		{
 			chflags |= CH_CANSEEK;
@@ -417,7 +430,7 @@ edit_ifile(ifile)
 				if (answer != 'y' && answer != 'Y')
 				{
 					close(f);
-					goto err1;
+					return edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile);
 				}
 			}
 		}
@@ -427,7 +440,7 @@ edit_ifile(ifile)
 		PARG parg;
 		parg.p_string = filename;
 		error("%s is a terminal (use -f to open it)", &parg);
-		goto err1;
+		return edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile);
 	}
 
 	/*
