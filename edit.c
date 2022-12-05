@@ -401,7 +401,7 @@ edit_ifile(ifile)
 			parg.p_string = errno_message(filename);
 			error("%s", &parg);
 			free(parg.p_string);
-				goto err1;
+			goto err1;
 		} else 
 		{
 			chflags |= CH_CANSEEK;
@@ -421,6 +421,13 @@ edit_ifile(ifile)
 				}
 			}
 		}
+	}
+	if (!force_open && f >= 0 && isatty(f))
+	{
+		PARG parg;
+		parg.p_string = filename;
+		error("%s is a terminal (use -f to open it)", &parg);
+		goto err1;
 	}
 
 	/*
