@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 608 and 615
+	Major changes between "less" versions 608 and 616
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
@@ -20,6 +20,8 @@
 * Update Unicode tables.
 
 * Improve ability of ^X to interrupt F command (github #49).
+
+* Don't allow opening a tty as file input unless -f is set (github #309).
 
 * Fix incorrect handling of some Private Use Unicode characters.
 
@@ -36,6 +38,8 @@
 * Fix bug doing repeat search after setting & filter (github #299).
 
 * Don't retain search options from a cancelled search (github #302).
+
+* Don't call realpath on fake filenames like "-" (github #289).
 
 * Implement lesstest test suite.
 
