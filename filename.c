@@ -798,17 +798,31 @@ lglob(filename)
 }
 
 /*
+ * Does path not represent something in the file system?
+ */
+	public int
+is_fake_pathname(path)
+	char *path;
+{
+	return (strcmp(path, "-") == 0 ||
+	        strcmp(path, FAKE_HELPFILE) == 0 || strcmp(path, FAKE_EMPTYFILE) == 0);
+}
+
+/*
  * Return canonical pathname.
  */
 	public char *
 lrealpath(path)
 	char *path;
 {
+	if (!is_fake_pathname(path))
+	{
 #if HAVE_REALPATH
-	char rpath[PATH_MAX];
-	if (realpath(path, rpath) != NULL)
-		return (save(rpath));
+		char rpath[PATH_MAX];
+		if (realpath(path, rpath) != NULL)
+			return (save(rpath));
 #endif
+	}
 	return (save(path));
 }
 
