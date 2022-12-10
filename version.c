@@ -963,7 +963,7 @@ v612  11/18/22  Fix more bugs related to ^X change.
 v613  11/28/22  Even more ^X issues.
 v614  11/28/22  Add ^X to wait message.
 v615  11/30/22  Add --no-vbell option.
-v616
+v616  12/9/22   Don't open tty as input file without -f.
 */
 
-char version[] = "616x";
+char version[] = "616";
