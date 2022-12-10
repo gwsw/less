@@ -240,6 +240,7 @@ public int term_init_done = FALSE;
 
 static int attrmode = AT_NORMAL;
 static int termcap_debug = -1;
+static int no_alt_screen;       /* sc_init does not switch to alt screen */
 extern int binattr;
 extern int one_screen;
 #if LESSTEST
@@ -1250,6 +1251,7 @@ get_term(VOID_PARAM)
 	above_mem = ltgetflag("da");
 	below_mem = ltgetflag("db");
 	clear_bg = ltgetflag("ut");
+	no_alt_screen = ltgetflag("NR");
 
 	/*
 	 * Assumes termcap variable "sg" is the printing width of:
@@ -1764,6 +1766,14 @@ init(VOID_PARAM)
 		if (!no_init)
 		{
 			ltputs(sc_init, sc_height, putchr);
+			/*
+			 * Some terminals leave the cursor unmoved when switching 
+			 * to the alt screen. To avoid having the text appear at
+			 * a seemingly random line on the alt screen, move to 
+			 * lower left if we are using an alt screen.
+			 */
+			if (*sc_init != '\0' && *sc_deinit != '\0' && !no_alt_screen)
+				lower_left();
 			term_init_done = 1;
 		}
 		if (!no_keypad)
