@@ -48,7 +48,7 @@ extern char *tagoption;
 /*
  * Sound the bell to indicate user is trying to move past end of file.
  */
-	static void
+	public void
 eof_bell(VOID_PARAM)
 {
 #if HAVE_TIME

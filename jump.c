@@ -36,6 +36,12 @@ jump_forw(VOID_PARAM)
 		error("Cannot seek to end of file", NULL_PARG);
 		return;
 	}
+	end_pos = ch_tell();
+	if (position(sc_height-1) == end_pos)
+	{
+		eof_bell();
+		return;
+	}
 	/* 
 	 * Note; lastmark will be called later by jump_loc, but it fails
 	 * because the position table has been cleared by pos_clear below.
@@ -48,7 +54,6 @@ jump_forw(VOID_PARAM)
 	 * to get to the beginning of the last line.
 	 */
 	pos_clear();
-	end_pos = ch_tell();
 	pos = back_line(end_pos);
 	if (pos == NULL_POSITION)
 		jump_loc(ch_zero(), sc_height-1);
