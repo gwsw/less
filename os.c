@@ -36,8 +36,13 @@
 #include <values.h>
 #endif
 
-#if HAVE_POLL && !MSDOS_COMPILER && !defined(__APPLE__)
+#if defined(__APPLE__)
+#include <sys/utsname.h>
+#endif
+
+#if HAVE_POLL && !MSDOS_COMPILER
 #define USE_POLL 1
+static int use_poll = TRUE;
 #else
 #define USE_POLL 0
 #endif
@@ -78,6 +83,17 @@ extern char *ttyin_name;
 #endif /*LESSTEST*/
 
 #if USE_POLL
+	public void
+init_poll(VOID_PARAM)
+{
+#if defined(__APPLE__)
+	/* In old versions of MacOS, poll() does not work with /dev/tty. */
+	struct utsname uts;
+	if (uname(&uts) < 0 || lstrtoi(uts.release, NULL, 10) < 20)
+		use_poll = FALSE;
+#endif
+}
+
 /*
  * Check whether data is available, either from a file/pipe or from the tty.
  * Return READ_AGAIN if no data currently available, but caller should retry later.
@@ -120,7 +136,7 @@ check_poll(fd, tty)
 supports_ctrl_x(VOID_PARAM)
 {
 #if USE_POLL
-	return (TRUE);
+	return (use_poll);
 #else
 	return (FALSE);
 #endif /* USE_POLL */
@@ -203,7 +219,7 @@ start:
 	}
 #endif
 #if USE_POLL
-	if (fd != tty)
+	if (fd != tty && use_poll)
 	{
 		int ret = check_poll(fd, tty);
 		if (ret != 0)

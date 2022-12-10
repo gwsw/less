@@ -122,6 +122,7 @@ main(argc, argv)
 	is_tty = isatty(1);
 	init_mark();
 	init_cmds();
+	init_poll();
 	get_term();
 	init_charset();
 	init_line();
