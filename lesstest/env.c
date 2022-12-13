@@ -65,7 +65,8 @@ static int is_less_env(const char* name, int name_len) {
 	static char* const less_names[] = {
 		"LESS*", "COLUMNS", "LINES", "LANG", "LC_CTYPE", "MORE", NULL
 	};
-	for (char* const* n = less_names; *n != NULL; ++n) {
+	char* const* n;
+	for (n = less_names; *n != NULL; ++n) {
 		int ln = strlen(*n);
 		if (ln == name_len && strncmp(*n, name, ln) == 0)
 			return 1;
@@ -104,13 +105,15 @@ static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
 		{ "LESS_TERMCAP_@7", terminfo.key_end },
 	};
 	if (interactive) {
-		for (int i = 0; i < countof(tcvars); ++i) {
+		int i;
+		for (i = 0; i < countof(tcvars); ++i) {
 			struct tcvar* tc = &tcvars[i];
 			env_addpair(env, tc->name, tc->value);
 			log_env(tc->name, strlen(tc->name), tc->value);
 		}
 	}
-	for (char* const* envp = prog_env; *envp != NULL; ++envp) {
+	char* const* envp;
+	for (envp = prog_env; *envp != NULL; ++envp) {
 		const char* ename = *envp;
 		const char* eq = strchr(ename, '=');
 		if (eq == NULL) continue;
