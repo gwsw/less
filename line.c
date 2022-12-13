@@ -731,9 +731,9 @@ store_char(ch, a, rep, pos)
 			 */
 			if (a != AT_ANSI)
 			{
+				a |= hl_attr;
 				if (highest_hilite != NULL_POSITION && pos != NULL_POSITION && pos > highest_hilite)
 					highest_hilite = pos;
-				a |= hl_attr;
 			}
 			in_hilite = 1;
 		} else 
@@ -1397,6 +1397,16 @@ null_line(VOID_PARAM)
 {
 	is_null_line = 1;
 	cshift = 0;
+}
+
+/*
+ * Is line buffer unready (not enough chars received to resolve shift)?
+ * Returns number of chars store_char() needs to receive to become ready.
+ */
+	public int
+shifting(VOID_PARAM)
+{
+	return (hshift - cshift);
 }
 
 /*
