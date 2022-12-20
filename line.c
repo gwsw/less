@@ -37,7 +37,7 @@ static struct {
  * Buffer of ansi sequences which have been shifted off the left edge 
  * of the screen. 
  */
-struct xbuffer shifted_ansi;
+static struct xbuffer shifted_ansi;
 
 /*
  * Ring buffer of last ansi sequences sent.
@@ -61,6 +61,7 @@ public int tabstops[TABSTOP_MAX] = { 0 }; /* Custom tabstops */
 public int ntabstops = 1;        /* Number of tabstops */
 public int tabdefault = 8;       /* Default repeated tabstops */
 public POSITION highest_hilite;  /* Pos of last hilite in file found so far */
+static POSITION line_pos;
 
 static int end_column;  /* Printable length, accounting for backspaces, etc. */
 static int right_curr;
@@ -212,6 +213,12 @@ inc_end_column(w)
 	end_column += w;
 }
 
+	public POSITION
+line_position(VOID_PARAM)
+{
+	return line_pos;
+}
+
 /*
  * Rewind the line buffer.
  */
@@ -241,6 +248,7 @@ prewind(VOID_PARAM)
 	ansi_in_line = 0;
 	hlink_in_line = 0;
 	line_mark_attr = 0;
+	line_pos = NULL_POSITION;
 	xbuf_reset(&shifted_ansi);
 	xbuf_reset(&last_ansi);
 	for (ax = 0;  ax < NUM_LAST_ANSIS;  ax++)
@@ -792,13 +800,19 @@ store_char(ch, a, rep, pos)
 			return (1);
 	}
 
-	if (cshift == hshift && shifted_ansi.end > 0)
+	if (cshift == hshift)
 	{
-		/* Copy shifted ANSI sequences to beginning of line. */
-		for (i = 0;  i < shifted_ansi.end;  i++)
-			add_linebuf(shifted_ansi.data[i], AT_ANSI, 0);
-		xbuf_reset(&shifted_ansi);
+		if (line_pos == NULL_POSITION)
+			line_pos = pos;
+		if (shifted_ansi.end > 0)
+		{
+			/* Copy shifted ANSI sequences to beginning of line. */
+			for (i = 0;  i < shifted_ansi.end;  i++)
+				add_linebuf(shifted_ansi.data[i], AT_ANSI, 0);
+			xbuf_reset(&shifted_ansi);
+		}
 	}
+
 	/* Add the char to the buf, even if we will left-shift it next. */
 	inc_end_column(w);
 	for (i = 0;  i < replen;  i++)

@@ -777,8 +777,25 @@ However nonrepeated searches (invoked with "/" or "?")
 always begin at the start or end of the current screen respectively.
 .IP "\-J or \-\-status-column"
 Displays a status column at the left edge of the screen.
-The status column shows the lines that matched the current search,
-and any lines that are marked (via the m or M command).
+The character displayed in the status column may be one of:
+.RS
+.IP ">"
+The line is chopped with the \-S option, and 
+the text that is chopped off beyond the right edge of the screen
+contains a match for the current search.
+.IP "<"
+The line is horizontally shifted, and
+the text that is shifted beyond the left side of the screen
+contains a match for the current search.
+.IP "@"
+The line is both chopped and shifted,
+and there are matches beyond both sides of the screen.
+.IP "*"
+There are matches in the visible part of the line
+but none to the right or left of it.
+.IP "a-z, A-Z"
+The line has been marked with the corresponding letter via the m command.
+.RE
 .IP "\-k\fIfilename\fP or \-\-lesskey-file=\fIfilename\fP"
 Causes
 .B less

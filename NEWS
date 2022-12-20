@@ -21,6 +21,8 @@
 
 * Improve ability of ^X to interrupt F command (github #49).
 
+* Status column (-J) shows off-screen matches.
+
 * Don't allow opening a tty as file input unless -f is set (github #309).
 
 * Fix incorrect handling of some Private Use Unicode characters.
