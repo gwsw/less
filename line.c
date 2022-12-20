@@ -1414,16 +1414,6 @@ null_line(VOID_PARAM)
 }
 
 /*
- * Is line buffer unready (not enough chars received to resolve shift)?
- * Returns number of chars store_char() needs to receive to become ready.
- */
-	public int
-shifting(VOID_PARAM)
-{
-	return (hshift - cshift);
-}
-
-/*
  * Analogous to forw_line(), but deals with "raw lines":
  * lines which are not split for screen width.
  * {{ This is supposed to be more efficient than forw_line(). }}
