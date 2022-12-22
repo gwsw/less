@@ -1349,7 +1349,8 @@ set_attr_line(a)
 	int i;
 
 	for (i = linebuf.print;  i < linebuf.end;  i++)
-		linebuf.attr[i] |= a;
+		if ((linebuf.attr[i] & AT_COLOR) == 0 || (a & AT_COLOR) == 0)
+			linebuf.attr[i] |= a;
 }
 
 /*
