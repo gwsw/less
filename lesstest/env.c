@@ -79,6 +79,7 @@ static int is_less_env(const char* name, int name_len) {
 // Create a list of env vars to be given to an instance of less,
 // as an EnvBuf.
 static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
+	char* const* envp;
 	struct tcvar { char const* name; char const* value; } tcvars[] = {
 		{ "LESS_TERMCAP_am", "1" },
 		{ "LESS_TERMCAP_cd", "\33S" },
@@ -112,7 +113,6 @@ static void env_setup(EnvBuf* env, char* const* prog_env, int interactive) {
 			log_env(tc->name, strlen(tc->name), tc->value);
 		}
 	}
-	char* const* envp;
 	for (envp = prog_env; *envp != NULL; ++envp) {
 		const char* ename = *envp;
 		const char* eq = strchr(ename, '=');
