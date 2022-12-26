@@ -1539,6 +1539,34 @@ back_raw_line(curr_pos, linep, line_lenp)
 }
 
 /*
+ * Skip cols printable columns at the start of line.
+ * Return number of bytes skipped.
+ */
+	public int
+skip_columns(cols, linep, line_lenp)
+	int cols;
+	char **linep;
+	int *line_lenp;
+{
+	char *line = *linep;
+	char *eline = line + *line_lenp;
+	LWCHAR pch = 0;
+	int bytes;
+
+	while (cols > 0 && line < eline)
+	{
+		LWCHAR ch = step_char(&line, +1, eline);
+		int w = pwidth(ch, 0, pch, 0);
+		cols -= w;
+		pch = ch;
+	}
+	bytes = line - *linep;
+	*linep = line;
+	*line_lenp -= bytes;
+	return (bytes);
+}
+
+/*
  * Append a string to the line buffer.
  */
 	static int

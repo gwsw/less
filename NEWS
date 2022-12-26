@@ -15,7 +15,9 @@
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
-* Add --no-vbell option.
+* Add --no-vbell option (github #304).
+
+* Add --no-search-headers option (github #44).
 
 * Update Unicode tables.
 

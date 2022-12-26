@@ -36,6 +36,9 @@ extern int screen_trashed;
 extern int sc_width;
 extern int sc_height;
 extern int hshift;
+extern int nosearch_headers;
+extern int header_lines;
+extern int header_cols;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int size_linebuf;
@@ -1266,10 +1269,18 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
 	int cvt_len;
 	int *chpos;
 	POSITION linepos, oldpos;
+	int skip_bytes = 0;
 	int swidth = sc_width - line_pfx_width();
 	int sheight = sc_height - sindex_from_sline(jump_sline);
 
 	linenum = find_linenum(pos);
+	if (nosearch_headers && linenum <= header_lines)
+	{
+		linenum = header_lines + 1;
+		pos = find_pos(linenum);
+	}
+	if (pos == NULL_POSITION)
+		return (-1);
 	oldpos = pos;
 	/* When the search wraps around, end at starting position. */
 	if ((search_type & SRCH_WRAP) && endpos == NULL_POSITION)
@@ -1380,6 +1391,8 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
 		if (is_filtered(linepos))
 			continue;
 #endif
+		if (nosearch_headers)
+			skip_bytes = skip_columns(header_cols, &line, &line_len);
 
 		/*
 		 * If it's a caseless search, convert the line to lowercase.
@@ -1426,7 +1439,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
 					 * Just add the matches in this line to the 
 					 * hilite list and keep searching.
 					 */
-					hilite_line(linepos, cline, line_len, chpos, sp, ep, cvt_ops);
+					hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, cvt_ops);
 #endif
 				} else if (--matches <= 0)
 				{
@@ -1442,7 +1455,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
 						 * the matches in this one line.
 						 */
 						clr_hilite();
-						hilite_line(linepos, cline, line_len, chpos, sp, ep, cvt_ops);
+						hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, cvt_ops);
 					}
 #endif
 					if (chop_line())
