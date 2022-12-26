@@ -862,7 +862,7 @@ num_pct_s(lessopen)
 open_altfile(filename, pf, pfd)
 	char *filename;
 	int *pf;
-	void **pfd;
+	struct pipestatus *pfd;
 {
 #if !HAVE_POPEN
 	return (NULL);
@@ -951,7 +951,8 @@ open_altfile(filename, pf, pfd)
 			int status = pclose(fd);
 			if (returnfd > 1 && status == 0) {
 				/* File is empty. */
-				*pfd = NULL;
+				pfd->pipefd = NULL;
+				pfd->checkpipe = 0;
 				*pf = -1;
 				return (save(FAKE_EMPTYFILE));
 			}
@@ -960,7 +961,8 @@ open_altfile(filename, pf, pfd)
 		}
 		/* Alt pipe contains data, so use it. */
 		ch_ungetchar(c);
-		*pfd = (void *) fd;
+		pfd->pipefd = (void *) fd;
+		pfd->checkpipe = returnfd > 2;
 		*pf = f;
 		return (save("-"));
 	}

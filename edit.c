@@ -153,8 +153,10 @@ back_textlist(tlist, prev)
  * Close a pipe opened via popen.
  */
 	static void
-close_pipe(FILE *pipefd)
+close_pipe(struct pipestatus p)
 {
+	FILE *pipefd = p.pipefd;
+
 	if (pipefd == NULL)
 		return;
 #if OS2
@@ -164,7 +166,8 @@ close_pipe(FILE *pipefd)
 	 */
 	kill(pipefd->_pid, SIGINT);
 #endif
-	pclose(pipefd);
+	if (pclose(pipefd) != 0 && p.checkpipe)
+		error("Input preprocessor failed", NULL_PARG);
 }
 
 /*
@@ -175,7 +178,7 @@ close_file(VOID_PARAM)
 {
 	struct scrpos scrpos;
 	int chflags;
-	FILE *altpipe;
+	struct pipestatus altpipe;
 	char *altfilename;
 	
 	if (curr_ifile == NULL_IFILE)
@@ -204,10 +207,12 @@ close_file(VOID_PARAM)
 	if (altfilename != NULL)
 	{
 		altpipe = get_altpipe(curr_ifile);
-		if (altpipe != NULL && !(chflags & CH_KEEPOPEN))
+		if (altpipe.pipefd != NULL && !(chflags & CH_KEEPOPEN))
 		{
+			struct pipestatus nopipe = {NULL, 0};
+			altpipe.checkpipe &= !!(chflags & CH_EOF);
 			close_pipe(altpipe);
-			set_altpipe(curr_ifile, NULL);
+			set_altpipe(curr_ifile, nopipe);
 		}
 		close_altfile(altfilename, get_filename(curr_ifile));
 		set_altfilename(curr_ifile, NULL);
@@ -239,7 +244,7 @@ edit(filename)
 edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile)
 	char *filename;
 	char *alt_filename;
-	void *altpipe;
+	struct pipestatus altpipe;
 	IFILE ifile;
 	IFILE was_curr_ifile;
 {
@@ -280,7 +285,7 @@ edit_ifile(ifile)
 	char *filename;
 	char *open_filename;
 	char *alt_filename;
-	void *altpipe;
+	struct pipestatus altpipe;
 	IFILE was_curr_ifile;
 	PARG parg;
 		
@@ -335,7 +340,7 @@ edit_ifile(ifile)
 	 * See if LESSOPEN specifies an "alternate" file to open.
 	 */
 	altpipe = get_altpipe(ifile);
-	if (altpipe != NULL)
+	if (altpipe.pipefd != NULL)
 	{
 		/*
 		 * File is already open.
@@ -358,7 +363,7 @@ edit_ifile(ifile)
 		open_filename = (alt_filename != NULL) ? alt_filename : filename;
 
 		chflags = 0;
-		if (altpipe != NULL)
+		if (altpipe.pipefd != NULL)
 		{
 			/*
 			 * The alternate "file" is actually a pipe.

@@ -1530,6 +1530,13 @@ If the output is empty and the exit status is zero,
 the empty output is considered to be replacement text.
 If the output is empty and the exit status is nonzero, 
 the original file is used.
+Moreover, if LESSOPEN starts with three vertical bars,
+the script's output is the replacement text even if empty, and
+.I less
+warns if script exits with nonzero status after all its output has
+been read, so that settings like LESSOPEN="|||\-gzip \-cdfq \-\- %s"
+are useful with compression programs like
+.IR gzip .
 For compatibility with previous versions of
 .BR less ,
 if LESSOPEN starts with only one vertical bar, the exit status

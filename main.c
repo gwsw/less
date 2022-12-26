@@ -409,6 +409,7 @@ quit(status)
 	else
 		save_status = status;
 	quitting = 1;
+	edit((char*)NULL);
 	if (interactive())
 		clear_bot();
 	deinit();
@@ -424,7 +425,6 @@ quit(status)
 		repaint();
 		flush();
 	}
-	edit((char*)NULL);
 	save_cmdhist();
 	raw_mode(0);
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC

@@ -308,7 +308,10 @@ ch_get(VOID_PARAM)
 			/* Either end of file or no data available.
 			 * read_again indicates the latter. */
 			if (!read_again)
+			{
+				ch_flags |= CH_EOF;
 				ch_fsize = pos;
+			}
 			if (ignore_eoi || read_again)
 			{
 				/* Wait a while, then try again. */
