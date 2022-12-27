@@ -1155,7 +1155,9 @@ Sets the number of header lines and columns displayed on the screen.
 The value may be of the form "N,M" where N and M are integers,
 to set the header lines to N and the header columns to M,
 or it may be a single integer "N" which sets the header lines to N 
-and the header columns to zero.
+and the header columns to zero,
+or it may be ",M" which sets the header columns to M and the 
+header lines to zero.
 When N is nonzero, the first N lines at the top
 of the screen are replaced with the first N lines of the file,
 regardless of what part of the file are being viewed.

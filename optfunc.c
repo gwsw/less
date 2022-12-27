@@ -1004,22 +1004,26 @@ opt_header(type, s)
 	{
 	case INIT:
 	case TOGGLE:
-		n = getnum(&s, "header", &err);
-		if (err)
-			error("invalid number of lines", NULL_PARG);
-		else
+		header_lines = 0;
+		header_cols = 0;
+		if (*s != ',')
 		{
-			header_lines = n;
-			header_cols = 0;
-			if (*s == ',')
+			n = getnum(&s, "header", &err);
+			if (err)
 			{
-				++s;
-				n = getnum(&s, "header", &err);
-				if (err)
-					error("invalid number of columns", NULL_PARG);
-				else
-					header_cols = n;
+				error("invalid number of lines", NULL_PARG);
+				return;
 			}
+			header_lines = n;
+		}
+		if (*s == ',')
+		{
+			++s;
+			n = getnum(&s, "header", &err);
+			if (err)
+				error("invalid number of columns", NULL_PARG);
+			else
+				header_cols = n;
 		}
 		break;
 	case QUERY:
