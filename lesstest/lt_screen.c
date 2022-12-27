@@ -9,6 +9,9 @@
 
 static const char version[] = "lt_screen|v=1";
 
+#define ERROR_CHAR       ' '
+#define WIDESHADOW_CHAR  ((wchar)0)
+
 int usage(void) {
 	fprintf(stderr, "usage: lt_screen [-w width] [-h height] [-qv]\n");
 	return 0;
@@ -340,9 +343,19 @@ static int add_char(wchar ch) {
 	    (screen.cx > 0 && is_combining_char(screen_char(screen.cx-1,screen.cy)->ch, ch)));
 	if (!zero_width) {
 		fits = screen_incr(&screen.cx, &screen.cy);
-		if (fits && is_wide_char(ch)) {
-			screen_char_set(screen.cx, screen.cy, 0, 0, NULL_COLOR, NULL_COLOR);
-			fits = screen_incr(&screen.cx, &screen.cy);
+		if (fits) {
+			if (is_wide_char(ch)) {
+				// The "shadow" is the second column used by a wide char.
+				screen_char_set(screen.cx, screen.cy, WIDESHADOW_CHAR, 0, NULL_COLOR, NULL_COLOR);
+				fits = screen_incr(&screen.cx, &screen.cy);
+			} else {
+				ScreenChar* sc = screen_char(screen.cx, screen.cy);
+				if (sc->ch == WIDESHADOW_CHAR) {
+					// We overwrote the first half of a wide character.
+					// Change the orphaned shadow to an error char.
+					screen_char_set(screen.cx, screen.cy, ERROR_CHAR, screen.curr_attr, NULL_COLOR, NULL_COLOR);
+				}
+			}
 		}
 	}
 	if (!fits) { // Wrap at bottom of screen = scroll
