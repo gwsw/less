@@ -145,7 +145,7 @@ static int ch_addbuf();
 /*
  * Get the character pointed to by the read pointer.
  */
-	int
+	static int
 ch_get(VOID_PARAM)
 {
 	struct buf *bp;
