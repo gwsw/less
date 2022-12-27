@@ -19,6 +19,8 @@
 
 * Add --no-search-headers option (github #44).
 
+* Allow empty "lines" field in --header option.
+
 * Update Unicode tables.
 
 * Improve ability of ^X to interrupt F command (github #49).
