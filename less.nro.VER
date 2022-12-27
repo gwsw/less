@@ -787,7 +787,7 @@ contains a match for the current search.
 The line is horizontally shifted, and
 the text that is shifted beyond the left side of the screen
 contains a match for the current search.
-.IP "@"
+.IP "="
 The line is both chopped and shifted,
 and there are matches beyond both sides of the screen.
 .IP "*"

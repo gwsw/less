@@ -59,7 +59,7 @@ init_status_col(base_pos, disp_pos, edisp_pos, eol_pos)
 	if (hl_before && hl_after)
 	{
 		attr = hl_after;
-		ch = '@';
+		ch = '=';
 	} else if (hl_before)
 	{
 		attr = hl_before;
