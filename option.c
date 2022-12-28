@@ -36,8 +36,7 @@ extern int opt_use_backslash;
  * Return a printable description of an option.
  */
 	static char *
-opt_desc(o)
-	struct loption *o;
+opt_desc(struct loption *o)
 {
 	static char buf[OPTNAME_MAX + 10];
 	if (o->oletter == OLETTER_NONE)
@@ -52,8 +51,7 @@ opt_desc(o)
  * For example, if the option letter is 'x', just return "-x".
  */
 	public char *
-propt(c)
-	int c;
+propt(int c)
 {
 	static char buf[MAX_PRCHAR_LEN+2];
 
@@ -65,9 +63,8 @@ propt(c)
  * Scan an argument (either from the command line or from the 
  * LESS environment variable) and process it.
  */
-	public void
-scan_option(s)
-	char *s;
+	public void 
+scan_option(char *s)
 {
 	struct loption *o;
 	int optc;
@@ -301,12 +298,8 @@ scan_option(s)
  *      OPT_UNSET       set to the default value
  *      OPT_SET         set to the inverse of the default value
  */
-	public void
-toggle_option(o, lower, s, how_toggle)
-	struct loption *o;
-	int lower;
-	char *s;
-	int how_toggle;
+	public void 
+toggle_option(struct loption *o, int lower, char *s, int how_toggle)
 {
 	int num;
 	int no_prompt;
@@ -487,10 +480,8 @@ toggle_option(o, lower, s, how_toggle)
 /*
  * "Toggle" a triple-valued option.
  */
-	static int
-flip_triple(val, lc)
-	int val;
-	int lc;
+	static int 
+flip_triple(int val, int lc)
 {
 	if (lc)
 		return ((val == OPT_ON) ? OPT_OFF : OPT_ON);
@@ -501,9 +492,8 @@ flip_triple(val, lc)
 /*
  * Determine if an option takes a parameter.
  */
-	public int
-opt_has_param(o)
-	struct loption *o;
+	public int 
+opt_has_param(struct loption *o)
 {
 	if (o == NULL)
 		return (0);
@@ -517,8 +507,7 @@ opt_has_param(o)
  * Only string and number valued options have prompts.
  */
 	public char *
-opt_prompt(o)
-	struct loption *o;
+opt_prompt(struct loption *o)
 {
 	if (o == NULL || (o->otype & (STRING|NUMBER)) == 0)
 		return ("?");
@@ -530,8 +519,7 @@ opt_prompt(o)
  * Otherwise return an appropriate error message.
  */
 	public char *
-opt_toggle_disallowed(c)
-	int c;
+opt_toggle_disallowed(int c)
 {
 	switch (c)
 	{
@@ -559,9 +547,8 @@ isoptpending(VOID_PARAM)
 /*
  * Print error message about missing string.
  */
-	static void
-nostring(printopt)
-	char *printopt;
+	static void 
+nostring(char *printopt)
 {
 	PARG parg;
 	parg.p_string = printopt;
@@ -583,11 +570,7 @@ nopendopt(VOID_PARAM)
  * Return a pointer to the remainder of the string, if any.
  */
 	static char *
-optstring(s, p_str, printopt, validchars)
-	char *s;
-	char **p_str;
-	char *printopt;
-	char *validchars;
+optstring(char *s, char **p_str, char *printopt, char *validchars)
 {
 	char *p;
 	char *out;
@@ -622,10 +605,8 @@ optstring(s, p_str, printopt, validchars)
 
 /*
  */
-	static int
-num_error(printopt, errp)
-	char *printopt;
-	int *errp;
+	static int 
+num_error(char *printopt, int *errp)
 {
 	PARG parg;
 
@@ -647,11 +628,8 @@ num_error(printopt, errp)
  * Like atoi(), but takes a pointer to a char *, and updates
  * the char * to point after the translated number.
  */
-	public int
-getnum(sp, printopt, errp)
-	char **sp;
-	char *printopt;
-	int *errp;
+	public int 
+getnum(char **sp, char *printopt, int *errp)
 {
 	char *s;
 	int n;
@@ -684,11 +662,8 @@ getnum(sp, printopt, errp)
  * The value of the fraction is returned as parts per NUM_FRAC_DENOM.
  * That is, if "n" is returned, the fraction intended is n/NUM_FRAC_DENOM.
  */
-	public long
-getfraction(sp, printopt, errp)
-	char **sp;
-	char *printopt;
-	int *errp;
+	public long 
+getfraction(char **sp, char *printopt, int *errp)
 {
 	char *s;
 	long frac = 0;

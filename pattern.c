@@ -20,12 +20,8 @@ extern int utf_mode;
 /*
  * Compile a search pattern, for future use by match_pattern.
  */
-	static int
-compile_pattern2(pattern, search_type, comp_pattern, show_error)
-	char *pattern;
-	int search_type;
-	PATTERN_TYPE *comp_pattern;
-	int show_error;
+	static int 
+compile_pattern2(char *pattern, int search_type, PATTERN_TYPE *comp_pattern, int show_error)
 {
 	if (search_type & SRCH_NO_REGEX)
 		return (0);
@@ -147,12 +143,8 @@ compile_pattern2(pattern, search_type, comp_pattern, show_error)
 /*
  * Like compile_pattern2, but convert the pattern to lowercase if necessary.
  */
-	public int
-compile_pattern(pattern, search_type, show_error, comp_pattern)
-	char *pattern;
-	int search_type;
-	int show_error;
-	PATTERN_TYPE *comp_pattern;
+	public int 
+compile_pattern(char *pattern, int search_type, int show_error, PATTERN_TYPE *comp_pattern)
 {
 	char *cvt_pattern;
 	int result;
@@ -173,9 +165,8 @@ compile_pattern(pattern, search_type, show_error, comp_pattern)
 /*
  * Forget that we have a compiled pattern.
  */
-	public void
-uncompile_pattern(pattern)
-	PATTERN_TYPE *pattern;
+	public void 
+uncompile_pattern(PATTERN_TYPE *pattern)
 {
 #if HAVE_GNU_REGEX
 	if (*pattern != NULL)
@@ -222,9 +213,8 @@ uncompile_pattern(pattern)
 /*
  * Can a pattern be successfully compiled?
  */
-	public int
-valid_pattern(pattern)
-	char *pattern;
+	public int 
+valid_pattern(char *pattern)
 {
 	PATTERN_TYPE comp_pattern;
 	int result;
@@ -241,9 +231,8 @@ valid_pattern(pattern)
 /*
  * Is a compiled pattern null?
  */
-	public int
-is_null_pattern(pattern)
-	PATTERN_TYPE pattern;
+	public int 
+is_null_pattern(PATTERN_TYPE pattern)
 {
 #if HAVE_GNU_REGEX
 	return (pattern == NULL);
@@ -275,13 +264,8 @@ is_null_pattern(pattern)
  * Simple pattern matching function.
  * It supports no metacharacters like *, etc.
  */
-	static int
-match(pattern, pattern_len, buf, buf_len, pfound, pend)
-	char *pattern;
-	int pattern_len;
-	char *buf;
-	int buf_len;
-	char **pfound, **pend;
+	static int 
+match(char *pattern, int pattern_len, char *buf, int buf_len, char **pfound, char **pend)
 {
 	char *pp, *lp;
 	char *pattern_end = pattern + pattern_len;
@@ -316,16 +300,8 @@ match(pattern, pattern_len, buf, buf_len, pfound, pend)
  * Perform a pattern match with the previously compiled pattern.
  * Set sp and ep to the start and end of the matched string.
  */
-	public int
-match_pattern(pattern, tpattern, line, line_len, sp, ep, notbol, search_type)
-	PATTERN_TYPE pattern;
-	char *tpattern;
-	char *line;
-	int line_len;
-	char **sp;
-	char **ep;
-	int notbol;
-	int search_type;
+	public int 
+match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int line_len, char **sp, char **ep, int notbol, int search_type)
 {
 	int matched;
 

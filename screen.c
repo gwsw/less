@@ -302,12 +302,12 @@ extern char *tgoto();
 /*
  * Set termio flags for use by less.
  */
-	static void
-set_termio_flags(s)
 #if HAVE_TERMIOS_H && HAVE_TERMIOS_FUNCS
-	struct termios *s;
+	static void
+set_termio_flags(struct termios *s)
 #else
-	struct termio *s;
+	static void
+set_termio_flags(struct termio *s)
 #endif
 {
 	s->c_lflag &= ~(0
@@ -376,9 +376,8 @@ set_termio_flags(s)
  *         etc. are NOT disabled.
  * It doesn't matter whether an input \n is mapped to \r, or vice versa.
  */
-	public void
-raw_mode(on)
-	int on;
+	public void 
+raw_mode(int on)
 {
 	static int curr_on = 0;
 
@@ -704,8 +703,7 @@ raw_mode(on)
 static int hardcopy;
 
 	static char *
-ltget_env(capname)
-	char *capname;
+ltget_env(char *capname)
 {
 	char name[64];
 
@@ -729,9 +727,8 @@ ltget_env(capname)
 	return (lgetenv(name));
 }
 
-	static int
-ltgetflag(capname)
-	char *capname;
+	static int 
+ltgetflag(char *capname)
 {
 	char *s;
 
@@ -742,9 +739,8 @@ ltgetflag(capname)
 	return (tgetflag(capname));
 }
 
-	static int
-ltgetnum(capname)
-	char *capname;
+	static int 
+ltgetnum(char *capname)
 {
 	char *s;
 
@@ -756,9 +752,7 @@ ltgetnum(capname)
 }
 
 	static char *
-ltgetstr(capname, pp)
-	char *capname;
-	char **pp;
+ltgetstr(char *capname, char **pp)
 {
 	char *s;
 
@@ -936,9 +930,8 @@ get_clock(VOID_PARAM)
 /*
  * Delay for a specified number of milliseconds.
  */
-	static void
-delay(msec)
-	int msec;
+	static void 
+delay(int msec)
 {
 	long i;
 	
@@ -954,8 +947,7 @@ delay(msec)
  * Return the characters actually input by a "special" key.
  */
 	public char *
-special_key_str(key)
-	int key;
+special_key_str(int key)
 {
 	static char tbuf[40];
 	char *s;
@@ -1447,17 +1439,15 @@ get_term(VOID_PARAM)
 static int costcount;
 
 /*ARGSUSED*/
-	static int
-inc_costcount(c)
-	int c;
+	static int 
+inc_costcount(int c)
 {
 	costcount++;
 	return (c);
 }
 
-	static int
-cost(t)
-	char *t;
+	static int 
+cost(char *t)
 {
 	costcount = 0;
 	tputs(t, sc_height, inc_costcount);
@@ -1470,9 +1460,7 @@ cost(t)
  * cost (see cost() function).
  */
 	static char *
-cheaper(t1, t2, def)
-	char *t1, *t2;
-	char *def;
+cheaper(char *t1, char *t2, char *def)
 {
 	if (*t1 == '\0' && *t2 == '\0')
 	{
@@ -1488,15 +1476,8 @@ cheaper(t1, t2, def)
 	return (t2);
 }
 
-	static void
-tmodes(incap, outcap, instr, outstr, def_instr, def_outstr, spp)
-	char *incap;
-	char *outcap;
-	char **instr;
-	char **outstr;
-	char *def_instr;
-	char *def_outstr;
-	char **spp;
+	static void 
+tmodes(char *incap, char *outcap, char **instr, char **outstr, char *def_instr, char *def_outstr, char **spp)
 {
 	*instr = ltgetstr(incap, spp);
 	if (*instr == NULL)
@@ -1657,11 +1638,8 @@ win32_deinit_term(VOID_PARAM)
 #endif
 
 #if !MSDOS_COMPILER
-	static void
-do_tputs(str, affcnt, f_putc)
-	char *str;
-	int affcnt;
-	int (*f_putc)(int);
+	static void 
+do_tputs(char *str, int affcnt, int (*f_putc)(int))
 {
 #if LESSTEST
 	if (ttyin_name != NULL && f_putc == putchr)
@@ -1675,11 +1653,8 @@ do_tputs(str, affcnt, f_putc)
  * Like tputs but we handle $<...> delay strings here because
  * some implementations of tputs don't perform delays correctly.
  */
-	static void
-ltputs(str, affcnt, f_putc)
-	char *str;
-	int affcnt;
-	int (*f_putc)(int);
+	static void 
+ltputs(char *str, int affcnt, int (*f_putc)(int))
 {
 	while (str != NULL && *str != '\0')
 	{
@@ -1960,9 +1935,8 @@ add_line(VOID_PARAM)
  * window upward.  This is needed to stop leaking the topmost line 
  * into the scrollback buffer when we go down-one-line (in WIN32).
  */
-	public void
-remove_top(n)
-	int n;
+	public void 
+remove_top(int n)
 {
 #if MSDOS_COMPILER==WIN32C
 	SMALL_RECT rcSrc, rcClip;
@@ -2045,9 +2019,8 @@ win32_clear(VOID_PARAM)
  * Remove the n topmost lines and scroll everything below it in the 
  * window upward.
  */
-	public void
-win32_scroll_up(n)
-	int n;
+	public void 
+win32_scroll_up(int n)
 {
 	SMALL_RECT rcSrc, rcClip;
 	CHAR_INFO fillchar;
@@ -2191,9 +2164,8 @@ check_winch(VOID_PARAM)
 /*
  * Goto a specific line on the screen.
  */
-	public void
-goto_line(sindex)
-	int sindex;
+	public void 
+goto_line(int sindex)
 {
 	assert_interactive();
 #if !MSDOS_COMPILER
@@ -2485,9 +2457,8 @@ clear_bot(VOID_PARAM)
 /*
  * Parse a 4-bit color char.
  */
-	static int
-parse_color4(ch)
-	char ch;
+	static int 
+parse_color4(int ch)
 {
 	switch (ch)
 	{
@@ -2515,9 +2486,8 @@ parse_color4(ch)
 /*
  * Parse a color as a decimal integer.
  */
-	static int
-parse_color6(ps)
-	char **ps;
+	static int 
+parse_color6(char **ps)
 {
 	if (**ps == '-')
 	{
@@ -2539,11 +2509,8 @@ parse_color6(ps)
  *  CV_4BIT: fg/bg values are OR of CV_{RGB} bits.
  *  CV_6BIT: fg/bg values are integers entered by user.
  */
-	public COLOR_TYPE
-parse_color(str, p_fg, p_bg)
-	char *str;
-	int *p_fg;
-	int *p_bg;
+	public COLOR_TYPE 
+parse_color(char *str, int *p_fg, int *p_bg)
 {
 	int fg;
 	int bg;
@@ -2572,9 +2539,8 @@ parse_color(str, p_fg, p_bg)
 
 #if !MSDOS_COMPILER
 
-	static int
-sgr_color(color)
-	int color;
+	static int 
+sgr_color(int color)
 {
 	switch (color)
 	{
@@ -2600,11 +2566,8 @@ sgr_color(color)
 	}
 }
 
-	static void
-tput_fmt(fmt, color, f_putc)
-	char *fmt;
-	int color;
-	int (*f_putc)(int);
+	static void 
+tput_fmt(char *fmt, int color, int (*f_putc)(int))
 {
 	char buf[INT_STRLEN_BOUND(int)+16];
 	if (color == attrcolor)
@@ -2614,10 +2577,8 @@ tput_fmt(fmt, color, f_putc)
 	attrcolor = color;
 }
 
-	static void
-tput_color(str, f_putc)
-	char *str;
-	int (*f_putc)(int);
+	static void 
+tput_color(char *str, int (*f_putc)(int))
 {
 	int fg;
 	int bg;
@@ -2647,12 +2608,8 @@ tput_color(str, f_putc)
 	}
 }
 
-	static void
-tput_inmode(mode_str, attr, attr_bit, f_putc)
-	char *mode_str;
-	int attr;
-	int attr_bit;
-	int (*f_putc)(int);
+	static void 
+tput_inmode(char *mode_str, int attr, int attr_bit, int (*f_putc)(int))
 {
 	char *color_str;
 	if ((attr & attr_bit) == 0)
@@ -2668,11 +2625,8 @@ tput_inmode(mode_str, attr, attr_bit, f_putc)
 	tput_color(color_str, f_putc);
 }
 
-	static void
-tput_outmode(mode_str, attr_bit, f_putc)
-	char *mode_str;
-	int attr_bit;
-	int (*f_putc)(int);
+	static void 
+tput_outmode(char *mode_str, int attr_bit, int (*f_putc)(int))
 {
 	if ((attrmode & attr_bit) == 0)
 		return;
@@ -2682,10 +2636,8 @@ tput_outmode(mode_str, attr_bit, f_putc)
 #else /* MSDOS_COMPILER */
 
 #if MSDOS_COMPILER==WIN32C
-	static int
-WIN32put_fmt(fmt, color)
-	char *fmt;
-	int color;
+	static int 
+WIN32put_fmt(char *fmt, int color)
 {
 	char buf[INT_STRLEN_BOUND(int)+16];
 	int len = SNPRINTF1(buf, sizeof(buf), fmt, color);
@@ -2694,9 +2646,8 @@ WIN32put_fmt(fmt, color)
 }
 #endif
 
-	static int
-win_set_color(attr)
-	int attr;
+	static int 
+win_set_color(int attr)
 {
 	int fg;
 	int bg;
@@ -2740,9 +2691,8 @@ win_set_color(attr)
 
 #endif /* MSDOS_COMPILER */
 
-	public void
-at_enter(attr)
-	int attr;
+	public void 
+at_enter(int attr)
 {
 	attr = apply_at_specials(attr);
 #if !MSDOS_COMPILER
@@ -2795,9 +2745,8 @@ at_exit(VOID_PARAM)
 	attrmode = AT_NORMAL;
 }
 
-	public void
-at_switch(attr)
-	int attr;
+	public void 
+at_switch(int attr)
 {
 	int new_attrmode = apply_at_specials(attr);
 	int ignore_modes = AT_ANSI;
@@ -2809,10 +2758,8 @@ at_switch(attr)
 	}
 }
 
-	public int
-is_at_equiv(attr1, attr2)
-	int attr1;
-	int attr2;
+	public int 
+is_at_equiv(int attr1, int attr2)
 {
 	attr1 = apply_at_specials(attr1);
 	attr2 = apply_at_specials(attr2);
@@ -2820,9 +2767,8 @@ is_at_equiv(attr1, attr2)
 	return (attr1 == attr2);
 }
 
-	public int
-apply_at_specials(attr)
-	int attr;
+	public int 
+apply_at_specials(int attr)
 {
 	if (attr & AT_BINARY)
 		attr |= binattr;
@@ -3048,20 +2994,16 @@ WIN32getch(VOID_PARAM)
 #if MSDOS_COMPILER
 /*
  */
-	public void
-WIN32setcolors(fg, bg)
-	int fg;
-	int bg;
+	public void 
+WIN32setcolors(int fg, int bg)
 {
 	SETCOLORS(fg, bg);
 }
 
 /*
  */
-	public void
-WIN32textout(text, len)
-	char *text;
-	int len;
+	public void 
+WIN32textout(char *text, int len)
 {
 #if MSDOS_COMPILER==WIN32C
 	DWORD written;

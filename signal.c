@@ -42,8 +42,7 @@ extern long jump_sline_fraction;
 #if MSDOS_COMPILER!=WIN32C
 	/* ARGSUSED*/
 	static RETSIGTYPE
-u_interrupt(type)
-	int type;
+u_interrupt(int type)
 {
 	bell();
 #if OS2
@@ -74,8 +73,7 @@ u_interrupt(type)
  */
 	/* ARGSUSED*/
 	static RETSIGTYPE
-stop(type)
-	int type;
+stop(int type)
 {
 	LSIGNAL(SIGTSTP, stop);
 	sigs |= S_STOP;
@@ -99,8 +97,7 @@ stop(type)
  */
 	/* ARGSUSED*/
 	public RETSIGTYPE
-winch(type)
-	int type;
+winch(int type)
 {
 	LSIGNAL(SIG_LESSWINDOW, winch);
 	sigs |= S_WINCH;
@@ -137,8 +134,7 @@ wbreak_handler(dwCtrlType)
 #endif
 
 	static RETSIGTYPE
-terminate(type)
-	int type;
+terminate(int type)
 {
 	quit(15);
 }
@@ -146,9 +142,8 @@ terminate(type)
 /*
  * Set up the signal handlers.
  */
-	public void
-init_signals(on)
-	int on;
+	public void 
+init_signals(int on)
 {
 	if (on)
 	{

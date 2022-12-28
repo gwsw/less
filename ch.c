@@ -362,9 +362,8 @@ ch_get(VOID_PARAM)
  * ch_ungetchar is a rather kludgy and limited way to push 
  * a single char onto an input file descriptor.
  */
-	public void
-ch_ungetchar(c)
-	int c;
+	public void 
+ch_ungetchar(int c)
 {
 	if (c != -1 && ch_ungotchar != -1)
 		error("ch_ungetchar overrun", NULL_PARG);
@@ -439,9 +438,8 @@ sync_logfile(VOID_PARAM)
 /*
  * Determine if a specific block is currently in one of the buffers.
  */
-	static int
-buffered(block)
-	BLOCKNUM block;
+	static int 
+buffered(BLOCKNUM block)
 {
 	struct buf *bp;
 	struct bufnode *bn;
@@ -461,9 +459,8 @@ buffered(block)
  * Seek to a specified position in the file.
  * Return 0 if successful, non-zero if can't seek there.
  */
-	public int
-ch_seek(pos)
-	POSITION pos;
+	public int 
+ch_seek(POSITION pos)
 {
 	BLOCKNUM new_block;
 	POSITION len;
@@ -661,9 +658,8 @@ ch_back_get(VOID_PARAM)
  * Set max amount of buffer space.
  * bufspace is in units of 1024 bytes.  -1 mean no limit.
  */
-	public void
-ch_setbufspace(bufspace)
-	int bufspace;
+	public void 
+ch_setbufspace(int bufspace)
 {
 	if (bufspace < 0)
 		maxbufs = -1;
@@ -810,9 +806,8 @@ ch_delbufs(VOID_PARAM)
 /*
  * Is it possible to seek on a file descriptor?
  */
-	public int
-seekable(f)
-	int f;
+	public int 
+seekable(int f)
 {
 #if MSDOS_COMPILER
 	extern int fd0;
@@ -843,10 +838,8 @@ ch_set_eof(VOID_PARAM)
 /*
  * Initialize file state for a new file.
  */
-	public void
-ch_init(f, flags)
-	int f;
-	int flags;
+	public void 
+ch_init(int f, int flags)
 {
 	/*
 	 * See if we already have a filestate for this file.

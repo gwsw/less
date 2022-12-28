@@ -397,9 +397,8 @@ flush(VOID_PARAM)
 /*
  * Set the output file descriptor (1=stdout or 2=stderr).
  */
-	public void
-set_output(fd)
-	int fd;
+	public void 
+set_output(int fd)
 {
 	flush();
 	outfd = fd;
@@ -408,9 +407,8 @@ set_output(fd)
 /*
  * Output a character.
  */
-	public int
-putchr(c)
-	int c;
+	public int 
+putchr(int c)
 {
 #if 0 /* fake UTF-8 output for testing */
 	extern int utf_mode;
@@ -467,9 +465,8 @@ clear_bot_if_needed(VOID_PARAM)
 /*
  * Output a string.
  */
-	public void
-putstr(s)
-	constant char *s;
+	public void 
+putstr(constant char *s)
 {
 	while (*s != '\0')
 		putchr(*s++);
@@ -480,9 +477,7 @@ putstr(s)
  * Convert an integral type to a string.
  */
 #define TYPE_TO_A_FUNC(funcname, type) \
-void funcname(num, buf) \
-	type num; \
-	char *buf; \
+void funcname(type num, char *buf) \
 { \
 	int neg = (num < 0); \
 	char tbuf[INT_STRLEN_BOUND(num)+2]; \
@@ -504,10 +499,7 @@ TYPE_TO_A_FUNC(inttoa, int)
  * Convert an string to an integral type.
  */
 #define STR_TO_TYPE_FUNC(funcname, type) \
-type funcname(buf, ebuf, radix) \
-	char *buf; \
-	char **ebuf; \
-	int radix; \
+type funcname(char *buf, char **ebuf, int radix) \
 { \
 	type val = 0; \
 	for (;; buf++) { \
@@ -528,8 +520,7 @@ STR_TO_TYPE_FUNC(lstrtoul, unsigned long)
  * Output an integer in a given radix.
  */
 	static int
-iprint_int(num)
-	int num;
+iprint_int(int num)
 {
 	char buf[INT_STRLEN_BOUND(num)];
 
@@ -541,9 +532,8 @@ iprint_int(num)
 /*
  * Output a line number in a given radix.
  */
-	static int
-iprint_linenum(num)
-	LINENUM num;
+	static int 
+iprint_linenum(LINENUM num)
 {
 	char buf[INT_STRLEN_BOUND(num)];
 
@@ -559,10 +549,8 @@ iprint_linenum(num)
  * {{ This paranoia about the portability of printf dates from experiences
  *    with systems in the 1980s and is of course no longer necessary. }}
  */
-	public int
-less_printf(fmt, parg)
-	char *fmt;
-	PARG *parg;
+	public int 
+less_printf(char *fmt, PARG *parg)
 {
 	char *s;
 	int col;
@@ -638,10 +626,8 @@ get_return(VOID_PARAM)
  * Output a message in the lower left corner of the screen
  * and wait for carriage return.
  */
-	public void
-error(fmt, parg)
-	char *fmt;
-	PARG *parg;
+	public void 
+error(char *fmt, PARG *parg)
 {
 	int col = 0;
 	static char return_to_continue[] = "  (press RETURN)";
@@ -687,11 +673,8 @@ error(fmt, parg)
  * Usually used to warn that we are beginning a potentially
  * time-consuming operation.
  */
-	static void
-ierror_suffix(fmt, suffix, parg)
-	char *fmt;
-	char *suffix;
-	PARG *parg;
+	static void 
+ierror_suffix(char *fmt, char *suffix, PARG *parg)
 {
 	at_exit();
 	clear_bot();
@@ -703,19 +686,15 @@ ierror_suffix(fmt, suffix, parg)
 	need_clr = 1;
 }
 
-	public void
-ierror(fmt, parg)
-	char *fmt;
-	PARG *parg;
+	public void 
+ierror(char *fmt, PARG *parg)
 {
 	static char suffix[] = "... (interrupt to abort)";
 	ierror_suffix(fmt, suffix, parg);
 }
 
-	public void
-ixerror(fmt, parg)
-	char *fmt;
-	PARG *parg;
+	public void 
+ixerror(char *fmt, PARG *parg)
 {
 	if (!supports_ctrl_x())
 		ierror(fmt, parg);
@@ -730,10 +709,8 @@ ixerror(fmt, parg)
  * Output a message in the lower left corner of the screen
  * and return a single-character response.
  */
-	public int
-query(fmt, parg)
-	char *fmt;
-	PARG *parg;
+	public int 
+query(char *fmt, PARG *parg)
 {
 	int c;
 	int col = 0;

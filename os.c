@@ -100,10 +100,8 @@ init_poll(VOID_PARAM)
  * Return READ_INTR to abort F command (forw_loop).
  * Return 0 if safe to read from fd.
  */
-	static int
-check_poll(fd, tty)
-	int fd;
-	int tty;
+	static int 
+check_poll(int fd, int tty)
 {
 	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
 	int timeout = (waiting_for_data && follow_mode != FOLLOW_NAME) ? -1 : 10;
@@ -147,11 +145,8 @@ supports_ctrl_x(VOID_PARAM)
  * A call to intread() from a signal handler will interrupt
  * any pending iread().
  */
-	public int
-iread(fd, buf, len)
-	int fd;
-	unsigned char *buf;
-	unsigned int len;
+	public int 
+iread(int fd, unsigned char *buf, unsigned int len)
 {
 	int n;
 
@@ -312,8 +307,7 @@ get_time(VOID_PARAM)
  * Local version of strerror, if not available from the system.
  */
 	static char *
-strerror(err)
-	int err;
+strerror(int err)
 {
 	static char buf[INT_STRLEN_BOUND(int)+12];
 #if HAVE_SYS_ERRLIST
@@ -332,8 +326,7 @@ strerror(err)
  * errno_message: Return an error message based on the value of "errno".
  */
 	public char *
-errno_message(filename)
-	char *filename;
+errno_message(char *filename)
 {
 	char *p;
 	char *m;
@@ -354,9 +347,8 @@ errno_message(filename)
 
 /* #define HAVE_FLOAT 0 */
 
-	static POSITION
-muldiv(val, num, den)
-	POSITION val, num, den;
+	static POSITION 
+muldiv(POSITION val, POSITION num, POSITION den)
 {
 #if HAVE_FLOAT
 	double v = (((double) val) * num) / den;
@@ -378,10 +370,8 @@ muldiv(val, num, den)
  * Return the ratio of two POSITIONS, as a percentage.
  * {{ Assumes a POSITION is a long int. }}
  */
-	public int
-percentage(num, den)
-	POSITION num;
-	POSITION den;
+	public int 
+percentage(POSITION num, POSITION den)
 {
 	return (int) muldiv(num,  (POSITION) 100, den);
 }
@@ -389,11 +379,8 @@ percentage(num, den)
 /*
  * Return the specified percentage of a POSITION.
  */
-	public POSITION
-percent_pos(pos, percent, fraction)
-	POSITION pos;
-	int percent;
-	long fraction;
+	public POSITION 
+percent_pos(POSITION pos, int percent, long fraction)
 {
 	/* Change percent (parts per 100) to perden (parts per NUM_FRAC_DENOM). */
 	POSITION perden = (percent * (NUM_FRAC_DENOM / 100)) + (fraction / 100);
@@ -408,9 +395,7 @@ percent_pos(pos, percent, fraction)
  * strchr is used by regexp.c.
  */
 	char *
-strchr(s, c)
-	char *s;
-	int c;
+strchr(char *s, int c)
 {
 	for ( ;  *s != '\0';  s++)
 		if (*s == c)
@@ -444,9 +429,7 @@ memcpy(dst, src, len)
  * This implements an ANSI-style intercept setup for Microware C 3.2
  */
 	public int 
-os9_signal(type, handler)
-	int type;
-	RETSIGTYPE (*handler)();
+os9_signal(int type, RETSIGTYPE (*handler)())
 {
 	intercept(handler);
 }
@@ -454,8 +437,7 @@ os9_signal(type, handler)
 #include <sgstat.h>
 
 	int 
-isatty(f)
-	int f;
+isatty(int f)
 {
 	struct sgbuf sgbuf;
 
@@ -466,9 +448,8 @@ isatty(f)
 	
 #endif
 
-	public void
-sleep_ms(ms)
-	int ms;
+	public void 
+sleep_ms(int ms)
 {
 #if MSDOS_COMPILER==WIN32C
 	Sleep(ms);

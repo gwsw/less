@@ -63,8 +63,7 @@ extern dev_t curr_dev;
  * Remove quotes around a filename.
  */
 	public char *
-shell_unquote(str)
-	char *str;
+shell_unquote(char *str)
 {
 	char *name;
 	char *p;
@@ -132,9 +131,8 @@ metachars(VOID_PARAM)
 /*
  * Is this a shell metacharacter?
  */
-	static int
-metachar(c)
-	char c;
+	static int 
+metachar(int c)
 {
 	return (strchr(metachars(), c) != NULL);
 }
@@ -143,8 +141,7 @@ metachar(c)
  * Insert a backslash before each metacharacter in a string.
  */
 	public char *
-shell_quote(s)
-	char *s;
+shell_quote(char *s)
 {
 	char *p;
 	char *newstr;
@@ -221,10 +218,7 @@ shell_quote(s)
  * Return NULL if the file does not exist in the directory.
  */
 	public char *
-dirfile(dirname, filename, must_exist)
-	char *dirname;
-	char *filename;
-	int must_exist;
+dirfile(char *dirname, char *filename, int must_exist)
 {
 	char *pathname;
 	int len;
@@ -262,8 +256,7 @@ dirfile(dirname, filename, must_exist)
  * Return the full pathname of the given file in the "home directory".
  */
 	public char *
-homefile(filename)
-	char *filename;
+homefile(char *filename)
 {
 	char *pathname;
 
@@ -306,8 +299,7 @@ homefile(filename)
  * {{ This is a lot of work just to support % and #. }}
  */
 	public char *
-fexpand(s)
-	char *s;
+fexpand(char *s)
 {
 	char *fr, *to;
 	int n;
@@ -402,8 +394,7 @@ fexpand(s)
  * the given string.
  */
 	public char *
-fcomplete(s)
-	char *s;
+fcomplete(char *s)
 {
 	char *fpat;
 	char *qs;
@@ -461,9 +452,8 @@ fcomplete(s)
  * Try to determine if a file is "binary".
  * This is just a guess, and we need not try too hard to make it accurate.
  */
-	public int
-bin_file(f)
-	int f;
+	public int 
+bin_file(int f)
 {
 	int n;
 	int bin_count = 0;
@@ -507,9 +497,8 @@ bin_file(f)
 /*
  * Try to determine the size of a file by seeking to the end.
  */
-	static POSITION
-seek_filesize(f)
-	int f;
+	static POSITION 
+seek_filesize(int f)
 {
 	off_t spos;
 
@@ -525,8 +514,7 @@ seek_filesize(f)
  * Return a pointer to the string in memory.
  */
 	static char *
-readfd(fd)
-	FILE *fd;
+readfd(FILE *fd)
 {
 	int len;
 	int ch;
@@ -568,8 +556,7 @@ readfd(fd)
  * Return a pointer to a pipe connected to the shell command's standard output.
  */
 	static FILE *
-shellcmd(cmd)
-	char *cmd;
+shellcmd(char *cmd)
 {
 	FILE *fd;
 
@@ -619,8 +606,7 @@ shellcmd(cmd)
  * Expand a filename, doing any system-specific metacharacter substitutions.
  */
 	public char *
-lglob(filename)
-	char *filename;
+lglob(char *filename)
 {
 	char *gfilename;
 
@@ -800,9 +786,8 @@ lglob(filename)
 /*
  * Does path not represent something in the file system?
  */
-	public int
-is_fake_pathname(path)
-	char *path;
+	public int 
+is_fake_pathname(char *path)
 {
 	return (strcmp(path, "-") == 0 ||
 	        strcmp(path, FAKE_HELPFILE) == 0 || strcmp(path, FAKE_EMPTYFILE) == 0);
@@ -812,8 +797,7 @@ is_fake_pathname(path)
  * Return canonical pathname.
  */
 	public char *
-lrealpath(path)
-	char *path;
+lrealpath(char *path)
 {
 	if (!is_fake_pathname(path))
 	{
@@ -831,9 +815,8 @@ lrealpath(path)
  * Return number of %s escapes in a string.
  * Return a large number if there are any other % escapes besides %s.
  */
-	static int
-num_pct_s(lessopen)
-	char *lessopen;
+	static int 
+num_pct_s(char *lessopen)
 {
 	int num = 0;
 
@@ -859,10 +842,7 @@ num_pct_s(lessopen)
  * instead of the file we're about to open.
  */
 	public char *
-open_altfile(filename, pf, pfd)
-	char *filename;
-	int *pf;
-	void **pfd;
+open_altfile(char *filename, int *pf, void **pfd)
 {
 #if !HAVE_POPEN
 	return (NULL);
@@ -983,10 +963,8 @@ open_altfile(filename, pf, pfd)
 /*
  * Close a replacement file.
  */
-	public void
-close_altfile(altfilename, filename)
-	char *altfilename;
-	char *filename;
+	public void 
+close_altfile(char *altfilename, char *filename)
 {
 #if HAVE_POPEN
 	char *lessclose;
@@ -1023,9 +1001,8 @@ close_altfile(altfilename, filename)
 /*
  * Is the specified file a directory?
  */
-	public int
-is_dir(filename)
-	char *filename;
+	public int 
+is_dir(char *filename)
 {
 	int isdir = 0;
 
@@ -1058,8 +1035,7 @@ is_dir(filename)
  * (if it cannot be opened or is a directory, etc.)
  */
 	public char *
-bad_file(filename)
-	char *filename;
+bad_file(char *filename)
 {
 	char *m = NULL;
 
@@ -1101,9 +1077,8 @@ bad_file(filename)
  * Return the size of a file, as cheaply as possible.
  * In Unix, we can stat the file.
  */
-	public POSITION
-filesize(f)
-	int f;
+	public POSITION 
+filesize(int f)
 {
 #if HAVE_STAT
 	struct stat statbuf;
@@ -1154,8 +1129,7 @@ shell_coption(VOID_PARAM)
  * Return last component of a pathname.
  */
 	public char *
-last_component(name)
-	char *name;
+last_component(char *name)
 {
 	char *slash;
 

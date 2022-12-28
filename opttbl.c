@@ -675,8 +675,7 @@ init_option(VOID_PARAM)
  * Find an option in the option table, given its option letter.
  */
 	public struct loption *
-findopt(c)
-	int c;
+findopt(int c)
 {
 	struct loption *o;
 
@@ -693,9 +692,8 @@ findopt(c)
 /*
  *
  */
-	static int
-is_optchar(c)
-	char c;
+	static int 
+is_optchar(int c)
 {
 	if (ASCII_IS_UPPER(c))
 		return 1;
@@ -713,10 +711,7 @@ is_optchar(c)
  * p_oname if non-NULL is set to point to the full option name.
  */
 	public struct loption *
-findopt_name(p_optname, p_oname, p_err)
-	char **p_optname;
-	char **p_oname;
-	int *p_err;
+findopt_name(char **p_optname, char **p_oname, int *p_err)
 {
 	char *optname = *p_optname;
 	struct loption *o;

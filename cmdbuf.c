@@ -143,9 +143,8 @@ clear_cmd(VOID_PARAM)
 /*
  * Display a string, usually as a prompt for input into the command buffer.
  */
-	public void
-cmd_putstr(s)
-	constant char *s;
+	public void 
+cmd_putstr(constant char *s)
 {
 	LWCHAR prev_ch = 0;
 	LWCHAR ch;
@@ -193,12 +192,7 @@ len_cmdbuf(VOID_PARAM)
  *    since they're always the same. Maybe clean this up someday. }}
  */
 	static char *
-cmd_step_common(p, ch, len, pwidth, bswidth)
-	char *p;
-	LWCHAR ch;
-	int len;
-	int *pwidth;
-	int *bswidth;
+cmd_step_common(char *p, LWCHAR ch, int len, int *pwidth, int *bswidth)
 {
 	char *pr;
 	int width;
@@ -234,10 +228,7 @@ cmd_step_common(p, ch, len, pwidth, bswidth)
  * Step a pointer one character right in the command buffer.
  */
 	static char *
-cmd_step_right(pp, pwidth, bswidth)
-	char **pp;
-	int *pwidth;
-	int *bswidth;
+cmd_step_right(char **pp, int *pwidth, int *bswidth)
 {
 	char *p = *pp;
 	LWCHAR ch = step_char(pp, +1, p + strlen(p));
@@ -249,10 +240,7 @@ cmd_step_right(pp, pwidth, bswidth)
  * Step a pointer one character left in the command buffer.
  */
 	static char *
-cmd_step_left(pp, pwidth, bswidth)
-	char **pp;
-	int *pwidth;
-	int *bswidth;
+cmd_step_left(char **pp, int *pwidth, int *bswidth)
 {
 	char *p = *pp;
 	LWCHAR ch = step_char(pp, -1, cmdbuf);
@@ -284,9 +272,8 @@ cmd_home(VOID_PARAM)
  * Repaint the line from cp onwards.
  * Then position the cursor just after the char old_cp (a pointer into cmdbuf).
  */
-	public void
-cmd_repaint(old_cp)
-	constant char *old_cp;
+	public void 
+cmd_repaint(constant char *old_cp)
 {
 	/*
 	 * Repaint the line from the current position.
@@ -463,10 +450,8 @@ cmd_left(VOID_PARAM)
 /*
  * Insert a char into the command buffer, at the current position.
  */
-	static int
-cmd_ichar(cs, clen)
-	char *cs;
-	int clen;
+	static int 
+cmd_ichar(char *cs, int clen)
 {
 	char *s;
 	
@@ -646,10 +631,8 @@ cmd_kill(VOID_PARAM)
 /*
  * Select an mlist structure to be the current command history.
  */
-	public void
-set_mlist(mlist, cmdflags)
-	void *mlist;
-	int cmdflags;
+	public void 
+set_mlist(void *mlist, int cmdflags)
 {
 #if CMD_HISTORY
 	curr_mlist = (struct mlist *) mlist;
@@ -667,9 +650,8 @@ set_mlist(mlist, cmdflags)
  * Only consider entries whose first updown_match chars are equal to
  * cmdbuf's corresponding chars.
  */
-	static int
-cmd_updown(action)
-	int action;
+	static int 
+cmd_updown(int action)
 {
 	constant char *s;
 	struct mlist *ml;
@@ -731,10 +713,8 @@ cmd_updown(action)
 /*
  *
  */
-	static void
-ml_link(mlist, ml)
-	struct mlist *mlist;
-	struct mlist *ml;
+	static void 
+ml_link(struct mlist *mlist, struct mlist *ml)
 {
 	ml->next = mlist;
 	ml->prev = mlist->prev;
@@ -745,9 +725,8 @@ ml_link(mlist, ml)
 /*
  *
  */
-	static void
-ml_unlink(ml)
-	struct mlist *ml;
+	static void 
+ml_unlink(struct mlist *ml)
 {
 	ml->prev->next = ml->next;
 	ml->next->prev = ml->prev;
@@ -756,11 +735,8 @@ ml_unlink(ml)
 /*
  * Add a string to an mlist.
  */
-	public void
-cmd_addhist(mlist, cmd, modified)
-	struct mlist *mlist;
-	constant char *cmd;
-	int modified;
+	public void 
+cmd_addhist(struct mlist *mlist, constant char *cmd, int modified)
 {
 #if CMD_HISTORY
 	struct mlist *ml;
@@ -836,9 +812,8 @@ cmd_accept(VOID_PARAM)
  *      CC_OK   Line edit function done.
  *      CC_QUIT The char requests the current command to be aborted.
  */
-	static int
-cmd_edit(c)
-	int c;
+	static int 
+cmd_edit(int c)
 {
 	int action;
 	int flags;
@@ -953,9 +928,8 @@ cmd_edit(c)
 /*
  * Insert a string into the command buffer, at the current position.
  */
-	static int
-cmd_istr(str)
-	char *str;
+	static int 
+cmd_istr(char *str)
 {
 	char *s;
 	int action;
@@ -1129,9 +1103,7 @@ init_compl(VOID_PARAM)
  * Return the next word in the current completion list.
  */
 	static char *
-next_compl(action, prev)
-	int action;
-	char *prev;
+next_compl(int action, char *prev)
 {
 	switch (action)
 	{
@@ -1150,9 +1122,8 @@ next_compl(action, prev)
  * remembers whether this call is the first time (create the list),
  * or a subsequent time (step thru the list).
  */
-	static int
-cmd_complete(action)
-	int action;
+	static int 
+cmd_complete(int action)
 {
 	char *s;
 
@@ -1248,9 +1219,8 @@ fail:
  *      CC_QUIT         The char requests the command to be aborted.
  *      CC_ERROR        The char could not be accepted due to an error.
  */
-	public int
-cmd_char(c)
-	int c;
+	public int 
+cmd_char(int c)
 {
 	int action;
 	int len;
@@ -1345,9 +1315,8 @@ cmd_char(c)
 /*
  * Return the number currently in the command buffer.
  */
-	public LINENUM
-cmd_int(frac)
-	long *frac;
+	public LINENUM 
+cmd_int(long *frac)
 {
 	char *p;
 	LINENUM n = 0;
@@ -1400,9 +1369,8 @@ cmd_lastpattern(VOID_PARAM)
 #if CMD_HISTORY
 /*
  */
-	static int
-mlist_size(ml)
-	struct mlist *ml;
+	static int 
+mlist_size(struct mlist *ml)
 {
 	int size = 0;
 	for (ml = ml->next;  ml->string != NULL;  ml = ml->next)
@@ -1414,8 +1382,7 @@ mlist_size(ml)
  * Get the name of the history file.
  */
 	static char *
-histfile_find(must_exist)
-	int must_exist;
+histfile_find(int must_exist)
 {
 	char *home = lgetenv("HOME");
 	char *name = NULL;
@@ -1443,8 +1410,7 @@ histfile_find(must_exist)
 }
 
 	static char *
-histfile_name(must_exist)
-	int must_exist;
+histfile_name(int must_exist)
 {
 	char *name;
 
@@ -1476,12 +1442,8 @@ histfile_name(must_exist)
 /*
  * Read a .lesshst file and call a callback for each line in the file.
  */
-	static void
-read_cmdhist2(action, uparam, skip_search, skip_shell)
-	void (*action)(void*,struct mlist*,char*);
-	void *uparam;
-	int skip_search;
-	int skip_shell;
+	static void 
+read_cmdhist2(void (*action)(void *, struct mlist *, char *), void *uparam, int skip_search, int skip_shell)
 {
 	struct mlist *ml = NULL;
 	char line[CMDBUF_SIZE];
@@ -1546,12 +1508,8 @@ read_cmdhist2(action, uparam, skip_search, skip_shell)
 	fclose(f);
 }
 
-	static void
-read_cmdhist(action, uparam, skip_search, skip_shell)
-	void (*action)(void*,struct mlist*,char*);
-	void *uparam;
-	int skip_search;
-	int skip_shell;
+	static void 
+read_cmdhist(void (*action)(void *, struct mlist *, char *), void *uparam, int skip_search, int skip_shell)
 {
 	if (secure)
 		return;
@@ -1559,11 +1517,8 @@ read_cmdhist(action, uparam, skip_search, skip_shell)
 	(*action)(uparam, NULL, NULL); /* signal end of file */
 }
 
-	static void
-addhist_init(uparam, ml, string)
-	void *uparam;
-	struct mlist *ml;
-	char *string;
+	static void 
+addhist_init(void *uparam, struct mlist *ml, char *string)
 {
 	if (ml != NULL)
 		cmd_addhist(ml, string, 0);
@@ -1587,10 +1542,8 @@ init_cmdhist(VOID_PARAM)
  * Write the header for a section of the history file.
  */
 #if CMD_HISTORY
-	static void
-write_mlist_header(ml, f)
-	struct mlist *ml;
-	FILE *f;
+	static void 
+write_mlist_header(struct mlist *ml, FILE *f)
 {
 	if (ml == &mlist_search)
 		fprintf(f, "%s\n", HISTFILE_SEARCH_SECTION);
@@ -1603,10 +1556,8 @@ write_mlist_header(ml, f)
 /*
  * Write all modified entries in an mlist to the history file.
  */
-	static void
-write_mlist(ml, f)
-	struct mlist *ml;
-	FILE *f;
+	static void 
+write_mlist(struct mlist *ml, FILE *f)
 {
 	for (ml = ml->next;  ml->string != NULL;  ml = ml->next)
 	{
@@ -1622,8 +1573,7 @@ write_mlist(ml, f)
  * Make a temp name in the same directory as filename.
  */
 	static char *
-make_tempname(filename)
-	char *filename;
+make_tempname(char *filename)
 {
 	char lastch;
 	char *tempname = ecalloc(1, strlen(filename)+1);
@@ -1644,11 +1594,8 @@ struct save_ctx
  * At the end of each mlist, append any new entries
  * created during this session.
  */
-	static void
-copy_hist(uparam, ml, string)
-	void *uparam;
-	struct mlist *ml;
-	char *string;
+	static void 
+copy_hist(void *uparam, struct mlist *ml, char *string)
 {
 	struct save_ctx *ctx = (struct save_ctx *) uparam;
 
@@ -1689,9 +1636,8 @@ copy_hist(uparam, ml, string)
 /*
  * Make a file readable only by its owner.
  */
-	static void
-make_file_private(f)
-	FILE *f;
+	static void 
+make_file_private(FILE *f)
 {
 #if HAVE_FCHMOD
 	int do_chmod = 1;

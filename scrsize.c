@@ -79,9 +79,8 @@ static int get_winsize(dpy, window, p_width, p_height)
 	return 0;
 }
 
-int main(argc, argv)
-	int argc;
-	char *argv[];
+int 
+main(int argc, char *argv[])
 {
 	char *cp;
 	Display *dpy;

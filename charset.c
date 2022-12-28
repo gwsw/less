@@ -136,10 +136,8 @@ static struct wchar_range_table user_prt_table;
 /*
  * Set a wchar_range_table to the table in an xbuffer.
  */
-	static void
-wchar_range_table_set(tbl, arr)
-	struct wchar_range_table *tbl;
-	struct xbuffer *arr;
+	static void 
+wchar_range_table_set(struct wchar_range_table *tbl, struct xbuffer *arr)
 {
 	tbl->table = (struct wchar_range *) arr->data;
 	tbl->count = arr->end / sizeof(struct wchar_range);
@@ -149,8 +147,7 @@ wchar_range_table_set(tbl, arr)
  * Skip over a "U" or "U+" prefix before a hex codepoint.
  */
 	static char *
-skip_uprefix(s)
-	char *s;
+skip_uprefix(char *s)
 {
 	if (*s == 'U' || *s == 'u')
 		if (*++s == '+') ++s;
@@ -160,10 +157,8 @@ skip_uprefix(s)
 /*
  * Parse a dash-separated range of hex values.
  */
-	static void
-wchar_range_get(ss, range)
-	char **ss;
-	struct wchar_range *range;
+	static void 
+wchar_range_get(char **ss, struct wchar_range *range)
 {
 	char *s = skip_uprefix(*ss);
 	range->first = lstrtoul(s, &s, 16);
@@ -181,9 +176,8 @@ wchar_range_get(ss, range)
 /*
  * Parse the LESSUTFCHARDEF variable.
  */
-	static void
-ichardef_utf(s)
-	char *s;
+	static void 
+ichardef_utf(char *s)
 {
 	xbuf_init(&user_wide_array);
 	xbuf_init(&user_ubin_array);
@@ -251,9 +245,8 @@ ichardef_utf(s)
  *      b binary character
  *      c control character
  */
-	static void
-ichardef(s)
-	char *s;
+	static void 
+ichardef(char *s)
 {
 	char *cp;
 	int n;
@@ -308,10 +301,8 @@ ichardef(s)
  * Define a charset, given a charset name.
  * The valid charset names are listed in the "charsets" array.
  */
-	static int
-icharset(name, no_error)
-	char *name;
-	int no_error;
+	static int 
+icharset(char *name, int no_error)
 {
 	struct charset *p;
 	struct cs_alias *a;
@@ -377,12 +368,8 @@ ilocale(VOID_PARAM)
 /*
  * Define the printing format for control (or binary utf) chars.
  */
-	public void
-setfmt(s, fmtvarptr, attrptr, default_fmt)
-	char *s;
-	char **fmtvarptr;
-	int *attrptr;
-	char *default_fmt;
+	public void 
+setfmt(char *s, char **fmtvarptr, int *attrptr, char *default_fmt)
 {
 	if (s && utf_mode)
 	{
@@ -531,9 +518,8 @@ init_charset(VOID_PARAM)
 /*
  * Is a given character a "binary" character?
  */
-	public int
-binary_char(c)
-	LWCHAR c;
+	public int 
+binary_char(LWCHAR c)
 {
 	if (utf_mode)
 		return (is_ubin_char(c));
@@ -544,9 +530,8 @@ binary_char(c)
 /*
  * Is a given character a "control" character?
  */
-	public int
-control_char(c)
-	LWCHAR c;
+	public int 
+control_char(LWCHAR c)
 {
 	c &= 0377;
 	return (chardef[c] & IS_CONTROL_CHAR);
@@ -557,8 +542,7 @@ control_char(c)
  * For example, in the "ascii" charset '\3' is printed as "^C".
  */
 	public char *
-prchar(c)
-	LWCHAR c;
+prchar(LWCHAR c)
 {
 	/* {{ This buffer can be overrun if LESSBINFMT is a long string. }} */
 	static char buf[MAX_PRCHAR_LEN+1];
@@ -593,8 +577,7 @@ prchar(c)
  * Return the printable form of a UTF-8 character.
  */
 	public char *
-prutfchar(ch)
-	LWCHAR ch;
+prutfchar(LWCHAR ch)
 {
 	static char buf[MAX_PRCHAR_LEN+1];
 
@@ -623,9 +606,8 @@ prutfchar(ch)
 /*
  * Get the length of a UTF-8 character in bytes.
  */
-	public int
-utf_len(ch)
-	int ch;
+	public int 
+utf_len(int ch)
 {
 	if ((ch & 0x80) == 0)
 		return 1;
@@ -646,10 +628,8 @@ utf_len(ch)
 /*
  * Does the parameter point to the lead byte of a well-formed UTF-8 character?
  */
-	public int
-is_utf8_well_formed(ss, slen)
-	char *ss;
-	int slen;
+	public int 
+is_utf8_well_formed(char *ss, int slen)
 {
 	int i;
 	int len;
@@ -684,10 +664,8 @@ is_utf8_well_formed(ss, slen)
 /*
  * Skip bytes until a UTF-8 lead byte (11xxxxxx) or ASCII byte (0xxxxxxx) is found.
  */
-	public void
-utf_skip_to_lead(pp, limit)
-	char **pp;
-	char *limit;
+	public void 
+utf_skip_to_lead(char **pp, char *limit)
 {
 	do {
 		++(*pp);
@@ -698,9 +676,8 @@ utf_skip_to_lead(pp, limit)
 /*
  * Get the value of a UTF-8 character.
  */
-	public LWCHAR
-get_wchar(p)
-	constant char *p;
+	public LWCHAR 
+get_wchar(constant char *p)
 {
 	switch (utf_len(p[0]))
 	{
@@ -750,10 +727,8 @@ get_wchar(p)
 /*
  * Store a character into a UTF-8 string.
  */
-	public void
-put_wchar(pp, ch)
-	char **pp;
-	LWCHAR ch;
+	public void 
+put_wchar(char **pp, LWCHAR ch)
 {
 	if (!utf_mode || ch < 0x80) 
 	{
@@ -800,11 +775,8 @@ put_wchar(pp, ch)
 /*
  * Step forward or backward one character in a string.
  */
-	public LWCHAR
-step_char(pp, dir, limit)
-	char **pp;
-	signed int dir;
-	constant char *limit;
+	public LWCHAR 
+step_char(char **pp, signed int dir, constant char *limit)
 {
 	LWCHAR ch;
 	int len;
@@ -874,10 +846,8 @@ static struct wchar_range comb_table[] = {
 };
 
 
-	static int
-is_in_table(ch, table)
-	LWCHAR ch;
-	struct wchar_range_table *table;
+	static int 
+is_in_table(LWCHAR ch, struct wchar_range_table *table)
 {
 	int hi;
 	int lo;
@@ -904,9 +874,8 @@ is_in_table(ch, table)
  * Is a character a UTF-8 composing character?
  * If a composing character follows any char, the two combine into one glyph.
  */
-	public int
-is_composing_char(ch)
-	LWCHAR ch;
+	public int 
+is_composing_char(LWCHAR ch)
 {
 	if (is_in_table(ch, &user_prt_table)) return 0;
 	return is_in_table(ch, &user_compose_table) ||
@@ -917,9 +886,8 @@ is_composing_char(ch)
 /*
  * Should this UTF-8 character be treated as binary?
  */
-	public int
-is_ubin_char(ch)
-	LWCHAR ch;
+	public int 
+is_ubin_char(LWCHAR ch)
 {
 	if (is_in_table(ch, &user_prt_table)) return 0;
 	return is_in_table(ch, &user_ubin_table) ||
@@ -930,9 +898,8 @@ is_ubin_char(ch)
 /*
  * Is this a double width UTF-8 character?
  */
-	public int
-is_wide_char(ch)
-	LWCHAR ch;
+	public int 
+is_wide_char(LWCHAR ch)
 {
 	return is_in_table(ch, &user_wide_table) ||
 	       is_in_table(ch, &wide_table);
@@ -943,10 +910,8 @@ is_wide_char(ch)
  * A combining char acts like an ordinary char, but if it follows
  * a specific char (not any char), the two combine into one glyph.
  */
-	public int
-is_combining_char(ch1, ch2)
-	LWCHAR ch1;
-	LWCHAR ch2;
+	public int 
+is_combining_char(LWCHAR ch1, LWCHAR ch2)
 {
 	/* The table is small; use linear search. */
 	int i;

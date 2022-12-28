@@ -113,12 +113,7 @@ cleantags(VOID_PARAM)
  * Create a new tag entry.
  */
 	static struct tag *
-maketagent(name, file, linenum, pattern, endline)
-	char *name;
-	char *file;
-	LINENUM linenum;
-	char *pattern;
-	int endline;
+maketagent(char *name, char *file, LINENUM linenum, char *pattern, int endline)
 {
 	struct tag *tp;
 
@@ -171,9 +166,8 @@ gettagtype(VOID_PARAM)
  * and "tagpattern" to the search pattern which should be used
  * to find the tag.
  */
-	public void
-findtag(tag)
-	char *tag;
+	public void 
+findtag(char *tag)
 {
 	int type = gettagtype();
 	enum tag_result result;
@@ -217,8 +211,7 @@ tagsearch(VOID_PARAM)
  * Go to the next tag.
  */
 	public char *
-nexttag(n)
-	int n;
+nexttag(int n)
 {
 	char *tagfile = (char *) NULL;
 
@@ -231,8 +224,7 @@ nexttag(n)
  * Go to the previous tag.
  */
 	public char *
-prevtag(n)
-	int n;
+prevtag(int n)
 {
 	char *tagfile = (char *) NULL;
 
@@ -267,9 +259,8 @@ curr_tag(VOID_PARAM)
  * Find tags in the "tags" file.
  * Sets curtag to the first tag entry.
  */
-	static enum tag_result
-findctag(tag)
-	char *tag;
+	static enum tag_result 
+findctag(char *tag)
 {
 	char *p;
 	char *q;
@@ -395,10 +386,8 @@ edit_tagfile(VOID_PARAM)
 	return (edit(curtag->tag_file));
 }
 
-	static int
-curtag_match(line, linepos)
-	char constant *line;
-	POSITION linepos;
+	static int 
+curtag_match(char constant *line, POSITION linepos)
 {
 	/*
 	 * Test the line to see if we have a match.
@@ -505,10 +494,11 @@ ctagsearch(VOID_PARAM)
  * for future use by gtagsearch().
  * Sets curtag to the first tag entry.
  */
-	static enum tag_result
-findgtag(tag, type)
-	char *tag;              /* tag to load */
-	int type;               /* tags type */
+	static enum tag_result 
+findgtag (
+    char *tag,              /* tag to load */
+    int type               /* tags type */
+)
 {
 	char buf[1024];
 	FILE *fp;
@@ -736,12 +726,13 @@ gtagsearch(VOID_PARAM)
  * The tag, file, and line will each be NUL-terminated pointers
  * into buf.
  */
-	static int
-getentry(buf, tag, file, line)
-	char *buf;      /* standard or extended ctags -x format data */
-	char **tag;     /* name of the tag we actually found */
-	char **file;    /* file in which to find this tag */
-	char **line;    /* line number of file where this tag is found */
+	static int 
+getentry (
+    char *buf,      /* standard or extended ctags -x format data */
+    char **tag,     /* name of the tag we actually found */
+    char **file,    /* file in which to find this tag */
+    char **line    /* line number of file where this tag is found */
+)
 {
 	char *p = buf;
 

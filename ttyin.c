@@ -36,9 +36,8 @@ extern int utf_mode;
 extern int wheel_lines;
 
 #if !MSDOS_COMPILER
-	static int
-open_tty_device(dev)
-	constant char* dev;
+	static int 
+open_tty_device(constant char *dev)
 {
 #if OS2
 	/* The __open() system call translates "/dev/tty" to "con". */
@@ -135,9 +134,8 @@ close_getchr(VOID_PARAM)
 /*
  * Close the pipe, restoring the keyboard (CMD resets it, losing the mouse).
  */
-	int
-pclose(f)
-	FILE *f;
+	int 
+pclose(FILE *f)
 {
 	int result;
 

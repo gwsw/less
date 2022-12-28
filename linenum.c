@@ -102,9 +102,8 @@ clr_linenum(VOID_PARAM)
 /*
  * Calculate the gap for an entry.
  */
-	static void
-calcgap(p)
-	struct linenum_info *p;
+	static void 
+calcgap(struct linenum_info *p)
 {
 	/*
 	 * Don't bother to compute a gap for the anchor.
@@ -122,10 +121,8 @@ calcgap(p)
  * The specified position (pos) should be the file position of the
  * FIRST character in the specified line.
  */
-	public void
-add_lnum(linenum, pos)
-	LINENUM linenum;
-	POSITION pos;
+	public void 
+add_lnum(LINENUM linenum, POSITION pos)
 {
 	struct linenum_info *p;
 	struct linenum_info *new;
@@ -265,9 +262,8 @@ abort_long(VOID_PARAM)
  * Find the line number associated with a given position.
  * Return 0 if we can't figure it out.
  */
-	public LINENUM
-find_linenum(pos)
-	POSITION pos;
+	public LINENUM 
+find_linenum(POSITION pos)
 {
 	struct linenum_info *p;
 	LINENUM linenum;
@@ -379,9 +375,8 @@ find_linenum(pos)
  * Find the position of a given line number.
  * Return NULL_POSITION if we can't figure it out.
  */
-	public POSITION
-find_pos(linenum)
-	LINENUM linenum;
+	public POSITION 
+find_pos(LINENUM linenum)
 {
 	struct linenum_info *p;
 	POSITION cpos;
@@ -452,9 +447,8 @@ find_pos(linenum)
  * The argument "where" tells which line is to be considered
  * the "current" line (e.g. TOP, BOTTOM, MIDDLE, etc).
  */
-	public LINENUM
-currline(where)
-	int where;
+	public LINENUM 
+currline(int where)
 {
 	POSITION pos;
 	POSITION len;
@@ -499,9 +493,8 @@ scan_eof(VOID_PARAM)
  * Return a line number adjusted for display
  * (handles the --no-number-headers option).
  */
-	public LINENUM
-vlinenum(linenum)
-	LINENUM linenum;
+	public LINENUM 
+vlinenum(LINENUM linenum)
 {
 	if (nonum_headers)
 		linenum = (linenum < header_lines) ? 0 : linenum - header_lines;

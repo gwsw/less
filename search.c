@@ -124,9 +124,8 @@ public int is_caseless;
 /*
  * Are there any uppercase letters in this string?
  */
-	static int
-is_ucase(str)
-	char *str;
+	static int 
+is_ucase(char *str)
 {
 	char *str_end = str + strlen(str);
 	LWCHAR ch;
@@ -143,9 +142,8 @@ is_ucase(str)
 /*
  * Discard a saved pattern.
  */
-	static void
-clear_pattern(info)
-	struct pattern_info *info;
+	static void 
+clear_pattern(struct pattern_info *info)
 {
 	if (info->text != NULL)
 		free(info->text);
@@ -158,12 +156,8 @@ clear_pattern(info)
 /*
  * Compile and save a search pattern.
  */
-	static int
-set_pattern(info, pattern, search_type, show_error)
-	struct pattern_info *info;
-	char *pattern;
-	int search_type;
-	int show_error;
+	static int 
+set_pattern(struct pattern_info *info, char *pattern, int search_type, int show_error)
 {
 	/*
 	 * Ignore case if -I is set OR
@@ -193,9 +187,8 @@ set_pattern(info, pattern, search_type, show_error)
 /*
  * Initialize saved pattern to nothing.
  */
-	static void
-init_pattern(info)
-	struct pattern_info *info;
+	static void 
+init_pattern(struct pattern_info *info)
 {
 	SET_NULL_PATTERN(info->compiled);
 	info->text = NULL;
@@ -215,9 +208,8 @@ init_search(VOID_PARAM)
 /*
  * Determine which text conversions to perform before pattern matching.
  */
-	static int
-get_cvt_ops(search_type)
-	int search_type;
+	static int 
+get_cvt_ops(int search_type)
 {
 	int ops = 0;
 
@@ -235,9 +227,8 @@ get_cvt_ops(search_type)
 /*
  * Is there a previous (remembered) search pattern?
  */
-	static int
-prev_pattern(info)
-	struct pattern_info *info;
+	static int 
+prev_pattern(struct pattern_info *info)
 {
 #if !NO_REGEX
 	if ((info->search_type & SRCH_NO_REGEX) == 0)
@@ -252,9 +243,8 @@ prev_pattern(info)
  * Repaint each line which contains highlighted text.
  * If on==0, force all hilites off.
  */
-	public void
-repaint_hilite(on)
-	int on;
+	public void 
+repaint_hilite(int on)
 {
 	int sindex;
 	POSITION pos;
@@ -346,9 +336,8 @@ clear_attn(VOID_PARAM)
 /*
  * Toggle or clear search string highlighting.
  */
-	public void
-undo_search(clear)
-	int clear;
+	public void 
+undo_search(int clear)
 {
 	clear_pattern(&search_info);
 #if HILITE_SEARCH
@@ -372,9 +361,8 @@ undo_search(clear)
 /*
  * Clear the hilite list.
  */
-	public void
-clr_hlist(anchor)
-	struct hilite_tree *anchor;
+	public void 
+clr_hlist(struct hilite_tree *anchor)
 {
 	struct hilite_storage *hls;
 	struct hilite_storage *nexthls;
@@ -406,9 +394,8 @@ clr_filter(VOID_PARAM)
 	clr_hlist(&filter_anchor);
 }
 
-	struct hilite_node*
-hlist_last(anchor)
-	struct hilite_tree *anchor;
+	struct hilite_node *
+hlist_last(struct hilite_tree *anchor)
 {
 	struct hilite_node *n = anchor->root;
 	while (n != NULL && n->right != NULL)
@@ -416,16 +403,14 @@ hlist_last(anchor)
 	return n;
 }
 
-	struct hilite_node*
-hlist_next(n)
-	struct hilite_node *n;
+	struct hilite_node *
+hlist_next(struct hilite_node *n)
 {
 	return n->next;
 }
 
-	struct hilite_node*
-hlist_prev(n)
-	struct hilite_node *n;
+	struct hilite_node *
+hlist_prev(struct hilite_node *n)
 {
 	return n->prev;
 }
@@ -436,10 +421,8 @@ hlist_prev(n)
  * to speed up subsequent searches for the same or similar positions (if
  * we return NULL, remember the last node.)
  */
-	struct hilite_node*
-hlist_find(anchor, pos)
-	struct hilite_tree *anchor;
-	POSITION pos;
+	struct hilite_node *
+hlist_find(struct hilite_tree *anchor, POSITION pos)
 {
 	struct hilite_node *n, *m;
 
@@ -529,10 +512,8 @@ hlist_find(anchor, pos)
 /*
  * Should any characters in a specified range be highlighted?
  */
-	static int
-is_hilited_range(pos, epos)
-	POSITION pos;
-	POSITION epos;
+	static int 
+is_hilited_range(POSITION pos, POSITION epos)
 {
 	struct hilite_node *n = hlist_find(&hilite_anchor, pos);
 	return (n != NULL && (epos == NULL_POSITION || epos > n->r.hl_startpos));
@@ -541,9 +522,8 @@ is_hilited_range(pos, epos)
 /* 
  * Is a line "filtered" -- that is, should it be hidden?
  */
-	public int
-is_filtered(pos)
-	POSITION pos;
+	public int 
+is_filtered(POSITION pos)
 {
 	struct hilite_node *n;
 
@@ -558,9 +538,8 @@ is_filtered(pos)
  * If pos is hidden, return the next position which isn't, otherwise
  * just return pos.
  */
-	public POSITION
-next_unfiltered(pos)
-	POSITION pos;
+	public POSITION 
+next_unfiltered(POSITION pos)
 {
 	struct hilite_node *n;
 
@@ -580,9 +559,8 @@ next_unfiltered(pos)
  * If pos is hidden, return the previous position which isn't or 0 if
  * we're filtered right to the beginning, otherwise just return pos.
  */
-	public POSITION
-prev_unfiltered(pos)
-	POSITION pos;
+	public POSITION 
+prev_unfiltered(POSITION pos)
 {
 	struct hilite_node *n;
 
@@ -606,12 +584,8 @@ prev_unfiltered(pos)
  * Should any characters in a specified range be highlighted?
  * If nohide is nonzero, don't consider hide_hilite.
  */
-	public int
-is_hilited_attr(pos, epos, nohide, p_matches)
-	POSITION pos;
-	POSITION epos;
-	int nohide;
-	int *p_matches;
+	public int 
+is_hilited_attr(POSITION pos, POSITION epos, int nohide, int *p_matches)
 {
 	int match;
 
@@ -663,9 +637,8 @@ is_hilited_attr(pos, epos, nohide, p_matches)
  * Tree node storage: get the current block of nodes if it has spare
  * capacity, or create a new one if not.
  */
-	static struct hilite_storage*
-hlist_getstorage(anchor)
-	struct hilite_tree *anchor;
+	static struct hilite_storage *
+hlist_getstorage(struct hilite_tree *anchor)
 {
 	int capacity = 1;
 	struct hilite_storage *s;
@@ -694,9 +667,8 @@ hlist_getstorage(anchor)
  * Tree node storage: retrieve a new empty node to be inserted into the
  * tree.
  */
-	static struct hilite_node*
-hlist_getnode(anchor)
-	struct hilite_tree *anchor;
+	static struct hilite_node *
+hlist_getnode(struct hilite_tree *anchor)
 {
 	struct hilite_storage *s = hlist_getstorage(anchor);
 	return &s->nodes[s->used++];
@@ -705,10 +677,8 @@ hlist_getnode(anchor)
 /*
  * Rotate the tree left around a pivot node.
  */
-	static void
-hlist_rotate_left(anchor, n)
-	struct hilite_tree *anchor;
-	struct hilite_node *n;
+	static void 
+hlist_rotate_left(struct hilite_tree *anchor, struct hilite_node *n)
 {
 	struct hilite_node *np = n->parent;
 	struct hilite_node *nr = n->right;
@@ -736,10 +706,8 @@ hlist_rotate_left(anchor, n)
 /*
  * Rotate the tree right around a pivot node.
  */
-	static void
-hlist_rotate_right(anchor, n)
-	struct hilite_tree *anchor;
-	struct hilite_node *n;
+	static void 
+hlist_rotate_right(struct hilite_tree *anchor, struct hilite_node *n)
 {
 	struct hilite_node *np = n->parent;
 	struct hilite_node *nl = n->left;
@@ -768,10 +736,8 @@ hlist_rotate_right(anchor, n)
 /*
  * Add a new hilite to a hilite list.
  */
-	static void
-add_hilite(anchor, hl)
-	struct hilite_tree *anchor;
-	struct hilite *hl;
+	static void 
+add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 {
 	struct hilite_node *p, *n, *u;
 
@@ -947,12 +913,8 @@ add_hilite(anchor, hl)
 /*
  * Highlight every character in a range of displayed characters.
  */
-	static void
-create_hilites(linepos, start_index, end_index, chpos)
-	POSITION linepos;
-	int start_index;
-	int end_index;
-	int *chpos;
+	static void 
+create_hilites(POSITION linepos, int start_index, int end_index, int *chpos)
 {
 	struct hilite hl;
 	int i;
@@ -988,15 +950,8 @@ create_hilites(linepos, start_index, end_index, chpos)
  * the current pattern.
  * sp,ep delimit the first match already found.
  */
-	static void
-hilite_line(linepos, line, line_len, chpos, sp, ep, cvt_ops)
-	POSITION linepos;
-	char *line;
-	int line_len;
-	int *chpos;
-	char *sp;
-	char *ep;
-	int cvt_ops;
+	static void 
+hilite_line(POSITION linepos, char *line, int line_len, int *chpos, char *sp, char *ep, int cvt_ops)
 {
 	char *searchp;
 	char *line_end = line + line_len;
@@ -1071,9 +1026,8 @@ chg_hilite(VOID_PARAM)
 /*
  * Figure out where to start a search.
  */
-	static POSITION
-search_pos(search_type)
-	int search_type;
+	static POSITION 
+search_pos(int search_type)
 {
 	POSITION pos;
 	int sindex;
@@ -1166,15 +1120,8 @@ search_pos(search_type)
  * If so, add an entry to the filter list.
  */
 #if HILITE_SEARCH
-	static int
-matches_filters(pos, cline, line_len, chpos, linepos, sp, ep)
-	POSITION pos;
-	char *cline;
-	int line_len;
-	int *chpos;
-	POSITION linepos;
-	char **sp;
-	char **ep;
+	static int 
+matches_filters(POSITION pos, char *cline, int line_len, int *chpos, POSITION linepos, char **sp, char **ep)
 {
 	struct pattern_info *filter;
 
@@ -1201,11 +1148,8 @@ matches_filters(pos, cline, line_len, chpos, linepos, sp, ep)
  * Get the position of the first char in the screen line which
  * puts tpos on screen.
  */
-	static POSITION
-get_lastlinepos(pos, tpos, sheight)
-	POSITION pos;
-	POSITION tpos;
-	int sheight;
+	static POSITION 
+get_lastlinepos(POSITION pos, POSITION tpos, int sheight)
 {
 	int nlines;
 
@@ -1226,10 +1170,8 @@ get_lastlinepos(pos, tpos, sheight)
  * Get the segment index of tpos in the line starting at pos.
  * A segment is a string of printable chars that fills the screen width.
  */
-	static int
-get_seg(pos, tpos)
-	POSITION pos;
-	POSITION tpos;
+	static int 
+get_seg(POSITION pos, POSITION tpos)
 {
 	int seg;
 
@@ -1245,16 +1187,8 @@ get_seg(pos, tpos)
 /*
  * Search a subset of the file, specified by start/end position.
  */
-	static int
-search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, plastlinepos)
-	POSITION pos;
-	POSITION endpos;
-	int search_type;
-	int matches;
-	int maxlines;
-	POSITION *plinepos;
-	POSITION *pendpos;
-	POSITION *plastlinepos;
+	static int 
+search_range(POSITION pos, POSITION endpos, int search_type, int matches, int maxlines, POSITION *plinepos, POSITION *pendpos, POSITION *plastlinepos)
 {
 	char *line;
 	char *cline;
@@ -1504,8 +1438,7 @@ search_range(pos, endpos, search_type, matches, maxlines, plinepos, pendpos, pla
  * search for a pattern in history. If found, compile that pattern.
  */
 	static int 
-hist_pattern(search_type) 
-	int search_type;
+hist_pattern(int search_type)
 {
 #if CMD_HISTORY
 	char *pattern;
@@ -1567,11 +1500,8 @@ chg_caseless(VOID_PARAM)
  * Caller may continue the search in another file 
  * if less than n matches are found in this file.
  */
-	public int
-search(search_type, pattern, n)
-	int search_type;
-	char *pattern;
-	int n;
+	public int 
+search(int search_type, char *pattern, int n)
 {
 	POSITION pos;
 	POSITION opos;
@@ -1716,11 +1646,8 @@ search(search_type, pattern, n)
  * If prep_endpos == NULL_POSITION, the prep region extends to EOF.
  * prep_hilite asks that the range (spos,epos) be covered by the prep region.
  */
-	public void
-prep_hilite(spos, epos, maxlines)
-	POSITION spos;
-	POSITION epos;
-	int maxlines;
+	public void 
+prep_hilite(POSITION spos, POSITION epos, int maxlines)
 {
 	POSITION nprep_startpos = prep_startpos;
 	POSITION nprep_endpos = prep_endpos;
@@ -1886,10 +1813,8 @@ prep_hilite(spos, epos, maxlines)
 /*
  * Set the pattern to be used for line filtering.
  */
-	public void
-set_filter_pattern(pattern, search_type)
-	char *pattern;
-	int search_type;
+	public void 
+set_filter_pattern(char *pattern, int search_type)
 {
 	struct pattern_info *filter;
 
@@ -1941,8 +1866,7 @@ is_filtering(VOID_PARAM)
 public int reg_show_error = 1;
 
 	void 
-regerror(s) 
-	char *s; 
+regerror(char *s) 
 {
 	PARG parg;
 

@@ -127,11 +127,8 @@ squish_check(VOID_PARAM)
  * Read the first pfx columns of the next line.
  * If skipeol==0 stop there, otherwise read and discard chars to end of line.
  */
-	static POSITION
-forw_line_pfx(pos, pfx, skipeol)
-	POSITION pos;
-	int pfx;
-	int skipeol;
+	static POSITION 
+forw_line_pfx(POSITION pos, int pfx, int skipeol)
 {
 	int save_sc_width = sc_width;
 	int save_auto_wrap = auto_wrap;
@@ -152,9 +149,8 @@ forw_line_pfx(pos, pfx, skipeol)
  * Underline last line of headers, but not at beginning of file
  * (where there is no gap between the last header line and the next line).
  */
-	static void
-set_attr_header(ln)
-	int ln;
+	static void 
+set_attr_header(int ln)
 {
 	set_attr_line(AT_COLOR_HEADER);
 	if (ln+1 == header_lines && position(0) != ch_zero())
@@ -220,13 +216,8 @@ overlay_header(VOID_PARAM)
  *   real line.  If nblank > 0, the pos must be NULL_POSITION.
  *   The first real line after the blanks will start at ch_zero().
  */
-	public void
-forw(n, pos, force, only_last, nblank)
-	int n;
-	POSITION pos;
-	int force;
-	int only_last;
-	int nblank;
+	public void 
+forw(int n, POSITION pos, int force, int only_last, int nblank)
 {
 	int nlines = 0;
 	int do_repaint;
@@ -410,12 +401,8 @@ forw(n, pos, force, only_last, nblank)
 /*
  * Display n lines, scrolling backward.
  */
-	public void
-back(n, pos, force, only_last)
-	int n;
-	POSITION pos;
-	int force;
-	int only_last;
+	public void 
+back(int n, POSITION pos, int force, int only_last)
 {
 	int nlines = 0;
 	int do_repaint;
@@ -474,11 +461,8 @@ back(n, pos, force, only_last)
  * Display n more lines, forward.
  * Start just after the line currently displayed at the bottom of the screen.
  */
-	public void
-forward(n, force, only_last)
-	int n;
-	int force;
-	int only_last;
+	public void 
+forward(int n, int force, int only_last)
 {
 	POSITION pos;
 
@@ -526,11 +510,8 @@ forward(n, force, only_last)
  * Display n more lines, backward.
  * Start just before the line currently displayed at the top of the screen.
  */
-	public void
-backward(n, force, only_last)
-	int n;
-	int force;
-	int only_last;
+	public void 
+backward(int n, int force, int only_last)
 {
 	POSITION pos;
 

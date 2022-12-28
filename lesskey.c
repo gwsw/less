@@ -115,26 +115,20 @@ usage(void)
 	exit(1);
 }
 
-	void
-lesskey_parse_error(s)
-	char *s;
+	void 
+lesskey_parse_error(char *s)
 {
 	fprintf(stderr, "%s\n", s);
 }
 
-	int
-lstrtoi(buf, ebuf, radix)
-	char *buf;
-	char **ebuf;
-	int radix;
+	int 
+lstrtoi(char *buf, char **ebuf, int radix)
 {
 	return (int) strtol(buf, ebuf, radix);
 }
 
 	void *
-ecalloc(count, size)
-	int count;
-	unsigned int size;
+ecalloc(int count, unsigned int size)
 {
 	void *p;
 
@@ -146,9 +140,7 @@ ecalloc(count, size)
 }
 
 	static char *
-mkpathname(dirname, filename)
-	char *dirname;
-	char *filename;
+mkpathname(char *dirname, char *filename)
 {
 	char *pathname;
 
@@ -163,8 +155,7 @@ mkpathname(dirname, filename)
  * Figure out the name of a default file (in the user's HOME directory).
  */
 	char *
-homefile(filename)
-	char *filename;
+homefile(char *filename)
 {
 	char *p;
 	char *pathname;
@@ -186,10 +177,8 @@ homefile(filename)
 /*
  * Parse command line arguments.
  */
-	static void
-parse_args(argc, argv)
-	int argc;
-	char **argv;
+	static void 
+parse_args(int argc, char **argv)
 {
 	char *arg;
 
@@ -259,11 +248,8 @@ parse_args(argc, argv)
 /*
  * Output some bytes.
  */
-	static void
-fputbytes(fd, buf, len)
-	FILE *fd;
-	char *buf;
-	int len;
+	static void 
+fputbytes(FILE *fd, char *buf, int len)
 {
 	while (len-- > 0)
 	{
@@ -275,10 +261,8 @@ fputbytes(fd, buf, len)
 /*
  * Output an integer, in special KRADIX form.
  */
-	static void
-fputint(fd, val)
-	FILE *fd;
-	unsigned int val;
+	static void 
+fputint(FILE *fd, unsigned int val)
 {
 	char c;
 
@@ -294,10 +278,8 @@ fputint(fd, val)
 	fwrite(&c, sizeof(char), 1, fd);
 }
 
-	int
-main(argc, argv)
-	int argc;
-	char *argv[];
+	int 
+main(int argc, char *argv[])
 {
 	struct lesskey_tables tables;
 	FILE *out;
