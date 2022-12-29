@@ -23,12 +23,7 @@
  * The characters which serve as "open bracket" and 
  * "close bracket" are given.
  */
-	public void
-match_brac(obrac, cbrac, forwdir, n)
-	int obrac;
-	int cbrac;
-	int forwdir;
-	int n;
+public void match_brac(int obrac, int cbrac, int forwdir, int n)
 {
 	int c;
 	int nest;

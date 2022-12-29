@@ -66,8 +66,7 @@ static char *mp;
 /*
  * Initialize the prompt prototype strings.
  */
-	public void
-init_prompt(VOID_PARAM)
+public void init_prompt(void)
 {
 	prproto[0] = save(s_proto);
 	prproto[1] = save(less_is_more ? more_proto : m_proto);
@@ -80,9 +79,7 @@ init_prompt(VOID_PARAM)
 /*
  * Append a string to the end of the message.
  */
-	static void
-ap_str(s)
-	char *s;
+static void ap_str(char *s)
 {
 	int len;
 
@@ -97,9 +94,7 @@ ap_str(s)
 /*
  * Append a character to the end of the message.
  */
-	static void
-ap_char(c)
-	char c;
+static void ap_char(char c)
 {
 	char buf[2];
 
@@ -111,9 +106,7 @@ ap_char(c)
 /*
  * Append a POSITION (as a decimal integer) to the end of the message.
  */
-	static void
-ap_pos(pos)
-	POSITION pos;
+static void ap_pos(POSITION pos)
 {
 	char buf[INT_STRLEN_BOUND(pos) + 2];
 
@@ -124,9 +117,7 @@ ap_pos(pos)
 /*
  * Append a line number to the end of the message.
  */
-	static void
-ap_linenum(linenum)
-	LINENUM linenum;
+static void ap_linenum(LINENUM linenum)
 {
 	char buf[INT_STRLEN_BOUND(linenum) + 2];
 
@@ -137,9 +128,7 @@ ap_linenum(linenum)
 /*
  * Append an integer to the end of the message.
  */
-	static void
-ap_int(num)
-	int num;
+static void ap_int(int num)
 {
 	char buf[INT_STRLEN_BOUND(num) + 2];
 
@@ -150,8 +139,7 @@ ap_int(num)
 /*
  * Append a question mark to the end of the message.
  */
-	static void
-ap_quest(VOID_PARAM)
+static void ap_quest(void)
 {
 	ap_str("?");
 }
@@ -159,9 +147,7 @@ ap_quest(VOID_PARAM)
 /*
  * Return the "current" byte offset in the file.
  */
-	static POSITION
-curr_byte(where)
-	int where;
+static POSITION curr_byte(int where)
 {
 	POSITION pos;
 
@@ -179,10 +165,7 @@ curr_byte(where)
  * question mark followed by a single letter.
  * Here we decode that letter and return the appropriate boolean value.
  */
-	static int
-cond(c, where)
-	char c;
-	int where;
+static int cond(char c, int where)
 {
 	POSITION len;
 
@@ -246,11 +229,7 @@ cond(c, where)
  * Here we decode that letter and take the appropriate action,
  * usually by appending something to the message being built.
  */
-	static void
-protochar(c, where, iseditproto)
-	int c;
-	int where;
-	int iseditproto;
+static void protochar(int c, int where, int iseditproto)
 {
 	POSITION pos;
 	POSITION len;
@@ -402,9 +381,7 @@ protochar(c, where, iseditproto)
  * where to resume parsing the string.
  * We must keep track of nested IFs and skip them properly.
  */
-	static constant char *
-skipcond(p)
-	constant char *p;
+static constant char * skipcond(constant char *p)
 {
 	int iflevel;
 
@@ -460,10 +437,7 @@ skipcond(p)
 /*
  * Decode a char that represents a position on the screen.
  */
-	static constant char *
-wherechar(p, wp)
-	char constant *p;
-	int *wp;
+static constant char * wherechar(char constant *p, int *wp)
 {
 	switch (*p)
 	{
@@ -484,9 +458,7 @@ wherechar(p, wp)
 /*
  * Construct a message based on a prototype string.
  */
-	public char *
-pr_expand(proto)
-	constant char *proto;
+public char * pr_expand(constant char *proto)
 {
 	constant char *p;
 	int c;
@@ -551,8 +523,7 @@ pr_expand(proto)
 /*
  * Return a message suitable for printing by the "=" command.
  */
-	public char *
-eq_message(VOID_PARAM)
+public char * eq_message(void)
 {
 	return (pr_expand(eqproto));
 }
@@ -563,8 +534,7 @@ eq_message(VOID_PARAM)
  * If we can't come up with an appropriate prompt, return NULL
  * and the caller will prompt with a colon.
  */
-	public char *
-pr_string(VOID_PARAM)
+public char * pr_string(void)
 {
 	char *prompt;
 	int type;
@@ -579,8 +549,7 @@ pr_string(VOID_PARAM)
 /*
  * Return a message suitable for printing while waiting in the F command.
  */
-	public char *
-wait_message(VOID_PARAM)
+public char * wait_message(void)
 {
 	return (pr_expand(wproto));
 }

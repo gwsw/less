@@ -38,15 +38,13 @@ static char* metachars = NULL;
 static int num_metachars = 0;
 static int size_metachars = 0;
 
-	static void
-pr_usage(VOID_PARAM)
+static void pr_usage(void)
 {
 	fprintf(stderr,
 		"usage: lessecho [-ox] [-cx] [-pn] [-dn] [-mx] [-nn] [-ex] [-fn] [-a] file ...\n");
 }
 
-	static void
-pr_version(VOID_PARAM)
+static void pr_version(void)
 {
 	char *p;
 	char buf[10];
@@ -61,19 +59,13 @@ pr_version(VOID_PARAM)
 	printf("%s\n", buf);
 }
 
-	static void
-pr_error(s)
-	char *s;
+static void pr_error(char *s)
 {
 	fprintf(stderr, "%s\n", s);
 	exit(1);
 }
 
-	static long
-lstrtol(s, pend, radix)
-	char *s;
-	char **pend;
-	int radix;
+static long lstrtol(char *s, char **pend, int radix)
 {
 	int v;
 	int neg = 0;
@@ -141,9 +133,7 @@ lstrtol(s, pend, radix)
 	return (n);
 }
 
-	static void
-add_metachar(ch)
-	int ch;
+static void add_metachar(int ch)
 {
 	if (num_metachars+1 >= size_metachars)
 	{
@@ -164,18 +154,13 @@ add_metachar(ch)
 	metachars[num_metachars] = '\0';
 }
 
-	static int
-is_metachar(ch)
-	int ch;
+static int is_metachar(int ch)
 {
 	return (metachars != NULL && strchr(metachars, ch) != NULL);
 }
 
 #if !HAVE_STRCHR
-	char *
-strchr(s, c)
-	char *s;
-	int c;
+char * strchr(char *s, char c)
 {
 	for ( ;  *s != '\0';  s++)
 		if (*s == c)
@@ -186,10 +171,7 @@ strchr(s, c)
 }
 #endif
 
-	int
-main(argc, argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	char *arg;
 	char *s;

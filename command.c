@@ -93,15 +93,14 @@ struct ungot {
 };
 static struct ungot* ungot = NULL;
 
-static void multi_search LESSPARAMS((char *pattern, int n, int silent));
+static void multi_search (char *pattern, int n, int silent);
 
 /*
  * Move the cursor to start of prompt line before executing a command.
  * This looks nicer if the command takes a long time before
  * updating the screen.
  */
-	static void
-cmd_exec(VOID_PARAM)
+static void cmd_exec(void)
 {
 	clear_attn();
 	clear_bot();
@@ -111,9 +110,7 @@ cmd_exec(VOID_PARAM)
 /*
  * Indicate we are reading a multi-character command.
  */
-	static void
-set_mca(action)
-	int action;
+static void set_mca(int action)
 {
 	mca = action;
 	clear_bot();
@@ -123,8 +120,7 @@ set_mca(action)
 /*
  * Indicate we are not reading a multi-character command.
  */
-	static void
-clear_mca(VOID_PARAM)
+static void clear_mca(void)
 {
 	if (mca == 0)
 		return;
@@ -134,20 +130,14 @@ clear_mca(VOID_PARAM)
 /*
  * Set up the display to start a new multi-character command.
  */
-	static void
-start_mca(action, prompt, mlist, cmdflags)
-	int action;
-	constant char *prompt;
-	void *mlist;
-	int cmdflags;
+static void start_mca(int action, constant char *prompt, void *mlist, int cmdflags)
 {
 	set_mca(action);
 	cmd_putstr(prompt);
 	set_mlist(mlist, cmdflags);
 }
 
-	public int
-in_mca(VOID_PARAM)
+public int in_mca(void)
 {
 	return (mca != 0 && mca != A_PREFIX);
 }
@@ -155,8 +145,7 @@ in_mca(VOID_PARAM)
 /*
  * Set up the display to start a new search command.
  */
-	static void
-mca_search1(VOID_PARAM)
+static void mca_search1(void)
 {
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
@@ -193,8 +182,7 @@ mca_search1(VOID_PARAM)
 	forw_prompt = 0;
 }
 
-	static void
-mca_search(VOID_PARAM)
+static void mca_search(void)
 {
 	mca_search1();
 	set_mlist(ml_search, 0);
@@ -203,8 +191,7 @@ mca_search(VOID_PARAM)
 /*
  * Set up the display to start a new toggle-option command.
  */
-	static void
-mca_opt_toggle(VOID_PARAM)
+static void mca_opt_toggle(void)
 {
 	int no_prompt;
 	int flag;
@@ -236,8 +223,7 @@ mca_opt_toggle(VOID_PARAM)
 /*
  * Execute a multicharacter command.
  */
-	static void
-exec_mca(VOID_PARAM)
+static void exec_mca(void)
 {
 	char *cbuf;
 
@@ -328,9 +314,7 @@ exec_mca(VOID_PARAM)
 /*
  * Is a character an erase or kill char?
  */
-	static int
-is_erase_char(c)
-	int c;
+static int is_erase_char(int c)
 {
 	return (c == erase_char || c == erase2_char || c == kill_char);
 }
@@ -338,9 +322,7 @@ is_erase_char(c)
 /*
  * Is a character a carriage return or newline?
  */
-	static int
-is_newline_char(c)
-	int c;
+static int is_newline_char(int c)
 {
 	return (c == '\n' || c == '\r');
 }
@@ -348,9 +330,7 @@ is_newline_char(c)
 /*
  * Handle the first char of an option (after the initial dash).
  */
-	static int
-mca_opt_first_char(c)
-	int c;
+static int mca_opt_first_char(int c)
 {
 	int no_prompt = (optflag & OPT_NO_PROMPT);
 	int flag = (optflag & ~OPT_NO_PROMPT);
@@ -401,9 +381,7 @@ mca_opt_first_char(c)
  * If so, display the complete name and stop 
  * accepting chars until user hits RETURN.
  */
-	static int
-mca_opt_nonfirst_char(c)
-	int c;
+static int mca_opt_nonfirst_char(int c)
 {
 	char *p;
 	char *oname;
@@ -458,9 +436,7 @@ mca_opt_nonfirst_char(c)
 /*
  * Handle a char of an option toggle command.
  */
-	static int
-mca_opt_char(c)
-	int c;
+static int mca_opt_char(int c)
 {
 	PARG parg;
 
@@ -527,9 +503,7 @@ mca_opt_char(c)
 /*
  * Normalize search type.
  */
-	public int
-norm_search_type(st)
-	int st;
+public int norm_search_type(int st)
 {
 	/* WRAP and PAST_EOF are mutually exclusive. */
 	if ((st & (SRCH_PAST_EOF|SRCH_WRAP)) == (SRCH_PAST_EOF|SRCH_WRAP))
@@ -540,9 +514,7 @@ norm_search_type(st)
 /*
  * Handle a char of a search command.
  */
-	static int
-mca_search_char(c)
-	int c;
+static int mca_search_char(int c)
 {
 	int flag = 0;
 
@@ -597,9 +569,7 @@ mca_search_char(c)
 /*
  * Handle a character of a multi-character command.
  */
-	static int
-mca_char(c)
-	int c;
+static int mca_char(int c)
 {
 	int ret;
 
@@ -745,8 +715,7 @@ mca_char(c)
 /*
  * Discard any buffered file data.
  */
-	static void
-clear_buffers(VOID_PARAM)
+static void clear_buffers(void)
 {
 	if (!(ch_getflags() & CH_CANSEEK))
 		return;
@@ -760,8 +729,7 @@ clear_buffers(VOID_PARAM)
 /*
  * Make sure the screen is displayed.
  */
-	static void
-make_display(VOID_PARAM)
+static void make_display(void)
 {
 	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
@@ -794,8 +762,7 @@ make_display(VOID_PARAM)
 /*
  * Display the appropriate prompt.
  */
-	static void
-prompt(VOID_PARAM)
+static void prompt(void)
 {
 	constant char *p;
 
@@ -890,8 +857,7 @@ prompt(VOID_PARAM)
 /*
  * Display the less version message.
  */
-	public void
-dispversion(VOID_PARAM)
+public void dispversion(void)
 {
 	PARG parg;
 
@@ -902,8 +868,7 @@ dispversion(VOID_PARAM)
 /*
  * Return a character to complete a partial command, if possible.
  */
-	static LWCHAR
-getcc_end_command(VOID_PARAM)
+static LWCHAR getcc_end_command(void)
 {
 	switch (mca)
 	{
@@ -926,8 +891,7 @@ getcc_end_command(VOID_PARAM)
  * but may come from ungotten characters
  * (characters previously given to ungetcc or ungetsc).
  */
-	static LWCHAR
-getccu(VOID_PARAM)
+static LWCHAR getccu(void)
 {
 	LWCHAR c = 0;
 	while (c == 0)
@@ -957,12 +921,7 @@ getccu(VOID_PARAM)
  * Get a command character, but if we receive the orig sequence,
  * convert it to the repl sequence.
  */
-	static LWCHAR
-getcc_repl(orig, repl, gr_getc, gr_ungetc)
-	char constant* orig;
-	char constant* repl;
-	LWCHAR (*gr_getc)(VOID_PARAM);
-	void (*gr_ungetc)(LWCHAR);
+static LWCHAR getcc_repl(char constant *orig, char constant *repl, LWCHAR (*gr_getc)(void), void (*gr_ungetc)(LWCHAR))
 {
 	LWCHAR c;
 	LWCHAR keys[16];
@@ -1001,8 +960,7 @@ getcc_repl(orig, repl, gr_getc, gr_ungetc)
 /*
  * Get command character.
  */
-	public int
-getcc(VOID_PARAM)
+public int getcc(void)
 {
 	/* Replace kent (keypad Enter) with a newline. */
 	return getcc_repl(kent, "\n", getccu, ungetcc);
@@ -1012,9 +970,7 @@ getcc(VOID_PARAM)
  * "Unget" a command character.
  * The next getcc() will return this character.
  */
-	public void
-ungetcc(c)
-	LWCHAR c;
+public void ungetcc(LWCHAR c)
 {
 	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
 
@@ -1027,9 +983,7 @@ ungetcc(c)
  * "Unget" a command character.
  * If any other chars are already ungotten, put this one after those.
  */
-	public void
-ungetcc_back(c)
-	LWCHAR c;
+public void ungetcc_back(LWCHAR c)
 {
 	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
 	ug->ug_char = c;
@@ -1049,9 +1003,7 @@ ungetcc_back(c)
  * Unget a whole string of command characters.
  * The next sequence of getcc()'s will return this string.
  */
-	public void
-ungetsc(s)
-	char *s;
+public void ungetsc(char *s)
 {
 	while (*s != '\0')
 		ungetcc_back(*s++);
@@ -1060,8 +1012,7 @@ ungetsc(s)
 /*
  * Peek the next command character, without consuming it.
  */
-	public LWCHAR
-peekcc(VOID_PARAM)
+public LWCHAR peekcc(void)
 {
 	LWCHAR c = getcc();
 	ungetcc(c);
@@ -1073,11 +1024,7 @@ peekcc(VOID_PARAM)
  * If SRCH_FIRST_FILE is set, begin searching at the first file.
  * If SRCH_PAST_EOF is set, continue the search thru multiple files.
  */
-	static void
-multi_search(pattern, n, silent)
-	char *pattern;
-	int n;
-	int silent;
+static void multi_search(char *pattern, int n, int silent)
 {
 	int nomore;
 	IFILE save_ifile;
@@ -1171,9 +1118,7 @@ multi_search(pattern, n, silent)
 /*
  * Forward forever, or until a highlighted line appears.
  */
-	static int
-forw_loop(until_hilite)
-	int until_hilite;
+static int forw_loop(int until_hilite)
 {
 	POSITION curr_len;
 
@@ -1212,8 +1157,7 @@ forw_loop(until_hilite)
  * Main command processor.
  * Accept and execute commands until a quit command.
  */
-	public void
-commands(VOID_PARAM)
+public void commands(void)
 {
 	int c;
 	int action;

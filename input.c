@@ -42,12 +42,7 @@ extern int show_attn;
  *  eol   End of line. Normally the newline.
  *        Different than edisp if line is chopped.
  */
-	static void
-init_status_col(base_pos, disp_pos, edisp_pos, eol_pos)
-	POSITION base_pos;
-	POSITION disp_pos;
-	POSITION edisp_pos;
-	POSITION eol_pos;
+static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp_pos, POSITION eol_pos)
 {
 	int hl_before = (chop_line() && disp_pos != NULL_POSITION) ?
 	    is_hilited_attr(base_pos, disp_pos, TRUE, NULL) : 0;
@@ -84,12 +79,7 @@ init_status_col(base_pos, disp_pos, edisp_pos, eol_pos)
  * a line.  The new position is the position of the first character
  * of the NEXT line.  The line obtained is the line starting at curr_pos.
  */
-	public POSITION
-forw_line_seg(curr_pos, skipeol, rscroll, nochop)
-	POSITION curr_pos;
-	int skipeol;
-	int rscroll;
-	int nochop;
+public POSITION forw_line_seg(POSITION curr_pos, int skipeol, int rscroll, int nochop)
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -300,9 +290,7 @@ get_forw_line:
 	return (new_pos);
 }
 
-	public POSITION
-forw_line(curr_pos)
-	POSITION curr_pos;
+public POSITION forw_line(POSITION curr_pos)
 {
 
 	return forw_line_seg(curr_pos, (chop_line() || hshift > 0), TRUE, FALSE);
@@ -315,9 +303,7 @@ forw_line(curr_pos)
  * a line.  The new position is the position of the first character
  * of the PREVIOUS line.  The line obtained is the one starting at new_pos.
  */
-	public POSITION
-back_line(curr_pos)
-	POSITION curr_pos;
+public POSITION back_line(POSITION curr_pos)
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -507,9 +493,7 @@ get_back_line:
 /*
  * Set attnpos.
  */
-	public void
-set_attnpos(pos)
-	POSITION pos;
+public void set_attnpos(POSITION pos)
 {
 	int c;
 

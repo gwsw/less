@@ -49,6 +49,8 @@
 
 * Implement lesstest test suite.
 
+* Convert function parameter definitions from K&R to C89 (github #316).
+
 ======================================================================
 
 	Major changes between "less" versions 590 and 608

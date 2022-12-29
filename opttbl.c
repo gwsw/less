@@ -659,8 +659,7 @@ static struct loption option[] =
 /*
  * Initialize each option to its default value.
  */
-	public void
-init_option(VOID_PARAM)
+public void init_option(void)
 {
 	struct loption *o;
 	char *p;
@@ -684,9 +683,7 @@ init_option(VOID_PARAM)
 /*
  * Find an option in the option table, given its option letter.
  */
-	public struct loption *
-findopt(c)
-	int c;
+public struct loption * findopt(int c)
 {
 	struct loption *o;
 
@@ -703,9 +700,7 @@ findopt(c)
 /*
  *
  */
-	static int
-is_optchar(c)
-	char c;
+static int is_optchar(char c)
 {
 	if (ASCII_IS_UPPER(c))
 		return 1;
@@ -722,11 +717,7 @@ is_optchar(c)
  * is updated to point after the matched name.
  * p_oname if non-NULL is set to point to the full option name.
  */
-	public struct loption *
-findopt_name(p_optname, p_oname, p_err)
-	char **p_optname;
-	char **p_oname;
-	int *p_err;
+public struct loption * findopt_name(char **p_optname, char **p_oname, int *p_err)
 {
 	char *optname = *p_optname;
 	struct loption *o;

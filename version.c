@@ -965,7 +965,7 @@ v614  11/28/22  Add ^X to wait message.
 v615  11/30/22  Add --no-vbell option.
 v616  12/9/22   Don't open tty as input file without -f.
 v617  12/10/22  Support poll on newer versions of MacOS.
-v618
+v618            Add --no-search-headers option.
 */
 
 char version[] = "618x";
