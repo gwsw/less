@@ -1434,9 +1434,18 @@ public int skip_columns(int cols, char **linep, int *line_lenp)
 	while (cols > 0 && line < eline)
 	{
 		LWCHAR ch = step_char(&line, +1, eline);
-		int w = pwidth(ch, 0, pch, 0);
-		cols -= w;
-		pch = ch;
+		struct ansi_state *pansi = ansi_start(ch);
+		if (pansi != NULL)
+		{
+			skip_ansi(pansi, &line, eline);
+			ansi_done(pansi);
+			pch = 0;
+		} else
+		{
+			int w = pwidth(ch, 0, pch, 0);
+			cols -= w;
+			pch = ch;
+		}
 	}
 	bytes = line - *linep;
 	*linep = line;
