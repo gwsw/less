@@ -80,12 +80,12 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  */
 
+#include "defines.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "lesskey.h"
 #include "cmd.h"
-#include "defines.h"
 
 char fileheader[] = {
 	C0_LESSKEY_MAGIC, 
