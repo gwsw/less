@@ -332,6 +332,7 @@ public void forw(int n, POSITION pos, int force, int only_last, int nblank)
 		 * and it is not appropriate to squish in that case.
 		 */
 		if (first_time && pos == NULL_POSITION && !top_scroll && 
+		    header_lines == 0 && header_cols == 0 &&
 #if TAGS
 		    tagoption == NULL &&
 #endif
