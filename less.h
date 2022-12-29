@@ -520,9 +520,18 @@ typedef enum {
 #define S_WINCH         04
 #define ABORT_SIGS()    (sigs & (S_INTERRUPT|S_STOP))
 
+#ifdef EXIT_SUCCESS
+#define QUIT_OK         EXIT_SUCCESS
+#else
 #define QUIT_OK         0
+#endif
+#ifdef EXIT_FAILURE
+#define QUIT_ERROR      EXIT_FAILURE
+#define QUIT_INTERRUPT  (EXIT_FAILURE+1)
+#else
 #define QUIT_ERROR      1
 #define QUIT_INTERRUPT  2
+#endif
 #define QUIT_SAVED_STATUS (-1)
 
 #define FOLLOW_DESC     0
