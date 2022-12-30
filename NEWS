@@ -43,7 +43,7 @@
 
 * Fix bug doing repeat search after setting & filter (github #299).
 
-* Fix bug doing repeat search in newly opened file.
+* Fix bug doing repeat search before non-repeat search.
 
 * Don't retain search options from a cancelled search (github #302).
 
