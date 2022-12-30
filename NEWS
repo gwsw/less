@@ -43,6 +43,8 @@
 
 * Fix bug doing repeat search after setting & filter (github #299).
 
+* Fix bug doing repeat search in newly opened file.
+
 * Don't retain search options from a cancelled search (github #302).
 
 * Don't call realpath on fake filenames like "-" (github #289).

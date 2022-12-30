@@ -521,7 +521,7 @@ line option with "\-+".
 .sp
 Some options like \-k or \-D require a string to follow the option letter.
 The string for that option is considered to end when a dollar sign ($) is found.
-For example, you can set two \-D options on MS-DOS like this:
+For example, you can set two \-D options like this:
 .sp
 LESS="Dn9.1$Ds4.1"
 .sp

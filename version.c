@@ -966,7 +966,7 @@ v615  11/30/22  Add --no-vbell option.
 v616  12/9/22   Don't open tty as input file without -f.
 v617  12/10/22  Support poll on newer versions of MacOS.
 v618  12/29/22  Add --no-search-headers option; use C89 function definitions.
-v619
+v619            Fix bug using 'n' in newly opened file.
 */
 
 char version[] = "619x";
