@@ -1033,6 +1033,8 @@ static void multi_search(char *pattern, int n, int silent)
 	changed_file = 0;
 	save_ifile = save_curr_ifile();
 
+	if ((search_type & (SRCH_FORW|SRCH_BACK)) == 0)
+		search_type |= SRCH_FORW;
 	if (search_type & SRCH_FIRST_FILE)
 	{
 		/*
