@@ -339,9 +339,9 @@ static char * clean_line(char *s)
 /*
  * Add a byte to the output command table.
  */
-static void add_cmd_char(char c, struct lesskey_tables *tables)
+static void add_cmd_char(unsigned char c, struct lesskey_tables *tables)
 {
-	xbuf_add_byte(&tables->currtable->buf, (unsigned char) c);
+	xbuf_add_byte(&tables->currtable->buf, c);
 }
 
 static void erase_cmd_char(struct lesskey_tables *tables)
@@ -518,14 +518,14 @@ static void parse_cmdline(char *p, struct lesskey_tables *tables)
 	p = skipsp(p);
 	if (*p == '\0')
 	{
-		add_cmd_char((char) action, tables);
+		add_cmd_char((unsigned char) action, tables);
 	} else
 	{
 		/*
 		 * OR the special value A_EXTRA into the action byte.
 		 * Put the extra string after the action byte.
 		 */
-		add_cmd_char((char) (action | A_EXTRA), tables);
+		add_cmd_char((unsigned char) (action | A_EXTRA), tables);
 		while (*p != '\0')
 			add_cmd_str(tstr(&p, 0), tables);
 		add_cmd_char('\0', tables);
