@@ -11,10 +11,8 @@ REL := $(shell sed -e '/char version/!d' -e 's/[^0-9.]*\([0-9.]*\).*/\1/' -e q $
 
 ifeq ($(USE_PYTHON),1)
 	MKHELP = mkhelp.py
-	MKFUNCS = mkfuncs.py
 else
 	MKHELP = mkhelp.pl
-	MKFUNCS = mkfuncs.pl
 endif
 
 SRC = \
@@ -41,8 +39,8 @@ DISTFILES = \
 	install.sh defines.h.in mkinstalldirs \
 	less.nro less.man lesskey.nro lesskey.man lessecho.nro lessecho.man \
 	less.hlp \
-	mkfuncs.pl mkhelp.pl \
-	mkfuncs.py mkhelp.py \
+	mkhelp.pl \
+	mkhelp.py \
 	mkutable $(UNICODE_FILES) \
 	${DISTFILES_W}
 
@@ -68,7 +66,7 @@ ${srcdir}/configure ${srcdir}/defines.h.in: ${srcdir}/configure.ac ${srcdir}/Mak
 
 funcs.h: ${SRC:%=${srcdir}/%}
 	-mv -f ${srcdir}/funcs.h ${srcdir}/funcs.h.old
-	${srcdir}/${MKFUNCS} ${SRC:%=${srcdir}/%} >${srcdir}/funcs.h
+	grep -h '^public [^;]*$$' ${SRC:%=${srcdir}/%} | sed 's/$$/;/' >${srcdir}/funcs.h
 
 lint:
 	lint -I. ${CPPFLAGS} ${SRC}

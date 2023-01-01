@@ -69,6 +69,7 @@ public int status_line;         /* Highlight entire marked lines */
 public int header_lines;        /* Freeze header lines at top of screen */
 public int header_cols;         /* Freeze header columns at left of screen */
 public int nonum_headers;       /* Don't give headers line numbers */
+public int nosearch_headers;    /* Don't search in header lines or columns */
 public int redraw_on_quit;      /* Redraw last screen after term deinit */
 public int def_search_type;     /* */
 public int exit_F_on_close;     /* Exit F command when input closes */
@@ -150,6 +151,7 @@ static struct optname want_filesize_optname = { "file-size",     NULL };
 static struct optname status_line_optname = { "status-line",     NULL };
 static struct optname header_optname = { "header",               NULL };
 static struct optname nonum_headers_optname = { "no-number-headers", NULL };
+static struct optname nosearch_headers_optname = { "no-search-headers", NULL };
 static struct optname redraw_on_quit_optname = { "redraw-on-quit", NULL };
 static struct optname search_type_optname = { "search-options", NULL };
 static struct optname exit_F_on_close_optname = { "exit-follow-on-close", NULL };
@@ -600,6 +602,14 @@ static struct loption option[] =
 			NULL
 		}
 	},
+	{ OLETTER_NONE, &nosearch_headers_optname,
+		BOOL|HL_REPAINT, 0, &nosearch_headers, NULL,
+		{
+			"Search includes header lines",
+			"Search does not include header lines",
+			NULL
+		}
+	},
 	{ OLETTER_NONE, &redraw_on_quit_optname,
 		BOOL, OPT_OFF, &redraw_on_quit, NULL,
 		{
@@ -649,8 +659,7 @@ static struct loption option[] =
 /*
  * Initialize each option to its default value.
  */
-	public void
-init_option(VOID_PARAM)
+public void init_option(void)
 {
 	struct loption *o;
 	char *p;
@@ -674,9 +683,7 @@ init_option(VOID_PARAM)
 /*
  * Find an option in the option table, given its option letter.
  */
-	public struct loption *
-findopt(c)
-	int c;
+public struct loption * findopt(int c)
 {
 	struct loption *o;
 
@@ -693,9 +700,7 @@ findopt(c)
 /*
  *
  */
-	static int
-is_optchar(c)
-	char c;
+static int is_optchar(char c)
 {
 	if (ASCII_IS_UPPER(c))
 		return 1;
@@ -712,11 +717,7 @@ is_optchar(c)
  * is updated to point after the matched name.
  * p_oname if non-NULL is set to point to the full option name.
  */
-	public struct loption *
-findopt_name(p_optname, p_oname, p_err)
-	char **p_optname;
-	char **p_oname;
-	int *p_err;
+public struct loption * findopt_name(char **p_optname, char **p_oname, int *p_err)
 {
 	char *optname = *p_optname;
 	struct loption *o;

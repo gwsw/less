@@ -68,10 +68,7 @@ extern int      first_time;
 /*
  * Entry point.
  */
-int
-main(argc, argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	IFILE ifile;
 	char *s;
@@ -313,9 +310,7 @@ main(argc, argv)
  * Copy a string to a "safe" place
  * (that is, to a buffer allocated by calloc).
  */
-	public char *
-save(s)
-	constant char *s;
+public char * save(constant char *s)
 {
 	char *p;
 
@@ -328,14 +323,11 @@ save(s)
  * Allocate memory.
  * Like calloc(), but never returns an error (NULL).
  */
-	public VOID_POINTER
-ecalloc(count, size)
-	int count;
-	unsigned int size;
+public void * ecalloc(int count, unsigned int size)
 {
-	VOID_POINTER p;
+	void * p;
 
-	p = (VOID_POINTER) calloc(count, size);
+	p = (void *) calloc(count, size);
 	if (p != NULL)
 		return (p);
 	error("Cannot allocate memory", NULL_PARG);
@@ -347,9 +339,7 @@ ecalloc(count, size)
 /*
  * Skip leading spaces in a string.
  */
-	public char *
-skipsp(s)
-	char *s;
+public char * skipsp(char *s)
 {
 	while (*s == ' ' || *s == '\t')
 		s++;
@@ -361,11 +351,7 @@ skipsp(s)
  * If uppercase is true, the first string must begin with an uppercase
  * character; the remainder of the first string may be either case.
  */
-	public int
-sprefix(ps, s, uppercase)
-	char *ps;
-	char *s;
-	int uppercase;
+public int sprefix(char *ps, char *s, int uppercase)
 {
 	int c;
 	int sc;
@@ -394,9 +380,7 @@ sprefix(ps, s, uppercase)
 /*
  * Exit the program.
  */
-	public void
-quit(status)
-	int status;
+public void quit(int status)
 {
 	static int save_status;
 

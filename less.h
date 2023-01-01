@@ -39,19 +39,6 @@
 /*
  * Language details.
  */
-#if HAVE_ANSI_PROTOS
-#define LESSPARAMS(a) a
-#else
-#define LESSPARAMS(a) ()
-#endif
-#if HAVE_VOID
-#define VOID_POINTER    void *
-#define VOID_PARAM      void
-#else
-#define VOID_POINTER    char *
-#define VOID_PARAM
-#define void  int
-#endif
 #if HAVE_CONST
 #define constant        const
 #else
@@ -114,7 +101,7 @@
 #if !HAVE_STDLIB_H
 char *getenv();
 off_t lseek();
-VOID_POINTER calloc();
+void *calloc();
 void free();
 #endif
 
@@ -289,7 +276,7 @@ typedef off_t           LINENUM;
 /*
  * An IFILE represents an input file.
  */
-#define IFILE           VOID_POINTER
+#define IFILE           void*
 #define NULL_IFILE      ((IFILE)NULL)
 
 /*
@@ -539,9 +526,18 @@ typedef enum {
 #define S_WINCH         04
 #define ABORT_SIGS()    (sigs & (S_INTERRUPT|S_STOP))
 
+#ifdef EXIT_SUCCESS
+#define QUIT_OK         EXIT_SUCCESS
+#else
 #define QUIT_OK         0
+#endif
+#ifdef EXIT_FAILURE
+#define QUIT_ERROR      EXIT_FAILURE
+#define QUIT_INTERRUPT  (EXIT_FAILURE+1)
+#else
 #define QUIT_ERROR      1
 #define QUIT_INTERRUPT  2
+#endif
 #define QUIT_SAVED_STATUS (-1)
 
 #define FOLLOW_DESC     0
@@ -594,12 +590,12 @@ struct ansi_state;
 #include "funcs.h"
 
 /* Functions not included in funcs.h */
-void postoa LESSPARAMS ((POSITION, char*));
-void linenumtoa LESSPARAMS ((LINENUM, char*));
-void inttoa LESSPARAMS ((int, char*));
-int lstrtoi LESSPARAMS ((char*, char**, int));
-POSITION lstrtopos LESSPARAMS ((char*, char**, int));
-unsigned long lstrtoul LESSPARAMS ((char*, char**, int));
+void postoa(POSITION, char*);
+void linenumtoa(LINENUM, char*);
+void inttoa(int, char*);
+int lstrtoi(char*, char**, int);
+POSITION lstrtopos(char*, char**, int);
+unsigned long lstrtoul(char*, char**, int);
 #if MSDOS_COMPILER==WIN32C
-int pclose LESSPARAMS ((FILE*));
+int pclose(FILE*);
 #endif

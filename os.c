@@ -83,8 +83,7 @@ extern char *ttyin_name;
 #endif /*LESSTEST*/
 
 #if USE_POLL
-	public void
-init_poll(VOID_PARAM)
+public void init_poll(void)
 {
 #if defined(__APPLE__)
 	/* In old versions of MacOS, poll() does not work with /dev/tty. */
@@ -100,10 +99,7 @@ init_poll(VOID_PARAM)
  * Return READ_INTR to abort F command (forw_loop).
  * Return 0 if safe to read from fd.
  */
-	static int
-check_poll(fd, tty)
-	int fd;
-	int tty;
+static int check_poll(int fd, int tty)
 {
 	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
 	int timeout = (waiting_for_data && follow_mode != FOLLOW_NAME) ? -1 : 10;
@@ -132,8 +128,7 @@ check_poll(fd, tty)
 }
 #endif /* USE_POLL */
 
-	public int
-supports_ctrl_x(VOID_PARAM)
+public int supports_ctrl_x(void)
 {
 #if USE_POLL
 	return (use_poll);
@@ -147,11 +142,7 @@ supports_ctrl_x(VOID_PARAM)
  * A call to intread() from a signal handler will interrupt
  * any pending iread().
  */
-	public int
-iread(fd, buf, len)
-	int fd;
-	unsigned char *buf;
-	unsigned int len;
+public int iread(int fd, unsigned char *buf, unsigned int len)
 {
 	int n;
 
@@ -286,8 +277,7 @@ start:
 /*
  * Interrupt a pending iread().
  */
-	public void
-intread(VOID_PARAM)
+public void intread(void)
 {
 	LONG_JUMP(read_label, 1);
 }
@@ -296,8 +286,7 @@ intread(VOID_PARAM)
  * Return the current time.
  */
 #if HAVE_TIME
-	public time_type
-get_time(VOID_PARAM)
+public time_type get_time(void)
 {
 	time_type t;
 
@@ -311,9 +300,7 @@ get_time(VOID_PARAM)
 /*
  * Local version of strerror, if not available from the system.
  */
-	static char *
-strerror(err)
-	int err;
+static char * strerror(int err)
 {
 	static char buf[INT_STRLEN_BOUND(int)+12];
 #if HAVE_SYS_ERRLIST
@@ -331,9 +318,7 @@ strerror(err)
 /*
  * errno_message: Return an error message based on the value of "errno".
  */
-	public char *
-errno_message(filename)
-	char *filename;
+public char * errno_message(char *filename)
 {
 	char *p;
 	char *m;
@@ -354,9 +339,7 @@ errno_message(filename)
 
 /* #define HAVE_FLOAT 0 */
 
-	static POSITION
-muldiv(val, num, den)
-	POSITION val, num, den;
+static POSITION muldiv(POSITION val, POSITION num, POSITION den)
 {
 #if HAVE_FLOAT
 	double v = (((double) val) * num) / den;
@@ -378,10 +361,7 @@ muldiv(val, num, den)
  * Return the ratio of two POSITIONS, as a percentage.
  * {{ Assumes a POSITION is a long int. }}
  */
-	public int
-percentage(num, den)
-	POSITION num;
-	POSITION den;
+public int percentage(POSITION num, POSITION den)
 {
 	return (int) muldiv(num,  (POSITION) 100, den);
 }
@@ -389,11 +369,7 @@ percentage(num, den)
 /*
  * Return the specified percentage of a POSITION.
  */
-	public POSITION
-percent_pos(pos, percent, fraction)
-	POSITION pos;
-	int percent;
-	long fraction;
+public POSITION percent_pos(POSITION pos, int percent, long fraction)
 {
 	/* Change percent (parts per 100) to perden (parts per NUM_FRAC_DENOM). */
 	POSITION perden = (percent * (NUM_FRAC_DENOM / 100)) + (fraction / 100);
@@ -407,10 +383,7 @@ percent_pos(pos, percent, fraction)
 /*
  * strchr is used by regexp.c.
  */
-	char *
-strchr(s, c)
-	char *s;
-	int c;
+char * strchr(char *s, char c)
 {
 	for ( ;  *s != '\0';  s++)
 		if (*s == c)
@@ -422,11 +395,7 @@ strchr(s, c)
 #endif
 
 #if !HAVE_MEMCPY
-	VOID_POINTER
-memcpy(dst, src, len)
-	VOID_POINTER dst;
-	VOID_POINTER src;
-	int len;
+void * memcpy(void *dst, void *src, int len)
 {
 	char *dstp = (char *) dst;
 	char *srcp = (char *) src;
@@ -443,19 +412,14 @@ memcpy(dst, src, len)
 /*
  * This implements an ANSI-style intercept setup for Microware C 3.2
  */
-	public int 
-os9_signal(type, handler)
-	int type;
-	RETSIGTYPE (*handler)();
+public int os9_signal(int type, RETSIGTYPE (*handler)())
 {
 	intercept(handler);
 }
 
 #include <sgstat.h>
 
-	int 
-isatty(f)
-	int f;
+int isatty(int f)
 {
 	struct sgbuf sgbuf;
 
@@ -466,9 +430,7 @@ isatty(f)
 	
 #endif
 
-	public void
-sleep_ms(ms)
-	int ms;
+public void sleep_ms(int ms)
 {
 #if MSDOS_COMPILER==WIN32C
 	Sleep(ms);

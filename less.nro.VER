@@ -521,7 +521,7 @@ line option with "\-+".
 .sp
 Some options like \-k or \-D require a string to follow the option letter.
 The string for that option is considered to end when a dollar sign ($) is found.
-For example, you can set two \-D options on MS-DOS like this:
+For example, you can set two \-D options like this:
 .sp
 LESS="Dn9.1$Ds4.1"
 .sp
@@ -777,8 +777,25 @@ However nonrepeated searches (invoked with "/" or "?")
 always begin at the start or end of the current screen respectively.
 .IP "\-J or \-\-status-column"
 Displays a status column at the left edge of the screen.
-The status column shows the lines that matched the current search,
-and any lines that are marked (via the m or M command).
+The character displayed in the status column may be one of:
+.RS
+.IP ">"
+The line is chopped with the \-S option, and 
+the text that is chopped off beyond the right edge of the screen
+contains a match for the current search.
+.IP "<"
+The line is horizontally shifted, and
+the text that is shifted beyond the left side of the screen
+contains a match for the current search.
+.IP "="
+The line is both chopped and shifted,
+and there are matches beyond both sides of the screen.
+.IP "*"
+There are matches in the visible part of the line
+but none to the right or left of it.
+.IP "a-z, A-Z"
+The line has been marked with the corresponding letter via the m command.
+.RE
 .IP "\-k\fIfilename\fP or \-\-lesskey-file=\fIfilename\fP"
 Causes
 .B less
@@ -1138,7 +1155,9 @@ Sets the number of header lines and columns displayed on the screen.
 The value may be of the form "N,M" where N and M are integers,
 to set the header lines to N and the header columns to M,
 or it may be a single integer "N" which sets the header lines to N 
-and the header columns to zero.
+and the header columns to zero,
+or it may be ",M" which sets the header columns to M and the 
+header lines to zero.
 When N is nonzero, the first N lines at the top
 of the screen are replaced with the first N lines of the file,
 regardless of what part of the file are being viewed.
@@ -1186,6 +1205,8 @@ Normally, a string may appear multiple times.
 .IP "\-\-no-number-headers"
 Header lines (defined via the \-\-header option) are not assigned line numbers.
 Line number 1 is assigned to the first line after any header lines.
+.IP "\-\-no-search-headers"
+Searches do not include header lines or header columns.
 .IP "\-\-no-vbell"
 Disables the terminal's visual bell.
 .IP "\-\-redraw-on-quit"

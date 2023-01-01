@@ -7,13 +7,13 @@
  * For more information, see the README file.
  */
 
+#include "defines.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "lesskey.h"
 #include "cmd.h"
 #include "xbuf.h"
-#include "defines.h"
 
 #define CONTROL(c)      ((c)&037)
 #define ESC             CONTROL('[')
@@ -126,10 +126,7 @@ static struct lesskey_cmdname editnames[] =
 /*
  * Print a parse error message.
  */
-	static void
-parse_error(fmt, arg1)
-	char *fmt;
-	char *arg1;
+static void parse_error(char *fmt, char *arg1)
 {
 	char buf[1024];
 	int n = snprintf(buf, sizeof(buf), "%s: line %d: ", lesskey_file, linenum);
@@ -142,9 +139,7 @@ parse_error(fmt, arg1)
 /*
  * Initialize lesskey_tables.
  */
-	static void
-init_tables(tables)
-	struct lesskey_tables *tables;
+static void init_tables(struct lesskey_tables *tables)
 {
 	tables->currtable = &tables->cmdtable;
 
@@ -163,11 +158,7 @@ init_tables(tables)
 
 #define CHAR_STRING_LEN 8
 
-	static char *
-char_string(buf, ch, lit)
-	char *buf;
-	int ch;
-	int lit;
+static char * char_string(char *buf, int ch, int lit)
 {
 	if (lit || (ch >= 0x20 && ch < 0x7f))
 	{
@@ -183,9 +174,7 @@ char_string(buf, ch, lit)
 /*
  * Increment char pointer by one up to terminating nul byte.
  */
-	static char *
-increment_pointer(p)
-	char *p;
+static char * increment_pointer(char *p)
 {
 	if (*p == '\0')
 		return p;
@@ -195,10 +184,7 @@ increment_pointer(p)
 /*
  * Parse one character of a string.
  */
-	static char *
-tstr(pp, xlate)
-	char **pp;
-	int xlate;
+static char * tstr(char **pp, int xlate)
 {
 	char *p;
 	char ch;
@@ -309,9 +295,7 @@ tstr(pp, xlate)
 	return (buf);
 }
 
-	static int
-issp(ch)
-	char ch;
+static int issp(char ch)
 {
 	return (ch == ' ' || ch == '\t');
 }
@@ -319,9 +303,7 @@ issp(ch)
 /*
  * Skip leading spaces in a string.
  */
-	static char *
-skipsp(s)
-	char *s;
+static char * skipsp(char *s)
 {
 	while (issp(*s))
 		s++;
@@ -331,9 +313,7 @@ skipsp(s)
 /*
  * Skip non-space characters in a string.
  */
-	static char *
-skipnsp(s)
-	char *s;
+static char * skipnsp(char *s)
 {
 	while (*s != '\0' && !issp(*s))
 		s++;
@@ -344,9 +324,7 @@ skipnsp(s)
  * Clean up an input line:
  * strip off the trailing newline & any trailing # comment.
  */
-	static char *
-clean_line(s)
-	char *s;
+static char * clean_line(char *s)
 {
 	int i;
 
@@ -361,17 +339,12 @@ clean_line(s)
 /*
  * Add a byte to the output command table.
  */
-	static void
-add_cmd_char(c, tables)
-	char c;
-	struct lesskey_tables *tables;
+static void add_cmd_char(unsigned char c, struct lesskey_tables *tables)
 {
-	xbuf_add_byte(&tables->currtable->buf, (unsigned char) c);
+	xbuf_add_byte(&tables->currtable->buf, c);
 }
 
-	static void
-erase_cmd_char(tables)
-	struct lesskey_tables *tables;
+static void erase_cmd_char(struct lesskey_tables *tables)
 {
 	xbuf_pop(&tables->currtable->buf);
 }
@@ -379,10 +352,7 @@ erase_cmd_char(tables)
 /*
  * Add a string to the output command table.
  */
-	static void
-add_cmd_str(s, tables)
-	char *s;
-	struct lesskey_tables *tables;
+static void add_cmd_str(char *s, struct lesskey_tables *tables)
 {
 	for ( ;  *s != '\0';  s++)
 		add_cmd_char(*s, tables);
@@ -392,10 +362,7 @@ add_cmd_str(s, tables)
  * Does a given version number match the running version?
  * Operator compares the running version to the given version.
  */
-	static int
-match_version(op, ver)
-	char op;
-	int ver;
+static int match_version(char op, int ver)
 {
 	switch (op)
 	{
@@ -414,10 +381,7 @@ match_version(op, ver)
  * If the version matches, return the part of the line that should be executed.
  * Otherwise, return NULL.
  */
-	static char *
-version_line(s, tables)
-	char *s;
-	struct lesskey_tables *tables;
+static char * version_line(char *s, struct lesskey_tables *tables)
 {
 	char op;
 	int ver;
@@ -453,10 +417,7 @@ version_line(s, tables)
 /*
  * See if we have a special "control" line.
  */
-	static char *
-control_line(s, tables)
-	char *s;
-	struct lesskey_tables *tables;
+static char * control_line(char *s, struct lesskey_tables *tables)
 {
 #define PREFIX(str,pat) (strncmp(str,pat,strlen(pat)) == 0)
 
@@ -491,10 +452,7 @@ control_line(s, tables)
 /*
  * Find an action, given the name of the action.
  */
-	static int
-findaction(actname, tables)
-	char *actname;
-	struct lesskey_tables *tables;
+static int findaction(char *actname, struct lesskey_tables *tables)
 {
 	int i;
 
@@ -512,10 +470,7 @@ findaction(actname, tables)
  * resulting less action, and EXTRA is an "extra" user
  * key sequence injected after the action.
  */
-	static void
-parse_cmdline(p, tables)
-	char *p;
-	struct lesskey_tables *tables;
+static void parse_cmdline(char *p, struct lesskey_tables *tables)
 {
 	char *actname;
 	int action;
@@ -563,14 +518,14 @@ parse_cmdline(p, tables)
 	p = skipsp(p);
 	if (*p == '\0')
 	{
-		add_cmd_char((char) action, tables);
+		add_cmd_char((unsigned char) action, tables);
 	} else
 	{
 		/*
 		 * OR the special value A_EXTRA into the action byte.
 		 * Put the extra string after the action byte.
 		 */
-		add_cmd_char((char) (action | A_EXTRA), tables);
+		add_cmd_char((unsigned char) (action | A_EXTRA), tables);
 		while (*p != '\0')
 			add_cmd_str(tstr(&p, 0), tables);
 		add_cmd_char('\0', tables);
@@ -581,10 +536,7 @@ parse_cmdline(p, tables)
  * Parse a variable definition line, of the form
  *  NAME = VALUE
  */
-	static void
-parse_varline(line, tables)
-	char *line;
-	struct lesskey_tables *tables;
+static void parse_varline(char *line, struct lesskey_tables *tables)
 {
 	char *s;
 	char *p = line;
@@ -631,10 +583,7 @@ parse_varline(line, tables)
 /*
  * Parse a line from the lesskey file.
  */
-	static void
-parse_line(line, tables)
-	char *line;
-	struct lesskey_tables *tables;
+static void parse_line(char *line, struct lesskey_tables *tables)
 {
 	char *p;
 
@@ -662,10 +611,7 @@ parse_line(line, tables)
 /*
  * Parse a lesskey source file and store result in tables.
  */
-	int
-parse_lesskey(infile, tables)
-	char *infile;
-	struct lesskey_tables *tables;
+int parse_lesskey(char *infile, struct lesskey_tables *tables)
 {
 	FILE *desc;
 	char line[1024];
