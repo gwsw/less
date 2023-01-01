@@ -412,7 +412,7 @@ void * memcpy(void *dst, void *src, int len)
 /*
  * This implements an ANSI-style intercept setup for Microware C 3.2
  */
-public int os9_signal(int type, RETSIGTYPE (*handler)())
+public int os9_signal(int type, void (*handler)())
 {
 	intercept(handler);
 }

@@ -41,7 +41,7 @@ extern long jump_sline_fraction;
  */
 #if MSDOS_COMPILER!=WIN32C
 	/* ARGSUSED*/
-static RETSIGTYPE u_interrupt(int type)
+static void u_interrupt(int type)
 {
 	bell();
 #if OS2
@@ -71,7 +71,7 @@ static RETSIGTYPE u_interrupt(int type)
  * "Stop" (^Z) signal handler.
  */
 	/* ARGSUSED*/
-static RETSIGTYPE stop(int type)
+static void stop(int type)
 {
 	LSIGNAL(SIGTSTP, stop);
 	sigs |= S_STOP;
@@ -94,7 +94,7 @@ static RETSIGTYPE stop(int type)
  * "Window" change handler
  */
 	/* ARGSUSED*/
-public RETSIGTYPE winch(int type)
+public void winch(int type)
 {
 	LSIGNAL(SIG_LESSWINDOW, winch);
 	sigs |= S_WINCH;
@@ -128,7 +128,7 @@ static BOOL WINAPI wbreak_handler(DWORD dwCtrlType)
 }
 #endif
 
-static RETSIGTYPE terminate(int type)
+static void terminate(int type)
 {
 	quit(15);
 }

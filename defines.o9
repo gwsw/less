@@ -210,13 +210,6 @@
 /* Define if you need to in order for stat and other things to work.  */
 #define _POSIX_SOURCE 0
 
-/* Define as the return type of signal handlers (int or void).  */
-#if _OSK_MWC32
-#define RETSIGTYPE int
-#else
-#define RETSIGTYPE void
-#endif
-
 
 /*
  * Regular expression library.
