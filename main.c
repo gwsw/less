@@ -393,7 +393,8 @@ public void quit(int status)
 	else
 		save_status = status;
 	quitting = 1;
-	edit((char*)NULL);
+	if (curr_ifile != NULL_IFILE && get_altfilename(curr_ifile) != NULL)
+		drain_altpipe(curr_ifile);
 	if (interactive())
 		clear_bot();
 	deinit();
@@ -409,6 +410,7 @@ public void quit(int status)
 		repaint();
 		flush();
 	}
+	edit((char*)NULL);
 	save_cmdhist();
 	raw_mode(0);
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC

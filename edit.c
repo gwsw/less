@@ -161,13 +161,27 @@ static void close_pipe(struct pipestatus p)
 }
 
 /*
+ * Drain and close input pipe if needed, diagnosing preprocessor failures.
+ */
+public void drain_altpipe(IFILE ifile)
+{
+	struct pipestatus altpipe = get_altpipe(ifile);
+	int chflags = ch_getflags();
+	if (altpipe.pipefd != NULL && !(chflags & CH_KEEPOPEN))
+	{
+		struct pipestatus nopipe = {NULL, 0};
+		altpipe.checkpipe &= !!(chflags & CH_EOF);
+		close_pipe(altpipe);
+		set_altpipe(ifile, nopipe);
+	}
+}
+
+/*
  * Close the current input file.
  */
 static void close_file(void)
 {
 	struct scrpos scrpos;
-	int chflags;
-	struct pipestatus altpipe;
 	char *altfilename;
 	
 	if (curr_ifile == NULL_IFILE)
@@ -186,7 +200,6 @@ static void close_file(void)
 	/*
 	 * Close the file descriptor, unless it is a pipe.
 	 */
-	chflags = ch_getflags();
 	ch_close();
 	/*
 	 * If we opened a file using an alternate name,
@@ -195,14 +208,7 @@ static void close_file(void)
 	altfilename = get_altfilename(curr_ifile);
 	if (altfilename != NULL)
 	{
-		altpipe = get_altpipe(curr_ifile);
-		if (altpipe.pipefd != NULL && !(chflags & CH_KEEPOPEN))
-		{
-			struct pipestatus nopipe = {NULL, 0};
-			altpipe.checkpipe &= !!(chflags & CH_EOF);
-			close_pipe(altpipe);
-			set_altpipe(curr_ifile, nopipe);
-		}
+		drain_altpipe(curr_ifile);
 		close_altfile(altfilename, get_filename(curr_ifile));
 		set_altfilename(curr_ifile, NULL);
 	}
