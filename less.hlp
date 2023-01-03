@@ -220,7 +220,7 @@
                 --line-num-width=N
                   Set the width of the -N line number field to N characters.
                 --modelines=N
-				  Read N lines from the input file and look for vim modelines.
+		  Read N lines from the input file and look for vim modelines.
                 --mouse
                   Enable mouse input.
                 --no-keypad
