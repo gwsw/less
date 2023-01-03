@@ -36,7 +36,7 @@ AC_CHECK_LIB(termlib, tgetent, [have_termlib=yes], [have_termlib=no])
 AC_SEARCH_LIBS([regcmp], [gen intl PW])
 
 # Checks for header files.
-AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h linux/magic.h sys/ioctl.h sys/stream.h sys/types.h time.h wctype.h])
+AC_CHECK_HEADERS_ONCE([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h linux/magic.h sys/ioctl.h sys/stream.h sys/types.h time.h wctype.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
@@ -244,7 +244,6 @@ AH_TEMPLATE([SECURE_COMPILE],
 	[Define SECURE_COMPILE=1 to build a secure version of less.])
 
 # Checks for identifiers.
-AC_TYPE_OFF_T
 AC_MSG_CHECKING(for void)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[void *foo = 0;]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_VOID)],[AC_MSG_RESULT(no)])
 AC_MSG_CHECKING(for const)
