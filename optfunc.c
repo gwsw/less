@@ -63,6 +63,9 @@ extern int header_lines;
 extern int header_cols;
 extern int def_search_type;
 extern int chopline;
+extern int tabstops[];
+extern int ntabstops;
+extern int tabdefault;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -666,13 +669,35 @@ public void opt_D(int type, char *s)
 }
 
 /*
+ */
+public void set_tabs(char *s, int len)
+{
+	int i = 0;
+	char *es = s + len;
+    /* Start at 1 because tabstops[0] is always zero. */
+    for (i = 1;  i < TABSTOP_MAX;  )
+    {
+	    int n = 0;
+	    while (s < es && *s >= '0' && *s <= '9')
+		    n = (10 * n) + (*s++ - '0');
+	    if (n > tabstops[i-1])
+		    tabstops[i++] = n;
+	    while (s < es && *s == ' ')
+			s++;
+	    if (s == es || *s++ != ',')
+		    break;
+    }
+    if (i < 2)
+	    return;
+    ntabstops = i;
+    tabdefault = tabstops[ntabstops-1] - tabstops[ntabstops-2];
+}
+
+/*
  * Handler for the -x option.
  */
 public void opt_x(int type, char *s)
 {
-	extern int tabstops[];
-	extern int ntabstops;
-	extern int tabdefault;
 	char msg[60+((INT_STRLEN_BOUND(int)+1)*TABSTOP_MAX)];
 	int i;
 	PARG p;
@@ -681,23 +706,7 @@ public void opt_x(int type, char *s)
 	{
 	case INIT:
 	case TOGGLE:
-		/* Start at 1 because tabstops[0] is always zero. */
-		for (i = 1;  i < TABSTOP_MAX;  )
-		{
-			int n = 0;
-			s = skipsp(s);
-			while (*s >= '0' && *s <= '9')
-				n = (10 * n) + (*s++ - '0');
-			if (n > tabstops[i-1])
-				tabstops[i++] = n;
-			s = skipsp(s);
-			if (*s++ != ',')
-				break;
-		}
-		if (i < 2)
-			return;
-		ntabstops = i;
-		tabdefault = tabstops[ntabstops-1] - tabstops[ntabstops-2];
+		set_tabs(s, strlen(s));
 		break;
 	case QUERY:
 		strcpy(msg, "Tab stops ");

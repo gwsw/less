@@ -73,6 +73,7 @@ public int nosearch_headers;    /* Don't search in header lines or columns */
 public int redraw_on_quit;      /* Redraw last screen after term deinit */
 public int def_search_type;     /* */
 public int exit_F_on_close;     /* Exit F command when input closes */
+public int modelines;           /* Lines to read looking for modelines */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -155,6 +156,7 @@ static struct optname nosearch_headers_optname = { "no-search-headers", NULL };
 static struct optname redraw_on_quit_optname = { "redraw-on-quit", NULL };
 static struct optname search_type_optname = { "search-options", NULL };
 static struct optname exit_F_on_close_optname = { "exit-follow-on-close", NULL };
+static struct optname modelines_optname = { "modelines", NULL };
 static struct optname no_vbell_optname = { "no-vbell", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
@@ -639,6 +641,14 @@ static struct loption option[] =
 		{
 			"Display visual bell",
 			"Don't display visual bell",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &modelines_optname,
+		NUMBER, 0, &modelines, NULL,
+		{
+			"Lines to read looking for modelines: ",
+			"Read %d lines looking for modelines",
 			NULL
 		}
 	},
