@@ -11,7 +11,7 @@
 # Autoconf initialization.
 AC_INIT([less],[1])
 AC_CONFIG_SRCDIR([forwback.c])
-AC_CONFIG_HEADER([defines.h])
+AC_CONFIG_HEADERS([defines.h])
 
 # Checks for programs.
 AC_PROG_CC
@@ -36,15 +36,13 @@ AC_CHECK_LIB(termlib, tgetent, [have_termlib=yes], [have_termlib=no])
 AC_SEARCH_LIBS([regcmp], [gen intl PW])
 
 # Checks for header files.
-AC_HEADER_STDC
-AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h linux/magic.h sys/ioctl.h sys/stream.h wctype.h])
+AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h linux/magic.h sys/ioctl.h sys/stream.h sys/types.h time.h wctype.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
 AC_C_CONST
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
 
 # Checks for terminal libraries
 AC_MSG_CHECKING([for working terminal libraries])
