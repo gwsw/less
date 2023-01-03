@@ -674,23 +674,23 @@ public void set_tabs(char *s, int len)
 {
 	int i = 0;
 	char *es = s + len;
-    /* Start at 1 because tabstops[0] is always zero. */
-    for (i = 1;  i < TABSTOP_MAX;  )
-    {
-	    int n = 0;
-	    while (s < es && *s >= '0' && *s <= '9')
-		    n = (10 * n) + (*s++ - '0');
-	    if (n > tabstops[i-1])
-		    tabstops[i++] = n;
-	    while (s < es && *s == ' ')
+	/* Start at 1 because tabstops[0] is always zero. */
+	for (i = 1;  i < TABSTOP_MAX;  )
+	{
+		int n = 0;
+		while (s < es && *s >= '0' && *s <= '9')
+			n = (10 * n) + (*s++ - '0');
+		if (n > tabstops[i-1])
+			tabstops[i++] = n;
+		while (s < es && *s == ' ')
 			s++;
-	    if (s == es || *s++ != ',')
-		    break;
-    }
-    if (i < 2)
-	    return;
-    ntabstops = i;
-    tabdefault = tabstops[ntabstops-1] - tabstops[ntabstops-2];
+		if (s == es || *s++ != ',')
+			break;
+	}
+	if (i < 2)
+		return;
+	ntabstops = i;
+	tabdefault = tabstops[ntabstops-1] - tabstops[ntabstops-2];
 }
 
 /*
