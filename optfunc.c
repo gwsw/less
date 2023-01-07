@@ -66,6 +66,7 @@ extern int chopline;
 extern int tabstops[];
 extern int ntabstops;
 extern int tabdefault;
+extern char intr_char;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -793,7 +794,7 @@ public void opt_rscroll(int type, char *s)
 		break; }
 	case QUERY: {
 		p.p_string = rscroll_char ? prchar(rscroll_char) : "-";
-		error("rscroll char is %s", &p);
+		error("rscroll character is %s", &p);
 		break; }
 	}
 }
@@ -917,6 +918,29 @@ public void opt_filesize(int type, char *s)
 		break;
 	case QUERY:
 		break;
+	}
+}
+
+/*
+ * Handler for the --intr option.
+ */
+	/*ARGSUSED*/
+public void opt_intr(int type, char *s)
+{
+	PARG p;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		intr_char = *s;
+		if (intr_char == '^' && s[1] != '\0')
+			intr_char = CONTROL(s[1]);
+		break;
+	case QUERY: {
+		p.p_string = prchar(intr_char);
+		error("interrupt character is %s", &p);
+		break; }
 	}
 }
 

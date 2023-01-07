@@ -31,6 +31,7 @@ extern int so_s_width, so_e_width;
 extern int screen_trashed;
 extern int is_tty;
 extern int oldbot;
+extern char intr_char;
 
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;
@@ -661,13 +662,15 @@ public void error(char *fmt, PARG *parg)
  * Usually used to warn that we are beginning a potentially
  * time-consuming operation.
  */
-static void ierror_suffix(char *fmt, char *suffix, PARG *parg)
+static void ierror_suffix(char *fmt, PARG *parg, char *suffix1, char *suffix2, char *suffix3)
 {
 	at_exit();
 	clear_bot();
 	at_enter(AT_STANDOUT|AT_COLOR_ERROR);
 	(void) less_printf(fmt, parg);
-	putstr(suffix);
+	putstr(suffix1);
+	putstr(suffix2);
+	putstr(suffix3);
 	at_exit();
 	flush();
 	need_clr = 1;
@@ -675,8 +678,7 @@ static void ierror_suffix(char *fmt, char *suffix, PARG *parg)
 
 public void ierror(char *fmt, PARG *parg)
 {
-	static char suffix[] = "... (interrupt to abort)";
-	ierror_suffix(fmt, suffix, parg);
+	ierror_suffix(fmt, parg, "... (interrupt to abort)", "", "");
 }
 
 public void ixerror(char *fmt, PARG *parg)
@@ -684,10 +686,8 @@ public void ixerror(char *fmt, PARG *parg)
 	if (!supports_ctrl_x())
 		ierror(fmt, parg);
 	else
-	{
-		static char suffix[] = "... (^X or interrupt to abort)";
-		ierror_suffix(fmt, suffix, parg);
-	}
+		ierror_suffix(fmt, parg,
+			"... (", prchar(intr_char), " or interrupt to abort)");
 }
 
 /*
