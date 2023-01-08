@@ -113,7 +113,8 @@ defines.h: defines.wn
 	copy $< $@
 
 funcs.h:
-	perl mkfuncs.pl ${LESS_SRC}  > $@
+	-mv -f ${srcdir}/funcs.h ${srcdir}/funcs.h.old
+	grep -h '^public [^;]*$$' ${SRC:%=${srcdir}/%} | sed 's/$$/;/' >${srcdir}/funcs.h
 
 help.c: less.hlp
 	perl mkhelp.pl  < $<  > $@

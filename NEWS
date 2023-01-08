@@ -11,13 +11,17 @@
 
 ======================================================================
 
-	Major changes between "less" versions 608 and 619
+	Major changes between "less" versions 608 and 620
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
 * Add --no-vbell option (github #304).
 
 * Add --no-search-headers option (github #44).
+
+* Add --modelines option (github #89).
+
+* Add --intr option (github #224).
 
 * Allow empty "lines" field in --header option.
 

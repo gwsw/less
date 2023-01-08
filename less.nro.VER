@@ -121,7 +121,7 @@ while it is being viewed.
 To stop waiting for more data, enter the interrupt character (usually \(haC).
 On systems which support
 .BR poll (1)
-you can also use \(haX.
+you can also use \(haX or the character specified by the \-\-intr option.
 If the input is a pipe and the \-\-exit-follow-on-close option is in effect,
 .B less
 will automatically stop waiting for data when the input side 
@@ -470,7 +470,9 @@ This may cause
 .B less
 to think that the file ends at the current position,
 so it may be necessary to use the R or F command to see more data.
-The \(haX command works only on systems that support the
+The \-\-intr option can be used to specify a different character
+to use instead of \(haX.
+This command works only on systems that support the
 .BR poll (1)
 function.
 On systems without
@@ -1150,7 +1152,7 @@ If the reopen succeeds and the file is a different file from the original
 with the same name as the original (now renamed) file),
 .B less
 will display the contents of that new file.
-.IP "\-\-header"
+.IP "\-\-header=\fIN[,M]\fP"
 Sets the number of header lines and columns displayed on the screen.
 The value may be of the form "N,M" where N and M are integers,
 to set the header lines to N and the header columns to M,
@@ -1174,9 +1176,44 @@ Subsequent search commands will be "incremental"; that is,
 .B less
 will advance to the next line containing the search pattern 
 as each character of the pattern is typed in.
-.IP "\-\-line-num-width"
-Sets the minimum width of the line number field when the \-N option is in effect.
-The default is 7 characters.
+.IP "\-\-intr=\fIc\fP"
+Use the character \fIc\fP instead of \(haX to interrupt a read
+when the "Waiting for data" message is displayed.
+\fIc\fP must be an ASCII character; that is, one with a value 
+between 1 and 127 inclusive.
+A caret followed by a single character can be used 
+to specify a control character.
+.IP "\-\-line-num-width=\fIn\fP"
+Sets the minimum width of the line number field when the \-N option is in effect 
+to \fIn\fP characters.
+The default is 7.
+.IP "\-\-modelines=\fIn\fP"
+.RS
+Before displaying a file,
+.B less 
+will read the first \fIn\fP lines to try to find a vim-compatible 
+.IR modeline . 
+If \fIn\fP is zero,
+.B less
+does not try to find modelines.
+By using a modeline, the file itself can specify the tab stops 
+that should be used when viewing it.
+.PP
+A modeline contains, anywhere in the line, 
+a program name ("vi", "vim", "ex", or "less"),
+followed by a colon,
+possibly followed by the word "set",
+and finally followed by zero or more option settings.
+If the word "set" is used,
+option settings are separated by spaces, and end at the first colon.
+If the word "set" is not used, 
+option settings may be separated by either spaces or colons.
+The word "set" is required if the program name is "less"
+but optional if any of the other three names are used.
+If any option setting is of the form "tabstop=\fIn\fP" or "ts=\fIn\fP",
+then tab stops are automatically set as if \-\-tabs=\fIn\fP had been given.
+See the \-\-tabs description for acceptable values of \fIn\fP.
+.RE
 .IP "\-\-mouse"
 Enables mouse input:
 scrolling the mouse wheel down moves forward in the file,
@@ -1217,7 +1254,7 @@ terminal to switch from an alternate screen,
 this makes the last screenful of the current file remain visible after
 .B less
 has quit.
-.IP "\-\-rscroll"
+.IP "\-\-rscroll=\fIc\fP"
 This option changes the character used to mark truncated lines.
 It may begin with a two-character attribute indicator like LESSBINFMT does.
 If there is no attribute indicator, standout is used.
@@ -1226,7 +1263,7 @@ If set to "\-", truncated lines are not marked.
 Save marks in the history file, so marks are retained
 across different invocations of
 .BR less .
-.IP "\-\-search-options"
+.IP "\-\-search-options=\fI...\fP"
 Sets default search modifiers. 
 The value is a string of one or more of the characters
 E, F, K, N, R or W.
@@ -1235,7 +1272,7 @@ control character at the beginning of every search pattern.
 For example, setting \-\-search-options=W is the same as
 typing \(haW at the beginning of every pattern.
 The value "-" disables all default search modifiers.
-.IP "\-\-status-col-width"
+.IP "\-\-status-col-width=\fIn\fP"
 Sets the width of the status column when the \-J option is in effect.
 The default is 2 characters.
 .IP "\-\-status-line"
@@ -2151,7 +2188,7 @@ The name of the editor (used for the v command).
 .BR lessecho (1)
 .
 .SH COPYRIGHT
-Copyright (C) 1984-2022  Mark Nudelman
+Copyright (C) 1984-2023  Mark Nudelman
 .PP
 less is part of the GNU project and is free software.
 You can redistribute it and/or modify it

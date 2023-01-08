@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-2022  Mark Nudelman
+ * Copyright (C) 1984-2023  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -63,6 +63,10 @@ extern int header_lines;
 extern int header_cols;
 extern int def_search_type;
 extern int chopline;
+extern int tabstops[];
+extern int ntabstops;
+extern int tabdefault;
+extern char intr_char;
 #if LOGFILE
 extern char *namelogfile;
 extern int force_logfile;
@@ -502,7 +506,7 @@ public void opt__V(int type, char *s)
 		putstr(" regular expressions)\n");
 		{
 			char constant *copyright = 
-				"Copyright (C) 1984-2022  Mark Nudelman\n\n";
+				"Copyright (C) 1984-2023  Mark Nudelman\n\n";
 			putstr(copyright);
 		}
 		if (version[strlen(version)-1] == 'x')
@@ -666,13 +670,35 @@ public void opt_D(int type, char *s)
 }
 
 /*
+ */
+public void set_tabs(char *s, int len)
+{
+	int i = 0;
+	char *es = s + len;
+	/* Start at 1 because tabstops[0] is always zero. */
+	for (i = 1;  i < TABSTOP_MAX;  )
+	{
+		int n = 0;
+		while (s < es && *s >= '0' && *s <= '9')
+			n = (10 * n) + (*s++ - '0');
+		if (n > tabstops[i-1])
+			tabstops[i++] = n;
+		while (s < es && *s == ' ')
+			s++;
+		if (s == es || *s++ != ',')
+			break;
+	}
+	if (i < 2)
+		return;
+	ntabstops = i;
+	tabdefault = tabstops[ntabstops-1] - tabstops[ntabstops-2];
+}
+
+/*
  * Handler for the -x option.
  */
 public void opt_x(int type, char *s)
 {
-	extern int tabstops[];
-	extern int ntabstops;
-	extern int tabdefault;
 	char msg[60+((INT_STRLEN_BOUND(int)+1)*TABSTOP_MAX)];
 	int i;
 	PARG p;
@@ -681,23 +707,7 @@ public void opt_x(int type, char *s)
 	{
 	case INIT:
 	case TOGGLE:
-		/* Start at 1 because tabstops[0] is always zero. */
-		for (i = 1;  i < TABSTOP_MAX;  )
-		{
-			int n = 0;
-			s = skipsp(s);
-			while (*s >= '0' && *s <= '9')
-				n = (10 * n) + (*s++ - '0');
-			if (n > tabstops[i-1])
-				tabstops[i++] = n;
-			s = skipsp(s);
-			if (*s++ != ',')
-				break;
-		}
-		if (i < 2)
-			return;
-		ntabstops = i;
-		tabdefault = tabstops[ntabstops-1] - tabstops[ntabstops-2];
+		set_tabs(s, strlen(s));
 		break;
 	case QUERY:
 		strcpy(msg, "Tab stops ");
@@ -784,7 +794,7 @@ public void opt_rscroll(int type, char *s)
 		break; }
 	case QUERY: {
 		p.p_string = rscroll_char ? prchar(rscroll_char) : "-";
-		error("rscroll char is %s", &p);
+		error("rscroll character is %s", &p);
 		break; }
 	}
 }
@@ -908,6 +918,29 @@ public void opt_filesize(int type, char *s)
 		break;
 	case QUERY:
 		break;
+	}
+}
+
+/*
+ * Handler for the --intr option.
+ */
+	/*ARGSUSED*/
+public void opt_intr(int type, char *s)
+{
+	PARG p;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		intr_char = *s;
+		if (intr_char == '^' && s[1] != '\0')
+			intr_char = CONTROL(s[1]);
+		break;
+	case QUERY: {
+		p.p_string = prchar(intr_char);
+		error("interrupt character is %s", &p);
+		break; }
 	}
 }
 

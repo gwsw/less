@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-2022  Mark Nudelman
+ * Copyright (C) 1984-2023  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -28,6 +28,7 @@ extern int sigs;
 extern int hshift;
 extern int want_filesize;
 extern int consecutive_nulls;
+extern int modelines;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -138,6 +139,120 @@ public char * back_textlist(struct textlist *tlist, char *prev)
 	while (s[-1] != '\0' && s > tlist->string)
 		s--;
 	return (s);
+}
+
+/*
+ * Parse a single option setting in a modeline.
+ */
+static void modeline_option(char *str, int opt_len)
+{
+	struct mloption { char *opt_name; void (*opt_func)(char*,int); };
+	struct mloption options[] = {
+		{ "ts=",         set_tabs },
+		{ "tabstop=",    set_tabs },
+		{ NULL, NULL }
+	};
+	struct mloption *opt;
+	for (opt = options;  opt->opt_name != NULL;  opt++)
+	{
+		int name_len = strlen(opt->opt_name);
+		if (opt_len > name_len && strncmp(str, opt->opt_name, name_len) == 0)
+		{
+			(*opt->opt_func)(str + name_len, opt_len - name_len);
+			break;
+		}
+	}
+}
+
+/*
+ * String length, terminated by option separator (space or colon).
+ * Space/colon can be escaped with backspace.
+ */
+static int modeline_option_len(char *str)
+{
+	int esc = FALSE;
+	char *s;
+	for (s = str;  *s != '\0';  s++)
+	{
+		if (esc)
+			esc = FALSE;
+		else if (*s == '\\')
+			esc = TRUE;
+		else if (*s == ' ' || *s == ':') /* separator */
+			break;
+	}
+	return (s - str);
+}
+
+/*
+ * Parse colon- or space-separated option settings in a modeline.
+ */
+static void modeline_options(char *str, char end_char)
+{
+	for (;;)
+	{
+		int opt_len;
+		str = skipsp(str);
+		if (*str == '\0' || *str == end_char)
+			break;
+		opt_len = modeline_option_len(str);
+		modeline_option(str, opt_len);
+		str += opt_len;
+		if (*str != '\0')
+			str += 1; /* skip past the separator */
+	}
+}
+
+/*
+ * See if there is a modeline string in a line.
+ */
+static void check_modeline(char *line)
+{
+#if HAVE_STRSTR
+	static char *pgms[] = { "less:", "vim:", "vi:", "ex:", NULL };
+	for (char **pgm = pgms;  *pgm != NULL;  ++pgm)
+	{
+		char *pline = line;
+		for (;;)
+		{
+			char *str;
+			pline = strstr(pline, *pgm);
+			if (pline == NULL) /* pgm is not in this line */
+				break;
+			str = skipsp(pline + strlen(*pgm));
+			if (pline == line || pline[-1] == ' ')
+			{
+				if (strncmp(str, "set ", 4) == 0)
+					modeline_options(str+4, ':');
+				else if (pgm != &pgms[0]) /* "less:" requires "set" */
+					modeline_options(str, '\0');
+				break;
+			}
+			/* Continue searching the rest of the line. */
+			pline = str;
+		}
+	}
+#endif /* HAVE_STRSTR */
+}
+
+/*
+ * Read lines from start of file and check if any are modelines.
+ */
+static void check_modelines(void)
+{
+	POSITION pos = ch_zero();
+	int i;
+	for (i = 0;  i < modelines;  i++)
+	{
+		char *line;
+		int line_len;
+		if (ABORT_SIGS())
+			return;
+		pos = forw_raw_line(pos, &line, &line_len);
+		if (pos == NULL_POSITION)
+			break;
+		check_modeline(line);
+	}
 }
 
 /*
@@ -450,6 +565,7 @@ public int edit_ifile(IFILE ifile)
 	new_file = TRUE;
 	ch_init(f, chflags);
 	consecutive_nulls = 0;
+	check_modelines();
 
 	if (!(chflags & CH_HELPFILE))
 	{

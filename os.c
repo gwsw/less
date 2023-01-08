@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-2022  Mark Nudelman
+ * Copyright (C) 1984-2023  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -75,6 +75,7 @@ extern int sigs;
 extern int ignore_eoi;
 extern int exit_F_on_close;
 extern int follow_mode;
+extern char intr_char;
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
@@ -111,7 +112,7 @@ static int check_poll(int fd, int tty)
 		if (poller[1].revents & POLLIN) 
 		{
 			LWCHAR ch = getchr();
-			if (ch == CONTROL('X'))
+			if (ch == intr_char)
 				/* Break out of "waiting for data". */
 				return (READ_INTR);
 			ungetcc_back(ch);
@@ -223,7 +224,7 @@ start:
 	}
 #else
 #if MSDOS_COMPILER==WIN32C
-	if (win32_kbhit() && WIN32getch() == CONTROL('X'))
+	if (win32_kbhit() && WIN32getch() == intr_char)
 	{
 		sigs |= S_INTERRUPT;
 		reading = 0;

@@ -42,7 +42,8 @@ int is_composing_char(wchar ch) {
 }
 
 int is_combining_char(wchar ch1, wchar ch2) {
-	for (int i = 0; i < countof(comb_table); i++) {
+	int i;
+	for (i = 0; i < countof(comb_table); i++) {
 		if (ch1 == comb_table[i].first &&
 		    ch2 == comb_table[i].last)
 			return 1;
