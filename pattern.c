@@ -254,12 +254,11 @@ public int is_null_pattern(PATTERN_TYPE pattern)
 	return (pattern == NULL);
 #endif
 }
-
 /*
  * Simple pattern matching function.
  * It supports no metacharacters like *, etc.
  */
-static int match(char *pattern, int pattern_len, char *buf, int buf_len, char **pfound, char **pend)
+static int match(char *pattern, int pattern_len, char *buf, int buf_len, char **sp, char **ep, int nsubs)
 {
 	char *pp, *lp;
 	char *pattern_end = pattern + pattern_len;
@@ -280,30 +279,30 @@ static int match(char *pattern, int pattern_len, char *buf, int buf_len, char **
 		}
 		if (pp == pattern_end)
 		{
-			if (pfound != NULL)
-				*pfound = buf;
-			if (pend != NULL)
-				*pend = lp;
+			*sp++ = buf;
+			*ep++ = lp;
 			return (1);
 		}
 	}
+	*sp = *ep = NULL;
 	return (0);
 }
 
 /*
  * Perform a pattern match with the previously compiled pattern.
- * Set sp and ep to the start and end of the matched string.
+ * Set sp[0] and ep[0] to the start and end of the matched string.
+ * Set sp[i] and ep[i] to the start and end of the i-th matched subpattern.
+ * Subpatterns are defined by parentheses in the regex language.
  */
-public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int line_len, char **sp, char **ep, int notbol, int search_type)
+public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int line_len, char **sp, char **ep, int nsp, int notbol, int search_type)
 {
 	int matched;
 
-	*sp = *ep = NULL;
 #if NO_REGEX
 	search_type |= SRCH_NO_REGEX;
 #endif
 	if (search_type & SRCH_NO_REGEX)
-		matched = match(tpattern, strlen(tpattern), line, line_len, sp, ep);
+		matched = match(tpattern, strlen(tpattern), line, line_len, sp, ep, nsp);
 	else
 	{
 #if HAVE_GNU_REGEX
@@ -314,8 +313,8 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 		matched = re_search(pattern, line, line_len, 0, line_len, &search_regs) >= 0;
 		if (matched)
 		{
-			*sp = line + search_regs.start[0];
-			*ep = line + search_regs.end[0];
+			*sp++ = line + search_regs.start[0];
+			*ep++ = line + search_regs.end[0];
 		}
 	}
 #endif
@@ -332,25 +331,36 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 		if (matched)
 		{
 #ifndef __WATCOMC__
-			*sp = line + rm.rm_so;
-			*ep = line + rm.rm_eo;
+			*sp++ = line + rm.rm_so;
+			*ep++ = line + rm.rm_eo;
 #else
-			*sp = rm.rm_sp;
-			*ep = rm.rm_ep;
+			*sp++ = rm.rm_sp;
+			*ep++ = rm.rm_ep;
 #endif
 		}
 	}
 #endif
 #if HAVE_PCRE
 	{
+		#define NUM_SUBPATS 9
+		#define OVECTOR_COUNT ((3*NUM_SUBPATS)+2)
+		int ovector[OVECTOR_COUNT];
 		int flags = (notbol) ? PCRE_NOTBOL : 0;
-		int ovector[3];
+		int i;
+		for (i = 0;  i < OVECTOR_COUNT;  i++)
+			ovector[i] = -1;
 		matched = pcre_exec(pattern, NULL, line, line_len,
-			0, flags, ovector, 3) >= 0;
+			0, flags, ovector, OVECTOR_COUNT) >= 0;
 		if (matched)
 		{
-			*sp = line + ovector[0];
-			*ep = line + ovector[1];
+			for (i = 0;  i < OVECTOR_COUNT-2; )
+			{
+				int soff = ovector[i++];
+				int eoff = ovector[i++];
+				if (soff < 0 || eoff < 0) break;
+				*sp++ = line + soff;
+				*ep++ = line + eoff;
+			}
 		}
 	}
 #endif
@@ -363,8 +373,8 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 		if (matched)
 		{
 			PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(md);
-			*sp = line + ovector[0];
-			*ep = line + ovector[1];
+			*sp++ = line + ovector[0];
+			*ep++ = line + ovector[1];
 		}
 		pcre2_match_data_free(md);
 	}
@@ -374,13 +384,12 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 	/*
 	 * re_exec doesn't seem to provide a way to get the matched string.
 	 */
-	*sp = *ep = NULL;
+	/// *sp = *ep = NULL;
 #endif
 #if HAVE_REGCMP
-	*ep = regex(pattern, line);
-	matched = (*ep != NULL);
+	matched = ((*ep++ = regex(pattern, line)) != NULL);
 	if (matched)
-		*sp = __loc1;
+		*sp++ = __loc1;
 #endif
 #if HAVE_V8_REGCOMP
 #if HAVE_REGEXEC2
@@ -390,11 +399,12 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 #endif
 	if (matched)
 	{
-		*sp = pattern->startp[0];
-		*ep = pattern->endp[0];
+		*sp++ = pattern->startp[0];
+		*ep++ = pattern->endp[0];
 	}
 #endif
 	}
+	*sp = *ep = NULL;
 	matched = (!(search_type & SRCH_NO_MATCH) && matched) ||
 			((search_type & SRCH_NO_MATCH) && !matched);
 	return (matched);

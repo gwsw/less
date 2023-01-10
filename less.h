@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-2022  Mark Nudelman
+ * Copyright (C) 1984-2023  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -399,8 +399,10 @@ typedef short POLL_EVENTS;
 #define AT_COLOR_MARK     (6 << AT_COLOR_SHIFT)
 #define AT_COLOR_PROMPT   (7 << AT_COLOR_SHIFT)
 #define AT_COLOR_RSCROLL  (8 << AT_COLOR_SHIFT)
-#define AT_COLOR_SEARCH   (9 << AT_COLOR_SHIFT)
-#define AT_COLOR_HEADER   (11 << AT_COLOR_SHIFT)
+#define AT_COLOR_HEADER   (9 << AT_COLOR_SHIFT)
+#define AT_COLOR_SEARCH   (10 << AT_COLOR_SHIFT)
+#define AT_COLOR_SUBSEARCH(i) ((10+(i)) << AT_COLOR_SHIFT)
+#define NUM_SEARCH_COLORS (AT_NUM_COLORS-10)
 
 typedef enum { CT_NULL, CT_4BIT, CT_6BIT } COLOR_TYPE;
 

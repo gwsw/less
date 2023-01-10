@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-2022  Mark Nudelman
+ * Copyright (C) 1984-2023  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -108,7 +108,7 @@ static int mbc_buf_index = 0;
 static POSITION mbc_pos;
 
 /* Configurable color map */
-static char color_map[AT_NUM_COLORS][12] = {
+static char color_map[AT_NUM_COLORS+4][12] = {
 	"Wm",  /* AT_COLOR_ATTN */
 	"kR",  /* AT_COLOR_BIN */
 	"kR",  /* AT_COLOR_CTRL */
@@ -117,8 +117,14 @@ static char color_map[AT_NUM_COLORS][12] = {
 	"Wb",  /* AT_COLOR_MARK */
 	"kC",  /* AT_COLOR_PROMPT */
 	"kc",  /* AT_COLOR_RSCROLL */
-	"kG",  /* AT_COLOR_SEARCH */
 	"",    /* AT_COLOR_HEADER */
+	"kG",  /* AT_COLOR_SEARCH */
+	"ky",  /* AT_COLOR_SEARCH+1 */
+	"Wk",  /* AT_COLOR_SEARCH+2 */
+	"bW",  /* AT_COLOR_SEARCH+3 */
+	"wr",  /* AT_COLOR_SEARCH+4 */
+	"kc",  /* AT_COLOR_SEARCH+5 */
+
 	"",    /* AT_UNDERLINE */
 	"",    /* AT_BOLD */
 	"",    /* AT_BLINK */
@@ -1535,18 +1541,23 @@ static int color_index(int attr)
 		case AT_COLOR_MARK:    return 5;
 		case AT_COLOR_PROMPT:  return 6;
 		case AT_COLOR_RSCROLL: return 7;
-		case AT_COLOR_SEARCH:  return 8;
-		case AT_COLOR_HEADER:  return 9;
+		case AT_COLOR_HEADER:  return 8;
+		case AT_COLOR_SEARCH:  return 9;
+		case AT_COLOR_SUBSEARCH(1):  return 10;
+		case AT_COLOR_SUBSEARCH(2):  return 11;
+		case AT_COLOR_SUBSEARCH(3):  return 12;
+		case AT_COLOR_SUBSEARCH(4):  return 13;
+		case AT_COLOR_SUBSEARCH(5):  return 14;
 		}
 	}
 	if (attr & AT_UNDERLINE)
-		return 10;
+		return 15;
 	if (attr & AT_BOLD)
-		return 11;
+		return 16;
 	if (attr & AT_BLINK)
-		return 12;
+		return 17;
 	if (attr & AT_STANDOUT)
-		return 13;
+		return 18;
 	return -1;
 }
 

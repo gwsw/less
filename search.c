@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-2022  Mark Nudelman
+ * Copyright (C) 1984-2023  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -69,6 +69,7 @@ struct hilite
 {
 	POSITION hl_startpos;
 	POSITION hl_endpos;
+	int hl_attr;
 };
 struct hilite_node
 {
@@ -480,10 +481,14 @@ static struct hilite_node* hlist_find(struct hilite_tree *anchor, POSITION pos)
 /*
  * Should any characters in a specified range be highlighted?
  */
-static int is_hilited_range(POSITION pos, POSITION epos)
+static int hilited_range_attr(POSITION pos, POSITION epos)
 {
 	struct hilite_node *n = hlist_find(&hilite_anchor, pos);
-	return (n != NULL && (epos == NULL_POSITION || epos > n->r.hl_startpos));
+	if (n == NULL)
+		return 0;
+	if (epos != NULL_POSITION && epos <= n->r.hl_startpos)
+		return 0;
+	return n->r.hl_attr;
 }
 
 /* 
@@ -550,7 +555,7 @@ public POSITION prev_unfiltered(POSITION pos)
  */
 public int is_hilited_attr(POSITION pos, POSITION epos, int nohide, int *p_matches)
 {
-	int match;
+	int attr;
 
 	if (p_matches != NULL)
 		*p_matches = 0;
@@ -564,8 +569,8 @@ public int is_hilited_attr(POSITION pos, POSITION epos, int nohide, int *p_match
 		 */
 		return (AT_HILITE|AT_COLOR_ATTN);
 
-	match = is_hilited_range(pos, epos);
-	if (!match)
+	attr = hilited_range_attr(pos, epos);
+	if (attr == 0)
 		return (0);
 
 	if (p_matches == NULL)
@@ -574,7 +579,7 @@ public int is_hilited_attr(POSITION pos, POSITION epos, int nohide, int *p_match
 		 * hilite in status column. In this case we want to return
 		 * hilite status even if hiliting is disabled or hidden.
 		 */
-		return (AT_HILITE|AT_COLOR_SEARCH);
+		return (attr);
 
 	/*
 	 * Report matches, even if we're hiding highlights.
@@ -593,7 +598,7 @@ public int is_hilited_attr(POSITION pos, POSITION epos, int nohide, int *p_match
 		 */
 		return (0);
 
-	return (AT_HILITE|AT_COLOR_SEARCH);
+	return (attr);
 }
 
 /*
@@ -724,7 +729,7 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 	{
 		if (hl->hl_startpos < p->r.hl_startpos)
 		{
-			if (hl->hl_endpos > p->r.hl_startpos)
+			if (hl->hl_endpos > p->r.hl_startpos && hl->hl_attr == p->r.hl_attr)
 				hl->hl_endpos = p->r.hl_startpos;
 			if (p->left != NULL)
 			{
@@ -733,7 +738,7 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 			}
 			break;
 		}
-		if (hl->hl_startpos < p->r.hl_endpos) {
+		if (hl->hl_startpos < p->r.hl_endpos && hl->hl_attr == p->r.hl_attr) {
 			hl->hl_startpos = p->r.hl_endpos;
 			if (hl->hl_startpos >= hl->hl_endpos)
 				return;
@@ -752,17 +757,19 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 	 * insertion. Otherwise insert a new node at the leaf.
 	 */
 	if (hl->hl_startpos < p->r.hl_startpos) {
-		if (hl->hl_endpos == p->r.hl_startpos)
+		if (hl->hl_attr == p->r.hl_attr)
 		{
-			p->r.hl_startpos = hl->hl_startpos;
-			return;
+			if (hl->hl_endpos == p->r.hl_startpos)
+			{
+				p->r.hl_startpos = hl->hl_startpos;
+				return;
+			}
+			if (p->prev != NULL && p->prev->r.hl_endpos == hl->hl_startpos)
+			{
+				p->prev->r.hl_endpos = hl->hl_endpos;
+				return;
+			}
 		}
-		if (p->prev != NULL && p->prev->r.hl_endpos == hl->hl_startpos)
-		{
-			p->prev->r.hl_endpos = hl->hl_endpos;
-			return;
-		}
-
 		p->left = n = hlist_getnode(anchor);
 		n->next = p;
 		if (p->prev != NULL)
@@ -772,16 +779,18 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 		}
 		p->prev = n;
 	} else {
-		if (p->r.hl_endpos == hl->hl_startpos)
+		if (hl->hl_attr == p->r.hl_attr)
 		{
-			p->r.hl_endpos = hl->hl_endpos;
-			return;
+			if (p->r.hl_endpos == hl->hl_startpos)
+			{
+				p->r.hl_endpos = hl->hl_endpos;
+				return;
+			}
+			if (p->next != NULL && hl->hl_endpos == p->next->r.hl_startpos) {
+				p->next->r.hl_startpos = hl->hl_startpos;
+				return;
+			}
 		}
-		if (p->next != NULL && hl->hl_endpos == p->next->r.hl_startpos) {
-			p->next->r.hl_startpos = hl->hl_startpos;
-			return;
-		}
-
 		p->right = n = hlist_getnode(anchor);
 		n->prev = p;
 		if (p->next != NULL)
@@ -871,13 +880,16 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 /*
  * Highlight every character in a range of displayed characters.
  */
-static void create_hilites(POSITION linepos, int start_index, int end_index, int *chpos)
+static void create_hilites(POSITION linepos, char *line, char *sp, char *ep, int attr, int *chpos)
 {
+	int start_index = sp - line;
+	int end_index = ep - line;
 	struct hilite hl;
 	int i;
 
 	/* Start the first hilite. */
 	hl.hl_startpos = linepos + chpos[start_index];
+	hl.hl_attr = attr;
 
 	/*
 	 * Step through the displayed chars.
@@ -907,13 +919,13 @@ static void create_hilites(POSITION linepos, int start_index, int end_index, int
  * the current pattern.
  * sp,ep delimit the first match already found.
  */
-static void hilite_line(POSITION linepos, char *line, int line_len, int *chpos, char *sp, char *ep, int cvt_ops)
+static void hilite_line(POSITION linepos, char *line, int line_len, int *chpos, char **sp, char **ep, int nsp, int cvt_ops)
 {
 	char *searchp;
 	char *line_end = line + line_len;
 
 	/*
-	 * sp and ep delimit the first match in the line.
+	 * sp[0] and ep[0] delimit the first match in the line.
 	 * Mark the corresponding file positions, then
 	 * look for further matches and mark them.
 	 * {{ This technique, of calling match_pattern on subsequent
@@ -921,25 +933,39 @@ static void hilite_line(POSITION linepos, char *line, int line_len, int *chpos, 
 	 *    if the pattern starts with "^".  This bug is fixed
 	 *    for those regex functions that accept a notbol parameter
 	 *    (currently POSIX, PCRE and V8-with-regexec2). }}
+	 * sp[i] and ep[i] for i>0 delimit subpattern matches.
+	 * Color each of them with its unique color.
 	 */
 	searchp = line;
 	do {
-		if (sp == NULL || ep == NULL)
-			return;
-		create_hilites(linepos, sp-line, ep-line, chpos);
+		char *lep = sp[0];
+		int i;
+		for (i = 1;  i < nsp;  i++)
+		{
+			if (sp[i] == NULL || ep[i] == NULL)
+				break;
+			create_hilites(linepos, line, lep, sp[i],
+				AT_HILITE | AT_COLOR_SEARCH, chpos);
+			create_hilites(linepos, line, sp[i], ep[i], 
+				AT_HILITE | AT_COLOR_SUBSEARCH(i), chpos);
+			lep = ep[i];
+		}
+		create_hilites(linepos, line, lep, ep[0], 
+			AT_HILITE | AT_COLOR_SEARCH, chpos);
+
 		/*
 		 * If we matched more than zero characters,
 		 * move to the first char after the string we matched.
 		 * If we matched zero, just move to the next char.
 		 */
-		if (ep > searchp)
-			searchp = ep;
+		if (ep[0] > searchp)
+			searchp = ep[0];
 		else if (searchp != line_end)
 			searchp++;
 		else /* end of line */
 			break;
 	} while (match_pattern(info_compiled(&search_info), search_info.text,
-			searchp, line_end - searchp, &sp, &ep, 1, search_info.search_type));
+			searchp, line_end - searchp, sp, ep, nsp, 1, search_info.search_type));
 }
 #endif
 
@@ -1073,14 +1099,14 @@ static POSITION search_pos(int search_type)
  * If so, add an entry to the filter list.
  */
 #if HILITE_SEARCH
-static int matches_filters(POSITION pos, char *cline, int line_len, int *chpos, POSITION linepos, char **sp, char **ep)
+static int matches_filters(POSITION pos, char *cline, int line_len, int *chpos, POSITION linepos, char **sp, char **ep, int nsp)
 {
 	struct pattern_info *filter;
 
 	for (filter = filter_infos; filter != NULL; filter = filter->next)
 	{
 		int line_filter = match_pattern(info_compiled(filter), filter->text,
-			cline, line_len, sp, ep, 0, filter->search_type);
+			cline, line_len, sp, ep, nsp, 0, filter->search_type);
 		if (line_filter)
 		{
 			struct hilite hl;
@@ -1143,7 +1169,9 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 	char *cline;
 	int line_len;
 	LINENUM linenum;
-	char *sp, *ep;
+	#define NSP (NUM_SEARCH_COLORS+2)
+	char *sp[NSP];
+	char *ep[NSP];
 	int line_match;
 	int cvt_ops;
 	int cvt_len;
@@ -1292,7 +1320,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 		   ((search_type & SRCH_FIND_ALL) ||
 		     prep_startpos == NULL_POSITION ||
 		     linepos < prep_startpos || linepos >= prep_endpos)) {
-			if (matches_filters(pos, cline, line_len, chpos, linepos, &sp, &ep))
+			if (matches_filters(pos, cline, line_len, chpos, linepos, sp, ep, NSP))
 				continue;
 		}
 #endif
@@ -1305,7 +1333,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 		if (prev_pattern(&search_info))
 		{
 			line_match = match_pattern(info_compiled(&search_info), search_info.text,
-				cline, line_len, &sp, &ep, 0, search_type);
+				cline, line_len, sp, ep, NSP, 0, search_type);
 			if (line_match)
 			{
 				/*
@@ -1319,7 +1347,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 					 * Just add the matches in this line to the 
 					 * hilite list and keep searching.
 					 */
-					hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, cvt_ops);
+					hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, NSP, cvt_ops);
 #endif
 				} else if (--matches <= 0)
 				{
@@ -1335,7 +1363,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						 * the matches in this one line.
 						 */
 						clr_hilite();
-						hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, cvt_ops);
+						hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, NSP, cvt_ops);
 					}
 #endif
 					if (chop_line())
@@ -1344,10 +1372,10 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						 * If necessary, shift horizontally to make sure 
 						 * search match is fully visible.
 						 */
-						if (sp != NULL && ep != NULL)
+						if (sp[0] != NULL && ep[0] != NULL)
 						{
-							int start_off = sp - cline;
-							int end_off = ep - cline;
+							int start_off = sp[0] - cline;
+							int end_off = ep[0] - cline;
 							int save_hshift = hshift;
 							int sshift;
 							int eshift;
@@ -1373,9 +1401,9 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						 * of the match appears in the last line on the screen.
 						 * lastlinepos is the position of the first char of that last line.
 						 */
-						if (ep != NULL)
+						if (ep[0] != NULL)
 						{
-							int end_off = ep - cline;
+							int end_off = ep[0] - cline;
 							if (end_off >= swidth * sheight / 4) /* heuristic */
 								*plastlinepos = get_lastlinepos(linepos, linepos + chpos[end_off], sheight);
 						}
