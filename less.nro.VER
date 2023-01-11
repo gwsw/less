@@ -616,6 +616,13 @@ Prompts.
 The rscroll character.
 .IP "S"
 Search results.
+.IP "1 - 6"
+The text matched by the first through sixth parenthesized sub-pattern
+in a search result.
+These work only if
+.B less 
+is built with the regular expression library
+.BR pcre .
 .IP "W"
 The highlight enabled via the \-w option.
 .IP "d"

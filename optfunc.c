@@ -587,6 +587,8 @@ static int color_from_namechar(char namechar)
 	case 'd': return AT_BOLD;
 	case 'u': return AT_UNDERLINE;
 	case 'k': return AT_BLINK;
+	case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+		return AT_COLOR_SUBSEARCH(namechar-'0');
 	default:  return -1;
 	}
 }

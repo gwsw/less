@@ -29,6 +29,9 @@
 
 * Status column (-J) shows off-screen matches.
 
+* Sub-patterns are colored with unique colors,
+  if supported by the regular expression library.
+
 * Don't allow opening a tty as file input unless -f is set (github #309).
 
 * Fix incorrect handling of some Private Use Unicode characters.

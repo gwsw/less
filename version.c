@@ -967,7 +967,7 @@ v616  12/9/22   Don't open tty as input file without -f.
 v617  12/10/22  Support poll on newer versions of MacOS.
 v618  12/29/22  Add --no-search-headers option; use C89 function definitions.
 v619  12/30/22  Fix bug using 'n' before '/'.
-v620            Add --modelines option.
+v620            Add --modelines option; add subpattern coloring.
 */
 
 char version[] = "620x";
