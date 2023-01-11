@@ -121,7 +121,7 @@ while it is being viewed.
 To stop waiting for more data, enter the interrupt character (usually \(haC).
 On systems which support
 .BR poll (1)
-you can also use \(haX.
+you can also use \(haX or the character specified by the \-\-intr option.
 If the input is a pipe and the \-\-exit-follow-on-close option is in effect,
 .B less
 will automatically stop waiting for data when the input side 
@@ -470,7 +470,9 @@ This may cause
 .B less
 to think that the file ends at the current position,
 so it may be necessary to use the R or F command to see more data.
-The \(haX command works only on systems that support the
+The \-\-intr option can be used to specify a different character
+to use instead of \(haX.
+This command works only on systems that support the
 .BR poll (1)
 function.
 On systems without
@@ -1181,6 +1183,13 @@ Subsequent search commands will be "incremental"; that is,
 .B less
 will advance to the next line containing the search pattern 
 as each character of the pattern is typed in.
+.IP "\-\-intr=\fIc\fP"
+Use the character \fIc\fP instead of \(haX to interrupt a read
+when the "Waiting for data" message is displayed.
+\fIc\fP must be an ASCII character; that is, one with a value 
+between 1 and 127 inclusive.
+A caret followed by a single character can be used 
+to specify a control character.
 .IP "\-\-line-num-width=\fIn\fP"
 Sets the minimum width of the line number field when the \-N option is in effect 
 to \fIn\fP characters.
@@ -2179,7 +2188,7 @@ The name of the editor (used for the v command).
 .BR lessecho (1)
 .
 .SH COPYRIGHT
-Copyright (C) 1984-2022  Mark Nudelman
+Copyright (C) 1984-2023  Mark Nudelman
 .PP
 less is part of the GNU project and is free software.
 You can redistribute it and/or modify it

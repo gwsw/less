@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1984-2022  Mark Nudelman
+ * Copyright (C) 1984-2023  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
  * License or the Less License, as specified in the README file.
@@ -74,6 +74,7 @@ public int redraw_on_quit;      /* Redraw last screen after term deinit */
 public int def_search_type;     /* */
 public int exit_F_on_close;     /* Exit F command when input closes */
 public int modelines;           /* Lines to read looking for modelines */
+public char intr_char = CONTROL('X'); /* Char to interrupt reads */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -158,6 +159,7 @@ static struct optname search_type_optname = { "search-options", NULL };
 static struct optname exit_F_on_close_optname = { "exit-follow-on-close", NULL };
 static struct optname modelines_optname = { "modelines", NULL };
 static struct optname no_vbell_optname = { "no-vbell", NULL };
+static struct optname intr_optname = { "intr", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/
@@ -506,7 +508,7 @@ static struct loption option[] =
 	},
 	{ OLETTER_NONE, &rscroll_optname,
 		STRING|REPAINT|INIT_HANDLER, 0, NULL, opt_rscroll,
-		{ "right scroll character: ", NULL, NULL }
+		{ "rscroll character: ", NULL, NULL }
 	},
 	{ OLETTER_NONE, &nohistdups_optname,
 		BOOL, OPT_OFF, &no_hist_dups, NULL,
@@ -651,6 +653,10 @@ static struct loption option[] =
 			"Read %d lines looking for modelines",
 			NULL
 		}
+	},
+	{ OLETTER_NONE, &intr_optname,
+		STRING, 0, NULL, opt_intr,
+		{ "interrupt character: ", NULL, NULL }
 	},
 #if LESSTEST
 	{ OLETTER_NONE, &ttyin_name_optname,

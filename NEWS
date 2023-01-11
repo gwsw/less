@@ -21,6 +21,8 @@
 
 * Add --modelines option (github #89).
 
+* Add --intr option (github #224).
+
 * Allow empty "lines" field in --header option.
 
 * Update Unicode tables.
