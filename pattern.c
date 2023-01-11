@@ -332,7 +332,7 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 		if (matched)
 		{
 			int i;
-			for (i = 0;  i < RM_COUNT;  i++)
+			for (i = 0;  i < nsp-1;  i++)
 			{
 				if (rm[i].rm_so < 0)
 					break;
@@ -349,14 +349,17 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 #endif
 #if HAVE_PCRE
 	{
-		#define OVECTOR_COUNT ((3*NUM_SEARCH_COLORS)+2)
+		#define OVECTOR_COUNT ((3*NUM_SEARCH_COLORS)+3)
 		int ovector[OVECTOR_COUNT];
 		int flags = (notbol) ? PCRE_NOTBOL : 0;
 		int i;
+		int ecount;
 		int mcount = pcre_exec(pattern, NULL, line, line_len,
 			0, flags, ovector, OVECTOR_COUNT);
 		matched = (mcount > 0);
-		for (i = 0;  i < mcount*2; )
+		ecount = nsp-1;
+		if (ecount > mcount) ecount = mcount;
+		for (i = 0;  i < ecount*2; )
 		{
 			*sp++ = line + ovector[i++];
 			*ep++ = line + ovector[i++];
@@ -366,7 +369,7 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 #if HAVE_PCRE2
 	{
 		int flags = (notbol) ? PCRE2_NOTBOL : 0;
-		pcre2_match_data *md = pcre2_match_data_create(3, NULL);
+		pcre2_match_data *md = pcre2_match_data_create(nsp-1, NULL);
 		int mcount = pcre2_match(pattern, (PCRE2_SPTR)line, line_len,
 			0, flags, md, NULL);
 		matched = (mcount > 0);
@@ -374,7 +377,9 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 		{
 			PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(md);
 			int i;
-			for (i = 0;  i < mcount*2; )
+			int ecount = nsp-1;
+			if (ecount > mcount) ecount = mcount;
+			for (i = 0;  i < ecount*2; )
 			{
 				*sp++ = line + ovector[i++];
 				*ep++ = line + ovector[i++];
