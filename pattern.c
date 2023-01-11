@@ -320,47 +320,46 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 #endif
 #if HAVE_POSIX_REGCOMP
 	{
-		regmatch_t rm;
+		#define RM_COUNT (NUM_SEARCH_COLORS+2)
+		regmatch_t rm[RM_COUNT];
 		int flags = (notbol) ? REG_NOTBOL : 0;
 #ifdef REG_STARTEND
 		flags |= REG_STARTEND;
-		rm.rm_so = 0;
-		rm.rm_eo = line_len;
+		rm[0].rm_so = 0;
+		rm[0].rm_eo = line_len;
 #endif
-		matched = !regexec(pattern, line, 1, &rm, flags);
+		matched = !regexec(pattern, line, RM_COUNT, rm, flags);
 		if (matched)
 		{
+			int i;
+			for (i = 0;  i < RM_COUNT;  i++)
+			{
+				if (rm[i].rm_so < 0)
+					break;
 #ifndef __WATCOMC__
-			*sp++ = line + rm.rm_so;
-			*ep++ = line + rm.rm_eo;
+				*sp++ = line + rm[i].rm_so;
+				*ep++ = line + rm[i].rm_eo;
 #else
-			*sp++ = rm.rm_sp;
-			*ep++ = rm.rm_ep;
+				*sp++ = rm[i].rm_sp;
+				*ep++ = rm[i].rm_ep;
 #endif
+			}
 		}
 	}
 #endif
 #if HAVE_PCRE
 	{
-		#define NUM_SUBPATS 9
-		#define OVECTOR_COUNT ((3*NUM_SUBPATS)+2)
+		#define OVECTOR_COUNT ((3*NUM_SEARCH_COLORS)+2)
 		int ovector[OVECTOR_COUNT];
 		int flags = (notbol) ? PCRE_NOTBOL : 0;
 		int i;
-		for (i = 0;  i < OVECTOR_COUNT;  i++)
-			ovector[i] = -1;
-		matched = pcre_exec(pattern, NULL, line, line_len,
-			0, flags, ovector, OVECTOR_COUNT) >= 0;
-		if (matched)
+		int mcount = pcre_exec(pattern, NULL, line, line_len,
+			0, flags, ovector, OVECTOR_COUNT);
+		matched = (mcount > 0);
+		for (i = 0;  i < mcount*2; )
 		{
-			for (i = 0;  i < OVECTOR_COUNT-2; )
-			{
-				int soff = ovector[i++];
-				int eoff = ovector[i++];
-				if (soff < 0 || eoff < 0) break;
-				*sp++ = line + soff;
-				*ep++ = line + eoff;
-			}
+			*sp++ = line + ovector[i++];
+			*ep++ = line + ovector[i++];
 		}
 	}
 #endif
@@ -368,13 +367,18 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 	{
 		int flags = (notbol) ? PCRE2_NOTBOL : 0;
 		pcre2_match_data *md = pcre2_match_data_create(3, NULL);
-		matched = pcre2_match(pattern, (PCRE2_SPTR)line, line_len,
-			0, flags, md, NULL) >= 0;
+		int mcount = pcre2_match(pattern, (PCRE2_SPTR)line, line_len,
+			0, flags, md, NULL);
+		matched = (mcount > 0);
 		if (matched)
 		{
 			PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(md);
-			*sp++ = line + ovector[0];
-			*ep++ = line + ovector[1];
+			int i;
+			for (i = 0;  i < mcount*2; )
+			{
+				*sp++ = line + ovector[i++];
+				*ep++ = line + ovector[i++];
+			}
 		}
 		pcre2_match_data_free(md);
 	}
@@ -384,7 +388,6 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 	/*
 	 * re_exec doesn't seem to provide a way to get the matched string.
 	 */
-	/// *sp = *ep = NULL;
 #endif
 #if HAVE_REGCMP
 	matched = ((*ep++ = regex(pattern, line)) != NULL);
