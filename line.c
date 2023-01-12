@@ -108,27 +108,27 @@ static int mbc_buf_index = 0;
 static POSITION mbc_pos;
 
 /* Configurable color map */
-static char color_map[AT_NUM_COLORS+4][12] = {
-	"Wm",  /* AT_COLOR_ATTN */
-	"kR",  /* AT_COLOR_BIN */
-	"kR",  /* AT_COLOR_CTRL */
-	"kY",  /* AT_COLOR_ERROR */
-	"c",   /* AT_COLOR_LINENUM */
-	"Wb",  /* AT_COLOR_MARK */
-	"kC",  /* AT_COLOR_PROMPT */
-	"kc",  /* AT_COLOR_RSCROLL */
-	"",    /* AT_COLOR_HEADER */
-	"kG",  /* AT_COLOR_SEARCH */
-	"ky",  /* AT_COLOR_SEARCH+1 */
-	"Wk",  /* AT_COLOR_SEARCH+2 */
-	"bW",  /* AT_COLOR_SEARCH+3 */
-	"wr",  /* AT_COLOR_SEARCH+4 */
-	"kc",  /* AT_COLOR_SEARCH+5 */
-
-	"",    /* AT_UNDERLINE */
-	"",    /* AT_BOLD */
-	"",    /* AT_BLINK */
-	"",    /* AT_STANDOUT */
+struct color_map { int attr; char color[12]; };
+static struct color_map color_map[] = {
+	{ AT_UNDERLINE,            "" },
+	{ AT_BOLD,                 "" },
+	{ AT_BLINK,                "" },
+	{ AT_STANDOUT,             "" },
+	{ AT_COLOR_ATTN,           "Wm" },
+	{ AT_COLOR_BIN,            "kR" },
+	{ AT_COLOR_CTRL,           "kR" },
+	{ AT_COLOR_ERROR,          "kY" },
+	{ AT_COLOR_LINENUM,        "c" },
+	{ AT_COLOR_MARK,           "Wb" },
+	{ AT_COLOR_PROMPT,         "kC" },
+	{ AT_COLOR_RSCROLL,        "kc" },
+	{ AT_COLOR_HEADER,         "" },
+	{ AT_COLOR_SEARCH,         "kG" },
+	{ AT_COLOR_SUBSEARCH(1),   "ky" },
+	{ AT_COLOR_SUBSEARCH(2),   "wb" },
+	{ AT_COLOR_SUBSEARCH(3),   "YM" },
+	{ AT_COLOR_SUBSEARCH(4),   "Yr" },
+	{ AT_COLOR_SUBSEARCH(5),   "Wc" },
 };
 
 /* State while processing an ANSI escape sequence */
@@ -1527,37 +1527,27 @@ public int rrshift(void)
 /*
  * Get the color_map index associated with a given attribute.
  */
+static int lookup_color_index(int attr)
+{
+	int cx;
+	for (cx = 0;  cx < sizeof(color_map)/sizeof(*color_map);  cx++)
+		if (color_map[cx].attr == attr)
+			return cx;
+	return -1;
+}
+
 static int color_index(int attr)
 {
-	if (use_color)
-	{
-		switch (attr & AT_COLOR)
-		{
-		case AT_COLOR_ATTN:    return 0;
-		case AT_COLOR_BIN:     return 1;
-		case AT_COLOR_CTRL:    return 2;
-		case AT_COLOR_ERROR:   return 3;
-		case AT_COLOR_LINENUM: return 4;
-		case AT_COLOR_MARK:    return 5;
-		case AT_COLOR_PROMPT:  return 6;
-		case AT_COLOR_RSCROLL: return 7;
-		case AT_COLOR_HEADER:  return 8;
-		case AT_COLOR_SEARCH:  return 9;
-		case AT_COLOR_SUBSEARCH(1):  return 10;
-		case AT_COLOR_SUBSEARCH(2):  return 11;
-		case AT_COLOR_SUBSEARCH(3):  return 12;
-		case AT_COLOR_SUBSEARCH(4):  return 13;
-		case AT_COLOR_SUBSEARCH(5):  return 14;
-		}
-	}
+	if (use_color && (attr & AT_COLOR))
+		return lookup_color_index(attr & AT_COLOR);
 	if (attr & AT_UNDERLINE)
-		return 15;
+		return lookup_color_index(AT_UNDERLINE);
 	if (attr & AT_BOLD)
-		return 16;
+		return lookup_color_index(AT_BOLD);
 	if (attr & AT_BLINK)
-		return 17;
+		return lookup_color_index(AT_BLINK);
 	if (attr & AT_STANDOUT)
-		return 18;
+		return lookup_color_index(AT_STANDOUT);
 	return -1;
 }
 
@@ -1569,11 +1559,11 @@ public int set_color_map(int attr, char *colorstr)
 	int cx = color_index(attr);
 	if (cx < 0)
 		return -1;
-	if (strlen(colorstr)+1 > sizeof(color_map[cx]))
+	if (strlen(colorstr)+1 > sizeof(color_map[cx].color))
 		return -1;
 	if (*colorstr != '\0' && parse_color(colorstr, NULL, NULL) == CT_NULL)
 		return -1;
-	strcpy(color_map[cx], colorstr);
+	strcpy(color_map[cx].color, colorstr);
 	return 0;
 }
 
@@ -1585,5 +1575,5 @@ public char * get_color_map(int attr)
 	int cx = color_index(attr);
 	if (cx < 0)
 		return NULL;
-	return color_map[cx];
+	return color_map[cx].color;
 }

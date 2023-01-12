@@ -618,10 +618,10 @@ Prompts.
 The rscroll character.
 .IP "S"
 Search results.
-.IP "1-6"
-The text matched by the first through sixth parenthesized sub-pattern
-in a search result.
-These work only if
+.IP "1-5"
+The text in a search result which matches
+the first through fifth parenthesized sub-pattern.
+Sub-pattern coloring works only if
 .B less 
 is built with one of the regular expression libraries
 .BR posix ", " pcre ", or " pcre2 .
