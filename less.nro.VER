@@ -1805,7 +1805,9 @@ but the ordinary user need not understand the details of constructing
 personalized prompt strings.
 .sp
 A percent sign followed by a single character is expanded
-according to what the following character is:
+according to what the following character is.
+(References to the input file size below refer to the preprocessed size,
+if an input preprocessor is being used.)
 .IP "%b\fIX\fP"
 Replaced by the byte offset into the current input file.
 The b is followed by a single character (shown as \fIX\fP above)
