@@ -969,6 +969,7 @@ v618  12/29/22  Add --no-search-headers option; use C89 function definitions.
 v619  12/30/22  Fix bug using 'n' before '/'.
 v620  1/12/23   Add --modelines option; add --intr option;
                 add subpattern coloring.
+v621
 */
 
-char version[] = "620";
+char version[] = "621x";
