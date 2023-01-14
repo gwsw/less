@@ -43,6 +43,7 @@ public int jump_sline;          /* Screen line of "jump target" */
 public long jump_sline_fraction = -1;
 public long shift_count_fraction = -1;
 public int chopline;            /* Truncate displayed lines at screen width */
+public int wordwrap;            /* Wrap lines at space */
 public int no_init;             /* Disable sending ti/te termcap strings */
 public int no_keypad;           /* Disable sending ks/ke termcap strings */
 public int twiddle;             /* Show tildes after EOF */
@@ -160,6 +161,7 @@ static struct optname exit_F_on_close_optname = { "exit-follow-on-close", NULL }
 static struct optname modelines_optname = { "modelines", NULL };
 static struct optname no_vbell_optname = { "no-vbell", NULL };
 static struct optname intr_optname = { "intr", NULL };
+static struct optname wordwrap_optname = { "wordwrap", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/
@@ -657,6 +659,14 @@ static struct loption option[] =
 	{ OLETTER_NONE, &intr_optname,
 		STRING, 0, NULL, opt_intr,
 		{ "interrupt character: ", NULL, NULL }
+	},
+	{ OLETTER_NONE, &wordwrap_optname,
+		BOOL|REPAINT, OPT_OFF, &wordwrap, NULL,
+		{
+			"Wrap lines at any character",
+			"Wrap lines at spaces",
+			NULL
+		}
 	},
 #if LESSTEST
 	{ OLETTER_NONE, &ttyin_name_optname,

@@ -1006,6 +1006,7 @@ That is, the portion of a long line that does not fit in
 the screen width is not displayed until you press RIGHT-ARROW.
 The default is to wrap long lines; that is, display the remainder
 on the next line.
+See also the \-\-wordwrap option.
 .IP "\-t\fItag\fP or \-\-tag=\fItag\fP"
 The \-t option, followed immediately by a TAG,
 will edit the file containing that tag.
@@ -1307,6 +1308,10 @@ https://www.ecma-international.org/publications-and-standards/standards/ecma-48)
 Set the number of lines to scroll when the mouse wheel is scrolled
 and the \-\-mouse or \-\-MOUSE option is in effect.
 The default is 1 line.
+.IP "\-\-wordwrap"
+Wrap each line at a space or tab if possible,
+so that a word is not split between two lines.
+The default is to wrap at any character.
 .IP \-\-
 A command line argument of "\-\-" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.

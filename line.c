@@ -106,6 +106,8 @@ static char mbc_buf[MAX_UTF_CHAR_LEN];
 static int mbc_buf_len = 0;
 static int mbc_buf_index = 0;
 static POSITION mbc_pos;
+static int saved_line_end;
+static int saved_end_column;
 
 /* Configurable color map */
 struct color_map { int attr; char color[12]; };
@@ -528,6 +530,24 @@ static int backc(void)
 		ch = prev_ch;
 	}
 	return (1);
+}
+
+/*
+ * Preserve the current position in the line buffer (for word wrapping).
+ */
+public void savec(void)
+{
+	saved_line_end = linebuf.end;
+	saved_end_column = end_column;
+}
+
+/*
+ * Restore the position in the line buffer (start of line for word wrapping).
+ */
+public void loadc(void)
+{
+	linebuf.end = saved_line_end;
+	end_column = saved_end_column;
 }
 
 /*

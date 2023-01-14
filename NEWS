@@ -11,9 +11,11 @@
 
 ======================================================================
 
-	Major changes between "less" versions 608 and 620
+	Major changes between "less" versions 608 and 621
 
 * Add LESSUTFCHARDEF environment variable (github #275).
+
+* Add --wordwrap option (github #113).
 
 * Add --no-vbell option (github #304).
 

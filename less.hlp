@@ -253,6 +253,8 @@
                   Enables colored text.
                 --wheel-lines=_N
                   Each click of the mouse wheel moves _N lines.
+                --wordwrap
+                  Wrap lines at spaces.
 
 
  ---------------------------------------------------------------------------
