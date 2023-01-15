@@ -1279,7 +1279,7 @@ public void set_attr_line(int a)
 /*
  * Set the char to be displayed in the status column.
  */
-public void set_status_col(int c, int attr)
+public void set_status_col(char c, int attr)
 {
 	set_pfx(0, c, attr);
 }

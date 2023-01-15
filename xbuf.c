@@ -25,7 +25,7 @@ public void xbuf_reset(struct xbuffer *xbuf)
 /*
  * Add a byte to an expandable text buffer.
  */
-public void xbuf_add_byte(struct xbuffer *xbuf, unsigned int b)
+public void xbuf_add_byte(struct xbuffer *xbuf, unsigned char b)
 {
 	if (xbuf->end >= xbuf->size)
 	{
