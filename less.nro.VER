@@ -1309,7 +1309,8 @@ Set the number of lines to scroll when the mouse wheel is scrolled
 and the \-\-mouse or \-\-MOUSE option is in effect.
 The default is 1 line.
 .IP "\-\-wordwrap"
-Wrap each line at a space or tab if possible,
+When the \-S option is not in use,
+wrap each line at a space or tab if possible,
 so that a word is not split between two lines.
 The default is to wrap at any character.
 .IP \-\-
@@ -1407,7 +1408,12 @@ commands by creating a lesskey source file.
 This file specifies a set of command keys and an action
 associated with each key.
 You may also change the line-editing keys (see LINE EDITING),
-and to set environment variables.
+and set environment variables used by
+.BR less .
+See the
+.BR lesskey (1)
+manual page for details about the file format.
+.PP
 If the environment variable LESSKEYIN is set,
 .B less
 uses that as the name of the lesskey source file.
@@ -1429,9 +1435,6 @@ then looks for a lesskey file called "lesskey.ini" in any directory specified
 in the INIT environment variable, and if it not found there,
 then looks for a lesskey file called "lesskey.ini" in any directory specified
 in the PATH environment variable.
-See the
-.B lesskey
-manual page for more details.
 .PP
 A system-wide lesskey source file may also be set up to provide key bindings.
 If a key is defined in both a local lesskey file and in the
