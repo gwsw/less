@@ -870,11 +870,7 @@ public void scrsize(void)
 #endif
 	}
 
-	if ((s = lgetenv("LESS_LINES")) != NULL)
-	{
-		sc_height = atoi(s);
-		always_repaint = TRUE;
-	} else if (sys_height > 0)
+	if (sys_height > 0)
 		sc_height = sys_height;
 	else if ((s = lgetenv("LINES")) != NULL)
 		sc_height = atoi(s);
@@ -884,10 +880,14 @@ public void scrsize(void)
 #endif
 	if (sc_height <= 0)
 		sc_height = DEF_SC_HEIGHT;
+	if ((s = lgetenv("LESS_LINES")) != NULL)
+	{
+		int height = atoi(s);
+		sc_height = (height < 0) ? sc_height + height : height;
+		always_repaint = TRUE;
+	}
 
-	if ((s = lgetenv("LESS_COLUMNS")) != NULL)
-		sc_width = atoi(s);
-	else if (sys_width > 0)
+	if (sys_width > 0)
 		sc_width = sys_width;
 	else if ((s = lgetenv("COLUMNS")) != NULL)
 		sc_width = atoi(s);
@@ -897,6 +897,11 @@ public void scrsize(void)
 #endif
 	if (sc_width <= 0)
 		sc_width = DEF_SC_WIDTH;
+	if ((s = lgetenv("LESS_COLUMNS")) != NULL)
+	{
+		int width = atoi(s);
+		sc_width = (width < 0) ? sc_width + width : width;
+	}
 }
 
 #if MSDOS_COMPILER==MSOFTC

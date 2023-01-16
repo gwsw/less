@@ -2169,12 +2169,16 @@ Unlike COLUMNS, takes precedence over the system's idea of the screen size,
 so it can be used to make
 .B less
 use less than the full screen width.
+If set to a negative number, sets the number of columns used to
+this much less than the actual screen width.
 .IP LESS_LINES
 Sets the number of lines on the screen.
 Unlike LINES, takes precedence over the system's idea of the screen size,
 so it can be used to make
 .B less
 use less than the full screen height.
+If set to a negative number, sets the number of lines used to
+this much less than the actual screen height.
 When set,
 .B less
 repaints the entire screen on every movement command,
