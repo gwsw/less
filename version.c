@@ -972,4 +972,4 @@ v620  1/12/23   Add --modelines option; add --intr option;
 v621            Add --wordwrap option; add LESS_LINES & LESS_COLUMNS.
 */
 
-char version[] = "621x";
+char version[] = "621";
