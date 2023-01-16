@@ -237,7 +237,7 @@ public int clear_bg;            /* Clear fills with background color */
 public int missing_cap = 0;     /* Some capability is missing */
 public char *kent = NULL;       /* Keypad ENTER sequence */
 public int term_init_done = FALSE;
-public int always_repaint = FALSE;
+public int full_screen = TRUE;
 
 static int attrmode = AT_NORMAL;
 static int termcap_debug = -1;
@@ -878,14 +878,14 @@ public void scrsize(void)
 	else if ((n = ltgetnum("li")) > 0)
 		sc_height = n;
 #endif
-	if (sc_height <= 0)
-		sc_height = DEF_SC_HEIGHT;
 	if ((s = lgetenv("LESS_LINES")) != NULL)
 	{
 		int height = atoi(s);
 		sc_height = (height < 0) ? sc_height + height : height;
-		always_repaint = TRUE;
+		full_screen = FALSE;
 	}
+	if (sc_height <= 0)
+		sc_height = DEF_SC_HEIGHT;
 
 	if (sys_width > 0)
 		sc_width = sys_width;
@@ -895,13 +895,13 @@ public void scrsize(void)
 	else if ((n = ltgetnum("co")) > 0)
 		sc_width = n;
 #endif
-	if (sc_width <= 0)
-		sc_width = DEF_SC_WIDTH;
 	if ((s = lgetenv("LESS_COLUMNS")) != NULL)
 	{
 		int width = atoi(s);
 		sc_width = (width < 0) ? sc_width + width : width;
 	}
+	if (sc_width <= 0)
+		sc_width = DEF_SC_WIDTH;
 }
 
 #if MSDOS_COMPILER==MSOFTC
@@ -1381,7 +1381,7 @@ public void get_term(void)
 	 * to move the cursor to the lower left corner of the screen.
 	 */
 	t1 = ltgetstr("ll", &sp);
-	if (t1 == NULL)
+	if (t1 == NULL || !full_screen)
 		t1 = "";
 	if (*sc_move == '\0')
 		t2 = "";

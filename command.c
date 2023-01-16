@@ -63,7 +63,7 @@ extern int shift_count;
 extern int oldbot;
 extern int forw_prompt;
 extern int incr_search;
-extern int always_repaint;
+extern int full_screen;
 #if MSDOS_COMPILER==WIN32C
 extern int utf_mode;
 #endif
@@ -735,7 +735,7 @@ static void make_display(void)
 	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
 	 */
-	if (always_repaint)
+	if (!full_screen)
 		home();
 	if (empty_screen())
 	{
@@ -743,7 +743,7 @@ static void make_display(void)
 			jump_loc(ch_zero(), 1);
 		else
 			jump_loc(initial_scrpos.pos, initial_scrpos.ln);
-	} else if (screen_trashed || always_repaint)
+	} else if (screen_trashed || !full_screen)
 	{
 		int save_top_scroll = top_scroll;
 		int save_ignore_eoi = ignore_eoi;
