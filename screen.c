@@ -237,6 +237,7 @@ public int clear_bg;            /* Clear fills with background color */
 public int missing_cap = 0;     /* Some capability is missing */
 public char *kent = NULL;       /* Keypad ENTER sequence */
 public int term_init_done = FALSE;
+public int always_repaint = FALSE;
 
 static int attrmode = AT_NORMAL;
 static int termcap_debug = -1;
@@ -869,7 +870,11 @@ public void scrsize(void)
 #endif
 	}
 
-	if (sys_height > 0)
+	if ((s = lgetenv("LESS_LINES")) != NULL)
+	{
+		sc_height = atoi(s);
+		always_repaint = TRUE;
+	} else if (sys_height > 0)
 		sc_height = sys_height;
 	else if ((s = lgetenv("LINES")) != NULL)
 		sc_height = atoi(s);
@@ -880,7 +885,9 @@ public void scrsize(void)
 	if (sc_height <= 0)
 		sc_height = DEF_SC_HEIGHT;
 
-	if (sys_width > 0)
+	if ((s = lgetenv("LESS_COLUMNS")) != NULL)
+		sc_width = atoi(s);
+	else if (sys_width > 0)
 		sc_width = sys_width;
 	else if ((s = lgetenv("COLUMNS")) != NULL)
 		sc_width = atoi(s);

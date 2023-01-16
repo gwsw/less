@@ -2163,6 +2163,22 @@ String to be appended to a directory name in filename completion.
 Format for displaying non-printable Unicode code points.
 .IP LESSUTFCHARDEF 
 Overrides the type of specified Unicode characters.
+.IP LESS_COLUMNS
+Sets the number of columns on the screen.
+Unlike COLUMNS, takes precedence over the system's idea of the screen size,
+so it can be used to make
+.B less
+use less than the full screen width.
+.IP LESS_LINES
+Sets the number of lines on the screen.
+Unlike LINES, takes precedence over the system's idea of the screen size,
+so it can be used to make
+.B less
+use less than the full screen height.
+When set,
+.B less
+repaints the entire screen on every movement command,
+so scrolling may be slower.
 .IP LESS_IS_MORE
 Emulate the
 .BR more (1)

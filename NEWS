@@ -25,6 +25,8 @@
 
 * Add --intr option (github #224).
 
+* Add LESS_LINES and LESS_COLUMNS environment variables.
+
 * Allow empty "lines" field in --header option.
 
 * Update Unicode tables.
