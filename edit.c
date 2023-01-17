@@ -276,8 +276,8 @@ static void close_pipe(FILE *pipefd)
 	if (status != 0 && show_preproc_error && feof(pipefd))
 	{
 		PARG parg;
-		parg.p_int = (status >> 8);
-		error("Input preprocessor failed (status %d)", &parg);
+		parg.p_int = status;
+		error("Input preprocessor failed (status %x)", &parg);
 	}
 }
 

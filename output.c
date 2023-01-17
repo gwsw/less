@@ -471,7 +471,7 @@ public void putstr(constant char *s)
  * Convert an integral type to a string.
  */
 #define TYPE_TO_A_FUNC(funcname, type) \
-void funcname(type num, char *buf) \
+void funcname(type num, char *buf, int radix) \
 { \
 	int neg = (num < 0); \
 	char tbuf[INT_STRLEN_BOUND(num)+2]; \
@@ -479,8 +479,8 @@ void funcname(type num, char *buf) \
 	if (neg) num = -num; \
 	*--s = '\0'; \
 	do { \
-		*--s = (num % 10) + '0'; \
-	} while ((num /= 10) != 0); \
+		*--s = (num % radix) + '0'; \
+	} while ((num /= radix) != 0); \
 	if (neg) *--s = '-'; \
 	strcpy(buf, s); \
 }
@@ -513,11 +513,11 @@ STR_TO_TYPE_FUNC(lstrtoul, unsigned long)
 /*
  * Output an integer in a given radix.
  */
-static int iprint_int(int num)
+static int iprint_int(int num, int radix)
 {
 	char buf[INT_STRLEN_BOUND(num)];
 
-	inttoa(num, buf);
+	inttoa(num, buf, radix);
 	putstr(buf);
 	return ((int) strlen(buf));
 }
@@ -525,11 +525,11 @@ static int iprint_int(int num)
 /*
  * Output a line number in a given radix.
  */
-static int iprint_linenum(LINENUM num)
+static int iprint_linenum(LINENUM num, int radix)
 {
 	char buf[INT_STRLEN_BOUND(num)];
 
-	linenumtoa(num, buf);
+	linenumtoa(num, buf, radix);
 	putstr(buf);
 	return ((int) strlen(buf));
 }
@@ -568,11 +568,15 @@ public int less_printf(char *fmt, PARG *parg)
 				}
 				break;
 			case 'd':
-				col += iprint_int(parg->p_int);
+				col += iprint_int(parg->p_int, 10);
+				parg++;
+				break;
+			case 'x':
+				col += iprint_int(parg->p_int, 16);
 				parg++;
 				break;
 			case 'n':
-				col += iprint_linenum(parg->p_linenum);
+				col += iprint_linenum(parg->p_linenum, 10);
 				parg++;
 				break;
 			case 'c':

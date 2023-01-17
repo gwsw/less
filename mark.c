@@ -381,7 +381,7 @@ public void save_marks(FILE *fout, char *hdr)
 		char pos_str[INT_STRLEN_BOUND(m->m_scrpos.pos) + 2];
 		if (m->m_scrpos.pos == NULL_POSITION)
 			continue;
-		postoa(m->m_scrpos.pos, pos_str);
+		postoa(m->m_scrpos.pos, pos_str, 10);
 		filename = m->m_filename;
 		if (filename == NULL)
 			filename = get_real_filename(m->m_ifile);

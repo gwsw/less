@@ -110,7 +110,7 @@ static void ap_pos(POSITION pos)
 {
 	char buf[INT_STRLEN_BOUND(pos) + 2];
 
-	postoa(pos, buf);
+	postoa(pos, buf, 10);
 	ap_str(buf);
 }
 
@@ -121,7 +121,7 @@ static void ap_linenum(LINENUM linenum)
 {
 	char buf[INT_STRLEN_BOUND(linenum) + 2];
 
-	linenumtoa(linenum, buf);
+	linenumtoa(linenum, buf, 10);
 	ap_str(buf);
 }
 
@@ -132,7 +132,7 @@ static void ap_int(int num)
 {
 	char buf[INT_STRLEN_BOUND(num) + 2];
 
-	inttoa(num, buf);
+	inttoa(num, buf, 10);
 	ap_str(buf);
 }
 

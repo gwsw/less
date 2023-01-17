@@ -585,9 +585,9 @@ struct ansi_state;
 #include "funcs.h"
 
 /* Functions not included in funcs.h */
-void postoa(POSITION, char*);
-void linenumtoa(LINENUM, char*);
-void inttoa(int, char*);
+void postoa(POSITION, char*, int);
+void linenumtoa(LINENUM, char*, int);
+void inttoa(int, char*, int);
 int lstrtoi(char*, char**, int);
 POSITION lstrtopos(char*, char**, int);
 unsigned long lstrtoul(char*, char**, int);

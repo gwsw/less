@@ -354,7 +354,7 @@ public void plinestart(POSITION pos)
 			len = 0;
 		else
 		{
-			linenumtoa(linenum, buf);
+			linenumtoa(linenum, buf, 10);
 			len = (int) strlen(buf);
 		}
 		for (i = 0; i < linenum_width - len; i++)
