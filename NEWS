@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 608 and 621
+	Major changes between "less" versions 608 and 622
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
@@ -24,6 +24,8 @@
 * Add --modelines option (github #89).
 
 * Add --intr option (github #224).
+
+* Add --show-preproc-error  option (github #258).
 
 * Add LESS_LINES and LESS_COLUMNS environment variables.
 
