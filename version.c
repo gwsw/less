@@ -970,7 +970,7 @@ v619  12/30/22  Fix bug using 'n' before '/'.
 v620  1/12/23   Add --modelines option; add --intr option;
                 add subpattern coloring.
 v621            Add --wordwrap option; add LESS_LINES & LESS_COLUMNS.
-v622            Add --show-preproc-error option.
+v622            Add --show-preproc-errors option.
 */
 
 char version[] = "622x";

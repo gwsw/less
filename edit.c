@@ -277,7 +277,7 @@ static void close_pipe(FILE *pipefd)
 	{
 		PARG parg;
 		parg.p_int = status;
-		error("Input preprocessor failed (status %x)", &parg);
+		error("Input preprocessor exited with status %x", &parg);
 	}
 }
 

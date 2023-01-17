@@ -163,7 +163,7 @@ static struct optname modelines_optname = { "modelines", NULL };
 static struct optname no_vbell_optname = { "no-vbell", NULL };
 static struct optname intr_optname = { "intr", NULL };
 static struct optname wordwrap_optname = { "wordwrap", NULL };
-static struct optname show_preproc_error_optname = { "show-preproc-error", NULL };
+static struct optname show_preproc_error_optname = { "show-preproc-errors", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/

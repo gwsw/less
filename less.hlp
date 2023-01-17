@@ -243,6 +243,8 @@
                   Retain marks across invocations of less.
                 --search-options=[EFKNRW-]
                   Set default options for every search.
+                --show-preproc-errors
+                  Display a message if preprocessor reports error status.
                 --status-col-width=_N
                   Set the width of the -J status column to _N characters.
                 --status-line

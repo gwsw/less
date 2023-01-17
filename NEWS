@@ -25,7 +25,7 @@
 
 * Add --intr option (github #224).
 
-* Add --show-preproc-error  option (github #258).
+* Add --show-preproc-errors option (github #258).
 
 * Add LESS_LINES and LESS_COLUMNS environment variables.
 

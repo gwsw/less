@@ -1280,8 +1280,9 @@ control character at the beginning of every search pattern.
 For example, setting \-\-search-options=W is the same as
 typing \(haW at the beginning of every pattern.
 The value "-" disables all default search modifiers.
-.IP "\-\-show-preproc-error"
-If a preprocessor is used and it exits with a non-zero exit code,
+.IP "\-\-show-preproc-errors"
+If a preprocessor produces data, 
+then exits with a non-zero exit code,
 .B less
 will display an error message.
 .IP "\-\-status-col-width=\fIn\fP"
