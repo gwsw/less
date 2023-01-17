@@ -319,12 +319,6 @@ struct wchar_range_table
         int count;
 };
 
-struct pipestatus
-{
-	void *pipefd;
-	int checkpipe;
-};
-
 #if HAVE_POLL
 typedef short POLL_EVENTS;
 #endif

@@ -33,7 +33,7 @@ struct ifile {
 	int h_hold;                     /* Hold count */
 	char h_opened;                  /* Has this ifile been opened? */
 	struct scrpos h_scrpos;         /* Saved position within the file */
-	struct pipestatus h_altpipe;	/* Alt pipe */
+	void *h_altpipe;	            /* Alt pipe */
 	char *h_altfilename;            /* Alt filename */
 };
 
@@ -112,8 +112,7 @@ static struct ifile * new_ifile(char *filename, struct ifile *prev)
 	p->h_hold = 0;
 	p->h_filestate = NULL;
 	p->h_altfilename = NULL;
-	p->h_altpipe.pipefd = NULL;
-	p->h_altpipe.checkpipe = 0;
+	p->h_altpipe = NULL;
 	link_ifile(p, prev);
 	/*
 	 * {{ It's dodgy to call mark.c functions from here;
@@ -320,12 +319,12 @@ public void set_filestate(IFILE ifile, void *filestate)
 	int_ifile(ifile)->h_filestate = filestate;
 }
 
-public void set_altpipe(IFILE ifile, struct pipestatus p)
+public void set_altpipe(IFILE ifile, void *p)
 {
 	int_ifile(ifile)->h_altpipe = p;
 }
 
-public struct pipestatus get_altpipe(IFILE ifile)
+public void *get_altpipe(IFILE ifile)
 {
 	return (int_ifile(ifile)->h_altpipe);
 }

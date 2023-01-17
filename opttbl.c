@@ -75,6 +75,7 @@ public int redraw_on_quit;      /* Redraw last screen after term deinit */
 public int def_search_type;     /* */
 public int exit_F_on_close;     /* Exit F command when input closes */
 public int modelines;           /* Lines to read looking for modelines */
+public int show_preproc_error;  /* Display msg when preproc exits with error */
 public char intr_char = CONTROL('X'); /* Char to interrupt reads */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
@@ -162,6 +163,7 @@ static struct optname modelines_optname = { "modelines", NULL };
 static struct optname no_vbell_optname = { "no-vbell", NULL };
 static struct optname intr_optname = { "intr", NULL };
 static struct optname wordwrap_optname = { "wordwrap", NULL };
+static struct optname show_preproc_error_optname = { "show-preproc-error", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/
@@ -665,6 +667,14 @@ static struct loption option[] =
 		{
 			"Wrap lines at any character",
 			"Wrap lines at spaces",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &show_preproc_error_optname,
+		BOOL, OPT_OFF, &show_preproc_error, NULL,
+		{
+			"Don't show error message if preprocessor fails",
+			"Show error message if preprocessor fails",
 			NULL
 		}
 	},

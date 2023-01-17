@@ -29,6 +29,7 @@ extern int hshift;
 extern int want_filesize;
 extern int consecutive_nulls;
 extern int modelines;
+extern int show_preproc_error;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -258,9 +259,9 @@ static void check_modelines(void)
 /*
  * Close a pipe opened via popen.
  */
-static void close_pipe(struct pipestatus p)
+static void close_pipe(FILE *pipefd)
 {
-	FILE *pipefd = p.pipefd;
+	int status;
 
 	if (pipefd == NULL)
 		return;
@@ -271,23 +272,26 @@ static void close_pipe(struct pipestatus p)
 	 */
 	kill(pipefd->_pid, SIGINT);
 #endif
-	if (pclose(pipefd) != 0 && p.checkpipe)
-		error("Input preprocessor failed", NULL_PARG);
+	status = pclose(pipefd);
+	if (status != 0 && show_preproc_error)
+	{
+		PARG parg;
+		parg.p_int = (status >> 8);
+		error("Input preprocessor failed (status %d)", &parg);
+	}
 }
 
 /*
  * Drain and close input pipe if needed, diagnosing preprocessor failures.
  */
-public void drain_altpipe(IFILE ifile)
+public void close_altpipe(IFILE ifile)
 {
-	struct pipestatus altpipe = get_altpipe(ifile);
+	FILE *altpipe = get_altpipe(ifile);
 	int chflags = ch_getflags();
-	if (altpipe.pipefd != NULL && !(chflags & CH_KEEPOPEN))
+	if (altpipe != NULL && !(chflags & CH_KEEPOPEN))
 	{
-		struct pipestatus nopipe = {NULL, 0};
-		altpipe.checkpipe &= !!(chflags & CH_EOF);
 		close_pipe(altpipe);
-		set_altpipe(ifile, nopipe);
+		set_altpipe(ifile, NULL);
 	}
 }
 
@@ -323,7 +327,7 @@ static void close_file(void)
 	altfilename = get_altfilename(curr_ifile);
 	if (altfilename != NULL)
 	{
-		drain_altpipe(curr_ifile);
+		close_altpipe(curr_ifile);
 		close_altfile(altfilename, get_filename(curr_ifile));
 		set_altfilename(curr_ifile, NULL);
 	}
@@ -348,7 +352,7 @@ public int edit(char *filename)
 /*
  * Clean up what edit_ifile did before error return.
  */
-static int edit_error(char *filename, char *alt_filename, struct pipestatus altpipe, IFILE ifile, IFILE was_curr_ifile)
+static int edit_error(char *filename, char *alt_filename, void *altpipe, IFILE ifile, IFILE was_curr_ifile)
 {
 	if (alt_filename != NULL)
 	{
@@ -385,7 +389,7 @@ public int edit_ifile(IFILE ifile)
 	char *filename;
 	char *open_filename;
 	char *alt_filename;
-	struct pipestatus altpipe;
+	void *altpipe;
 	IFILE was_curr_ifile;
 	PARG parg;
 		
@@ -440,7 +444,7 @@ public int edit_ifile(IFILE ifile)
 	 * See if LESSOPEN specifies an "alternate" file to open.
 	 */
 	altpipe = get_altpipe(ifile);
-	if (altpipe.pipefd != NULL)
+	if (altpipe != NULL)
 	{
 		/*
 		 * File is already open.
@@ -463,7 +467,7 @@ public int edit_ifile(IFILE ifile)
 		open_filename = (alt_filename != NULL) ? alt_filename : filename;
 
 		chflags = 0;
-		if (altpipe.pipefd != NULL)
+		if (altpipe != NULL)
 		{
 			/*
 			 * The alternate "file" is actually a pipe.
