@@ -824,7 +824,7 @@ static int num_pct_s(char *lessopen)
  * See if we should open a "replacement file" 
  * instead of the file we're about to open.
  */
-public char * open_altfile(char *filename, int *pf, void **pfd)
+public char * open_altfile(char *filename, int *pf, struct pipestatus *pfd)
 {
 #if !HAVE_POPEN
 	return (NULL);
@@ -913,7 +913,8 @@ public char * open_altfile(char *filename, int *pf, void **pfd)
 			int status = pclose(fd);
 			if (returnfd > 1 && status == 0) {
 				/* File is empty. */
-				*pfd = NULL;
+				pfd->pipefd = NULL;
+				pfd->checkpipe = 0;
 				*pf = -1;
 				return (save(FAKE_EMPTYFILE));
 			}
@@ -922,7 +923,8 @@ public char * open_altfile(char *filename, int *pf, void **pfd)
 		}
 		/* Alt pipe contains data, so use it. */
 		ch_ungetchar(c);
-		*pfd = (void *) fd;
+		pfd->pipefd = (void *) fd;
+		pfd->checkpipe = returnfd > 2;
 		*pf = f;
 		return (save("-"));
 	}
