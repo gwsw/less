@@ -479,7 +479,7 @@ void funcname(type num, char *buf, int radix) \
 	if (neg) num = -num; \
 	*--s = '\0'; \
 	do { \
-		*--s = (num % radix) + '0'; \
+		*--s = "0123456789ABCDEF"[num % radix]; \
 	} while ((num /= radix) != 0); \
 	if (neg) *--s = '-'; \
 	strcpy(buf, s); \
@@ -511,28 +511,19 @@ STR_TO_TYPE_FUNC(lstrtoi, int)
 STR_TO_TYPE_FUNC(lstrtoul, unsigned long)
 
 /*
- * Output an integer in a given radix.
+ * Print an integral type.
  */
-static int iprint_int(int num, int radix)
-{
-	char buf[INT_STRLEN_BOUND(num)];
-
-	inttoa(num, buf, radix);
-	putstr(buf);
-	return ((int) strlen(buf));
+#define IPRINT_FUNC(funcname, type, typetoa) \
+static int funcname(type num, int radix) \
+{ \
+	char buf[INT_STRLEN_BOUND(num)]; \
+	typetoa(num, buf, radix); \
+	putstr(buf); \
+	return (int) strlen(buf); \
 }
 
-/*
- * Output a line number in a given radix.
- */
-static int iprint_linenum(LINENUM num, int radix)
-{
-	char buf[INT_STRLEN_BOUND(num)];
-
-	linenumtoa(num, buf, radix);
-	putstr(buf);
-	return ((int) strlen(buf));
-}
+IPRINT_FUNC(iprint_int, int, inttoa)
+IPRINT_FUNC(iprint_linenum, LINENUM, linenumtoa)
 
 /*
  * This function implements printf-like functionality
