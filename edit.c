@@ -273,7 +273,7 @@ static void close_pipe(FILE *pipefd)
 	kill(pipefd->_pid, SIGINT);
 #endif
 	status = pclose(pipefd);
-	if (status != 0 && show_preproc_error)
+	if (status != 0 && show_preproc_error && feof(pipefd))
 	{
 		PARG parg;
 		parg.p_int = (status >> 8);

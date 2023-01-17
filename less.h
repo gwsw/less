@@ -545,7 +545,6 @@ typedef enum {
 #define CH_POPENED      004
 #define CH_HELPFILE     010
 #define CH_NODATA       020     /* Special case for zero length files */
-#define CH_EOF          040
 
 #define ch_zero()       ((POSITION)0)
 
