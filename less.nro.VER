@@ -949,7 +949,8 @@ where the terminal bell would have been rung.
 .IP "\-r or \-\-raw-control-chars"
 Causes "raw" control characters to be displayed.
 The default is to display control characters using the caret notation;
-for example, a control-A (octal 001) is displayed as "\(haA".
+for example, a control-A (octal 001) is displayed as "\(haA"
+(with some exceptions as described under the \-U option).
 Warning: when the \-r option is used,
 .B less
 cannot keep track of the actual appearance of the screen
@@ -1284,7 +1285,7 @@ The value "-" disables all default search modifiers.
 If a preprocessor produces data, 
 then exits with a non-zero exit code,
 .B less
-will display an error message.
+will display a warning.
 .IP "\-\-status-col-width=\fIn\fP"
 Sets the width of the status column when the \-J option is in effect.
 The default is 2 characters.
