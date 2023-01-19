@@ -393,8 +393,7 @@ public void quit(int status)
 	else
 		save_status = status;
 	quitting = 1;
-	if (curr_ifile != NULL_IFILE && get_altfilename(curr_ifile) != NULL)
-		close_altpipe(curr_ifile);
+	check_altpipe_error();
 	if (interactive())
 		clear_bot();
 	deinit();

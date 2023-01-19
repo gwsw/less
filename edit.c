@@ -282,17 +282,28 @@ static void close_pipe(FILE *pipefd)
 }
 
 /*
- * Drain and close input pipe if needed, diagnosing preprocessor failures.
+ * Drain and close an input pipe if needed.
  */
 public void close_altpipe(IFILE ifile)
 {
 	FILE *altpipe = get_altpipe(ifile);
-	int chflags = ch_getflags();
-	if (altpipe != NULL && !(chflags & CH_KEEPOPEN))
+	if (altpipe != NULL && !(ch_getflags() & CH_KEEPOPEN))
 	{
 		close_pipe(altpipe);
 		set_altpipe(ifile, NULL);
 	}
+}
+
+/*
+ * Check for error status from the current altpipe.
+ * May or may not close the pipe.
+ */
+public void check_altpipe_error(void)
+{
+	if (!show_preproc_error)
+		return;
+	if (curr_ifile != NULL_IFILE && get_altfilename(curr_ifile) != NULL)
+		close_altpipe(curr_ifile);
 }
 
 /*
