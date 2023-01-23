@@ -38,6 +38,7 @@ extern int hshift;
 extern int bs_mode;
 extern int show_attn;
 extern int status_col;
+extern int term_init_done;
 extern POSITION highest_hilite;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
@@ -735,7 +736,7 @@ static void make_display(void)
 	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
 	 */
-	if (!full_screen)
+	if (!full_screen && term_init_done)
 		home();
 	if (empty_screen())
 	{
