@@ -288,9 +288,11 @@ static void close_pipe(FILE *pipefd)
 	if (!show_preproc_error)
 		return;
 #if defined WIFEXITED && defined WEXITSTATUS
-	if (WIFEXITED(status)) {
+	if (WIFEXITED(status))
+	{
 		int s = WEXITSTATUS(status);
-		if (s != 0) {
+		if (s != 0)
+		{
 			parg.p_int = s;
 			error("Input preprocessor failed (status %d)", &parg);
 		}
@@ -298,16 +300,19 @@ static void close_pipe(FILE *pipefd)
 	}
 #endif
 #if defined WIFSIGNALED && defined WTERMSIG && HAVE_STRSIGNAL
-	if (WIFSIGNALED(status)) {
+	if (WIFSIGNALED(status))
+	{
 		int sig = WTERMSIG(status);
-		if (sig != SIGPIPE || ch_length() != NULL_POSITION) {
+		if (sig != SIGPIPE || ch_length() != NULL_POSITION)
+		{
 			parg.p_string = signal_message(sig);
 			error("Input preprocessor terminated: %s", &parg);
 		}
 		return;
 	}
 #endif
-	if (status != 0) {
+	if (status != 0)
+	{
 		parg.p_int = status;
 		error("Input preprocessor exited with status %x", &parg);
 	}

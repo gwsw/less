@@ -344,7 +344,7 @@ public char * errno_message(char *filename)
  */
 public char * signal_message(int sig)
 {
-	static char sigbuf[sizeof "signal " + INT_STRLEN_BOUND(sig)];
+	static char sigbuf[sizeof("Signal ") + INT_STRLEN_BOUND(sig) + 1];
 #if HAVE_STRSIGNAL
 	char *description = strsignal(sig);
 	if (description)
