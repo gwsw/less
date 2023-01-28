@@ -33,7 +33,7 @@ struct ifile {
 	int h_hold;                     /* Hold count */
 	char h_opened;                  /* Has this ifile been opened? */
 	struct scrpos h_scrpos;         /* Saved position within the file */
-	void *h_altpipe;	            /* Alt pipe */
+	void *h_altpipe;                /* Alt pipe */
 	char *h_altfilename;            /* Alt filename */
 };
 
