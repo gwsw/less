@@ -338,6 +338,22 @@ public char * errno_message(char *filename)
 	return (m);
 }
 
+/*
+ * Return a description of a signal.
+ * The return value is good until the next call to this function.
+ */
+public char * signal_message(int sig)
+{
+	static char sigbuf[sizeof "signal " + INT_STRLEN_BOUND(sig)];
+#if HAVE_STRSIGNAL
+	char *description = strsignal(sig);
+	if (description)
+		return description;
+#endif
+	sprintf(sigbuf, "Signal %d", sig);
+	return sigbuf;
+}
+
 /* #define HAVE_FLOAT 0 */
 
 static POSITION muldiv(POSITION val, POSITION num, POSITION den)

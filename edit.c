@@ -13,6 +13,9 @@
 #if HAVE_STAT
 #include <sys/stat.h>
 #endif
+#if HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
 #if OS2
 #include <signal.h>
 #endif
@@ -262,6 +265,7 @@ static void check_modelines(void)
 static void close_pipe(FILE *pipefd)
 {
 	int status;
+	PARG parg;
 
 	if (pipefd == NULL)
 		return;
@@ -273,9 +277,37 @@ static void close_pipe(FILE *pipefd)
 	kill(pipefd->_pid, SIGINT);
 #endif
 	status = pclose(pipefd);
-	if (status != 0 && show_preproc_error)
+	if (status == -1)
 	{
-		PARG parg;
+		/* An internal error in 'less', not a preprocessor error.  */
+		parg.p_string = errno_message("pclose");
+		error("%s", &parg);
+		free(parg.p_string);
+		return;
+	}
+	if (!show_preproc_error)
+		return;
+#if defined WIFEXITED && defined WEXITSTATUS
+	if (WIFEXITED(status)) {
+		int s = WEXITSTATUS(status);
+		if (s != 0) {
+			parg.p_int = s;
+			error("Input preprocessor failed (status %d)", &parg);
+		}
+		return;
+	}
+#endif
+#if defined WIFSIGNALED && defined WTERMSIG && HAVE_STRSIGNAL
+	if (WIFSIGNALED(status)) {
+		int sig = WTERMSIG(status);
+		if (sig != SIGPIPE || ch_length() != NULL_POSITION) {
+			parg.p_string = signal_message(sig);
+			error("Input preprocessor terminated: %s", &parg);
+		}
+		return;
+	}
+#endif
+	if (status != 0) {
 		parg.p_int = status;
 		error("Input preprocessor exited with status %x", &parg);
 	}
