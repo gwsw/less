@@ -969,8 +969,8 @@ v618  12/29/22  Add --no-search-headers option; use C89 function definitions.
 v619  12/30/22  Fix bug using 'n' before '/'.
 v620  1/12/23   Add --modelines option; add --intr option;
                 add subpattern coloring.
-v621            Add --wordwrap option; add LESS_LINES & LESS_COLUMNS.
-v622            Add --show-preproc-errors option.
+v621  1/15/23   Add --wordwrap option; add LESS_LINES & LESS_COLUMNS.
+v622  1/27/23   Add --show-preproc-errors option.
 */
 
-char version[] = "622x";
+char version[] = "622";
