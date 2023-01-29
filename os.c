@@ -354,8 +354,6 @@ public char * signal_message(int sig)
 	return sigbuf;
 }
 
-/* #define HAVE_FLOAT 0 */
-
 /*
  * Return (VAL * NUM) / DEN, where DEN is positive
  * and min(VAL, NUM) <= DEN so the result cannot overflow.
