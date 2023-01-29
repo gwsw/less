@@ -1665,7 +1665,8 @@ static void ltputs(char *str, int affcnt, int (*f_putc)(int))
 				/* Perform the delay. */
 				delay = lstrtoi(str, &str, 10);
 				if (*str == '*')
-					delay *= affcnt;
+					if (ckd_mul(&delay, delay, affcnt))
+						delay = INT_MAX;
 				flush();
 				sleep_ms(delay);
 				/* Skip past closing ">" at end of delay string. */
@@ -2461,7 +2462,7 @@ static int parse_color6(char **ps)
 	{
 		char *ops = *ps;
 		int color = lstrtoi(ops, ps, 10);
-		if (*ps == ops)
+		if (color < 0 || *ps == ops)
 			return CV_ERROR;
 		return color;
 	}

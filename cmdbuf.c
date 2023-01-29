@@ -1291,13 +1291,11 @@ public LINENUM cmd_int(long *frac)
 
 	for (p = cmdbuf;  *p >= '0' && *p <= '9';  p++)
 	{
-		LINENUM nn = (n * 10) + (*p - '0');
-		if (nn < n)
+		if (ckd_mul(&n, n, 10) || ckd_add(&n, n, *p - '0'))
 		{
 			error("Integer is too big", NULL_PARG);
 			return (0);
 		}
-		n = nn;
 	}
 	*frac = 0;
 	if (*p++ == '.')

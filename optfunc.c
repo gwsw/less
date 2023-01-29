@@ -680,10 +680,13 @@ public void set_tabs(char *s, int len)
 	/* Start at 1 because tabstops[0] is always zero. */
 	for (i = 1;  i < TABSTOP_MAX;  )
 	{
-		int n = 0;
-		while (s < es && *s >= '0' && *s <= '9')
-			n = (10 * n) + (*s++ - '0');
-		if (n > tabstops[i-1])
+		int n = 0, v = FALSE;
+		for (; s < es && *s >= '0' && *s <= '9'; s++)
+		{
+			v |= ckd_mul(&n, n, 10);
+			v |= ckd_add(&n, n, *s - '0');
+		}
+		if (!v && n > tabstops[i-1])
 			tabstops[i++] = n;
 		while (s < es && *s == ' ')
 			s++;
