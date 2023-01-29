@@ -319,6 +319,12 @@ public char * save(constant char *s)
 	return (p);
 }
 
+public void out_of_memory(void)
+{
+	error("Cannot allocate memory", NULL_PARG);
+	quit(QUIT_ERROR);
+}
+
 /*
  * Allocate memory.
  * Like calloc(), but never returns an error (NULL).
@@ -328,12 +334,9 @@ public void * ecalloc(int count, unsigned int size)
 	void * p;
 
 	p = (void *) calloc(count, size);
-	if (p != NULL)
-		return (p);
-	error("Cannot allocate memory", NULL_PARG);
-	quit(QUIT_ERROR);
-	/*NOTREACHED*/
-	return (NULL);
+	if (!p)
+		out_of_memory();
+	return p;
 }
 
 /*

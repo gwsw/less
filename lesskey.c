@@ -124,6 +124,12 @@ int lstrtoi(char *buf, char **ebuf, int radix)
 	return (int) strtol(buf, ebuf, radix);
 }
 
+void out_of_memory(void)
+{
+	fprintf(stderr, "lesskey: cannot allocate memory\n");
+	exit(1);
+}
+
 void * ecalloc(int count, unsigned int size)
 {
 	void *p;
@@ -131,8 +137,7 @@ void * ecalloc(int count, unsigned int size)
 	p = calloc(count, size);
 	if (p != NULL)
 		return (p);
-	fprintf(stderr, "lesskey: cannot allocate %d bytes of memory\n", count*size);
-	exit(1);
+	out_of_memory();
 }
 
 static char * mkpathname(char *dirname, char *filename)
