@@ -460,7 +460,7 @@ public void sleep_ms(int ms)
 #if HAVE_USLEEP
 	usleep(ms);
 #else
-	sleep((ms+999) / 1000);
+	sleep(ms / 1000 + (ms % 1000 != 0));
 #endif
 #endif
 #endif
