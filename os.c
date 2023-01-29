@@ -356,22 +356,20 @@ public char * signal_message(int sig)
 
 /* #define HAVE_FLOAT 0 */
 
-static POSITION muldiv(POSITION val, POSITION num, POSITION den)
+/*
+ * Return (VAL * NUM) / DEN, where DEN is positive
+ * and min(VAL, NUM) <= DEN so the result cannot overflow.
+ * Round to the nearest integer, breaking ties by rounding to even.
+ */
+public uintmax muldiv(uintmax val, uintmax num, uintmax den)
 {
-#if HAVE_FLOAT
-	double v = (((double) val) * num) / den;
-	return ((POSITION) (v + 0.5));
-#else
-	POSITION v = ((POSITION) val) * num;
-
-	if (v / num == val)
-		/* No overflow */
-		return (POSITION) (v / den);
-	else
-		/* Above calculation overflows; 
-		 * use a method that is less precise but won't overflow. */
-		return (POSITION) (val / (den / num));
-#endif
+	/*
+	 * Like round(val * (double) num / den), but without rounding error.
+	 * Overflow cannot occur, so there is no need for floating point.
+	 */
+	uintmax q = val / den, r = val % den, qnum = q * num, rnum = r * num,
+		quot = qnum + rnum / den, rem = rnum % den;
+	return quot + (den / 2 < rem + (quot & ~den & 1));
 }
 
 /*
@@ -385,15 +383,19 @@ public int percentage(POSITION num, POSITION den)
 
 /*
  * Return the specified percentage of a POSITION.
+ * Assume (0 <= POS && 0 <= PERCENT <= 100
+ *	   && 0 <= FRACTION < (PERCENT == 100 ? 1 : NUM_FRAC_DENOM)),
+ * so the result cannot overflow.  Round to even.
  */
 public POSITION percent_pos(POSITION pos, int percent, long fraction)
 {
-	/* Change percent (parts per 100) to perden (parts per NUM_FRAC_DENOM). */
-	POSITION perden = (percent * (NUM_FRAC_DENOM / 100)) + (fraction / 100);
+	/*
+	 * Change from percent (parts per 100)
+	 * to pctden (parts per 100 * NUM_FRAC_DENOM).
+	 */
+	POSITION pctden = (percent * NUM_FRAC_DENOM) + fraction;
 
-	if (perden == 0)
-		return (0);
-	return (POSITION) muldiv(pos, perden, (POSITION) NUM_FRAC_DENOM);
+	return (POSITION) muldiv(pos, pctden, 100 * (POSITION) NUM_FRAC_DENOM);
 }
 
 #if !HAVE_STRCHR

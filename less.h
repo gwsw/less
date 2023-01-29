@@ -353,7 +353,10 @@ typedef short POLL_EVENTS;
 #define READ_INTR       (-2)
 #define READ_AGAIN      (-3)
 
-/* A fraction is represented by an int n; the fraction is n/NUM_FRAC_DENOM */
+/*
+ * A fraction is represented by a long n; the fraction is n/NUM_FRAC_DENOM.
+ * To avoid overflow problems, 0 <= n < NUM_FRAC_DENUM <= LONG_MAX/100.
+ */
 #define NUM_FRAC_DENOM                  1000000
 #define NUM_LOG_FRAC_DENOM              6
 
