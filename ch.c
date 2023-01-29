@@ -651,7 +651,8 @@ public void ch_setbufspace(int bufspace)
 		maxbufs = -1;
 	else
 	{
-		maxbufs = ((bufspace * 1024) + LBUFSIZE-1) / LBUFSIZE;
+		int lbufk = LBUFSIZE / 1024;
+		maxbufs = bufspace / lbufk + (bufspace % lbufk != 0);
 		if (maxbufs < 1)
 			maxbufs = 1;
 	}
