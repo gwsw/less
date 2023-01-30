@@ -681,13 +681,13 @@ static int store_char(LWCHAR ch, int a, char *rep, POSITION pos)
 	{
 		int matches;
 		int resend_last = 0;
-		int hl_attr;
+		int hl_attr = 0;
 
 		if (pos == NULL_POSITION)
 		{
 			/* Color the prompt unless it has ansi sequences in it. */
 			hl_attr = ansi_in_line ? 0 : AT_STANDOUT|AT_COLOR_PROMPT;
-		} else
+		} else if (a != AT_ANSI)
 		{
 			hl_attr = is_hilited_attr(pos, pos+1, 0, &matches);
 			if (hl_attr == 0 && status_line)
@@ -699,12 +699,9 @@ static int store_char(LWCHAR ch, int a, char *rep, POSITION pos)
 			 * This character should be highlighted.
 			 * Override the attribute passed in.
 			 */
-			if (a != AT_ANSI)
-			{
-				a |= hl_attr;
-				if (highest_hilite != NULL_POSITION && pos != NULL_POSITION && pos > highest_hilite)
-					highest_hilite = pos;
-			}
+			a |= hl_attr;
+			if (highest_hilite != NULL_POSITION && pos != NULL_POSITION && pos > highest_hilite)
+				highest_hilite = pos;
 			in_hilite = 1;
 		} else 
 		{
