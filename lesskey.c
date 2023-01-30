@@ -135,9 +135,9 @@ void * ecalloc(int count, unsigned int size)
 	void *p;
 
 	p = calloc(count, size);
-	if (p != NULL)
-		return (p);
-	out_of_memory();
+	if (p == NULL)
+		out_of_memory();
+	return (p);
 }
 
 static char * mkpathname(char *dirname, char *filename)
