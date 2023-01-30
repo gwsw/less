@@ -593,7 +593,7 @@ static char * optstring(char *s, char **p_str, char *printopt, char *validchars)
 
 /*
  */
-static int num_error(char *printopt, int *errp)
+static int num_error(char *printopt, int *errp, int overflow)
 {
 	PARG parg;
 
@@ -605,7 +605,10 @@ static int num_error(char *printopt, int *errp)
 	if (printopt != NULL)
 	{
 		parg.p_string = printopt;
-		error("Number is required after %s", &parg);
+		error((overflow
+		       ? "Number too large in '%s'"
+		       : "Number is required after %s"),
+		      &parg);
 	}
 	return (-1);
 }
@@ -629,12 +632,11 @@ public int getnum(char **sp, char *printopt, int *errp)
 		s++;
 	}
 	if (*s < '0' || *s > '9')
-		return (num_error(printopt, errp));
+		return (num_error(printopt, errp, FALSE));
 
-	n = 0;
-	while (*s >= '0' && *s <= '9')
-		n = 10 * n + *s++ - '0';
-	*sp = s;
+	n = lstrtoi(s, sp, 10);
+	if (n < 0)
+		return (num_error(printopt, errp, TRUE));
 	if (errp != NULL)
 		*errp = FALSE;
 	if (neg)
@@ -656,19 +658,17 @@ public long getfraction(char **sp, char *printopt, int *errp)
 
 	s = skipsp(*sp);
 	if (*s < '0' || *s > '9')
-		return (num_error(printopt, errp));
+		return (num_error(printopt, errp, FALSE));
 
 	for ( ;  *s >= '0' && *s <= '9';  s++)
 	{
+		if (NUM_LOG_FRAC_DENOM <= fraclen)
+			continue;
 		frac = (frac * 10) + (*s - '0');
 		fraclen++;
 	}
-	if (fraclen > NUM_LOG_FRAC_DENOM)
-		while (fraclen-- > NUM_LOG_FRAC_DENOM)
-			frac /= 10;
-	else
-		while (fraclen++ < NUM_LOG_FRAC_DENOM)
-			frac *= 10;
+	while (fraclen++ < NUM_LOG_FRAC_DENOM)
+		frac *= 10;
 	*sp = s;
 	if (errp != NULL)
 		*errp = FALSE;

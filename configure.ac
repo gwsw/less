@@ -36,7 +36,7 @@ AC_CHECK_LIB(termlib, tgetent, [have_termlib=yes], [have_termlib=no])
 AC_SEARCH_LIBS([regcmp], [gen intl PW])
 
 # Checks for header files.
-AC_CHECK_HEADERS_ONCE([ctype.h errno.h fcntl.h limits.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h linux/magic.h sys/ioctl.h sys/stream.h sys/types.h sys/wait.h time.h wctype.h])
+AC_CHECK_HEADERS_ONCE([ctype.h errno.h fcntl.h inttypes.h limits.h stdckdint.h stdio.h stdlib.h string.h termcap.h termio.h termios.h time.h unistd.h values.h linux/magic.h sys/ioctl.h sys/stream.h sys/types.h sys/wait.h time.h wctype.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
@@ -202,8 +202,6 @@ AH_TEMPLATE([HAVE_REGEXEC2],
 	[])
 AH_TEMPLATE([HAVE_VOID],
 	[Define HAVE_VOID if your compiler supports the "void" type.])
-AH_TEMPLATE([HAVE_FLOAT],
-	[Define HAVE_FLOAT if your compiler supports the "double" type.])
 AH_TEMPLATE([HAVE_CONST],
 	[Define HAVE_CONST if your compiler supports the "const" modifier.])
 AH_TEMPLATE([HAVE_STAT_INO],
@@ -364,17 +362,6 @@ AC_ARG_WITH(secure,
   AC_DEFINE(SECURE_COMPILE, 1)
   AC_SUBST(SECURE_COMPILE,1), AC_DEFINE(SECURE_COMPILE, 0)
   AC_SUBST(SECURE_COMPILE,0))
-
-# Should we use floating point?
-AC_MSG_CHECKING(for floating point)
-AC_ARG_WITH(no-float,
-  [  --with-no-float         Do not use floating point],
-  WANT_NO_FLOAT=1, WANT_NO_FLOAT=0)
-if test $WANT_NO_FLOAT = 0; then
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[double f1 = 12.5; double f2 = f1*f1/2.5;]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_FLOAT)],[AC_MSG_RESULT(no)])
-else
-  AC_MSG_RESULT(disabled by user)
-fi
 
 # Checks for regular expression functions.
 have_regex=no

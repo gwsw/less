@@ -266,10 +266,12 @@ static void ichardef(char *s)
 
 		case '0': case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8': case '9':
-			n = (10 * n) + (s[-1] - '0');
+			if (ckd_mul(&n, n, 10) || ckd_add(&n, n, s[-1] - '0'))
+				goto invalid_chardef;
 			continue;
 
 		default:
+		invalid_chardef:
 			error("invalid chardef", NULL_PARG);
 			quit(QUIT_ERROR);
 			/*NOTREACHED*/

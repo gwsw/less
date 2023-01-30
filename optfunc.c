@@ -213,7 +213,7 @@ public void calc_jump_sline(void)
 {
 	if (jump_sline_fraction < 0)
 		return;
-	jump_sline = sc_height * jump_sline_fraction / NUM_FRAC_DENOM;
+	jump_sline = muldiv(sc_height, jump_sline_fraction, NUM_FRAC_DENOM);
 }
 
 /*
@@ -273,7 +273,7 @@ public void calc_shift_count(void)
 {
 	if (shift_count_fraction < 0)
 		return;
-	shift_count = sc_width * shift_count_fraction / NUM_FRAC_DENOM;
+	shift_count = muldiv(sc_width, shift_count_fraction, NUM_FRAC_DENOM);
 }
 
 #if USERFILE
@@ -680,10 +680,13 @@ public void set_tabs(char *s, int len)
 	/* Start at 1 because tabstops[0] is always zero. */
 	for (i = 1;  i < TABSTOP_MAX;  )
 	{
-		int n = 0;
-		while (s < es && *s >= '0' && *s <= '9')
-			n = (10 * n) + (*s++ - '0');
-		if (n > tabstops[i-1])
+		int n = 0, v = FALSE;
+		for (; s < es && *s >= '0' && *s <= '9'; s++)
+		{
+			v |= ckd_mul(&n, n, 10);
+			v |= ckd_add(&n, n, *s - '0');
+		}
+		if (!v && n > tabstops[i-1])
 			tabstops[i++] = n;
 		while (s < es && *s == ' ')
 			s++;

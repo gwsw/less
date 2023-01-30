@@ -472,7 +472,8 @@ static int getcc_int(char *pterm)
 				return (-1);
 			return (num);
 		}
-		num = (10 * num) + (ch - '0');
+		if (ckd_mul(&num, num, 10) || ckd_add(&num, num, ch - '0'))
+			return -1;
 		++digits;
 	}
 }

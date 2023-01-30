@@ -490,20 +490,22 @@ TYPE_TO_A_FUNC(linenumtoa, LINENUM)
 TYPE_TO_A_FUNC(inttoa, int)
 
 /*
- * Convert an string to an integral type.
+ * Convert a string to an integral type.  Return ((type) -1) on overflow.
  */
 #define STR_TO_TYPE_FUNC(funcname, type) \
 type funcname(char *buf, char **ebuf, int radix) \
 { \
 	type val = 0; \
+	int v = 0; \
 	for (;; buf++) { \
 		char c = *buf; \
 		int digit = (c >= '0' && c <= '9') ? c - '0' : (c >= 'a' && c <= 'f') ? c - 'a' + 10 : (c >= 'A' && c <= 'F') ? c - 'A' + 10 : -1; \
 		if (digit < 0 || digit >= radix) break; \
-		val = radix * val + digit; \
+		v |= ckd_mul(&val, val, radix); \
+		v |= ckd_add(&val, val, digit); \
 	} \
 	if (ebuf != NULL) *ebuf = buf; \
-	return val; \
+	return v ? -1 : val; \
 }
 
 STR_TO_TYPE_FUNC(lstrtopos, POSITION)
