@@ -365,8 +365,12 @@ public uintmax muldiv(uintmax val, uintmax num, uintmax den)
 	 * Like round(val * (double) num / den), but without rounding error.
 	 * Overflow cannot occur, so there is no need for floating point.
 	 */
-	uintmax q = val / den, r = val % den, qnum = q * num, rnum = r * num,
-		quot = qnum + rnum / den, rem = rnum % den;
+	uintmax q = val / den;
+	uintmax r = val % den;
+	uintmax qnum = q * num;
+	uintmax rnum = r * num;
+	uintmax quot = qnum + rnum / den;
+	uintmax rem = rnum % den;
 	return quot + (den / 2 < rem + (quot & ~den & 1));
 }
 

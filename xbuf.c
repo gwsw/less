@@ -90,50 +90,50 @@ static int help_fixup(void *r, uintmax val, int rsize, int rsigned)
 	{
 		if (rsize == sizeof (int))
 		{
+			int *pr = r;
 			if (INT_MAX < val)
 				return TRUE;
-			int *pr = r;
 			*pr = val;
-# ifdef LLONG_MAX
+#ifdef LLONG_MAX
 		} else if (rsize == sizeof (long long))
 		{
+			long long *pr = r;
 			if (LLONG_MAX < val)
 				return TRUE;
-			long long *pr = r;
 			*pr = val;
-# endif
-# ifdef INTMAX_MAX
+#endif
+#ifdef INTMAX_MAX
 		} else if (rsize == sizeof (intmax_t)) {
+			intmax_t *pr = r;
 			if (INTMAX_MAX < val)
 				return TRUE;
-			intmax_t *pr = r;
 			*pr = val;
-# endif
+#endif
 		} else /* rsize == sizeof (long) */
 		{
+			long *pr = r;
 			if (LONG_MAX < val)
 				return TRUE;
-			long *pr = r;
 			*pr = val;
 		}
 	} else {
 		if (rsize == sizeof (unsigned)) {
+			unsigned *pr = r;
 			if (UINT_MAX < val)
 				return TRUE;
-			unsigned *pr = r;
 			*pr = val;
 		} else if (rsize == sizeof (unsigned long)) {
+			unsigned long *pr = r;
 			if (ULONG_MAX < val)
 				return TRUE;
-			unsigned long *pr = r;
 			*pr = val;
-# ifdef ULLONG_MAX
+#ifdef ULLONG_MAX
 		} else if (rsize == sizeof (unsigned long long)) {
+			long long *pr = r;
 			if (ULLONG_MAX < val)
 				return TRUE;
-			long long *pr = r;
 			*pr = val;
-# endif
+#endif
 		} else /* rsize == sizeof (uintmax) */
 		{
 			uintmax *pr = r;

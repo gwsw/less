@@ -334,7 +334,7 @@ public void * ecalloc(int count, unsigned int size)
 	void * p;
 
 	p = (void *) calloc(count, size);
-	if (!p)
+	if (p == NULL)
 		out_of_memory();
 	return p;
 }

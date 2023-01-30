@@ -71,7 +71,7 @@
 #include <limits.h>
 #endif
 #if HAVE_STDINT_H
-# include <stdint.h>
+#include <stdint.h>
 #endif
 #if HAVE_STDLIB_H
 #include <stdlib.h>
@@ -81,16 +81,16 @@
 #endif
 
 #if HAVE_STDCKDINT_H
-# include <stdckdint.h>
+#include <stdckdint.h>
 #else
 /*
  * These substitutes for C23 stdckdint macros do not set *R on overflow,
  * and they assume A and B are nonnegative.  That is good enough for us.
  */
-# define ckd_add(r, a, b) help_ckd_add(r, a, b, sizeof *(r), signed_expr(*(r)))
-# define ckd_mul(r, a, b) help_ckd_mul(r, a, b, sizeof *(r), signed_expr(*(r)))
+#define ckd_add(r, a, b) help_ckd_add(r, a, b, sizeof *(r), signed_expr(*(r)))
+#define ckd_mul(r, a, b) help_ckd_mul(r, a, b, sizeof *(r), signed_expr(*(r)))
 /* True if the integer expression E, after promotion, is signed.  */
-# define signed_expr(e) ((TRUE ? 0 : e) - 1 < 0)
+#define signed_expr(e) ((TRUE ? 0 : e) - 1 < 0)
 #endif
 
 #if defined UINTMAX_MAX
