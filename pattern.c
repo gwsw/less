@@ -258,7 +258,7 @@ public int is_null_pattern(PATTERN_TYPE pattern)
  * Simple pattern matching function.
  * It supports no metacharacters like *, etc.
  */
-static int match(char *pattern, int pattern_len, char *buf, int buf_len, char **sp, char **ep, int nsubs)
+static int match(char *pattern, int pattern_len, char *buf, int buf_len, char ***sp, char ***ep, int nsubs)
 {
 	char *pp, *lp;
 	char *pattern_end = pattern + pattern_len;
@@ -279,12 +279,12 @@ static int match(char *pattern, int pattern_len, char *buf, int buf_len, char **
 		}
 		if (pp == pattern_end)
 		{
-			*sp++ = buf;
-			*ep++ = lp;
+			*(*sp)++ = buf;
+			*(*ep)++ = lp;
 			return (1);
 		}
 	}
-	*sp = *ep = NULL;
+	**sp = **ep = NULL;
 	return (0);
 }
 
@@ -302,7 +302,7 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 	search_type |= SRCH_NO_REGEX;
 #endif
 	if (search_type & SRCH_NO_REGEX)
-		matched = match(tpattern, strlen(tpattern), line, line_len, sp, ep, nsp);
+		matched = match(tpattern, strlen(tpattern), line, line_len, &sp, &ep, nsp);
 	else
 	{
 #if HAVE_GNU_REGEX
