@@ -88,6 +88,7 @@ static struct lesskey_cmdname cmdnames[] =
 	{ "set-mark",             A_SETMARK },
 	{ "set-mark-bottom",      A_SETMARKBOT },
 	{ "shell",                A_SHELL },
+	{ "pshell",               A_PSHELL },
 	{ "status",               A_STAT },
 	{ "toggle-flag",          A_OPT_TOGGLE },
 	{ "toggle-option",        A_OPT_TOGGLE },

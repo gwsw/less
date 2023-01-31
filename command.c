@@ -301,6 +301,11 @@ static void exec_mca(void)
 		else
 			lsystem(shellcmd, "!done");
 		break;
+	case A_PSHELL:
+		if (secure)
+			break;
+		lsystem(pr_expand(cbuf), "#done");
+		break;
 #endif
 #if PIPEC
 	case A_PIPE:
@@ -1890,13 +1895,14 @@ public void commands(void)
 			goto again;
 
 		case A_SHELL:
+		case A_PSHELL:
 			/*
 			 * Shell escape.
 			 */
 #if SHELL_ESCAPE
 			if (!secure)
 			{
-				start_mca(A_SHELL, "!", ml_shell, 0);
+				start_mca(action, (action == A_SHELL) ? "!" : "#", ml_shell, 0);
 				c = getcc();
 				goto again;
 			}

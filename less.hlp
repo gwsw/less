@@ -104,6 +104,7 @@
   +_c_m_d                 Execute the less cmd each time a new file is examined.
 
   !_c_o_m_m_a_n_d             Execute the shell command with $SHELL.
+  #_c_o_m_m_a_n_d             Execute the shell command, expanded like a prompt.
   |XX_c_o_m_m_a_n_d            Pipe file between current pos & mark XX to shell command.
   s _f_i_l_e               Save input to a file.
   v                    Edit the current file with $VISUAL or $EDITOR.

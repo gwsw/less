@@ -448,6 +448,10 @@ A pound sign (#) is replaced by the name of the previously examined file.
 On Unix systems, the shell is taken from the environment variable SHELL,
 or defaults to "sh".
 On MS-DOS and OS/2 systems, the shell is the normal command processor.
+.IP "# shell-command"
+Similar to the "!" command, 
+except that the command is expanded in the same way as prompt strings.
+For example, the name of the current file would be given as "%f".
 .IP "| <m> shell-command"
 <m> represents any mark letter.
 Pipes a section of the input file to the given shell command.
@@ -2008,6 +2012,8 @@ This means these features are disabled:
 .RS
 .IP "!"
 the shell command
+.IP "#"
+the pshell command
 .IP "|"
 the pipe command
 .IP ":e"

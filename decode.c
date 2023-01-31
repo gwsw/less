@@ -166,6 +166,7 @@ static unsigned char cmdtable[] =
 	'|',0,                          A_PIPE,
 	'v',0,                          A_VISUAL,
 	'!',0,                          A_SHELL,
+	'#',0,                          A_PSHELL,
 	'+',0,                          A_FIRSTCMD,
 
 	'H',0,                          A_HELP,

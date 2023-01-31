@@ -238,6 +238,7 @@ s	toggle-option o
 |	pipe
 v	visual
 !	shell
+#	pshell
 +	firstcmd
 H	help
 h	help
