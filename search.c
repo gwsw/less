@@ -944,11 +944,14 @@ static void hilite_line(POSITION linepos, char *line, int line_len, int *chpos, 
 		{
 			if (sp[i] == NULL || ep[i] == NULL)
 				break;
-			create_hilites(linepos, line, lep, sp[i],
-				AT_HILITE | AT_COLOR_SEARCH, chpos);
-			create_hilites(linepos, line, sp[i], ep[i], 
-				AT_HILITE | AT_COLOR_SUBSEARCH(i), chpos);
-			lep = ep[i];
+			if (ep[i] > sp[i])
+			{
+				create_hilites(linepos, line, lep, sp[i],
+					AT_HILITE | AT_COLOR_SEARCH, chpos);
+				create_hilites(linepos, line, sp[i], ep[i], 
+					AT_HILITE | AT_COLOR_SUBSEARCH(i), chpos);
+				lep = ep[i];
+			}
 		}
 		create_hilites(linepos, line, lep, ep[0], 
 			AT_HILITE | AT_COLOR_SEARCH, chpos);

@@ -332,17 +332,27 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 		if (matched)
 		{
 			int i;
-			for (i = 0;  i < nsp-1;  i++)
+			int ecount;
+			for (ecount = RM_COUNT;  ecount > 0;  ecount--)
+				if (rm[ecount-1].rm_so >= 0)
+					break;
+			if (ecount >= nsp)
+				ecount = nsp-1;
+			for (i = 0;  i < ecount;  i++)
 			{
 				if (rm[i].rm_so < 0)
-					break;
+				{
+					*sp++ = *ep++ = line;
+				} else
+				{
 #ifndef __WATCOMC__
-				*sp++ = line + rm[i].rm_so;
-				*ep++ = line + rm[i].rm_eo;
+					*sp++ = line + rm[i].rm_so;
+					*ep++ = line + rm[i].rm_eo;
 #else
-				*sp++ = rm[i].rm_sp;
-				*ep++ = rm[i].rm_ep;
+					*sp++ = rm[i].rm_sp;
+					*ep++ = rm[i].rm_ep;
 #endif
+				}
 			}
 		}
 	}
@@ -361,8 +371,15 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 		if (ecount > mcount) ecount = mcount;
 		for (i = 0;  i < ecount*2; )
 		{
-			*sp++ = line + ovector[i++];
-			*ep++ = line + ovector[i++];
+			if (ovector[i] < 0 || ovector[i+1] < 0)
+			{
+				*sp++ = *ep++ = line;
+				i += 2;
+			} else
+			{
+				*sp++ = line + ovector[i++];
+				*ep++ = line + ovector[i++];
+			}
 		}
 	}
 #endif
@@ -381,8 +398,15 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 			if (ecount > mcount) ecount = mcount;
 			for (i = 0;  i < ecount*2; )
 			{
-				*sp++ = line + ovector[i++];
-				*ep++ = line + ovector[i++];
+				if (ovector[i] < 0 || ovector[i+1] < 0)
+				{
+					*sp++ = *ep++ = line;
+					i += 2;
+				} else
+				{
+					*sp++ = line + ovector[i++];
+					*ep++ = line + ovector[i++];
+				}
 			}
 		}
 		pcre2_match_data_free(md);
