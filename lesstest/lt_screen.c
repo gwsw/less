@@ -11,6 +11,12 @@ static const char version[] = "lt_screen|v=1";
 
 #define ERROR_CHAR       ' '
 #define WIDESHADOW_CHAR  ((wchar)0)
+static char const* osc8_start[] = { "\033]8;", NULL };
+static char const* osc8_end[] = { "\033\\", "\7", NULL };
+
+#define NUM_LASTCH 4 // must be >= strlen(osc8_*[*])
+static wchar lastch[NUM_LASTCH];
+static int lastch_curr = 0;
 
 int usage(void) {
 	fprintf(stderr, "usage: lt_screen [-w width] [-h height] [-qv]\n");
@@ -40,6 +46,7 @@ typedef struct ScreenState {
 	int param_top;
 	int params[MAX_PARAMS+1];
 	int in_esc;
+	int in_osc8;
 } ScreenState;
 
 static ScreenState screen;
@@ -57,6 +64,7 @@ static void screen_init(void) {
 	screen.cx = 0;
 	screen.cy = 0;
 	screen.in_esc = 0;
+	screen.in_osc8 = 0;
 	screen.curr_attr = 0;
 	screen.curr_fg_color = screen.curr_bg_color = NULL_COLOR;
 	screen.param_top = -1;
@@ -366,23 +374,67 @@ static int add_char(wchar ch) {
 	return 1;
 }
 
+// Remember the last few chars sent to the screen.
+static void add_last(wchar ch) {
+	lastch[lastch_curr++] = ch;
+	if (lastch_curr >= NUM_LASTCH) lastch_curr = 0;
+}
+
+// Do the last entered characters match a string?
+static int last_matches_str(char const* str) {
+	int ci = lastch_curr;
+	int si;
+	for (si = strlen(str)-1; si >= 0; --si) {
+		ci = (ci > 0) ? ci-1 : NUM_LASTCH-1;
+		if (str[si] != lastch[ci]) return 0;
+	}
+	return 1;
+}
+
+// Do the last entered characters match any one of a list of strings?
+static int last_matches(const char* const* tbl) {
+	int ti;
+	for (ti = 0; tbl[ti] != NULL; ++ti) {
+		if (last_matches_str(tbl[ti]))
+			return 1;
+	}
+	return 0;
+}
+
+// Handle a char sent to the screen while it is receiving an escape sequence.
+static int process_esc(wchar ch) {
+	int ok = 1;
+	if (screen.in_osc8) {
+		if (last_matches(osc8_end)) {
+			screen.in_osc8 = screen.in_esc = 0;
+		} else {
+			// Discard everything between osc8_start and osc8_end.
+		}
+	} else if (last_matches(osc8_start)) {
+		param_pop(); // pop the '8'
+		screen.in_osc8 = 1;
+	} else if (ch >= '0' && ch <= '9') {
+		int d = (num_params() == 0) ? 0 : screen.params[screen.param_top--];
+		param_push(10 * d + ch - '0');
+	} else if (ch == ';') {
+		param_push(0);
+	} else if (ch == '[' || ch == ']') {
+		; // Ignore ANSI marker
+	} else { // end of escape sequence
+		screen.in_esc = 0;
+		ok = exec_esc(ch);
+		param_clear();
+	}
+	return ok;
+}
+
 // Handle a char sent to the screen.
 // Normally it is just printed, but some control chars are handled specially.
 static int process_char(wchar ch) {
 	int ok = 1;
+	add_last(ch);
 	if (screen.in_esc) {
-		if (ch >= '0' && ch <= '9') {
-			int d = (num_params() == 0) ? 0 : screen.params[screen.param_top--];
-			param_push(10 * d + ch - '0');
-		} else if (ch == ';') {
-			param_push(0);
-		} else if (ch == '[') {
-			; // Ignore ANSI marker
-		} else {
-			screen.in_esc = 0;
-			ok = exec_esc(ch);
-			param_clear();
-		}
+		ok = process_esc(ch);
 	} else if (ch == ESC) {
 		screen.in_esc = 1;
 	} else if (ch == '\r') {
