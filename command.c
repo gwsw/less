@@ -149,6 +149,8 @@ public int in_mca(void)
  */
 static void mca_search1(void)
 {
+	int i;
+
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
 		set_mca(A_FILTER);
@@ -171,6 +173,15 @@ static void mca_search1(void)
 		cmd_putstr("Regex-off ");
 	if (search_type & SRCH_WRAP)
 		cmd_putstr("Wrap ");
+	for (i = 1; i <= NUM_SEARCH_COLORS; i++)
+	{
+		if (search_type & SRCH_SUBSEARCH(i))
+		{
+			char buf[8];
+			SNPRINTF1(buf, sizeof(buf), "Sub-%d ", i);
+			cmd_putstr(buf);
+		}
+	}
 
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
@@ -551,6 +562,18 @@ static int mca_search_char(int c)
 		if (mca != A_FILTER)
 			flag = SRCH_NO_MOVE;
 		break;
+	case CONTROL('S'): { /* SUBSEARCH */
+		char buf[32];
+		SNPRINTF1(buf, sizeof(buf), "Sub-pattern (1-%d):", NUM_SEARCH_COLORS);
+		clear_bot();
+		cmd_putstr(buf);
+		flush();
+		c = getcc();
+		if (c >= '1' && c <= '0'+NUM_SEARCH_COLORS)
+			flag = SRCH_SUBSEARCH(c-'0');
+		else
+			flag = -1; /* calls mca_search() below to repaint */
+		break; }
 	case CONTROL('W'): /* WRAP around */
 		if (mca != A_FILTER)
 			flag = SRCH_WRAP;
@@ -566,7 +589,8 @@ static int mca_search_char(int c)
 
 	if (flag != 0)
 	{
-		search_type = norm_search_type(search_type ^ flag);
+		if (flag != -1)
+			search_type = norm_search_type(search_type ^ flag);
 		mca_search();
 		return (MCA_MORE);
 	}
@@ -684,7 +708,7 @@ static int mca_char(int c)
 		if (incr_search)
 		{
 			/* Incremental search: do a search after every input char. */
-			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX|SRCH_NO_MOVE|SRCH_WRAP));
+			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX|SRCH_NO_MOVE|SRCH_WRAP|SRCH_SUBSEARCH_ALL));
 			char *pattern = get_cmdbuf();
 			if (pattern == NULL)
 				return (MCA_MORE);

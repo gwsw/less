@@ -11,11 +11,13 @@
 
 ======================================================================
 
-	Major changes between "less" versions 608 and 622
+	Major changes between "less" versions 608 and 623
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
 * Add # command (github #330).
+
+* Add ^S search modifier.
 
 * Add --wordwrap option (github #113).
 

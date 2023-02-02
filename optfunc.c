@@ -588,9 +588,10 @@ static int color_from_namechar(char namechar)
 	case 'd': return AT_BOLD;
 	case 'u': return AT_UNDERLINE;
 	case 'k': return AT_BLINK;
-	case '1': case '2': case '3': case '4': case '5':
-		return AT_COLOR_SUBSEARCH(namechar-'0');
-	default:  return -1;
+	default:
+		if (namechar >= '1' && namechar <= '0'+NUM_SEARCH_COLORS)
+			return AT_COLOR_SUBSEARCH(namechar-'0');
+		return -1;
 	}
 }
 
@@ -1007,6 +1008,7 @@ public void opt_search_type(int type, char *s)
 	PARG parg;
 	char buf[16];
 	char *bp;
+	int i;
 
 	switch (type)
 	{
@@ -1026,6 +1028,11 @@ public void opt_search_type(int type, char *s)
 			case '-': st = 0; break;
 			case '^': break;
 			default:
+				if (*s >= '1' && *s <= '0'+NUM_SEARCH_COLORS)
+				{
+					st |= SRCH_SUBSEARCH(*s-'0');
+					break;
+				}
 				parg.p_char = *s;
 				error("invalid search option '%c'", &parg);
 				return;
@@ -1041,6 +1048,9 @@ public void opt_search_type(int type, char *s)
 		if (def_search_type & SRCH_NO_MATCH)   *bp++ = 'N'; 
 		if (def_search_type & SRCH_NO_REGEX)   *bp++ = 'R'; 
 		if (def_search_type & SRCH_WRAP)       *bp++ = 'W'; 
+		for (i = 1;  i <= NUM_SEARCH_COLORS;  i++)
+			if (def_search_type & SRCH_SUBSEARCH(i))
+				*bp++ = '0'+i;
 		if (bp == buf)
 			*bp++ = '-';
 		*bp = '\0';

@@ -971,7 +971,7 @@ v620  1/12/23   Add --modelines option; add --intr option;
                 add subpattern coloring.
 v621  1/15/23   Add --wordwrap option; add LESS_LINES & LESS_COLUMNS.
 v622  1/27/23   Add --show-preproc-errors option.
-v623            Add # command.
+v623            Add # command; add ^S search modifier.
 */
 
 char version[] = "623x";

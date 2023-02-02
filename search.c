@@ -1748,7 +1748,7 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 	if (epos == NULL_POSITION || epos > spos)
 	{
 		int search_type = SRCH_FORW | SRCH_FIND_ALL;
-		search_type |= (search_info.search_type & SRCH_NO_REGEX);
+		search_type |= (search_info.search_type & (SRCH_NO_REGEX|SRCH_SUBSEARCH_ALL));
 		for (;;) 
 		{
 			result = search_range(spos, epos, search_type, 0, maxlines, (POSITION*)NULL, &new_epos, (POSITION*)NULL);

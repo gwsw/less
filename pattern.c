@@ -294,7 +294,7 @@ static int match(char *pattern, int pattern_len, char *buf, int buf_len, char **
  * Set sp[i] and ep[i] to the start and end of the i-th matched subpattern.
  * Subpatterns are defined by parentheses in the regex language.
  */
-public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int line_len, char **sp, char **ep, int nsp, int notbol, int search_type)
+static int match_pattern1(PATTERN_TYPE pattern, char *tpattern, char *line, int line_len, char **sp, char **ep, int nsp, int notbol, int search_type)
 {
 	int matched;
 
@@ -440,6 +440,18 @@ public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int l
 	matched = (!(search_type & SRCH_NO_MATCH) && matched) ||
 			((search_type & SRCH_NO_MATCH) && !matched);
 	return (matched);
+}
+
+public int match_pattern(PATTERN_TYPE pattern, char *tpattern, char *line, int line_len, char **sp, char **ep, int nsp, int notbol, int search_type)
+{
+	int matched = match_pattern1(pattern, tpattern, line, line_len, sp, ep, nsp, notbol, search_type);
+	int i;
+	for (i = 1;  i <= NUM_SEARCH_COLORS;  i++)
+	{
+		if ((search_type & SRCH_SUBSEARCH(i)) && ep[i] == sp[i])
+			matched = 0;
+	}
+	return matched;
 }
 
 /*

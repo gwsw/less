@@ -388,6 +388,9 @@ typedef short POLL_EVENTS;
 #define SRCH_FILTER     (1 << 13) /* Search is for '&' (filter) command */
 #define SRCH_AFTER_TARGET (1 << 14) /* Start search after the target line */
 #define SRCH_WRAP       (1 << 15) /* Wrap-around search (continue at BOF/EOF) */
+#define SRCH_SUBSEARCH(i) (1 << (16+(i))) /* Search for subpattern */
+/* {{ Depends on NUM_SEARCH_COLORS==5 }} */
+#define SRCH_SUBSEARCH_ALL (SRCH_SUBSEARCH(1)|SRCH_SUBSEARCH(2)|SRCH_SUBSEARCH(3)|SRCH_SUBSEARCH(4)|SRCH_SUBSEARCH(5))
 
 #define SRCH_REVERSE(t) (((t) & SRCH_FORW) ? \
                                 (((t) & ~SRCH_FORW) | SRCH_BACK) : \

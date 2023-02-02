@@ -51,6 +51,7 @@
         ^F or @  Start search at FIRST file (for /) or last file (for ?).
         ^K       Highlight matches, but don't move (KEEP position).
         ^R       Don't use REGULAR EXPRESSIONS.
+        ^S _n     Search for match in _n-th parenthesized subpattern.
         ^W       WRAP search if no match found.
  ---------------------------------------------------------------------------
 

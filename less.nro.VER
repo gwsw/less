@@ -235,6 +235,14 @@ but don't move to the first match (KEEP current position).
 .IP "\(haR"
 Don't interpret regular expression metacharacters;
 that is, do a simple textual comparison.
+.IP "\(haS"
+Followed by a digit N between 1 and 5.
+Only text which has a non-empty match for the N-th parenthesized sub-pattern 
+will be considered to match the pattern.
+(Supported only if
+.B less 
+is built with one of the regular expression libraries
+.BR posix ", " pcre ", or " pcre2 ".)"
 .IP "\(haW"
 WRAP around the current file.
 That is, if the search reaches the end of the current file
@@ -264,6 +272,8 @@ or the settings of the \-a or \-j options.
 .IP "\(haK"
 As in forward searches.
 .IP "\(haR"
+As in forward searches.
+.IP "\(haS"
 As in forward searches.
 .IP "\(haW"
 WRAP around the current file.
@@ -1284,6 +1294,9 @@ Setting any of these has the same effect as typing that
 control character at the beginning of every search pattern.
 For example, setting \-\-search-options=W is the same as
 typing \(haW at the beginning of every pattern.
+The value may also contain a digit between 1 and 5,
+which has the same effect as typing \(haS followed by that digit
+at the beginning of every search pattern.
 The value "-" disables all default search modifiers.
 .IP "\-\-show-preproc-errors"
 If a preprocessor produces data, 
