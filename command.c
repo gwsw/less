@@ -38,7 +38,6 @@ extern int hshift;
 extern int bs_mode;
 extern int show_attn;
 extern int status_col;
-extern int term_init_done;
 extern POSITION highest_hilite;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
@@ -84,6 +83,7 @@ static int optgetname;
 static POSITION bottompos;
 static int save_hshift;
 static int save_bs_mode;
+static int after_one_screen_check = FALSE;
 #if PIPEC
 static char pipec;
 #endif
@@ -765,7 +765,8 @@ static void make_display(void)
 	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
 	 */
-	if (!full_screen && term_init_done)
+	
+	if (!full_screen && after_one_screen_check)
 		home();
 	if (empty_screen())
 	{
@@ -821,6 +822,7 @@ static void prompt(void)
 	    eof_displayed() && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
+	after_one_screen_check = TRUE;
 
 	/*
 	 * If the entire file is displayed and the -F flag is set, quit.
