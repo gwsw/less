@@ -23,6 +23,7 @@
 extern int erase_char, erase2_char, kill_char;
 extern int sigs;
 extern int quit_if_one_screen;
+extern int one_screen;
 extern int squished;
 extern int sc_width;
 extern int sc_height;
@@ -83,7 +84,6 @@ static int optgetname;
 static POSITION bottompos;
 static int save_hshift;
 static int save_bs_mode;
-static int after_one_screen_check = FALSE;
 #if PIPEC
 static char pipec;
 #endif
@@ -763,11 +763,14 @@ static void clear_buffers(void)
 static void make_display(void)
 {
 	/*
+	 * If not full_screen, we can't rely on scrolling to fill the screen.
+	 * We need to clear and repaint screen before any change.
+	 */
+	if (!full_screen && !(quit_if_one_screen && one_screen))
+		clear();
+	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
 	 */
-	
-	if (!full_screen && after_one_screen_check)
-		home();
 	if (empty_screen())
 	{
 		if (initial_scrpos.pos == NULL_POSITION)
@@ -822,7 +825,6 @@ static void prompt(void)
 	    eof_displayed() && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
-	after_one_screen_check = TRUE;
 
 	/*
 	 * If the entire file is displayed and the -F flag is set, quit.
