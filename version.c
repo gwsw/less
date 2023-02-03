@@ -974,4 +974,4 @@ v622  1/27/23   Add --show-preproc-errors option.
 v623            Add # command; add ^S search modifier.
 */
 
-char version[] = "623x";
+char version[] = "623";
