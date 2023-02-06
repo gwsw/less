@@ -36,6 +36,7 @@ extern int clear_bg;
 extern int final_attr;
 extern int header_lines;
 extern int header_cols;
+extern int full_screen;
 #if HILITE_SEARCH
 extern int size_linebuf;
 extern int hilite_search;
@@ -266,7 +267,7 @@ public void forw(int n, POSITION pos, int force, int only_last, int nblank)
 			{
 				clear();
 				home();
-			} else if (!first_time && !is_filtering())
+			} else if (!first_time && !is_filtering() && full_screen)
 			{
 				putstr("...skipping...\n");
 			}
