@@ -730,6 +730,11 @@ static int mca_char(int c)
 					undo_search(1);
 			}
 			/* Redraw the search prompt and search string. */
+			if (!full_screen)
+			{
+				clear();
+				repaint();
+			}
 			mca_search1();
 			updown_match = save_updown_match;
 			cmd_repaint(NULL);
