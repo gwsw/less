@@ -502,12 +502,11 @@ public void raw_mode(int on)
 #ifdef VDSUSP
 			s.c_cc[VDSUSP] = 0;
 #endif
-#if 1 /* {{ FIXME }} */
 #ifdef VSTOP
-			s.c_cc[VSTOP] = 0; /* we want to use ^S */
+			s.c_cc[VSTOP] = 0;
 #endif
 #ifdef VSTART
-			s.c_cc[VSTART] = 0; /* we want to use ^Q */
+			s.c_cc[VSTART] = 0;
 #endif
 #endif
 #if MUST_SET_LINE_DISCIPLINE
@@ -581,13 +580,11 @@ public void raw_mode(int on)
 		set_termio_flags(&s);
 		s.c_cc[VMIN] = 1;
 		s.c_cc[VTIME] = 0;
-#if 1 /* {{ FIXME }} */
 #ifdef VSTOP
-		s.c_cc[VSTOP] = 0; /* we want to use ^S */
+		s.c_cc[VSTOP] = 0;
 #endif
 #ifdef VSTART
-		s.c_cc[VSTART] = 0; /* we want to use ^Q */
-#endif
+		s.c_cc[VSTART] = 0;
 #endif
 	} else
 	{
