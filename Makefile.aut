@@ -47,7 +47,7 @@ DISTFILES = \
 all: help.c funcs.h $(UNICODE_FILES) ${srcdir}/configure 
 
 release: .FORCE
-	@if grep -s 'Major changes between .*${REL}' NEWS ; then :; else echo '*** NEWS is not updated for ${REL}'; exit 1; fi
+	@if ${SRC}/ready_for_release -d ${SRC} then :; else exit 1; fi
 	${MAKE} -f Makefile.aut tagall 
 	${MAKE} -f Makefile.aut all 
 	${MAKE} -f Makefile.aut clean 

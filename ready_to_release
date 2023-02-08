@@ -1,0 +1,94 @@
+#!/usr/bin/env perl
+use strict;
+use Getopt::Std;
+
+# Check whether all manually managed files have been updated
+# prior to making a release (make -f Makefile.aut release).
+my $usage = "usage: ready_to_release [-d dir] [-n NEWS] [-v version.c] [-V version]\n";
+
+my $errors = 0;
+check_files();
+exit(($errors > 0) ? 1 : 0);
+
+sub check_files {
+	my %opt;
+	die $usage if not getopts("d:n:v:V:", \%opt);
+	my $dir = $opt{d} ? "$opt{d}/" : "";
+	my $version_c = $dir . ($opt{v} ? $opt{v} : "version.c");
+	my $news_file = $dir . ($opt{n} ? $opt{n} : "NEWS");
+	my $uversion = $opt{V};
+
+	my ($ver_version, $hi_version, $exper, $month, $day, $year) = read_version_c($version_c);
+	my $news_version = read_news($news_file);
+
+	if (not $hi_version) {
+		error("$version_c: no version comments");
+	}
+	if (not $ver_version) {
+		error("$version_c: no version number declared");
+	}
+	if (not $month or not $day or not $year) {
+		error("$version_c: version comment for v$hi_version has no date");
+	}
+	if (not $news_version) {
+		error("$news_file: no version comparisons");
+	}
+	if ($uversion and $uversion ne $ver_version) {
+		error("$version_c: declared version is $ver_version not $uversion");
+	}
+	if ($exper) {
+		error("$version_c: declared version number $ver_version$exper is experimental");
+	}
+	if ($hi_version ne $ver_version) {
+		error("$version_c: inconsistent versions: commented $hi_version, declared $ver_version");
+	}
+	if ($ver_version ne $news_version) {
+		error("$news_file: latest version comparision is for $news_version not $ver_version");
+	}
+	if ($errors == 0) {
+		print "$ver_version ready for release\n";
+	} else {
+		print "*** NOT READY FOR RELEASE ***\n";
+	}
+}
+
+sub read_version_c {
+	my ($version_c) = @_;
+	my ($ver_version, $hi_version, $exper, $month, $day, $year) = (0,0,'',0,0,0);
+	my $fd;
+	open $fd, '<', $version_c or die "cannot open $version_c: $!";
+	while (<$fd>) {
+		if (m|^\s*v([\d.]+)(\s.*)?|) {
+			$hi_version = $1;
+			$2 =~ m|^\s*(\d+)\s*/\s*(\d+)\s*/\s*(\d+)\s|;
+			($month, $day, $year) = ($1,$2,$3);
+		}
+		if (m|^\s*char\s+version[^\w=]*=\s*"([\d.]+)(x)?"|) {
+			$ver_version = $1;
+			$exper = $2;
+		}
+	}
+	close $fd;
+	return ($ver_version, $hi_version, $exper, $month, $day, $year);
+}
+
+sub read_news {
+	my ($news_file) = @_;
+	my $version;
+	my $fd;
+	open $fd, '<', $news_file or die "cannot open $news_file: $!";
+	while (<$fd>) {
+		if (m|changes between .* versions [\d.]+ and ([\d.]+)|) {
+			$version = $1;
+			last;
+		}
+	}
+	close $fd;
+	return $version;
+}
+
+sub error {
+	my ($msg) = @_;
+	print "*** $msg\n";
+	++$errors;
+}
