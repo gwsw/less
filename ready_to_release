@@ -30,9 +30,6 @@ sub check_files {
 	if (not $month or not $day or not $year) {
 		error("$version_c: version comment for v$hi_version has no date");
 	}
-	if (not $news_version) {
-		error("$news_file: no version comparisons");
-	}
 	if ($uversion and $uversion ne $ver_version) {
 		error("$version_c: declared version is $ver_version not $uversion");
 	}
@@ -41,6 +38,9 @@ sub check_files {
 	}
 	if ($hi_version ne $ver_version) {
 		error("$version_c: inconsistent versions: commented $hi_version, declared $ver_version");
+	}
+	if (not $news_version) {
+		error("$news_file: no version comparisons");
 	}
 	if ($ver_version ne $news_version) {
 		error("$news_file: latest version comparision is for $news_version not $ver_version");
