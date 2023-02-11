@@ -76,6 +76,9 @@ public int def_search_type;     /* */
 public int exit_F_on_close;     /* Exit F command when input closes */
 public int modelines;           /* Lines to read looking for modelines */
 public int show_preproc_error;  /* Display msg when preproc exits with error */
+public int proc_backspace;      /* Special handling of backspace */
+public int proc_tab;            /* Special handling of tab */
+public int proc_return;         /* Special handling of carriage return */
 public char intr_char = CONTROL('X'); /* Char to interrupt reads */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
@@ -164,6 +167,9 @@ static struct optname no_vbell_optname = { "no-vbell", NULL };
 static struct optname intr_optname = { "intr", NULL };
 static struct optname wordwrap_optname = { "wordwrap", NULL };
 static struct optname show_preproc_error_optname = { "show-preproc-errors", NULL };
+static struct optname proc_backspace_optname = { "proc-backspace", NULL };
+static struct optname proc_tab_optname = { "proc-tab", NULL };
+static struct optname proc_return_optname = { "proc-return", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/
@@ -403,7 +409,7 @@ static struct loption option[] =
 	},
 #endif
 	{ 'u', &u_optname,
-		TRIPLE|REPAINT, OPT_OFF, &bs_mode, NULL,
+		TRIPLE|REPAINT|HL_REPAINT, OPT_OFF, &bs_mode, NULL,
 		{
 			"Display underlined text in underline mode",
 			"Backspaces cause overstrike",
@@ -676,6 +682,30 @@ static struct loption option[] =
 			"Don't show error message if preprocessor fails",
 			"Show error message if preprocessor fails",
 			NULL
+		}
+	},
+	{ OLETTER_NONE, &proc_backspace_optname,
+		TRIPLE|REPAINT|HL_REPAINT, OPT_OFF, &proc_backspace, NULL,
+		{
+			"Backspace handling is specified by the -U option",
+			"Display underline text in underline mode",
+			"Print backspaces as ^H"
+		}
+	},
+	{ OLETTER_NONE, &proc_tab_optname,
+		TRIPLE|REPAINT|HL_REPAINT, OPT_OFF, &proc_tab, NULL,
+		{
+			"Tab handling is specified by the -U option",
+			"Expand tabs to spaces",
+			"Print tabs as ^I"
+		}
+	},
+	{ OLETTER_NONE, &proc_return_optname,
+		TRIPLE|REPAINT|HL_REPAINT, OPT_OFF, &proc_return, NULL,
+		{
+			"Carriage return handling is specified by the -U option",
+			"Delete carriage return before newline",
+			"Print carriage return as ^M"
 		}
 	},
 #if LESSTEST

@@ -81,6 +81,9 @@ static int do_append(LWCHAR ch, char *rep, POSITION pos);
 
 extern int sigs;
 extern int bs_mode;
+extern int proc_backspace;
+extern int proc_tab;
+extern int proc_return;
 extern int linenums;
 extern int ctldisp;
 extern int twiddle;
@@ -893,7 +896,7 @@ public int pappend(int c, POSITION pos)
 		pendc = '\0';
 	}
 
-	if (c == '\r' && bs_mode == BS_SPECIAL)
+	if (c == '\r' && (proc_return == OPT_ON || (bs_mode == BS_SPECIAL && proc_return == OPT_OFF)))
 	{
 		if (mbc_buf_len > 0)  /* utf_mode must be on. */
 		{
@@ -1021,15 +1024,15 @@ static int store_ansi(LWCHAR ch, char *rep, POSITION pos)
 
 static int store_bs(LWCHAR ch, char *rep, POSITION pos)
 {
-	if (bs_mode == BS_CONTROL)
+	if (proc_backspace == OPT_ONPLUS || (bs_mode == BS_CONTROL && proc_backspace == OPT_OFF))
 		return store_control_char(ch, rep, pos);
 	if (linebuf.end > 0 &&
 		((linebuf.end <= linebuf.print && linebuf.buf[linebuf.end-1] == '\0') ||
 	     (linebuf.end > 0 && linebuf.attr[linebuf.end - 1] & (AT_ANSI|AT_BINARY))))
 		STORE_PRCHAR('\b', pos);
-	else if (bs_mode == BS_NORMAL)
+	else if (proc_backspace == OPT_OFF && bs_mode == BS_NORMAL)
 		STORE_CHAR(ch, AT_NORMAL, NULL, pos);
-	else if (bs_mode == BS_SPECIAL)
+	else if (proc_backspace == OPT_ON || (bs_mode == BS_SPECIAL && proc_backspace == OPT_OFF))
 		overstrike = backc();
 	return 0;
 }
@@ -1117,15 +1120,9 @@ static int do_append(LWCHAR ch, char *rep, POSITION pos)
 		/*
 		 * Expand a tab into spaces.
 		 */
-		switch (bs_mode)
-		{
-		case BS_CONTROL:
+		if (proc_tab == OPT_ONPLUS || (bs_mode == BS_CONTROL && proc_tab == OPT_OFF))
 			return store_control_char(ch, rep, pos);
-		case BS_NORMAL:
-		case BS_SPECIAL:
-			STORE_TAB(a, pos);
-			break;
-		}
+		STORE_TAB(a, pos);
 		return (0);
 	}
 	if ((!utf_mode || is_ascii_char(ch)) && control_char((char)ch))

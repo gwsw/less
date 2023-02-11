@@ -654,7 +654,7 @@ Underlined text.
 .RE
  
 .RS
-The uppercase letters can be used only when the \-\-use-color option is enabled.
+The uppercase letters and digits can be used only when the \-\-use-color option is enabled.
 When text color is specified by both an uppercase letter and a lowercase letter,
 the uppercase letter takes precedence. 
 For example, error messages are normally displayed as standout text.
@@ -692,7 +692,7 @@ White
 .IP "y"
 Yellow
 .PP
-The corresponding upper-case letter denotes a brighter shade of the color.
+The corresponding uppercase letter denotes a brighter shade of the color.
 For example, \-DNGk displays line numbers as bright green text on a black 
 background, and \-DEbR displays error messages as blue text on a 
 bright red background.
@@ -1071,6 +1071,9 @@ Unicode formatting characters, such as the Byte Order Mark,
 are sent to the terminal.
 Text which is overstruck or underlined can be searched for
 if neither \-u nor \-U is in effect.
+.sp
+See also the \-\-proc-backspace, \-\-proc-tab,
+and \-\-proc-return options.
 .IP "\-V or \-\-version"
 Displays the version number of
 .BR less .
@@ -1271,6 +1274,38 @@ Line number 1 is assigned to the first line after any header lines.
 Searches do not include header lines or header columns.
 .IP "\-\-no-vbell"
 Disables the terminal's visual bell.
+.IP "\-\-proc-backspace"
+If set, backspaces are handled as if neither the \-u option 
+nor the \-U option were set, even if one of those options is set.
+That is, backspaces adjacent to underscores cause text to be
+displayed in underline mode, and backspaces between identical
+characters cause text to be displayed in boldface mode.
+This allows control of backspace handling separate from 
+handling of tabs and carriage returns.
+If not set, backspace handling is controlled by the \-u and \-U options.
+.IP "\-\-PROC-BACKSPACE"
+If set, backspaces are handles as if the \-u option were set;
+that is backspaces are treated as control characters.
+.IP "\-\-proc-return"
+If set, carriage returns are handled as if neither the \-u option 
+nor the \-U option were set, even if one of those options is set.
+That is, a carriage return immediately before a newline is deleted.
+This allows control of carriage return handling separate from 
+handling of backspaces and tabs.
+If not set, carriage return handling is controlled by the \-u and \-U options.
+.IP "\-\-PROC-RETURN"
+If set, carriage returns are handles as if the \-u option were set;
+that is carriage returns are treated as control characters.
+.IP "\-\-proc-tab"
+If set, tabs are handled as if neither the \-u option 
+nor the \-U option were set, even if one of those options is set.
+That is, tabs are expanded to spaces.
+This allows control of tab handling separate from 
+handling of backspaces and carriage returns.
+If not set, tab handling is controlled by the \-u and \-U options.
+.IP "\-\-PROC-TAB"
+If set, tabs are handles as if the \-u option were set;
+that is tabs are treated as control characters.
 .IP "\-\-redraw-on-quit"
 When quitting, after sending the terminal deinitialization string,
 redraws the entire last screen.

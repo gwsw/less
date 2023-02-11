@@ -29,6 +29,8 @@
 
 * Add --intr option (github #224).
 
+* Add --proc-backspace, --proc-tab and --proc-return options.
+
 * Add --show-preproc-errors option (github #258).
 
 * Add LESS_LINES and LESS_COLUMNS environment variables.

@@ -37,6 +37,7 @@ extern int ignore_eoi;
 extern int secure;
 extern int hshift;
 extern int bs_mode;
+extern int proc_backspace;
 extern int show_attn;
 extern int status_col;
 extern POSITION highest_hilite;
@@ -84,6 +85,7 @@ static int optgetname;
 static POSITION bottompos;
 static int save_hshift;
 static int save_bs_mode;
+static int save_proc_backspace;
 #if PIPEC
 static char pipec;
 #endif
@@ -1608,6 +1610,7 @@ public void commands(void)
 				 */
 				hshift = save_hshift;
 				bs_mode = save_bs_mode;
+				proc_backspace = save_proc_backspace;
 				if (edit_prev(1) == 0)
 					break;
 			}
@@ -1716,6 +1719,8 @@ public void commands(void)
 			hshift = 0;
 			save_bs_mode = bs_mode;
 			bs_mode = BS_SPECIAL;
+			save_proc_backspace = proc_backspace;
+			proc_backspace = OPT_OFF;
 			(void) edit(FAKE_HELPFILE);
 			break;
 

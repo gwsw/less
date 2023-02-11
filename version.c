@@ -972,7 +972,7 @@ v620  1/12/23   Add --modelines option; add --intr option;
 v621  1/15/23   Add --wordwrap option; add LESS_LINES & LESS_COLUMNS.
 v622  1/27/23   Add --show-preproc-errors option.
 v623  2/2/23    Add # command; add ^S search modifier.
-v624
+v624            Add --proc-backspace, --proc-tab and --proc-return options.
 */
 
 char version[] = "624x";

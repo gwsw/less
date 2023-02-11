@@ -26,6 +26,8 @@ extern int linenums;
 extern int sc_height;
 extern int jump_sline;
 extern int bs_mode;
+extern int proc_backspace;
+extern int proc_return;
 extern int ctldisp;
 extern int status_col;
 extern void *ml_search;
@@ -213,9 +215,9 @@ static int get_cvt_ops(int search_type)
 
 	if (is_caseless && (!re_handles_caseless || (search_type & SRCH_NO_REGEX)))
 		ops |= CVT_TO_LC;
-	if (bs_mode == BS_SPECIAL)
+	if (proc_backspace == OPT_ON || (bs_mode == BS_SPECIAL && proc_backspace == OPT_OFF))
 		ops |= CVT_BS;
-	if (bs_mode != BS_CONTROL)
+	if (proc_return == OPT_ON || (bs_mode != BS_CONTROL && proc_backspace == OPT_OFF))
 		ops |= CVT_CRLF;
 	if (ctldisp == OPT_ONPLUS)
 		ops |= CVT_ANSI;
@@ -271,6 +273,7 @@ public void repaint_hilite(int on)
 			continue;
 		(void) forw_line(pos);
 		goto_line(sindex);
+		clear_eol();
 		put_line();
 	}
 	overlay_header();
