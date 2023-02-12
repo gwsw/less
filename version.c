@@ -973,6 +973,7 @@ v621  1/15/23   Add --wordwrap option; add LESS_LINES & LESS_COLUMNS.
 v622  1/27/23   Add --show-preproc-errors option.
 v623  2/2/23    Add # command; add ^S search modifier.
 v624  2/11/23   Add --proc-backspace, --proc-tab and --proc-return options.
+v625
 */
 
-char version[] = "624";
+char version[] = "625x";
