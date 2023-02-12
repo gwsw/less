@@ -237,14 +237,14 @@ Don't interpret regular expression metacharacters;
 that is, do a simple textual comparison.
 .IP "\(haS"
 Followed by a digit N between 1 and 5.
-Only text which has a non-empty match for the N-th parenthesized sub-pattern 
+Only text which has a non-empty match for the N-th parenthesized SUB-PATTERN 
 will be considered to match the pattern.
 (Supported only if
-Multiple \(haS modifiers can be specified,
-to match more than one sub-pattern.
 .B less 
 is built with one of the regular expression libraries
 .BR posix ", " pcre ", or " pcre2 ".)"
+Multiple \(haS modifiers can be specified,
+to match more than one sub-pattern.
 .IP "\(haW"
 WRAP around the current file.
 That is, if the search reaches the end of the current file
@@ -441,7 +441,7 @@ Exits
 .BR less .
 .PP
 The following
-five
+six
 commands may or may not be valid, depending on your particular installation.
 .
 .IP v
@@ -475,7 +475,7 @@ marked position is before or after the current screen.
 If <m> is \&.\& or newline, the current screen is piped.
 .IP "s filename"
 Save the input to a file.
-This only works if the input is a pipe, not an ordinary file.
+This works only if the input is a pipe, not an ordinary file.
 .IP "\(haX"
 When the "Waiting for data" message is displayed,
 such as while in the F command, pressing \(haX
