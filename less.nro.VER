@@ -501,7 +501,7 @@ Most options may be changed while
 .B less
 is running, via the "\-" command.
 .PP
-Most options may be given in one of two forms:
+Some options may be given in one of two forms:
 either a dash followed by a single letter,
 or two dashes followed by a long option name.
 A long option name may be abbreviated as long as
