@@ -320,6 +320,7 @@ public void clear_attn(void)
 		{
 			(void) forw_line(pos);
 			goto_line(sindex);
+			clear_eol();
 			put_line();
 			moved = 1;
 		}
