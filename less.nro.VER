@@ -596,6 +596,7 @@ is used for the pipe.
 Warning: use of \-B can result in erroneous display, since only the
 most recently viewed part of the piped data is kept in memory;
 any earlier data is lost.
+Lost characters are displayed as question marks.
 .IP "\-c or \-\-clear-screen"
 Causes full screen repaints to be painted from the top line down.
 By default,
@@ -661,7 +662,7 @@ For example, error messages are normally displayed as standout text.
 So if both "s" and "E" are given a color, the "E" color applies
 to error messages, and the "s" color applies to other standout text.
 The "d" and "u" letters refer to bold and underline text formed by 
-overstriking with backspaces (see the \-u option), 
+overstriking with backspaces (see the \-U option), 
 not to text using ANSI escape sequences with the \-R option.
 .PP
 A lowercase letter may be followed by a + to indicate that
@@ -788,8 +789,7 @@ Alternately, the screen line may be specified as a fraction of the height
 of the screen, starting with a decimal point: \&.5 is in the middle of the
 screen, \&.3 is three tenths down from the first line, and so on.
 If the line is specified as a fraction, the actual line number
-is recalculated if the terminal window is resized, so that the
-target line remains at the specified fraction of the screen height.
+is recalculated if the terminal window is resized.
 If any form of the \-j option is used,
 repeated forward searches (invoked with "n" or "N")
 begin at the line immediately after the target line,
@@ -1098,7 +1098,7 @@ If only one \fIn\fP is specified, tab stops are set at multiples of \fIn\fP.
 If multiple values separated by commas are specified, tab stops
 are set at those positions, and then continue with the same spacing as the
 last two.
-For example, \fI\-x9,17\fP will set tabs at positions 9, 17, 25, 33, etc.
+For example, "-x9,17" will set tabs at positions 9, 17, 25, 33, etc.
 The default for \fIn\fP is 8.
 .IP "\-X or \-\-no-init"
 Disables sending the termcap initialization and deinitialization strings
@@ -1152,9 +1152,7 @@ Alternately, the number may be specified as a fraction of the width
 of the screen, starting with a decimal point: \&.5 is half of the
 screen width, \&.3 is three tenths of the screen width, and so on.
 If the number is specified as a fraction, the actual number of
-scroll positions is recalculated if the terminal window is resized,
-so that the actual scroll remains at the specified fraction
-of the screen width.
+scroll positions is recalculated if the terminal window is resized.
 .IP "\-\-exit-follow-on-close"
 When using the "F" command on a pipe,
 .B less
@@ -1165,6 +1163,7 @@ If \-\-file-size is specified,
 .B less
 will determine the size of the file 
 immediately after opening the file.
+Then the "=" command will display the number of lines in the file.
 Normally this is not done, because it can be slow if the input file 
 is non-seekable (such as a pipe) and is large.
 .IP "\-\-follow-name"
@@ -1276,35 +1275,34 @@ Searches do not include header lines or header columns.
 Disables the terminal's visual bell.
 .IP "\-\-proc-backspace"
 If set, backspaces are handled as if neither the \-u option 
-nor the \-U option were set, even if one of those options is set.
-That is, backspaces adjacent to underscores cause text to be
-displayed in underline mode, and backspaces between identical
+nor the \-U option were set.
+That is, a backspace adjacent to an underscore causes text to be
+displayed in underline mode, and a backspace between identical
 characters cause text to be displayed in boldface mode.
-This allows control of backspace handling separate from 
-handling of tabs and carriage returns.
-If not set, backspace handling is controlled by the \-u and \-U options.
+This option overrides the \-u and \-U options, so that display of
+backspaces can be controlled separate from tabs and carriage returns.
+If not set, backspace display is controlled by the \-u and \-U options.
 .IP "\-\-PROC-BACKSPACE"
-If set, backspaces are handles as if the \-u option were set;
+If set, backspaces are handled as if the \-U option were set;
 that is backspaces are treated as control characters.
 .IP "\-\-proc-return"
 If set, carriage returns are handled as if neither the \-u option 
-nor the \-U option were set, even if one of those options is set.
+nor the \-U option were set.
 That is, a carriage return immediately before a newline is deleted.
-This allows control of carriage return handling separate from 
-handling of backspaces and tabs.
-If not set, carriage return handling is controlled by the \-u and \-U options.
+This option overrides the \-u and \-U options, so that display of
+carriage returns can be controlled separate from that of backspaces and tabs.
+If not set, carriage return display is controlled by the \-u and \-U options.
 .IP "\-\-PROC-RETURN"
-If set, carriage returns are handles as if the \-u option were set;
+If set, carriage returns are handled as if the \-U option were set;
 that is carriage returns are treated as control characters.
 .IP "\-\-proc-tab"
-If set, tabs are handled as if neither the \-u option 
-nor the \-U option were set, even if one of those options is set.
+If set, tabs are handled as if the \-U option were not set.
 That is, tabs are expanded to spaces.
-This allows control of tab handling separate from 
-handling of backspaces and carriage returns.
-If not set, tab handling is controlled by the \-u and \-U options.
+This option overrides the \-U option, so that display of
+tabs can be controlled separate from that of backspaces and carriage returns.
+If not set, tab display is controlled by the \-U options.
 .IP "\-\-PROC-TAB"
-If set, tabs are handles as if the \-u option were set;
+If set, tabs are handled as if the \-U option were set;
 that is tabs are treated as control characters.
 .IP "\-\-redraw-on-quit"
 When quitting, after sending the terminal deinitialization string,
