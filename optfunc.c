@@ -789,7 +789,7 @@ public void opt_rscroll(int type, char *s)
 	case TOGGLE: {
 		char *fmt;
 		int attr = AT_STANDOUT;
-		setfmt(s, &fmt, &attr, "*s>");
+		setfmt(s, &fmt, &attr, "*s>", FALSE);
 		if (strcmp(fmt, "-") == 0)
 		{
 			rscroll_char = 0;

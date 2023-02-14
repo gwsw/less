@@ -363,7 +363,7 @@ static void ilocale(void)
 /*
  * Define the printing format for control (or binary utf) chars.
  */
-public void setfmt(char *s, char **fmtvarptr, int *attrptr, char *default_fmt)
+public void setfmt(char *s, char **fmtvarptr, int *attrptr, char *default_fmt, int for_printf)
 {
 	if (s && utf_mode)
 	{
@@ -380,10 +380,12 @@ public void setfmt(char *s, char **fmtvarptr, int *attrptr, char *default_fmt)
 		}
 	}
 
-	/* %n is evil */
-	if (s == NULL || *s == '\0' ||
-	    (*s == '*' && (s[1] == '\0' || s[2] == '\0' || strchr(s + 2, 'n'))) ||
-	    (*s != '*' && strchr(s, 'n')))
+	if (s == NULL || *s == '\0')
+		s = default_fmt;
+	else if (for_printf &&
+	    ((*s == '*' && (s[1] == '\0' || s[2] == '\0' || strchr(s + 2, 'n'))) ||
+	     (*s != '*' && strchr(s, 'n'))))
+		/* %n is evil */
 		s = default_fmt;
 
 	/*
@@ -501,10 +503,10 @@ public void init_charset(void)
 	set_charset();
 
 	s = lgetenv("LESSBINFMT");
-	setfmt(s, &binfmt, &binattr, "*s<%02X>");
+	setfmt(s, &binfmt, &binattr, "*s<%02X>", TRUE);
 	
 	s = lgetenv("LESSUTFBINFMT");
-	setfmt(s, &utfbinfmt, &binattr, "<U+%04lX>");
+	setfmt(s, &utfbinfmt, &binattr, "<U+%04lX>", TRUE);
 }
 
 /*
