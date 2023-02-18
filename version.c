@@ -974,6 +974,7 @@ v622  1/27/23   Add --show-preproc-errors option.
 v623  2/2/23    Add # command; add ^S search modifier.
 v624  2/11/23   Add --proc-backspace, --proc-tab and --proc-return options.
 v625  2/16/23   Minor fixes.
+v626
 */
 
-char version[] = "625";
+char version[] = "626x";
