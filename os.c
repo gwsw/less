@@ -75,6 +75,7 @@ extern int sigs;
 extern int ignore_eoi;
 extern int exit_F_on_close;
 extern int follow_mode;
+extern int scanning_eof;
 extern char intr_char;
 #if !MSDOS_COMPILER
 extern int tty;
@@ -103,7 +104,7 @@ public void init_poll(void)
 static int check_poll(int fd, int tty)
 {
 	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
-	int timeout = (waiting_for_data && follow_mode != FOLLOW_NAME) ? -1 : 10;
+	int timeout = ((waiting_for_data || scanning_eof) && follow_mode != FOLLOW_NAME) ? -1 : 10;
 	poll(poller, 2, timeout);
 #if LESSTEST
 	if (ttyin_name == NULL) /* Check for ^X only on a real tty. */

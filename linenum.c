@@ -62,7 +62,8 @@ struct linenum_info
 static struct linenum_info anchor;      /* Anchor of the list */
 static struct linenum_info *freelist;   /* Anchor of the unused entries */
 static struct linenum_info pool[NPOOL]; /* The pool itself */
-static struct linenum_info *spare;              /* We always keep one spare entry */
+static struct linenum_info *spare;      /* We always keep one spare entry */
+public int scanning_eof = FALSE;
 
 extern int linenums;
 extern int sigs;
@@ -462,12 +463,17 @@ public LINENUM currline(int where)
  */
 public void scan_eof(void)
 {
-	POSITION pos = 0;
+	POSITION pos = ch_zero();
 	LINENUM linenum = 0;
 
 	if (ch_seek(0))
 		return;
 	ierror("Determining length of file", NULL_PARG);
+	/*
+	 * scanning_eof prevents the "Waiting for data" message from 
+	 * overwriting "Determining length of file".
+	 */
+	scanning_eof = TRUE;
 	while (pos != NULL_POSITION)
 	{
 		/* For efficiency, only add one every 256 line numbers. */
@@ -477,6 +483,7 @@ public void scan_eof(void)
 		if (ABORT_SIGS())
 			break;
 	}
+	scanning_eof = FALSE;
 }
 
 /*
