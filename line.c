@@ -264,6 +264,15 @@ public void prewind(void)
  */
 static void set_linebuf(int n, char ch, int attr)
 {
+	if (n >= size_linebuf)
+	{
+		/*
+		 * Won't fit in line buffer.
+		 * Try to expand it.
+		 */
+		if (expand_linebuf())
+			return;
+	}
 	linebuf.buf[n] = ch;
 	linebuf.attr[n] = attr;
 }
@@ -751,15 +760,6 @@ static int store_char(LWCHAR ch, int a, char *rep, POSITION pos)
 	} else
 	{
 		replen = utf_len(rep[0]);
-	}
-	if (linebuf.end + replen >= size_linebuf-6)
-	{
-		/*
-		 * Won't fit in line buffer.
-		 * Try to expand it.
-		 */
-		if (expand_linebuf())
-			return (1);
 	}
 
 	if (cshift == hshift)
