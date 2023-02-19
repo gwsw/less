@@ -975,6 +975,7 @@ v623  2/2/23    Add # command; add ^S search modifier.
 v624  2/11/23   Add --proc-backspace, --proc-tab and --proc-return options.
 v625  2/16/23   Minor fixes.
 v626  2/19/23   Fix rare crash in add_attr_normal.
+v627  2/19/23   Doc.
 */
 
-char version[] = "626";
+char version[] = "627";

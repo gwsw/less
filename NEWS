@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 608 and 626
+	Major changes between "less" versions 608 and 627
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
@@ -64,7 +64,7 @@
 
 * Fix bug doing repeat search before non-repeat search.
 
-* Fix crash with -R and certain line lengths.
+* Fix crash with -R and certain line lengths (github #338).
 
 * Don't retain search options from a cancelled search (github #302).
 
