@@ -921,6 +921,7 @@ static LWCHAR getcc_end_command(void)
 		return ('g');
 	case A_F_SEARCH:
 	case A_B_SEARCH:
+	case A_FILTER:
 		/* We have "/string" but no newline.  Add the \n. */
 		return ('\n'); 
 	default:
