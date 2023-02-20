@@ -976,7 +976,7 @@ v624  2/11/23   Add --proc-backspace, --proc-tab and --proc-return options.
 v625  2/16/23   Minor fixes.
 v626  2/19/23   Fix rare crash in add_attr_normal.
 v627  2/19/23   Doc.
-v628
+v628  2/20/23   Don't require newline after +&...
 */
 
-char version[] = "628x";
+char version[] = "628";

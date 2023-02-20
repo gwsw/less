@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 608 and 627
+	Major changes between "less" versions 608 and 628
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
@@ -47,6 +47,8 @@
   if supported by the regular expression library (github #196).
 
 * Don't allow opening a tty as file input unless -f is set (github #309).
+
+* Don't require newline input after +&... option (github #339).
 
 * Fix incorrect handling of some Private Use Unicode characters.
 
