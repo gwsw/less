@@ -29,11 +29,11 @@
 
 * Add --intr option (github #224).
 
-* Add --proc-backspace, --proc-tab and --proc-return options.
+* Add --proc-backspace, --proc-tab and --proc-return options (github #335).
 
 * Add --show-preproc-errors option (github #258).
 
-* Add LESS_LINES and LESS_COLUMNS environment variables.
+* Add LESS_LINES and LESS_COLUMNS environment variables (github #84).
 
 * Allow empty "lines" field in --header option.
 
