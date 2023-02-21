@@ -977,6 +977,7 @@ v625  2/16/23   Minor fixes.
 v626  2/19/23   Fix rare crash in add_attr_normal.
 v627  2/19/23   Doc.
 v628  2/20/23   Don't require newline after +&...
+v629
 */
 
-char version[] = "628";
+char version[] = "629x";
