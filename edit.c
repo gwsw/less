@@ -214,7 +214,8 @@ static void check_modeline(char *line)
 {
 #if HAVE_STRSTR
 	static char *pgms[] = { "less:", "vim:", "vi:", "ex:", NULL };
-	for (char **pgm = pgms;  *pgm != NULL;  ++pgm)
+	char **pgm;
+	for (pgm = pgms;  *pgm != NULL;  ++pgm)
 	{
 		char *pline = line;
 		for (;;)
