@@ -65,6 +65,9 @@ static int use_poll = TRUE;
 #define LONG_JUMP       longjmp
 #endif
 
+/* Milliseconds to wait for data before displaying "waiting for data" message. */
+#define WAITING_FOR_DATA_DELAY  500
+
 public int reading;
 public int waiting_for_data;
 public int consecutive_nulls = 0;
@@ -104,7 +107,7 @@ public void init_poll(void)
 static int check_poll(int fd, int tty)
 {
 	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
-	int timeout = ((waiting_for_data || scanning_eof) && follow_mode != FOLLOW_NAME) ? -1 : 10;
+	int timeout = (waiting_for_data && !(scanning_eof && follow_mode == FOLLOW_NAME)) ? -1 : WAITING_FOR_DATA_DELAY;
 	poll(poller, 2, timeout);
 #if LESSTEST
 	if (ttyin_name == NULL) /* Check for ^X only on a real tty. */
