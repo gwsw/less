@@ -978,6 +978,7 @@ v626  2/19/23   Fix rare crash in add_attr_normal.
 v627  2/19/23   Doc.
 v628  2/20/23   Don't require newline after +&...
 v629  2/26/23   Delay "waiting for data" message for 500 ms.
+v630
 */
 
-char version[] = "629";
+char version[] = "630x";
