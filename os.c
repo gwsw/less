@@ -87,17 +87,19 @@ extern int tty;
 extern char *ttyin_name;
 #endif /*LESSTEST*/
 
-#if USE_POLL
 public void init_poll(void)
 {
+#if USE_POLL
 #if defined(__APPLE__)
 	/* In old versions of MacOS, poll() does not work with /dev/tty. */
 	struct utsname uts;
 	if (uname(&uts) < 0 || lstrtoi(uts.release, NULL, 10) < 20)
 		use_poll = FALSE;
 #endif
+#endif
 }
 
+#if USE_POLL
 /*
  * Check whether data is available, either from a file/pipe or from the tty.
  * Return READ_AGAIN if no data currently available, but caller should retry later.
