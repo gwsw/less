@@ -2243,6 +2243,10 @@ When set,
 .B less
 repaints the entire screen on every movement command,
 so scrolling may be slower.
+.IP LESS_DATA_DELAY
+Duration (in milliseconds) after starting to read data from the input,
+after which the "Waiting for data" message will be displayed.
+The default is 4000 (4 seconds).
 .IP LESS_IS_MORE
 Emulate the
 .BR more (1)
