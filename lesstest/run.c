@@ -56,10 +56,12 @@ static int read_screen(LessPipeline* pipeline, byte* buf, int buflen) {
 	send_char(pipeline, LESS_DUMP_CHAR);
 	int rn = 0;
 	for (; rn <= buflen; ++rn) {
-		if (read(pipeline->screen_out, &buf[rn], 1) != 1)
+		byte ch;
+		if (read(pipeline->screen_out, &ch, 1) != 1)
 			break;
-		if (buf[rn] == '\n')
+		if (ch == '\n')
 			break;
+		if (buf != NULL) buf[rn] = ch;
 	}
 	return rn;
 }
@@ -150,6 +152,7 @@ static int run_test(TestSetup* setup, FILE* testfd) {
 		ok = 0;
 	} else {
 		set_signal_handlers(1);
+		(void) read_screen(pipeline, NULL, MAX_SCREENBUF_SIZE); // wait until less is running
 		while (!less_quit) {
 			char line[10000];
 			int line_len = read_zline(testfd, line, sizeof(line));
