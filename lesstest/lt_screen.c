@@ -83,14 +83,16 @@ static void param_print(void) {
 	fprintf(stderr, ")");
 }
 
-static void param_push(int v) {
-	if (screen.param_top >= (int) countof(screen.params)-1)
-		return;
-	screen.params[++screen.param_top] = v;
-}
-
 static void param_clear(void) {
 	screen.param_top = -1;
+}
+
+static void param_push(int v) {
+	if (screen.param_top >= (int) countof(screen.params)-1) {
+		param_clear();
+		return;
+	}
+	screen.params[++screen.param_top] = v;
 }
 
 static int param_pop(void){
