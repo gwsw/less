@@ -65,13 +65,12 @@ static int use_poll = TRUE;
 #define LONG_JUMP       longjmp
 #endif
 
-/* Milliseconds to wait for data before displaying "waiting for data" message. */
-#define WAITING_FOR_DATA_DELAY  500
-
 public int reading;
 public int waiting_for_data;
 public int consecutive_nulls = 0;
 
+/* Milliseconds to wait for data before displaying "waiting for data" message. */
+static int waiting_for_data_delay = 4000;
 static jmp_buf read_label;
 
 extern int sigs;
@@ -89,6 +88,10 @@ extern char *ttyin_name;
 
 public void init_poll(void)
 {
+    char *delay = lgetenv("LESS_DATA_DELAY");
+    int idelay = (delay == NULL) ? 0 : atoi(delay);
+    if (idelay > 0)
+        waiting_for_data_delay = idelay;
 #if USE_POLL
 #if defined(__APPLE__)
 	/* In old versions of MacOS, poll() does not work with /dev/tty. */
@@ -109,7 +112,7 @@ public void init_poll(void)
 static int check_poll(int fd, int tty)
 {
 	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
-	int timeout = (waiting_for_data && !(scanning_eof && follow_mode == FOLLOW_NAME)) ? -1 : WAITING_FOR_DATA_DELAY;
+	int timeout = (waiting_for_data && !(scanning_eof && follow_mode == FOLLOW_NAME)) ? -1 : waiting_for_data_delay;
 	poll(poller, 2, timeout);
 #if LESSTEST
 	if (ttyin_name == NULL) /* Check for ^X only on a real tty. */
@@ -204,6 +207,7 @@ start:
 		 * available, because that makes some background programs
 		 * believe DOS is busy in a way that prevents those
 		 * programs from working while "less" waits.
+         * {{ This code was added 12 Jan 2007; still needed? }}
 		 */
 		fd_set readfds;
 
