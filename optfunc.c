@@ -676,13 +676,15 @@ public void opt_D(int type, char *s)
  */
 public void set_tabs(char *s, int len)
 {
-	int i = 0;
+	int i;
 	char *es = s + len;
 	/* Start at 1 because tabstops[0] is always zero. */
 	for (i = 1;  i < TABSTOP_MAX;  )
 	{
 		int n = 0;
 		int v = FALSE;
+		while (s < es && *s == ' ')
+			s++;
 		for (; s < es && *s >= '0' && *s <= '9'; s++)
 		{
 			v |= ckd_mul(&n, n, 10);
