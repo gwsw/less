@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 608 and 629
+	Major changes between "less" versions 608 and 630
 
 * Add LESSUTFCHARDEF environment variable (github #275).
 
@@ -34,6 +34,8 @@
 * Add --show-preproc-errors option (github #258).
 
 * Add LESS_LINES and LESS_COLUMNS environment variables (github #84).
+
+* Add LESS_DATA_DELAY environment variable (github #337).
 
 * Allow empty "lines" field in --header option.
 
