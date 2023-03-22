@@ -2182,10 +2182,16 @@ Name of the history file used to remember search commands and
 shell commands between invocations of
 .BR less .
 If set to "\-" or "/dev/null", a history file is not used.
-The default is "$XDG_STATE_HOME/lesshst" or "$HOME/.local/state/lesshst" or
-"$XDG_DATA_HOME/lesshst" or "$HOME/.lesshst" on Unix systems,
-"$HOME/_lesshst" on DOS and Windows systems,
-or "$HOME/lesshst.ini" or "$INIT/lesshst.ini" on OS/2 systems.
+The default depends on the operating system, but is usually:
+.RS
+.IP "Linux and Unix"
+"$XDG_STATE_HOME/lesshst" or "$HOME/.local/state/lesshst" or
+"$XDG_DATA_HOME/lesshst" or "$HOME/.lesshst".
+.IP "Windows and MS-DOS"
+"$HOME/_lesshst".
+.IP "OS/2"
+"$HOME/lesshst.ini" or "$INIT/lesshst.ini".
+.RE
 .IP LESSHISTSIZE
 The maximum number of commands to save in the history file.
 The default is 100.
@@ -2276,6 +2282,14 @@ The type of terminal on which
 is being run.
 .IP VISUAL
 The name of the editor (used for the v command).
+.IP XDG_CONFIG_HOME
+Possible location of the 
+.B lesskey
+file; see the KEY BINDINGS section.
+.IP XDG_DATA_HOME
+Possible location of the history file; see the description of the LESSHISTFILE environment variable.
+.IP XDG_STATE_HOME
+Possible location of the history file; see the description of the LESSHISTFILE environment variable.
 .
 .SH "SEE ALSO"
 .BR lesskey (1),
