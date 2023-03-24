@@ -2849,6 +2849,7 @@ public int win32_kbhit(void)
 	} while (ip.EventType != KEY_EVENT ||
 		ip.Event.KeyEvent.bKeyDown != TRUE ||
 		(ip.Event.KeyEvent.wVirtualScanCode == 0 && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
+		((ip.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED) && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_KANJI ||
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL ||
