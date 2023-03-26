@@ -70,6 +70,8 @@
 
 * Fix crash with -R and certain line lengths (github #338).
 
+* Fix input of Windows dead keys (github #352).
+
 * Don't retain search options from a cancelled search (github #302).
 
 * Don't call realpath on fake filenames like "-" (github #289).
