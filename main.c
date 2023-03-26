@@ -71,10 +71,25 @@ extern int      first_time;
 int main(int argc, char *argv[])
 {
 #ifdef _WIN32
-	UINT cp = GetConsoleCP();
-	UINT output_cp = GetConsoleOutputCP();
-	if (cp != output_cp) {
-		SetConsoleOutputCP(cp);
+	char* less_charset = lgetenv("LESSCHARSET");
+	if (less_charset) {
+		UINT less_cp = 0;
+		// code page on https://learn.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
+		if (!strcmpi(less_charset, "utf-8")) {
+			less_cp = 65001;
+		} else if (!strcmpi(less_charset, "gb2312")) {
+			less_cp = 936;
+		} else if (!strcmpi(less_charset, "shift_jis")) {
+			less_cp = 932;
+		}
+		if (less_cp != 0) {
+			if (less_cp != GetConsoleCP()) {
+				SetConsoleCP(less_cp);
+			}
+			if (less_cp != GetConsoleOutputCP()) {
+				SetConsoleOutputCP(less_cp);
+			}
+		}
 	}
 #endif
 	IFILE ifile;
