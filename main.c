@@ -71,8 +71,11 @@ extern int      first_time;
 int main(int argc, char *argv[])
 {
 #ifdef _WIN32
-	SetConsoleCP(65001);
-	SetConsoleOutputCP(65001);
+	UINT cp = GetConsoleCP();
+	UINT output_cp = GetConsoleOutputCP();
+	if (cp != output_cp) {
+		SetConsoleOutputCP(cp);
+	}
 #endif
 	IFILE ifile;
 	char *s;
