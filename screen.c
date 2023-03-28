@@ -296,9 +296,6 @@ extern DWORD console_mode;
 extern int tty;
 #endif
 
-extern char *tgetstr();
-extern char *tgoto();
-
 #if (HAVE_TERMIOS_H && HAVE_TERMIOS_FUNCS) || defined(TCGETA)
 /*
  * Set termio flags for use by less.
