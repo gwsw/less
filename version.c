@@ -980,6 +980,7 @@ v628  2/20/23   Don't require newline after +&...
 v629  2/26/23   Delay "waiting for data" message for 500 ms.
 v630  3/18/23   Add LESS_DATA_DELAY.
 v631  3/26/23   Fix input of dead keys on Windows.
+v632
 */
 
-char version[] = "631";
+char version[] = "632x";
