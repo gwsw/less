@@ -28,7 +28,7 @@ E "COLUMNS" "135"
 E "LINES" "45"
 E "LESS" "R"
 E "LANG" "C"
-E "LC_CTYPE" "C.UTF-8"
+E "LC_CTYPE" "en_US.UTF-8"
 T "colorbars"
 A "colorbars"
 F "colorbars" 7931

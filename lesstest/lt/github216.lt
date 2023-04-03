@@ -29,7 +29,7 @@ E "LINES" "28"
 E "LESS" "R"
 E "LESSCHARSET" "utf8"
 E "LANG" "C"
-E "LC_CTYPE" "C.UTF-8"
+E "LC_CTYPE" "en_US.UTF-8"
 T "github216"
 A "github216"
 F "github216" 49
