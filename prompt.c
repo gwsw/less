@@ -421,7 +421,8 @@ static constant char * skipcond(constant char *p)
 		/*
 		 * Backslash escapes the next character.
 		 */
-		++p;
+		if (p[1] != '\0')
+			++p;
 		break;
 	case '\0':
 		/*
@@ -477,8 +478,8 @@ public char * pr_expand(constant char *proto)
 			ap_char(*p);
 			break;
 		case '\\': /* Backslash escapes the next character */
-			p++;
-			ap_char(*p);
+			if (p[1] != '\0')
+				ap_char(*++p);
 			break;
 		case '?': /* Conditional (IF) */
 			if ((c = *++p) == '\0')
