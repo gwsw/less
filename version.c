@@ -981,6 +981,7 @@ v629  2/26/23   Delay "waiting for data" message for 500 ms.
 v630  3/18/23   Add LESS_DATA_DELAY.
 v631  3/26/23   Fix input of dead keys on Windows.
 v632  4/6/23    Make lesstest work on MacOS; minor fixes.
+v633
 */
 
-char version[] = "632";
+char version[] = "633x";
