@@ -68,8 +68,16 @@ extern int fd0;
 #endif
 #endif
 
+#if HAVE_NCURSESW_TERMCAP_H
+#include <ncursesw/termcap.h>
+#else
+#if HAVE_NCURSES_TERMCAP_H
+#include <ncurses/termcap.h>
+#else
 #if HAVE_TERMCAP_H
 #include <termcap.h>
+#endif
+#endif
 #endif
 #ifdef _OSK
 #include <signal.h>
