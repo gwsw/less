@@ -1702,7 +1702,7 @@ static void ltputs(char *str, int affcnt, int (*f_putc)(int))
 #endif /* MSDOS_COMPILER */
 
 /*
- * Configure the termimal so mouse clicks and wheel moves 
+ * Configure the terminal so mouse clicks and wheel moves 
  * produce input to less.
  */
 public void init_mouse(void)
