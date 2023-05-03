@@ -11,6 +11,13 @@
 
 ======================================================================
 
+	Major changes between "less" versions 632 and 633
+
+* Fix build on systems which have ncurses/termcap.h or 
+  ncursesw/termcap.h but not termcap.h.
+
+======================================================================
+
 	Major changes between "less" versions 608 and 632
 
 * Add LESSUTFCHARDEF environment variable (github #275).
