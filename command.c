@@ -554,6 +554,8 @@ static int mca_search_char(int c)
 	case '*':
 		if (mca != A_FILTER)
 			flag = SRCH_PAST_EOF;
+		if (search_type & SRCH_WRAP)
+			search_type &= ~SRCH_WRAP;
 		break;
 	case CONTROL('F'): /* FIRST file */
 	case '@':
