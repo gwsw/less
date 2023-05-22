@@ -11,6 +11,12 @@
 
 ======================================================================
 
+	Major changes between "less" versions 633 and 634
+
+* Fix search modifier ^E after ^W.
+
+======================================================================
+
 	Major changes between "less" versions 632 and 633
 
 * Fix build on systems which have ncurses/termcap.h or 

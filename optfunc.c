@@ -196,7 +196,7 @@ public void opt_j(int type, char *s)
 			error("Position target at screen line %d", &parg);
 		} else
 		{
-			char buf[24];
+			char buf[INT_STRLEN_BOUND(long)+2];
 			SNPRINTF1(buf, sizeof(buf), ".%06ld", jump_sline_fraction);
 			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
@@ -256,7 +256,7 @@ public void opt_shift(int type, char *s)
 			error("Horizontal shift %d columns", &parg);
 		} else
 		{
-			char buf[24];
+			char buf[INT_STRLEN_BOUND(long)+2];
 			SNPRINTF1(buf, sizeof(buf), ".%06ld", shift_count_fraction);
 			len = (int) strlen(buf);
 			while (len > 2 && buf[len-1] == '0')
