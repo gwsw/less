@@ -72,6 +72,7 @@ public int consecutive_nulls = 0;
 /* Milliseconds to wait for data before displaying "waiting for data" message. */
 static int waiting_for_data_delay = 4000;
 static jmp_buf read_label;
+static int any_data = FALSE;
 
 extern int sigs;
 extern int ignore_eoi;
@@ -130,7 +131,12 @@ static int check_poll(int fd, int tty)
 	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
 		/* Break out of F loop on HUP due to --exit-follow-on-close. */
 		return (READ_INTR);
-	if ((poller[0].revents & (POLLIN|POLLHUP|POLLERR)) == 0)
+	/*
+	 * Don't return READ_AGAIN if no data has yet been received,
+	 * to allow a program piping data into less to have temporary
+	 * access to the tty (like sudo asking for a password).
+	 */
+	if (any_data && (poller[0].revents & (POLLIN|POLLHUP|POLLERR)) == 0)
 		/* No data available; let caller take action, then try again. */
 		return (READ_AGAIN);
 	/* There is data (or HUP/ERR) available. Safe to call read() without blocking. */
@@ -282,6 +288,8 @@ start:
 #endif
 		return (READ_ERR);
 	}
+	if (n > 0)
+		any_data = TRUE;
 	return (n);
 }
 
