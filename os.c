@@ -288,7 +288,7 @@ start:
 #endif
 		return (READ_ERR);
 	}
-	if (n > 0)
+	if (fd != tty && n > 0)
 		any_data = TRUE;
 	return (n);
 }
