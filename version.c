@@ -982,7 +982,8 @@ v630  3/18/23   Add LESS_DATA_DELAY.
 v631  3/26/23   Fix input of dead keys on Windows.
 v632  4/6/23    Make lesstest work on MacOS; minor fixes.
 v633  5/3/23    Fix build on systems with ncurses/termcap.h or ncursesw/termcap.h.
-v634 
+v634            Allow program piping into less to access tty;
+                fix search modifier ^E after ^W.
 */
 
 char version[] = "634x";

@@ -115,7 +115,14 @@ static int check_poll(int fd, int tty)
 	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
 	int timeout = (waiting_for_data && !(scanning_eof && follow_mode == FOLLOW_NAME)) ? -1 : waiting_for_data_delay;
 	if (!any_data)
+	{
+		/*
+		 * Don't do polling if no data has yet been received,
+		 * to allow a program piping data into less to have temporary
+		 * access to the tty (like sudo asking for a password).
+		 */
 		return (0);
+	}
 	poll(poller, 2, timeout);
 #if LESSTEST
 	if (ttyin_name == NULL) /* Check for ^X only on a real tty. */
@@ -133,11 +140,6 @@ static int check_poll(int fd, int tty)
 	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
 		/* Break out of F loop on HUP due to --exit-follow-on-close. */
 		return (READ_INTR);
-	/*
-	 * Don't return READ_AGAIN if no data has yet been received,
-	 * to allow a program piping data into less to have temporary
-	 * access to the tty (like sudo asking for a password).
-	 */
 	if ((poller[0].revents & (POLLIN|POLLHUP|POLLERR)) == 0)
 		/* No data available; let caller take action, then try again. */
 		return (READ_AGAIN);
