@@ -48,6 +48,7 @@ static int use_poll = TRUE;
 #endif
 #if USE_POLL
 #include <poll.h>
+static int any_data = FALSE;
 #endif
 
 /*
@@ -72,7 +73,6 @@ public int consecutive_nulls = 0;
 /* Milliseconds to wait for data before displaying "waiting for data" message. */
 static int waiting_for_data_delay = 4000;
 static jmp_buf read_label;
-static int any_data = FALSE;
 
 extern int sigs;
 extern int ignore_eoi;
@@ -292,8 +292,10 @@ start:
 #endif
 		return (READ_ERR);
 	}
+#if USE_POLL
 	if (fd != tty && n > 0)
 		any_data = TRUE;
+#endif
 	return (n);
 }
 
