@@ -114,6 +114,8 @@ static int check_poll(int fd, int tty)
 {
 	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
 	int timeout = (waiting_for_data && !(scanning_eof && follow_mode == FOLLOW_NAME)) ? -1 : waiting_for_data_delay;
+	if (!any_data)
+		return (0);
 	poll(poller, 2, timeout);
 #if LESSTEST
 	if (ttyin_name == NULL) /* Check for ^X only on a real tty. */
@@ -136,7 +138,7 @@ static int check_poll(int fd, int tty)
 	 * to allow a program piping data into less to have temporary
 	 * access to the tty (like sudo asking for a password).
 	 */
-	if (any_data && (poller[0].revents & (POLLIN|POLLHUP|POLLERR)) == 0)
+	if ((poller[0].revents & (POLLIN|POLLHUP|POLLERR)) == 0)
 		/* No data available; let caller take action, then try again. */
 		return (READ_AGAIN);
 	/* There is data (or HUP/ERR) available. Safe to call read() without blocking. */
@@ -288,7 +290,7 @@ start:
 #endif
 		return (READ_ERR);
 	}
-	if (n > 0)
+	if (fd != tty && n > 0)
 		any_data = TRUE;
 	return (n);
 }
