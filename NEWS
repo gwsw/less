@@ -20,6 +20,9 @@
 
 * Fix bug using negated (^N) search (github #374).
 
+* Fix regression in exit code when stdin is /dev/null and 
+  output is a file (github #373).
+
 ======================================================================
 
 	Major changes between "less" versions 632 and 633

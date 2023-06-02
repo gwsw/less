@@ -984,7 +984,7 @@ v632  4/6/23    Make lesstest work on MacOS; minor fixes.
 v633  5/3/23    Fix build on systems with ncurses/termcap.h or ncursesw/termcap.h.
 v634  5/29/23   Allow program piping into less to access tty;
                 fix search modifier ^E after ^W.
-v635            Fix crash with ! search modifier.
+v635  6/2/23    Fix crash with ! search modifier.
 */
 
-char version[] = "635x";
+char version[] = "635";
