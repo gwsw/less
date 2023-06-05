@@ -5,6 +5,8 @@
 #
 # Usage: mingw32-make -f Makefile.wng [REGEX_PACKAGE={posix|gnu|regcomp-local}]
 #
+# When cross compiling, add also: SHELL=sh CC=<mingw-cc>
+#
 # The optional command line parameter "REGEX_PACKAGE" is used to specify 
 # a regular expression package for compilation and linking.  This parameter
 # can assume one of three values.  
@@ -57,10 +59,19 @@ ifneq  (${REGEX_PACKAGE},regcomp-local)
 CFLAGS_MINGW += ${MINGW_REGEX_IPATH}
 endif
 
-# MingW may use sh.exe instead of cmd.exe.  
-# Make sure it does not.
+# MingW may use sh.exe instead of cmd.exe.
+# Default to cmd.exe, but allow sh.exe too, e.g. for cross compile.
 #
 SHELL = cmd.exe
+ifeq  (${SHELL},cmd.exe)
+    CP = copy
+    MV = move
+    RM = del
+else
+    CP = cp
+    MV = mv
+    RM = rm
+endif
 
 CFLAGS  = -O2 ${CFLAGS_MINGW}
 ifneq  (${REGEX_PACKAGE},regcomp-local)
@@ -110,10 +121,10 @@ lessecho: lessecho.o version.o
 	${CC} ${LDFLAGS} -o $@ lessecho.o version.o
 
 defines.h: defines.wn
-	copy $< $@
+	${CP} $< $@
 
 funcs.h: ${LESS_SRC}
-	-move funcs.h funcs.h.old
+	-${MV} funcs.h funcs.h.old
 	grep -h "^public [^;]*$$" ${LESS_SRC} | sed "s/$$/;/" >funcs.h
 
 help.c: less.hlp
@@ -125,9 +136,4 @@ TAGS:
 	etags *.c *.h
 
 clean:
-	-del *.o
-	-del *.exe
-	-del defines.h
-	-del funcs.h
-	-del help.c
-	-if exist TAGS del TAGS
+	-${RM} *.o *.exe defines.h funcs.h help.c TAGS
