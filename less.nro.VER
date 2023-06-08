@@ -720,6 +720,11 @@ CHAR_INFO.Attributes values
 .nh
 https://docs.microsoft.com/en-us/windows/console/char-info-str).
 .hy
+.PP
+On MS-DOS only, the \-Da option may be used to specify strict parsing of 
+ANSI color (SGR) sequences when the \-R option is used.
+Without this option, sequences that change text attributes 
+(bold, underline, etc.) may clear the text color.
 .RE
 .IP "\-e or \-\-quit-at-eof"
 Causes
