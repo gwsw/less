@@ -84,6 +84,153 @@ static char *ob = obuf;
 static int outfd = 2; /* stderr */
 
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
+
+typedef unsigned t_attr;
+
+#define A_BOLD      (1u<<0)
+#define A_ITALIC    (1u<<1)
+#define A_UNDERLINE (1u<<2)
+#define A_BLINK     (1u<<3)
+#define A_INVERSE   (1u<<4)
+#define A_CONCEAL   (1u<<5)
+
+/* long is guaranteed 32 bits, and we reserve bits for type + RGB */
+typedef unsigned long t_color;
+
+#define T_DEFAULT   0ul
+#define T_ANSI      1ul  /* colors 0-7 */
+
+#define CGET_ANSI(c) ((c) & 0x7)
+
+#define C_DEFAULT    (T_DEFAULT <<24) /* 0 */
+#define C_ANSI(c)   ((T_ANSI    <<24) | (c))
+
+/* attr/fg/bg/all 0 is the default attr/fg/bg/all, respectively */
+typedef struct t_sgr {
+	t_attr attr;
+	t_color fg;
+	t_color bg;
+} t_sgr;
+
+static const t_sgr SGR_DEFAULT; /* = {0} */
+
+static void update_sgr(t_sgr *sgr, unsigned char code)
+{
+	switch (code)
+	{
+	case  0: *sgr = SGR_DEFAULT; break;
+
+	case  1: sgr->attr |=  A_BOLD; break;
+	case 22: sgr->attr &= ~A_BOLD; break;
+
+	case  3: sgr->attr |=  A_ITALIC; break;
+	case 23: sgr->attr &= ~A_ITALIC; break;
+
+	case  4: sgr->attr |=  A_UNDERLINE; break;
+	case 24: sgr->attr &= ~A_UNDERLINE; break;
+
+	case  6: /* fast-blink, fallthrough */
+	case  5: sgr->attr |=  A_BLINK; break;
+	case 25: sgr->attr &= ~A_BLINK; break;
+
+	case  7: sgr->attr |=  A_INVERSE; break;
+	case 27: sgr->attr &= ~A_INVERSE; break;
+
+	case  8: sgr->attr |=  A_CONCEAL; break;
+	case 28: sgr->attr &= ~A_CONCEAL; break;
+
+	case 39: sgr->fg = C_DEFAULT; break;
+	case 49: sgr->bg = C_DEFAULT; break;
+
+	case 30: case 31: case 32: case 33:
+	case 34: case 35: case 36: case 37:
+		sgr->fg = C_ANSI(code - 30);
+		break;
+
+	case 40: case 41: case 42: case 43:
+	case 44: case 45: case 46: case 47:
+		sgr->bg = C_ANSI(code - 40);
+		break;
+	}
+}
+
+static void set_win_colors(t_sgr *sgr)
+{
+#if MSDOS_COMPILER==WIN32C
+	/* Screen colors used by 3x and 4x SGR commands. */
+	static unsigned char screen_color[] = {
+		0, /* BLACK */
+		FOREGROUND_RED,
+		FOREGROUND_GREEN,
+		FOREGROUND_RED|FOREGROUND_GREEN,
+		FOREGROUND_BLUE,
+		FOREGROUND_BLUE|FOREGROUND_RED,
+		FOREGROUND_BLUE|FOREGROUND_GREEN,
+		FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_RED
+	};
+#else
+	static enum COLORS screen_color[] = {
+		BLACK, RED, GREEN, BROWN,
+		BLUE, MAGENTA, CYAN, LIGHTGRAY
+	};
+#endif
+
+	int fg, bg, tmp;  /* Windows colors */
+
+	/* Not "SGR mode": apply -D<x> to default fg+bg with one attribute */
+	if (!sgr_mode && sgr->fg == C_DEFAULT && sgr->bg == C_DEFAULT)
+	{
+		switch (sgr->attr)
+		{
+		case A_BOLD:
+			WIN32setcolors(bo_fg_color, bo_bg_color);
+			return;
+		case A_UNDERLINE:
+			WIN32setcolors(ul_fg_color, ul_bg_color);
+			return;
+		case A_BLINK:
+			WIN32setcolors(bl_fg_color, bl_bg_color);
+			return;
+		case A_INVERSE:
+			WIN32setcolors(so_fg_color, so_bg_color);
+			return;
+		/*
+		 * There's no -Di so italic should not be here, but to
+		 * preserve lagacy behavior, apply -Ds to italic too.
+		 */
+		case A_ITALIC:
+			WIN32setcolors(so_fg_color, so_bg_color);
+			return;
+		}
+	}
+
+	/* generic application of the SGR state as Windows colors */
+
+	fg = sgr->fg == C_DEFAULT ? nm_fg_color
+	                          : screen_color[CGET_ANSI(sgr->fg)];
+
+	bg = sgr->bg == C_DEFAULT ? nm_bg_color
+	                          : screen_color[CGET_ANSI(sgr->bg)];
+
+	if (sgr->attr & A_BOLD)
+		fg |= 8;
+
+	if (sgr->attr & (A_BLINK | A_UNDERLINE))
+		bg |= 8;  /* TODO: can be illegible */
+
+	if (sgr->attr & (A_INVERSE | A_ITALIC))
+	{
+		tmp = fg;
+		fg = bg;
+		bg = tmp;
+	}
+
+	if (sgr->attr & A_CONCEAL)
+		fg = bg ^ 8;
+
+	WIN32setcolors(fg, bg);
+}
+
 static void win_flush(void)
 {
 	if (ctldisp != OPT_ONPLUS || (vt_enabled && sgr_mode))
@@ -91,41 +238,13 @@ static void win_flush(void)
 	else
 	{
 		/*
-		 * Look for SGR escape sequences, and convert them
-		 * to color commands.  Replace bold, underline,
-		 * and italic escapes into colors specified via
-		 * the -D command-line option.
+		 * Digest text, apply embedded SGR sequences as Windows-colors.
+		 * By default - when -Da ("SGR mode") is unset - also apply
+		 * translation of -D command-line options (at set_win_colors)
 		 */
 		char *anchor, *p, *p_next;
-		static int fg, fgi, bg, bgi;
-		static int at;
-		int f, b;
-#if MSDOS_COMPILER==WIN32C
-		/* Screen colors used by 3x and 4x SGR commands. */
-		static unsigned char screen_color[] = {
-			0, /* BLACK */
-			FOREGROUND_RED,
-			FOREGROUND_GREEN,
-			FOREGROUND_RED|FOREGROUND_GREEN,
-			FOREGROUND_BLUE, 
-			FOREGROUND_BLUE|FOREGROUND_RED,
-			FOREGROUND_BLUE|FOREGROUND_GREEN,
-			FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_RED
-		};
-#else
-		static enum COLORS screen_color[] = {
-			BLACK, RED, GREEN, BROWN,
-			BLUE, MAGENTA, CYAN, LIGHTGRAY
-		};
-#endif
+		static t_sgr sgr;
 
-		if (fg == 0 && bg == 0)
-		{
-			fg  = nm_fg_color & 7;
-			fgi = nm_fg_color & 8;
-			bg  = nm_bg_color & 7;
-			bgi = nm_bg_color & 8;
-		}
 		for (anchor = p_next = obuf;
 			 (p_next = memchr(p_next, ESC, ob - p_next)) != NULL; )
 		{
@@ -147,24 +266,18 @@ static void win_flush(void)
 				{
 					/*
 					 * Handle null escape sequence
-					 * "ESC[m", which restores
-					 * the normal color.
+					 * "ESC[m" as if it was "ESC[0m"
 					 */
 					p++;
 					anchor = p_next = p;
-					fg  = nm_fg_color & 7;
-					fgi = nm_fg_color & 8;
-					bg  = nm_bg_color & 7;
-					bgi = nm_bg_color & 8;
-					at  = 0;
-					WIN32setcolors(nm_fg_color, nm_bg_color);
+					update_sgr(&sgr, 0);
+					set_win_colors(&sgr);
 					continue;
 				}
 				p_next = p;
-				at &= ~32;
 
 				/*
-				 * Select foreground/background colors
+				 * Parse and apply SGR values to the SGR state
 				 * based on the escape sequence. 
 				 */
 				while (!is_ansi_end(*p))
@@ -194,144 +307,15 @@ static void win_flush(void)
 						break;
 					}
 					if (*q == ';')
-					{
 						q++;
-						at |= 32;
-					}
 
-					switch (code)
-					{
-					default:
-					/* case 0: all attrs off */
-						fg = nm_fg_color & 7;
-						bg = nm_bg_color & 7;
-						at &= 32;
-						/*
-						 * \e[0m use normal
-						 * intensities, but
-						 * \e[0;...m resets them
-						 */
-						if (at & 32)
-						{
-							fgi = 0;
-							bgi = 0;
-						} else
-						{
-							fgi = nm_fg_color & 8;
-							bgi = nm_bg_color & 8;
-						}
-						break;
-					case 1: /* bold on */
-						fgi = 8;
-						at |= 1;
-						break;
-					case 3: /* italic on */
-					case 7: /* inverse on */
-						at |= 2;
-						break;
-					case 4: /* underline on */
-						bgi = 8;
-						at |= 4;
-						break;
-					case 5: /* slow blink on */
-					case 6: /* fast blink on */
-						bgi = 8;
-						at |= 8;
-						break;
-					case 8: /* concealed on */
-						at |= 16;
-						break;
-					case 22: /* bold off */
-						fgi = 0;
-						at &= ~1;
-						break;
-					case 23: /* italic off */
-					case 27: /* inverse off */
-						at &= ~2;
-						break;
-					case 24: /* underline off */
-						bgi = 0;
-						at &= ~4;
-						break;
-					case 28: /* concealed off */
-						at &= ~16;
-						break;
-					case 30: case 31: case 32:
-					case 33: case 34: case 35:
-					case 36: case 37:
-						fg = screen_color[code - 30];
-						at |= 32;
-						break;
-					case 39: /* default fg */
-						fg = nm_fg_color & 7;
-						at |= 32;
-						break;
-					case 40: case 41: case 42:
-					case 43: case 44: case 45:
-					case 46: case 47:
-						bg = screen_color[code - 40];
-						at |= 32;
-						break;
-					case 49: /* default bg */
-						bg = nm_bg_color & 7;
-						at |= 32;
-						break;
-					}
+					update_sgr(&sgr, code);
 					p = q;
 				}
 				if (!is_ansi_end(*p) || p == p_next)
 					break;
-				/*
-				 * In SGR mode, the ANSI sequence is
-				 * always honored; otherwise if an attr
-				 * is used by itself ("\e[1m" versus
-				 * "\e[1;33m", for example), set the
-				 * color assigned to that attribute.
-				 */
-				if (sgr_mode || (at & 32))
-				{
-					if (at & 2)
-					{
-						f = bg | bgi;
-						b = fg | fgi;
-					} else
-					{
-						f = fg | fgi;
-						b = bg | bgi;
-					}
-				} else
-				{
-					if (at & 1)
-					{
-						f = bo_fg_color;
-						b = bo_bg_color;
-					} else if (at & 2)
-					{
-						f = so_fg_color;
-						b = so_bg_color;
-					} else if (at & 4)
-					{
-						f = ul_fg_color;
-						b = ul_bg_color;
-					} else if (at & 8)
-					{
-						f = bl_fg_color;
-						b = bl_bg_color;
-					} else
-					{
-						f = nm_fg_color;
-						b = nm_bg_color;
-					}
-				}
-				if (at & 16)
-					f = b ^ 8;
-#if MSDOS_COMPILER==WIN32C
-				f &= 0xf | COMMON_LVB_UNDERSCORE;
-#else
-				f &= 0xf;
-#endif
-				b &= 0xf;
-				WIN32setcolors(f, b);
+
+				set_win_colors(&sgr);
 				p_next = anchor = p + 1;
 			} else
 				p_next++;
