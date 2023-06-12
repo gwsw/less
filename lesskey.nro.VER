@@ -48,7 +48,7 @@ Customizes line-editing key bindings.
 .IP #env
 Defines environment variables.
 .PP
-Blank lines and lines which start with a pound sign (#) are ignored,
+Blank lines and lines which start with a hash mark (#) are ignored,
 except as noted below.
 .
 .SH "COMMAND SECTION"
@@ -108,7 +108,7 @@ l l.
 A backslash followed by any other character indicates that character is
 to be taken literally.
 Characters which must be preceded by backslash include
-caret, space, tab and the backslash itself.
+caret, space, tab, hash mark and the backslash itself.
 .PP
 An action may be followed by an "extra" string.
 When such a command is entered while running
