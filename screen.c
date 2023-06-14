@@ -2956,6 +2956,16 @@ public char WIN32getch(void)
 
 	return ascii;
 }
+
+/*
+ * Restore the character read during iread.
+ */
+public void WIN32ungetch(int ch)
+{
+	currentKey.unicode = ch;
+	++keyCount;
+	pending_scancode = 0;
+}
 #endif
 
 #if MSDOS_COMPILER
