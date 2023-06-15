@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 633 and 635
+	Major changes between "less" versions 633 and 636
 
 * Fix problem when a program piping into less reads from the tty,
   like sudo asking for password (github #368).
@@ -19,6 +19,8 @@
 * Fix search modifier ^E after ^W.
 
 * Fix bug using negated (^N) search (github #374).
+
+* Fix bug setting colors with -D on MS-DOS build.
 
 * Fix regression in exit code when stdin is /dev/null and 
   output is a file (github #373).
