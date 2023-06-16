@@ -20,7 +20,7 @@
 
 * Fix bug using negated (^N) search (github #374).
 
-* Fix bug setting colors with -D on MS-DOS build.
+* Fix bug setting colors with -D on MS-DOS build (github #386).
 
 * Fix regression in exit code when stdin is /dev/null and 
   output is a file (github #373).
