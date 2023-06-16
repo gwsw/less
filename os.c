@@ -244,11 +244,18 @@ start:
 	}
 #else
 #if MSDOS_COMPILER==WIN32C
-	if (win32_kbhit() && WIN32getch() == intr_char)
+	if (win32_kbhit())
 	{
-		sigs |= S_INTERRUPT;
-		reading = 0;
-		return (READ_INTR);
+		int c;
+
+		c = WIN32getch();
+		if (c == intr_char)
+		{
+			sigs |= S_INTERRUPT;
+			reading = 0;
+			return (READ_INTR);
+		}
+		WIN32ungetch(c);
 	}
 #endif
 #endif
