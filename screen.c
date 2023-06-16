@@ -2936,7 +2936,7 @@ public char WIN32getch(void)
 		}
 		keyCount --;
 		// If multibyte character, return its first byte
-		if (currentKey.ascii != currentKey.unicode)
+		if (currentKey.unicode > 0x7f)
 		{
 			utf8_size = WideCharToMultiByte(CP_UTF8, 0, &currentKey.unicode, 1, &utf8, sizeof(utf8), NULL, NULL);
 			if (utf8_size == 0 )
