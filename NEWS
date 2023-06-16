@@ -24,6 +24,8 @@
 
 * Fix reading special chars like PageDown on Windows (github #378).
 
+* Fix mouse wheel scrolling on Windows (github #379).
+
 * Fix regression in exit code when stdin is /dev/null and 
   output is a file (github #373).
 
