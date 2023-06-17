@@ -2902,8 +2902,17 @@ public int win32_kbhit(void)
 	return (TRUE);
 }
 
+static int unget_pending, unget_data;  /* = 0 */
+
 /*
  * Read a character from the keyboard.
+ *
+ * Known issues:
+ * - WIN32getch API should be int like libc (with unsigned char values or -1).
+ * - The unicode code below can return 0 - incorrectly indicating scan code.
+ * - UTF16-LE surrogate pairs don't work (and return 0).
+ * - If win32_kbhit returns true then WIN32getch should never block, but it
+ *   will block till the next keypress if it's numlock/capslock scan code.
  */
 public char WIN32getch(void)
 {
@@ -2911,6 +2920,12 @@ public char WIN32getch(void)
 	static unsigned char utf8[UTF8_MAX_LENGTH];
 	static int utf8_size = 0;
 	static int utf8_next_byte = 0;
+
+	if (unget_pending)
+	{
+		unget_pending = 0;
+		return (char)unget_data;
+	}
 
 	// Return the rest of multibyte character from the prior call
 	if (utf8_next_byte < utf8_size)
@@ -2958,13 +2973,12 @@ public char WIN32getch(void)
 }
 
 /*
- * Restore the character read during iread.
+ * Make the next call to WIN32getch return ch without changing the queue state.
  */
 public void WIN32ungetch(int ch)
 {
-	currentKey.unicode = ch;
-	++keyCount;
-	pending_scancode = 0;
+	unget_pending = 1;
+	unget_data = ch;
 }
 #endif
 
