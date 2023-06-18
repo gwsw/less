@@ -149,6 +149,8 @@ static WORD curr_attr;
 static int pending_scancode = 0;
 static char x11mousebuf[] = "[M???";    /* Mouse report, after ESC */
 static int x11mousePos, x11mouseCount;
+static int win_unget_pending = FALSE;
+static int win_unget_data;
 
 static HANDLE con_out_save = INVALID_HANDLE_VALUE; /* previous console */
 static HANDLE con_out_ours = INVALID_HANDLE_VALUE; /* our own */
@@ -2799,7 +2801,7 @@ public int win32_kbhit(void)
 	INPUT_RECORD ip;
 	DWORD read;
 
-	if (keyCount > 0)
+	if (keyCount > 0 || win_unget_pending)
 		return (TRUE);
 
 	currentKey.ascii = 0;
@@ -2901,9 +2903,6 @@ public int win32_kbhit(void)
 
 	return (TRUE);
 }
-
-static int win_unget_pending = FALSE;
-static int win_unget_data;
 
 /*
  * Read a character from the keyboard.
