@@ -1267,8 +1267,8 @@ See the \-\-tabs description for acceptable values of \fIn\fP.
 Enables mouse input:
 scrolling the mouse wheel down moves forward in the file,
 scrolling the mouse wheel up moves backwards in the file,
-and clicking the mouse sets the "#" mark to the line
-where the mouse is clicked.
+left-click sets the "#" mark to the line where the mouse is clicked,
+and right-click (or any other) returns to the "#" mark position.
 The number of lines to scroll when the wheel is moved
 can be set by the \-\-wheel-lines option.
 Mouse input works only on terminals which support X11 mouse reporting,
