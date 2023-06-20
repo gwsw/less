@@ -2861,14 +2861,19 @@ static int win32_mouse_event(XINPUT_RECORD *xip)
 		return (FALSE);
 
 	/* Generate an X11 mouse sequence from the mouse event. */
+	/* TODO: switch to the 1006 protocol to allow specific-button-up reports */
 	switch (xip->ir.Event.MouseEvent.dwEventFlags)
 	{
 	case 0: /* press or release */
 		if (xip->ir.Event.MouseEvent.dwButtonState == 0)
 			b = X11MOUSE_OFFSET + X11MOUSE_BUTTON_REL;
-		else if (!(xip->ir.Event.MouseEvent.dwButtonState & (FROM_LEFT_3RD_BUTTON_PRESSED | FROM_LEFT_4TH_BUTTON_PRESSED)))
-			b = X11MOUSE_OFFSET + X11MOUSE_BUTTON1 + ((int)xip->ir.Event.MouseEvent.dwButtonState << 1);
-		else
+		else if (xip->ir.Event.MouseEvent.dwButtonState == 1)  /* leftmost */
+			b = X11MOUSE_OFFSET + X11MOUSE_BUTTON1;
+		else if (xip->ir.Event.MouseEvent.dwButtonState == 2)  /* rightmost */
+			b = X11MOUSE_OFFSET + X11MOUSE_BUTTON3;
+		else if (xip->ir.Event.MouseEvent.dwButtonState == 4)  /* middle ("next-to-leftmost") */
+			b = X11MOUSE_OFFSET + X11MOUSE_BUTTON2;
+		else  /* don't bother to figure out what changed */
 			return (FALSE);
 		break;
 	case MOUSE_WHEELED:
