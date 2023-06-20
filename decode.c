@@ -439,9 +439,9 @@ static int mouse_wheel_up(void)
 }
 
 /*
- * Return action for a mouse button release event.
+ * Return action for the left mouse button trigger.
  */
-static int mouse_button_rel(int x, int y)
+static int mouse_button_left(int x, int y)
 {
 	/*
 	 * {{ It would be better to return an action and then do this 
@@ -450,6 +450,23 @@ static int mouse_button_rel(int x, int y)
 	if (y < sc_height-1)
 	{
 		setmark('#', y);
+		screen_trashed();
+	}
+	return (A_NOACTION);
+}
+
+/*
+ * Return action for the right mouse button trigger.
+ */
+static int mouse_button_right(int x, int y)
+{
+	/*
+	 * {{ unlike mouse_button_left, we could return an action,
+	 *    but keep it near mouse_button_left for readability. }}
+	 */
+	if (y < sc_height-1)
+	{
+		gomark('#');
 		screen_trashed();
 	}
 	return (A_NOACTION);
@@ -484,6 +501,7 @@ static int getcc_int(char *pterm)
  */
 static int x11mouse_action(int skip)
 {
+	static int prev_b = X11MOUSE_BUTTON_REL;
 	int b = getcc() - X11MOUSE_OFFSET;
 	int x = getcc() - X11MOUSE_OFFSET-1;
 	int y = getcc() - X11MOUSE_OFFSET-1;
@@ -491,13 +509,23 @@ static int x11mouse_action(int skip)
 		return (A_NOACTION);
 	switch (b) {
 	default:
+		prev_b = b;
 		return (A_NOACTION);
 	case X11MOUSE_WHEEL_DOWN:
 		return mouse_wheel_down();
 	case X11MOUSE_WHEEL_UP:
 		return mouse_wheel_up();
 	case X11MOUSE_BUTTON_REL:
-		return mouse_button_rel(x, y);
+		/* to trigger on button-up, we check the last button-down */
+		switch (prev_b) {
+		case X11MOUSE_BUTTON1:
+			return mouse_button_left(x, y);
+		/* is BUTTON2 the rightmost with 2-buttons mouse? */
+		case X11MOUSE_BUTTON2:
+		case X11MOUSE_BUTTON3:
+			return mouse_button_right(x, y);
+		}
+		return (A_NOACTION);
 	}
 }
 
@@ -522,9 +550,13 @@ static int x116mouse_action(int skip)
 		return mouse_wheel_down();
 	case X11MOUSE_WHEEL_UP:
 		return mouse_wheel_up();
+	case X11MOUSE_BUTTON1:
+		if (ch != 'm') return (A_NOACTION);
+		return mouse_button_left(x, y);
 	default:
 		if (ch != 'm') return (A_NOACTION);
-		return mouse_button_rel(x, y);
+		/* any other button release */
+		return mouse_button_right(x, y);
 	}
 }
 
