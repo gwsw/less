@@ -136,17 +136,21 @@ extern int sc_height;
 #endif
 
 #if MSDOS_COMPILER==WIN32C
+#include <uchar.h>
+// UTF16 and UTF8 buffer sizes
 #define UTF8_MAX_LENGTH 4
+#define UTF16_MAX_LENGTH 2
 struct keyRecord
 {
-	WCHAR unicode;
-	int ascii;
 	int scan;
+	char ascii;
+	char utf8[UTF8_MAX_LENGTH];
+	int utf8_nbytes;
+	int utf8_current_byte;
 } currentKey;
 
 static int keyCount = 0;
 static WORD curr_attr;
-static int pending_scancode = 0;
 static char x11mousebuf[] = "[M???";    /* Mouse report, after ESC */
 static int x11mousePos, x11mouseCount;
 static int win_unget_pending = FALSE;
@@ -2800,6 +2804,8 @@ public int win32_kbhit(void)
 {
 	INPUT_RECORD ip;
 	DWORD read;
+	char16_t utf16[UTF16_MAX_LENGTH];
+	int utf16_nwords;
 
 	if (keyCount > 0 || win_unget_pending)
 		return (TRUE);
@@ -2815,12 +2821,8 @@ public int win32_kbhit(void)
 		return (TRUE);
 	}
 
-	/*
-	 * Wait for a real key-down event, but
-	 * ignore SHIFT and CONTROL key events.
-	 */
-	do
-	{
+	// Read Console Input Loop
+	while(1) {
 		PeekConsoleInputW(tty, &ip, 1, &read);
 		if (read == 0)
 			return (FALSE);
@@ -2853,55 +2855,93 @@ public int win32_kbhit(void)
 			keyCount = 1;
 			return (TRUE);
 		}
-	} while (ip.EventType != KEY_EVENT ||
-		ip.Event.KeyEvent.bKeyDown != TRUE ||
-		(ip.Event.KeyEvent.wVirtualScanCode == 0 && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
-		((ip.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED) && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
-		ip.Event.KeyEvent.wVirtualKeyCode == VK_KANJI ||
-		ip.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
-		ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL ||
-		ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU);
-		
-	currentKey.unicode = ip.Event.KeyEvent.uChar.UnicodeChar;
-	currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
-	currentKey.scan = ip.Event.KeyEvent.wVirtualScanCode;
-	keyCount = ip.Event.KeyEvent.wRepeatCount;
+		/*
+		 * Wait for a real key-down event, but ignore
+		 * SHIFT, CONTROL, MENU, KANJI and
+		 * Japanese IME Left-Alt and Right-Ctrl key events.
+		 */
+		if (
+			ip.EventType != KEY_EVENT ||
+			ip.Event.KeyEvent.bKeyDown != TRUE ||
+			(
+			 ip.Event.KeyEvent.uChar.UnicodeChar == 0 &&
+				(
+				ip.Event.KeyEvent.wVirtualScanCode == 0 ||
+				// Both Righ Alt and Left Ctrl are pressed
+				(ip.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)
+				)
+			) ||
+			ip.Event.KeyEvent.wVirtualKeyCode == VK_KANJI ||
+			ip.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
+			ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL ||
+			ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU
+		) continue;
 
-	if (ip.Event.KeyEvent.dwControlKeyState & 
-		(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
-	{
-		switch (currentKey.scan)
-		{
-		case PCK_ALT_E:     /* letter 'E' */
-			currentKey.ascii = 0;
-			break;
+		// If we got here, we got a real charachter code
+		// If ASCII character, return it without coversion
+		if ( ip.Event.KeyEvent.uChar.UnicodeChar <= 0x7F ) {
+			currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
+		// UTF-16 character
+		} else {
+			// If HS (high surrogate), save it to the first UTF-16 word and wait for LS
+			if (0xD800 <= ip.Event.KeyEvent.uChar.UnicodeChar && ip.Event.KeyEvent.uChar.UnicodeChar <= 0xDBFF) {
+				utf16[0] = ip.Event.KeyEvent.uChar.UnicodeChar;
+				continue;
+			// If LS (low surrogate), save it to the second UTF-16 word
+			} else if(0xDC00 <= ip.Event.KeyEvent.uChar.UnicodeChar && ip.Event.KeyEvent.uChar.UnicodeChar <= 0xDFFF) {
+				utf16[1] = ip.Event.KeyEvent.uChar.UnicodeChar; // found LS
+				utf16_nwords = 2;
+			// If  BMP (Basic Multilingual Plane), save it to the first UTF-16 word
+			} else {
+				utf16[0] = ip.Event.KeyEvent.uChar.UnicodeChar;
+				utf16_nwords = 1;
+			}
+			// Convert UTF-16 to UTF-8
+			currentKey.utf8_nbytes = WideCharToMultiByte(CP_UTF8, 0, utf16, utf16_nwords, currentKey.utf8, UTF8_MAX_LENGTH, NULL, NULL);
+			if (currentKey.utf8_nbytes) {
+				currentKey.ascii = currentKey.utf8[0];
+				currentKey.utf8_current_byte = 1;
+			} else {
+				currentKey.utf8_current_byte = 0;
+				return FALSE;
+			}
 		}
-	} else if (ip.Event.KeyEvent.dwControlKeyState & 
-		(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
-	{
-		switch (currentKey.scan)
+
+		// TODO: Document what the following block does
+		currentKey.scan = ip.Event.KeyEvent.wVirtualScanCode;
+		keyCount = ip.Event.KeyEvent.wRepeatCount;
+
+		if (ip.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) {
+			switch (currentKey.scan)
+			{
+			case PCK_ALT_E:     /* letter 'E' */
+				currentKey.ascii = 0;
+				break;
+			}
+		} else if (ip.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) {
+			switch (currentKey.scan)
+			{
+			case PCK_RIGHT: /* right arrow */
+				currentKey.scan = PCK_CTL_RIGHT;
+				break;
+			case PCK_LEFT: /* left arrow */
+				currentKey.scan = PCK_CTL_LEFT;
+				break;
+			case PCK_DELETE: /* delete */
+				currentKey.scan = PCK_CTL_DELETE;
+				break;
+			}
+		} else if (ip.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
 		{
-		case PCK_RIGHT: /* right arrow */
-			currentKey.scan = PCK_CTL_RIGHT;
-			break;
-		case PCK_LEFT: /* left arrow */
-			currentKey.scan = PCK_CTL_LEFT;
-			break;
-		case PCK_DELETE: /* delete */
-			currentKey.scan = PCK_CTL_DELETE;
-			break;
+			switch (currentKey.scan)
+			{
+			case PCK_SHIFT_TAB: /* tab */
+				currentKey.ascii = 0;
+				break;
+			}
 		}
-	} else if (ip.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
-	{
-		switch (currentKey.scan)
-		{
-		case PCK_SHIFT_TAB: /* tab */
-			currentKey.ascii = 0;
-			break;
-		}
+		return TRUE;
 	}
-
-	return (TRUE);
 }
 
 /*
@@ -2916,10 +2956,7 @@ public int win32_kbhit(void)
  */
 public char WIN32getch(void)
 {
-	char ascii;
-	static unsigned char utf8[UTF8_MAX_LENGTH];
-	static int utf8_size = 0;
-	static int utf8_next_byte = 0;
+	static int pending_scancode = 0;
 
 	if (win_unget_pending)
 	{
@@ -2927,19 +2964,15 @@ public char WIN32getch(void)
 		return (char) win_unget_data;
 	}
 
-	// Return the rest of multibyte character from the prior call
-	if (utf8_next_byte < utf8_size)
-	{
-		ascii = utf8[utf8_next_byte++];
-		return ascii;
-	}
-	utf8_size = 0;
-
-	if (pending_scancode)
-	{
+	// If extended key, return its scan code
+	if (pending_scancode) {
 		pending_scancode = 0;
 		return ((char)(currentKey.scan & 0x00FF));
 	}
+
+	// If UTF-8 byte string, return it one byte at a time
+	if (currentKey.utf8_current_byte < currentKey.utf8_nbytes)
+		return currentKey.utf8[currentKey.utf8_current_byte++];
 
 	do {
 		while (!win32_kbhit())
@@ -2949,26 +2982,16 @@ public char WIN32getch(void)
 				return ('\003');
 		}
 		keyCount--;
-		// If multibyte character, return its first byte
-		if (currentKey.unicode > 0x7f)
-		{
-			utf8_size = WideCharToMultiByte(CP_UTF8, 0, &currentKey.unicode, 1, (LPSTR) &utf8, sizeof(utf8), NULL, NULL);
-			if (utf8_size == 0)
-				return '\0';
-			ascii = utf8[0];
-			utf8_next_byte = 1;
-		} else
-			ascii = currentKey.ascii;
 		/*
 		 * On PC's, the extended keys return a 2 byte sequence beginning 
 		 * with '00', so if the ascii code is 00, the next byte will be 
 		 * the lsb of the scan code.
 		 */
-		pending_scancode = (ascii == 0x00);
+		pending_scancode = (currentKey.ascii == 0x00);
 	} while (pending_scancode &&
 		(currentKey.scan == PCK_CAPS_LOCK || currentKey.scan == PCK_NUM_LOCK));
 
-	return ascii;
+	return currentKey.ascii;
 }
 
 /*
