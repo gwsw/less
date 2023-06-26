@@ -361,6 +361,10 @@ the same variable's original definition (with an = line),
 without any intervening definitions of other variables.
 It can append only to a variable defined earlier in the file;
 it cannot append to a variable in the system environment.
+The string is appended literally, without any intervening space,
+so if a space is desired it should be appended to the end of the preceding line.
+(It cannot be added to the beginning of the string because space after
+the equals sign is ignored, as noted above.)
 .
 .SH CONDITIONAL CONFIGURATION
 If a line begins with #version followed by a relational operator and a version number,
