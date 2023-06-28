@@ -204,7 +204,7 @@ start:
 #endif
 #endif
 #endif
-		return (READ_INTR);
+		return ((sigs & S_INTERRUPT) ? READ_INTR : READ_AGAIN);
 	}
 
 	flush();
