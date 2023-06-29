@@ -986,7 +986,7 @@ v634  5/29/23   Allow program piping into less to access tty;
                 fix search modifier ^E after ^W.
 v635  6/2/23    Fix crash with ! search modifier.
 v636  6/18/23   Fix -D in MS-DOS build; fix mouse wheel in MS-DOS build.
-v637
+v637  6/28/23   Fix early EOF when SIGWINCH is received.
 */
 
-char version[] = "637x";
+char version[] = "637";
