@@ -89,10 +89,10 @@ extern char *ttyin_name;
 
 public void init_poll(void)
 {
-    char *delay = lgetenv("LESS_DATA_DELAY");
-    int idelay = (delay == NULL) ? 0 : atoi(delay);
-    if (idelay > 0)
-        waiting_for_data_delay = idelay;
+	char *delay = lgetenv("LESS_DATA_DELAY");
+	int idelay = (delay == NULL) ? 0 : atoi(delay);
+	if (idelay > 0)
+		waiting_for_data_delay = idelay;
 #if USE_POLL
 #if defined(__APPLE__)
 	/* In old versions of MacOS, poll() does not work with /dev/tty. */
@@ -217,7 +217,7 @@ start:
 		 * available, because that makes some background programs
 		 * believe DOS is busy in a way that prevents those
 		 * programs from working while "less" waits.
-         * {{ This code was added 12 Jan 2007; still needed? }}
+		 * {{ This code was added 12 Jan 2007; still needed? }}
 		 */
 		fd_set readfds;
 
