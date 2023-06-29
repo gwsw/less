@@ -988,7 +988,7 @@ v635  6/2/23    Fix crash with ! search modifier.
 v636  6/18/23   Fix -D in MS-DOS build; fix mouse wheel in MS-DOS build.
 v637  6/28/23   Fix early EOF when SIGWINCH is received.
 v638  6/29/23   Fix compile error with ECHONL.
-v639
+v639  6/29/23   Fix SIGWINCH while reading tty.
 */
 
-char version[] = "639x";
+char version[] = "639";
