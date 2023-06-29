@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 633 and 636
+	Major changes between "less" versions 633 and 638
 
 * Fix problem when a program piping into less reads from the tty,
   like sudo asking for password (github #368).
@@ -25,6 +25,10 @@
 * Fix reading special chars like PageDown on Windows (github #378).
 
 * Fix mouse wheel scrolling on Windows (github #379).
+
+* Fix erroneous EOF when terminal window size changes (github #372).
+
+* Fix compile error with some definitions of ECHONL (github #395).
 
 * Fix regression in exit code when stdin is /dev/null and 
   output is a file (github #373).

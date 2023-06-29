@@ -331,7 +331,7 @@ static void set_termio_flags(
 #ifdef ECHOK
 		| ECHOK
 #endif
-#if ECHONL
+#ifdef ECHONL
 		| ECHONL
 #endif
 	);
