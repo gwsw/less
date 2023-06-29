@@ -204,7 +204,12 @@ start:
 #endif
 #endif
 #endif
-		return ((sigs & S_INTERRUPT) ? READ_INTR : READ_AGAIN);
+#if !MSDOS_COMPILER
+		if (fd != tty && !(sigs & S_INTERRUPT))
+			/* Non-interrupt signal like SIGWINCH. */
+			return (READ_AGAIN);
+#endif
+		return (READ_INTR);
 	}
 
 	flush();
