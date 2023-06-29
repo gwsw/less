@@ -244,18 +244,14 @@ start:
 	}
 #else
 #if MSDOS_COMPILER==WIN32C
-	if (win32_kbhit())
 	{
-		int c;
+		INPUT_RECORD ip;
 
-		c = WIN32getch();
-		if (c == intr_char)
-		{
+		if (waitForConsoleEvent(&ip, KEY_EVENT) && ip.Event.KeyEvent.uChar.AsciiChar == intr_char) {
 			sigs |= S_INTERRUPT;
 			reading = 0;
 			return (READ_INTR);
 		}
-		WIN32ungetch(c);
 	}
 #endif
 #endif
