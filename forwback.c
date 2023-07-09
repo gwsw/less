@@ -487,7 +487,7 @@ public void forward(int n, int force, int only_last)
 				{
 					back(1, position(TOP), 1, 0);
 					pos = position(BOTTOM_PLUS_ONE);
-				} while (pos == NULL_POSITION);
+				} while (pos == NULL_POSITION && !ABORT_SIGS());
 			}
 		} else
 		{
