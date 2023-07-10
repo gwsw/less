@@ -43,7 +43,7 @@ sub main {
 		$errs += run(rfile($file, $cwd));
 	}
 	system "rm -rf '$rundir'";
-	print "RAN  $num_tests tests with $errs errors\n" if $errs > 0 or $err_only != 2;
+	print STDERR "RAN  $num_tests tests with $errs errors\n" if $errs > 0 or $err_only != 2;
 	return ($errs > 0);
 }
 
@@ -54,20 +54,24 @@ sub run {
 		return run_dir($file);
 	}
 	if ($file !~ /\.lt$/) {
-		print "SKIP unknown file suffix: $file\n";
+		print STDERR "SKIP unknown file suffix: $file\n";
 		return 0;
 	}
 	if (not -f $file) {
-		print "ERR  cannot open $file: $!\n";
+		print STDERR "ERR  cannot open $file: $!\n";
 		return 1;
 	}
 	my ($basename) = $file =~ m|^.*/([^/]+)$|;
-	print "TEST $basename\n" unless $err_only;
+	if ($file =~ /'/) {
+		print STDERR "ERR  invalid character in $file\n";
+		return 1;
+	}
+	print STDERR "TEST $basename\n" unless $err_only;
 	my $cmd = "$lesstest $lt_opts -s '$lt_screen' -t '$file' '$less'";
 	my $err = system $cmd;
 	++$num_tests;
 	if ($err) {
-		print "ERR  status $err from $cmd\n";
+		print STDERR "ERR  status $err from $cmd\n";
 		return 1;
 	}
 	return 0;
@@ -78,7 +82,7 @@ sub run_dir {
 	my $errs = 0;
 	my $dd;
 	if (not opendir($dd, $dir)) {
-		print "ERR  cannot open directory $dir: $!\n";
+		print STDERR "ERR  cannot open directory $dir: $!\n";
 		return 1;
 	}
 	while (my $entry = readdir($dd)) {

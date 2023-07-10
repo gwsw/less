@@ -170,7 +170,7 @@ static int run_test(TestSetup* setup, FILE* testfd) {
 				if (!curr_screen_match(pipeline, (byte*)line+1, line_len-1)) {
 					ok = 0;
 					less_quit = 1;
-					fprintf(stderr, "FAIL %s on cmd #%d (%c %lx)\n",
+					fprintf(stderr, "DIFF %s on cmd #%d (%c %lx)\n",
 						setup_name, cmds, pr_ascii(last_char), last_char);
 				}
 				break;
@@ -189,9 +189,9 @@ static int run_test(TestSetup* setup, FILE* testfd) {
 	}
 	destroy_less_pipeline(pipeline);
 	if (!ok)
-		fprintf(stderr, "FAIL %s (%d steps)\n", setup_name, cmds);
+		printf("FAIL: %s (%d steps)\n", setup_name, cmds);
 	else if (!err_only)
-		fprintf(stderr, "OK   %s (%d steps)\n", setup_name, cmds);
+		printf("PASS: %s (%d steps)\n", setup_name, cmds);
 	return ok;
 }
 
