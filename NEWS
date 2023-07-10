@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 633 and 639
+	Major changes between "less" versions 633 and 640
 
 * Fix problem when a program piping into less reads from the tty,
   like sudo asking for password (github #368).
@@ -32,6 +32,8 @@
 
 * Fix regression in exit code when stdin is /dev/null and 
   output is a file (github #373).
+
+* Add lesstest test suite to production release.
 
 ======================================================================
 
