@@ -990,6 +990,7 @@ v637  6/28/23   Fix early EOF when SIGWINCH is received.
 v638  6/29/23   Fix compile error with ECHONL.
 v639  6/29/23   Fix SIGWINCH while reading tty.
 v640  7/10/23   Add lesstest to release.
+v641  7/10/23   Fix release.
 */
 
-char version[] = "640";
+char version[] = "641";

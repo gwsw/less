@@ -140,7 +140,7 @@ dist: ${DISTFILES}
 	rm -rf $$RELDIR && mkdir $$RELDIR && \
 	echo "Preparing $$LESSREL" && \
 	rm -rf $$LESSREL && mkdir $$LESSREL && \
-	for f in ${DISTFILES}; do cp $$f $$LESSREL/$$f; done && \
+	for f in ${DISTFILES}; do mkdir -p $$(dirname $$LESSREL/$$f); cp $$f $$LESSREL/$$f; done && \
 	cd $$LESSREL && chmod -w * && chmod +w ${DISTFILES_W} && chmod +x configure && cd .. && \
 	echo "Creating $$RELDIR/$$TARF" && \
 	tar -cf - $$LESSREL | gzip -c >$$RELDIR/$$TARF && \
