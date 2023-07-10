@@ -205,7 +205,7 @@ start:
 #endif
 #endif
 #if !MSDOS_COMPILER
-		if (fd != tty && !(sigs & S_INTERRUPT))
+		if (fd != tty && !ABORT_SIGS())
 			/* Non-interrupt signal like SIGWINCH. */
 			return (READ_AGAIN);
 #endif
