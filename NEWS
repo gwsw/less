@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 633 and 641
+	Major changes between "less" versions 633 and 642
 
 * Fix problem when a program piping into less reads from the tty,
   like sudo asking for password (github #368).
