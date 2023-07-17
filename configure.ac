@@ -63,10 +63,10 @@ fi
 
 if test $curses_broken = 0; then
 
-# -- Try tinfo.
+# -- Try tinfow.
 if test "x$TERMLIBS" = x; then
-  if test $have_tinfo = yes; then
-    TERMLIBS="-ltinfo"
+  if test $have_tinfow = yes; then
+    TERMLIBS="-ltinfow"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[$include_termcap_h]], [[tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);]])],[termok=yes],[termok=no])
@@ -75,10 +75,10 @@ if test "x$TERMLIBS" = x; then
   fi
 fi
 
-# -- Try tinfow.
+# -- Try tinfo.
 if test "x$TERMLIBS" = x; then
-  if test $have_tinfow = yes; then
-    TERMLIBS="-ltinfow"
+  if test $have_tinfo = yes; then
+    TERMLIBS="-ltinfo"
     SAVE_LIBS=$LIBS
     LIBS="$LIBS $TERMLIBS"
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[$include_termcap_h]], [[tgetent(0,0); tgetflag(0); tgetnum(0); tgetstr(0,0);]])],[termok=yes],[termok=no])
