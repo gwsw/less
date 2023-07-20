@@ -992,7 +992,7 @@ v639  6/29/23   Fix SIGWINCH while reading tty.
 v640  7/10/23   Add lesstest to release.
 v641  7/10/23   Fix release.
 v642  7/10/23   Fix release.
-v643
+v643  7/20/23   Fix crash on Windows with -o.
 */
 
-char version[] = "643x";
+char version[] = "643";
