@@ -210,6 +210,8 @@ Search forward in the file for the N-th line containing the pattern.
 N defaults to 1.
 The pattern is a regular expression, as recognized by
 the regular expression library supplied by your system.
+By default, searching is case-sensitive (uppercase and lowercase 
+are considered different); the \-i option can be used to change this.
 The search starts at the first line displayed
 (but see the \-a and \-j options, which change this).
 .sp
