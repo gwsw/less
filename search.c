@@ -1163,7 +1163,7 @@ static int get_seg(POSITION pos, POSITION tpos)
 	for (seg = 0;;  seg++)
 	{
 		POSITION npos = forw_line_seg(pos, FALSE, FALSE, TRUE);
-		if (npos > tpos)
+		if (npos > tpos || npos == NULL_POSITION)
 			return seg;
 		pos = npos;
 	}
