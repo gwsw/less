@@ -16,7 +16,7 @@
 #if HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
-#if OS2
+#if OS2 || (defined WIFSIGNALED && defined WTERMSIG)
 #include <signal.h>
 #endif
 
@@ -300,7 +300,7 @@ static void close_pipe(FILE *pipefd)
 		return;
 	}
 #endif
-#if defined WIFSIGNALED && defined WTERMSIG && HAVE_STRSIGNAL
+#if defined WIFSIGNALED && defined WTERMSIG
 	if (WIFSIGNALED(status))
 	{
 		int sig = WTERMSIG(status);
