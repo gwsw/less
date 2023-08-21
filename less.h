@@ -236,7 +236,20 @@ void free();
  * Special types and constants.
  */
 typedef unsigned long LWCHAR;
-typedef off_t           POSITION;
+#if defined(_MSC_VER) && _MSC_VER >= 1500
+typedef _int64 less_off_t;
+typedef struct _stat64 less_stat_t;
+#define less_fstat _fstat64
+#define less_stat _stat64
+#define less_lseek _lseeki64
+#else
+typedef off_t less_off_t;
+typedef struct stat less_stat_t;
+#define less_fstat fstat
+#define less_stat stat
+#define less_lseek lseek
+#endif
+typedef less_off_t      POSITION;
 typedef off_t           LINENUM;
 #define MIN_LINENUM_WIDTH   7   /* Default min printing width of a line number */
 #define MAX_LINENUM_WIDTH   16  /* Max width of a line number */

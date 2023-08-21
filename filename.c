@@ -453,7 +453,7 @@ public int bin_file(int f)
 
 	if (!seekable(f))
 		return (0);
-	if (lseek(f, (off_t)0, SEEK_SET) == BAD_LSEEK)
+	if (less_lseek(f, (less_off_t)0, SEEK_SET) == BAD_LSEEK)
 		return (0);
 	n = read(f, data, sizeof(data));
 	if (n <= 0)
@@ -489,9 +489,9 @@ public int bin_file(int f)
  */
 static POSITION seek_filesize(int f)
 {
-	off_t spos;
+	less_off_t spos;
 
-	spos = lseek(f, (off_t)0, SEEK_END);
+	spos = less_lseek(f, (less_off_t)0, SEEK_END);
 	if (spos == BAD_LSEEK)
 		return (NULL_POSITION);
 	return ((POSITION) spos);
@@ -989,9 +989,9 @@ public int is_dir(char *filename)
 #if HAVE_STAT
 {
 	int r;
-	struct stat statbuf;
+	less_stat_t statbuf;
 
-	r = stat(filename, &statbuf);
+	r = less_stat(filename, &statbuf);
 	isdir = (r >= 0 && S_ISDIR(statbuf.st_mode));
 }
 #else
@@ -1030,9 +1030,9 @@ public char * bad_file(char *filename)
 	{
 #if HAVE_STAT
 		int r;
-		struct stat statbuf;
+		less_stat_t statbuf;
 
-		r = stat(filename, &statbuf);
+		r = less_stat(filename, &statbuf);
 		if (r < 0)
 		{
 			m = errno_message(filename);
@@ -1059,9 +1059,9 @@ public char * bad_file(char *filename)
 public POSITION filesize(int f)
 {
 #if HAVE_STAT
-	struct stat statbuf;
+	less_stat_t statbuf;
 
-	if (fstat(f, &statbuf) >= 0)
+	if (less_fstat(f, &statbuf) >= 0)
 		return ((POSITION) statbuf.st_size);
 #else
 #ifdef _OSK

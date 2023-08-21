@@ -820,7 +820,7 @@ public int lesskey(char *filename, int sysvar)
 		close(f);
 		return (-1);
 	}
-	if (lseek(f, (off_t)0, SEEK_SET) == BAD_LSEEK)
+	if (less_lseek(f, (less_off_t)0, SEEK_SET) == BAD_LSEEK)
 	{
 		free(buf);
 		close(f);
