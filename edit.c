@@ -16,7 +16,7 @@
 #if HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
-#if OS2
+#if OS2 || unix
 #include <signal.h>
 #endif
 
