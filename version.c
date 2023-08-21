@@ -993,7 +993,7 @@ v640  7/10/23   Add lesstest to release.
 v641  7/10/23   Fix release.
 v642  7/10/23   Fix release.
 v643  7/20/23   Fix crash on Windows with -o.
-v644
+v644            Improve ^C on non-termianted pipe.
 */
 
 char version[] = "644x";

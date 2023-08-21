@@ -11,6 +11,12 @@
 
 ======================================================================
 
+	Major changes between "less" versions 633 and 644
+
+* Improve behavior of interrupt while reading non-terminated pipe.
+
+======================================================================
+
 	Major changes between "less" versions 633 and 643
 
 * Fix problem when a program piping into less reads from the tty,
