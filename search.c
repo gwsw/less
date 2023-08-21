@@ -1592,6 +1592,8 @@ public int search(int search_type, char *pattern, int n)
 
 	n = search_range(pos, NULL_POSITION, search_type, n, -1,
 			&pos, (POSITION*)NULL, &lastlinepos);
+	if (ABORT_SIGS())
+		return (-1);
 	if (n != 0)
 	{
 		/*
