@@ -187,6 +187,8 @@ static int ch_get(void)
 			goto found;
 		}
 	}
+	if (ABORT_SIGS())
+		return (EOI);
 	if (bn == END_OF_HCHAIN(h))
 	{
 		/*

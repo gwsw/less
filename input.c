@@ -126,11 +126,6 @@ get_forw_line:
 	base_pos = curr_pos;
 	for (;;)
 	{
-		if (ABORT_SIGS())
-		{
-			null_line();
-			return (NULL_POSITION);
-		}
 		c = ch_back_get();
 		if (c == EOI)
 			break;
@@ -151,12 +146,12 @@ get_forw_line:
 	new_pos = base_pos;
 	while (new_pos < curr_pos)
 	{
-		if (ABORT_SIGS())
+		c = ch_forw_get();
+		if (c == EOI)
 		{
 			null_line();
 			return (NULL_POSITION);
 		}
-		c = ch_forw_get();
 		backchars = pappend(c, new_pos);
 		new_pos++;
 		if (backchars > 0)
@@ -198,11 +193,6 @@ get_forw_line:
 	chopped = FALSE;
 	for (;;)
 	{
-		if (ABORT_SIGS())
-		{
-			null_line();
-			return (NULL_POSITION);
-		}
 		if (c == '\n' || c == EOI)
 		{
 			/*
@@ -239,11 +229,6 @@ get_forw_line:
 				edisp_pos = ch_tell();
 				do
 				{
-					if (ABORT_SIGS())
-					{
-						null_line();
-						return (NULL_POSITION);
-					}
 					c = ch_forw_get();
 				} while (c != '\n' && c != EOI);
 				new_pos = ch_tell();
@@ -330,11 +315,7 @@ get_forw_line:
 		 * and pretend it is the one which we are returning.
 		 */
 		while ((c = ch_forw_get()) == '\n' || c == '\r')
-			if (ABORT_SIGS())
-			{
-				null_line();
-				return (NULL_POSITION);
-			}
+			continue;
 		if (c != EOI)
 			(void) ch_back_get();
 		new_pos = ch_tell();
@@ -404,11 +385,7 @@ get_back_line:
 			 * since we skipped them in forw_line().
 			 */
 			while ((c = ch_back_get()) == '\n' || c == '\r')
-				if (ABORT_SIGS())
-				{
-					null_line();
-					return (NULL_POSITION);
-				}
+				continue;
 			if (c == EOI)
 			{
 				null_line();
@@ -423,11 +400,6 @@ get_back_line:
 	 */
 	for (;;)
 	{
-		if (ABORT_SIGS())
-		{
-			null_line();
-			return (NULL_POSITION);
-		}
 		c = ch_back_get();
 		if (c == '\n')
 		{
@@ -478,7 +450,7 @@ get_back_line:
 	for (;;)
 	{
 		c = ch_forw_get();
-		if (c == EOI || ABORT_SIGS())
+		if (c == EOI)
 		{
 			null_line();
 			return (NULL_POSITION);
