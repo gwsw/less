@@ -241,7 +241,7 @@ static int ch_get(void)
 			 */
 			if (!(ch_flags & CH_CANSEEK))
 				return ('?');
-			if (lseek(ch_file, (off_t)pos, SEEK_SET) == BAD_LSEEK)
+			if (less_lseek(ch_file, (less_off_t)pos, SEEK_SET) == BAD_LSEEK)
 			{
 				error("seek error", NULL_PARG);
 				clear_eol();
@@ -723,7 +723,7 @@ public void ch_flush(void)
 	}
 #endif
 
-	if (lseek(ch_file, (off_t)0, SEEK_SET) == BAD_LSEEK)
+	if (less_lseek(ch_file, (less_off_t)0, SEEK_SET) == BAD_LSEEK)
 	{
 		/*
 		 * Warning only; even if the seek fails for some reason,
@@ -806,7 +806,7 @@ public int seekable(int f)
 		return (0);
 	}
 #endif
-	return (lseek(f, (off_t)1, SEEK_SET) != BAD_LSEEK);
+	return (less_lseek(f, (less_off_t)1, SEEK_SET) != BAD_LSEEK);
 }
 
 /*
