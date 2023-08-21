@@ -257,5 +257,6 @@ public void psignals(void)
 	{
 		if (quit_on_intr)
 			quit(QUIT_INTERRUPT);
+		getcc_clear();
 	}
 }

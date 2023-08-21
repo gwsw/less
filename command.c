@@ -932,6 +932,27 @@ static LWCHAR getcc_end_command(void)
 }
 
 /*
+ * Get a command character from the ungotten stack.
+ */
+static LWCHAR get_ungot(void)
+{
+	struct ungot *ug = ungot;
+	LWCHAR c = ug->ug_char;
+	ungot = ug->ug_next;
+	free(ug);
+	return c;
+}
+
+/*
+ * Delete all ungotten characters.
+ */
+public void getcc_clear(void)
+{
+	while (ungot != NULL)
+		(void) get_ungot();
+}
+
+/*
  * Get command character.
  * The character normally comes from the keyboard,
  * but may come from ungotten characters
@@ -951,11 +972,7 @@ static LWCHAR getccu(void)
 		{
 			/* Ungotten chars available:
 			 * Take the top of stack (most recent). */
-			struct ungot *ug = ungot;
-			c = ug->ug_char;
-			ungot = ug->ug_next;
-			free(ug);
-
+			c = get_ungot();
 			if (c == CHAR_END_COMMAND)
 				c = getcc_end_command();
 		}
