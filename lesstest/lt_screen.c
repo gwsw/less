@@ -193,8 +193,8 @@ static int screen_read(int x, int y, int count) {
 }
 
 static int screen_move(int x, int y) {
-	screen.cx = x;
-	screen.cy = y;
+	screen.cx = screen_x(x);
+	screen.cy = screen_y(y);
 	return 1;
 }
 
@@ -314,8 +314,6 @@ static int exec_esc(wchar ch) {
 	case 'j': // jump cursor to (N1,N2)
 		y = param_pop();
 		x = param_pop();
-		if (x < 0) x = 0;
-		if (y < 0) y = 0;
 		return screen_move(x, y);
 	case 'g': // visual bell 
 		return 0;
