@@ -1197,7 +1197,7 @@ public void get_term(void)
 	nm_bg_color = sy_bg_color;
 	bo_fg_color = sy_fg_color | 8;
 	bo_bg_color = sy_bg_color;
-	ul_fg_color = 11;
+	ul_fg_color = (sy_bg_color == 3 || sy_bg_color == 11) ? 0 : 11;
 	ul_bg_color = sy_bg_color;
 	so_fg_color = sy_bg_color;
 	so_bg_color = sy_fg_color;
