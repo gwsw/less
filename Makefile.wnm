@@ -49,5 +49,5 @@ clean:
 	-del *.obj 
 	-del less.exe
 	-del lesskey.exe
-
+	-del defines.h
 
