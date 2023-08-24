@@ -1195,14 +1195,14 @@ public void get_term(void)
 #endif
 	nm_fg_color = sy_fg_color;
 	nm_bg_color = sy_bg_color;
-	bo_fg_color = 11;
-	bo_bg_color = 0;
-	ul_fg_color = 10;
-	ul_bg_color = 0;
-	so_fg_color = 15;
-	so_bg_color = 9;
-	bl_fg_color = 15;
-	bl_bg_color = 0;
+	bo_fg_color = sy_fg_color | 8;
+	bo_bg_color = sy_bg_color;
+	ul_fg_color = 11;
+	ul_bg_color = sy_bg_color;
+	so_fg_color = sy_bg_color;
+	so_bg_color = sy_fg_color;
+	bl_fg_color = ul_bg_color;
+	bl_bg_color = ul_fg_color;
 	sgr_mode = 0;
 
 	/*
