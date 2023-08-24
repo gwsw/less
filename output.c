@@ -114,7 +114,7 @@ typedef struct t_sgr {
 
 static const t_sgr SGR_DEFAULT; /* = {0} */
 
-static void update_sgr(t_sgr *sgr, unsigned char code)
+static void update_sgr(t_sgr *sgr, long code)
 {
 	switch (code)
 	{

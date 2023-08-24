@@ -1197,7 +1197,7 @@ public void get_term(void)
 	nm_bg_color = sy_bg_color;
 	bo_fg_color = 11;
 	bo_bg_color = 0;
-	ul_fg_color = 9;
+	ul_fg_color = 10;
 	ul_bg_color = 0;
 	so_fg_color = 15;
 	so_bg_color = 9;
