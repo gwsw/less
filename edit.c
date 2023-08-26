@@ -401,7 +401,7 @@ public int edit(char *filename)
 /*
  * Clean up what edit_ifile did before error return.
  */
-static int edit_error(char *filename, char *alt_filename, void *altpipe, IFILE ifile, IFILE was_curr_ifile)
+static int edit_error(char *filename, char *alt_filename, void *altpipe, IFILE ifile)
 {
 	if (alt_filename != NULL)
 	{
@@ -410,11 +410,10 @@ static int edit_error(char *filename, char *alt_filename, void *altpipe, IFILE i
 		free(alt_filename);
 	}
 	del_ifile(ifile);
-	free(filename);
 	/*
 	 * Re-open the current file.
 	 */
-	if (was_curr_ifile == ifile)
+	if (curr_ifile == ifile)
 	{
 		/*
 		 * Whoops.  The "current" ifile is the one we just deleted.
@@ -422,7 +421,6 @@ static int edit_error(char *filename, char *alt_filename, void *altpipe, IFILE i
 		 */
 		quit(QUIT_ERROR);
 	}
-	reedit_ifile(was_curr_ifile);
 	return (1);
 }
 
@@ -441,7 +439,7 @@ public int edit_ifile(IFILE ifile)
 	void *altpipe;
 	IFILE was_curr_ifile;
 	PARG parg;
-		
+
 	if (ifile == curr_ifile)
 	{
 		/*
@@ -449,31 +447,141 @@ public int edit_ifile(IFILE ifile)
 		 */
 		return (0);
 	}
+	new_file = TRUE;
 
-	/*
-	 * We must close the currently open file now.
-	 * This is necessary to make the open_altfile/close_altfile pairs
-	 * nest properly (or rather to avoid nesting at all).
-	 * {{ Some stupid implementations of popen() mess up if you do:
-	 *    fA = popen("A"); fB = popen("B"); pclose(fA); pclose(fB); }}
-	 */
+	if (ifile != NULL_IFILE)
+	{
+		/*
+		 * See if LESSOPEN specifies an "alternate" file to open.
+		 */
+		filename = get_filename(ifile);
+		altpipe = get_altpipe(ifile);
+		if (altpipe != NULL)
+		{
+			/*
+			 * File is already open.
+			 * chflags and f are not used by ch_init if ifile has 
+			 * filestate which should be the case if we're here. 
+			 * Set them here to avoid uninitialized variable warnings.
+			 */
+			chflags = 0; 
+			f = -1;
+			alt_filename = get_altfilename(ifile);
+			open_filename = (alt_filename != NULL) ? alt_filename : filename;
+		} else
+		{
+			if (strcmp(filename, FAKE_HELPFILE) == 0 ||
+				strcmp(filename, FAKE_EMPTYFILE) == 0)
+				alt_filename = NULL;
+			else
+				alt_filename = open_altfile(filename, &f, &altpipe);
+
+			open_filename = (alt_filename != NULL) ? alt_filename : filename;
+
+			chflags = 0;
+			if (altpipe != NULL)
+			{
+				/*
+				 * The alternate "file" is actually a pipe.
+				 * f has already been set to the file descriptor of the pipe
+				 * in the call to open_altfile above.
+				 * Keep the file descriptor open because it was opened 
+				 * via popen(), and pclose() wants to close it.
+				 */
+				chflags |= CH_POPENED;
+				if (strcmp(filename, "-") == 0)
+					chflags |= CH_KEEPOPEN;
+			} else if (strcmp(filename, "-") == 0)
+			{
+				/* 
+				 * Use standard input.
+				 * Keep the file descriptor open because we can't reopen it.
+				 */
+				f = fd0;
+				chflags |= CH_KEEPOPEN;
+				/*
+				 * Must switch stdin to BINARY mode.
+				 */
+				SET_BINARY(f);
+#if MSDOS_COMPILER==DJGPPC
+				/*
+				 * Setting stdin to binary by default causes
+				 * Ctrl-C to not raise SIGINT.  We must undo
+				 * that side-effect.
+				 */
+				__djgpp_set_ctrl_c(1);
+#endif
+			} else if (strcmp(open_filename, FAKE_EMPTYFILE) == 0)
+			{
+				f = -1;
+				chflags |= CH_NODATA;
+			} else if (strcmp(open_filename, FAKE_HELPFILE) == 0)
+			{
+				f = -1;
+				chflags |= CH_HELPFILE;
+			} else if ((parg.p_string = bad_file(open_filename)) != NULL)
+			{
+				/*
+				 * It looks like a bad file.  Don't try to open it.
+				 */
+				error("%s", &parg);
+				free(parg.p_string);
+				return edit_error(filename, alt_filename, altpipe, ifile);
+			} else if ((f = open(open_filename, OPEN_READ)) < 0)
+			{
+				/*
+				 * Got an error trying to open it.
+				 */
+				parg.p_string = errno_message(filename);
+				error("%s", &parg);
+				free(parg.p_string);
+				return edit_error(filename, alt_filename, altpipe, ifile);
+			} else 
+			{
+				chflags |= CH_CANSEEK;
+				if (!force_open && !opened(ifile) && bin_file(f))
+				{
+					/*
+					 * Looks like a binary file.  
+					 * Ask user if we should proceed.
+					 */
+					parg.p_string = filename;
+					answer = query("\"%s\" may be a binary file.  See it anyway? ", &parg);
+					if (answer != 'y' && answer != 'Y')
+					{
+						close(f);
+						return edit_error(filename, alt_filename, altpipe, ifile);
+					}
+				}
+			}
+		}
+		if (!force_open && f >= 0 && isatty(f))
+		{
+			PARG parg;
+			parg.p_string = filename;
+			error("%s is a terminal (use -f to open it)", &parg);
+			return edit_error(filename, alt_filename, altpipe, ifile);
+		}
+	}
+
 #if LOGFILE
 	end_logfile();
 #endif
 	was_curr_ifile = save_curr_ifile();
 	if (curr_ifile != NULL_IFILE)
 	{
-		chflags = ch_getflags();
+		int was_helpfile = (ch_getflags() & CH_HELPFILE);
 		close_file();
-		if ((chflags & CH_HELPFILE) && held_ifile(was_curr_ifile) <= 1)
+		if (was_helpfile && held_ifile(was_curr_ifile) <= 1)
 		{
 			/*
 			 * Don't keep the help file in the ifile list.
 			 */
 			del_ifile(was_curr_ifile);
-			was_curr_ifile = old_ifile;
+			was_curr_ifile = NULL_IFILE;
 		}
 	}
+	unsave_ifile(was_curr_ifile);
 
 	if (ifile == NULL_IFILE)
 	{
@@ -483,145 +591,26 @@ public int edit_ifile(IFILE ifile)
 		 *  you're supposed to have saved curr_ifile yourself,
 		 *  and you'll restore it if necessary.)
 		 */
-		unsave_ifile(was_curr_ifile);
 		return (0);
 	}
 
-	filename = save(get_filename(ifile));
-
 	/*
-	 * See if LESSOPEN specifies an "alternate" file to open.
-	 */
-	altpipe = get_altpipe(ifile);
-	if (altpipe != NULL)
-	{
-		/*
-		 * File is already open.
-		 * chflags and f are not used by ch_init if ifile has 
-		 * filestate which should be the case if we're here. 
-		 * Set them here to avoid uninitialized variable warnings.
-		 */
-		chflags = 0; 
-		f = -1;
-		alt_filename = get_altfilename(ifile);
-		open_filename = (alt_filename != NULL) ? alt_filename : filename;
-	} else
-	{
-		if (strcmp(filename, FAKE_HELPFILE) == 0 ||
-			 strcmp(filename, FAKE_EMPTYFILE) == 0)
-			alt_filename = NULL;
-		else
-			alt_filename = open_altfile(filename, &f, &altpipe);
-
-		open_filename = (alt_filename != NULL) ? alt_filename : filename;
-
-		chflags = 0;
-		if (altpipe != NULL)
-		{
-			/*
-			 * The alternate "file" is actually a pipe.
-			 * f has already been set to the file descriptor of the pipe
-			 * in the call to open_altfile above.
-			 * Keep the file descriptor open because it was opened 
-			 * via popen(), and pclose() wants to close it.
-			 */
-			chflags |= CH_POPENED;
-			if (strcmp(filename, "-") == 0)
-				chflags |= CH_KEEPOPEN;
-		} else if (strcmp(filename, "-") == 0)
-		{
-			/* 
-			 * Use standard input.
-			 * Keep the file descriptor open because we can't reopen it.
-			 */
-			f = fd0;
-			chflags |= CH_KEEPOPEN;
-			/*
-			 * Must switch stdin to BINARY mode.
-			 */
-			SET_BINARY(f);
-#if MSDOS_COMPILER==DJGPPC
-			/*
-			 * Setting stdin to binary by default causes
-			 * Ctrl-C to not raise SIGINT.  We must undo
-			 * that side-effect.
-			 */
-			__djgpp_set_ctrl_c(1);
-#endif
-		} else if (strcmp(open_filename, FAKE_EMPTYFILE) == 0)
-		{
-			f = -1;
-			chflags |= CH_NODATA;
-		} else if (strcmp(open_filename, FAKE_HELPFILE) == 0)
-		{
-			f = -1;
-			chflags |= CH_HELPFILE;
-		} else if ((parg.p_string = bad_file(open_filename)) != NULL)
-		{
-			/*
-			 * It looks like a bad file.  Don't try to open it.
-			 */
-			error("%s", &parg);
-			free(parg.p_string);
-			return edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile);
-		} else if ((f = open(open_filename, OPEN_READ)) < 0)
-		{
-			/*
-			 * Got an error trying to open it.
-			 */
-			parg.p_string = errno_message(filename);
-			error("%s", &parg);
-			free(parg.p_string);
-			return edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile);
-		} else 
-		{
-			chflags |= CH_CANSEEK;
-			if (!force_open && !opened(ifile) && bin_file(f))
-			{
-				/*
-				 * Looks like a binary file.  
-				 * Ask user if we should proceed.
-				 */
-				parg.p_string = filename;
-				answer = query("\"%s\" may be a binary file.  See it anyway? ",
-					&parg);
-				if (answer != 'y' && answer != 'Y')
-				{
-					close(f);
-					return edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile);
-				}
-			}
-		}
-	}
-	if (!force_open && f >= 0 && isatty(f))
-	{
-		PARG parg;
-		parg.p_string = filename;
-		error("%s is a terminal (use -f to open it)", &parg);
-		return edit_error(filename, alt_filename, altpipe, ifile, was_curr_ifile);
-	}
-
-	/*
-	 * Get the new ifile.
+	 * Set up the new ifile.
 	 * Get the saved position for the file.
 	 */
-	if (was_curr_ifile != NULL_IFILE)
-	{
-		old_ifile = was_curr_ifile;
-		unsave_ifile(was_curr_ifile);
-	}
 	curr_ifile = ifile;
 	set_altfilename(curr_ifile, alt_filename);
 	set_altpipe(curr_ifile, altpipe);
 	set_open(curr_ifile); /* File has been opened */
 	get_pos(curr_ifile, &initial_scrpos);
-	new_file = TRUE;
 	ch_init(f, chflags);
 	consecutive_nulls = 0;
 	check_modelines();
 
 	if (!(chflags & CH_HELPFILE))
 	{
+		if (was_curr_ifile != NULL_IFILE)
+			old_ifile = was_curr_ifile;
 #if LOGFILE
 		if (namelogfile != NULL && is_tty)
 			use_logfile(namelogfile);
@@ -672,7 +661,6 @@ public int edit_ifile(IFILE ifile)
 		if (want_filesize)
 			scan_eof();
 	}
-	free(filename);
 	return (0);
 }
 
