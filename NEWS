@@ -16,6 +16,10 @@
 * Improve behavior of interrupt while reading non-terminated pipe
   (github #414).
 
+* Fix bug where # substitution failed after viewing help (github #420).
+
+* Fix crash if files are deleted while less is viewing them (github #404).
+
 ======================================================================
 
 	Major changes between "less" versions 633 and 643
