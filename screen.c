@@ -861,7 +861,7 @@ public void scrsize(void)
 #ifdef TIOCGWINSZ
 	{
 		struct winsize w;
-		if (ioctl(tty, TIOCGWINSZ, &w) == 0)
+		if (ioctl(2, TIOCGWINSZ, &w) == 0)
 		{
 			if (w.ws_row > 0)
 				sys_height = w.ws_row;
@@ -873,7 +873,7 @@ public void scrsize(void)
 #ifdef WIOCGETD
 	{
 		struct uwdata w;
-		if (ioctl(tty, WIOCGETD, &w) == 0)
+		if (ioctl(2, WIOCGETD, &w) == 0)
 		{
 			if (w.uw_height > 0)
 				sys_height = w.uw_height / w.uw_vs;
