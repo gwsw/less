@@ -2793,13 +2793,26 @@ public void putbs(void)
 }
 
 #if MSDOS_COMPILER==WIN32C
+
+static int console_input(HANDLE tty, INPUT_RECORD *ip)
+{
+	DWORD read;
+
+	PeekConsoleInputW(tty, ip, 1, &read);
+	if (read == 0)
+		return (FALSE);
+	ReadConsoleInputW(tty, ip, 1, &read);
+	if (read == 0)
+		return (FALSE);
+	return (TRUE);
+}
+
 /*
  * Determine whether an input character is waiting to be read.
  */
 public int win32_kbhit(void)
 {
 	INPUT_RECORD ip;
-	DWORD read;
 
 	if (keyCount > 0 || win_unget_pending)
 		return (TRUE);
@@ -2821,10 +2834,9 @@ public int win32_kbhit(void)
 	 */
 	do
 	{
-		PeekConsoleInputW(tty, &ip, 1, &read);
-		if (read == 0)
+		if (!console_input(tty, &ip))
 			return (FALSE);
-		ReadConsoleInputW(tty, &ip, 1, &read);
+
 		/* generate an X11 mouse sequence from the mouse event */
 		if (mousecap && ip.EventType == MOUSE_EVENT &&
 		    ip.Event.MouseEvent.dwEventFlags != MOUSE_MOVED)
