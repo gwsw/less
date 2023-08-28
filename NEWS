@@ -16,6 +16,8 @@
 * Improve behavior of interrupt while reading non-terminated pipe
   (github #414).
 
+* Improve parsing of -j, -x and -# options (github #393).
+
 * Support files larger than 4GB on Windows (github #417).
 
 * Fix bug where # substitution failed after viewing help (github #420).
