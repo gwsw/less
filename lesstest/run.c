@@ -204,24 +204,16 @@ int run_testfile(const char* ltfile, const char* less) {
 		fprintf(stderr, "cannot open %s\n", ltfile);
 		return 0;
 	}
-	int tests = 0;
 	int fails = 0;
 	// This for loop is to handle multiple tests in one file.
 	for (;;) {
 		TestSetup* setup = read_test_setup(testfd, less);
 		if (setup == NULL)
 			break;
-		++tests;
 		int ok = run_test(setup, testfd);
 		free_test_setup(setup);
 		if (!ok) ++fails;
 	}
-#if 0
-	fprintf(stderr, "DONE %d test%s", tests, tests==1?"":"s");
-	if (tests > fails)  fprintf(stderr, ", %d ok",  tests-fails);
-	if (fails > 0)      fprintf(stderr, ", %d failed", fails);
-	fprintf(stderr, "\n");
-#endif
 	fclose(testfd);
 	return (fails == 0);
 }
