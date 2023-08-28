@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
 	init_mark();
 	init_cmds();
 	init_poll();
+	open_getchr();
 	get_term();
 	init_charset();
 	init_line();
@@ -236,7 +237,6 @@ int main(int argc, char *argv[])
 
 	if (missing_cap && !know_dumb)
 		error("WARNING: terminal is not fully functional", NULL_PARG);
-	open_getchr();
 	raw_mode(1);
 	init_signals(1);
 
