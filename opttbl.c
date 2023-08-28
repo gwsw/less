@@ -292,7 +292,7 @@ static struct loption option[] =
 		STRING, 0, NULL, opt_j,
 		{
 			"Target line: ",
-			"0123456789.-",
+			"-.d",
 			NULL
 		}
 	},
@@ -432,7 +432,7 @@ static struct loption option[] =
 		STRING|REPAINT, 0, NULL, opt_x,
 		{
 			"Tab stops: ",
-			"0123456789,",
+			"d,",
 			NULL
 		}
 	},
@@ -480,7 +480,7 @@ static struct loption option[] =
 		STRING, 0, NULL, opt_shift,
 		{
 			"Horizontal shift: ",
-			"0123456789.",
+			".d",
 			NULL
 		}
 	},

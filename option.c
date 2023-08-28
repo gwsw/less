@@ -557,6 +557,11 @@ public void nopendopt(void)
  * Scan to end of string or to an END_OPTION_STRING character.
  * In the latter case, replace the char with a null char.
  * Return a pointer to the remainder of the string, if any.
+ * validchars is of the form "[-][.]d[,]".
+ *   "-" means an optional leading "-" is allowed
+ *   "." means an optional leading "." is allowed (after any "-")
+ *   "d" indicates a string of one or more digits (0-9)
+ *   "," indicates a comma-separated list of digit strings is allowed
  */
 static char * optstring(char *s, char **p_str, char *printopt, char *validchars)
 {
@@ -580,8 +585,34 @@ static char * optstring(char *s, char **p_str, char *printopt, char *validchars)
 			++p;
 		} else 
 		{
-			if (*p == END_OPTION_STRING || 
-			    (validchars != NULL && strchr(validchars, *p) == NULL))
+			if (validchars != NULL)
+			{
+				if (*p == '-')
+				{
+					if (validchars[0] != '-')
+						break;
+					++validchars;
+				} else if (*p == '.')
+				{
+					if (validchars[0] == '-')
+						++validchars;
+					if (validchars[0] != '.')
+						break;
+					++validchars;
+				} else if (*p == ',')
+				{
+					if (validchars[0] == '\0' || validchars[1] != ',')
+						break;
+				} else if (*p >= '0' && *p <= '9')
+				{
+					while (validchars[0] == '-' || validchars[0] == '.')
+						++validchars;
+					if (validchars[0] != 'd')
+						break;
+				} else
+					break;
+			}
+			if (*p == END_OPTION_STRING)
 				/* End of option string. */
 				break;
 		}
