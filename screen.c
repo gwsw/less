@@ -2794,6 +2794,27 @@ public void putbs(void)
 
 #if MSDOS_COMPILER==WIN32C
 
+#define LAST_DOWN_COUNT 8
+static wchar_t last_downs[LAST_DOWN_COUNT] = { 0 };
+static int last_down_index = 0;
+
+static void set_last_down(wchar_t ch)
+{
+    if (ch == 0) return;
+    last_downs[last_down_index] = ch;
+    if (++last_down_index >= LAST_DOWN_COUNT)
+        last_down_index = 0;
+}
+
+static wchar_t *find_last_down(wchar_t ch)
+{
+    int i;
+    for (i = 0; i < LAST_DOWN_COUNT; ++i)
+        if (last_downs[i] == ch)
+            return &last_downs[i];
+    return NULL;
+}
+
 static int console_input(HANDLE tty, INPUT_RECORD *ip)
 {
 	DWORD read;
@@ -2804,6 +2825,20 @@ static int console_input(HANDLE tty, INPUT_RECORD *ip)
 	ReadConsoleInputW(tty, ip, 1, &read);
 	if (read == 0)
 		return (FALSE);
+    if (ip->EventType == KEY_EVENT) {
+        int is_down = ip->Event.KeyEvent.bKeyDown;
+        wchar_t ch = ip->Event.KeyEvent.uChar.UnicodeChar;
+        wchar_t *last_down = find_last_down(ch);
+        if (last_down == NULL) { /* key was up */
+            if (is_down) { /* key was up, now is down */
+                set_last_down(ch);
+            } else { /* key up without previous down: pretend this is a down. */
+                ip->Event.KeyEvent.bKeyDown = TRUE;
+            }
+        } else if (!is_down) { /* key was down, now is up */
+            *last_down = 0; /* use this last_down only once */
+        }
+    }
 	return (TRUE);
 }
 
@@ -2867,12 +2902,12 @@ public int win32_kbhit(void)
 		}
 	} while (ip.EventType != KEY_EVENT ||
 		ip.Event.KeyEvent.bKeyDown != TRUE ||
-		(ip.Event.KeyEvent.wVirtualScanCode == 0 && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
 		((ip.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED) && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
+		(ip.Event.KeyEvent.wVirtualScanCode == 0 && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
+		(ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_KANJI ||
 		ip.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
-		ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL ||
-		ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU);
+		ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL);
 		
 	currentKey.unicode = ip.Event.KeyEvent.uChar.UnicodeChar;
 	currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
