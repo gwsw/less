@@ -2797,10 +2797,11 @@ public void putbs(void)
 #define LAST_DOWN_COUNT 8
 static LWCHAR last_downs[LAST_DOWN_COUNT] = { 0 };
 static int last_down_index = 0;
+static LWCHAR hi_surr = 0;
 
 typedef struct XINPUT_RECORD {
 	INPUT_RECORD ir;
-	LWCHAR ichar;
+	LWCHAR ichar; /* because ir...UnicodeChar is only 16 bits */
 } XINPUT_RECORD;
 
 static void set_last_down(LWCHAR ch)
@@ -2830,10 +2831,13 @@ static int console_input(HANDLE tty, XINPUT_RECORD *xip)
 	ReadConsoleInputW(tty, &xip->ir, 1, &read);
 	if (read == 0)
 		return (FALSE);
+
 	if (xip->ir.EventType == KEY_EVENT) {
 		int is_down = xip->ir.Event.KeyEvent.bKeyDown;
 		LWCHAR ch = xip->ir.Event.KeyEvent.uChar.UnicodeChar;
 		LWCHAR *last_down = find_last_down(ch);
+		xip->ichar = ch;
+
 		if (last_down == NULL) { /* key was up */
 			if (is_down) { /* key was up, now is down */
 				set_last_down(ch);
@@ -2842,6 +2846,15 @@ static int console_input(HANDLE tty, XINPUT_RECORD *xip)
 			}
 		} else if (!is_down) { /* key was down, now is up */
 			*last_down = 0; /* use this last_down only once */
+		}
+
+		if (ch >= 0xD800 && ch < 0xDC00) { // high surrogate
+			hi_surr = 0x10000 | ((ch - 0xD800) << 10);
+			return (FALSE);
+		}
+		if (ch >= 0xDC00 && ch < 0xE000) { // low surrogate
+			xip->ichar = hi_surr | (ch - 0xDC00);
+			hi_surr = 0;
 		}
 	}
 	return (TRUE);
@@ -2914,7 +2927,7 @@ public int win32_kbhit(void)
 		xip.ir.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
 		xip.ir.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL);
 		
-	currentKey.unicode = xip.ir.Event.KeyEvent.uChar.UnicodeChar;
+	currentKey.unicode = xip.ichar;
 	currentKey.ascii = xip.ir.Event.KeyEvent.uChar.AsciiChar;
 	currentKey.scan = xip.ir.Event.KeyEvent.wVirtualScanCode;
 	keyCount = xip.ir.Event.KeyEvent.wRepeatCount;
