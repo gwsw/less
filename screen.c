@@ -2805,19 +2805,19 @@ typedef struct XINPUT_RECORD {
 
 static void set_last_down(LWCHAR ch)
 {
-    if (ch == 0) return;
-    last_downs[last_down_index] = ch;
-    if (++last_down_index >= LAST_DOWN_COUNT)
-        last_down_index = 0;
+	if (ch == 0) return;
+	last_downs[last_down_index] = ch;
+	if (++last_down_index >= LAST_DOWN_COUNT)
+		last_down_index = 0;
 }
 
 static LWCHAR *find_last_down(LWCHAR ch)
 {
-    int i;
-    for (i = 0; i < LAST_DOWN_COUNT; ++i)
-        if (last_downs[i] == ch)
-            return &last_downs[i];
-    return NULL;
+	int i;
+	for (i = 0; i < LAST_DOWN_COUNT; ++i)
+		if (last_downs[i] == ch)
+			return &last_downs[i];
+	return NULL;
 }
 
 static int console_input(HANDLE tty, XINPUT_RECORD *xip)
@@ -2830,20 +2830,20 @@ static int console_input(HANDLE tty, XINPUT_RECORD *xip)
 	ReadConsoleInputW(tty, &xip->ir, 1, &read);
 	if (read == 0)
 		return (FALSE);
-    if (xip->ir.EventType == KEY_EVENT) {
-        int is_down = xip->ir.Event.KeyEvent.bKeyDown;
-        LWCHAR ch = xip->ir.Event.KeyEvent.uChar.UnicodeChar;
-        LWCHAR *last_down = find_last_down(ch);
-        if (last_down == NULL) { /* key was up */
-            if (is_down) { /* key was up, now is down */
-                set_last_down(ch);
-            } else { /* key up without previous down: pretend this is a down. */
-                xip->ir.Event.KeyEvent.bKeyDown = TRUE;
-            }
-        } else if (!is_down) { /* key was down, now is up */
-            *last_down = 0; /* use this last_down only once */
-        }
-    }
+	if (xip->ir.EventType == KEY_EVENT) {
+		int is_down = xip->ir.Event.KeyEvent.bKeyDown;
+		LWCHAR ch = xip->ir.Event.KeyEvent.uChar.UnicodeChar;
+		LWCHAR *last_down = find_last_down(ch);
+		if (last_down == NULL) { /* key was up */
+			if (is_down) { /* key was up, now is down */
+				set_last_down(ch);
+			} else { /* key up without previous down: pretend this is a down. */
+				xip->ir.Event.KeyEvent.bKeyDown = TRUE;
+			}
+		} else if (!is_down) { /* key was down, now is up */
+			*last_down = 0; /* use this last_down only once */
+		}
+	}
 	return (TRUE);
 }
 
