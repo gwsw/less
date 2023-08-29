@@ -139,7 +139,7 @@ extern int sc_height;
 #define UTF8_MAX_LENGTH 4
 struct keyRecord
 {
-	WCHAR unicode;
+	LWCHAR unicode;
 	int ascii;
 	int scan;
 } currentKey;
@@ -2795,10 +2795,15 @@ public void putbs(void)
 #if MSDOS_COMPILER==WIN32C
 
 #define LAST_DOWN_COUNT 8
-static wchar_t last_downs[LAST_DOWN_COUNT] = { 0 };
+static LWCHAR last_downs[LAST_DOWN_COUNT] = { 0 };
 static int last_down_index = 0;
 
-static void set_last_down(wchar_t ch)
+typedef struct XINPUT_RECORD {
+	INPUT_RECORD ir;
+	LWCHAR ichar;
+} XINPUT_RECORD;
+
+static void set_last_down(LWCHAR ch)
 {
     if (ch == 0) return;
     last_downs[last_down_index] = ch;
@@ -2806,7 +2811,7 @@ static void set_last_down(wchar_t ch)
         last_down_index = 0;
 }
 
-static wchar_t *find_last_down(wchar_t ch)
+static LWCHAR *find_last_down(LWCHAR ch)
 {
     int i;
     for (i = 0; i < LAST_DOWN_COUNT; ++i)
@@ -2815,25 +2820,25 @@ static wchar_t *find_last_down(wchar_t ch)
     return NULL;
 }
 
-static int console_input(HANDLE tty, INPUT_RECORD *ip)
+static int console_input(HANDLE tty, XINPUT_RECORD *xip)
 {
 	DWORD read;
 
-	PeekConsoleInputW(tty, ip, 1, &read);
+	PeekConsoleInputW(tty, &xip->ir, 1, &read);
 	if (read == 0)
 		return (FALSE);
-	ReadConsoleInputW(tty, ip, 1, &read);
+	ReadConsoleInputW(tty, &xip->ir, 1, &read);
 	if (read == 0)
 		return (FALSE);
-    if (ip->EventType == KEY_EVENT) {
-        int is_down = ip->Event.KeyEvent.bKeyDown;
-        wchar_t ch = ip->Event.KeyEvent.uChar.UnicodeChar;
-        wchar_t *last_down = find_last_down(ch);
+    if (xip->ir.EventType == KEY_EVENT) {
+        int is_down = xip->ir.Event.KeyEvent.bKeyDown;
+        LWCHAR ch = xip->ir.Event.KeyEvent.uChar.UnicodeChar;
+        LWCHAR *last_down = find_last_down(ch);
         if (last_down == NULL) { /* key was up */
             if (is_down) { /* key was up, now is down */
                 set_last_down(ch);
             } else { /* key up without previous down: pretend this is a down. */
-                ip->Event.KeyEvent.bKeyDown = TRUE;
+                xip->ir.Event.KeyEvent.bKeyDown = TRUE;
             }
         } else if (!is_down) { /* key was down, now is up */
             *last_down = 0; /* use this last_down only once */
@@ -2847,7 +2852,7 @@ static int console_input(HANDLE tty, INPUT_RECORD *ip)
  */
 public int win32_kbhit(void)
 {
-	INPUT_RECORD ip;
+	XINPUT_RECORD xip;
 
 	if (keyCount > 0 || win_unget_pending)
 		return (TRUE);
@@ -2869,27 +2874,27 @@ public int win32_kbhit(void)
 	 */
 	do
 	{
-		if (!console_input(tty, &ip))
+		if (!console_input(tty, &xip))
 			return (FALSE);
 
 		/* generate an X11 mouse sequence from the mouse event */
-		if (mousecap && ip.EventType == MOUSE_EVENT &&
-		    ip.Event.MouseEvent.dwEventFlags != MOUSE_MOVED)
+		if (mousecap && xip.ir.EventType == MOUSE_EVENT &&
+		    xip.ir.Event.MouseEvent.dwEventFlags != MOUSE_MOVED)
 		{
-			x11mousebuf[3] = X11MOUSE_OFFSET + ip.Event.MouseEvent.dwMousePosition.X + 1;
-			x11mousebuf[4] = X11MOUSE_OFFSET + ip.Event.MouseEvent.dwMousePosition.Y + 1;
-			switch (ip.Event.MouseEvent.dwEventFlags)
+			x11mousebuf[3] = X11MOUSE_OFFSET + xip.ir.Event.MouseEvent.dwMousePosition.X + 1;
+			x11mousebuf[4] = X11MOUSE_OFFSET + xip.ir.Event.MouseEvent.dwMousePosition.Y + 1;
+			switch (xip.ir.Event.MouseEvent.dwEventFlags)
 			{
 			case 0: /* press or release */
-				if (ip.Event.MouseEvent.dwButtonState == 0)
+				if (xip.ir.Event.MouseEvent.dwButtonState == 0)
 					x11mousebuf[2] = X11MOUSE_OFFSET + X11MOUSE_BUTTON_REL;
-				else if (ip.Event.MouseEvent.dwButtonState & (FROM_LEFT_3RD_BUTTON_PRESSED | FROM_LEFT_4TH_BUTTON_PRESSED))
+				else if (xip.ir.Event.MouseEvent.dwButtonState & (FROM_LEFT_3RD_BUTTON_PRESSED | FROM_LEFT_4TH_BUTTON_PRESSED))
 					continue;
 				else
-					x11mousebuf[2] = X11MOUSE_OFFSET + X11MOUSE_BUTTON1 + ((int)ip.Event.MouseEvent.dwButtonState << 1);
+					x11mousebuf[2] = X11MOUSE_OFFSET + X11MOUSE_BUTTON1 + ((int)xip.ir.Event.MouseEvent.dwButtonState << 1);
 				break;
 			case MOUSE_WHEELED:
-				x11mousebuf[2] = X11MOUSE_OFFSET + (((int)ip.Event.MouseEvent.dwButtonState < 0) ? X11MOUSE_WHEEL_DOWN : X11MOUSE_WHEEL_UP);
+				x11mousebuf[2] = X11MOUSE_OFFSET + (((int)xip.ir.Event.MouseEvent.dwButtonState < 0) ? X11MOUSE_WHEEL_DOWN : X11MOUSE_WHEEL_UP);
 				break;
 			default:
 				continue;
@@ -2900,21 +2905,23 @@ public int win32_kbhit(void)
 			keyCount = 1;
 			return (TRUE);
 		}
-	} while (ip.EventType != KEY_EVENT ||
-		ip.Event.KeyEvent.bKeyDown != TRUE ||
-		((ip.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED) && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
-		(ip.Event.KeyEvent.wVirtualScanCode == 0 && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
-		(ip.Event.KeyEvent.wVirtualKeyCode == VK_MENU && ip.Event.KeyEvent.uChar.UnicodeChar == 0) ||
-		ip.Event.KeyEvent.wVirtualKeyCode == VK_KANJI ||
-		ip.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
-		ip.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL);
+	} while (xip.ir.EventType != KEY_EVENT ||
+		xip.ir.Event.KeyEvent.bKeyDown != TRUE ||
+		((xip.ir.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED) && xip.ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
+		(xip.ir.Event.KeyEvent.wVirtualScanCode == 0 && xip.ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
+		(xip.ir.Event.KeyEvent.wVirtualKeyCode == VK_MENU && xip.ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
+		xip.ir.Event.KeyEvent.wVirtualKeyCode == VK_KANJI ||
+		xip.ir.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
+		xip.ir.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL);
 		
-	currentKey.unicode = ip.Event.KeyEvent.uChar.UnicodeChar;
-	currentKey.ascii = ip.Event.KeyEvent.uChar.AsciiChar;
-	currentKey.scan = ip.Event.KeyEvent.wVirtualScanCode;
-	keyCount = ip.Event.KeyEvent.wRepeatCount;
+	currentKey.unicode = xip.ir.Event.KeyEvent.uChar.UnicodeChar;
+if (currentKey.unicode == 'x') currentKey.unicode = 0x1f433;
 
-	if (ip.Event.KeyEvent.dwControlKeyState & 
+	currentKey.ascii = xip.ir.Event.KeyEvent.uChar.AsciiChar;
+	currentKey.scan = xip.ir.Event.KeyEvent.wVirtualScanCode;
+	keyCount = xip.ir.Event.KeyEvent.wRepeatCount;
+
+	if (xip.ir.Event.KeyEvent.dwControlKeyState & 
 		(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
 	{
 		switch (currentKey.scan)
@@ -2923,7 +2930,7 @@ public int win32_kbhit(void)
 			currentKey.ascii = 0;
 			break;
 		}
-	} else if (ip.Event.KeyEvent.dwControlKeyState & 
+	} else if (xip.ir.Event.KeyEvent.dwControlKeyState & 
 		(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
 	{
 		switch (currentKey.scan)
@@ -2938,7 +2945,7 @@ public int win32_kbhit(void)
 			currentKey.scan = PCK_CTL_DELETE;
 			break;
 		}
-	} else if (ip.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
+	} else if (xip.ir.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
 	{
 		switch (currentKey.scan)
 		{
@@ -2974,7 +2981,7 @@ public char WIN32getch(void)
 		return (char) win_unget_data;
 	}
 
-	// Return the rest of multibyte character from the prior call
+	/* Return the rest of multibyte character from the prior call */
 	if (utf8_next_byte < utf8_size)
 	{
 		ascii = utf8[utf8_next_byte++];
@@ -2996,10 +3003,11 @@ public char WIN32getch(void)
 				return ('\003');
 		}
 		keyCount--;
-		// If multibyte character, return its first byte
+		/* If multibyte character, return its first byte */
 		if (currentKey.unicode > 0x7f)
 		{
-			utf8_size = WideCharToMultiByte(CP_UTF8, 0, &currentKey.unicode, 1, (LPSTR) &utf8, sizeof(utf8), NULL, NULL);
+			WCHAR unicode = currentKey.unicode;
+			utf8_size = WideCharToMultiByte(CP_UTF8, 0, &unicode, 1, (LPSTR) &utf8, sizeof(utf8), NULL, NULL);
 			if (utf8_size == 0)
 				return '\0';
 			ascii = utf8[0];
