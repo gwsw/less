@@ -24,6 +24,8 @@
 
 * Fix crash if files are deleted while less is viewing them (github #404).
 
+* Workaround unreliable ReadConsoleInputW behavior with non-ASCII input.
+
 ======================================================================
 
 	Major changes between "less" versions 633 and 643
