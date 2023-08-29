@@ -2915,8 +2915,6 @@ public int win32_kbhit(void)
 		xip.ir.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL);
 		
 	currentKey.unicode = xip.ir.Event.KeyEvent.uChar.UnicodeChar;
-if (currentKey.unicode == 'x') currentKey.unicode = 0x1f433;
-
 	currentKey.ascii = xip.ir.Event.KeyEvent.uChar.AsciiChar;
 	currentKey.scan = xip.ir.Event.KeyEvent.wVirtualScanCode;
 	keyCount = xip.ir.Event.KeyEvent.wRepeatCount;
@@ -3006,8 +3004,9 @@ public char WIN32getch(void)
 		/* If multibyte character, return its first byte */
 		if (currentKey.unicode > 0x7f)
 		{
-			WCHAR unicode = currentKey.unicode;
-			utf8_size = WideCharToMultiByte(CP_UTF8, 0, &unicode, 1, (LPSTR) &utf8, sizeof(utf8), NULL, NULL);
+			char *up = utf8;
+			put_wchar(&up, currentKey.unicode);
+			utf8_size = up - utf8;
 			if (utf8_size == 0)
 				return '\0';
 			ascii = utf8[0];
