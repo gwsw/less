@@ -140,7 +140,6 @@ extern int sc_height;
 struct keyRecord
 {
 	LWCHAR unicode;
-	int ascii;
 	int scan;
 } currentKey;
 
@@ -2833,28 +2832,31 @@ static int console_input(HANDLE tty, XINPUT_RECORD *xip)
 		return (FALSE);
 
 	if (xip->ir.EventType == KEY_EVENT) {
-		int is_down = xip->ir.Event.KeyEvent.bKeyDown;
 		LWCHAR ch = xip->ir.Event.KeyEvent.uChar.UnicodeChar;
-		LWCHAR *last_down = find_last_down(ch);
 		xip->ichar = ch;
+		if (!is_ascii_char(ch))
+		{
+			int is_down = xip->ir.Event.KeyEvent.bKeyDown;
+			LWCHAR *last_down = find_last_down(ch);
 
-		if (last_down == NULL) { /* key was up */
-			if (is_down) { /* key was up, now is down */
-				set_last_down(ch);
-			} else { /* key up without previous down: pretend this is a down. */
-				xip->ir.Event.KeyEvent.bKeyDown = TRUE;
+			if (last_down == NULL) { /* key was up */
+				if (is_down) { /* key was up, now is down */
+					set_last_down(ch);
+				} else { /* key up without previous down: pretend this is a down. */
+					xip->ir.Event.KeyEvent.bKeyDown = TRUE;
+				}
+			} else if (!is_down) { /* key was down, now is up */
+				*last_down = 0; /* use this last_down only once */
 			}
-		} else if (!is_down) { /* key was down, now is up */
-			*last_down = 0; /* use this last_down only once */
-		}
 
-		if (ch >= 0xD800 && ch < 0xDC00) { // high surrogate
-			hi_surr = 0x10000 | ((ch - 0xD800) << 10);
-			return (FALSE);
-		}
-		if (ch >= 0xDC00 && ch < 0xE000) { // low surrogate
-			xip->ichar = hi_surr | (ch - 0xDC00);
-			hi_surr = 0;
+			if (ch >= 0xD800 && ch < 0xDC00) { /* high surrogate */
+				hi_surr = 0x10000 | ((ch - 0xD800) << 10);
+				return (FALSE);
+			}
+			if (ch >= 0xDC00 && ch < 0xE000) { /* low surrogate */
+				xip->ichar = hi_surr | (ch - 0xDC00);
+				hi_surr = 0;
+			}
 		}
 	}
 	return (TRUE);
@@ -2870,12 +2872,12 @@ public int win32_kbhit(void)
 	if (keyCount > 0 || win_unget_pending)
 		return (TRUE);
 
-	currentKey.ascii = 0;
+	currentKey.unicode = 0;
 	currentKey.scan = 0;
 
 	if (x11mouseCount > 0)
 	{
-		currentKey.ascii = x11mousebuf[x11mousePos++];
+		currentKey.unicode = x11mousebuf[x11mousePos++];
 		--x11mouseCount;
 		keyCount = 1;
 		return (TRUE);
@@ -2890,10 +2892,10 @@ public int win32_kbhit(void)
 		if (!console_input(tty, &xip))
 			return (FALSE);
 
-		/* generate an X11 mouse sequence from the mouse event */
 		if (mousecap && xip.ir.EventType == MOUSE_EVENT &&
 		    xip.ir.Event.MouseEvent.dwEventFlags != MOUSE_MOVED)
 		{
+			/* Generate an X11 mouse sequence from the mouse event. */
 			x11mousebuf[3] = X11MOUSE_OFFSET + xip.ir.Event.MouseEvent.dwMousePosition.X + 1;
 			x11mousebuf[4] = X11MOUSE_OFFSET + xip.ir.Event.MouseEvent.dwMousePosition.Y + 1;
 			switch (xip.ir.Event.MouseEvent.dwEventFlags)
@@ -2914,7 +2916,7 @@ public int win32_kbhit(void)
 			}
 			x11mousePos = 0;
 			x11mouseCount = 5;
-			currentKey.ascii = ESC;
+			currentKey.unicode = ESC;
 			keyCount = 1;
 			return (TRUE);
 		}
@@ -2928,21 +2930,10 @@ public int win32_kbhit(void)
 		xip.ir.Event.KeyEvent.wVirtualKeyCode == VK_CONTROL);
 		
 	currentKey.unicode = xip.ichar;
-	currentKey.ascii = xip.ir.Event.KeyEvent.uChar.AsciiChar;
 	currentKey.scan = xip.ir.Event.KeyEvent.wVirtualScanCode;
 	keyCount = xip.ir.Event.KeyEvent.wRepeatCount;
 
-	if (xip.ir.Event.KeyEvent.dwControlKeyState & 
-		(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
-	{
-		switch (currentKey.scan)
-		{
-		case PCK_ALT_E:     /* letter 'E' */
-			currentKey.ascii = 0;
-			break;
-		}
-	} else if (xip.ir.Event.KeyEvent.dwControlKeyState & 
-		(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
+	if (xip.ir.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
 	{
 		switch (currentKey.scan)
 		{
@@ -2961,7 +2952,7 @@ public int win32_kbhit(void)
 		switch (currentKey.scan)
 		{
 		case PCK_SHIFT_TAB: /* tab */
-			currentKey.ascii = 0;
+			currentKey.unicode = 0;
 			break;
 		}
 	}
@@ -3015,7 +3006,9 @@ public char WIN32getch(void)
 		}
 		keyCount--;
 		/* If multibyte character, return its first byte */
-		if (currentKey.unicode > 0x7f)
+		if (is_ascii_char(currentKey.unicode))
+			ascii = (char) currentKey.unicode;
+		else
 		{
 			char *up = utf8;
 			put_wchar(&up, currentKey.unicode);
@@ -3024,8 +3017,7 @@ public char WIN32getch(void)
 				return '\0';
 			ascii = utf8[0];
 			utf8_next_byte = 1;
-		} else
-			ascii = currentKey.ascii;
+		}
 		/*
 		 * On PC's, the extended keys return a 2 byte sequence beginning 
 		 * with '00', so if the ascii code is 00, the next byte will be 
