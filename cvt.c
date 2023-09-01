@@ -88,12 +88,16 @@ public void cvt_text(char *odst, char *osrc, int *chpos, int *lenp, int ops)
 		} else
 		{
 			/* Just copy the char to the destination buffer. */
+			char *cdst = dst;
 			if ((ops & CVT_TO_LC) && IS_UPPER(ch))
 				ch = TO_LOWER(ch);
 			put_wchar(&dst, ch);
 			/* Record the original position of the char. */
 			if (chpos != NULL)
-				chpos[dst_pos] = src_pos;
+			{
+				while (cdst++ < dst)
+					chpos[dst_pos++] = src_pos;
+			}
 		}
 		if (dst > edst)
 			edst = dst;
