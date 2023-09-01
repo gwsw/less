@@ -28,6 +28,8 @@
 
 * Workaround unreliable ReadConsoleInputW behavior with non-ASCII input.
 
+* Fix -J display when searching for non-ASCII characters (github #422).
+
 ======================================================================
 
 	Major changes between "less" versions 633 and 643

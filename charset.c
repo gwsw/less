@@ -634,7 +634,7 @@ public int is_utf8_well_formed(char *ss, int slen)
 	if (len == 2)
 	{
 		if (s[0] < 0xC2)
-		    return (0);
+			return (0);
 	} else
 	{
 		unsigned char mask;

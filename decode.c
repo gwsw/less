@@ -939,7 +939,7 @@ public int editchar(int c, int flags)
 	 */
 	nch = 0;
 	do {
-	        if (nch > 0)
+		if (nch > 0)
 			c = getcc();
 		usercmd[nch] = c;
 		usercmd[nch+1] = '\0';
