@@ -2850,11 +2850,11 @@ static int console_input(HANDLE tty, XINPUT_RECORD *xip)
 			}
 
 			if (ch >= 0xD800 && ch < 0xDC00) { /* high surrogate */
-				hi_surr = 0x10000 | ((ch - 0xD800) << 10);
+				hi_surr = 0x10000 + ((ch - 0xD800) << 10);
 				return (FALSE);
 			}
 			if (ch >= 0xDC00 && ch < 0xE000) { /* low surrogate */
-				xip->ichar = hi_surr | (ch - 0xDC00);
+				xip->ichar = hi_surr + (ch - 0xDC00);
 				hi_surr = 0;
 			}
 		}
