@@ -2824,42 +2824,45 @@ static int console_input(HANDLE tty, XINPUT_RECORD *xip)
 {
 	DWORD read;
 
-	PeekConsoleInputW(tty, &xip->ir, 1, &read);
-	if (read == 0)
-		return (FALSE);
-	ReadConsoleInputW(tty, &xip->ir, 1, &read);
-	if (read == 0)
-		return (FALSE);
+	for (;;)
+	{
+		PeekConsoleInputW(tty, &xip->ir, 1, &read);
+		if (read == 0)
+			return (FALSE);
+		ReadConsoleInputW(tty, &xip->ir, 1, &read);
+		if (read == 0)
+			return (FALSE);
 
-	if (xip->ir.EventType == KEY_EVENT) {
-		LWCHAR ch = xip->ir.Event.KeyEvent.uChar.UnicodeChar;
-		xip->ichar = ch;
-		if (!is_ascii_char(ch))
-		{
-			int is_down = xip->ir.Event.KeyEvent.bKeyDown;
-			LWCHAR *last_down = find_last_down(ch);
+		if (xip->ir.EventType == KEY_EVENT) {
+			LWCHAR ch = xip->ir.Event.KeyEvent.uChar.UnicodeChar;
+			xip->ichar = ch;
+			if (!is_ascii_char(ch))
+			{
+				int is_down = xip->ir.Event.KeyEvent.bKeyDown;
+				LWCHAR *last_down = find_last_down(ch);
 
-			if (last_down == NULL) { /* key was up */
-				if (is_down) { /* key was up, now is down */
-					set_last_down(ch);
-				} else { /* key up without previous down: pretend this is a down. */
-					xip->ir.Event.KeyEvent.bKeyDown = TRUE;
+				if (last_down == NULL) { /* key was up */
+					if (is_down) { /* key was up, now is down */
+						set_last_down(ch);
+					} else { /* key up without previous down: pretend this is a down. */
+						xip->ir.Event.KeyEvent.bKeyDown = TRUE;
+					}
+				} else if (!is_down) { /* key was down, now is up */
+					*last_down = 0; /* use this last_down only once */
 				}
-			} else if (!is_down) { /* key was down, now is up */
-				*last_down = 0; /* use this last_down only once */
-			}
 
-			if (ch >= 0xD800 && ch < 0xDC00) { /* high surrogate */
-				hi_surr = 0x10000 + ((ch - 0xD800) << 10);
-				return (FALSE);
-			}
-			if (ch >= 0xDC00 && ch < 0xE000) { /* low surrogate */
-				xip->ichar = hi_surr + (ch - 0xDC00);
-				hi_surr = 0;
+				if (ch >= 0xD800 && ch < 0xDC00) { /* high surrogate */
+					hi_surr = 0x10000 + ((ch - 0xD800) << 10);
+					continue; /* get next input, which should be the low surrogate */
+				}
+				if (ch >= 0xDC00 && ch < 0xE000) { /* low surrogate */
+					xip->ichar = hi_surr + (ch - 0xDC00);
+					hi_surr = 0;
+				}
 			}
 		}
+		return (TRUE);
 	}
-	return (TRUE);
 }
 
 /*
