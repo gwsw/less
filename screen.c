@@ -2969,7 +2969,6 @@ public int win32_kbhit(void)
  * Known issues:
  * - WIN32getch API should be int like libc (with unsigned char values or -1).
  * - The unicode code below can return 0 - incorrectly indicating scan code.
- * - UTF16-LE surrogate pairs don't work (and return 0).
  * - If win32_kbhit returns true then WIN32getch should never block, but it
  *   will block till the next keypress if it's numlock/capslock scan code.
  */
