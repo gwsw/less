@@ -6,6 +6,7 @@ lessecho \- expand metacharacters
 .I "[-ox] [-cx] [-pn] [-dn] [-mx] [-nn] [-ex] [-a] file ..."
 .SH "DESCRIPTION"
 .B lessecho
+isn't intended to be used by people, only by less itself. It
 is a program that simply echos its arguments on standard output.
 But any metacharacter in the output is preceded by an "escape"
 character, which by default is a backslash.
