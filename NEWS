@@ -13,6 +13,8 @@
 
 	Major changes between "less" versions 633 and 644
 
+* Add --match-shift option.
+
 * Improve behavior of interrupt while reading non-terminated pipe
   (github #414).
 

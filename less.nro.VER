@@ -1221,6 +1221,15 @@ to specify a control character.
 Sets the minimum width of the line number field when the \-N option is in effect 
 to \fIn\fP characters.
 The default is 7.
+.IP "\-\-match-shift=\fIn\fP"
+When \-S is in effect, if a search match is not visible
+because it is shifted to the left or right of the currently
+visible screen, the text will horizontally shift 
+to ensure that the search match is visible.
+This option selects the column in which the first character
+of the search match will be placed after the shift.
+In other words, there will be \fIn\fP characters visible 
+to the left of the search match.
 .IP "\-\-modelines=\fIn\fP"
 .RS
 Before displaying a file,

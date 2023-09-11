@@ -79,6 +79,7 @@ public int show_preproc_error;  /* Display msg when preproc exits with error */
 public int proc_backspace;      /* Special handling of backspace */
 public int proc_tab;            /* Special handling of tab */
 public int proc_return;         /* Special handling of carriage return */
+public int found_shift;         /* Extra horizontal shift on search match */
 public char intr_char = CONTROL('X'); /* Char to interrupt reads */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
@@ -170,6 +171,7 @@ static struct optname show_preproc_error_optname = { "show-preproc-errors", NULL
 static struct optname proc_backspace_optname = { "proc-backspace", NULL };
 static struct optname proc_tab_optname = { "proc-tab", NULL };
 static struct optname proc_return_optname = { "proc-return", NULL };
+static struct optname found_shift_optname = { "match-shift", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/
@@ -706,6 +708,14 @@ static struct loption option[] =
 			"Carriage return handling is specified by the -U option",
 			"Delete carriage return before newline",
 			"Print carriage return as ^M"
+		}
+	},
+	{ OLETTER_NONE, &found_shift_optname,
+		NUMBER, 2, &found_shift, NULL,
+		{
+			"Search match shift: ",
+			"Search match shift is %d columns",
+			NULL
 		}
 	},
 #if LESSTEST

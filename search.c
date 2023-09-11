@@ -38,6 +38,7 @@ extern int screen_trashed;
 extern int sc_width;
 extern int sc_height;
 extern int hshift;
+extern int found_shift;
 extern int nosearch_headers;
 extern int header_lines;
 extern int header_cols;
@@ -572,6 +573,15 @@ public POSITION prev_unfiltered(POSITION pos)
 		n = n->prev;
 	}
 	return (pos);
+}
+
+static void shift_visible(int start_off, int end_off)
+{
+	int swidth = sc_width - line_pfx_width();
+	if (start_off >= hshift && end_off < hshift + swidth)
+		return; /* already visible */
+	hshift = (end_off < swidth) ? 0 : start_off < found_shift ? 0 : start_off - found_shift;
+	screen_trashed = 1;
 }
 
 /*
@@ -1389,12 +1399,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						{
 							int start_off = sp[0] - cline;
 							int end_off = ep[0] - cline;
-							int swidth = sc_width - line_pfx_width();
-							if (start_off < hshift || end_off >= hshift + swidth)
-							{
-								hshift = (end_off < swidth) ? 0 : start_off;
-								screen_trashed = 1;
-							}
+							shift_visible(start_off, end_off);
 						}
 					} else if (plastlinepos != NULL)
 					{

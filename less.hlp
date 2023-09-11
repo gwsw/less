@@ -223,6 +223,8 @@
                   Use _C instead of ^X to interrupt a read.
                 --line-num-width=_N
                   Set the width of the -N line number field to _N characters.
+                --match-shift=_N
+                  Show at least _N characters to the left of a search match.
                 --modelines=_N
                   Read _N lines from the input file and look for vim modelines.
                 --mouse
