@@ -30,6 +30,8 @@
 
 * Fix -J display when searching for non-ASCII characters (github #422).
 
+* Don't filter header lines via the & command (github #423).
+
 ======================================================================
 
 	Major changes between "less" versions 633 and 643
