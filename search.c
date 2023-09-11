@@ -574,7 +574,6 @@ public POSITION prev_unfiltered(POSITION pos)
 	return (pos);
 }
 
-
 /*
  * Should any characters in a specified range be highlighted?
  * If nohide is nonzero, don't consider hide_hilite.
@@ -1175,23 +1174,6 @@ static POSITION get_lastlinepos(POSITION pos, POSITION tpos, int sheight)
 }
 
 /*
- * Get the segment index of tpos in the line starting at pos.
- * A segment is a string of printable chars that fills the screen width.
- */
-static int get_seg(POSITION pos, POSITION tpos)
-{
-	int seg;
-
-	for (seg = 0;;  seg++)
-	{
-		POSITION npos = forw_line_seg(pos, FALSE, FALSE, TRUE);
-		if (npos > tpos || npos == NULL_POSITION)
-			return seg;
-		pos = npos;
-	}
-}
-
-/*
  * Search a subset of the file, specified by start/end position.
  */
 static int search_range(POSITION pos, POSITION endpos, int search_type, int matches, int maxlines, POSITION *plinepos, POSITION *pendpos, POSITION *plastlinepos)
@@ -1407,18 +1389,10 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						{
 							int start_off = sp[0] - cline;
 							int end_off = ep[0] - cline;
-							int save_hshift = hshift;
-							int sshift;
-							int eshift;
-							hshift = 0; /* make get_seg count screen lines */
-							sshift = swidth * get_seg(linepos, linepos + chpos[start_off]);
-							eshift = swidth * get_seg(linepos, linepos + chpos[end_off]);
-							if (sshift >= save_hshift && eshift <= save_hshift)
+							int swidth = sc_width - line_pfx_width();
+							if (start_off < hshift || end_off >= hshift + swidth)
 							{
-								hshift = save_hshift;
-							} else
-							{
-								hshift = sshift;
+								hshift = (end_off < swidth) ? 0 : start_off;
 								screen_trashed = 1;
 							}
 						}
