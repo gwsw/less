@@ -49,7 +49,7 @@ extern int can_goto_line;
 static int hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
-extern POSITION xxpos;
+static POSITION header_end_pos = NULL_POSITION;
 
 /*
  * Structures for maintaining a set of ranges for hilites and filtered-out
@@ -495,6 +495,22 @@ static int hilited_range_attr(POSITION pos, POSITION epos)
 	return n->r.hl_attr;
 }
 
+/*
+ * Determine and save the position of the first char after any header lines.
+ */
+public void set_header_end_pos(void)
+{
+	header_end_pos = (header_lines == 0) ? NULL_POSITION : find_pos(header_lines+1);
+}
+
+/*
+ * Is a position within the header lines?
+ */
+static int pos_in_header(POSITION pos)
+{
+	return (header_end_pos != NULL_POSITION && pos < header_end_pos);
+}
+
 /* 
  * Is a line "filtered" -- that is, should it be hidden?
  */
@@ -503,7 +519,9 @@ public int is_filtered(POSITION pos)
 	struct hilite_node *n;
 
 	if (ch_getflags() & CH_HELPFILE)
-		return (0);
+		return (FALSE);
+	if (pos_in_header(pos))
+		return (FALSE);
 
 	n = hlist_find(&filter_anchor, pos);
 	return (n != NULL && pos >= n->r.hl_startpos);
@@ -518,6 +536,8 @@ public POSITION next_unfiltered(POSITION pos)
 	struct hilite_node *n;
 
 	if (ch_getflags() & CH_HELPFILE)
+		return (pos);
+	if (pos_in_header(pos))
 		return (pos);
 
 	n = hlist_find(&filter_anchor, pos);
@@ -538,6 +558,8 @@ public POSITION prev_unfiltered(POSITION pos)
 	struct hilite_node *n;
 
 	if (ch_getflags() & CH_HELPFILE)
+		return (pos);
+	if (pos_in_header(pos))
 		return (pos);
 
 	n = hlist_find(&filter_anchor, pos);

@@ -987,6 +987,8 @@ public void opt_header(int type, char *s)
 			else
 				header_cols = n;
 		}
+		if (type == TOGGLE)
+			set_header_end_pos();
 		break;
 	case QUERY:
 		{
