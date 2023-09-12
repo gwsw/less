@@ -36,7 +36,6 @@
 extern int erase_char, erase2_char, kill_char;
 extern int secure;
 extern int mousecap;
-extern int screen_trashed;
 extern int sc_height;
 
 #define SK(k) \
@@ -451,7 +450,7 @@ static int mouse_button_rel(int x, int y)
 	if (y < sc_height-1)
 	{
 		setmark('#', y);
-		screen_trashed = 1;
+		screen_trashed();
 	}
 	return (A_NOACTION);
 }

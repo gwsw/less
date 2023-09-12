@@ -60,7 +60,6 @@ extern void *ml_shell;
 extern char *editor;
 extern char *editproto;
 #endif
-extern int screen_trashed;      /* The screen has been overwritten */
 extern int shift_count;
 extern int oldbot;
 extern int forw_prompt;
@@ -86,6 +85,7 @@ static POSITION bottompos;
 static int save_hshift;
 static int save_bs_mode;
 static int save_proc_backspace;
+static int screen_trashed_value = 0;
 #if PIPEC
 static char pipec;
 #endif
@@ -765,6 +765,21 @@ static void clear_buffers(void)
 #endif
 }
 
+public void screen_trashed_num(int trashed)
+{
+	screen_trashed_value = trashed;
+}
+
+public void screen_trashed(void)
+{
+	screen_trashed_num(1);
+}
+
+public int is_screen_trashed(void)
+{
+	return screen_trashed_value;
+}
+
 /*
  * Make sure the screen is displayed.
  */
@@ -785,13 +800,13 @@ static void make_display(void)
 			jump_loc(ch_zero(), 1);
 		else
 			jump_loc(initial_scrpos.pos, initial_scrpos.ln);
-	} else if (screen_trashed || !full_screen)
+	} else if (is_screen_trashed() || !full_screen)
 	{
 		int save_top_scroll = top_scroll;
 		int save_ignore_eoi = ignore_eoi;
 		top_scroll = 1;
 		ignore_eoi = 0;
-		if (screen_trashed == 2)
+		if (is_screen_trashed() == 2)
 		{
 			/* Special case used by ignore_eoi: re-open the input file
 			 * and jump to the end of the file. */
@@ -2048,7 +2063,7 @@ public void commands(void)
 				number = hshift;
 			pos_rehead();
 			hshift -= number;
-			screen_trashed = 1;
+			screen_trashed();
 			break;
 
 		case A_RSHIFT:
@@ -2061,7 +2076,7 @@ public void commands(void)
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
 			pos_rehead();
 			hshift += number;
-			screen_trashed = 1;
+			screen_trashed();
 			break;
 
 		case A_LLSHIFT:
@@ -2070,7 +2085,7 @@ public void commands(void)
 			 */
 			pos_rehead();
 			hshift = 0;
-			screen_trashed = 1;
+			screen_trashed();
 			break;
 
 		case A_RRSHIFT:
@@ -2079,7 +2094,7 @@ public void commands(void)
 			 */
 			pos_rehead();
 			hshift = rrshift();
-			screen_trashed = 1;
+			screen_trashed();
 			break;
 
 		case A_PREFIX:

@@ -68,7 +68,6 @@ public int scanning_eof = FALSE;
 extern int linenums;
 extern int sigs;
 extern int sc_height;
-extern int screen_trashed;
 extern int header_lines;
 extern int nonum_headers;
 
@@ -248,7 +247,7 @@ static void abort_long(void)
 		/*
 		 * We were displaying line numbers, so need to repaint.
 		 */
-		screen_trashed = 1;
+		screen_trashed();
 	linenums = 0;
 	error("Line numbers turned off", NULL_PARG);
 }

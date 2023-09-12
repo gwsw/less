@@ -17,7 +17,6 @@
 
 extern int jump_sline;
 extern int squished;
-extern int screen_trashed;
 extern int sc_width, sc_height;
 extern int show_attn;
 extern int top_scroll;
@@ -273,7 +272,7 @@ public void jump_loc(POSITION pos, int sline)
 		}
 		lastmark();
 		squished = 0;
-		screen_trashed = 0;
+		screen_trashed_num(0);
 		forw(sc_height-1, pos, 1, 0, sindex-nline);
 	} else
 	{
@@ -318,7 +317,7 @@ public void jump_loc(POSITION pos, int sline)
 			clear();
 		else
 			home();
-		screen_trashed = 0;
+		screen_trashed_num(0);
 		add_back_pos(pos);
 		back(sc_height-1, pos, 1, 0);
 	}

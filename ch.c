@@ -128,7 +128,6 @@ static int maxbufs = -1;
 extern int autobuf;
 extern int sigs;
 extern int secure;
-extern int screen_trashed;
 extern int follow_mode;
 extern int waiting_for_data;
 extern constant char helpdata[];
@@ -325,7 +324,7 @@ static int ch_get(void)
 			if (ignore_eoi && follow_mode == FOLLOW_NAME && curr_ifile_changed())
 			{
 				/* screen_trashed=2 causes make_display to reopen the file. */
-				screen_trashed = 2;
+				screen_trashed_num(2);
 				return (EOI);
 			}
 			if (sigs)

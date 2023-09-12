@@ -284,7 +284,6 @@ extern int no_init;
 extern int no_keypad;
 extern int sigs;
 extern int wscroll;
-extern int screen_trashed;
 extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
@@ -2150,7 +2149,7 @@ public void check_winch(void)
 			SetConsoleScreenBufferSize(con_out, size);
 		pos_init();
 		wscroll = (sc_height + 1) / 2;
-		screen_trashed = 1;
+		screen_trashed();
 	}
 #endif
 }

@@ -27,7 +27,6 @@
 public int sigs;
 
 extern int sc_width, sc_height;
-extern int screen_trashed;
 extern int lnloop;
 extern int linenums;
 extern int wscroll;
@@ -230,7 +229,7 @@ public void psignals(void)
 		LSIGNAL(SIGTSTP, stop);
 		raw_mode(1);
 		init();
-		screen_trashed = 1;
+		screen_trashed();
 		tsignals |= S_WINCH;
 	}
 #endif
@@ -250,7 +249,7 @@ public void psignals(void)
 			calc_jump_sline();
 			calc_shift_count();
 		}
-		screen_trashed = 1;
+		screen_trashed();
 	}
 #endif
 	if (tsignals & S_INTERRUPT)

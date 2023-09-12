@@ -16,7 +16,6 @@
 #include "less.h"
 #include "position.h"
 
-public int screen_trashed;
 public int squished;
 public int no_back_scroll = 0;
 public int forw_prompt;

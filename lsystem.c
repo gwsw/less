@@ -32,7 +32,6 @@
 #endif
 #endif
 
-extern int screen_trashed;
 extern IFILE curr_ifile;
 
 
@@ -193,7 +192,7 @@ public void lsystem(char *cmd, char *donemsg)
 		flush();
 	}
 	init();
-	screen_trashed = 1;
+	screen_trashed();
 
 #if MSDOS_COMPILER && MSDOS_COMPILER!=WIN32C
 	/*
@@ -353,7 +352,7 @@ public int pipe_data(char *cmd, POSITION spos, POSITION epos)
 	init_signals(1);
 	raw_mode(1);
 	init();
-	screen_trashed = 1;
+	screen_trashed();
 #if defined(SIGWINCH) || defined(SIGWIND)
 	/* {{ Probably don't need this here. }} */
 	winch(0);

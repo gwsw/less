@@ -26,9 +26,7 @@ static int table_size = 0;
 
 extern int sc_width, sc_height;
 extern int header_lines;
-extern int screen_trashed;
 extern int hshift;
-extern int chopline;
 
 /*
  * Return the starting file position of a line displayed on the screen.
@@ -300,5 +298,5 @@ public void pos_rehead(void)
 		return;
 	table[TOP] = linepos;
 	hshift = pos_shift(linepos, tpos - linepos);
-	screen_trashed = 1;
+	screen_trashed();
 }

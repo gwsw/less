@@ -26,7 +26,6 @@ public int plusoption = FALSE;
 static char *optstring(char *s, char **p_str, char *printopt, char *validchars);
 static int flip_triple(int val, int lc);
 
-extern int screen_trashed;
 extern int less_is_more;
 extern int quit_at_eof;
 extern char *every_first_cmd;
@@ -470,7 +469,7 @@ public void toggle_option(struct loption *o, int lower, char *s, int how_toggle)
 	}
 
 	if (how_toggle != OPT_NO_TOGGLE && (o->otype & REPAINT))
-		screen_trashed = TRUE;
+		screen_trashed();
 }
 
 /*

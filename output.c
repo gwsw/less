@@ -28,7 +28,6 @@ public int at_prompt;
 extern int sigs;
 extern int sc_width;
 extern int so_s_width, so_e_width;
-extern int screen_trashed;
 extern int is_tty;
 extern int oldbot;
 extern char intr_char;
@@ -60,7 +59,7 @@ public void put_line(void)
 		/*
 		 * Don't output if a signal is pending.
 		 */
-		screen_trashed = 1;
+		screen_trashed();
 		return;
 	}
 
@@ -373,7 +372,7 @@ public void flush(void)
 #endif
 
 	if (write(outfd, obuf, n) != n)
-		screen_trashed = 1;
+		screen_trashed();
 }
 
 /*
@@ -632,7 +631,7 @@ public void error(char *fmt, PARG *parg)
 		 * {{ Unless the terminal doesn't have auto margins,
 		 *    in which case we just hammered on the right margin. }}
 		 */
-		screen_trashed = 1;
+		screen_trashed();
 
 	flush();
 }
@@ -690,7 +689,7 @@ public int query(char *fmt, PARG *parg)
 	{
 		lower_left();
 		if (col >= sc_width)
-			screen_trashed = 1;
+			screen_trashed();
 		flush();
 	} else
 	{

@@ -34,7 +34,6 @@ extern void *ml_search;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 extern int utf_mode;
-extern int screen_trashed;
 extern int sc_width;
 extern int sc_height;
 extern int hshift;
@@ -581,7 +580,7 @@ static void shift_visible(int start_off, int end_off)
 	if (start_off >= hshift && end_off < hshift + swidth)
 		return; /* already visible */
 	hshift = (end_off < swidth) ? 0 : (start_off < found_shift) ? 0 : (start_off - found_shift);
-	screen_trashed = 1;
+	screen_trashed();
 }
 
 /*
@@ -1843,7 +1842,7 @@ public void set_filter_pattern(char *pattern, int search_type)
 		filter->next = filter_infos;
 		filter_infos = filter;
 	}
-	screen_trashed = 1;
+	screen_trashed();
 }
 
 /*
