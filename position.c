@@ -291,15 +291,13 @@ static POSITION beginning_of_line(POSITION tpos)
 /*
  * When viewing long lines, it may be that the first char in the top screen
  * line is not the first char in its (file) line (the table is "beheaded").
- * (The top line on the screen is the only one that can be in this state.)
- * This function sets that entry to the position of the first char in the line.
+ * This function sets that entry to the position of the first char in the line,
+ * and sets hshift so that the first char in the first line is unchanged.
  */
 public void pos_rehead(void)
 {
 	POSITION linepos;
 	POSITION tpos = table[TOP];
-	if (!chopline)
-		return;
 	if (tpos == NULL_POSITION)
 		return;
 	linepos = beginning_of_line(tpos);
