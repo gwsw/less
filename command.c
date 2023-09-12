@@ -2043,10 +2043,10 @@ public void commands(void)
 			if (number > 0)
 				shift_count = number;
 			else
-				number = (shift_count > 0) ?
-					shift_count : sc_width / 2;
+				number = (shift_count > 0) ? shift_count : sc_width / 2;
 			if (number > hshift)
 				number = hshift;
+			pos_rehead();
 			hshift -= number;
 			screen_trashed = 1;
 			break;
@@ -2058,8 +2058,8 @@ public void commands(void)
 			if (number > 0)
 				shift_count = number;
 			else
-				number = (shift_count > 0) ?
-					shift_count : sc_width / 2;
+				number = (shift_count > 0) ? shift_count : sc_width / 2;
+			pos_rehead();
 			hshift += number;
 			screen_trashed = 1;
 			break;
@@ -2068,6 +2068,7 @@ public void commands(void)
 			/*
 			 * Shift view left to margin.
 			 */
+			pos_rehead();
 			hshift = 0;
 			screen_trashed = 1;
 			break;
@@ -2076,6 +2077,7 @@ public void commands(void)
 			/*
 			 * Shift view right to view rightmost char on screen.
 			 */
+			pos_rehead();
 			hshift = rrshift();
 			screen_trashed = 1;
 			break;

@@ -393,7 +393,7 @@ static struct loption option[] =
 		}
 	},
 	{ 'S', &S__optname,
-		BOOL|REPAINT, OPT_OFF, &chopline, NULL,
+		BOOL|REPAINT, OPT_OFF, &chopline, opt__S,
 		{
 			"Fold long lines",
 			"Chop long lines",

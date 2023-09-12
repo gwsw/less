@@ -210,7 +210,7 @@ public void init_search(void)
 /*
  * Determine which text conversions to perform before pattern matching.
  */
-static int get_cvt_ops(int search_type)
+public int get_cvt_ops(int search_type)
 {
 	int ops = 0;
 
@@ -580,7 +580,7 @@ static void shift_visible(int start_off, int end_off)
 	int swidth = sc_width - line_pfx_width();
 	if (start_off >= hshift && end_off < hshift + swidth)
 		return; /* already visible */
-	hshift = (end_off < swidth) ? 0 : start_off < found_shift ? 0 : start_off - found_shift;
+	hshift = (end_off < swidth) ? 0 : (start_off < found_shift) ? 0 : (start_off - found_shift);
 	screen_trashed = 1;
 }
 

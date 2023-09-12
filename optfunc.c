@@ -312,6 +312,19 @@ public void opt_ks(int type, char *s)
 #endif /* HAVE_LESSKEYSRC */
 #endif /* USERFILE */
 
+/*
+ * Handler for -S option.
+ */
+public void opt__S(int type, char *s)
+{
+	switch (type)
+	{
+	case TOGGLE:
+		pos_rehead();
+		break;
+	}
+}
+
 #if TAGS
 /*
  * Handler for -t option.
