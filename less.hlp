@@ -247,6 +247,8 @@
                   Set default options for every search.
                 --show-preproc-errors
                   Display a message if preprocessor exits with an error status.
+				--padding=NUM
+				  Pad lines at the beginning and end for NUM characters.
                 --proc-backspace
                   Process backspaces for bold/underline.
                 --SPECIAL-BACKSPACE
