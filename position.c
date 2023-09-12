@@ -252,20 +252,15 @@ static int pos_shift(POSITION linepos, int choff)
 	int line_len;
 	POSITION pos;
 	int cvt_ops;
-	int cvt_len;
-	int *chpos;
 	char *cline;
 
 	pos = forw_raw_line_len(linepos, choff, &line, &line_len);
 	if (pos == NULL_POSITION || line_len != choff)
 		return -1;
 	cvt_ops = get_cvt_ops(0);
-	cvt_len = cvt_length(line_len, cvt_ops);
-	chpos = cvt_alloc_chpos(cvt_len);
 	cline = (char *) ecalloc(1, line_len);
-	cvt_text(cline, line, chpos, &line_len, cvt_ops);
+	cvt_text(cline, line, NULL, &line_len, cvt_ops);
 	free(cline);
-	free(chpos);
 	return line_len;
 }
 
