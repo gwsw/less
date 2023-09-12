@@ -256,6 +256,7 @@ static int pos_shift(POSITION linepos, int choff)
 	if (pos == NULL_POSITION || line_len != choff)
 		return -1;
 	cvt_ops = get_cvt_ops(0);
+	/* {{ It would be nice to be able to call cvt_text with dst=NULL, to avoid need to alloc a useless cline. }} */
 	cline = (char *) ecalloc(1, line_len);
 	cvt_text(cline, line, NULL, &line_len, cvt_ops);
 	free(cline);
