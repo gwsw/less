@@ -1,14 +1,15 @@
 #include <time.h>
 #include <errno.h>
 #include <setjmp.h>
-#include <errno.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <termcap.h>
 #include "lesstest.h"
 
 extern int verbose;
 extern int less_quit;
 extern int details;
+extern char* details_file;
 extern int err_only;
 extern TermInfo terminfo;
 
@@ -77,7 +78,7 @@ static void read_and_display_screen(LessPipeline* pipeline) {
 }
 
 // Is the screen image in a LessPipeline equal to a given buffer?
-static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen) {
+static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen, char const* textfile, int cmd_num) {
 	byte curr[MAX_SCREENBUF_SIZE];
 	int currlen = read_screen(pipeline, curr, sizeof(curr));
 	if (currlen == imglen && memcmp(img, curr, imglen) == 0)
@@ -87,6 +88,19 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 		display_screen_debug(img, imglen, pipeline->screen_width, pipeline->screen_height);
 		fprintf(stderr, "lt: got:\n");
 		display_screen_debug(curr, currlen, pipeline->screen_width, pipeline->screen_height);
+	}
+	if (details_file != NULL) {
+		FILE* df = fopen(details_file, "w");
+		if (df == NULL) {
+			fprintf(stderr, "cannot create %s: %s\n", details_file, strerror(errno));
+		} else {
+			fprintf(df, "!lesstest-details!\n");
+			fprintf(df, "F \"%s\"\n", textfile);
+			fprintf(df, "N %d\n", cmd_num);
+			fprintf(df, "=%.*s\n", imglen, img);
+			fprintf(df, "<%.*s\n", currlen, curr);
+			fclose(df);
+		}
 	}
 	return 0;
 }
@@ -167,7 +181,7 @@ static int run_test(TestSetup* setup, FILE* testfd) {
 				++cmds;
 				break;
 			case '=': 
-				if (!curr_screen_match(pipeline, (byte*)line+1, line_len-1)) {
+				if (!curr_screen_match(pipeline, (byte*)line+1, line_len-1, setup->textfile, cmds)) {
 					ok = 0;
 					less_quit = 1;
 					fprintf(stderr, "DIFF %s on cmd #%d (%c %lx)\n",
@@ -216,4 +230,193 @@ int run_testfile(const char* ltfile, const char* less) {
 	}
 	fclose(testfd);
 	return (fails == 0);
+}
+
+static void free_states(TestState* states, int num_states) {
+	for (int s = 0; s < num_states; ++s) {
+		free(states[s].screen);
+	}
+	free(states);
+}
+
+static int read_states(FILE* testfd, TestState** p_states) {
+	TestState* states = NULL;
+	int num_states = 0;
+	int max_states = 0;
+	int quit = 0;
+	while (!quit) {
+		char line[10000];
+		int line_len = read_zline(testfd, line, sizeof(line));
+		if (line_len < 0)
+			break;
+		if (line_len < 1)
+			continue;
+		switch (line[0]) {
+		case '=': 
+			if (num_states >= max_states) {
+				TestState* new_states;
+				max_states = (max_states+1) * 2;
+				new_states = malloc(max_states * sizeof(TestState));
+				if (states != NULL) {
+					memcpy(new_states, states, num_states * sizeof(TestState));
+					free(states);
+				}
+				states = new_states;
+			}
+			states[num_states].screen_size = line_len-1;
+			states[num_states].screen = (byte*) malloc(states[num_states].screen_size);
+			states[num_states].ch = 0;
+			memcpy(states[num_states].screen, line+1, states[num_states].screen_size);
+			break;
+		case '+':
+			states[num_states].ch = (wchar) strtol(line+1, NULL, 16);
+			++num_states;
+			break;
+		case 'Q':
+			quit = 1;
+			break;
+		case '\n':
+		case '!':
+			break;
+		default:
+			fprintf(stderr, "unrecognized char at start of \"%s\"\n", line);
+			free_states(states, num_states);
+			return -1;
+		}
+	}
+	*p_states = states;
+	return num_states;
+}
+
+int explore_testfile(const char* ltfile) {
+	TestDetails* td = NULL;
+	if (details_file != NULL) {
+		FILE* df = fopen(details_file, "r");
+		if (df == NULL) {
+			fprintf(stderr, "cannot open %s\n", details_file);
+			return 0;
+		}
+		td = read_test_details(df);
+		fclose(df);
+		if (td == NULL)
+			return 0;
+	}
+	FILE* testfd = fopen(ltfile, "r");
+	if (testfd == NULL) {
+		fprintf(stderr, "cannot open %s\n", ltfile);
+		free_test_details(td);
+		return 0;
+	}
+	int ok = 0;
+	TestSetup* setup = read_test_setup(testfd, NULL);
+	if (setup != NULL) {
+		TestState* states;
+		int num_states = read_states(testfd, &states);
+		const char* w = get_envp(setup->env.env_list, "COLUMNS");
+		const char* h = get_envp(setup->env.env_list, "LINES");
+		int screen_width;
+		int screen_height;
+		int ttyin = 0; // stdin
+		if (w == NULL || (screen_width = atoi(w)) <= 0 ||
+		    h == NULL || (screen_height = atoi(h)) <= 0) {
+			fprintf(stderr, "no screen geometry found in %s\n", ltfile);
+		} else {
+			int curr_state = 0;
+			int num = -1;
+			int disp_td = 0;
+			setup_term();
+			raw_mode(ttyin, 1);
+			printf("%s%s", terminfo.init_term, terminfo.enter_keypad);
+			while (!less_quit) {
+				printf("%s%s%s[%d/%d]%s", terminfo.clear_screen,
+					tgoto(terminfo.cursor_move, 1, screen_height+1),
+					terminfo.enter_bold, curr_state+1, num_states, terminfo.exit_bold);
+				if (td != NULL && curr_state == td->cmd_num)
+					printf(" %s", disp_td ? "FAILED(bad)" : "FAILED(good)");
+				if (states[curr_state].ch) {
+					wchar ch = states[curr_state].ch;
+					printf("  Next key: ");
+					switch (ch) {
+					case ESC:  printf("ESC"); break;
+					case '\b': printf("\\b"); break;
+					case '\n': printf("\\n"); break;
+					case '\r': printf("\\r"); break;
+					case '\t': printf("\\t"); break;
+					default:
+						if (ch > ' ' && ch < 0x7f)
+							printf("%c", (char) ch);
+						else
+							printf("0x%lx", (long) ch);
+						break;
+					}
+				}
+				if (num >= 0) printf("  Number:%d", num);
+				printf("%s", tgoto(terminfo.cursor_move, 0, 0));
+				if (disp_td) {
+					display_screen(td->img_actual, td->len_actual, screen_width, screen_height);
+				} else {
+					display_screen(states[curr_state].screen, states[curr_state].screen_size, screen_width, screen_height);
+				}
+				wchar ch = read_wchar(ttyin);
+				if (ch == 'q') break;
+				if (ch >= '0' && ch <= '9') {
+					if (num < 0) num = 0;
+					num = (10 * num) + (ch - '0');
+					continue;
+				}
+				switch (ch) {
+				case 'l':
+					if (num <= 0) num = 1;
+					curr_state += num;
+					if (curr_state >= num_states) curr_state = num_states-1;
+					disp_td = 0;
+					break;
+				case 'h':
+					if (num <= 0) num = 1;
+					curr_state -= num;
+					if (curr_state < 0) curr_state = 0;
+					disp_td = 0;
+					break;
+				case 'g': case 'G':
+					if (num < 0 && ch == 'G') num = num_states;
+					if (num <= 0) num = 1;
+					curr_state = num-1;
+					if (curr_state >= num_states) curr_state = num_states-1;
+					if (curr_state < 0) curr_state = 0;
+					disp_td = 0;
+					break;
+				case 'L': case 'H':
+					if (td != NULL)
+						curr_state = td->cmd_num;
+					break;
+				case 'j': case 'k':
+					if (td != NULL && td->cmd_num == curr_state)
+						disp_td = !disp_td;
+					break;
+				case '?':
+					printf("%s%s", tgoto(terminfo.cursor_move, 0, screen_height+1), terminfo.clear_eos);
+					printf("Commands in -x mode:\n");
+					printf("  [N]l   Go to (N-th) next state.\n");
+					printf("  [N]h   Go to (N-th) previous state.\n");
+					printf("  [N]g   Go to first (or N-th) state.\n");
+					printf("  [N]G   Go to last (or N-th) state.\n");
+					printf("     L   Go to failed state.\n");
+					printf("     j   Toggle between good and failed screens.\n");
+					printf("Press any key to continue.\n");
+					(void) read_wchar(ttyin);
+					break;
+				default:
+					break;
+				}
+				num = -1;
+			}
+			printf("%s%s%s", terminfo.clear_screen, terminfo.exit_keypad, terminfo.deinit_term);
+			raw_mode(ttyin, 0);
+			free_test_setup(setup);
+		}
+		free_states(states, num_states);
+	}
+	fclose(testfd);
+	free_test_details(td);
+	return ok;
 }
