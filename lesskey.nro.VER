@@ -217,7 +217,7 @@ N	reverse-search
 m	set-mark
 M	set-mark-bottom
 \eem	clear-mark
-'	goto-mark
+\&'	goto-mark
 ^X^X	goto-mark
 E	examine
 :e	examine
