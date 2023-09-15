@@ -34,6 +34,8 @@
 
 * Don't filter header lines via the & command (github #423).
 
+* Fix bug when horizontally shifting long lines (github #425).
+
 ======================================================================
 
 	Major changes between "less" versions 633 and 643
