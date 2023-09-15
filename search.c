@@ -577,9 +577,12 @@ public POSITION prev_unfiltered(POSITION pos)
 static void shift_visible(int start_off, int end_off)
 {
 	int swidth = sc_width - line_pfx_width();
-	if (start_off >= hshift && end_off < hshift + swidth)
+	if (end_off < swidth && hshift > 0)
+		hshift = 0;
+	else if (start_off < hshift || end_off >= hshift + swidth)
+		hshift = (start_off < found_shift) ? 0 : (start_off - found_shift);
+	else
 		return; /* already visible */
-	hshift = (end_off < swidth) ? 0 : (start_off < found_shift) ? 0 : (start_off - found_shift);
 	screen_trashed();
 }
 
