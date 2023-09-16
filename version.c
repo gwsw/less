@@ -993,9 +993,9 @@ v640  7/10/23   Add lesstest to release.
 v641  7/10/23   Fix release.
 v642  7/10/23   Fix release.
 v643  7/20/23   Fix crash on Windows with -o.
-v644            Improve ^C on non-terminated pipe; fix crash when files are
+v644  9/16/23   Improve ^C on non-terminated pipe; fix crash when files are
                 deleted; support large files and non-BMP chars on Windows; 
 				fix # bug; don't filter header lines; fix shifting long lines.
 */
 
-char version[] = "644x";
+char version[] = "644";
