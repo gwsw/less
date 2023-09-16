@@ -24,6 +24,8 @@
 
 * Support entry of Unicode chars larger than U+FFFF on Windows (github #391).
 
+* Improve colors of bold, underline and standout text on Windows.
+
 * Fix bug where # substitution failed after viewing help (github #420).
 
 * Fix crash if files are deleted while less is viewing them (github #404).
