@@ -298,6 +298,6 @@ public void pos_rehead(void)
 	if (linepos == tpos)
 		return;
 	table[TOP] = linepos;
-	hshift = pos_shift(linepos, tpos - linepos);
+	hshift = pos_shift(linepos, (int)(tpos - linepos));
 	screen_trashed();
 }
