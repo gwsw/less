@@ -23,7 +23,7 @@ typedef struct TestSetup {
 
 typedef struct TestState {
 	byte* screen;
-	size_t screen_size;
+	size_t screen_len;
 	wchar ch;
 } TestState;
 

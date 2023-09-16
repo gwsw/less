@@ -263,10 +263,10 @@ static int read_states(FILE* testfd, TestState** p_states) {
 				}
 				states = new_states;
 			}
-			states[num_states].screen_size = line_len-1;
-			states[num_states].screen = (byte*) malloc(states[num_states].screen_size);
+			states[num_states].screen_len = line_len-1;
+			states[num_states].screen = (byte*) malloc(states[num_states].screen_len);
 			states[num_states].ch = 0;
-			memcpy(states[num_states].screen, line+1, states[num_states].screen_size);
+			memcpy(states[num_states].screen, line+1, states[num_states].screen_len);
 			break;
 		case '+':
 			states[num_states].ch = (wchar) strtol(line+1, NULL, 16);
@@ -355,7 +355,7 @@ int explore_testfile(const char* ltfile) {
 				if (disp_td) {
 					display_screen(td->img_actual, td->len_actual, screen_width, screen_height);
 				} else {
-					display_screen(states[curr_state].screen, states[curr_state].screen_size, screen_width, screen_height);
+					display_screen(states[curr_state].screen, states[curr_state].screen_len, screen_width, screen_height);
 				}
 				wchar ch = read_wchar(ttyin);
 				if (ch == 'q') break;

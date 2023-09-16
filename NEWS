@@ -28,13 +28,17 @@
 
 * Fix crash if files are deleted while less is viewing them (github #404).
 
-* Workaround unreliable ReadConsoleInputW behavior with non-ASCII input.
+* Workaround unreliable ReadConsoleInputW behavior on Windows
+  with non-ASCII input.
 
 * Fix -J display when searching for non-ASCII characters (github #422).
 
 * Don't filter header lines via the & command (github #423).
 
 * Fix bug when horizontally shifting long lines (github #425).
+
+* Add -x and -D options to lesstest, to make it easier to diagnose
+  a failed lesstest run.
 
 ======================================================================
 

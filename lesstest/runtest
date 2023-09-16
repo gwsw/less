@@ -2,7 +2,7 @@
 use strict;
 
 # Run one or more test files.
-my $usage = "usage: runtest [-eE] [-d lesstest-dir] [-l less.exe] [-r temp-dir] [-s lt_screen] [-t lesstest] [-O lesstest-opts] [file.lt | dir]...\n";
+my $usage = "usage: runtest [-eED] [-d lesstest-dir] [-l less.exe] [-r temp-dir] [-s lt_screen] [-t lesstest] [-O lesstest-opts] [file.lt | dir]...\n";
 
 use Getopt::Std;
 use File::Basename;
