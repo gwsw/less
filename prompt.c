@@ -22,8 +22,6 @@
 
 extern int pr_type;
 extern int new_file;
-extern int sc_width;
-extern int so_s_width, so_e_width;
 extern int linenums;
 extern int hshift;
 extern int sc_height;

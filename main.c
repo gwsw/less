@@ -57,7 +57,6 @@ public int      one_screen;
 extern int      less_is_more;
 extern int      missing_cap;
 extern int      know_dumb;
-extern int      pr_type;
 extern int      quit_if_one_screen;
 extern int      no_init;
 extern int      errmsgs;

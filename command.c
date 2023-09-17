@@ -24,7 +24,6 @@ extern int erase_char, erase2_char, kill_char;
 extern int sigs;
 extern int quit_if_one_screen;
 extern int one_screen;
-extern int squished;
 extern int sc_width;
 extern int sc_height;
 extern char *kent;
@@ -39,10 +38,7 @@ extern int hshift;
 extern int bs_mode;
 extern int proc_backspace;
 extern int show_attn;
-extern int status_col;
 extern POSITION highest_hilite;
-extern POSITION start_attnpos;
-extern POSITION end_attnpos;
 extern char *every_first_cmd;
 extern char version[];
 extern struct scrpos initial_scrpos;
@@ -50,18 +46,15 @@ extern IFILE curr_ifile;
 extern void *ml_search;
 extern void *ml_examine;
 extern int wheel_lines;
-extern int header_lines;
 extern int def_search_type;
 extern int updown_match;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
 #if EDITOR
-extern char *editor;
 extern char *editproto;
 #endif
 extern int shift_count;
-extern int oldbot;
 extern int forw_prompt;
 extern int incr_search;
 extern int full_screen;

@@ -23,7 +23,6 @@ extern int sigs;
 extern int how_search;
 extern int caseless;
 extern int linenums;
-extern int sc_height;
 extern int jump_sline;
 extern int bs_mode;
 extern int proc_backspace;

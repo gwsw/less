@@ -31,9 +31,6 @@ public int tty;
 #if LESSTEST
 public char *ttyin_name = NULL;
 #endif /*LESSTEST*/
-extern int sigs;
-extern int utf_mode;
-extern int wheel_lines;
 
 #if !MSDOS_COMPILER
 static int open_tty_device(constant char* dev)

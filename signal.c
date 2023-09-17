@@ -27,7 +27,6 @@
 public int sigs;
 
 extern int sc_width, sc_height;
-extern int lnloop;
 extern int linenums;
 extern int wscroll;
 extern int reading;

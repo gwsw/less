@@ -23,7 +23,6 @@
 public int fd0 = 0;
 
 extern int new_file;
-extern int cbufs;
 extern char *every_first_cmd;
 extern int force_open;
 extern int is_tty;

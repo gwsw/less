@@ -279,11 +279,8 @@ char PC_, *UP, *BC;
 extern int quiet;               /* If VERY_QUIET, use visual bell for bell */
 extern int no_vbell;
 extern int no_back_scroll;
-extern int swindow;
 extern int no_init;
 extern int no_keypad;
-extern int sigs;
-extern int wscroll;
 extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
@@ -294,6 +291,7 @@ extern int use_color;
 extern int hilite_search;
 #endif
 #if MSDOS_COMPILER==WIN32C
+extern int wscroll;
 extern HANDLE tty;
 extern DWORD console_mode;
 #ifndef ENABLE_EXTENDED_FLAGS

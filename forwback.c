@@ -31,8 +31,6 @@ extern int plusoption;
 extern int forw_scroll;
 extern int back_scroll;
 extern int ignore_eoi;
-extern int clear_bg;
-extern int final_attr;
 extern int header_lines;
 extern int header_cols;
 extern int full_screen;

@@ -27,7 +27,6 @@
 #include "less.h"
 #include "option.h"
 
-extern int nbufs;
 extern int bufspace;
 extern int pr_type;
 extern int plusoption;
@@ -36,7 +35,6 @@ extern int sc_width;
 extern int sc_height;
 extern int secure;
 extern int dohelp;
-extern int is_tty;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
@@ -79,6 +77,7 @@ extern char ztags[];
 #endif
 #if LESSTEST
 extern char *ttyin_name;
+extern int is_tty;
 #endif /*LESSTEST*/
 #if MSDOS_COMPILER
 extern int nm_fg_color, nm_bg_color;

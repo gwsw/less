@@ -87,7 +87,6 @@ extern int proc_return;
 extern int linenums;
 extern int ctldisp;
 extern int twiddle;
-extern int binattr;
 extern int status_col;
 extern int status_col_width;
 extern int linenum_width;

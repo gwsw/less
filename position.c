@@ -25,7 +25,6 @@ static POSITION *table = NULL;  /* The position table */
 static int table_size = 0;
 
 extern int sc_width, sc_height;
-extern int header_lines;
 extern int hshift;
 
 /*
