@@ -714,8 +714,8 @@ static struct loption option[] =
 	{ OLETTER_NONE, &match_shift_optname,
 		STRING, 0, NULL, opt_match_shift,
 		{
-			NULL, 
-			NULL, 
+			"Search match shift: ",
+			".d",
 			NULL
 		}
 	},

@@ -834,7 +834,7 @@ public void opt_match_shift(int type, char *s)
 		break;
 	case QUERY:
 		query_fraction(match_shift, match_shift_fraction,
-			"Search match shift is %d", "Search match shift is %s");
+			"Search match shift is %d", "Search match shift is %s of screen width");
 		break;
 	}
 }
