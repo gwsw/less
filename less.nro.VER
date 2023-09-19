@@ -1756,7 +1756,7 @@ Selects the UTF-8 encoding of the ISO 10646 character set.
 UTF-8 is special in that it supports multi-byte characters in the input file.
 It is the only character set that supports multi-byte characters.
 .IP windows
-Selects a character set appropriate for Microsoft Windows (cp 1251).
+Selects a character set appropriate for Microsoft Windows (cp 1252).
 .PP
 In rare cases, it may be desired to tailor
 .B less

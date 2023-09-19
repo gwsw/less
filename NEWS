@@ -42,6 +42,8 @@
 * Add -x and -D options to lesstest, to make it easier to diagnose
   a failed lesstest run.
 
+* Fix bug searching long lines with --incsearch and -S (github #428).
+
 * Fix bug that made ESC-} fail if top line on screen was empty (github #429).
 
 * Update Unicode tables.
