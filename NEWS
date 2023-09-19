@@ -42,6 +42,10 @@
 * Add -x and -D options to lesstest, to make it easier to diagnose
   a failed lesstest run.
 
+* Fix bug that made ESC-} fail if top line on screen was empty (github #429).
+
+* Update Unicode tables.
+
 ======================================================================
 
 	Major changes between "less" versions 633 and 643
