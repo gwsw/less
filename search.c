@@ -36,7 +36,7 @@ extern int utf_mode;
 extern int sc_width;
 extern int sc_height;
 extern int hshift;
-extern int found_shift;
+extern int match_shift;
 extern int nosearch_headers;
 extern int header_lines;
 extern int header_cols;
@@ -583,8 +583,8 @@ static void shift_visible(int start_off, int end_off, int line_len)
 		new_hshift = line_len - swidth;
 	else if (start_off > hshift && end_off < hshift + swidth)
 		new_hshift = hshift; /* already visible; leave hshift unchanged */
-	else /* shift it to column found_shift */
-		new_hshift = (start_off < found_shift) ? 0 : (start_off - found_shift);
+	else /* shift it to column match_shift */
+		new_hshift = (start_off < match_shift) ? 0 : (start_off - match_shift);
 	if (new_hshift != hshift)
 	{
 		hshift = new_hshift;

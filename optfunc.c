@@ -48,6 +48,8 @@ extern int jump_sline;
 extern long jump_sline_fraction;
 extern int shift_count;
 extern long shift_count_fraction;
+extern int match_shift;
+extern long match_shift_fraction;
 extern char rscroll_char;
 extern int rscroll_attr;
 extern int mousecap;
@@ -155,55 +157,71 @@ public void opt__O(int type, char *s)
 }
 #endif
 
+static int toggle_fraction(int *num, long *frac, char *s, char *printopt, void (*calc)(void))
+{
+	int err;
+	if (*s == '.')
+	{
+		s++;
+		long tfrac = getfraction(&s, printopt, &err);
+		if (err)
+		{
+			error("Invalid fraction", NULL_PARG);
+			return -1;
+		}
+		*frac = tfrac;
+		(*calc)();
+	} else
+	{
+		int tnum = getnum(&s, printopt, &err);
+		if (err)
+		{
+			error("Invalid number", NULL_PARG);
+			return -1;
+		}
+		*frac = -1;
+		*num = tnum;
+	}
+	return 0;
+}
+
+static void query_fraction(int value, long fraction, char *int_msg, char *frac_msg)
+{
+	PARG parg;
+
+	if (fraction < 0)
+	{
+		parg.p_int = value;
+		error(int_msg, &parg);
+	} else
+	{
+		char buf[INT_STRLEN_BOUND(long)+2];
+		int len;
+		SNPRINTF1(buf, sizeof(buf), ".%06ld", fraction);
+		len = (int) strlen(buf);
+		while (len > 2 && buf[len-1] == '0')
+			len--;
+		buf[len] = '\0';
+		parg.p_string = buf;
+		error(frac_msg, &parg);
+	}
+}
+
 /*
  * Handlers for -j option.
  */
 public void opt_j(int type, char *s)
 {
-	PARG parg;
-	int len;
-	int err;
-
 	switch (type)
 	{
 	case INIT:
 	case TOGGLE:
-		if (*s == '.')
-		{
-			s++;
-			jump_sline_fraction = getfraction(&s, "j", &err);
-			if (err)
-				error("Invalid line fraction", NULL_PARG);
-			else
-				calc_jump_sline();
-		} else
-		{
-			int sline = getnum(&s, "j", &err);
-			if (err)
-				error("Invalid line number", NULL_PARG);
-			else
-			{
-				jump_sline = sline;
-				jump_sline_fraction = -1;
-			}
-		}
+		toggle_fraction(&jump_sline, &jump_sline_fraction,
+			s, "j", calc_jump_sline);
 		break;
 	case QUERY:
-		if (jump_sline_fraction < 0)
-		{
-			parg.p_int =  jump_sline;
-			error("Position target at screen line %d", &parg);
-		} else
-		{
-			char buf[INT_STRLEN_BOUND(long)+2];
-			SNPRINTF1(buf, sizeof(buf), ".%06ld", jump_sline_fraction);
-			len = (int) strlen(buf);
-			while (len > 2 && buf[len-1] == '0')
-				len--;
-			buf[len] = '\0';
-			parg.p_string = buf;
-			error("Position target at screen position %s", &parg);
-		}
+		query_fraction(jump_sline, jump_sline_fraction, 
+			"Position target at screen line %d", "Position target at screen position %s");
 		break;
 	}
 }
@@ -220,50 +238,16 @@ public void calc_jump_sline(void)
  */
 public void opt_shift(int type, char *s)
 {
-	PARG parg;
-	int len;
-	int err;
-
 	switch (type)
 	{
 	case INIT:
 	case TOGGLE:
-		if (*s == '.')
-		{
-			s++;
-			shift_count_fraction = getfraction(&s, "#", &err);
-			if (err)
-				error("Invalid column fraction", NULL_PARG);
-			else
-				calc_shift_count();
-		} else
-		{
-			int hs = getnum(&s, "#", &err);
-			if (err)
-				error("Invalid column number", NULL_PARG);
-			else
-			{
-				shift_count = hs;
-				shift_count_fraction = -1;
-			}
-		}
+		toggle_fraction(&shift_count, &shift_count_fraction,
+			s, "#", calc_shift_count);
 		break;
 	case QUERY:
-		if (shift_count_fraction < 0)
-		{
-			parg.p_int = shift_count;
-			error("Horizontal shift %d columns", &parg);
-		} else
-		{
-			char buf[INT_STRLEN_BOUND(long)+2];
-			SNPRINTF1(buf, sizeof(buf), ".%06ld", shift_count_fraction);
-			len = (int) strlen(buf);
-			while (len > 2 && buf[len-1] == '0')
-				len--;
-			buf[len] = '\0';
-			parg.p_string = buf;
-			error("Horizontal shift %s of screen width", &parg);
-		}
+		query_fraction(shift_count, shift_count_fraction,
+			"Horizontal shift %d columns", "Horizontal shift %s of screen width");
 		break;
 	}
 }
@@ -836,6 +820,30 @@ public void opt_query(int type, char *s)
 	case INIT:
 		dohelp = 1;
 	}
+}
+
+	/*ARGSUSED*/
+public void opt_match_shift(int type, char *s)
+{
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		toggle_fraction(&match_shift, &match_shift_fraction,
+			s, "--match-shift", calc_match_shift);
+		break;
+	case QUERY:
+		query_fraction(match_shift, match_shift_fraction,
+			"Search match shift is %d", "Search match shift is %s");
+		break;
+	}
+}
+
+public void calc_match_shift(void)
+{
+	if (match_shift_fraction < 0)
+		return;
+	match_shift = (int) muldiv(sc_width, match_shift_fraction, NUM_FRAC_DENOM);
 }
 
 /*

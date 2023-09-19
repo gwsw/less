@@ -247,6 +247,7 @@ public void psignals(void)
 			wscroll = (sc_height + 1) / 2;
 			calc_jump_sline();
 			calc_shift_count();
+			calc_match_shift();
 		}
 		screen_trashed();
 	}
