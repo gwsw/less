@@ -573,16 +573,23 @@ public POSITION prev_unfiltered(POSITION pos)
 	return (pos);
 }
 
-static void shift_visible(int start_off, int end_off)
+static void shift_visible(int start_off, int end_off, int line_len)
 {
 	int swidth = sc_width - line_pfx_width();
-	if (end_off < swidth && hshift > 0)
-		hshift = 0;
-	else if (start_off < hshift || end_off >= hshift + swidth)
-		hshift = (start_off < found_shift) ? 0 : (start_off - found_shift);
-	else
-		return; /* already visible */
-	screen_trashed();
+	int new_hshift;
+	if (end_off < swidth) /* whole string is in first screen */
+		new_hshift = 0;
+	else if (start_off >= line_len - swidth) /* whole string is in last screen */
+		new_hshift = line_len - swidth;
+	else if (start_off > hshift && end_off < hshift + swidth)
+		new_hshift = hshift; /* already visible; leave hshift unchanged */
+	else /* shift it to column found_shift */
+		new_hshift = (start_off < found_shift) ? 0 : (start_off - found_shift);
+	if (new_hshift != hshift)
+	{
+		hshift = new_hshift;
+		screen_trashed();
+	}
 }
 
 /*
@@ -1400,7 +1407,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						{
 							int start_off = sp[0] - cline;
 							int end_off = ep[0] - cline;
-							shift_visible(start_off, end_off);
+							shift_visible(start_off, end_off, line_len);
 						}
 					} else if (plastlinepos != NULL)
 					{
