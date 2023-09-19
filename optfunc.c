@@ -160,7 +160,10 @@ public void opt__O(int type, char *s)
 static int toggle_fraction(int *num, long *frac, char *s, char *printopt, void (*calc)(void))
 {
 	int err;
-	if (*s == '.')
+	if (s == NULL)
+	{
+		(*calc)();
+	} else if (*s == '.')
 	{
 		s++;
 		long tfrac = getfraction(&s, printopt, &err);
