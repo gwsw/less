@@ -726,7 +726,7 @@ static int mca_char(int c)
 					undo_search(1);
 			}
 			/* Redraw the search prompt and search string. */
-			if (!full_screen)
+			if (is_screen_trashed() || !full_screen)
 			{
 				clear();
 				repaint();
