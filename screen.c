@@ -281,6 +281,7 @@ extern int no_vbell;
 extern int no_back_scroll;
 extern int no_init;
 extern int no_keypad;
+extern int sigs;
 extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
@@ -3009,9 +3010,9 @@ public char WIN32getch(void)
 			ascii = (char) currentKey.unicode;
 		else
 		{
-			char *up = utf8;
+			char *up = (char *) utf8;
 			put_wchar(&up, currentKey.unicode);
-			utf8_size = up - utf8;
+			utf8_size = up - (char *) utf8;
 			if (utf8_size == 0)
 				return '\0';
 			ascii = utf8[0];

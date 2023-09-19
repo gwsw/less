@@ -28,6 +28,7 @@ public HANDLE tty;
 #else
 public int tty;
 #endif
+extern int sigs;
 #if LESSTEST
 public char *ttyin_name = NULL;
 #endif /*LESSTEST*/
