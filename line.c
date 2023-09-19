@@ -1529,13 +1529,15 @@ public int rrshift(void)
 {
 	POSITION pos;
 	int save_width;
-	int line;
+	int sline;
 	int longest = 0;
 
 	save_width = sc_width;
-	sc_width = INT_MAX;
-	pos = position(TOP);
-	for (line = 0; line < sc_height && pos != NULL_POSITION; line++)
+	sc_width = INT_MAX; /* so forw_line() won't chop */
+	for (sline = TOP; sline < sc_height; sline++)
+		if ((pos = position(sline)) != NULL_POSITION)
+			break;
+	for (; sline < sc_height && pos != NULL_POSITION; sline++)
 	{
 		pos = forw_line(pos);
 		if (end_column > longest)
