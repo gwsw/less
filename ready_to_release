@@ -43,7 +43,7 @@ sub check_files {
 		error("$news_file: no version comparisons");
 	}
 	if ($ver_version ne $news_version) {
-		error("$news_file: latest version comparision is for $news_version not $ver_version");
+		error("$news_file: latest version comparison is for $news_version not $ver_version");
 	}
 	my $pull_out = `git pull --dry-run 2>&1 | grep ' ->'`;
 	if ($pull_out) {
