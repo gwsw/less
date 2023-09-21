@@ -128,7 +128,7 @@ funcs.h: ${LESS_SRC}
 	grep -h "^public [^;]*$$" ${LESS_SRC} | sed "s/$$/;/" >funcs.h
 
 help.c: less.hlp
-	perl mkhelp.pl  < $<  > $@
+	(perl mkhelp.pl || sh mkhelp.sh)  < $<  > $@
 
 ${OBJ}: less.h defines.h funcs.h
 
