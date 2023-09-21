@@ -130,9 +130,9 @@ static struct lesskey_cmdname editnames[] =
 static void parse_error(char *fmt, char *arg1)
 {
 	char buf[1024];
-	int n = snprintf(buf, sizeof(buf), "%s: line %d: ", lesskey_file, linenum);
+	int n = SNPRINTF2(buf, sizeof(buf), "%s: line %d: ", lesskey_file, linenum);
 	if (n >= 0 && n < sizeof(buf))
-		snprintf(buf+n, sizeof(buf)-n, fmt, arg1);
+		SNPRINTF1(buf+n, sizeof(buf)-n, fmt, arg1);
 	++errors;
 	lesskey_parse_error(buf);
 }
@@ -167,7 +167,7 @@ static char * char_string(char *buf, int ch, int lit)
 		buf[1] = '\0';
 	} else
 	{
-		snprintf(buf, CHAR_STRING_LEN, "\\x%02x", ch);
+		SNPRINTF1(buf, CHAR_STRING_LEN, "\\x%02x", ch);
 	}
 	return buf;
 }
