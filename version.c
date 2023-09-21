@@ -995,7 +995,8 @@ v642  7/10/23   Fix release.
 v643  7/20/23   Fix crash on Windows with -o.
 v644  9/16/23   Improve ^C on non-terminated pipe; fix crash when files are
                 deleted; support large files and non-BMP chars on Windows; 
-                fix # bug; don't filter header lines; fix shifting long lines.
+                fix # bug; don't filter header lines; fix shifting long lines;
+                add --match-shift.
 v645            Update Unicode tables; fix ESC-} bug.
 */
 
