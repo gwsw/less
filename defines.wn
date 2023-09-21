@@ -375,8 +375,16 @@
 #endif
 
 #define	popen	_popen
-#if !defined(_MSC_VER) || (_MSC_VER < 1900) 
-#define snprintf	_snprintf
+
+/*
+ * _snprintf in msvcrt/ucrt is non-compliant (no '\0' on overflow).
+ * ucrt has a C99 snprintf, and is the default since msvc 2015 (ver 1900).
+ * mingw with msvcrt has its own C99 snprintf, and with ucrt there's no need.
+ * so if we don't have a compliant snprintf, specify that there's none.
+ */
+#if !defined (MINGW) && (!defined(_MSC_VER) || (_MSC_VER < 1900))
+#undef HAVE_SNPRINTF
+#define HAVE_SNPRINTF 0
 #endif
 
 #ifndef MINGW
