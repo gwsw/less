@@ -42,7 +42,7 @@ MINGW_ROOT_PATH = /mingw-w64/mingw64
 
 # Determine the regular expression package to be used.  
 #
-REGEX_PACKAGE ?= posix
+REGEX_PACKAGE ?= regcomp-local
 ifeq (${REGEX_PACKAGE},regcomp-local)
     MINGW_DEFINES += -DUSE_REGEXP_C
 else ifeq (${REGEX_PACKAGE},posix)
