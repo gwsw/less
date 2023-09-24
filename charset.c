@@ -604,10 +604,12 @@ public int utf_len(int ch)
 		return 3;
 	if ((ch & 0xF8) == 0xF0)
 		return 4;
+#if 0
 	if ((ch & 0xFC) == 0xF8)
 		return 5;
 	if ((ch & 0xFE) == 0xFC)
 		return 6;
+#endif
 	/* Invalid UTF-8 encoding. */
 	return 1;
 }
@@ -688,6 +690,7 @@ public LWCHAR get_wchar(constant char *p)
 			((p[1] & 0x3F) << 12) | 
 			((p[2] & 0x3F) << 6) | 
 			(p[3] & 0x3F));
+#if 0
 	case 5:
 		/* 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */
 		return (LWCHAR) (
@@ -705,6 +708,7 @@ public LWCHAR get_wchar(constant char *p)
 			((p[3] & 0x3F) << 12) | 
 			((p[4] & 0x3F) << 6) | 
 			(p[5] & 0x3F));
+#endif
 	}
 }
 
@@ -735,6 +739,7 @@ public void put_wchar(char **pp, LWCHAR ch)
 		*(*pp)++ = (char) (0x80 | ((ch >> 12) & 0x3F));
 		*(*pp)++ = (char) (0x80 | ((ch >> 6) & 0x3F));
 		*(*pp)++ = (char) (0x80 | (ch & 0x3F));
+#if 0
 	} else if (ch < 0x4000000)
 	{
 		/* 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */
@@ -752,6 +757,7 @@ public void put_wchar(char **pp, LWCHAR ch)
 		*(*pp)++ = (char) (0x80 | ((ch >> 12) & 0x3F));
 		*(*pp)++ = (char) (0x80 | ((ch >> 6) & 0x3F));
 		*(*pp)++ = (char) (0x80 | (ch & 0x3F));
+#endif
 	}
 }
 
