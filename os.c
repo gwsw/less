@@ -150,11 +150,15 @@ static int check_poll(int fd, int tty)
 
 public int supports_ctrl_x(void)
 {
+#if MSDOS_COMPILER==WIN32C
+	return (TRUE);
+#else
 #if USE_POLL
 	return (use_poll);
 #else
 	return (FALSE);
 #endif /* USE_POLL */
+#endif /* MSDOS_COMPILER==WIN32C */
 }
 
 /*
