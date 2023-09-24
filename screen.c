@@ -2808,7 +2808,7 @@ static int win32_queued_char(void)
 /*
  * Push a char onto the back of the win32_queue.
  */
-static void win32_unget_queue(char ch)
+static void win32_enqueue(char ch)
 {
 	WIN32_CHAR *wch = (WIN32_CHAR *) ecalloc(1, sizeof(WIN32_CHAR));
 	wch->wc_ch = ch;
@@ -2825,7 +2825,8 @@ static void win32_unget_queue(char ch)
 }
 
 /*
- * Make the next call to WIN32getch return ch.
+ * Push a char onto the front of the win32_queue.
+ * Makes the next call to WIN32getch return ch.
  */
 public void WIN32ungetch(int ch)
 {
@@ -2876,12 +2877,12 @@ static int win32_mouse_event(XINPUT_RECORD *xip)
 		return (FALSE);
 	}
 	/* {{ TODO: change to X11 1006 format. }} */
-	win32_unget_queue(ESC);
-	win32_unget_queue('[');
-	win32_unget_queue('M');
-	win32_unget_queue(b);
-	win32_unget_queue(X11MOUSE_OFFSET + xip->ir.Event.MouseEvent.dwMousePosition.X + 1);
-	win32_unget_queue(X11MOUSE_OFFSET + xip->ir.Event.MouseEvent.dwMousePosition.Y + 1);
+	win32_enqueue(ESC);
+	win32_enqueue('[');
+	win32_enqueue('M');
+	win32_enqueue(b);
+	win32_enqueue(X11MOUSE_OFFSET + xip->ir.Event.MouseEvent.dwMousePosition.X + 1);
+	win32_enqueue(X11MOUSE_OFFSET + xip->ir.Event.MouseEvent.dwMousePosition.Y + 1);
 	return (TRUE);
 }
 
@@ -2973,8 +2974,8 @@ static int win32_scan_code(XINPUT_RECORD *xip)
 	 * An extended key returns a 2 byte sequence consisting of
 	 * a zero byte followed by the scan code.
 	 */
-	win32_unget_queue('\0');
-	win32_unget_queue(scan);
+	win32_enqueue('\0');
+	win32_enqueue(scan);
 	return (TRUE);
 }
 
@@ -3008,7 +3009,7 @@ static int win32_key_event(XINPUT_RECORD *xip)
 		char *p;
 		put_wchar(&up, xip->ichar);
 		for (p = utf8; p < up; ++p)
-			 win32_unget_queue(*p);
+			 win32_enqueue(*p);
 	}
 	return (TRUE);
 }
