@@ -2991,6 +2991,8 @@ static int win32_key_event(XINPUT_RECORD *xip)
 	    !xip->ir.Event.KeyEvent.bKeyDown ||
 	    ((xip->ir.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED) && xip->ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
 	    (xip->ir.Event.KeyEvent.wVirtualScanCode == 0 && xip->ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
+	    xip->ir.Event.KeyEvent.wVirtualScanCode == PCK_CAPS_LOCK ||
+	    xip->ir.Event.KeyEvent.wVirtualScanCode == PCK_NUM_LOCK ||
 	    (xip->ir.Event.KeyEvent.wVirtualKeyCode == VK_MENU && xip->ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
 	    xip->ir.Event.KeyEvent.wVirtualKeyCode == VK_KANJI ||
 	    xip->ir.Event.KeyEvent.wVirtualKeyCode == VK_SHIFT ||
