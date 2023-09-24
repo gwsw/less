@@ -2780,6 +2780,7 @@ public void putbs(void)
 
 #if MSDOS_COMPILER==WIN32C
 
+#define WIN32_MAX_REPEAT 3
 #define LAST_DOWN_COUNT 8
 static LWCHAR last_downs[LAST_DOWN_COUNT] = { 0 };
 static int last_down_index = 0;
@@ -3002,7 +3003,10 @@ static int win32_key_event(XINPUT_RECORD *xip)
 	if (win32_scan_code(xip))
 		return (TRUE);
 
-	for (repeat = xip->ir.Event.KeyEvent.wRepeatCount; repeat > 0; --repeat)
+	repeat = xip->ir.Event.KeyEvent.wRepeatCount;
+	if (repeat > WIN32_MAX_REPEAT)
+		repeat = WIN32_MAX_REPEAT;
+	for (; repeat > 0; --repeat)
 	{
 		char utf8[UTF8_MAX_LENGTH];
 		char *up = utf8;
