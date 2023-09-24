@@ -183,7 +183,7 @@ start:
 		c = getch();
 		if (c == '\003')
 			return (READ_INTR);
-		ungetcc_back(c);
+		ungetch(c);
 	}
 #endif
 #endif
@@ -264,7 +264,7 @@ start:
 			reading = 0;
 			return (READ_INTR);
 		}
-		ungetcc_back(c);
+		WIN32ungetch(c);
 	}
 #endif
 #endif

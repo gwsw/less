@@ -2825,6 +2825,17 @@ static void win32_unget_queue(char ch)
 }
 
 /*
+ * Make the next call to WIN32getch return ch.
+ */
+public void WIN32ungetch(int ch)
+{
+	WIN32_CHAR *wch = (WIN32_CHAR *) ecalloc(1, sizeof(WIN32_CHAR));
+	wch->wc_ch = ch;
+	wch->wc_next = win32_queue;
+	win32_queue = wch;
+}
+
+/*
  * Get a char from the front of the win32_queue.
  */
 static char win32_get_queue(void)
@@ -3039,14 +3050,6 @@ public char WIN32getch(void)
 			return ('\003');
 	}
 	return (win32_get_queue());
-}
-
-/*
- * Make the next call to WIN32getch return ch.
- */
-public void WIN32ungetch(int ch)
-{
-	win32_unget_queue(ch);
 }
 
 public void win32_getch_clear(void)
