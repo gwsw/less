@@ -2796,7 +2796,7 @@ typedef struct WIN32_CHAR {
 	char wc_ch;
 } WIN32_CHAR;
 
-WIN32_CHAR *win32_queue = NULL;
+static WIN32_CHAR *win32_queue = NULL;
 
 /*
  * Is the win32_queue nonempty?
@@ -2960,12 +2960,8 @@ static int win32_scan_code(XINPUT_RECORD *xip)
 		}
 	} else if (xip->ir.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
 	{
-		switch (xip->ir.Event.KeyEvent.wVirtualScanCode)
-		{
-		case PCK_SHIFT_TAB: /* tab */
+		if (xip->ichar == '\t')
 			scan = PCK_SHIFT_TAB;
-			break;
-		}
 	}
 	if (scan < 0 && xip->ichar == 0)
 		scan = xip->ir.Event.KeyEvent.wVirtualScanCode;
