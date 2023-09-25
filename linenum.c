@@ -209,28 +209,41 @@ static void longloopmessage(void)
 	ierror("Calculating line numbers", NULL_PARG);
 }
 
-static int loopcount;
+struct delayed_msg
+{
+	void (*message)(void);
+	int loopcount;
 #if HAVE_TIME
-static time_type startime;
+	time_type startime;
 #endif
+};
 
-static void longish(void)
+static void start_delayed_msg(struct delayed_msg *dmsg, void (*message)(void))
+{
+	dmsg->loopcount = 0;
+	dmsg->message = message;
+#if HAVE_TIME
+	dmsg->startime = get_time();
+#endif
+}
+
+static void delayed_msg(struct delayed_msg *dmsg)
 {
 #if HAVE_TIME
-	if (loopcount >= 0 && ++loopcount > 100)
+	if (dmsg->loopcount >= 0 && ++(dmsg->loopcount) > 100)
 	{
-		loopcount = 0;
-		if (get_time() >= startime + LONGTIME)
+		dmsg->loopcount = 0;
+		if (get_time() >= dmsg->startime + LONGTIME)
 		{
-			longloopmessage();
-			loopcount = -1;
+			dmsg->message();
+			dmsg->loopcount = -1;
 		}
 	}
 #else
-	if (loopcount >= 0 && ++loopcount > LONGLOOP)
+	if (dmsg->loopcount >= 0 && ++(dmsg->loopcount) > LONGLOOP)
 	{
-		longloopmessage();
-		loopcount = -1;
+		dmsg->message();
+		dmsg->loopcount = -1;
 	}
 #endif
 }
@@ -239,9 +252,9 @@ static void longish(void)
  * Turn off line numbers because the user has interrupted
  * a lengthy line number calculation.
  */
-static void abort_long(void)
+static void abort_delayed_msg(struct delayed_msg *dmsg)
 {
-	if (loopcount >= 0)
+	if (dmsg->loopcount >= 0)
 		return;
 	if (linenums == OPT_ONPLUS)
 		/*
@@ -261,6 +274,7 @@ public LINENUM find_linenum(POSITION pos)
 	struct linenum_info *p;
 	LINENUM linenum;
 	POSITION cpos;
+	struct delayed_msg dmsg;
 
 	if (!linenums)
 		/*
@@ -298,10 +312,7 @@ public LINENUM find_linenum(POSITION pos)
 	 * The decision is based on which way involves 
 	 * traversing fewer bytes in the file.
 	 */
-#if HAVE_TIME
-	startime = get_time();
-#endif
-	loopcount = 0;
+	start_delayed_msg(&dmsg, longloopmessage);
 	if (p == &anchor || pos - p->prev->pos < p->pos - pos)
 	{
 		/*
@@ -317,12 +328,12 @@ public LINENUM find_linenum(POSITION pos)
 			 */
 			cpos = forw_raw_line(cpos, (char **)NULL, (int *)NULL);
 			if (ABORT_SIGS()) {
-				abort_long();
+				abort_delayed_msg(&dmsg);
 				return (0);
 			}
 			if (cpos == NULL_POSITION)
 				return (0);
-			longish();
+			delayed_msg(&dmsg);
 		}
 		/*
 		 * We might as well cache it.
@@ -348,19 +359,18 @@ public LINENUM find_linenum(POSITION pos)
 			 */
 			cpos = back_raw_line(cpos, (char **)NULL, (int *)NULL);
 			if (ABORT_SIGS()) {
-				abort_long();
+				abort_delayed_msg(&dmsg);
 				return (0);
 			}
 			if (cpos == NULL_POSITION)
 				return (0);
-			longish();
+			delayed_msg(&dmsg);
 		}
 		/*
 		 * We might as well cache it.
 		 */
 		add_lnum(linenum, cpos);
 	}
-	loopcount = 0;
 	return (linenum);
 }
 
@@ -457,6 +467,11 @@ public LINENUM currline(int where)
 	return (linenum);
 }
 
+static void detlenmessage(void)
+{
+	ierror("Determining length of file", NULL_PARG);
+}
+
 /*
  * Scan entire file, counting line numbers.
  */
@@ -464,14 +479,15 @@ public void scan_eof(void)
 {
 	POSITION pos = ch_zero();
 	LINENUM linenum = 0;
+	struct delayed_msg dmsg;
 
 	if (ch_seek(0))
 		return;
-	ierror("Determining length of file", NULL_PARG);
 	/*
 	 * scanning_eof prevents the "Waiting for data" message from 
 	 * overwriting "Determining length of file".
 	 */
+	start_delayed_msg(&dmsg, detlenmessage);
 	scanning_eof = TRUE;
 	while (pos != NULL_POSITION)
 	{
@@ -480,7 +496,11 @@ public void scan_eof(void)
 			add_lnum(linenum, pos);
 		pos = forw_raw_line(pos, (char **)NULL, (int *)NULL);
 		if (ABORT_SIGS())
+		{
+			abort_delayed_msg(&dmsg);
 			break;
+		}
+		delayed_msg(&dmsg);
 	}
 	scanning_eof = FALSE;
 }
