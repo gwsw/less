@@ -998,7 +998,7 @@ v644  9/16/23   Improve ^C on non-terminated pipe; fix crash when files are
                 fix # bug; don't filter header lines; fix shifting long lines;
                 add --match-shift.
 v645            Default Windows charset is utf-8; update Unicode tables;
-                fix ESC-} bug.
+                fix ESC-} bug; mouse right-click jumps to '#'.
 */
 
 char version[] = "645x";
