@@ -60,6 +60,7 @@ extern int incr_search;
 extern int full_screen;
 #if MSDOS_COMPILER==WIN32C
 extern int utf_mode;
+extern unsigned less_acp;
 #endif
 
 #if SHELL_ESCAPE
@@ -896,7 +897,7 @@ static void prompt(void)
 #if MSDOS_COMPILER==WIN32C
 		WCHAR w[MAX_PATH*2];
 		char  a[MAX_PATH*2];
-		MultiByteToWideChar(CP_ACP, 0, p, -1, w, sizeof(w)/sizeof(*w));
+		MultiByteToWideChar(less_acp, 0, p, -1, w, sizeof(w)/sizeof(*w));
 		WideCharToMultiByte(utf_mode ? CP_UTF8 : GetConsoleOutputCP(),
 		                    0, w, -1, a, sizeof(a), NULL, NULL);
 		p = a;
