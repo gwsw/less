@@ -16,6 +16,13 @@
 #if MSDOS_COMPILER==WIN32C
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#if defined(MINGW) || defined(_MSC_VER)
+#include <locale.h>
+#include <shellapi.h>
+#endif
+
+public unsigned less_acp = CP_ACP;
 #endif
 
 public char *   every_first_cmd = NULL;
@@ -64,6 +71,81 @@ extern int      redraw_on_quit;
 extern int      term_init_done;
 extern int      first_time;
 
+#if MSDOS_COMPILER==WIN32C && (defined(MINGW) || defined(_MSC_VER))
+/* malloc'ed 0-terminated utf8 of 0-terminated wide ws, or null on errors */
+static char *utf8_from_wide(const wchar_t *ws)
+{
+	char *u8 = 0;
+	int n = WideCharToMultiByte(CP_UTF8, 0, ws, -1, 0, 0, 0, 0);
+	if (n > 0)
+	{
+		u8 = ecalloc(n, sizeof(char));
+		WideCharToMultiByte(CP_UTF8, 0, ws, -1, u8, n, 0, 0);
+	}
+	return u8;
+}
+
+/*
+ * similar to using UTF8 manifest to make the ANSI APIs UTF8, but dynamically
+ * with setlocale. unlike the manifest, argv and environ are already ACP, so
+ * make them UTF8. CP_ACP remains the original codepage - use less_acp instead.
+ * effective on win 10 1803 or later when compiled with ucrt, else no-op.
+ */
+static void try_utf8_locale(int *pargc, char ***pargv)
+{
+	char *locale_orig = strdup(setlocale(LC_ALL, 0));
+	wchar_t **wargv = 0, *wenv, *wp;
+	char **u8argv, *u8e;
+	int i, n;
+
+	if (!setlocale(LC_ALL, ".UTF8"))
+		goto cleanup;  /* not win10 1803+ or not ucrt */
+
+	/*
+	 * wargv is before glob expansion. some ucrt builds may expand globs
+	 * before main is entered, so n may be smaller than the original argc.
+	 * that's ok, because later code at main expands globs anyway.
+	 */
+	wargv = CommandLineToArgvW(GetCommandLineW(), &n);
+	if (!wargv)
+		goto bad_args;
+
+	u8argv = (char **)ecalloc(n + 1, sizeof(char *));
+	for (i = 0; i < n; ++i)
+	{
+		if (!(u8argv[i] = utf8_from_wide(wargv[i])))
+			goto bad_args;
+	}
+	u8argv[n] = 0;
+
+	less_acp = CP_UTF8;
+	*pargc = n;
+	*pargv = u8argv;  /* leaked on exit */
+
+	/* convert wide env to utf8 where we can, but don't abort on errors */
+	if ((wenv = GetEnvironmentStringsW()))
+	{
+		for (wp = wenv; *wp; wp += wcslen(wp) + 1)
+		{
+			if ((u8e = utf8_from_wide(wp)))
+				_putenv(u8e);
+			free(u8e);  /* windows putenv makes a copy */
+		}
+		FreeEnvironmentStringsW(wenv);
+	}
+
+	goto cleanup;
+
+bad_args:
+	error("WARNING: cannot use unicode arguments", NULL_PARG);
+	setlocale(LC_ALL, locale_orig);
+
+cleanup:
+	free(locale_orig);
+	LocalFree(wargv);
+}
+#endif
+
 /*
  * Entry point.
  */
@@ -71,6 +153,11 @@ int main(int argc, char *argv[])
 {
 	IFILE ifile;
 	char *s;
+
+#if MSDOS_COMPILER==WIN32C && (defined(MINGW) || defined(_MSC_VER))
+	if (GetACP() != CP_UTF8)  /* not using a UTF-8 manifest */
+		try_utf8_locale(&argc, &argv);
+#endif
 
 #ifdef __EMX__
 	_response(&argc, &argv);

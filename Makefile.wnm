@@ -14,7 +14,7 @@ LDFLAGS = /nologo /subsystem:console /incremental:no
 #LDFLAGS = /nologo /subsystem:console /incremental:yes /debug
 
 LD = link
-LIBS = user32.lib
+LIBS = user32.lib shell32.lib
 
 #### End of system configuration section. ####
 

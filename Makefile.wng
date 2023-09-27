@@ -88,6 +88,8 @@ LIBS    = ${MINGW_REGEX_LIB}
 endif
 endif
 
+LIBS += -lshell32
+
 #### End of system configuration section. ####
 
 # This rule allows us to supply the necessary -D options
