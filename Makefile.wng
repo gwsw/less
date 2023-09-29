@@ -98,6 +98,10 @@ endif
 
 LIBS += -lshell32
 
+CFLAGS += ${XCFLAGS}
+LDFLAGS += ${XLDFLAGS}
+LIBS += ${XLDLIBS}
+
 #### End of system configuration section. ####
 
 # This rule allows us to supply the necessary -D options
