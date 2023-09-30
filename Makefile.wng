@@ -72,10 +72,12 @@ ifeq  (${SHELL},cmd.exe)
     CP = copy
     MV = move
     RM = del
+    DIFF = comp /M
 else
     CP = cp
     MV = mv
     RM = rm
+    DIFF = diff
 endif
 
 CFLAGS  = -O2 ${CFLAGS_MINGW}
@@ -116,23 +118,26 @@ OBJ += regexp.o
 endif
 
 
-all: clean less lesskey lessecho
+all: less.exe lesskey.exe lessecho.exe
 
-less: ${OBJ}
+less.exe: ${OBJ}
 	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
 
-lesskey: lesskey.o lesskey_parse.o version.o xbuf.o
+lesskey.exe: lesskey.o lesskey_parse.o version.o xbuf.o
 	${CC} ${LDFLAGS} -o $@ lesskey.o lesskey_parse.o version.o xbuf.o
 
-lessecho: lessecho.o version.o
+lessecho.exe: lessecho.o version.o
 	${CC} ${LDFLAGS} -o $@ lessecho.o version.o
+
+lessecho.o version.o: less.h defines.h funcs.h
 
 defines.h: defines.wn
 	${CP} $< $@
 
 funcs.h: ${LESS_SRC}
-	-${MV} funcs.h funcs.h.old
-	grep -h "^public [^;]*$$" ${LESS_SRC} | sed "s/$$/;/" >funcs.h
+	-${CP} funcs.h funcs.h.old
+	grep -h "^public [^;]*$$" ${LESS_SRC} | sed "s/$$/;/" >funcs.h.tmp
+	${DIFF} funcs.h.tmp funcs.h || ${MV} funcs.h.tmp funcs.h
 
 help.c: less.hlp
 	(perl mkhelp.pl || sh mkhelp.sh)  < $<  > $@
