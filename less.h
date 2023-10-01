@@ -236,8 +236,8 @@ void free();
  * Special types and constants.
  */
 typedef unsigned long LWCHAR;
-#if defined(_MSC_VER) && _MSC_VER >= 1500
-typedef _int64 less_off_t;
+#if defined(MINGW) || (defined(_MSC_VER) && _MSC_VER >= 1500)
+typedef long long less_off_t;  /* __int64 */
 typedef struct _stat64 less_stat_t;
 #define less_fstat _fstat64
 #define less_stat _stat64
