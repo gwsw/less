@@ -23,8 +23,9 @@
 #define _WIN32_WINNT 0x400
 #endif
 #include <windows.h>
-public DWORD console_mode;
 public HANDLE tty;
+extern DWORD init_console_mode;
+extern DWORD curr_console_mode;
 #else
 public int tty;
 #endif
@@ -87,9 +88,9 @@ public void open_getchr(void)
 	tty = CreateFile("CONIN$", GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ, &sa, 
 			OPEN_EXISTING, 0L, NULL);
-	GetConsoleMode(tty, &console_mode);
 	/* Make sure we get Ctrl+C events. */
-	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
+	curr_console_mode = ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT;
+	SetConsoleMode(tty, curr_console_mode);
 #else
 #if MSDOS_COMPILER
 	extern int fd0;
@@ -119,21 +120,21 @@ public void open_getchr(void)
 public void close_getchr(void)
 {
 #if MSDOS_COMPILER==WIN32C
-	SetConsoleMode(tty, console_mode);
+	SetConsoleMode(tty, init_console_mode);
 	CloseHandle(tty);
 #endif
 }
 
 #if MSDOS_COMPILER==WIN32C
 /*
- * Close the pipe, restoring the keyboard (CMD resets it, losing the mouse).
+ * Close the pipe, restoring the console mode (CMD resets it, losing the mouse).
  */
 public int pclose(FILE *f)
 {
 	int result;
 
 	result = _pclose(f);
-	SetConsoleMode(tty, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
+	SetConsoleMode(tty, curr_console_mode);
 	return result;
 }
 #endif
