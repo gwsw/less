@@ -24,8 +24,8 @@
 #endif
 #include <windows.h>
 public HANDLE tty;
-extern DWORD init_console_mode;
-extern DWORD curr_console_mode;
+static DWORD init_console_input_mode;
+public DWORD curr_console_input_mode;
 #else
 public int tty;
 #endif
@@ -89,8 +89,9 @@ public void open_getchr(void)
 			FILE_SHARE_READ, &sa, 
 			OPEN_EXISTING, 0L, NULL);
 	/* Make sure we get Ctrl+C events. */
-	curr_console_mode = ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT;
-	SetConsoleMode(tty, curr_console_mode);
+	GetConsoleMode(tty, &init_console_input_mode);
+	curr_console_input_mode = ENABLE_PROCESSED_INPUT | ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE;
+	SetConsoleMode(tty, curr_console_input_mode);
 #else
 #if MSDOS_COMPILER
 	extern int fd0;
@@ -120,7 +121,7 @@ public void open_getchr(void)
 public void close_getchr(void)
 {
 #if MSDOS_COMPILER==WIN32C
-	SetConsoleMode(tty, init_console_mode);
+	SetConsoleMode(tty, init_console_input_mode);
 	CloseHandle(tty);
 #endif
 }
@@ -134,7 +135,7 @@ public int pclose(FILE *f)
 	int result;
 
 	result = _pclose(f);
-	SetConsoleMode(tty, curr_console_mode);
+	SetConsoleMode(tty, curr_console_input_mode);
 	return result;
 }
 #endif

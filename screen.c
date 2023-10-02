@@ -178,8 +178,8 @@ static int sy_fg_color;         /* Color of system text (before less) */
 static int sy_bg_color;
 public int sgr_mode;            /* Honor ANSI sequences rather than using above */
 #if MSDOS_COMPILER==WIN32C
-public DWORD init_console_mode; /* The initial console output mode */
-public DWORD curr_console_mode; /* The current console output mode */
+static DWORD init_console_output_mode;
+extern DWORD curr_console_input_mode;
 public int vt_enabled = -1;     /* Is virtual terminal processing available? */
 #endif
 #else
@@ -284,7 +284,6 @@ extern int hilite_search;
 #if MSDOS_COMPILER==WIN32C
 extern int wscroll;
 extern HANDLE tty;
-extern DWORD console_mode;
 #ifndef ENABLE_EXTENDED_FLAGS
 #define ENABLE_EXTENDED_FLAGS 0x80
 #define ENABLE_QUICK_EDIT_MODE 0x40
@@ -1171,7 +1170,7 @@ public void get_term(void)
 	 * before any file operations have been done on fd0.
 	 */
 	SET_BINARY(0);
-	GetConsoleMode(con_out, &init_console_mode);
+	GetConsoleMode(con_out, &init_console_output_mode);
 	GetConsoleScreenBufferInfo(con_out, &scr);
 	curr_attr = scr.wAttributes;
 	sy_bg_color = (curr_attr & BG_COLORS) >> 4; /* normalize */
@@ -1565,16 +1564,15 @@ static void initcolor(void)
  */
 static void win32_init_vt_term(void)
 {
-	DWORD console_mode;
+	DWORD console_output_mode;
 
 	if (vt_enabled == 0 || (vt_enabled == 1 && con_out == con_out_ours))
 		return;
 
-	console_mode = curr_console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-	vt_enabled = SetConsoleMode(con_out, console_mode);
+	console_output_mode = init_console_output_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	vt_enabled = SetConsoleMode(con_out, console_output_mode);
 	if (vt_enabled)
 	{
-		curr_console_mode = console_mode;
 	    auto_wrap = 0;
 	    ignaw = 1;
 	}
@@ -1583,7 +1581,7 @@ static void win32_init_vt_term(void)
 static void win32_deinit_vt_term(void)
 {
 	if (vt_enabled == 1 && con_out == con_out_save)
-		SetConsoleMode(con_out, init_console_mode);
+		SetConsoleMode(con_out, init_console_output_mode);
 }
 
 /*
@@ -1700,9 +1698,8 @@ public void init_mouse(void)
 	ltputs(sc_s_mousecap, sc_height, putchr);
 #else
 #if MSDOS_COMPILER==WIN32C
-	curr_console_mode = ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS; /* disable quick edit */
-	SetConsoleMode(tty, curr_console_mode);
-
+	curr_console_input_mode = (curr_console_input_mode | ENABLE_MOUSE_INPUT) & ~ENABLE_QUICK_EDIT_MODE;
+	SetConsoleMode(tty, curr_console_input_mode);
 #endif
 #endif
 }
@@ -1717,8 +1714,8 @@ public void deinit_mouse(void)
 	ltputs(sc_e_mousecap, sc_height, putchr);
 #else
 #if MSDOS_COMPILER==WIN32C
-	curr_console_mode = ENABLE_PROCESSED_INPUT | ENABLE_EXTENDED_FLAGS | (curr_console_mode & ENABLE_QUICK_EDIT_MODE);
-	SetConsoleMode(tty, curr_console_mode);
+	curr_console_input_mode = (curr_console_input_mode | ENABLE_QUICK_EDIT_MODE) & ~ENABLE_MOUSE_INPUT; 
+	SetConsoleMode(tty, curr_console_input_mode);
 #endif
 #endif
 }
@@ -3035,11 +3032,13 @@ public int win32_kbhit(void)
 	for (;;)
 	{
 		DWORD nread;
+		DWORD console_input_mode;
 		/*
 		 * When an input pipe closes, cmd may reset the console mode,
 		 * so set the mode every time we read input.
 		 */
-		SetConsoleMode(tty, curr_console_mode);
+		if (GetConsoleMode(tty, &console_input_mode) && console_input_mode != curr_console_input_mode)
+			SetConsoleMode(tty, curr_console_input_mode);
 		PeekConsoleInputW(tty, &xip.ir, 1, &nread);
 		if (nread == 0)
 			return (FALSE);
