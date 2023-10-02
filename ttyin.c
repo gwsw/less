@@ -24,7 +24,7 @@
 #endif
 #include <windows.h>
 public HANDLE tty;
-static DWORD init_console_input_mode;
+public DWORD init_console_input_mode;
 public DWORD curr_console_input_mode;
 #else
 public int tty;

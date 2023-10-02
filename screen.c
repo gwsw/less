@@ -179,6 +179,7 @@ static int sy_bg_color;
 public int sgr_mode;            /* Honor ANSI sequences rather than using above */
 #if MSDOS_COMPILER==WIN32C
 static DWORD init_console_output_mode;
+extern DWORD init_console_input_mode;
 extern DWORD curr_console_input_mode;
 public int vt_enabled = -1;     /* Is virtual terminal processing available? */
 #endif
@@ -1698,7 +1699,7 @@ public void init_mouse(void)
 	ltputs(sc_s_mousecap, sc_height, putchr);
 #else
 #if MSDOS_COMPILER==WIN32C
-	curr_console_input_mode = (curr_console_input_mode | ENABLE_MOUSE_INPUT) & ~ENABLE_QUICK_EDIT_MODE;
+	curr_console_input_mode = (curr_console_input_mode | ENABLE_MOUSE_INPUT) & ~(ENABLE_QUICK_EDIT_MODE & init_console_input_mode);
 	SetConsoleMode(tty, curr_console_input_mode);
 #endif
 #endif
@@ -1714,7 +1715,7 @@ public void deinit_mouse(void)
 	ltputs(sc_e_mousecap, sc_height, putchr);
 #else
 #if MSDOS_COMPILER==WIN32C
-	curr_console_input_mode = (curr_console_input_mode | ENABLE_QUICK_EDIT_MODE) & ~ENABLE_MOUSE_INPUT; 
+	curr_console_input_mode = (curr_console_input_mode & ~ENABLE_MOUSE_INPUT) | (ENABLE_QUICK_EDIT_MODE & init_console_input_mode); 
 	SetConsoleMode(tty, curr_console_input_mode);
 #endif
 #endif
