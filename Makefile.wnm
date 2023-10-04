@@ -1,5 +1,17 @@
 # Makefile for less.
 # Windows 32/64 Visual C++ version
+#
+# To build in msvc env (VCVARS32.BAT, VCVARS64.BAT, ...)
+#
+# A release tarball:
+#   nmake -f Makefile.wnm
+#
+# A git snapshot:
+#   nmake -f Makefile.wnm generated
+#   nmake -f Makefile.wnm
+#
+# If cross compiling (e.g. arm): "generated" should be made in a native env.
+# Else (native build) this works too: nmake -f Makefile.wnm generated less.exe
 
 #### Start of system configuration section. ####
 
@@ -44,6 +56,13 @@ defines.h: defines.wn
 	-copy defines.wn defines.h
 
 $(OBJ): less.h defines.h funcs.h cmd.h
+
+# generate help.c and funcs.h. We use *.c because we don't have a sources list.
+# intentionally detached from $(OBJ) in case of cross compile - needs native cc
+generated:
+	$(CC) buildgen.c
+	buildgen.exe help < less.hlp > help.c
+	type *.c 2>NUL | buildgen.exe funcs > funcs.h
 
 clean:
 	-del *.obj 
