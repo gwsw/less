@@ -1,5 +1,5 @@
 # Makefile for less.
-# Windows 32 Visual C++ version
+# Windows 32/64 Visual C++ version
 
 #### Start of system configuration section. ####
 
