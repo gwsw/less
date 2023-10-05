@@ -233,7 +233,8 @@ int run_testfile(const char* ltfile, const char* less) {
 }
 
 static void free_states(TestState* states, int num_states) {
-	for (int s = 0; s < num_states; ++s) {
+	int s;
+	for (s = 0; s < num_states; ++s) {
 		free(states[s].screen);
 	}
 	free(states);
