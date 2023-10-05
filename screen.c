@@ -2988,7 +2988,6 @@ static int win32_key_event(XINPUT_RECORD *xip)
 	int repeat;
 
 	if (xip->ir.EventType != KEY_EVENT ||
-	    !xip->ir.Event.KeyEvent.bKeyDown ||
 	    ((xip->ir.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED) && xip->ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
 	    (xip->ir.Event.KeyEvent.wVirtualScanCode == 0 && xip->ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
 	    xip->ir.Event.KeyEvent.wVirtualScanCode == PCK_CAPS_LOCK ||
@@ -3000,6 +2999,8 @@ static int win32_key_event(XINPUT_RECORD *xip)
 		return (FALSE);
 
 	if (!win32_get_ichar(xip))
+		return (FALSE);
+	if (!xip->ir.Event.KeyEvent.bKeyDown)
 		return (FALSE);
 		
 	if (win32_scan_code(xip))
