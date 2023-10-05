@@ -90,7 +90,8 @@ public void open_getchr(void)
 			OPEN_EXISTING, 0L, NULL);
 	/* Make sure we get Ctrl+C events. */
 	GetConsoleMode(tty, &init_console_input_mode);
-	curr_console_input_mode = ENABLE_PROCESSED_INPUT | ENABLE_EXTENDED_FLAGS | (ENABLE_QUICK_EDIT_MODE & init_console_input_mode);
+	curr_console_input_mode |= ENABLE_PROCESSED_INPUT | ENABLE_EXTENDED_FLAGS | (ENABLE_QUICK_EDIT_MODE & init_console_input_mode);
+	curr_console_input_mode &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
 	SetConsoleMode(tty, curr_console_input_mode);
 #else
 #if MSDOS_COMPILER
