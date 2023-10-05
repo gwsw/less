@@ -165,8 +165,9 @@ static int toggle_fraction(int *num, long *frac, char *s, char *printopt, void (
 		(*calc)();
 	} else if (*s == '.')
 	{
+        long tfrac;
 		s++;
-		long tfrac = getfraction(&s, printopt, &err);
+		tfrac = getfraction(&s, printopt, &err);
 		if (err)
 		{
 			error("Invalid fraction", NULL_PARG);

@@ -706,6 +706,7 @@ static int mca_char(int c)
 		{
 			/* Incremental search: do a search after every input char. */
 			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX|SRCH_NO_MOVE|SRCH_WRAP|SRCH_SUBSEARCH_ALL));
+			int save_updown_match = updown_match;
 			char *pattern = get_cmdbuf();
 			if (pattern == NULL)
 				return (MCA_MORE);
@@ -714,7 +715,6 @@ static int mca_char(int c)
 			 * reinits it. That breaks history scrolling.
 			 * {{ This is ugly. mca_search probably shouldn't call set_mlist. }}
 			 */
-			int save_updown_match = updown_match;
 			cmd_exec();
 			if (*pattern == '\0')
 			{
