@@ -25,6 +25,14 @@
 # REGEX_PACKAGE == none
 #   This choice disables regex, and instead uses smart plain text search.
 #
+# By default, the files help.c and funcs.h are generated using few posix
+# utilities (grep, sed, etc). On Windows, if the tools are missing, add:
+#   WINGEN=1
+# to compile a native C program which will be used instead of the posix tools.
+# NOTE: to cross compile with WINGEN=1, e.g. to arm, first run with native CC:
+#   make -f Makefile.wng CC=gcc buildgen.exe
+# and then compile `less` with the arm CC:
+#   make -f Makefile.wng WINGEN=1 CC=armv7...
 
 #### Start of system configuration section. ####
 
@@ -136,13 +144,25 @@ lessecho.o version.o: less.h defines.h funcs.h
 defines.h: defines.wn
 	${CP} $< $@
 
-funcs.h: ${LESS_SRC}
+ifeq  (${WINGEN},1)
+    BUILDGEN = buildgen.exe
+    MKHELP = buildgen.exe help
+    MKFUNCS = type 2>NUL ${LESS_SRC} | buildgen.exe funcs
+else
+    MKHELP = (perl mkhelp.pl || sh mkhelp.sh)
+    MKFUNCS = grep -h "^public [^;]*$$" ${LESS_SRC} | sed "s/$$/;/"
+endif
+
+funcs.h: ${LESS_SRC} ${BUILDGEN}
 	-${CP} funcs.h funcs.h.old
-	grep -h "^public [^;]*$$" ${LESS_SRC} | sed "s/$$/;/" >funcs.h.tmp
+	${MKFUNCS} >funcs.h.tmp
 	${DIFF} funcs.h.tmp funcs.h || ${MV} funcs.h.tmp funcs.h
 
-help.c: less.hlp
-	(perl mkhelp.pl || sh mkhelp.sh)  < $<  > $@
+help.c: less.hlp ${BUILDGEN}
+	${MKHELP}  < less.hlp > $@
+
+buildgen.exe: buildgen.c
+	${CC} $< -o $@
 
 ${OBJ}: less.h defines.h funcs.h
 
