@@ -232,9 +232,10 @@ public void opt_j(int type, char *s)
 
 public void calc_jump_sline(void)
 {
-	if (jump_sline_fraction < 0)
-		return;
-	jump_sline = (int) muldiv(sc_height, jump_sline_fraction, NUM_FRAC_DENOM);
+	if (jump_sline_fraction >= 0)
+		jump_sline = (int) muldiv(sc_height, jump_sline_fraction, NUM_FRAC_DENOM);
+	if (jump_sline <= header_lines)
+		jump_sline = header_lines + 1;
 }
 
 /*
@@ -1011,6 +1012,7 @@ public void opt_header(int type, char *s)
 			else
 				header_cols = n;
 		}
+		calc_jump_sline();
 		if (type == TOGGLE)
 			set_header_end_pos();
 		break;

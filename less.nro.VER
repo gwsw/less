@@ -797,6 +797,11 @@ of the screen, starting with a decimal point: \&.5 is in the middle of the
 screen, \&.3 is three tenths down from the first line, and so on.
 If the line is specified as a fraction, the actual line number
 is recalculated if the terminal window is resized.
+If the \-\-header option is used and the target line specified by \-j
+would be obscured by the header, the target line is moved to the first
+line after the header.
+.RS
+.PP
 If any form of the \-j option is used,
 repeated forward searches (invoked with "n" or "N")
 begin at the line immediately after the target line,
@@ -807,6 +812,7 @@ fourth line on the screen, so forward searches begin at the fifth line
 on the screen.
 However nonrepeated searches (invoked with "/" or "?")
 always begin at the start or end of the current screen respectively.
+.RE
 .IP "\-J or \-\-status-column"
 Displays a status column at the left edge of the screen.
 The character displayed in the status column may be one of:
@@ -1203,8 +1209,6 @@ even if the rest of the line is scrolled horizontally.
 If either N or M is zero, 
 .B less
 stops displaying header lines or columns, respectively.
-(Note that it may be necessary to change the setting of the \-j option
-to ensure that the target line is not obscured by the header line(s).)
 .IP "\-\-incsearch"
 Subsequent search commands will be "incremental"; that is,
 .B less

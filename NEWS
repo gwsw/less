@@ -17,6 +17,9 @@
 
 * Mouse right-click jumps to position marked by left-click (github #390).
 
+* Ensure that the target line is not obscured by a header line 
+  set by --header (github #444).
+
 * Change default character set on Windows from dos to utf-8.
 
 * UCRT builds on Windows 10 and later now support Unicode file names
