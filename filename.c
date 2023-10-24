@@ -44,7 +44,6 @@
 #endif
 
 extern int force_open;
-extern int secure;
 extern int use_lessopen;
 extern int ctldisp;
 extern int utf_mode;
@@ -390,7 +389,8 @@ public char * fcomplete(char *s)
 	char *fpat;
 	char *qs;
 
-	if (secure)
+	/* {{ Is this needed? lglob calls secure_allow. }} */
+	if (!secure_allow(SF_GLOB))
 		return (NULL);
 	/*
 	 * Complete the filename "s" by globbing "s*".
@@ -597,7 +597,7 @@ public char * lglob(char *filename)
 	char *gfilename;
 
 	filename = fexpand(filename);
-	if (secure)
+	if (!secure_allow(SF_GLOB))
 		return (filename);
 
 #ifdef DECL_GLOB_LIST
@@ -838,7 +838,9 @@ public char * open_altfile(char *filename, int *pf, void **pfd)
 	int returnfd = 0;
 #endif
 	
-	if (!use_lessopen || secure)
+	if (!secure_allow(SF_LESSOPEN))
+		return (NULL);
+	if (!use_lessopen)
 		return (NULL);
 	ch_ungetchar(-1);
 	if ((lessopen = lgetenv("LESSOPEN")) == NULL)
@@ -955,7 +957,7 @@ public void close_altfile(char *altfilename, char *filename)
 	char *cmd;
 	int len;
 	
-	if (secure)
+	if (!secure_allow(SF_LESSOPEN))
 		return;
 	ch_ungetchar(-1);
 	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)

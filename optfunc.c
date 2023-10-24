@@ -33,7 +33,6 @@ extern int plusoption;
 extern int swindow;
 extern int sc_width;
 extern int sc_height;
-extern int secure;
 extern int dohelp;
 extern char openquote;
 extern char closequote;
@@ -105,7 +104,7 @@ public void opt_o(int type, char *s)
 	PARG parg;
 	char *filename;
 
-	if (secure)
+	if (!secure_allow(SF_LOGFILE))
 	{
 		error("log file support is not available", NULL_PARG);
 		return;
@@ -329,7 +328,7 @@ public void opt_t(int type, char *s)
 		/* Do the rest in main() */
 		break;
 	case TOGGLE:
-		if (secure)
+		if (!secure_allow(SF_TAGS))
 		{
 			error("tags support is not available", NULL_PARG);
 			break;

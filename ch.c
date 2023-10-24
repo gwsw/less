@@ -127,7 +127,6 @@ static int maxbufs = -1;
 
 extern int autobuf;
 extern int sigs;
-extern int secure;
 extern int follow_mode;
 extern int waiting_for_data;
 extern constant char helpdata[];
@@ -296,8 +295,11 @@ static int ch_get(void)
 		/*
 		 * If we have a log file, write the new data to it.
 		 */
-		if (!secure && logfile >= 0 && n > 0)
-			write(logfile, (char *) &bp->data[bp->datasize], n);
+		if (secure_allow(SF_LOGFILE))
+		{
+			if (logfile >= 0 && n > 0)
+				write(logfile, (char *) &bp->data[bp->datasize], n);
+		}
 #endif
 
 		ch_fpos += n;

@@ -624,6 +624,19 @@ typedef enum {
 #define X11MOUSE_WHEEL_DOWN 0x41 /* Wheel scroll down */
 #define X11MOUSE_OFFSET     0x20 /* Added to button & pos bytes to create a char */
 
+/* Security features. */
+#define SF_EDIT             (1<<1)  /* Edit file (v) */
+#define SF_EXAMINE          (1<<2)  /* Examine file (:e) */
+#define SF_GLOB             (1<<3)  /* Expand file pattern */
+#define SF_HISTORY          (1<<4)  /* History file */
+#define SF_LESSKEY          (1<<5)  /* Lesskey files */
+#define SF_LESSOPEN         (1<<6)  /* LESSOPEN */
+#define SF_LOGFILE          (1<<7)  /* Log file (s, -o) */
+#define SF_PIPE             (1<<8)  /* Pipe (|) */
+#define SF_SHELL            (1<<9)  /* Shell command (!) */
+#define SF_STOP             (1<<10) /* Stop signal */
+#define SF_TAGS             (1<<11) /* Tags */
+
 #if LESSTEST
 #define LESS_DUMP_CHAR CONTROL(']')
 #endif

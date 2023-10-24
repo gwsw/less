@@ -36,8 +36,8 @@ public POSITION end_attnpos = NULL_POSITION;
 public int      wscroll;
 public char *   progname;
 public int      quitting;
-public int      secure;
 public int      dohelp;
+static int      secure;
 
 #if LOGFILE
 public int      logfile = -1;
@@ -515,4 +515,13 @@ public void quit(int status)
 #endif
 	close_getchr();
 	exit(status);
+} 
+	
+/*
+ * Are all the features in the features mask allowed by security?
+ */
+public int secure_allow(int features)
+{
+	/* Currently per-feature control is not implemented. */
+	return (secure == 0);
 }

@@ -24,7 +24,6 @@ extern int sc_width;
 extern int utf_mode;
 extern int no_hist_dups;
 extern int marks_modified;
-extern int secure;
 
 static char cmdbuf[CMDBUF_SIZE]; /* Buffer for holding a multi-char command */
 static int cmd_col;              /* Current column of the cursor */
@@ -1469,7 +1468,7 @@ static void read_cmdhist2(void (*action)(void*,struct mlist*,char*), void *upara
 
 static void read_cmdhist(void (*action)(void*,struct mlist*,char*), void *uparam, int skip_search, int skip_shell)
 {
-	if (secure)
+	if (!secure_allow(SF_HISTORY))
 		return;
 	read_cmdhist2(action, uparam, skip_search, skip_shell);
 	(*action)(uparam, NULL, NULL); /* signal end of file */
@@ -1637,7 +1636,7 @@ public void save_cmdhist(void)
 	FILE *fout = NULL;
 	int histsize = 0;
 
-	if (secure || !histfile_modified())
+	if (!secure_allow(SF_HISTORY) || !histfile_modified())
 		return;
 	histname = histfile_name(0);
 	if (histname == NULL)

@@ -33,7 +33,6 @@ extern int quitting;
 extern int wscroll;
 extern int top_scroll;
 extern int ignore_eoi;
-extern int secure;
 extern int hshift;
 extern int bs_mode;
 extern int proc_backspace;
@@ -278,7 +277,7 @@ static void exec_mca(void)
 		break;
 #if EXAMINE
 	case A_EXAMINE:
-		if (secure)
+		if (!secure_allow(SF_EXAMINE))
 			break;
 		edit_list(cbuf);
 #if TAGS
@@ -301,7 +300,7 @@ static void exec_mca(void)
 			shellcmd = fexpand(cbuf);
 		}
 
-		if (secure)
+		if (!secure_allow(SF_SHELL))
 			break;
 		if (shellcmd == NULL)
 			lsystem("", "!done");
@@ -309,14 +308,14 @@ static void exec_mca(void)
 			lsystem(shellcmd, "!done");
 		break;
 	case A_PSHELL:
-		if (secure)
+		if (!secure_allow(SF_SHELL))
 			break;
 		lsystem(pr_expand(cbuf), "#done");
 		break;
 #endif
 #if PIPEC
 	case A_PIPE:
-		if (secure)
+		if (!secure_allow(SF_PIPE))
 			break;
 		(void) pipe_mark(pipec, cbuf);
 		error("|done", NULL_PARG);
@@ -1757,7 +1756,7 @@ public void commands(void)
 			 * Edit a new file.  Get the filename.
 			 */
 #if EXAMINE
-			if (!secure)
+			if (secure_allow(SF_EXAMINE))
 			{
 				start_mca(A_EXAMINE, "Examine: ", ml_examine, 0);
 				c = getcc();
@@ -1772,7 +1771,7 @@ public void commands(void)
 			 * Invoke an editor on the input file.
 			 */
 #if EDITOR
-			if (!secure)
+			if (secure_allow(SF_EDIT))
 			{
 				if (ch_getflags() & CH_HELPFILE)
 					break;
@@ -1966,7 +1965,7 @@ public void commands(void)
 			 * Shell escape.
 			 */
 #if SHELL_ESCAPE
-			if (!secure)
+			if (secure_allow(SF_SHELL))
 			{
 				start_mca(action, (action == A_SHELL) ? "!" : "#", ml_shell, 0);
 				c = getcc();
@@ -2020,7 +2019,7 @@ public void commands(void)
 			 * Write part of the input to a pipe to a shell command.
 			 */
 #if PIPEC
-			if (!secure)
+			if (secure_allow(SF_PIPE))
 			{
 				start_mca(A_PIPE, "|mark: ", (void*)NULL, 0);
 				c = getcc();

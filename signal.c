@@ -31,7 +31,6 @@ extern int linenums;
 extern int wscroll;
 extern int reading;
 extern int quit_on_intr;
-extern int secure;
 extern long jump_sline_fraction;
 
 /*
@@ -147,7 +146,7 @@ public void init_signals(int on)
 		(void) LSIGNAL(SIGINT, u_interrupt);
 #endif
 #ifdef SIGTSTP
-		(void) LSIGNAL(SIGTSTP, secure ? SIG_IGN : stop);
+		(void) LSIGNAL(SIGTSTP, !secure_allow(SF_STOP) ? SIG_IGN : stop);
 #endif
 #ifdef SIGWINCH
 		(void) LSIGNAL(SIGWINCH, winch);

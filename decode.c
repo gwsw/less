@@ -34,7 +34,6 @@
 #include "lesskey.h"
 
 extern int erase_char, erase2_char, kill_char;
-extern int secure;
 extern int mousecap;
 extern int sc_height;
 
@@ -820,7 +819,7 @@ public int lesskey(char *filename, int sysvar)
 	long n;
 	int f;
 
-	if (secure)
+	if (!secure_allow(SF_LESSKEY))
 		return (1);
 	/*
 	 * Try to open the lesskey file.
