@@ -879,6 +879,8 @@ public int lesskey(char *filename, int sysvar)
 public int lesskey_src(char *filename, int sysvar)
 {
 	static struct lesskey_tables tables;
+	if (!secure_allow(SF_LESSKEY))
+		return (1);
 	int r = parse_lesskey(filename, &tables);
 	if (r != 0)
 		return (r);
