@@ -2083,33 +2083,51 @@ changed to modify this default.
 When the environment variable LESSSECURE is set to 1,
 .B less
 runs in a "secure" mode.
-This means these features are disabled:
-.RS
-.IP "!"
-the shell command
-.IP "#"
-the pshell command
-.IP "|"
-the pipe command
-.IP ":e"
-the examine command.
-.IP "v"
-the editing command
-.IP "s  \-o"
-log files
-.IP "\-k"
-use of lesskey files
-.IP "\-t"
-use of tags files
-.IP
-metacharacters in filenames, such as *
-.IP
-filename completion (TAB, \(haL)
-.IP
+In this mode, these features are disabled:
+.IP "edit" 10
+the edit command (v)
+.IP "examine"
+the examine command (:e) 
+.IP "glob"
+metacharacters such as * in filenames,
+.br
+and filename completion (TAB, \(haL)
+.IP "history"
 history file
-.RE
+.IP "lesskey"
+use of lesskey files (-k and --lesskey-src)
+.IP "lessopen"
+input preprocessor (LESSOPEN environment variable)
+.IP "logfile"
+log files (s and -o)
+.IP "pipe"
+the pipe command (|) 
+.IP "shell"
+the shell and pshell commands (! and #)
+.IP "stop"
+stopping
+.B less
+via a SIGSTOP signal
+.IP "tags"
+use of tags files (-t)
+.PP
+The LESSSECURE_ALLOW environment variable can be set to a comma-separated list
+of names of features which are selectively enabled when LESSSECURE is set.
+Each feature name is the first word in each line in the above list.
+A feature name may be abbreviated as long as the abbreviation is unambiguous.
+For example, if 
+.nh
+LESSSECURE=1
+.hy
+and
+.nh
+LESSSECURE_ALLOW=hist,edit
+.hy
+were set, all of the above features would be disabled 
+except for history files and the edit command.
 .PP
 Less can also be compiled to be permanently in "secure" mode.
+In that case, the LESSSECURE and LESSSECURE_ALLOW variables are ignored.
 .
 .SH "COMPATIBILITY WITH MORE"
 If the environment variable LESS_IS_MORE is set to 1,
@@ -2249,6 +2267,9 @@ metacharacters will not be passed to the shell.
 Command line to invoke the (optional) input-preprocessor.
 .IP LESSSECURE
 Runs less in "secure" mode.
+See discussion under SECURITY.
+.IP LESSSECURE_ALLOW
+Enables individual features which are normally disabled by LESSSECURE.
 See discussion under SECURITY.
 .IP LESSSEPARATOR
 String to be appended to a directory name in filename completion.
