@@ -871,6 +871,14 @@ Newer versions of
 read the
 .I "lesskey source"
 file directly and ignore the binary file if the source file exists.
+.IP "\-\-lesskey-content=\fItext\fP"
+Causes less to interpret the specified text as the contents of a
+.BR lesskey (1)
+source file.
+In the text,
+.B lesskey
+lines may be separated by either newlines as usual, or by semicolons.
+A literal semicolon may be represented by a backslash followed by a semicolon.
 .IP "\-K or \-\-quit-on-intr"
 Causes
 .B less

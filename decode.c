@@ -876,12 +876,12 @@ public int lesskey(char *filename, int sysvar)
 }
 
 #if HAVE_LESSKEYSRC 
-public int lesskey_src(char *filename, int sysvar)
+static int lesskey_text(char *filename, int sysvar, int content)
 {
 	static struct lesskey_tables tables;
 	if (!secure_allow(SF_LESSKEY))
 		return (1);
-	int r = parse_lesskey(filename, &tables);
+	int r = content ? parse_lesskey_content(filename, &tables) : parse_lesskey(filename, &tables);
 	if (r != 0)
 		return (r);
 	add_fcmd_table(xbuf_char_data(&tables.cmdtable.buf), tables.cmdtable.buf.end);
@@ -889,6 +889,16 @@ public int lesskey_src(char *filename, int sysvar)
 	add_var_table(sysvar ? &list_sysvar_tables : &list_var_tables,
 		xbuf_char_data(&tables.vartable.buf), tables.vartable.buf.end);
 	return (0);
+}
+
+public int lesskey_src(char *filename, int sysvar)
+{
+	return lesskey_text(filename, sysvar, FALSE);
+}
+
+public int lesskey_content(char *content, int sysvar)
+{
+	return lesskey_text(content, sysvar, TRUE);
 }
 
 void lesskey_parse_error(char *s)

@@ -61,6 +61,7 @@ struct lesskey_tables
 };
 
 extern int parse_lesskey(char *infile, struct lesskey_tables *tables);
+extern int parse_lesskey_content(char *content, struct lesskey_tables *tables);
 
 /* keep in sync with less.h */
 #if HAVE_SNPRINTF

@@ -111,6 +111,7 @@ static struct optname J__optname     = { "status-column",        NULL };
 static struct optname k_optname      = { "lesskey-file",         NULL };
 #if HAVE_LESSKEYSRC 
 static struct optname ks_optname     = { "lesskey-src",          NULL };
+static struct optname kc_optname     = { "lesskey-content",      NULL };
 #endif /* HAVE_LESSKEYSRC */
 #endif
 static struct optname K__optname     = { "quit-on-intr",         NULL };
@@ -313,6 +314,10 @@ static struct loption option[] =
 		{ NULL, NULL, NULL }
 	},
 #if HAVE_LESSKEYSRC 
+	{ OLETTER_NONE, &kc_optname,
+		STRING|NO_TOGGLE|NO_QUERY, 0, NULL, opt_kc,
+		{ NULL, NULL, NULL }
+	},
 	{ OLETTER_NONE, &ks_optname,
 		STRING|NO_TOGGLE|NO_QUERY, 0, NULL, opt_ks,
 		{ NULL, NULL, NULL }

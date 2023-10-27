@@ -296,6 +296,20 @@ public void opt_ks(int type, char *s)
 		break;
 	}
 }
+
+public void opt_kc(int type, char *s)
+{
+	switch (type)
+	{
+	case INIT:
+		if (lesskey_content(s, 0))
+		{
+			error("Error in lesskey content", NULL_PARG);
+		}
+		break;
+	}
+}
+
 #endif /* HAVE_LESSKEYSRC */
 #endif /* USERFILE */
 

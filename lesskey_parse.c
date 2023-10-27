@@ -649,3 +649,36 @@ int parse_lesskey(char *infile, struct lesskey_tables *tables)
 	fclose(desc);
 	return (errors);
 }
+
+/*
+ * Parse a lesskey source content and store result in tables.
+ */
+int parse_lesskey_content(char *content, struct lesskey_tables *tables)
+{
+	int cx = 0;
+
+	init_tables(tables);
+	errors = 0;
+	linenum = 0;
+	if (less_version == 0)
+		less_version = lstrtoi(version, NULL, 10);
+
+	while (content[cx] != '\0')
+	{
+		/* Extract a line from the content buffer and parse it. */
+		char line[1024];
+		int lx = 0;
+		while (content[cx] != '\0' && content[cx] != '\n' && content[cx] != ';')
+		{
+			if (lx >= sizeof(line)-1) break;
+			if (content[cx] == '\\' && content[cx+1] == ';')
+				++cx; /* escaped semicolon: skip the backslash */
+			line[lx++] = content[cx++];
+		}
+		line[lx] = '\0';
+		++linenum;
+		parse_line(line, tables);
+		if (content[cx] != '\0') ++cx; /* skip newline or semicolon */
+	}
+	return (errors);
+}
