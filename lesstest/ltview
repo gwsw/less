@@ -361,10 +361,10 @@ sub parse_errfile {
         ++$linenum;
         chomp;
         if (0) {
-        } elsif (/expect:/) {
+        } elsif (/^INFO: mismatch: expect:/) {
             $expect = 'expect';
             $datalines = 1;
-        } elsif (/got:/) {
+        } elsif (/^INFO: got:/) {
             $expect = 'got';
             $datalines = 1;
         } elsif (/^TEST\s+([^\s]+)/) {
@@ -380,12 +380,14 @@ sub parse_errfile {
         } elsif (/^RAN\s+(\d+) tests with (\d+) error/) {
             $errf{tests} = $1;
             $errf{errors} = $2;
-        } else {
+        } elsif (/^DATA:\s*(.*)/) {
             if ($datalines) {
-                $errf{$expect} .= $_;
+                $errf{$expect} .= $1;
             } else {
                 print STDERR "$errfile:$linenum: unexpected data line\n";
             }
+        } else {
+            print STDERR "$errfile:$linenum: unrecognized line\n";
         }
     }
     close $ef;

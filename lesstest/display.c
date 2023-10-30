@@ -94,8 +94,14 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 	int x = 0;
 	int y = 0;
 	int literal = 0;
+	int sol = 1;
 	while (imglen-- > 0) {
 		wchar ch = load_wchar(&img);
+		if (sol)
+		{
+			fprintf(stderr, "DATA: ");
+			sol = 0;
+		}
 		if (!literal) {
 			switch (ch) {
 			case '\\':
@@ -118,6 +124,7 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 			fprintf(stderr, "<%lx>", (unsigned long) ch);
 		if (++x >= screen_width) {
 			fprintf(stderr, "\n");
+			sol = 1;
 			x = 0;
 			if (++y >= screen_height)
 				break;

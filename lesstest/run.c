@@ -84,9 +84,9 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 	if (currlen == imglen && memcmp(img, curr, imglen) == 0)
 		return 1;
 	if (details) {
-		fprintf(stderr, "lt: mismatch: expect:\n");
+		fprintf(stderr, "INFO: mismatch: expect:\n");
 		display_screen_debug(img, imglen, pipeline->screen_width, pipeline->screen_height);
-		fprintf(stderr, "lt: got:\n");
+		fprintf(stderr, "INFO: got:\n");
 		display_screen_debug(curr, currlen, pipeline->screen_width, pipeline->screen_height);
 	}
 	if (details_file != NULL) {
