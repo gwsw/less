@@ -43,8 +43,9 @@ sub main {
     die $usage if not defined $ltfile or @ARGV;
     my $lt = parse_ltfile($ltfile);
     return 0 if not $lt;
-    if (not $opt{f} and ($lt->{lines} > $ENV{LINES} or $lt->{columns} > $ENV{COLUMNS})) {
-        print "Screen size used by $ltfile ($lt->{columns}x$lt->{lines}) does not fit on your screen ($ENV{COLUMNS}x$ENV{LINES}).\n";
+    my $lt_lines = $lt->{lines} + 2; # 2 lines for prompt at bottom of screen
+    if (not $opt{f} and ($lt_lines > $ENV{LINES} or $lt->{columns} > $ENV{COLUMNS})) {
+        print "Screen size used by $ltfile ($lt->{columns}x$lt_lines) does not fit on your screen ($ENV{COLUMNS}x$ENV{LINES}).\n";
         print "Use -f to view it anyway (but it won't look correct).\n";
         return 0;
     }
@@ -110,6 +111,11 @@ sub run_cmd {
         tgoto_bot($lt);
         print cr("\n" . $usage . $help);
         press_to_continue();
+    } elsif ($ch eq '=') {
+        tgoto_bot($lt);
+        print_ltfile_info($lt);
+        print_errfile_info($errf);
+        press_to_continue();
     } elsif ($ch eq 'l') {
         $running->{show_expect} = 0;
         $num = 1 if $num == 0;
@@ -118,17 +124,17 @@ sub run_cmd {
         $running->{show_expect} = 0;
         $num = 1 if $num == 0;
         $running->{sindex} = check_sindex($running->{sindex} - $num, $states);
-    } elsif ($ch eq 'g' or $ch eq 'G' or $ch eq 'e') {
+    } elsif ($ch eq 'g' or $ch eq 'G') {
         $running->{show_expect} = 0;
         $num = @$states-1 if $ch eq 'G' and $num == 0;
-        if ($ch eq 'e') {
-            if (not $errf) {
-                beep();
-            } else {
-                $num = $errf->{fail_index};
-            }
-        }
         $running->{sindex} = check_sindex($num, $states);
+    } elsif ($ch eq 'e') {
+        if (not $errf) {
+            beep();
+        } else {
+            $running->{show_expect} = 0;
+            $running->{sindex} = check_sindex($errf->{fail_index}, $states);
+        }
     } elsif ($ch eq 'j') {
         if (not $errf) {
             beep();
@@ -141,11 +147,6 @@ sub run_cmd {
         } else {
             if (--$running->{show_expect} < 0) { $running->{show_expect} = @show_expects-1; }
         }
-    } elsif ($ch eq '=') {
-        tgoto_bot($lt);
-        print_ltfile_info($lt);
-        print_errfile_info($errf);
-        press_to_continue();
     } else {
         beep();
     }
@@ -182,20 +183,20 @@ sub display {
             }
             if ($ch eq '@') { # attr
                 $curr_attr = hex substr($img, $cpos, 2);
-                $cpos += 2;
                 display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
+                $cpos += 2;
                 next;
             }
             if ($ch eq '$') { # fg color
                 $curr_fg_color = hex substr($img, $cpos, 2);
-                $cpos += 2;
                 display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
+                $cpos += 2;
                 next;
             }
             if ($ch eq '!') { # bg color
                 $curr_bg_color = hex substr($img, $cpos, 2);
-                $cpos += 2;
                 display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
+                $cpos += 2;
                 next;
             }
             if ($ch eq '#') { # cursor
