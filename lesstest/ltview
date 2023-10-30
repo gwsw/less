@@ -1,0 +1,236 @@
+#!/usr/bin/env perl
+use strict;
+use Getopt::Std;
+use IO::Stty;
+
+my $usage = "usage: ltview lt-file [error-file]";
+my $help = <<_EOF_;
+\r
+Commands:\r
+[N]l   Go to (N-th) next state.\r
+[N]h   Go to (N-th) previous state.\r
+[N]g   Go to first (or N-th) state.\r
+[N]G   Go to last (or N-th) state.\r
+_EOF_
+
+my $ATTR_BOLD           = (1<<0);
+my $ATTR_UNDERLINE      = (1<<1);
+my $ATTR_STANDOUT       = (1<<2);
+my $ATTR_BLINK          = (1<<3);
+my $NULL_COLOR          = 0xFF;
+
+my %opt;
+
+# ---------------------------------------------------------------------
+
+main();
+sub main {
+    die $usage if not getopts('r', \%opt);
+    my $ltfile = shift @ARGV;
+	my $errfile = shift @ARGV;
+    die $usage if not defined $ltfile or @ARGV;
+    my $lt = read_lt_file($ltfile);
+    die "cannot read $ltfile\n" if not $lt;
+    die "missing geometry\n" if (not $lt->{lines} or not $lt->{columns});
+    run($lt, $errfile);
+}
+
+sub run {
+    my ($lt, $errfile) = @_;
+    my $states = $lt->{states};
+    return if not $states;
+
+    my $omode = IO::Stty::stty(\*STDIN, '-g');
+    IO::Stty::stty(\*STDIN, ('raw','-echo')) unless $opt{r};
+    my $sindex = 0;
+    my $param = '';
+    for (;;) {
+        my $prompt = sprintf(" \e[1m[%d/%d]\e[m %s", $sindex+1, scalar @$states, $param);
+        display($$states[$sindex], $prompt, $lt);
+        my $ch = getc();
+        $ch = substr($ch,0,1);
+        last if $ch eq 'q';
+        if ($ch ge '0' and $ch le '9') {
+            $param .= $ch;
+        } else {
+            my $num = $param;
+            $num = 0 if $num !~ /^\d+$/ or $num <= 0;
+            $param = '';
+            if ($ch eq '?') {
+                tgoto_bot($lt);
+                print $help;
+                print "\r\nPress any key to continue. ";
+                getc();
+            } elsif ($ch eq 'l') {
+                $num = 1 if $num == 0;
+                $sindex += $num;
+                $sindex = @$states-1 if $sindex >= @$states;
+            } elsif ($ch eq 'h') {
+                $num = 1 if $num == 0;
+                $sindex -= $num;
+                $sindex = 0 if $sindex < 0;
+            } elsif ($ch eq 'g' or $ch eq 'G') {
+                $num = @$states if $ch eq 'G' and $num == 0;
+                $sindex = $num-1;
+                $sindex = @$states-1 if $sindex >= @$states;
+                $sindex = 0 if $sindex < 0;
+            }
+        }
+    }
+    tgoto_bot($lt);
+    IO::Stty::stty(\*STDIN, $omode);
+}
+
+# ---------------------------------------------------------------------
+
+sub display {
+    my ($state, $prompt, $lt) = @_;
+    my $x = 0;
+    my $y = 0;
+    my $cursor_x = 0;
+    my $cursor_y = 0;
+    my $literal = 0;
+    my $curr_attr = 0;
+    my $curr_fg_color = -1;
+    my $curr_bg_color = -1;
+    print "\e[H\e[J";
+    for (my $cpos = 0; $cpos < length $state->{img}; ) {
+        my $ch = substr $state->{img}, $cpos++, 1;
+        if (not $literal) {
+            if ($ch eq '\\') { # escape
+                $literal = 1;
+                next;
+            }
+            if ($ch eq '@') { # attr
+                $curr_attr = hex substr($state->{img}, $cpos, 2);
+                $cpos += 2;
+                display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
+                next;
+            }
+            if ($ch eq '$') { # fg color
+                $curr_fg_color = hex substr($state->{img}, $cpos, 2);
+                $cpos += 2;
+                display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
+                next;
+            }
+            if ($ch eq '!') { # bg color
+                $curr_bg_color = hex substr($state->{img}, $cpos, 2);
+                $cpos += 2;
+                display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
+                next;
+            }
+            if ($ch eq '#') { # cursor
+                $cursor_x = $x;
+                $cursor_y = $y;
+                next;
+            }
+        }
+        $literal = 0;
+        print $ch if length($ch) > 0;
+        if (++$x >= $lt->{columns}) {
+            print "\r\n";
+            $x = 0;
+            ++$y;
+        }
+    }
+    printf "\r\n%s", $prompt;
+    tgoto($cursor_x, $cursor_y);
+}
+
+sub display_attr_color {
+    my ($attr, $fg_color, $bg_color) = @_;
+	print "\e[m";
+    print "\e[${fg_color}m" if ($fg_color != $NULL_COLOR);
+    print "\e[${bg_color}m" if ($bg_color != $NULL_COLOR);
+    print "\e[4m" if ($attr & $ATTR_UNDERLINE);
+    print "\e[1m" if ($attr & $ATTR_BOLD);
+    print "\e[5m" if ($attr & $ATTR_BLINK);
+    print "\e[7m" if ($attr & $ATTR_STANDOUT);
+}
+
+sub tgoto {
+    my ($x, $y) = @_;
+    printf "\e[%d;%dH", $y+1, $x+1;
+}
+sub tgoto_bot {
+    my ($lt) = @_;
+    tgoto(0, $lt->{lines}+2);
+}
+
+# ---------------------------------------------------------------------
+
+sub read_lt_file {
+    my ($file) = @_;
+    my $fd;
+    if (not open $fd, '<', $file) {
+        print STDERR "cannot open $file: $!\n";
+        return undef;
+    }
+    my @states;
+    my %lt = ( 'states' => \@states );
+    while (<$fd>) {
+        chomp;
+        my $type = substr $_,0,1;
+        next if not defined $type;
+        if ($type eq '!') {
+        } elsif ($type eq 'A') { # less cmd line parameters
+        } elsif ($type eq 'E') { # environment variable
+            parse_env($_, \%lt);
+        } elsif ($type eq 'F') { # text file
+            parse_filedesc($_, $fd, \%lt);
+        } elsif ($type eq 'Q') { # end of test
+            last;
+        } elsif ($type eq 'R') { # end of test header; start run
+        } elsif ($type eq 'T') { # test header
+        } elsif ($type eq '=') { # board image
+            parse_img($_, \%lt);
+        } elsif ($type eq '+') { # keystroke
+            parse_keystroke($_, \%lt);
+        } elsif ($type eq '!') { # file header
+        } 
+    }
+    close $fd;
+    return \%lt;
+}
+
+sub parse_env {
+    my ($line, $lt) = @_;
+    my ($ename, $evalue) = /^E \s* "(\w*)" \s* "([^"]*)" /x;
+    if ($ename eq "COLUMNS") {
+        $lt->{columns} = $evalue;
+    } elsif ($ename eq "LINES") {
+        $lt->{lines} = $evalue;
+    }
+    return 1;
+}
+
+sub parse_filedesc {
+    my ($line, $fd, $lt) = @_;
+    my ($filename, $filesize) = $line =~ /^F \s* "([^"]*)" \s* (\d+)/x;
+    my $filedata;
+    my $nread = read $fd, $filedata, $filesize;
+    return 0 if not $nread or $nread != $filesize;
+    return 1;
+}
+
+sub parse_img {
+    my ($line, $lt) = @_;
+    my $img = substr $line, 1;
+    my %state = ( 'img'=>$img );
+    if ($lt->{states}) {
+        my $last_state = ${$lt->{states}}[@{$lt->{states}}-1];
+        if (not $last_state->{img} or not $last_state->{keystroke}) {
+            print STDERR "incomplete test state ignored\n";
+        }
+    }
+    push @{$lt->{states}}, \%state;
+    return 1;
+}
+
+sub parse_keystroke {
+    my ($line, $lt) = @_;
+    my ($hex) = $line =~ /^\+ \s* (\w+)/x;
+    return 0 if not $lt->{states};
+    ${${$lt->{states}}[@{$lt->{states}}-1]}{keystroke} = hex $hex;
+    return 1;
+}
