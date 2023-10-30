@@ -32,7 +32,7 @@ my %opt;
 exit (main() ? 0 : 1);
 
 sub main {
-    die $usage if not getopts('r', \%opt);
+    die $usage if not getopts('cr', \%opt);
     my $ltfile = shift @ARGV;
     my $errfile = shift @ARGV;
     die $usage if not defined $ltfile or @ARGV;
@@ -47,7 +47,7 @@ sub main {
 sub run {
     my ($lt, $errf) = @_;
     my $states = $lt->{states};
-    return if not $states;
+    return if not @$states;
     my $omode = IO::Stty::stty(\*STDIN, '-g');
     IO::Stty::stty(\*STDIN, ('raw','-echo')) unless $opt{r};
     my $sindex = 0;
@@ -57,10 +57,10 @@ sub run {
     for (;;) {
         if ($show_expect > 0) {
             my $exp = $show_expects[$show_expect];
-            my $prompt = sprintf(" \e[7m%s (%s before %02x) [%d/%d] \e[m %s", $errf->{filename}, $exp, $errf->{fail_char}, $errf->{fail_index}, scalar @$states, $param);
+            my $prompt = sprintf(" %s%s (%s before %02x) [%d/%d] %s %s", attr_string('so'), $errf->{filename}, $exp, $errf->{fail_char}, $errf->{fail_index}, scalar @$states, attr_string(), $param);
             display($errf->{$exp}, $prompt, $lt);
         } else {
-            my $prompt = sprintf(" \e[7m%s [%d/%d]\e[m %s", $lt->{filename}, $sindex, scalar @$states, $param);
+            my $prompt = sprintf(" %s%s [%d/%d]%s %s", attr_string('so'), $lt->{filename}, $sindex, scalar @$states, attr_string(), $param);
             display(${$$states[$sindex]}{img}, $prompt, $lt);
         }
         my $ch = getc();
@@ -87,7 +87,7 @@ sub run {
                 $sindex = check_sindex($sindex - $num, $states);
             } elsif ($ch eq 'g' or $ch eq 'G' or $ch eq 'e') {
                 $show_expect = 0;
-                $num = @$states if $ch eq 'G' and $num == 0;
+                $num = @$states-1 if $ch eq 'G' and $num == 0;
                 if ($ch eq 'e') {
                     if (not $errf) {
                         beep();
@@ -136,6 +136,7 @@ sub display {
     my $curr_attr = 0;
     my $curr_fg_color = -1;
     my $curr_bg_color = -1;
+
     print "\e[H\e[J";
     for (my $cpos = 0; $cpos < length $img; ) {
         my $ch = substr $img, $cpos++, 1;
@@ -192,6 +193,12 @@ sub display_attr_color {
     print "\e[7m" if ($attr & $ATTR_STANDOUT);
 }
 
+sub attr_string {
+    my ($mode) = @_;
+    return "\e[m" if not $mode;
+    return ($opt{c} ? "\e[106;30m" : "\e[7m") if $mode eq 'so';
+    return "";
+}
 sub tgoto {
     my ($x, $y) = @_;
     printf "\e[%d;%dH", $y+1, $x+1;
@@ -277,13 +284,14 @@ sub parse_img {
     my ($line, $lt) = @_;
     my $img = substr $line, 1;
     my %state = ( 'img'=>$img );
-    if ($lt->{states}) {
-        my $last_state = ${$lt->{states}}[@{$lt->{states}}-1];
+    my $states = $lt->{states};
+    if (@$states) {
+        my $last_state = ${$states}[@$states-1];
         if (not $last_state->{img} or not $last_state->{keystroke}) {
             print STDERR "incomplete state image ignored\n";
         }
     }
-    push @{$lt->{states}}, \%state;
+    push @$states, \%state;
     return 1;
 }
 
@@ -315,6 +323,10 @@ sub parse_errfile {
             $errf{fail_index} = $2; # FIXME why not $2-1?
             $errf{fail_char} = hex $3;
             $datalines = 0;
+        } elsif (/^FAIL:.*\((\d+) step/) {
+            $errf{steps} = $1;
+        } elsif (/^ERR /) {
+        } elsif (/^RAN /) {
         } else {
             if ($datalines) {
                 $errf{$expect} .= $_;
@@ -335,7 +347,8 @@ sub parse_errfile {
 sub parse_keystroke {
     my ($line, $lt) = @_;
     my ($hex) = $line =~ /^\+ \s* (\w+)/x;
-    return 0 if not $lt->{states};
-    ${${$lt->{states}}[@{$lt->{states}}-1]}{keystroke} = hex $hex;
+    my $states = $lt->{states};
+    return 0 if not @$states;
+    ${$$states[@$states-1]}{keystroke} = hex $hex;
     return 1;
 }
