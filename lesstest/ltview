@@ -4,7 +4,9 @@ use Getopt::Std;
 use IO::Stty;
 
 my $usage =
-    "usage: ltview lt-file [error-file]\n" .
+    "usage: ltview [-cr] lt-file [error-file]\n" .
+    "       -c = use color\n" .
+    "       -r = don't put terminal in raw mode\n" .
     "       error-file is output from \"lesstest -D\"\n";
 
 my $help = <<_EOF_;
@@ -17,7 +19,8 @@ Commands:\r
    j   Go to next error file state.\r
    k   Go to previous error file state.\r
    e   Go to lt state corresponding to error file state.\r
-   ?   Display help.\r
+   =   Print info about lt file and error file.\r
+   ?   Display this help.\r
 _EOF_
 
 my $ATTR_BOLD           = (1<<0);
@@ -108,6 +111,12 @@ sub run {
                 } else {
                     if (--$show_expect < 0) { $show_expect = @show_expects-1; }
                 }
+            } elsif ($ch eq '=') {
+                tgoto_bot($lt);
+                print_ltfile_info($lt);
+                print_errfile_info($errf);
+                print "\r\nPress any key to continue. ";
+                getc();
             } else {
                 beep();
             }
@@ -276,6 +285,7 @@ sub parse_filedesc {
     my $filedata;
     my $nread = read $fd, $filedata, $filesize;
     return 0 if not $nread or $nread != $filesize;
+    $lt->{filesize} = $filesize;
     return 1;
 }
 
@@ -325,8 +335,11 @@ sub parse_errfile {
             $datalines = 0;
         } elsif (/^FAIL:.*\((\d+) step/) {
             $errf{steps} = $1;
-        } elsif (/^ERR /) {
-        } elsif (/^RAN /) {
+        } elsif (/^ERR\s+(.*)/) {
+            $errf{msg} = $1;
+        } elsif (/^RAN\s+(\d+) tests with (\d+) error/) {
+            $errf{tests} = $1;
+            $errf{errors} = $2;
         } else {
             if ($datalines) {
                 $errf{$expect} .= $_;
@@ -341,6 +354,34 @@ sub parse_errfile {
         return undef;
     }
     return \%errf;
+}
+
+# ---------------------------------------------------------------------
+sub print_ltfile_info {
+    my ($lt) = @_;
+    printf "\r\nLT file:\r\n";
+    printf "  name    %s\r\n", $lt->{filename};
+    printf "  size    %d\r\n", $lt->{filesize};
+    printf "  states  %d\r\n", scalar @{$lt->{states}};
+    printf "  lines   %d\r\n", $lt->{lines};
+    printf "  columns %d\r\n", $lt->{columns};
+}
+
+# ---------------------------------------------------------------------
+sub print_errfile_info {
+    my ($errf) = @_;
+    return if not $errf;
+    printf "\r\nError file:\r\n";
+    printf "  name    %s\r\n", $errf->{name};
+    printf "  tests   %d\r\n", $errf->{tests};
+    printf "  errors  %d\r\n", $errf->{errors};
+    printf "  steps   %d\r\n", $errf->{steps};
+    printf "  cmd#    %d\r\n", $errf->{fail_index};
+    my $ch = $errf->{fail_char};
+    printf "  char    0x%02x", $ch;
+    printf " (%s)", chr($ch) if $ch >= 0x20 and $ch < 0x7f;
+    printf "\r\n";
+    printf "  msg     %s\r\n", $errf->{msg};
 }
 
 # ---------------------------------------------------------------------
