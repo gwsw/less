@@ -3,14 +3,21 @@ use strict;
 use Getopt::Std;
 use IO::Stty;
 
-my $usage = "usage: ltview lt-file [error-file]";
+my $usage =
+    "usage: ltview lt-file [error-file]\n" .
+    "       error-file is output from \"lesstest -D\"\n";
+
 my $help = <<_EOF_;
 \r
 Commands:\r
-[N]l   Go to (N-th) next state.\r
-[N]h   Go to (N-th) previous state.\r
-[N]g   Go to first (or N-th) state.\r
-[N]G   Go to last (or N-th) state.\r
+[N]l   Go to (N-th) next lt state.\r
+[N]h   Go to (N-th) previous lt state.\r
+[N]g   Go to first (or N-th) lt state.\r
+[N]G   Go to last (or N-th) lt state.\r
+   j   Go to next error file state.\r
+   k   Go to previous error file state.\r
+   e   Go to lt state corresponding to error file state.\r
+   ?   Display help.\r
 _EOF_
 
 my $ATTR_BOLD           = (1<<0);
@@ -27,26 +34,34 @@ main();
 sub main {
     die $usage if not getopts('r', \%opt);
     my $ltfile = shift @ARGV;
-	my $errfile = shift @ARGV;
+    my $errfile = shift @ARGV;
     die $usage if not defined $ltfile or @ARGV;
-    my $lt = read_lt_file($ltfile);
+    my $lt = parse_ltfile($ltfile);
     die "cannot read $ltfile\n" if not $lt;
     die "missing geometry\n" if (not $lt->{lines} or not $lt->{columns});
-    run($lt, $errfile);
+    my $errf = defined $errfile ? parse_errfile($errfile) : undef;
+    run($lt, $errf);
 }
 
 sub run {
-    my ($lt, $errfile) = @_;
+    my ($lt, $errf) = @_;
     my $states = $lt->{states};
     return if not $states;
-
     my $omode = IO::Stty::stty(\*STDIN, '-g');
     IO::Stty::stty(\*STDIN, ('raw','-echo')) unless $opt{r};
     my $sindex = 0;
     my $param = '';
+    my @show_expects = ('', 'expect', 'got');
+    my $show_expect = 0;
     for (;;) {
-        my $prompt = sprintf(" \e[1m[%d/%d]\e[m %s", $sindex+1, scalar @$states, $param);
-        display($$states[$sindex], $prompt, $lt);
+        if ($show_expect > 0) {
+            my $exp = $show_expects[$show_expect];
+            my $prompt = sprintf(" \e[7m%s (%s before %02x) [%d/%d] \e[m %s", $errf->{filename}, $exp, $errf->{fail_char}, $errf->{fail_index}, scalar @$states, $param);
+            display($errf->{$exp}, $prompt, $lt);
+        } else {
+            my $prompt = sprintf(" \e[7m%s [%d/%d]\e[m %s", $lt->{filename}, $sindex, scalar @$states, $param);
+            display(${$$states[$sindex]}{img}, $prompt, $lt);
+        }
         my $ch = getc();
         $ch = substr($ch,0,1);
         last if $ch eq 'q';
@@ -62,18 +77,51 @@ sub run {
                 print "\r\nPress any key to continue. ";
                 getc();
             } elsif ($ch eq 'l') {
-                $num = 1 if $num == 0;
-                $sindex += $num;
-                $sindex = @$states-1 if $sindex >= @$states;
+                if ($show_expect) {
+                    beep();
+                } else {
+                    $num = 1 if $num == 0;
+                    $sindex += $num;
+                    if ($sindex >= @$states) { beep(); $sindex = @$states-1; }
+                }
             } elsif ($ch eq 'h') {
-                $num = 1 if $num == 0;
-                $sindex -= $num;
-                $sindex = 0 if $sindex < 0;
-            } elsif ($ch eq 'g' or $ch eq 'G') {
-                $num = @$states if $ch eq 'G' and $num == 0;
-                $sindex = $num-1;
-                $sindex = @$states-1 if $sindex >= @$states;
-                $sindex = 0 if $sindex < 0;
+                if ($show_expect) {
+                    beep();
+                } else {
+                    $num = 1 if $num == 0;
+                    $sindex -= $num;
+                    if ($sindex < 0) { beep(); $sindex = 0; }
+                }
+            } elsif ($ch eq 'g' or $ch eq 'G' or $ch eq 'e') {
+                if ($show_expect) {
+                    beep();
+                } else {
+                    $num = @$states if $ch eq 'G' and $num == 0;
+                    if ($ch eq 'e') {
+                        if (not $errf) {
+                            beep();
+                        } else {
+                            $num = $errf->{fail_index};
+                        }
+                    }
+                    $sindex = $num;
+                    if ($sindex < 0) { beep(); $sindex = 0; }
+                    if ($sindex >= @$states) { beep(); $sindex = @$states-1; }
+                }
+            } elsif ($ch eq 'j') {
+                if (not $errf) {
+                    beep();
+                } else {
+                    if (++$show_expect >= @show_expects) { $show_expect = 0; }
+                }
+            } elsif ($ch eq 'k') {
+                if (not $errf) {
+                    beep();
+                } else {
+                    if (--$show_expect < 0) { $show_expect = @show_expects-1; }
+                }
+            } else {
+                beep();
             }
         }
     }
@@ -84,7 +132,7 @@ sub run {
 # ---------------------------------------------------------------------
 
 sub display {
-    my ($state, $prompt, $lt) = @_;
+    my ($img, $prompt, $lt) = @_;
     my $x = 0;
     my $y = 0;
     my $cursor_x = 0;
@@ -94,27 +142,27 @@ sub display {
     my $curr_fg_color = -1;
     my $curr_bg_color = -1;
     print "\e[H\e[J";
-    for (my $cpos = 0; $cpos < length $state->{img}; ) {
-        my $ch = substr $state->{img}, $cpos++, 1;
+    for (my $cpos = 0; $cpos < length $img; ) {
+        my $ch = substr $img, $cpos++, 1;
         if (not $literal) {
             if ($ch eq '\\') { # escape
                 $literal = 1;
                 next;
             }
             if ($ch eq '@') { # attr
-                $curr_attr = hex substr($state->{img}, $cpos, 2);
+                $curr_attr = hex substr($img, $cpos, 2);
                 $cpos += 2;
                 display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
                 next;
             }
             if ($ch eq '$') { # fg color
-                $curr_fg_color = hex substr($state->{img}, $cpos, 2);
+                $curr_fg_color = hex substr($img, $cpos, 2);
                 $cpos += 2;
                 display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
                 next;
             }
             if ($ch eq '!') { # bg color
-                $curr_bg_color = hex substr($state->{img}, $cpos, 2);
+                $curr_bg_color = hex substr($img, $cpos, 2);
                 $cpos += 2;
                 display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
                 next;
@@ -139,7 +187,7 @@ sub display {
 
 sub display_attr_color {
     my ($attr, $fg_color, $bg_color) = @_;
-	print "\e[m";
+    print "\e[m";
     print "\e[${fg_color}m" if ($fg_color != $NULL_COLOR);
     print "\e[${bg_color}m" if ($bg_color != $NULL_COLOR);
     print "\e[4m" if ($attr & $ATTR_UNDERLINE);
@@ -156,10 +204,13 @@ sub tgoto_bot {
     my ($lt) = @_;
     tgoto(0, $lt->{lines}+2);
 }
+sub beep {
+    print "\7";
+}
 
 # ---------------------------------------------------------------------
 
-sub read_lt_file {
+sub parse_ltfile {
     my ($file) = @_;
     my $fd;
     if (not open $fd, '<', $file) {
@@ -167,7 +218,7 @@ sub read_lt_file {
         return undef;
     }
     my @states;
-    my %lt = ( 'states' => \@states );
+    my %lt = ( 'filename' => $file, 'states' => \@states );
     while (<$fd>) {
         chomp;
         my $type = substr $_,0,1;
@@ -220,11 +271,44 @@ sub parse_img {
     if ($lt->{states}) {
         my $last_state = ${$lt->{states}}[@{$lt->{states}}-1];
         if (not $last_state->{img} or not $last_state->{keystroke}) {
-            print STDERR "incomplete test state ignored\n";
+            print STDERR "incomplete state image ignored\n";
         }
     }
     push @{$lt->{states}}, \%state;
     return 1;
+}
+
+sub parse_errfile {
+    my ($errfile) = @_;
+    my $ef;
+    if (not open $ef, '<', $errfile) {
+        print STDERR "cannot open $errfile: $!\n";
+        return undef;
+    }
+    my $expect;
+    my %errf = ( 'filename' => $errfile );
+    while (<$ef>) {
+        chomp;
+        if (0) {
+        } elsif (/expect:/) {
+            $expect = 'expect';
+        } elsif (/got:/) {
+            $expect = 'got';
+        } elsif (/^TEST\s+([^\s]+)/) {
+            $errf{name} = $1;
+        } elsif (/^DIFF\s+([^\s]+) on cmd #(\d+) \(.\s+(\w+)\s*\)/) {
+            $errf{fail_index} = $2; # FIXME why not $2-1?
+            $errf{fail_char} = hex $3;
+        } else {
+            $errf{$expect} .= $_ if $expect;
+        }
+    }
+    close $ef;
+    if (not defined $errf{expect} or not defined $errf{got} or not defined $errf{fail_index}) {
+        print STDERR "incomplete error file $errfile ignored\n";
+        return undef;
+    }
+    return \%errf;
 }
 
 sub parse_keystroke {
