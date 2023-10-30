@@ -4,23 +4,24 @@ use Getopt::Std;
 use IO::Stty;
 
 my $usage =
-    "usage: ltview [-cr] lt-file [error-file]\n" .
+    "usage: ltview [-cfr] lt-file [error-file]\n" .
     "       -c = use color\n" .
+    "       -f = use lt-file even if it does not fit on screen\n" .
     "       -r = don't put terminal in raw mode\n" .
     "       error-file is output from \"lesstest -D\"\n";
 
 my $help = <<_EOF_;
-\r
-Commands:\r
-[N]l   Go to (N-th) next lt state.\r
-[N]h   Go to (N-th) previous lt state.\r
-[N]g   Go to first (or N-th) lt state.\r
-[N]G   Go to last (or N-th) lt state.\r
-   j   Go to next error file state.\r
-   k   Go to previous error file state.\r
-   e   Go to lt state corresponding to error file state.\r
-   =   Print info about lt file and error file.\r
-   ?   Display this help.\r
+
+Commands:
+[N]l   Go to (N-th) next lt state.
+[N]h   Go to (N-th) previous lt state.
+[N]g   Go to first (or N-th) lt state.
+[N]G   Go to last (or N-th) lt state.
+   j   Go to next error file state.
+   k   Go to previous error file state.
+   e   Go to lt state corresponding to error file state.
+   =   Print info about lt file and error file.
+   ?   Display this help.
 _EOF_
 
 my $ATTR_BOLD           = (1<<0);
@@ -29,18 +30,24 @@ my $ATTR_STANDOUT       = (1<<2);
 my $ATTR_BLINK          = (1<<3);
 my $NULL_COLOR          = 0xFF;
 
+my @show_expects = ('', 'expect', 'got');
 my %opt;
 
 # ---------------------------------------------------------------------
 exit (main() ? 0 : 1);
 
 sub main {
-    die $usage if not getopts('cr', \%opt);
+    die $usage if not getopts('cfr', \%opt);
     my $ltfile = shift @ARGV;
     my $errfile = shift @ARGV;
     die $usage if not defined $ltfile or @ARGV;
     my $lt = parse_ltfile($ltfile);
     return 0 if not $lt;
+    if (not $opt{f} and ($lt->{lines} > $ENV{LINES} or $lt->{columns} > $ENV{COLUMNS})) {
+        print "Screen size used by $ltfile ($lt->{columns}x$lt->{lines}) does not fit on your screen ($ENV{COLUMNS}x$ENV{LINES}).\n";
+        print "Use -f to view it anyway (but it won't look correct).\n";
+        return 0;
+    }
     my $errf = defined $errfile ? parse_errfile($errfile) : undef;
     run($lt, $errf);
     return 1;
@@ -49,81 +56,99 @@ sub main {
 # ---------------------------------------------------------------------
 sub run {
     my ($lt, $errf) = @_;
-    my $states = $lt->{states};
-    return if not @$states;
+    return if not @{$lt->{states}};
     my $omode = IO::Stty::stty(\*STDIN, '-g');
     IO::Stty::stty(\*STDIN, ('raw','-echo')) unless $opt{r};
-    my $sindex = 0;
+    run_loop($lt, $errf);
+    tgoto_bot($lt);
+    IO::Stty::stty(\*STDIN, $omode) unless $opt{r};
+}
+
+# ---------------------------------------------------------------------
+sub run_loop {
+    my ($lt, $errf) = @_;
     my $param = '';
-    my @show_expects = ('', 'expect', 'got');
-    my $show_expect = 0;
+    my %running = ( 'sindex' => 0, 'show_expect' => 0 );
     for (;;) {
-        if ($show_expect > 0) {
-            my $exp = $show_expects[$show_expect];
-            my $prompt = sprintf(" %s%s (%s before %02x) [%d/%d] %s %s", attr_string('so'), $errf->{filename}, $exp, $errf->{fail_char}, $errf->{fail_index}, scalar @$states, attr_string(), $param);
-            display($errf->{$exp}, $prompt, $lt);
-        } else {
-            my $prompt = sprintf(" %s%s [%d/%d]%s %s", attr_string('so'), $lt->{filename}, $sindex, scalar @$states, attr_string(), $param);
-            display(${$$states[$sindex]}{img}, $prompt, $lt);
-        }
+        display_running($lt, $errf, $param, \%running);
         my $ch = getc();
         $ch = substr($ch,0,1);
         last if $ch eq 'q';
         if ($ch ge '0' and $ch le '9') {
             $param .= $ch;
         } else {
-            my $num = $param;
-            $num = 0 if $num !~ /^\d+$/ or $num <= 0;
+            run_cmd($lt, $errf, $ch, $param, \%running);
             $param = '';
-            if ($ch eq '?') {
-                tgoto_bot($lt);
-                print $help;
-                print "\r\nPress any key to continue. ";
-                getc();
-            } elsif ($ch eq 'l') {
-                $show_expect = 0;
-                $num = 1 if $num == 0;
-                $sindex = check_sindex($sindex + $num, $states);
-            } elsif ($ch eq 'h') {
-                $show_expect = 0;
-                $num = 1 if $num == 0;
-                $sindex = check_sindex($sindex - $num, $states);
-            } elsif ($ch eq 'g' or $ch eq 'G' or $ch eq 'e') {
-                $show_expect = 0;
-                $num = @$states-1 if $ch eq 'G' and $num == 0;
-                if ($ch eq 'e') {
-                    if (not $errf) {
-                        beep();
-                    } else {
-                        $num = $errf->{fail_index};
-                    }
-                }
-                $sindex = check_sindex($num, $states);
-            } elsif ($ch eq 'j') {
-                if (not $errf) {
-                    beep();
-                } else {
-                    if (++$show_expect >= @show_expects) { $show_expect = 0; }
-                }
-            } elsif ($ch eq 'k') {
-                if (not $errf) {
-                    beep();
-                } else {
-                    if (--$show_expect < 0) { $show_expect = @show_expects-1; }
-                }
-            } elsif ($ch eq '=') {
-                tgoto_bot($lt);
-                print_ltfile_info($lt);
-                print_errfile_info($errf);
-                print "\r\nPress any key to continue. ";
-                getc();
-            } else {
-                beep();
-            }
         }
     }
-    tgoto_bot($lt);
-    IO::Stty::stty(\*STDIN, $omode);
+}
+
+# ---------------------------------------------------------------------
+sub display_running {
+    my ($lt, $errf, $param, $running) = @_;
+    my $states =  $lt->{states};
+    if ($running->{show_expect} > 0) {
+        my $exp = $show_expects[$running->{show_expect}];
+        my $prompt = sprintf " %s%s (%s before %02x) [%d/%d] %s %s",
+            attr_string('so'), $errf->{filename}, $exp, $errf->{fail_char}, 
+            $errf->{fail_index}, scalar @$states, attr_string(), $param;
+        display($errf->{$exp}, $prompt, $lt);
+    } else {
+        my $prompt = sprintf " %s%s [%d/%d]%s %s",
+            attr_string('so'), $lt->{filename}, 
+            $running->{sindex}, scalar @$states, attr_string(), $param;
+        display(${$$states[$running->{sindex}]}{img}, $prompt, $lt);
+    }
+}
+
+# ---------------------------------------------------------------------
+sub run_cmd {
+    my ($lt, $errf, $ch, $num, $running) = @_;
+    my $states =  $lt->{states};
+    $num = 0 if $num !~ /^\d+$/ or $num <= 0;
+    if ($ch eq '?') {
+        tgoto_bot($lt);
+        print cr("\n" . $usage . $help);
+        press_to_continue();
+    } elsif ($ch eq 'l') {
+        $running->{show_expect} = 0;
+        $num = 1 if $num == 0;
+        $running->{sindex} = check_sindex($running->{sindex} + $num, $states);
+    } elsif ($ch eq 'h') {
+        $running->{show_expect} = 0;
+        $num = 1 if $num == 0;
+        $running->{sindex} = check_sindex($running->{sindex} - $num, $states);
+    } elsif ($ch eq 'g' or $ch eq 'G' or $ch eq 'e') {
+        $running->{show_expect} = 0;
+        $num = @$states-1 if $ch eq 'G' and $num == 0;
+        if ($ch eq 'e') {
+            if (not $errf) {
+                beep();
+            } else {
+                $num = $errf->{fail_index};
+            }
+        }
+        $running->{sindex} = check_sindex($num, $states);
+    } elsif ($ch eq 'j') {
+        if (not $errf) {
+            beep();
+        } else {
+            if (++$running->{show_expect} >= @show_expects) { $running->{show_expect} = 0; }
+        }
+    } elsif ($ch eq 'k') {
+        if (not $errf) {
+            beep();
+        } else {
+            if (--$running->{show_expect} < 0) { $running->{show_expect} = @show_expects-1; }
+        }
+    } elsif ($ch eq '=') {
+        tgoto_bot($lt);
+        print_ltfile_info($lt);
+        print_errfile_info($errf);
+        press_to_continue();
+    } else {
+        beep();
+    }
 }
 
 # ---------------------------------------------------------------------
@@ -143,10 +168,11 @@ sub display {
     my $cursor_y = 0;
     my $literal = 0;
     my $curr_attr = 0;
-    my $curr_fg_color = -1;
-    my $curr_bg_color = -1;
+    my $curr_fg_color = $NULL_COLOR;
+    my $curr_bg_color = $NULL_COLOR;
 
-    print "\e[H\e[J";
+    tgoto(0,0);
+    tclear();
     for (my $cpos = 0; $cpos < length $img; ) {
         my $ch = substr $img, $cpos++, 1;
         if (not $literal) {
@@ -215,9 +241,22 @@ sub tgoto {
 sub tgoto_bot {
     my ($lt) = @_;
     tgoto(0, $lt->{lines}+2);
+    print "\r\n";
+}
+sub tclear {
+    print "\e[J";
 }
 sub beep {
     print "\7";
+}
+sub cr {
+    my ($s) = @_;
+    $s =~ s|\n|\r\n|gs;
+    return $s;
+}
+sub press_to_continue {
+    print cr("\nPress any key to continue. ");
+    getc();
 }
 
 # ---------------------------------------------------------------------
