@@ -13,6 +13,7 @@ char* lt_screen = "./lt_screen";
 char* lt_screen_opts = NULL;
 
 static char* testfile = NULL;
+static char* keyfile = NULL;
 
 static int usage(void) {
 	fprintf(stderr, "usage: lesstest -o file.lt [-w#] [-h#] [-eEdv] [-D detail-file] [-S lt_screen-opts] [--] less.exe [flags] textfile\n");
@@ -24,7 +25,7 @@ static int usage(void) {
 static int setup(int argc, char* const* argv) {
 	char* logfile = NULL;
 	int ch;
-	while ((ch = getopt(argc, argv, "dD:eEo:s:S:t:vx:")) != -1) {
+	while ((ch = getopt(argc, argv, "dD:eEk:o:s:S:t:vx:")) != -1) {
 		switch (ch) {
 		case 'd':
 			details = 1;
@@ -38,6 +39,9 @@ static int setup(int argc, char* const* argv) {
 		case 'E':
 			err_only = 2;
 			break;
+        case 'k':
+            keyfile = optarg;
+            break;
 		case 'o':
 			logfile = optarg;
 			break;
@@ -91,7 +95,7 @@ int main(int argc, char* const* argv, char* const* envp) {
 			usage();
 		} else {
 			log_file_header();
-			ok = run_interactive(argv+optind, argc-optind, envp);
+			ok = run_interactive(argv+optind, argc-optind, envp, keyfile);
 			log_close();
 		}
 	}

@@ -95,7 +95,7 @@ int setup_term(void);
 void display_screen(const byte* img, int imglen, int screen_width, int screen_height);
 void display_screen_debug(const byte* img, int imglen, int screen_width, int screen_height);
 const char* get_envp(char* const* envp, const char* name);
-int run_interactive(char* const* argv, int argc, char* const* envp);
+int run_interactive(char* const* argv, int argc, char* const* envp, const char* keyfile);
 int run_testfile(const char* testfile, const char* less);
 int explore_testfile(const char* testfile);
 void env_init(EnvBuf* env);

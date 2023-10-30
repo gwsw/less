@@ -105,12 +105,20 @@ static int curr_screen_match(LessPipeline* pipeline, const byte* img, int imglen
 	return 0;
 }
 
+// Read a hex character codepoint from the keyfile.
+static wchar read_keyfile(FILE* keyin) {
+    char line[32];
+    if (fgets(line, sizeof(line), keyin) == NULL)
+        return 0;
+    return strtoul(line, NULL, 16);
+}
+
 // Run an interactive lesstest session to create an lt file.
 // Read individual chars from stdin and send them to a LessPipeline.
 // After each char, read the LessPipeline screen and display it 
 // on the user's screen. 
 // Also log the char and the screen image in the lt file.
-int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
+int run_interactive(char* const* argv, int argc, char* const* prog_envp, char const* keyfile) {
 	setup_term();
 	char* const* envp = less_envp(prog_envp, 1);
 	LessPipeline* pipeline = create_less_pipeline(argv, argc, envp);
@@ -125,11 +133,19 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 	set_signal_handlers(1);
 	less_quit = 0;
 	int ttyin = 0; // stdin
-	raw_mode(ttyin, 1);
+    FILE* keyin = NULL;
+    if (keyfile != NULL) {
+        keyin = fopen(keyfile, "r");
+        if (keyin == NULL) {
+            fprintf(stderr, "cannot open %s\n", keyfile);
+            return 0;
+        }
+    }
+    if (keyin == NULL) raw_mode(ttyin, 1);
 	printf("%s%s", terminfo.init_term, terminfo.enter_keypad);
 	read_and_display_screen(pipeline);
 	while (!less_quit) {
-		wchar ch = read_wchar(ttyin);
+		wchar ch = keyin != NULL ? read_keyfile(keyin) : read_wchar(ttyin);
 		if (ch == terminfo.backspace_key)
 			ch = '\b';
 		if (verbose) fprintf(stderr, "tty %c (%lx)\n", pr_ascii(ch), ch);
@@ -139,7 +155,7 @@ int run_interactive(char* const* argv, int argc, char* const* prog_envp) {
 	}
 	log_test_footer();
 	printf("%s%s%s", terminfo.clear_screen, terminfo.exit_keypad, terminfo.deinit_term);
-	raw_mode(ttyin, 0);
+	if (keyin == NULL) raw_mode(ttyin, 0);
 	destroy_less_pipeline(pipeline);
 	set_signal_handlers(0);
 	return 1;
