@@ -29,20 +29,21 @@ my $NULL_COLOR          = 0xFF;
 my %opt;
 
 # ---------------------------------------------------------------------
+exit (main() ? 0 : 1);
 
-main();
 sub main {
     die $usage if not getopts('r', \%opt);
     my $ltfile = shift @ARGV;
     my $errfile = shift @ARGV;
     die $usage if not defined $ltfile or @ARGV;
     my $lt = parse_ltfile($ltfile);
-    die "cannot read $ltfile\n" if not $lt;
-    die "missing geometry\n" if (not $lt->{lines} or not $lt->{columns});
+    return 0 if not $lt;
     my $errf = defined $errfile ? parse_errfile($errfile) : undef;
     run($lt, $errf);
+    return 1;
 }
 
+# ---------------------------------------------------------------------
 sub run {
     my ($lt, $errf) = @_;
     my $states = $lt->{states};
@@ -77,37 +78,24 @@ sub run {
                 print "\r\nPress any key to continue. ";
                 getc();
             } elsif ($ch eq 'l') {
-                if ($show_expect) {
-                    beep();
-                } else {
-                    $num = 1 if $num == 0;
-                    $sindex += $num;
-                    if ($sindex >= @$states) { beep(); $sindex = @$states-1; }
-                }
+                $show_expect = 0;
+                $num = 1 if $num == 0;
+                $sindex = check_sindex($sindex + $num, $states);
             } elsif ($ch eq 'h') {
-                if ($show_expect) {
-                    beep();
-                } else {
-                    $num = 1 if $num == 0;
-                    $sindex -= $num;
-                    if ($sindex < 0) { beep(); $sindex = 0; }
-                }
+                $show_expect = 0;
+                $num = 1 if $num == 0;
+                $sindex = check_sindex($sindex - $num, $states);
             } elsif ($ch eq 'g' or $ch eq 'G' or $ch eq 'e') {
-                if ($show_expect) {
-                    beep();
-                } else {
-                    $num = @$states if $ch eq 'G' and $num == 0;
-                    if ($ch eq 'e') {
-                        if (not $errf) {
-                            beep();
-                        } else {
-                            $num = $errf->{fail_index};
-                        }
+                $show_expect = 0;
+                $num = @$states if $ch eq 'G' and $num == 0;
+                if ($ch eq 'e') {
+                    if (not $errf) {
+                        beep();
+                    } else {
+                        $num = $errf->{fail_index};
                     }
-                    $sindex = $num;
-                    if ($sindex < 0) { beep(); $sindex = 0; }
-                    if ($sindex >= @$states) { beep(); $sindex = @$states-1; }
                 }
+                $sindex = check_sindex($num, $states);
             } elsif ($ch eq 'j') {
                 if (not $errf) {
                     beep();
@@ -130,7 +118,14 @@ sub run {
 }
 
 # ---------------------------------------------------------------------
+sub check_sindex {
+    my ($sindex, $states) = @_;
+    if ($sindex < 0) { beep(); $sindex = 0; }
+    if ($sindex >= @$states) { beep(); $sindex = @$states-1; }
+    return $sindex;
+}
 
+# ---------------------------------------------------------------------
 sub display {
     my ($img, $prompt, $lt) = @_;
     my $x = 0;
@@ -185,6 +180,7 @@ sub display {
     tgoto($cursor_x, $cursor_y);
 }
 
+# ---------------------------------------------------------------------
 sub display_attr_color {
     my ($attr, $fg_color, $bg_color) = @_;
     print "\e[m";
@@ -209,7 +205,6 @@ sub beep {
 }
 
 # ---------------------------------------------------------------------
-
 sub parse_ltfile {
     my ($file) = @_;
     my $fd;
@@ -219,11 +214,19 @@ sub parse_ltfile {
     }
     my @states;
     my %lt = ( 'filename' => $file, 'states' => \@states );
+    my $filetype = '';
+    my $linenum = 0;
     while (<$fd>) {
+        ++$linenum;
         chomp;
+        if ($linenum > 1 and $filetype ne 'lesstest') {
+            print STDERR "$file is not an lt file\n";
+            return undef;
+        }
         my $type = substr $_,0,1;
         next if not defined $type;
-        if ($type eq '!') {
+        if ($type eq '!') { # file header
+            if (/^!([^!]+)!/) { $filetype = $1; }
         } elsif ($type eq 'A') { # less cmd line parameters
         } elsif ($type eq 'E') { # environment variable
             parse_env($_, \%lt);
@@ -237,13 +240,17 @@ sub parse_ltfile {
             parse_img($_, \%lt);
         } elsif ($type eq '+') { # keystroke
             parse_keystroke($_, \%lt);
-        } elsif ($type eq '!') { # file header
         } 
     }
     close $fd;
+    if (not $lt{lines} or not $lt{columns}) {
+        print STDERR "$file: missing geometry\n";
+        return undef;
+    }
     return \%lt;
 }
 
+# ---------------------------------------------------------------------
 sub parse_env {
     my ($line, $lt) = @_;
     my ($ename, $evalue) = /^E \s* "(\w*)" \s* "([^"]*)" /x;
@@ -255,6 +262,7 @@ sub parse_env {
     return 1;
 }
 
+# ---------------------------------------------------------------------
 sub parse_filedesc {
     my ($line, $fd, $lt) = @_;
     my ($filename, $filesize) = $line =~ /^F \s* "([^"]*)" \s* (\d+)/x;
@@ -264,6 +272,7 @@ sub parse_filedesc {
     return 1;
 }
 
+# ---------------------------------------------------------------------
 sub parse_img {
     my ($line, $lt) = @_;
     my $img = substr $line, 1;
@@ -278,6 +287,7 @@ sub parse_img {
     return 1;
 }
 
+# ---------------------------------------------------------------------
 sub parse_errfile {
     my ($errfile) = @_;
     my $ef;
@@ -285,22 +295,32 @@ sub parse_errfile {
         print STDERR "cannot open $errfile: $!\n";
         return undef;
     }
-    my $expect;
     my %errf = ( 'filename' => $errfile );
+    my $expect;
+    my $datalines = 0;
+    my $linenum = 0;
     while (<$ef>) {
+        ++$linenum;
         chomp;
         if (0) {
         } elsif (/expect:/) {
             $expect = 'expect';
+            $datalines = 1;
         } elsif (/got:/) {
             $expect = 'got';
+            $datalines = 1;
         } elsif (/^TEST\s+([^\s]+)/) {
             $errf{name} = $1;
         } elsif (/^DIFF\s+([^\s]+) on cmd #(\d+) \(.\s+(\w+)\s*\)/) {
             $errf{fail_index} = $2; # FIXME why not $2-1?
             $errf{fail_char} = hex $3;
+            $datalines = 0;
         } else {
-            $errf{$expect} .= $_ if $expect;
+            if ($datalines) {
+                $errf{$expect} .= $_;
+            } else {
+                print STDERR "$errfile:$linenum: unexpected data line\n";
+            }
         }
     }
     close $ef;
@@ -311,6 +331,7 @@ sub parse_errfile {
     return \%errf;
 }
 
+# ---------------------------------------------------------------------
 sub parse_keystroke {
     my ($line, $lt) = @_;
     my ($hex) = $line =~ /^\+ \s* (\w+)/x;
