@@ -17,6 +17,10 @@
 
 * Add --lesskey-content option (github #447).
 
+* Add LESSKEY_CONTENT environment variable.
+
+* Allow expansion of environment variables in lesskey files.
+
 * Add LESSSECURE_ALLOW environment variable (github #449).
 
 * Mouse right-click jumps to position marked by left-click (github #390).

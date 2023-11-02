@@ -846,6 +846,7 @@ if a lesskey file is found in a standard place (see KEY BINDINGS),
 it is also used as a
 .B lesskey
 file.
+Note the warning under "\-\-lesskey-content" below.
 .IP "\-\-lesskey-src=\fIfilename\fP"
 Causes
 .B less
@@ -871,6 +872,7 @@ Newer versions of
 read the
 .I "lesskey source"
 file directly and ignore the binary file if the source file exists.
+Note the warning under "\-\-lesskey-content" below.
 .IP "\-\-lesskey-content=\fItext\fP"
 Causes less to interpret the specified text as the contents of a
 .BR lesskey (1)
@@ -879,6 +881,17 @@ In the text,
 .B lesskey
 lines may be separated by either newlines as usual, or by semicolons.
 A literal semicolon may be represented by a backslash followed by a semicolon.
+.sp
+Warning: certain environment variables such as 
+LESS, LESSSECURE, LESSCHARSET and others,
+which are used early in startup, 
+cannot be set in a file specified by a command line option
+(\-\-lesskey, \-\-lesskey-src or \-\-lesskey-content).  When using a
+.B lesskey
+file to set environment variables, it is safer to use the
+default lesskey file, or to specify the file using the
+LESSKEYIN or LESSKEY_CONTENT environment variables rather than using 
+a command line option.
 .IP "\-K or \-\-quit-on-intr"
 Causes
 .B less
@@ -2256,6 +2269,8 @@ file.
 Name of the default
 .I "lesskey binary"
 file. (Not used if "$LESSKEYIN" exists.)
+.IP LESSKEY_CONTENT
+The value is parsed as if it were the parameter of a \-\-lesskey-content option.
 .IP LESSKEYIN_SYSTEM
 Name of the default system-wide
 .I "lesskey source"

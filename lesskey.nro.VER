@@ -367,6 +367,24 @@ it should be appended to the end of the preceding line.
 (It cannot be added to the beginning of the += string because space after
 the equals sign is ignored, as noted above.)
 .
+.sp
+In the string after the = sign, a substring of the form ${NAME}
+is replaced with the value of the environment variable "NAME".
+The value of the variable may come from either the system environment,
+an earlier lesskey file, or an earlier definition in the current lesskey file.
+Simple text replacements can be performed by using 
+the syntax ${NAME/STRING/REPL}.
+This replaces all instances of "STRING" in the named 
+environment variable with the text "REPL".
+STRING is matched using a simple text comparison;
+no metacharacters are supported.
+An instance of slash or right curly bracket in STRING or REPL
+must be escaped by preceding it with \fItwo\fP backslashes.
+If REPL is an empty string, all instances of STRING are removed.
+A slash immediately before the right curly bracket may be omitted.
+Multiple replacements may be performed by using
+the syntax ${NAME/STRING1/REPL1/STRING2/REPL2} and so on.
+.
 .SH CONDITIONAL CONFIGURATION
 If a line begins with #version followed by a relational operator and a version number,
 the remainder of the line is parsed if and only if the running version of

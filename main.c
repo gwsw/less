@@ -278,7 +278,6 @@ int main(int argc, char *argv[])
 	init_mark();
 	init_cmds();
 	init_poll();
-	get_term();
 	init_charset();
 	init_line();
 	init_cmdhist();
@@ -321,6 +320,7 @@ int main(int argc, char *argv[])
 	}
 
 	expand_cmd_tables();
+	get_term();
 
 #if EDITOR
 	editor = lgetenv("VISUAL");
