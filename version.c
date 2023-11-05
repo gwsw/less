@@ -997,10 +997,10 @@ v644  9/16/23   Improve ^C on non-terminated pipe; fix crash when files are
                 deleted; support large files and non-BMP chars on Windows; 
                 fix # bug; don't filter header lines; fix shifting long lines;
                 add --match-shift.
-v645            Default Windows charset is utf-8; update Unicode tables;
+v645  11/5/23   Default Windows charset is utf-8; update Unicode tables;
                 fix ESC-} bug; mouse right-click jumps to '#'; 
                 add LESSSECURE_ALLOW; add --lesskey-content & LESSKEY_CONTENT;
 				allow env var expansion in lesskey files; add LESS_UNSUPPORT.
 */
 
-char version[] = "645x";
+char version[] = "645";
