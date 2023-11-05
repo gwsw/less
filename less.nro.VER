@@ -2331,6 +2331,13 @@ command.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 
 of the termcap "xx" capability for the terminal.
+.IP LESS_UNSUPPORT
+A space-separated list of command line options.
+These options will be ignored (with no error message) if they appear 
+on the command line or in the LESS environment variable.
+Options listed in LESS_UNSUPPORT can still be changed by the \- and \-\- commands.
+Each option in LESS_UNSUPPORT is a dash followed by a single character 
+option letter, or two dashes followed by a long option name.
 .IP LINES
 Sets the number of lines on the screen.
 Takes precedence over the number of lines specified by the TERM variable.

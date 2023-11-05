@@ -294,6 +294,7 @@ int main(int argc, char *argv[])
 
 	init_prompt();
 
+	init_unsupport();
 	s = lgetenv(less_is_more ? "MORE" : "LESS");
 	if (s != NULL)
 		scan_option(s);

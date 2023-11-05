@@ -84,15 +84,18 @@ public void scan_option(char *s)
 	 */
 	if (pendopt != NULL)
 	{
-		switch (pendopt->otype & OTYPE)
+		if (!(pendopt->otype & UNSUPPORTED))
 		{
-		case STRING:
-			(*pendopt->ofunc)(INIT, s);
-			break;
-		case NUMBER:
-			printopt = opt_desc(pendopt);
-			*(pendopt->ovar) = getnum(&s, printopt, (int*)NULL);
-			break;
+			switch (pendopt->otype & OTYPE)
+			{
+			case STRING:
+				(*pendopt->ofunc)(INIT, s);
+				break;
+			case NUMBER:
+				printopt = opt_desc(pendopt);
+				*(pendopt->ovar) = getnum(&s, printopt, (int*)NULL);
+				break;
+			}
 		}
 		pendopt = NULL;
 		return;
@@ -233,12 +236,16 @@ public void scan_option(char *s)
 		switch (o->otype & OTYPE)
 		{
 		case BOOL:
+			if (o->otype & UNSUPPORTED)
+				break;
 			if (set_default)
 				*(o->ovar) = o->odefault;
 			else
 				*(o->ovar) = ! o->odefault;
 			break;
 		case TRIPLE:
+			if (o->otype & UNSUPPORTED)
+				break;
 			if (set_default)
 				*(o->ovar) = o->odefault;
 			else
@@ -272,13 +279,15 @@ public void scan_option(char *s)
 				pendopt = o;
 				return;
 			}
+			if (o->otype & UNSUPPORTED)
+				break;
 			*(o->ovar) = getnum(&s, printopt, (int*)NULL);
 			break;
 		}
 		/*
 		 * If the option has a handling function, call it.
 		 */
-		if (o->ofunc != NULL)
+		if (o->ofunc != NULL && !(o->otype & UNSUPPORTED))
 			(*o->ofunc)(INIT, str);
 		if (str != NULL)
 			free(str);
@@ -705,6 +714,34 @@ public long getfraction(char **sp, char *printopt, int *errp)
 	return (frac);
 }
 
+/*
+ * Set the UNSUPPORTED bit in every option listed
+ * in the LESS_UNSUPPORT environment variable.
+ */
+public void init_unsupport(void)
+{
+	char *s = lgetenv("LESS_UNSUPPORT");
+	if (isnullenv(s))
+		return;
+	for (;;)
+	{
+		struct loption *opt;
+		s = skipsp(s);
+		if (*s == '\0') break;
+		if (*s == '-' && *++s == '\0') break;
+		if (*s == '-') /* long option name */
+		{
+			++s;
+			opt = findopt_name(&s, NULL, NULL);
+		} else /* short (single-char) option */
+		{
+			opt = findopt(*s);
+			if (opt != NULL) ++s;
+		}
+		if (opt != NULL)
+			opt->otype |= UNSUPPORTED;
+	}
+}
 
 /*
  * Get the value of the -e flag.

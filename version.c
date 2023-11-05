@@ -1000,7 +1000,7 @@ v644  9/16/23   Improve ^C on non-terminated pipe; fix crash when files are
 v645            Default Windows charset is utf-8; update Unicode tables;
                 fix ESC-} bug; mouse right-click jumps to '#'; 
                 add LESSSECURE_ALLOW; add --lesskey-content & LESSKEY_CONTENT;
-				allow env var expansion in lesskey files.
+				allow env var expansion in lesskey files; add LESS_UNSUPPORT.
 */
 
 char version[] = "645x";

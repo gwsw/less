@@ -23,6 +23,7 @@
 #define HL_REPAINT      0200    /* Repaint hilites after toggling option */
 #define NO_QUERY        0400    /* Option cannot be queried with "_" cmd */
 #define INIT_HANDLER    01000   /* Call option handler function at startup */
+#define UNSUPPORTED     02000   /* Option is unsupported via LESS_UNSUPPORT */
 
 #define OTYPE           (BOOL|TRIPLE|NUMBER|STRING|NOVAR)
 

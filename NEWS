@@ -23,6 +23,8 @@
 
 * Add LESSSECURE_ALLOW environment variable (github #449).
 
+* Add LESS_UNSUPPORT environment variable.
+
 * Mouse right-click jumps to position marked by left-click (github #390).
 
 * Ensure that the target line is not obscured by a header line 
