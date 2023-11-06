@@ -1001,6 +1001,7 @@ v645  11/5/23   Default Windows charset is utf-8; update Unicode tables;
                 fix ESC-} bug; mouse right-click jumps to '#'; 
                 add LESSSECURE_ALLOW; add --lesskey-content & LESSKEY_CONTENT;
 				allow env var expansion in lesskey files; add LESS_UNSUPPORT.
+v646            
 */
 
-char version[] = "645";
+char version[] = "646x";
