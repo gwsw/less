@@ -320,8 +320,8 @@ int main(int argc, char *argv[])
 		quit(QUIT_OK);
 	}
 
-	expand_cmd_tables();
 	get_term();
+	expand_cmd_tables();
 
 #if EDITOR
 	editor = lgetenv("VISUAL");

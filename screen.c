@@ -767,7 +767,7 @@ static char * ltgetstr(char *capname, char **pp)
 /*
  * Get size of the output screen.
  */
-public void scrsize(void)
+static void scrsize(void)
 {
 	char *s;
 	int sys_height;
@@ -787,7 +787,7 @@ public void scrsize(void)
 	sys_width = sys_height = 0;
 
 #if LESSTEST
-	if (ttyin_name != NULL)
+	if (0) /* can't test ttyin_name; it is not set yet */
 #endif /*LESSTEST*/
 	{
 #if MSDOS_COMPILER==MSOFTC
@@ -906,6 +906,7 @@ public void scrsize(void)
 	}
 	if (sc_width <= 0)
 		sc_width = DEF_SC_WIDTH;
+	calc_jump_sline();
 }
 
 #if MSDOS_COMPILER==MSOFTC
