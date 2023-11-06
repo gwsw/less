@@ -77,7 +77,7 @@ public void init_prompt(void)
 /*
  * Append a string to the end of the message.
  */
-static void ap_str(char *s)
+static void ap_str(constant char *s)
 {
 	int len;
 

@@ -345,7 +345,7 @@ public void unmark(IFILE ifile)
 public void mark_check_ifile(IFILE ifile)
 {
 	int i;
-	char *filename = get_real_filename(ifile);
+	constant char *filename = get_real_filename(ifile);
 
 	for (i = 0;  i < NMARKS;  i++)
 	{
@@ -376,7 +376,7 @@ public void save_marks(FILE *fout, char *hdr)
 	fprintf(fout, "%s\n", hdr);
 	for (i = 0;  i < NMARKS;  i++)
 	{
-		char *filename;
+		constant char *filename;
 		struct mark *m = &marks[i];
 		char pos_str[INT_STRLEN_BOUND(m->m_scrpos.pos) + 2];
 		if (m->m_scrpos.pos == NULL_POSITION)

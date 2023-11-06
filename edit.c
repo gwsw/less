@@ -265,6 +265,7 @@ static void check_modelines(void)
 static void close_pipe(FILE *pipefd)
 {
 	int status;
+	char *p;
 	PARG parg;
 
 	if (pipefd == NULL)
@@ -280,9 +281,10 @@ static void close_pipe(FILE *pipefd)
 	if (status == -1)
 	{
 		/* An internal error in 'less', not a preprocessor error.  */
-		parg.p_string = errno_message("pclose");
+		p = errno_message("pclose");
+		parg.p_string = p;
 		error("%s", &parg);
-		free(parg.p_string);
+		free(p);
 		return;
 	}
 	if (!show_preproc_error)
@@ -349,7 +351,7 @@ public void check_altpipe_error(void)
 static void close_file(void)
 {
 	struct scrpos scrpos;
-	char *altfilename;
+	constant char *altfilename;
 	
 	if (curr_ifile == NULL_IFILE)
 		return;
@@ -390,7 +392,7 @@ static void close_file(void)
  * Filename == "-" means standard input.
  * Filename == NULL means just close the current file.
  */
-public int edit(char *filename)
+public int edit(constant char *filename)
 {
 	if (filename == NULL)
 		return (edit_ifile(NULL_IFILE));
@@ -400,13 +402,13 @@ public int edit(char *filename)
 /*
  * Clean up what edit_ifile did before error return.
  */
-static int edit_error(char *filename, char *alt_filename, void *altpipe, IFILE ifile)
+static int edit_error(constant char *filename, constant char *alt_filename, void *altpipe, IFILE ifile)
 {
 	if (alt_filename != NULL)
 	{
 		close_pipe(altpipe);
 		close_altfile(alt_filename, filename);
-		free(alt_filename);
+		free((char*)alt_filename); /* FIXME: WTF? */
 	}
 	del_ifile(ifile);
 	/*
@@ -432,11 +434,12 @@ public int edit_ifile(IFILE ifile)
 	int f;
 	int answer;
 	int chflags;
-	char *filename;
-	char *open_filename;
+	constant char *filename;
+	constant char *open_filename;
 	char *alt_filename;
 	void *altpipe;
 	IFILE was_curr_ifile;
+	char *p;
 	PARG parg;
 
 	if (ifile == curr_ifile)
@@ -518,22 +521,24 @@ public int edit_ifile(IFILE ifile)
 			{
 				f = -1;
 				chflags |= CH_HELPFILE;
-			} else if ((parg.p_string = bad_file(open_filename)) != NULL)
+			} else if ((p = bad_file(open_filename)) != NULL)
 			{
 				/*
 				 * It looks like a bad file.  Don't try to open it.
 				 */
+				parg.p_string = p;
 				error("%s", &parg);
-				free(parg.p_string);
+				free(p);
 				return edit_error(filename, alt_filename, altpipe, ifile);
 			} else if ((f = open(open_filename, OPEN_READ)) < 0)
 			{
 				/*
 				 * Got an error trying to open it.
 				 */
-				parg.p_string = errno_message(filename);
+				char *p = errno_message(filename);
+				parg.p_string = p;
 				error("%s", &parg);
-				free(parg.p_string);
+				free(p);
 				return edit_error(filename, alt_filename, altpipe, ifile);
 			} else 
 			{
@@ -672,7 +677,7 @@ public int edit_ifile(IFILE ifile)
 public int edit_list(char *filelist)
 {
 	IFILE save_ifile;
-	char *good_filename;
+	constant char *good_filename;
 	char *filename;
 	char *gfilelist;
 	char *gfilename;

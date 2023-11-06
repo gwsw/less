@@ -91,7 +91,7 @@ static char *utf8_from_wide(const wchar_t *ws)
  * make them UTF8. CP_ACP remains the original codepage - use less_acp instead.
  * effective on win 10 1803 or later when compiled with ucrt, else no-op.
  */
-static void try_utf8_locale(int *pargc, char ***pargv)
+static void try_utf8_locale(constant int *pargc, constant char ***pargv)
 {
 	char *locale_orig = strdup(setlocale(LC_ALL, 0));
 	wchar_t **wargv = 0, *wenv, *wp;
@@ -150,10 +150,11 @@ static int security_feature_error(constant char *type, int len, constant char *n
 {
 	PARG parg;
 	int msglen = len+strlen(type)+64;
-	parg.p_string = ecalloc(msglen, sizeof(char));
-	SNPRINTF3(parg.p_string, msglen, "LESSSECURE_ALLOW: %s feature name \"%.*s\"", type, len, name);
+	char *msg = ecalloc(msglen, sizeof(char));
+	SNPRINTF3(msg, msglen, "LESSSECURE_ALLOW: %s feature name \"%.*s\"", type, len, name);
+	parg.p_string = msg;
 	error("%s", &parg);
-	free(parg.p_string);
+	free(msg);
 	return 0;
 }
 
@@ -202,7 +203,7 @@ static void init_secure(void)
 #if SECURE
 	secure_allow_features = 0;
 #else
-	char *str = lgetenv("LESSSECURE");
+	constant char *str = lgetenv("LESSSECURE");
 	if (isnullenv(str))
 		secure_allow_features = ~0; /* allow everything */
 	else
@@ -213,7 +214,7 @@ static void init_secure(void)
 	{
 		for (;;)
 		{
-			char *estr;
+			constant char *estr;
 			while (*str == ' ' || *str == ',') ++str; /* skip leading spaces/commas */
 			if (*str == '\0') break;
 			estr = strchr(str, ',');
@@ -288,8 +289,7 @@ int main(int argc, char *argv[])
 	 * If the name of the executable program is "more",
 	 * act like LESS_IS_MORE is set.
 	 */
-	s = last_component(progname);
-	if (strcmp(s, "more") == 0)
+	if (strcmp(last_component(progname), "more") == 0)
 		less_is_more = 1;
 
 	init_prompt();
@@ -513,7 +513,7 @@ public char * skipsp(char *s)
  * If uppercase is true, the first string must begin with an uppercase
  * character; the remainder of the first string may be either case.
  */
-public int sprefix(char *ps, char *s, int uppercase)
+public int sprefix(constant char *ps, constant char *s, int uppercase)
 {
 	int c;
 	int sc;

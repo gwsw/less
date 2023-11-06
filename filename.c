@@ -595,11 +595,11 @@ static FILE * shellcmd(constant char *cmd)
 /*
  * Expand a filename, doing any system-specific metacharacter substitutions.
  */
-public char * lglob(char *filename)
+public char * lglob(constant char *afilename)
 {
 	char *gfilename;
+	char *filename = fexpand(afilename);
 
-	filename = fexpand(filename);
 	if (!secure_allow(SF_GLOB))
 		return (filename);
 
@@ -1110,9 +1110,9 @@ public char * shell_coption(void)
 /*
  * Return last component of a pathname.
  */
-public char * last_component(char *name)
+public constant char * last_component(constant char *name)
 {
-	char *slash;
+	constant char *slash;
 
 	for (slash = name + strlen(name);  slash > name; )
 	{

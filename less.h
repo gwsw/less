@@ -340,7 +340,7 @@ struct scrpos
 
 typedef union parg
 {
-        char *p_string;
+        constant char *p_string;
         int p_int;
         LINENUM p_linenum;
         char p_char;

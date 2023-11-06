@@ -97,7 +97,7 @@ static void unlink_ifile(struct ifile *p)
  * (or at the beginning of the list if "prev" is NULL).
  * Return a pointer to the new ifile structure.
  */
-static struct ifile * new_ifile(char *filename, struct ifile *prev)
+static struct ifile * new_ifile(constant char *filename, struct ifile *prev)
 {
 	struct ifile *p;
 
@@ -197,7 +197,7 @@ public int nifile(void)
 /*
  * Find an ifile structure, given a filename.
  */
-static struct ifile * find_ifile(char *filename)
+static struct ifile * find_ifile(constant char *filename)
 {
 	struct ifile *p;
 	char *rfilename = lrealpath(filename);
@@ -229,7 +229,7 @@ static struct ifile * find_ifile(char *filename)
  * If the filename has not been seen before,
  * insert the new ifile after "prev" in the list.
  */
-public IFILE get_ifile(char *filename, IFILE prev)
+public IFILE get_ifile(constant char *filename, IFILE prev)
 {
 	struct ifile *p;
 
@@ -241,7 +241,7 @@ public IFILE get_ifile(char *filename, IFILE prev)
 /*
  * Get the display filename associated with a ifile.
  */
-public char * get_filename(IFILE ifile)
+public constant char * get_filename(IFILE ifile)
 {
 	if (ifile == NULL)
 		return (NULL);
@@ -251,7 +251,7 @@ public char * get_filename(IFILE ifile)
 /*
  * Get the canonical filename associated with a ifile.
  */
-public char * get_real_filename(IFILE ifile)
+public constant char * get_real_filename(IFILE ifile)
 {
 	if (ifile == NULL)
 		return (NULL);
@@ -337,6 +337,10 @@ public void set_altfilename(IFILE ifile, char *altfilename)
 	p->h_altfilename = altfilename;
 }
 
+/*
+ * Not constant; caller can free altfilename.
+ * {{ This is poor design and should be changed. }}
+ */
 public char * get_altfilename(IFILE ifile)
 {
 	return (int_ifile(ifile)->h_altfilename);

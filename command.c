@@ -1243,7 +1243,7 @@ public void commands(void)
 	PARG parg;
 	IFILE old_ifile;
 	IFILE new_ifile;
-	char *tagfile;
+	constant char *tagfile;
 
 	search_type = SRCH_FORW;
 	wscroll = (sc_height + 1) / 2;
