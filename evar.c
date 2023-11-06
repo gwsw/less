@@ -70,7 +70,7 @@ static struct replace * make_replaces(char *buf, int len, int *pe, char term)
 			term = buf[e];
 			buf[e++] = '\0'; /* terminate the to string */
 		}
-		repl = malloc(sizeof(struct replace));
+		repl = ecalloc(1, sizeof(struct replace));
 		repl->r_fm = &buf[fm];
 		repl->r_to = &buf[to];
 		repl->r_next = replaces;

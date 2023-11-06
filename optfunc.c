@@ -688,10 +688,10 @@ public void opt_D(int type, char *s)
 
 /*
  */
-public void set_tabs(char *s, int len)
+public void set_tabs(constant char *s, int len)
 {
 	int i;
-	char *es = s + len;
+	constant char *es = s + len;
 	/* Start at 1 because tabstops[0] is always zero. */
 	for (i = 1;  i < TABSTOP_MAX;  )
 	{

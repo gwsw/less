@@ -359,7 +359,7 @@ static char * strerror(int err)
 /*
  * errno_message: Return an error message based on the value of "errno".
  */
-public char * errno_message(char *filename)
+public char * errno_message(constant char *filename)
 {
 	char *p;
 	char *m;

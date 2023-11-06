@@ -65,7 +65,7 @@ public void init_textlist(struct textlist *tlist, char *str)
 #if SPACES_IN_FILENAMES
 	int meta_quoted = 0;
 	int delim_quoted = 0;
-	char *esc = get_meta_escape();
+	constant char *esc = get_meta_escape();
 	int esclen = (int) strlen(esc);
 #endif
 	
@@ -149,7 +149,7 @@ public char * back_textlist(struct textlist *tlist, char *prev)
  */
 static void modeline_option(char *str, int opt_len)
 {
-	struct mloption { char *opt_name; void (*opt_func)(char*,int); };
+	struct mloption { constant char *opt_name; void (*opt_func)(constant char*,int); };
 	struct mloption options[] = {
 		{ "ts=",         set_tabs },
 		{ "tabstop=",    set_tabs },

@@ -248,7 +248,7 @@ static void expand_special_keys(char *table, int len)
 	char *fm;
 	char *to;
 	int a;
-	char *repl;
+	constant char *repl;
 	int klen;
 
 	for (fm = table;  fm < table + len; )
@@ -788,7 +788,7 @@ public char * lgetenv_ext(char *var, char *env_buf, int env_buf_len)
 /*
  * Is a string null or empty? 
  */
-public int isnullenv(char *s)
+public int isnullenv(constant char *s)
 {
 	return (s == NULL || *s == '\0');
 }

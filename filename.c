@@ -61,7 +61,7 @@ extern dev_t curr_dev;
 /*
  * Remove quotes around a filename.
  */
-public char * shell_unquote(char *str)
+public char * shell_unquote(constant char *str)
 {
 	char *name;
 	char *p;
@@ -82,7 +82,7 @@ public char * shell_unquote(char *str)
 		}
 	} else
 	{
-		char *esc = get_meta_escape();
+		constant char *esc = get_meta_escape();
 		int esclen = (int) strlen(esc);
 		while (*str != '\0')
 		{
@@ -98,7 +98,7 @@ public char * shell_unquote(char *str)
 /*
  * Get the shell's escape character.
  */
-public char * get_meta_escape(void)
+public constant char * get_meta_escape(void)
 {
 	char *s;
 
@@ -111,7 +111,7 @@ public char * get_meta_escape(void)
 /*
  * Get the characters which the shell considers to be "metacharacters".
  */
-static char * metachars(void)
+static constant char * metachars(void)
 {
 	static char *mchars = NULL;
 
@@ -135,12 +135,13 @@ static int metachar(char c)
 /*
  * Insert a backslash before each metacharacter in a string.
  */
-public char * shell_quote(char *s)
+public char * shell_quote(constant char *s)
 {
-	char *p;
+	constant char *p;
+	char *np;
 	char *newstr;
 	int len;
-	char *esc = get_meta_escape();
+	constant char *esc = get_meta_escape();
 	int esclen = (int) strlen(esc);
 	int use_quotes = 0;
 	int have_quotes = 0;
@@ -184,7 +185,7 @@ public char * shell_quote(char *s)
 	/*
 	 * Allocate and construct the new string.
 	 */
-	newstr = p = (char *) ecalloc(len, sizeof(char));
+	newstr = np = (char *) ecalloc(len, sizeof(char));
 	if (use_quotes)
 	{
 		SNPRINTF3(newstr, len, "%c%s%c", openquote, s, closequote);
@@ -197,12 +198,12 @@ public char * shell_quote(char *s)
 				/*
 				 * Add the escape char.
 				 */
-				strcpy(p, esc);
-				p += esclen;
+				strcpy(np, esc);
+				np += esclen;
 			}
-			*p++ = *s++;
+			*np++ = *s++;
 		}
-		*p = '\0';
+		*np = '\0';
 	}
 	return (newstr);
 }
@@ -211,7 +212,7 @@ public char * shell_quote(char *s)
  * Return a pathname that points to a specified file in a specified directory.
  * Return NULL if the file does not exist in the directory.
  */
-public char * dirfile(char *dirname, char *filename, int must_exist)
+public char * dirfile(constant char *dirname, constant char *filename, int must_exist)
 {
 	char *pathname;
 	int len;
@@ -248,7 +249,7 @@ public char * dirfile(char *dirname, char *filename, int must_exist)
 /*
  * Return the full pathname of the given file in the "home directory".
  */
-public char * homefile(char *filename)
+public char * homefile(constant char *filename)
 {
 	char *pathname;
 
@@ -290,9 +291,10 @@ public char * homefile(char *filename)
  * Likewise for a string of N "#"s.
  * {{ This is a lot of work just to support % and #. }}
  */
-public char * fexpand(char *s)
+public char * fexpand(constant char *s)
 {
-	char *fr, *to;
+	constant char *fr;
+	char *to;
 	int n;
 	char *e;
 	IFILE ifile;
@@ -384,10 +386,11 @@ public char * fexpand(char *s)
  * Return a blank-separated list of filenames which "complete"
  * the given string.
  */
-public char * fcomplete(char *s)
+public char * fcomplete(constant char *s)
 {
 	char *fpat;
 	char *qs;
+	char *uqs;
 
 	/* {{ Is this needed? lglob calls secure_allow. }} */
 	if (!secure_allow(SF_GLOB))
@@ -404,7 +407,7 @@ public char * fcomplete(char *s)
 	 *  but "FILE.A" is globbed as "FILE.A*").
 	 */
 	{
-		char *slash;
+		constant char *slash;
 		int len;
 		for (slash = s+strlen(s)-1;  slash > s;  slash--)
 			if (*slash == *PATHNAME_SEP || *slash == '/')
@@ -424,8 +427,8 @@ public char * fcomplete(char *s)
 	}
 #endif
 	qs = lglob(fpat);
-	s = shell_unquote(qs);
-	if (strcmp(s,fpat) == 0)
+	uqs = shell_unquote(qs);
+	if (strcmp(uqs, fpat) == 0)
 	{
 		/*
 		 * The filename didn't expand.
@@ -433,7 +436,7 @@ public char * fcomplete(char *s)
 		free(qs);
 		qs = NULL;
 	}
-	free(s);
+	free(uqs);
 	free(fpat);
 	return (qs);
 }
@@ -543,7 +546,7 @@ static char * readfd(FILE *fd)
  * Execute a shell command.
  * Return a pointer to a pipe connected to the shell command's standard output.
  */
-static FILE * shellcmd(char *cmd)
+static FILE * shellcmd(constant char *cmd)
 {
 	FILE *fd;
 
@@ -711,17 +714,18 @@ public char * lglob(char *filename)
 	 * an "echo" command to the shell and reading its output.
 	 */
 	FILE *fd;
-	char *s;
-	char *lessecho;
+	constant char *s;
+	constant char *lessecho;
 	char *cmd;
-	char *esc;
+	constant char *esc;
+	char *qesc;
 	int len;
 
 	esc = get_meta_escape();
 	if (strlen(esc) == 0)
 		esc = "-";
-	esc = shell_quote(esc);
-	if (esc == NULL)
+	qesc = shell_quote(esc);
+	if (qesc == NULL)
 	{
 		return (filename);
 	}
@@ -734,8 +738,8 @@ public char * lglob(char *filename)
 	len = (int) (strlen(lessecho) + strlen(filename) + (7*strlen(metachars())) + 24);
 	cmd = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF4(cmd, len, "%s -p0x%x -d0x%x -e%s ", lessecho,
-		(unsigned char) openquote, (unsigned char) closequote, esc);
-	free(esc);
+		(unsigned char) openquote, (unsigned char) closequote, qesc);
+	free(qesc);
 	for (s = metachars();  *s != '\0';  s++)
 		sprintf(cmd + strlen(cmd), "-n0x%x ", (unsigned char) *s);
 	sprintf(cmd + strlen(cmd), "-- %s", filename);
@@ -772,7 +776,7 @@ public char * lglob(char *filename)
 /*
  * Does path not represent something in the file system?
  */
-public int is_fake_pathname(char *path)
+public int is_fake_pathname(constant char *path)
 {
 	return (strcmp(path, "-") == 0 ||
 	        strcmp(path, FAKE_HELPFILE) == 0 || strcmp(path, FAKE_EMPTYFILE) == 0);
@@ -781,7 +785,7 @@ public int is_fake_pathname(char *path)
 /*
  * Return canonical pathname.
  */
-public char * lrealpath(char *path)
+public char * lrealpath(constant char *path)
 {
 	if (!is_fake_pathname(path))
 	{
@@ -799,7 +803,7 @@ public char * lrealpath(char *path)
  * Return number of %s escapes in a string.
  * Return a large number if there are any other % escapes besides %s.
  */
-static int num_pct_s(char *lessopen)
+static int num_pct_s(constant char *lessopen)
 {
 	int num = 0;
 
@@ -824,7 +828,7 @@ static int num_pct_s(char *lessopen)
  * See if we should open a "replacement file" 
  * instead of the file we're about to open.
  */
-public char * open_altfile(char *filename, int *pf, void **pfd)
+public char * open_altfile(constant char *filename, int *pf, void **pfd)
 {
 #if !HAVE_POPEN
 	return (NULL);
@@ -947,7 +951,7 @@ public char * open_altfile(char *filename, int *pf, void **pfd)
 /*
  * Close a replacement file.
  */
-public void close_altfile(char *altfilename, char *filename)
+public void close_altfile(constant char *altfilename, constant char *filename)
 {
 #if HAVE_POPEN
 	char *lessclose;
@@ -984,7 +988,7 @@ public void close_altfile(char *altfilename, char *filename)
 /*
  * Is the specified file a directory?
  */
-public int is_dir(char *filename)
+public int is_dir(constant char *filename)
 {
 	int isdir = 0;
 
@@ -1016,7 +1020,7 @@ public int is_dir(char *filename)
  * is an ordinary file, otherwise an error message
  * (if it cannot be opened or is a directory, etc.)
  */
-public char * bad_file(char *filename)
+public char * bad_file(constant char *filename)
 {
 	char *m = NULL;
 

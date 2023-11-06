@@ -955,7 +955,7 @@ static void delay(int msec)
 /*
  * Return the characters actually input by a "special" key.
  */
-public char * special_key_str(int key)
+public constant char * special_key_str(int key)
 {
 	static char tbuf[40];
 	char *s;
