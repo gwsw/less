@@ -1027,7 +1027,7 @@ static LWCHAR getcc_repl(char constant *orig, char constant *repl, LWCHAR (*gr_g
 /*
  * Get command character.
  */
-public int getcc(void)
+public LWCHAR getcc(void)
 {
 	/* Replace kent (keypad Enter) with a newline. */
 	return getcc_repl(kent, "\n", getccu, ungetcc);

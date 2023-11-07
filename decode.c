@@ -37,6 +37,7 @@ extern int erase_char, erase2_char, kill_char;
 extern int mousecap;
 extern int sc_height;
 
+/* "content" is lesskey source, never binary. */
 static void add_content_table(int (*call_lesskey)(constant char *, int), constant char *envname, int sysvar);
 
 #define SK(k) \
@@ -227,8 +228,8 @@ static unsigned char edittable[] =
 struct tablelist
 {
 	struct tablelist *t_next;
-	char *t_start;
-	char *t_end;
+	unsigned char *t_start;
+	unsigned char *t_end;
 };
 
 /*
@@ -243,10 +244,10 @@ static struct tablelist *list_sysvar_tables = NULL;
 /*
  * Expand special key abbreviations in a command table.
  */
-static void expand_special_keys(char *table, int len)
+static void expand_special_keys(unsigned char *table, int len)
 {
-	char *fm;
-	char *to;
+	unsigned char *fm;
+	unsigned char *to;
 	int a;
 	constant char *repl;
 	int klen;
@@ -329,8 +330,8 @@ public void init_cmds(void)
 	/*
 	 * Add the default command tables.
 	 */
-	add_fcmd_table((char*)cmdtable, sizeof(cmdtable));
-	add_ecmd_table((char*)edittable, sizeof(edittable));
+	add_fcmd_table(cmdtable, sizeof(cmdtable));
+	add_ecmd_table(edittable, sizeof(edittable));
 #if USERFILE
 #ifdef BINDIR /* For backwards compatibility */
 	/* Try to add tables in the OLD system lesskey file. */
@@ -376,7 +377,7 @@ public void init_cmds(void)
 /*
  * Add a command table.
  */
-static int add_cmd_table(struct tablelist **tlist, char *buf, int len)
+static int add_cmd_table(struct tablelist **tlist, unsigned char *buf, int len)
 {
 	struct tablelist *t;
 
@@ -432,7 +433,7 @@ static void pop_cmd_table(struct tablelist **tlist)
 /*
  * Add a command table.
  */
-public void add_fcmd_table(char *buf, int len)
+public void add_fcmd_table(unsigned char *buf, int len)
 {
 	if (add_cmd_table(&list_fcmd_tables, buf, len) < 0)
 		error("Warning: some commands disabled", NULL_PARG);
@@ -441,7 +442,7 @@ public void add_fcmd_table(char *buf, int len)
 /*
  * Add an editing command table.
  */
-public void add_ecmd_table(char *buf, int len)
+public void add_ecmd_table(unsigned char *buf, int len)
 {
 	if (add_cmd_table(&list_ecmd_tables, buf, len) < 0)
 		error("Warning: some edit commands disabled", NULL_PARG);
@@ -450,13 +451,14 @@ public void add_ecmd_table(char *buf, int len)
 /*
  * Add an environment variable table.
  */
-static void add_var_table(struct tablelist **tlist, char *buf, int len)
+static void add_var_table(struct tablelist **tlist, unsigned char *buf, int len)
 {
 	struct xbuffer xbuf;
 
 	xbuf_init(&xbuf);
-	expand_evars(buf, len, &xbuf);
-	if (add_cmd_table(tlist, xbuf_char_data(&xbuf), xbuf.end) < 0)
+	expand_evars((char*)buf, len, &xbuf); /*{{unsigned-issue}}*/
+	/* {{ We leak the table in buf. expand_evars scribbled in it so it's useless anyway. }} */
+	if (add_cmd_table(tlist, xbuf.data, xbuf.end) < 0)
 		error("Warning: environment variables from lesskey file unavailable", NULL_PARG);
 }
 
@@ -519,7 +521,7 @@ static int getcc_int(char *pterm)
 	int digits = 0;
 	for (;;)
 	{
-		char ch = getcc();
+		LWCHAR ch = getcc();
 		if (ch < '0' || ch > '9')
 		{
 			if (pterm != NULL) *pterm = ch;
@@ -704,7 +706,7 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 	for (t = tlist;  t != NULL;  t = t->t_next)
 	{
 		constant char *tsp;
-		int taction = cmd_search(cmd, t->t_start, t->t_end, &tsp);
+		int taction = cmd_search(cmd, (char *) t->t_start, (char *) t->t_end, &tsp);
 		if (taction == A_UINVALID)
 			taction = A_INVALID;
 		if (taction != A_INVALID)
@@ -756,7 +758,7 @@ public char * lgetenv(constant char *var) /*{{const-issue}}*/
 /*
  * Like lgetenv, but also uses a buffer partially filled with an env table.
  */
-public char * lgetenv_ext(constant char *var, char *env_buf, int env_buf_len)
+public char * lgetenv_ext(constant char *var, unsigned char *env_buf, int env_buf_len)
 {
 	char *r;
 	int e;
@@ -799,7 +801,7 @@ public int isnullenv(constant char *s)
  * Integers are stored in a funny format: 
  * two bytes, low order first, in radix KRADIX.
  */
-static int gint(char **sp)
+static int gint(unsigned char **sp)
 {
 	int n;
 
@@ -811,7 +813,7 @@ static int gint(char **sp)
 /*
  * Process an old (pre-v241) lesskey file.
  */
-static int old_lesskey(char *buf, int len)
+static int old_lesskey(unsigned char *buf, int len)
 {
 	/*
 	 * Old-style lesskey file.
@@ -829,10 +831,10 @@ static int old_lesskey(char *buf, int len)
 /* 
  * Process a new (post-v241) lesskey file.
  */
-static int new_lesskey(char *buf, int len, int sysvar)
+static int new_lesskey(unsigned char *buf, int len, int sysvar)
 {
-	char *p;
-	char *end;
+	unsigned char *p;
+	unsigned char *end;
 	int c;
 	int n;
 
@@ -889,7 +891,7 @@ static int new_lesskey(char *buf, int len, int sysvar)
  */
 public int lesskey(constant char *filename, int sysvar)
 {
-	char *buf;
+	unsigned char *buf;
 	POSITION len;
 	long n;
 	int f;
@@ -920,7 +922,7 @@ public int lesskey(constant char *filename, int sysvar)
 		close(f);
 		return (-1);
 	}
-	if ((buf = (char *) calloc((int)len, sizeof(char))) == NULL)
+	if ((buf = (unsigned char *) calloc((int)len, sizeof(char))) == NULL)
 	{
 		close(f);
 		return (-1);
@@ -959,10 +961,10 @@ static int lesskey_text(constant char *filename, int sysvar, int content)
 	int r = content ? parse_lesskey_content((char*)filename, &tables) : parse_lesskey((char*)filename, &tables); /*{{const-issue}}*/
 	if (r != 0)
 		return (r);
-	add_fcmd_table(xbuf_char_data(&tables.cmdtable.buf), tables.cmdtable.buf.end);
-	add_ecmd_table(xbuf_char_data(&tables.edittable.buf), tables.edittable.buf.end);
+	add_fcmd_table(tables.cmdtable.buf.data, tables.cmdtable.buf.end);
+	add_ecmd_table(tables.edittable.buf.data, tables.edittable.buf.end);
 	add_var_table(sysvar ? &list_sysvar_tables : &list_var_tables,
-		xbuf_char_data(&tables.vartable.buf), tables.vartable.buf.end);
+		tables.vartable.buf.data, tables.vartable.buf.end);
 	return (0);
 }
 

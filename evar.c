@@ -180,7 +180,7 @@ public void expand_evars(char *buf, int len, struct xbuffer *xbuf)
 				break; /* missing right curly bracket; ignore var */
 			term = buf[e];
 			buf[e++] = '\0';
-			evar = lgetenv_ext(&buf[i], xbuf_char_data(xbuf), xbuf->end);
+			evar = lgetenv_ext(&buf[i], xbuf->data, xbuf->end);
 			if (evar == NULL) evar = "";
 			i = add_evar(xbuf, buf, len, e, evar, term);
 		} else
