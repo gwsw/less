@@ -745,13 +745,13 @@ public constant char * lgetenv(constant char *var)
 
 	a = cmd_decode(list_var_tables, var, &s);
 	if (a == EV_OK)
-		return (s);  /*{{const-issue}}*/
+		return (s);
 	s = getenv(var);
 	if (s != NULL && *s != '\0')
-		return (s);  /*{{const-issue}}*/
+		return (s);
 	a = cmd_decode(list_sysvar_tables, var, &s);
 	if (a == EV_OK)
-		return (s);  /*{{const-issue}}*/
+		return (s);
 	return (NULL);
 }
 
