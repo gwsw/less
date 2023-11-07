@@ -7,12 +7,7 @@
  * For more information, see the README file.
  */
 
-#if HAVE_CONST
-#define constant        const
-#else
-#define constant
-#endif
-
+#include "lang.h"
 #include "xbuf.h"
 
 /*

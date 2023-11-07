@@ -36,16 +36,6 @@
 #undef HAVE_SIGSETMASK
 #endif
 
-/*
- * Language details.
- */
-#if HAVE_CONST
-#define constant        const
-#else
-#define constant
-#endif
-
-#define public          /* PUBLIC FUNCTION */
 
 /* Library function declarations */
 
@@ -92,6 +82,8 @@
 /* True if the integer expression E, after promotion, is signed.  */
 #define signed_expr(e) ((TRUE ? 0 : e) - 1 < 0)
 #endif
+
+#include "lang.h"
 
 #if defined UINTMAX_MAX
 typedef uintmax_t uintmax;
