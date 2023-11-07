@@ -161,6 +161,7 @@ static int add_evar(struct xbuffer *xbuf, char *buf, int len, int e, constant ch
 
 /*
  * Expand env variables in a string.
+ * Writes expanded output to xbuf. Corrupts buf.
  */
 public void expand_evars(char *buf, int len, struct xbuffer *xbuf)
 {

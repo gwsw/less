@@ -147,7 +147,7 @@ public char * back_textlist(struct textlist *tlist, char *prev)
 /*
  * Parse a single option setting in a modeline.
  */
-static void modeline_option(char *str, int opt_len)
+static void modeline_option(constant char *str, int opt_len)
 {
 	struct mloption { constant char *opt_name; void (*opt_func)(constant char*,int); };
 	struct mloption options[] = {
@@ -171,10 +171,10 @@ static void modeline_option(char *str, int opt_len)
  * String length, terminated by option separator (space or colon).
  * Space/colon can be escaped with backspace.
  */
-static int modeline_option_len(char *str)
+static int modeline_option_len(constant char *str)
 {
 	int esc = FALSE;
-	char *s;
+	constant char *s;
 	for (s = str;  *s != '\0';  s++)
 	{
 		if (esc)
@@ -190,12 +190,12 @@ static int modeline_option_len(char *str)
 /*
  * Parse colon- or space-separated option settings in a modeline.
  */
-static void modeline_options(char *str, char end_char)
+static void modeline_options(constant char *str, char end_char)
 {
 	for (;;)
 	{
 		int opt_len;
-		str = skipsp(str);
+		str = skipspc(str);
 		if (*str == '\0' || *str == end_char)
 			break;
 		opt_len = modeline_option_len(str);
@@ -209,21 +209,21 @@ static void modeline_options(char *str, char end_char)
 /*
  * See if there is a modeline string in a line.
  */
-static void check_modeline(char *line)
+static void check_modeline(constant char *line)
 {
 #if HAVE_STRSTR
-	static char *pgms[] = { "less:", "vim:", "vi:", "ex:", NULL };
-	char **pgm;
+	static constant char *pgms[] = { "less:", "vim:", "vi:", "ex:", NULL };
+	constant char **pgm;
 	for (pgm = pgms;  *pgm != NULL;  ++pgm)
 	{
-		char *pline = line;
+		constant char *pline = line;
 		for (;;)
 		{
-			char *str;
+			constant char *str;
 			pline = strstr(pline, *pgm);
 			if (pline == NULL) /* pgm is not in this line */
 				break;
-			str = skipsp(pline + strlen(*pgm));
+			str = skipspc(pline + strlen(*pgm));
 			if (pline == line || pline[-1] == ' ')
 			{
 				if (strncmp(str, "set ", 4) == 0)
@@ -924,7 +924,7 @@ public void cat_file(void)
  * is standard input, create the log file.  
  * We take care not to blindly overwrite an existing file.
  */
-public void use_logfile(char *filename)
+public void use_logfile(constant char *filename)
 {
 	int exists;
 	int answer;

@@ -77,7 +77,7 @@ static int in_hilite;
 
 static int attr_swidth(int a);
 static int attr_ewidth(int a);
-static int do_append(LWCHAR ch, char *rep, POSITION pos);
+static int do_append(LWCHAR ch, constant char *rep, POSITION pos);
 
 extern int sigs;
 extern int bs_mode;
@@ -288,7 +288,7 @@ static void add_linebuf(char ch, int attr, int w)
 /*
  * Append a string to the line buffer.
  */
-static void addstr_linebuf(char *s, int attr, int cw)
+static void addstr_linebuf(constant char *s, int attr, int cw)
 {
 	for ( ;  *s != '\0';  s++)
 		add_linebuf(*s, attr, cw);
@@ -677,7 +677,7 @@ static int fits_on_screen(int w, int a)
 		if (store_char((ch),(a),(rep),(pos))) return (1); \
 	} while (0)
 
-static int store_char(LWCHAR ch, int a, char *rep, POSITION pos)
+static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 {
 	int w;
 	int i;
@@ -968,7 +968,7 @@ public int pappend(int c, POSITION pos)
 	return (r);
 }
 
-static int store_control_char(LWCHAR ch, char *rep, POSITION pos)
+static int store_control_char(LWCHAR ch, constant char *rep, POSITION pos)
 {
 	if (ctldisp == OPT_ON)
 	{
@@ -982,7 +982,7 @@ static int store_control_char(LWCHAR ch, char *rep, POSITION pos)
 	return (0);
 }
 
-static int store_ansi(LWCHAR ch, char *rep, POSITION pos)
+static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 {
 	switch (ansi_step(line_ansi, ch))
 	{
@@ -1021,7 +1021,7 @@ static int store_ansi(LWCHAR ch, char *rep, POSITION pos)
 	return (0);
 } 
 
-static int store_bs(LWCHAR ch, char *rep, POSITION pos)
+static int store_bs(LWCHAR ch, constant char *rep, POSITION pos)
 {
 	if (proc_backspace == OPT_ONPLUS || (bs_mode == BS_CONTROL && proc_backspace == OPT_OFF))
 		return store_control_char(ch, rep, pos);
@@ -1036,7 +1036,7 @@ static int store_bs(LWCHAR ch, char *rep, POSITION pos)
 	return 0;
 }
 
-static int do_append(LWCHAR ch, char *rep, POSITION pos)
+static int do_append(LWCHAR ch, constant char *rep, POSITION pos)
 {
 	int a = AT_NORMAL;
 	int in_overstrike = overstrike;
@@ -1579,7 +1579,7 @@ static int color_index(int attr)
 /*
  * Set the color string to use for a given attribute.
  */
-public int set_color_map(int attr, char *colorstr)
+public int set_color_map(int attr, constant char *colorstr)
 {
 	int cx = color_index(attr);
 	if (cx < 0)
@@ -1595,7 +1595,7 @@ public int set_color_map(int attr, char *colorstr)
 /*
  * Get the color string to use for a given attribute.
  */
-public char * get_color_map(int attr)
+public constant char * get_color_map(int attr)
 {
 	int cx = color_index(attr);
 	if (cx < 0)

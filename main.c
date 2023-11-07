@@ -508,6 +508,14 @@ public char * skipsp(char *s)
 	return (s);
 }
 
+/* {{ There must be a better way. }} */
+public constant char * skipspc(constant char *s)
+{
+	while (*s == ' ' || *s == '\t')
+		s++;
+	return (s);
+}
+
 /*
  * See how many characters of two strings are identical.
  * If uppercase is true, the first string must begin with an uppercase

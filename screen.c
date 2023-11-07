@@ -2455,7 +2455,7 @@ static int parse_color4(char ch)
 /*
  * Parse a color as a decimal integer.
  */
-static int parse_color6(char **ps)
+static int parse_color6(constant char **ps)
 {
 	if (**ps == '-')
 	{
@@ -2463,10 +2463,12 @@ static int parse_color6(char **ps)
 		return CV_NOCHANGE;
 	} else
 	{
-		char *ops = *ps;
-		int color = lstrtoi(ops, ps, 10);
-		if (color < 0 || *ps == ops)
+		char *wps = (char *) *ps;  /*{{const-issue}}*/
+		char *ops = wps;
+		int color = lstrtoi(wps, &wps, 10);
+		if (color < 0 || wps == ops)
 			return CV_ERROR;
+		*ps = (constant char *) wps; /*{{const-issue}}*/
 		return color;
 	}
 }
@@ -2477,7 +2479,7 @@ static int parse_color6(char **ps)
  *  CV_4BIT: fg/bg values are OR of CV_{RGB} bits.
  *  CV_6BIT: fg/bg values are integers entered by user.
  */
-public COLOR_TYPE parse_color(char *str, int *p_fg, int *p_bg)
+public COLOR_TYPE parse_color(constant char *str, int *p_fg, int *p_bg)
 {
 	int fg;
 	int bg;
@@ -2542,7 +2544,7 @@ static void tput_fmt(char *fmt, int color, int (*f_putc)(int))
 	attrcolor = color;
 }
 
-static void tput_color(char *str, int (*f_putc)(int))
+static void tput_color(constant char *str, int (*f_putc)(int))
 {
 	int fg;
 	int bg;
@@ -2574,7 +2576,7 @@ static void tput_color(char *str, int (*f_putc)(int))
 
 static void tput_inmode(char *mode_str, int attr, int attr_bit, int (*f_putc)(int))
 {
-	char *color_str;
+	constant char *color_str;
 	if ((attr & attr_bit) == 0)
 		return;
 	color_str = get_color_map(attr_bit);
