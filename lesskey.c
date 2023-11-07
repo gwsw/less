@@ -87,21 +87,21 @@
 #include "lesskey.h"
 #include "cmd.h"
 
-char fileheader[] = {
+constant char fileheader[] = {
 	C0_LESSKEY_MAGIC, 
 	C1_LESSKEY_MAGIC, 
 	C2_LESSKEY_MAGIC, 
 	C3_LESSKEY_MAGIC
 };
-char filetrailer[] = {
+constant char filetrailer[] = {
 	C0_END_LESSKEY_MAGIC, 
 	C1_END_LESSKEY_MAGIC, 
 	C2_END_LESSKEY_MAGIC
 };
-char cmdsection[1] =    { CMD_SECTION };
-char editsection[1] =   { EDIT_SECTION };
-char varsection[1] =    { VAR_SECTION };
-char endsection[1] =    { END_SECTION };
+constant char cmdsection[1] =    { CMD_SECTION };
+constant char editsection[1] =   { EDIT_SECTION };
+constant char varsection[1] =    { VAR_SECTION };
+constant char endsection[1] =    { END_SECTION };
 
 char *infile = NULL;
 char *outfile = NULL ;
@@ -114,7 +114,7 @@ static void usage(void)
 	exit(1);
 }
 
-void lesskey_parse_error(char *s)
+void lesskey_parse_error(constant char *s)
 {
 	fprintf(stderr, "%s\n", s);
 }
@@ -140,7 +140,7 @@ void * ecalloc(int count, unsigned int size)
 	return (p);
 }
 
-static char * mkpathname(char *dirname, char *filename)
+static char * mkpathname(constant char *dirname, constant char *filename)
 {
 	char *pathname;
 
@@ -154,7 +154,7 @@ static char * mkpathname(char *dirname, char *filename)
 /*
  * Figure out the name of a default file (in the user's HOME directory).
  */
-char * homefile(char *filename)
+char * homefile(constant char *filename)
 {
 	char *p;
 	char *pathname;
@@ -246,7 +246,7 @@ static void parse_args(int argc, char **argv)
 /*
  * Output some bytes.
  */
-static void fputbytes(FILE *fd, char *buf, int len)
+static void fputbytes(FILE *fd, constant char *buf, int len)
 {
 	while (len-- > 0)
 	{
@@ -338,16 +338,16 @@ int main(int argc, char *argv[])
 	/* Command key section */
 	fputbytes(out, cmdsection, sizeof(cmdsection));
 	fputint(out, tables.cmdtable.buf.end);
-	fputbytes(out, (char *)tables.cmdtable.buf.data, tables.cmdtable.buf.end);
+	fputbytes(out, xbuf_char_data(&tables.cmdtable.buf), tables.cmdtable.buf.end);
 	/* Edit key section */
 	fputbytes(out, editsection, sizeof(editsection));
 	fputint(out, tables.edittable.buf.end);
-	fputbytes(out, (char *)tables.edittable.buf.data, tables.edittable.buf.end);
+	fputbytes(out, xbuf_char_data(&tables.edittable.buf), tables.edittable.buf.end);
 
 	/* Environment variable section */
 	fputbytes(out, varsection, sizeof(varsection)); 
 	fputint(out, tables.vartable.buf.end);
-	fputbytes(out, (char *)tables.vartable.buf.data, tables.vartable.buf.end);
+	fputbytes(out, xbuf_char_data(&tables.vartable.buf), tables.vartable.buf.end);
 
 	/* File trailer */
 	fputbytes(out, endsection, sizeof(endsection));

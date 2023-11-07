@@ -27,9 +27,9 @@ extern char version[];
 static int linenum;
 static int errors;
 static int less_version = 0;
-static char *lesskey_file;
+static char *lesskey_file = NULL;
 
-static struct lesskey_cmdname cmdnames[] = 
+static constant struct lesskey_cmdname cmdnames[] = 
 {
 	{ "back-bracket",         A_B_BRACKET },
 	{ "back-line",            A_B_LINE },
@@ -99,7 +99,7 @@ static struct lesskey_cmdname cmdnames[] =
 	{ NULL,   0 }
 };
 
-static struct lesskey_cmdname editnames[] = 
+static constant struct lesskey_cmdname editnames[] = 
 {
 	{ "back-complete",      EC_B_COMPLETE },
 	{ "backspace",          EC_BACKSPACE },
@@ -127,7 +127,7 @@ static struct lesskey_cmdname editnames[] =
 /*
  * Print a parse error message.
  */
-static void parse_error(char *fmt, char *arg1)
+static void parse_error(constant char *fmt, constant char *arg1)
 {
 	char buf[1024];
 	int n = SNPRINTF2(buf, sizeof(buf), "%s: line %d: ", lesskey_file, linenum);
@@ -185,7 +185,7 @@ static char * increment_pointer(char *p)
 /*
  * Parse one character of a string.
  */
-static char * tstr(char **pp, int xlate)
+static constant char * tstr(char **pp, int xlate)
 {
 	char *p;
 	char ch;
@@ -353,7 +353,7 @@ static void erase_cmd_char(struct lesskey_tables *tables)
 /*
  * Add a string to the output command table.
  */
-static void add_cmd_str(char *s, struct lesskey_tables *tables)
+static void add_cmd_str(constant char *s, struct lesskey_tables *tables)
 {
 	for ( ;  *s != '\0';  s++)
 		add_cmd_char(*s, tables);
@@ -475,7 +475,7 @@ static void parse_cmdline(char *p, struct lesskey_tables *tables)
 {
 	char *actname;
 	int action;
-	char *s;
+	constant char *s;
 	char c;
 
 	/*
@@ -539,7 +539,7 @@ static void parse_cmdline(char *p, struct lesskey_tables *tables)
  */
 static void parse_varline(char *line, struct lesskey_tables *tables)
 {
-	char *s;
+	constant char *s;
 	char *p = line;
 	char *eq;
 
@@ -612,13 +612,12 @@ static void parse_line(char *line, struct lesskey_tables *tables)
 /*
  * Parse a lesskey source file and store result in tables.
  */
-int parse_lesskey(char *infile, struct lesskey_tables *tables)
+int parse_lesskey(constant char *ainfile, struct lesskey_tables *tables)
 {
 	FILE *desc;
 	char line[1024];
-
-	if (infile == NULL)
-		infile = homefile(DEF_LESSKEYINFILE);
+	char *infile = (ainfile != NULL) ? strdup(ainfile) : homefile(DEF_LESSKEYINFILE);
+	if (lesskey_file != NULL) free(lesskey_file);
 	lesskey_file = infile;
 
 	init_tables(tables);
@@ -637,6 +636,7 @@ int parse_lesskey(char *infile, struct lesskey_tables *tables)
 		/* parse_error("cannot open lesskey file %s", infile); */
 		return (-1);
 	}
+	free(infile);
 
 	/*
 	 * Read and parse the input file, one line at a time.
@@ -653,7 +653,7 @@ int parse_lesskey(char *infile, struct lesskey_tables *tables)
 /*
  * Parse a lesskey source content and store result in tables.
  */
-int parse_lesskey_content(char *content, struct lesskey_tables *tables)
+int parse_lesskey_content(constant char *content, struct lesskey_tables *tables)
 {
 	int cx = 0;
 

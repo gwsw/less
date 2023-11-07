@@ -7,6 +7,12 @@
  * For more information, see the README file.
  */
 
+#if HAVE_CONST
+#define constant        const
+#else
+#define constant
+#endif
+
 #include "xbuf.h"
 
 /*
@@ -41,13 +47,13 @@
 
 struct lesskey_cmdname
 {
-	char *cn_name;
+	constant char *cn_name;
 	int cn_action;
 };
 
 struct lesskey_table
 {
-	struct lesskey_cmdname *names;
+	constant struct lesskey_cmdname *names;
 	struct xbuffer buf;
 	int is_var;
 };
@@ -60,8 +66,8 @@ struct lesskey_tables
 	struct lesskey_table vartable;
 };
 
-extern int parse_lesskey(char *infile, struct lesskey_tables *tables);
-extern int parse_lesskey_content(char *content, struct lesskey_tables *tables);
+extern int parse_lesskey(constant char *infile, struct lesskey_tables *tables);
+extern int parse_lesskey_content(constant char *content, struct lesskey_tables *tables);
 
 /* keep in sync with less.h */
 #if HAVE_SNPRINTF
