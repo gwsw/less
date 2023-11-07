@@ -147,11 +147,11 @@ public void cmd_putstr(constant char *s)
 	constant char *endline = s + strlen(s);
 	while (*s != '\0')
 	{
-		char *ns = (char *) s;
+		constant char *os = s;
 		int width;
-		ch = step_char(&ns, +1, endline);
-		while (s < ns)
-			putchr(*s++);
+		ch = step_charc(&s, +1, endline);
+		while (os < s)
+			putchr(*os++);
 		if (!utf_mode)
 			width = 1;
 		else if (is_composing_char(ch) || is_combining_char(prev_ch, ch))
@@ -169,13 +169,13 @@ public void cmd_putstr(constant char *s)
  */
 public int len_cmdbuf(void)
 {
-	char *s = cmdbuf;
-	char *endline = s + strlen(s);
+	constant char *s = cmdbuf;
+	constant char *endline = s + strlen(s);
 	int len = 0;
 
 	while (*s != '\0')
 	{
-		step_char(&s, +1, endline);
+		step_charc(&s, +1, endline);
 		len++;
 	}
 	return (len);
@@ -903,14 +903,14 @@ static int cmd_edit(int c)
  */
 static int cmd_istr(constant char *str)
 {
-	char *s;
-	int action;
 	constant char *endline = str + strlen(str);
+	constant char *s;
+	int action;
 	
-	for (s = (char *) str;  *s != '\0';  ) /*{{const-issue}}*/
+	for (s = str;  *s != '\0';  )
 	{
-		char *os = s;
-		step_char(&s, +1, endline);
+		constant char *os = s;
+		step_charc(&s, +1, endline);
 		action = cmd_ichar(os, s - os);
 		if (action != CC_OK)
 			return (action);
@@ -1408,7 +1408,6 @@ static void read_cmdhist2(void (*action)(void*,struct mlist*,constant char*), vo
 	char line[CMDBUF_SIZE];
 	char *filename;
 	FILE *f;
-	char *p;
 	int *skip = NULL;
 
 	filename = histfile_name(1);
@@ -1426,6 +1425,7 @@ static void read_cmdhist2(void (*action)(void*,struct mlist*,constant char*), vo
 	}
 	while (fgets(line, sizeof(line), f) != NULL)
 	{
+		char *p;
 		for (p = line;  *p != '\0';  p++)
 		{
 			if (*p == '\n' || *p == '\r')
@@ -1526,7 +1526,7 @@ static void write_mlist(struct mlist *ml, FILE *f)
 /*
  * Make a temp name in the same directory as filename.
  */
-static char * make_tempname(char *filename)
+static char * make_tempname(constant char *filename)
 {
 	char lastch;
 	char *tempname = ecalloc(1, strlen(filename)+1);
