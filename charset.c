@@ -120,8 +120,8 @@ struct cs_alias {
 #define IS_CONTROL_CHAR 02
 
 static char chardef[256];
-static char *binfmt = NULL;
-static char *utfbinfmt = NULL;
+static constant char *binfmt = NULL;
+static constant char *utfbinfmt = NULL;
 public int binattr = AT_STANDOUT|AT_COLOR_BIN;
 
 static struct xbuffer user_wide_array;
@@ -241,7 +241,7 @@ static void ichardef_utf(char *s)
  *      b binary character
  *      c control character
  */
-static void ichardef(char *s)
+static void ichardef(constant char *s)
 {
 	char *cp;
 	int n;
@@ -298,7 +298,7 @@ static void ichardef(char *s)
  * Define a charset, given a charset name.
  * The valid charset names are listed in the "charsets" array.
  */
-static int icharset(char *name, int no_error)
+static int icharset(constant char *name, int no_error)
 {
 	struct charset *p;
 	struct cs_alias *a;
@@ -363,7 +363,7 @@ static void ilocale(void)
 /*
  * Define the printing format for control (or binary utf) chars.
  */
-public void setfmt(char *s, char **fmtvarptr, int *attrptr, char *default_fmt, int for_printf)
+public void setfmt(constant char *s, constant char **fmtvarptr, int *attrptr, constant char *default_fmt, int for_printf)
 {
 	if (s && utf_mode)
 	{
@@ -412,7 +412,7 @@ public void setfmt(char *s, char **fmtvarptr, int *attrptr, char *default_fmt, i
  */
 static void set_charset(void)
 {
-	char *s;
+	constant char *s;
 
 	ichardef_utf(lgetenv("LESSUTFCHARDEF"));
 
@@ -492,7 +492,7 @@ static void set_charset(void)
  */
 public void init_charset(void)
 {
-	char *s;
+	constant char *s;
 
 #if HAVE_LOCALE
 	setlocale(LC_ALL, "");
@@ -531,7 +531,7 @@ public int control_char(LWCHAR c)
  * Return the printable form of a character.
  * For example, in the "ascii" charset '\3' is printed as "^C".
  */
-public char * prchar(LWCHAR c)
+public constant char * prchar(LWCHAR c)
 {
 	/* {{ This buffer can be overrun if LESSBINFMT is a long string. }} */
 	static char buf[MAX_PRCHAR_LEN+1];
@@ -565,7 +565,7 @@ public char * prchar(LWCHAR c)
 /*
  * Return the printable form of a UTF-8 character.
  */
-public char * prutfchar(LWCHAR ch)
+public constant char * prutfchar(LWCHAR ch)
 {
 	static char buf[MAX_PRCHAR_LEN+1];
 
@@ -594,7 +594,7 @@ public char * prutfchar(LWCHAR ch)
 /*
  * Get the length of a UTF-8 character in bytes.
  */
-public int utf_len(int ch)
+public int utf_len(unsigned char ch)
 {
 	if ((ch & 0x80) == 0)
 		return 1;
@@ -617,11 +617,11 @@ public int utf_len(int ch)
 /*
  * Does the parameter point to the lead byte of a well-formed UTF-8 character?
  */
-public int is_utf8_well_formed(char *ss, int slen)
+public int is_utf8_well_formed(constant char *ss, int slen)
 {
 	int i;
 	int len;
-	unsigned char *s = (unsigned char *) ss;
+	constant unsigned char *s = (constant unsigned char *) ss;
 
 	if (IS_UTF8_INVALID(s[0]))
 		return (0);
@@ -663,8 +663,9 @@ public void utf_skip_to_lead(char **pp, char *limit)
 /*
  * Get the value of a UTF-8 character.
  */
-public LWCHAR get_wchar(constant char *p)
+public LWCHAR get_wchar(constant char *sp)
 {
+	constant unsigned char *p = (constant unsigned char *) sp;
 	switch (utf_len(p[0]))
 	{
 	case 1:

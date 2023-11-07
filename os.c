@@ -89,7 +89,7 @@ extern char *ttyin_name;
 
 public void init_poll(void)
 {
-	char *delay = lgetenv("LESS_DATA_DELAY");
+	constant char *delay = lgetenv("LESS_DATA_DELAY");
 	int idelay = (delay == NULL) ? 0 : atoi(delay);
 	if (idelay > 0)
 		waiting_for_data_delay = idelay;
@@ -382,11 +382,11 @@ public char * errno_message(constant char *filename)
  * Return a description of a signal.
  * The return value is good until the next call to this function.
  */
-public char * signal_message(int sig)
+public constant char * signal_message(int sig)
 {
 	static char sigbuf[sizeof("Signal ") + INT_STRLEN_BOUND(sig) + 1];
 #if HAVE_STRSIGNAL
-	char *description = strsignal(sig);
+	constant char *description = strsignal(sig);
 	if (description)
 		return description;
 #endif

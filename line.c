@@ -813,7 +813,7 @@ static int store_char(LWCHAR ch, int a, char *rep, POSITION pos)
 #define STORE_STRING(s,a,pos) \
 	do { if (store_string((s),(a),(pos))) return (1); } while (0)
 
-static int store_string(char *s, int a, POSITION pos)
+static int store_string(constant char *s, int a, POSITION pos)
 {
 	if (!fits_on_screen(strlen(s), a))
 		return 1;

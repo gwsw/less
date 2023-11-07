@@ -803,7 +803,7 @@ public void opt_rscroll(int type, char *s)
 	{
 	case INIT:
 	case TOGGLE: {
-		char *fmt;
+		constant char *fmt;
 		int attr = AT_STANDOUT;
 		setfmt(s, &fmt, &attr, "*s>", FALSE);
 		if (strcmp(fmt, "-") == 0)

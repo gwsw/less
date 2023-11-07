@@ -41,7 +41,7 @@ extern IFILE curr_ifile;
  * Pass the specified command to a shell to be executed.
  * Like plain "system()", but handles resetting terminal modes, etc.
  */
-public void lsystem(char *cmd, char *donemsg)
+public void lsystem(constant char *cmd, char *donemsg)
 {
 	int inp;
 #if HAVE_SHELL

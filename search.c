@@ -1448,7 +1448,7 @@ static int hist_pattern(int search_type)
 	char *pattern;
 
 	set_mlist(ml_search, 0);
-	pattern = cmd_lastpattern();
+	pattern = (char *) cmd_lastpattern(); /*{{const-issue}}*/
 	if (pattern == NULL)
 		return (0);
 

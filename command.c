@@ -90,7 +90,7 @@ struct ungot {
 };
 static struct ungot* ungot = NULL;
 
-static void multi_search (char *pattern, int n, int silent);
+static void multi_search(char *pattern, int n, int silent);
 
 /*
  * Move the cursor to start of prompt line before executing a command.
@@ -201,14 +201,10 @@ static void mca_search(void)
  */
 static void mca_opt_toggle(void)
 {
-	int no_prompt;
-	int flag;
-	char *dash;
+	int no_prompt = (optflag & OPT_NO_PROMPT);
+	int flag = (optflag & ~OPT_NO_PROMPT);
+	constant char *dash = (flag == OPT_NO_TOGGLE) ? "_" : "-";
 	
-	no_prompt = (optflag & OPT_NO_PROMPT);
-	flag = (optflag & ~OPT_NO_PROMPT);
-	dash = (flag == OPT_NO_TOGGLE) ? "_" : "-";
-
 	set_mca(A_OPT_TOGGLE);
 	cmd_putstr(dash);
 	if (optgetname)
@@ -1074,7 +1070,7 @@ public void ungetcc_back(LWCHAR c)
  * Unget a whole string of command characters.
  * The next sequence of getcc()'s will return this string.
  */
-public void ungetsc(char *s)
+public void ungetsc(constant char *s)
 {
 	while (*s != '\0')
 		ungetcc_back(*s++);
@@ -1238,7 +1234,7 @@ public void commands(void)
 	int newaction;
 	int save_jump_sline;
 	int save_search_type;
-	char *extra;
+	constant char *extra;
 	char tbuf[2];
 	PARG parg;
 	IFILE old_ifile;

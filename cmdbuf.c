@@ -186,9 +186,9 @@ public int len_cmdbuf(void)
  * {{ Returning pwidth and bswidth separately is a historical artifact
  *    since they're always the same. Maybe clean this up someday. }}
  */
-static char * cmd_step_common(char *p, LWCHAR ch, int len, int *pwidth, int *bswidth)
+static constant char * cmd_step_common(char *p, LWCHAR ch, int len, int *pwidth, int *bswidth)
 {
-	char *pr;
+	constant char *pr;
 	int width;
 
 	if (len == 1)
@@ -221,7 +221,7 @@ static char * cmd_step_common(char *p, LWCHAR ch, int len, int *pwidth, int *bsw
 /*
  * Step a pointer one character right in the command buffer.
  */
-static char * cmd_step_right(char **pp, int *pwidth, int *bswidth)
+static constant char * cmd_step_right(char **pp, int *pwidth, int *bswidth)
 {
 	char *p = *pp;
 	LWCHAR ch = step_char(pp, +1, p + strlen(p));
@@ -232,7 +232,7 @@ static char * cmd_step_right(char **pp, int *pwidth, int *bswidth)
 /*
  * Step a pointer one character left in the command buffer.
  */
-static char * cmd_step_left(char **pp, int *pwidth, int *bswidth)
+static constant char * cmd_step_left(char **pp, int *pwidth, int *bswidth)
 {
 	char *p = *pp;
 	LWCHAR ch = step_char(pp, -1, cmdbuf);
@@ -278,7 +278,7 @@ public void cmd_repaint(constant char *old_cp)
 	{
 		char *np = cp;
 		int width;
-		char *pr = cmd_step_right(&np, &width, NULL);
+		constant char *pr = cmd_step_right(&np, &width, NULL);
 		if (cmd_col + width >= sc_width)
 			break;
 		cp = np;
@@ -289,7 +289,7 @@ public void cmd_repaint(constant char *old_cp)
 	{
 		char *np = cp;
 		int width;
-		char *pr = cmd_step_right(&np, &width, NULL);
+		constant char *pr = cmd_step_right(&np, &width, NULL);
 		if (width > 0)
 			break;
 		cp = np;
@@ -374,7 +374,7 @@ static void cmd_rshift(void)
  */
 static int cmd_right(void)
 {
-	char *pr;
+	constant char *pr;
 	char *ncp;
 	int width;
 	
@@ -436,7 +436,7 @@ static int cmd_left(void)
 /*
  * Insert a char into the command buffer, at the current position.
  */
-static int cmd_ichar(char *cs, int clen)
+static int cmd_ichar(constant char *cs, int clen)
 {
 	char *s;
 	
@@ -901,13 +901,13 @@ static int cmd_edit(int c)
 /*
  * Insert a string into the command buffer, at the current position.
  */
-static int cmd_istr(char *str)
+static int cmd_istr(constant char *str)
 {
 	char *s;
 	int action;
-	char *endline = str + strlen(str);
+	constant char *endline = str + strlen(str);
 	
-	for (s = str;  *s != '\0';  )
+	for (s = (char *) str;  *s != '\0';  ) /*{{const-issue}}*/
 	{
 		char *os = s;
 		step_char(&s, +1, endline);
@@ -1320,7 +1320,7 @@ public char * get_cmdbuf(void)
 /*
  * Return the last (most recent) string in the current command history.
  */
-public char * cmd_lastpattern(void)
+public constant char * cmd_lastpattern(void)
 {
 	if (curr_mlist == NULL)
 		return (NULL);
