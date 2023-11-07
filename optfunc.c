@@ -156,7 +156,7 @@ public void opt__O(int type, char *s)
 }
 #endif
 
-static int toggle_fraction(int *num, long *frac, char *s, char *printopt, void (*calc)(void))
+static int toggle_fraction(int *num, long *frac, constant char *s, char *printopt, void (*calc)(void))
 {
 	int err;
 	if (s == NULL)
@@ -176,7 +176,7 @@ static int toggle_fraction(int *num, long *frac, char *s, char *printopt, void (
 		(*calc)();
 	} else
 	{
-		int tnum = getnum(&s, printopt, &err);
+		int tnum = getnumc(&s, printopt, &err);
 		if (err)
 		{
 			error("Invalid number", NULL_PARG);

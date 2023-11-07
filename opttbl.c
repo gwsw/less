@@ -799,9 +799,9 @@ static int is_optchar(char c)
  * is updated to point after the matched name.
  * p_oname if non-NULL is set to point to the full option name.
  */
-public struct loption * findopt_name(char **p_optname, char **p_oname, int *p_err)
+public struct loption * findopt_name(constant char **p_optname, constant char **p_oname, int *p_err)
 {
-	char *optname = *p_optname;
+	constant char *optname = *p_optname;
 	struct loption *o;
 	struct optname *oname;
 	int len;

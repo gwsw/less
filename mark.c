@@ -366,7 +366,7 @@ public void mark_check_ifile(IFILE ifile)
 /*
  * Save marks to history file.
  */
-public void save_marks(FILE *fout, char *hdr)
+public void save_marks(FILE *fout, constant char *hdr)
 {
 	int i;
 

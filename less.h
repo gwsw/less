@@ -656,6 +656,9 @@ void inttoa(int, char*, int);
 int lstrtoi(char*, char**, int);
 POSITION lstrtopos(char*, char**, int);
 unsigned long lstrtoul(char*, char**, int);
+int lstrtoic(constant char*, constant char**, int);
+POSITION lstrtoposc(constant char*, constant char**, int);
+unsigned long lstrtoulc(constant char*, constant char**, int);
 #if MSDOS_COMPILER==WIN32C
 int pclose(FILE*);
 #endif

@@ -475,8 +475,8 @@ TYPE_TO_A_FUNC(inttoa, int)
 /*
  * Convert a string to an integral type.  Return ((type) -1) on overflow.
  */
-#define STR_TO_TYPE_FUNC(funcname, type) \
-type funcname(char *buf, char **ebuf, int radix) \
+#define STR_TO_TYPE_FUNC(funcname, cfuncname, type) \
+type cfuncname(constant char *buf, constant char **ebuf, int radix) \
 { \
 	type val = 0; \
 	int v = 0; \
@@ -489,11 +489,18 @@ type funcname(char *buf, char **ebuf, int radix) \
 	} \
 	if (ebuf != NULL) *ebuf = buf; \
 	return v ? -1 : val; \
+} \
+type funcname(char *buf, char **ebuf, int radix) \
+{ \
+	constant char *cbuf = buf; \
+	int r = cfuncname(cbuf, &cbuf, radix); \
+	*ebuf = (char *) cbuf; /*{{const-issue}}*/ \
+	return r; \
 }
 
-STR_TO_TYPE_FUNC(lstrtopos, POSITION)
-STR_TO_TYPE_FUNC(lstrtoi, int)
-STR_TO_TYPE_FUNC(lstrtoul, unsigned long)
+STR_TO_TYPE_FUNC(lstrtopos, lstrtoposc, POSITION)
+STR_TO_TYPE_FUNC(lstrtoi, lstrtoic, int)
+STR_TO_TYPE_FUNC(lstrtoul, lstrtoulc, unsigned long)
 
 /*
  * Print an integral type.

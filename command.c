@@ -393,7 +393,8 @@ static int mca_opt_first_char(LWCHAR c)
 static int mca_opt_nonfirst_char(LWCHAR c)
 {
 	char *p;
-	char *oname;
+	constant char *cp;
+	constant char *oname;
 	int err;
 
 	if (curropt != NULL)
@@ -417,7 +418,9 @@ static int mca_opt_nonfirst_char(LWCHAR c)
 		return (MCA_MORE);
 	opt_lower = ASCII_IS_LOWER(p[0]);
 	err = 0;
-	curropt = findopt_name(&p, &oname, &err);
+	cp = (constant char *) p; /*{{const-issue}}*/
+	curropt = findopt_name(&cp, &oname, &err);
+	p = (char *) cp;
 	if (curropt != NULL)
 	{
 		/*
@@ -427,9 +430,9 @@ static int mca_opt_nonfirst_char(LWCHAR c)
 		 */
 		cmd_reset();
 		mca_opt_toggle();
-		for (p = oname;  *p != '\0';  p++)
+		for (cp = oname;  *cp != '\0';  cp++)
 		{
-			c = *p;
+			c = *cp;
 			if (!opt_lower && ASCII_IS_LOWER(c))
 				c = ASCII_TO_UPPER(c);
 			if (cmd_char(c) != CC_OK)

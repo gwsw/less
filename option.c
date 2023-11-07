@@ -23,7 +23,7 @@
 static struct loption *pendopt;
 public int plusoption = FALSE;
 
-static char *optstring(char *s, char **p_str, constant char *printopt, char *validchars);
+static constant char *optstring(constant char *s, char **p_str, constant char *printopt, char *validchars);
 static int flip_triple(int val, int lc);
 
 extern int less_is_more;
@@ -60,11 +60,11 @@ public constant char * propt(int c)
  * Scan an argument (either from the command line or from the 
  * LESS environment variable) and process it.
  */
-public void scan_option(char *s)
+public void scan_option(constant char *s)
 {
 	struct loption *o;
 	int optc;
-	char *optname;
+	constant char *optname;
 	constant char *printopt;
 	char *str;
 	int set_default;
@@ -89,11 +89,11 @@ public void scan_option(char *s)
 			switch (pendopt->otype & OTYPE)
 			{
 			case STRING:
-				(*pendopt->ofunc)(INIT, s);
+				(*pendopt->ofunc)(INIT, (char*) s); /*{{const-issue}}*/
 				break;
 			case NUMBER:
 				printopt = opt_desc(pendopt);
-				*(pendopt->ovar) = getnum(&s, printopt, (int*)NULL);
+				*(pendopt->ovar) = getnumc(&s, printopt, (int*)NULL);
 				break;
 			}
 		}
@@ -142,7 +142,7 @@ public void scan_option(char *s)
 			 * EVERY input file.
 			 */
 			plusoption = TRUE;
-			s = optstring(s, &str, propt('+'), NULL);
+			s = optstring(s, &str, propt('+'), NULL); /*{{const-issue}}*/
 			if (s == NULL)
 				return;
 			if (*str == '+')
@@ -281,7 +281,7 @@ public void scan_option(char *s)
 			}
 			if (o->otype & UNSUPPORTED)
 				break;
-			*(o->ovar) = getnum(&s, printopt, (int*)NULL);
+			*(o->ovar) = getnumc(&s, printopt, (int*)NULL);
 			break;
 		}
 		/*
@@ -571,9 +571,9 @@ public void nopendopt(void)
  *   "d" indicates a string of one or more digits (0-9)
  *   "," indicates a comma-separated list of digit strings is allowed
  */
-static char * optstring(char *s, char **p_str, constant char *printopt, char *validchars)
+static constant char * optstring(constant char *s, char **p_str, constant char *printopt, char *validchars)
 {
-	char *p;
+	constant char *p;
 	char *out;
 
 	if (*s == '\0')
@@ -657,13 +657,13 @@ static int num_error(constant char *printopt, int *errp, int overflow)
  * Like atoi(), but takes a pointer to a char *, and updates
  * the char * to point after the translated number.
  */
-public int getnum(char **sp, constant char *printopt, int *errp)
+public int getnumc(constant char **sp, constant char *printopt, int *errp)
 {
-	constant char *s;
+	constant char *s = *sp;
 	int n;
 	int neg;
 
-	s = skipsp(*sp);
+	s = skipspc(s);
 	neg = FALSE;
 	if (*s == '-')
 	{
@@ -673,7 +673,7 @@ public int getnum(char **sp, constant char *printopt, int *errp)
 	if (*s < '0' || *s > '9')
 		return (num_error(printopt, errp, FALSE));
 
-	n = lstrtoi((char*)s, sp, 10);  /*{{const-issue}}*/
+	n = lstrtoic(s, sp, 10);
 	if (n < 0)
 		return (num_error(printopt, errp, TRUE));
 	if (errp != NULL)
@@ -683,19 +683,27 @@ public int getnum(char **sp, constant char *printopt, int *errp)
 	return (n);
 }
 
+public int getnum(char **sp, constant char *printopt, int *errp)
+{
+	constant char *cs = *sp;
+	int r = getnumc(&cs, printopt, errp);
+	*sp = (char *) cs;
+	return r;
+}
+
 /*
  * Translate a string into a fraction, represented by the part of a
  * number which would follow a decimal point.
  * The value of the fraction is returned as parts per NUM_FRAC_DENOM.
  * That is, if "n" is returned, the fraction intended is n/NUM_FRAC_DENOM.
  */
-public long getfraction(char **sp, constant char *printopt, int *errp)
+public long getfraction(constant char **sp, constant char *printopt, int *errp)
 {
 	constant char *s;
 	long frac = 0;
 	int fraclen = 0;
 
-	s = skipsp(*sp);
+	s = skipspc(*sp);
 	if (*s < '0' || *s > '9')
 		return (num_error(printopt, errp, FALSE));
 
@@ -708,7 +716,7 @@ public long getfraction(char **sp, constant char *printopt, int *errp)
 	}
 	while (fraclen++ < NUM_LOG_FRAC_DENOM)
 		frac *= 10;
-	*sp = (char*) s;  /*{{const-issue}}*/
+	*sp = /*(char*)*/ s;  /*{{const-issue}}*/
 	if (errp != NULL)
 		*errp = FALSE;
 	return (frac);
@@ -720,13 +728,13 @@ public long getfraction(char **sp, constant char *printopt, int *errp)
  */
 public void init_unsupport(void)
 {
-	char *s = lgetenv("LESS_UNSUPPORT");
+	constant char *s = lgetenv("LESS_UNSUPPORT");
 	if (isnullenv(s))
 		return;
 	for (;;)
 	{
 		struct loption *opt;
-		s = skipsp(s);
+		s = skipspc(s);
 		if (*s == '\0') break;
 		if (*s == '-' && *++s == '\0') break;
 		if (*s == '-') /* long option name */

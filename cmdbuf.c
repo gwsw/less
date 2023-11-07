@@ -1284,7 +1284,7 @@ public int cmd_char(int c)
  */
 public LINENUM cmd_int(long *frac)
 {
-	char *p;
+	constant char *p;
 	LINENUM n = 0;
 	int err;
 
