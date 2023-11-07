@@ -159,7 +159,7 @@ static void init_tables(struct lesskey_tables *tables)
 
 #define CHAR_STRING_LEN 8
 
-static char * char_string(char *buf, int ch, int lit)
+static constant char * char_string(char *buf, int ch, int lit)
 {
 	if (lit || (ch >= 0x20 && ch < 0x7f))
 	{

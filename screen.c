@@ -730,7 +730,7 @@ static constant char * ltget_env(constant char *capname)
 	return (lgetenv(name));
 }
 
-static int ltgetflag(char *capname)
+static int ltgetflag(constant char *capname)
 {
 	constant char *s;
 
@@ -741,7 +741,7 @@ static int ltgetflag(char *capname)
 	return (tgetflag(capname));
 }
 
-static int ltgetnum(char *capname)
+static int ltgetnum(constant char *capname)
 {
 	constant char *s;
 
@@ -1654,7 +1654,7 @@ static void ltputs(constant char *str, int affcnt, int (*f_putc)(int))
 	while (str != NULL && *str != '\0')
 	{
 #if HAVE_STRSTR
-		char *obrac = strstr(str, "$<");
+		constant char *obrac = strstr(str, "$<");
 		if (obrac != NULL)
 		{
 			char str2[64];
@@ -2464,12 +2464,10 @@ static int parse_color6(constant char **ps)
 		return CV_NOCHANGE;
 	} else
 	{
-		char *wps = (char *) *ps;  /*{{const-issue}}*/
-		char *ops = wps;
-		int color = lstrtoi(wps, &wps, 10);
-		if (color < 0 || wps == ops)
+		constant char *os = *ps;
+		int color = lstrtoic(os, ps, 10);
+		if (color < 0 || *ps == os)
 			return CV_ERROR;
-		*ps = (constant char *) wps; /*{{const-issue}}*/
 		return color;
 	}
 }
@@ -2535,7 +2533,7 @@ static int sgr_color(int color)
 	}
 }
 
-static void tput_fmt(char *fmt, int color, int (*f_putc)(int))
+static void tput_fmt(constant char *fmt, int color, int (*f_putc)(int))
 {
 	char buf[INT_STRLEN_BOUND(int)+16];
 	if (color == attrcolor)
@@ -2601,7 +2599,7 @@ static void tput_outmode(constant char *mode_str, int attr_bit, int (*f_putc)(in
 #else /* MSDOS_COMPILER */
 
 #if MSDOS_COMPILER==WIN32C
-static int WIN32put_fmt(char *fmt, int color)
+static int WIN32put_fmt(constant char *fmt, int color)
 {
 	char buf[INT_STRLEN_BOUND(int)+16];
 	int len = SNPRINTF1(buf, sizeof(buf), fmt, color);
@@ -2615,7 +2613,7 @@ static int win_set_color(int attr)
 	int fg;
 	int bg;
 	int out = FALSE;
-	char *str = get_color_map(attr);
+	constant char *str = get_color_map(attr);
 	if (str == NULL || str[0] == '\0')
 		return FALSE;
 	switch (parse_color(str, &fg, &bg))
@@ -2990,7 +2988,6 @@ static int win32_key_event(XINPUT_RECORD *xip)
 	int repeat;
 	char utf8[UTF8_MAX_LENGTH];
 	char *up;
-	char *p;
 
 	if (xip->ir.EventType != KEY_EVENT ||
 	    ((xip->ir.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED) && xip->ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
@@ -3018,6 +3015,7 @@ static int win32_key_event(XINPUT_RECORD *xip)
 	put_wchar(&up, xip->ichar);
 	for (; repeat > 0; --repeat)
 	{
+		constant char *p;
 		for (p = utf8; p < up; ++p)
 			 win32_enqueue(*p);
 	}
@@ -3088,7 +3086,7 @@ public void WIN32setcolors(int fg, int bg)
 
 /*
  */
-public void WIN32textout(char *text, int len)
+public void WIN32textout(constant char *text, int len)
 {
 #if MSDOS_COMPILER==WIN32C
 	DWORD written;
