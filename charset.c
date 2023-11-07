@@ -765,11 +765,11 @@ public void put_wchar(char **pp, LWCHAR ch)
 /*
  * Step forward or backward one character in a string.
  */
-public LWCHAR step_char(char **pp, signed int dir, constant char *limit)
+public LWCHAR step_charc(constant char **pp, signed int dir, constant char *limit)
 {
 	LWCHAR ch;
 	int len;
-	char *p = *pp;
+	constant char *p = *pp;
 
 	if (!utf_mode)
 	{
@@ -800,6 +800,14 @@ public LWCHAR step_char(char **pp, signed int dir, constant char *limit)
 			ch = 0;
 	}
 	*pp = p;
+	return ch;
+}
+
+public LWCHAR step_char(char **pp, signed int dir, constant char *limit)
+{
+	constant char *p = (constant char *) *pp;
+	LWCHAR ch = step_charc(&p, dir, limit);
+	*pp = (char *) p;
 	return ch;
 }
 

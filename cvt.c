@@ -49,12 +49,12 @@ public int * cvt_alloc_chpos(int len)
  * Returns converted text in odst.  The original offset of each
  * odst character (when it was in osrc) is returned in the chpos array.
  */
-public void cvt_text(char *odst, char *osrc, int *chpos, int *lenp, int ops)
+public void cvt_text(char *odst, constant char *osrc, int *chpos, int *lenp, int ops)
 {
 	char *dst;
 	char *edst = odst;
-	char *src;
-	char *src_end;
+	constant char *src;
+	constant char *src_end;
 	LWCHAR ch;
 
 	if (lenp != NULL)
@@ -67,7 +67,7 @@ public void cvt_text(char *odst, char *osrc, int *chpos, int *lenp, int ops)
 		int src_pos = (int) (src - osrc);
 		int dst_pos = (int) (dst - odst);
 		struct ansi_state *pansi;
-		ch = step_char(&src, +1, src_end);
+		ch = step_charc(&src, +1, src_end);
 		if ((ops & CVT_BS) && ch == '\b' && dst > odst)
 		{
 			/* Delete backspace and preceding char. */
