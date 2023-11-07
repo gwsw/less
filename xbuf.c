@@ -43,7 +43,7 @@ public void xbuf_add_byte(struct xbuffer *xbuf, unsigned char b)
 	xbuf->data[xbuf->end++] = (unsigned char) b;
 }
 
-public void xbuf_add_data(struct xbuffer *xbuf, unsigned char *data, int len)
+public void xbuf_add_data(struct xbuffer *xbuf, constant unsigned char *data, int len)
 {
 	int i;
 	for (i = 0;  i < len;  i++)
@@ -63,9 +63,9 @@ public void xbuf_set(struct xbuffer *dst, struct xbuffer *src)
 	xbuf_add_data(dst, src->data, src->end);
 }
 
-public char * xbuf_char_data(struct xbuffer *xbuf)
+public constant char * xbuf_char_data(constant struct xbuffer *xbuf)
 {
-	return (char *)(xbuf->data);
+	return (constant char *)(xbuf->data);
 }
 
 

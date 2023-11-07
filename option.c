@@ -303,7 +303,7 @@ public void scan_option(constant char *s)
  *      OPT_UNSET       set to the default value
  *      OPT_SET         set to the inverse of the default value
  */
-public void toggle_option(struct loption *o, int lower, char *s, int how_toggle)
+public void toggle_option(struct loption *o, int lower, constant char *s, int how_toggle)
 {
 	int num;
 	int no_prompt;
@@ -419,7 +419,7 @@ public void toggle_option(struct loption *o, int lower, char *s, int how_toggle)
 			switch (how_toggle)
 			{
 			case OPT_TOGGLE:
-				num = getnum(&s, NULL, &err);
+				num = getnumc(&s, NULL, &err);
 				if (!err)
 					*(o->ovar) = num;
 				break;

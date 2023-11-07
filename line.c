@@ -1004,12 +1004,12 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 	case ANSI_ERR:
 		{
 			/* Remove whole unrecognized sequence.  */
-			char *start = (cshift < hshift) ? xbuf_char_data(&shifted_ansi): linebuf.buf;
+			constant char *start = (cshift < hshift) ? xbuf_char_data(&shifted_ansi): linebuf.buf;
 			int *end = (cshift < hshift) ? &shifted_ansi.end : &linebuf.end;
-			char *p = start + *end;
+			constant char *p = start + *end;
 			LWCHAR bch;
 			do {
-				bch = step_char(&p, -1, start);
+				bch = step_charc(&p, -1, start);
 			} while (p > start && !IS_CSI_START(bch));
 			*end = (int) (p - start);
 		}
