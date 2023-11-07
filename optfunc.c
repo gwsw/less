@@ -77,7 +77,7 @@ extern char *tags;
 extern char ztags[];
 #endif
 #if LESSTEST
-extern char *ttyin_name;
+extern constant char *ttyin_name;
 extern int is_tty;
 #endif /*LESSTEST*/
 #if MSDOS_COMPILER
@@ -99,7 +99,7 @@ extern int sgr_mode;
 /*
  * Handler for -o option.
  */
-public void opt_o(int type, char *s)
+public void opt_o(int type, constant char *s)
 {
 	PARG parg;
 	char *filename;
@@ -125,7 +125,7 @@ public void opt_o(int type, char *s)
 			error("Log file is already in use", NULL_PARG);
 			return;
 		}
-		s = skipsp(s);
+		s = skipspc(s);
 		if (namelogfile != NULL)
 			free(namelogfile);
 		filename = lglob(s);
@@ -149,7 +149,7 @@ public void opt_o(int type, char *s)
 /*
  * Handler for -O option.
  */
-public void opt__O(int type, char *s)
+public void opt__O(int type, constant char *s)
 {
 	force_logfile = TRUE;
 	opt_o(type, s);
@@ -213,7 +213,7 @@ static void query_fraction(int value, long fraction, char *int_msg, char *frac_m
 /*
  * Handlers for -j option.
  */
-public void opt_j(int type, char *s)
+public void opt_j(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -240,7 +240,7 @@ public void calc_jump_sline(void)
 /*
  * Handlers for -# option.
  */
-public void opt_shift(int type, char *s)
+public void opt_shift(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -264,7 +264,7 @@ public void calc_shift_count(void)
 }
 
 #if USERFILE
-public void opt_k(int type, char *s)
+public void opt_k(int type, constant char *s)
 {
 	PARG parg;
 
@@ -281,7 +281,7 @@ public void opt_k(int type, char *s)
 }
 
 #if HAVE_LESSKEYSRC 
-public void opt_ks(int type, char *s)
+public void opt_ks(int type, constant char *s)
 {
 	PARG parg;
 
@@ -297,7 +297,7 @@ public void opt_ks(int type, char *s)
 	}
 }
 
-public void opt_kc(int type, char *s)
+public void opt_kc(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -316,7 +316,7 @@ public void opt_kc(int type, char *s)
 /*
  * Handler for -S option.
  */
-public void opt__S(int type, char *s)
+public void opt__S(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -330,7 +330,7 @@ public void opt__S(int type, char *s)
 /*
  * Handler for -t option.
  */
-public void opt_t(int type, char *s)
+public void opt_t(int type, constant char *s)
 {
 	IFILE save_ifile;
 	POSITION pos;
@@ -347,7 +347,7 @@ public void opt_t(int type, char *s)
 			error("tags support is not available", NULL_PARG);
 			break;
 		}
-		findtag(skipsp(s));
+		findtag(skipspc(s));
 		save_ifile = save_curr_ifile();
 		/*
 		 * Try to open the file containing the tag
@@ -368,7 +368,7 @@ public void opt_t(int type, char *s)
 /*
  * Handler for -T option.
  */
-public void opt__T(int type, char *s)
+public void opt__T(int type, constant char *s)
 {
 	PARG parg;
 	char *filename;
@@ -379,7 +379,7 @@ public void opt__T(int type, char *s)
 		tags = save(s);
 		break;
 	case TOGGLE:
-		s = skipsp(s);
+		s = skipspc(s);
 		if (tags != NULL && tags != ztags)
 			free(tags);
 		filename = lglob(s);
@@ -397,7 +397,7 @@ public void opt__T(int type, char *s)
 /*
  * Handler for -p option.
  */
-public void opt_p(int type, char *s)
+public void opt_p(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -430,7 +430,7 @@ public void opt_p(int type, char *s)
 /*
  * Handler for -P option.
  */
-public void opt__P(int type, char *s)
+public void opt__P(int type, constant char *s)
 {
 	char **proto;
 	PARG parg;
@@ -466,7 +466,7 @@ public void opt__P(int type, char *s)
  * Handler for the -b option.
  */
 	/*ARGSUSED*/
-public void opt_b(int type, char *s)
+public void opt_b(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -486,7 +486,7 @@ public void opt_b(int type, char *s)
  * Handler for the -i option.
  */
 	/*ARGSUSED*/
-public void opt_i(int type, char *s)
+public void opt_i(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -503,7 +503,7 @@ public void opt_i(int type, char *s)
  * Handler for the -V option.
  */
 	/*ARGSUSED*/
-public void opt__V(int type, char *s)
+public void opt__V(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -613,7 +613,7 @@ static int color_from_namechar(char namechar)
  * Handler for the -D option.
  */
 	/*ARGSUSED*/
-public void opt_D(int type, char *s)
+public void opt_D(int type, constant char *s)
 {
 	PARG p;
 	int attr;
@@ -720,7 +720,7 @@ public void set_tabs(constant char *s, int len)
 /*
  * Handler for the -x option.
  */
-public void opt_x(int type, char *s)
+public void opt_x(int type, constant char *s)
 {
 	char msg[60+((INT_STRLEN_BOUND(int)+1)*TABSTOP_MAX)];
 	int i;
@@ -756,7 +756,7 @@ public void opt_x(int type, char *s)
 /*
  * Handler for the -" option.
  */
-public void opt_quote(int type, char *s)
+public void opt_quote(int type, constant char *s)
 {
 	char buf[3];
 	PARG parg;
@@ -795,7 +795,7 @@ public void opt_quote(int type, char *s)
  * Handler for the --rscroll option.
  */
 	/*ARGSUSED*/
-public void opt_rscroll(int type, char *s)
+public void opt_rscroll(int type, constant char *s)
 {
 	PARG p;
 
@@ -827,7 +827,7 @@ public void opt_rscroll(int type, char *s)
  * If from the command line, exit immediately.
  */
 	/*ARGSUSED*/
-public void opt_query(int type, char *s)
+public void opt_query(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -841,7 +841,7 @@ public void opt_query(int type, char *s)
 }
 
 	/*ARGSUSED*/
-public void opt_match_shift(int type, char *s)
+public void opt_match_shift(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -868,7 +868,7 @@ public void calc_match_shift(void)
  * Handler for the --mouse option.
  */
 	/*ARGSUSED*/
-public void opt_mousecap(int type, char *s)
+public void opt_mousecap(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -888,7 +888,7 @@ public void opt_mousecap(int type, char *s)
  * Handler for the --wheel-lines option.
  */
 	/*ARGSUSED*/
-public void opt_wheel_lines(int type, char *s)
+public void opt_wheel_lines(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -906,7 +906,7 @@ public void opt_wheel_lines(int type, char *s)
  * Handler for the --line-number-width option.
  */
 	/*ARGSUSED*/
-public void opt_linenum_width(int type, char *s)
+public void opt_linenum_width(int type, constant char *s)
 {
 	PARG parg;
 
@@ -930,7 +930,7 @@ public void opt_linenum_width(int type, char *s)
  * Handler for the --status-column-width option.
  */
 	/*ARGSUSED*/
-public void opt_status_col_width(int type, char *s)
+public void opt_status_col_width(int type, constant char *s)
 {
 	PARG parg;
 
@@ -954,7 +954,7 @@ public void opt_status_col_width(int type, char *s)
  * Handler for the --file-size option.
  */
 	/*ARGSUSED*/
-public void opt_filesize(int type, char *s)
+public void opt_filesize(int type, constant char *s)
 {
 	switch (type)
 	{
@@ -972,7 +972,7 @@ public void opt_filesize(int type, char *s)
  * Handler for the --intr option.
  */
 	/*ARGSUSED*/
-public void opt_intr(int type, char *s)
+public void opt_intr(int type, constant char *s)
 {
 	PARG p;
 
@@ -995,7 +995,7 @@ public void opt_intr(int type, char *s)
  * Handler for the --header option.
  */
 	/*ARGSUSED*/
-public void opt_header(int type, char *s)
+public void opt_header(int type, constant char *s)
 {
 	int err;
 	int n;
@@ -1008,7 +1008,7 @@ public void opt_header(int type, char *s)
 		header_cols = 0;
 		if (*s != ',')
 		{
-			n = getnum(&s, "header", &err);
+			n = getnumc(&s, "header", &err);
 			if (err)
 			{
 				error("invalid number of lines", NULL_PARG);
@@ -1019,7 +1019,7 @@ public void opt_header(int type, char *s)
 		if (*s == ',')
 		{
 			++s;
-			n = getnum(&s, "header", &err);
+			n = getnumc(&s, "header", &err);
 			if (err)
 				error("invalid number of columns", NULL_PARG);
 			else
@@ -1045,7 +1045,7 @@ public void opt_header(int type, char *s)
  * Handler for the --search-options option.
  */
 	/*ARGSUSED*/
-public void opt_search_type(int type, char *s)
+public void opt_search_type(int type, constant char *s)
 {
 	int st;
 	PARG parg;
@@ -1108,7 +1108,7 @@ public void opt_search_type(int type, char *s)
  * Handler for the --tty option.
  */
 	/*ARGSUSED*/
-public void opt_ttyin_name(int type, char *s)
+public void opt_ttyin_name(int type, constant char *s)
 {
 	switch (type)
 	{

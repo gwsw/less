@@ -23,7 +23,7 @@
 static struct loption *pendopt;
 public int plusoption = FALSE;
 
-static constant char *optstring(constant char *s, char **p_str, constant char *printopt, char *validchars);
+static constant char *optstring(constant char *s, char **p_str, constant char *printopt, constant char *validchars);
 static int flip_triple(int val, int lc);
 
 extern int less_is_more;
@@ -508,7 +508,7 @@ public int opt_has_param(struct loption *o)
  * Return the prompt to be used for a given option letter.
  * Only string and number valued options have prompts.
  */
-public char * opt_prompt(struct loption *o)
+public constant char * opt_prompt(struct loption *o)
 {
 	if (o == NULL || (o->otype & (STRING|NUMBER)) == 0)
 		return ("?");
@@ -571,7 +571,7 @@ public void nopendopt(void)
  *   "d" indicates a string of one or more digits (0-9)
  *   "," indicates a comma-separated list of digit strings is allowed
  */
-static constant char * optstring(constant char *s, char **p_str, constant char *printopt, char *validchars)
+static constant char * optstring(constant char *s, char **p_str, constant char *printopt, constant char *validchars)
 {
 	constant char *p;
 	char *out;

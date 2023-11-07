@@ -83,9 +83,6 @@ extern char intr_char;
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
-#if LESSTEST
-extern char *ttyin_name;
-#endif /*LESSTEST*/
 
 public void init_poll(void)
 {
@@ -125,7 +122,7 @@ static int check_poll(int fd, int tty)
 	}
 	poll(poller, 2, timeout);
 #if LESSTEST
-	if (ttyin_name == NULL) /* Check for ^X only on a real tty. */
+	if (!is_lesstest()) /* Check for ^X only on a real tty. */
 #endif /*LESSTEST*/
 	{
 		if (poller[1].revents & POLLIN) 

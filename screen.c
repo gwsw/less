@@ -246,9 +246,6 @@ static int termcap_debug = -1;
 static int no_alt_screen;       /* sc_init does not switch to alt screen */
 extern int binattr;
 extern int one_screen;
-#if LESSTEST
-extern char *ttyin_name;
-#endif /*LESSTEST*/
 
 #if !MSDOS_COMPILER
 static constant char *cheaper(constant char *t1, constant char *t2, constant char *def);
@@ -377,7 +374,7 @@ public void raw_mode(int on)
 			return;
 	erase2_char = '\b'; /* in case OS doesn't know about erase2 */
 #if LESSTEST
-	if (ttyin_name != NULL)
+	if (is_lesstest())
 	{
 		/* {{ For consistent conditions when running tests. }} */
 		erase_char = '\b';
@@ -787,7 +784,7 @@ static void scrsize(void)
 	sys_width = sys_height = 0;
 
 #if LESSTEST
-	if (0) /* can't test ttyin_name; it is not set yet */
+	if (0) /* can't use is_lesstest(): ttyin_name may not be set by scan_option yet */
 #endif /*LESSTEST*/
 	{
 #if MSDOS_COMPILER==MSOFTC
@@ -1638,7 +1635,7 @@ static void win32_deinit_term(void)
 static void do_tputs(constant char *str, int affcnt, int (*f_putc)(int))
 {
 #if LESSTEST
-	if (ttyin_name != NULL && f_putc == putchr)
+	if (is_lesstest() && f_putc == putchr)
 		putstr(str);
 	else
 #endif /*LESSTEST*/

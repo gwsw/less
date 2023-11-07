@@ -41,6 +41,10 @@ public int tty;
 extern int sigs;
 #if LESSTEST
 public char *ttyin_name = NULL;
+public int is_lesstest(void)
+{
+	return ttyin_name != NULL;
+}
 #endif /*LESSTEST*/
 
 #if !MSDOS_COMPILER
@@ -64,7 +68,7 @@ public int open_tty(void)
 {
 	int fd = -1;
 #if LESSTEST
-	if (ttyin_name != NULL)
+	if (is_lesstest())
 		fd = open_tty_device(ttyin_name);
 #endif /*LESSTEST*/
 #if HAVE_TTYNAME
