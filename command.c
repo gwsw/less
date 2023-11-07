@@ -323,7 +323,7 @@ static void exec_mca(void)
 /*
  * Is a character an erase or kill char?
  */
-static int is_erase_char(int c)
+static int is_erase_char(LWCHAR c)
 {
 	return (c == erase_char || c == erase2_char || c == kill_char);
 }
@@ -331,7 +331,7 @@ static int is_erase_char(int c)
 /*
  * Is a character a carriage return or newline?
  */
-static int is_newline_char(int c)
+static int is_newline_char(LWCHAR c)
 {
 	return (c == '\n' || c == '\r');
 }
@@ -339,7 +339,7 @@ static int is_newline_char(int c)
 /*
  * Handle the first char of an option (after the initial dash).
  */
-static int mca_opt_first_char(int c)
+static int mca_opt_first_char(LWCHAR c)
 {
 	int no_prompt = (optflag & OPT_NO_PROMPT);
 	int flag = (optflag & ~OPT_NO_PROMPT);
@@ -390,7 +390,7 @@ static int mca_opt_first_char(int c)
  * If so, display the complete name and stop 
  * accepting chars until user hits RETURN.
  */
-static int mca_opt_nonfirst_char(int c)
+static int mca_opt_nonfirst_char(LWCHAR c)
 {
 	char *p;
 	char *oname;
@@ -445,7 +445,7 @@ static int mca_opt_nonfirst_char(int c)
 /*
  * Handle a char of an option toggle command.
  */
-static int mca_opt_char(int c)
+static int mca_opt_char(LWCHAR c)
 {
 	PARG parg;
 
@@ -523,7 +523,7 @@ public int norm_search_type(int st)
 /*
  * Handle a char of a search command.
  */
-static int mca_search_char(int c)
+static int mca_search_char(LWCHAR c)
 {
 	int flag = 0;
 
@@ -592,7 +592,7 @@ static int mca_search_char(int c)
 /*
  * Handle a character of a multi-character command.
  */
-static int mca_char(int c)
+static int mca_char(LWCHAR c)
 {
 	int ret;
 
@@ -1228,7 +1228,7 @@ static int forw_loop(int until_hilite)
  */
 public void commands(void)
 {
-	int c;
+	LWCHAR c;
 	int action;
 	char *cbuf;
 	int newaction;
