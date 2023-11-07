@@ -23,7 +23,7 @@
 static struct loption *pendopt;
 public int plusoption = FALSE;
 
-static char *optstring(char *s, char **p_str, char *printopt, char *validchars);
+static char *optstring(char *s, char **p_str, constant char *printopt, char *validchars);
 static int flip_triple(int val, int lc);
 
 extern int less_is_more;
@@ -34,7 +34,7 @@ extern int opt_use_backslash;
 /*
  * Return a printable description of an option.
  */
-static char * opt_desc(struct loption *o)
+static constant char * opt_desc(struct loption *o)
 {
 	static char buf[OPTNAME_MAX + 10];
 	if (o->oletter == OLETTER_NONE)
@@ -48,7 +48,7 @@ static char * opt_desc(struct loption *o)
  * Return a string suitable for printing as the "name" of an option.
  * For example, if the option letter is 'x', just return "-x".
  */
-public char * propt(int c)
+public constant char * propt(int c)
 {
 	static char buf[MAX_PRCHAR_LEN+2];
 
@@ -65,7 +65,7 @@ public void scan_option(char *s)
 	struct loption *o;
 	int optc;
 	char *optname;
-	char *printopt;
+	constant char *printopt;
 	char *str;
 	int set_default;
 	int lc;
@@ -546,7 +546,7 @@ public int isoptpending(void)
 /*
  * Print error message about missing string.
  */
-static void nostring(char *printopt)
+static void nostring(constant char *printopt)
 {
 	PARG parg;
 	parg.p_string = printopt;
@@ -571,7 +571,7 @@ public void nopendopt(void)
  *   "d" indicates a string of one or more digits (0-9)
  *   "," indicates a comma-separated list of digit strings is allowed
  */
-static char * optstring(char *s, char **p_str, char *printopt, char *validchars)
+static char * optstring(char *s, char **p_str, constant char *printopt, char *validchars)
 {
 	char *p;
 	char *out;
@@ -632,7 +632,7 @@ static char * optstring(char *s, char **p_str, char *printopt, char *validchars)
 
 /*
  */
-static int num_error(char *printopt, int *errp, int overflow)
+static int num_error(constant char *printopt, int *errp, int overflow)
 {
 	PARG parg;
 
@@ -657,9 +657,9 @@ static int num_error(char *printopt, int *errp, int overflow)
  * Like atoi(), but takes a pointer to a char *, and updates
  * the char * to point after the translated number.
  */
-public int getnum(char **sp, char *printopt, int *errp)
+public int getnum(char **sp, constant char *printopt, int *errp)
 {
-	char *s;
+	constant char *s;
 	int n;
 	int neg;
 
@@ -673,7 +673,7 @@ public int getnum(char **sp, char *printopt, int *errp)
 	if (*s < '0' || *s > '9')
 		return (num_error(printopt, errp, FALSE));
 
-	n = lstrtoi(s, sp, 10);
+	n = lstrtoi((char*)s, sp, 10);  /*{{const-issue}}*/
 	if (n < 0)
 		return (num_error(printopt, errp, TRUE));
 	if (errp != NULL)
@@ -689,9 +689,9 @@ public int getnum(char **sp, char *printopt, int *errp)
  * The value of the fraction is returned as parts per NUM_FRAC_DENOM.
  * That is, if "n" is returned, the fraction intended is n/NUM_FRAC_DENOM.
  */
-public long getfraction(char **sp, char *printopt, int *errp)
+public long getfraction(char **sp, constant char *printopt, int *errp)
 {
-	char *s;
+	constant char *s;
 	long frac = 0;
 	int fraclen = 0;
 
@@ -708,7 +708,7 @@ public long getfraction(char **sp, char *printopt, int *errp)
 	}
 	while (fraclen++ < NUM_LOG_FRAC_DENOM)
 		frac *= 10;
-	*sp = s;
+	*sp = (char*) s;  /*{{const-issue}}*/
 	if (errp != NULL)
 		*errp = FALSE;
 	return (frac);

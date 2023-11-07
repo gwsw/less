@@ -1401,7 +1401,7 @@ static char * histfile_name(int must_exist)
 /*
  * Read a .lesshst file and call a callback for each line in the file.
  */
-static void read_cmdhist2(void (*action)(void*,struct mlist*,char*), void *uparam, int skip_search, int skip_shell)
+static void read_cmdhist2(void (*action)(void*,struct mlist*,constant char*), void *uparam, int skip_search, int skip_shell)
 {
 	struct mlist *ml = NULL;
 	char line[CMDBUF_SIZE];
@@ -1466,7 +1466,7 @@ static void read_cmdhist2(void (*action)(void*,struct mlist*,char*), void *upara
 	fclose(f);
 }
 
-static void read_cmdhist(void (*action)(void*,struct mlist*,char*), void *uparam, int skip_search, int skip_shell)
+static void read_cmdhist(void (*action)(void*,struct mlist*,constant char*), void *uparam, int skip_search, int skip_shell)
 {
 	if (!secure_allow(SF_HISTORY))
 		return;
@@ -1474,12 +1474,12 @@ static void read_cmdhist(void (*action)(void*,struct mlist*,char*), void *uparam
 	(*action)(uparam, NULL, NULL); /* signal end of file */
 }
 
-static void addhist_init(void *uparam, struct mlist *ml, char *string)
+static void addhist_init(void *uparam, struct mlist *ml, constant char *string)
 {
 	if (ml != NULL)
 		cmd_addhist(ml, string, 0);
 	else if (string != NULL)
-		restore_mark((char*)string); /* stupid const cast */
+		restore_mark((char*)string);  /*{{const-issue}}*/
 }
 #endif /* CMD_HISTORY */
 
@@ -1546,7 +1546,7 @@ struct save_ctx
  * At the end of each mlist, append any new entries
  * created during this session.
  */
-static void copy_hist(void *uparam, struct mlist *ml, char *string)
+static void copy_hist(void *uparam, struct mlist *ml, constant char *string)
 {
 	struct save_ctx *ctx = (struct save_ctx *) uparam;
 
