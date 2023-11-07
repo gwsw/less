@@ -30,8 +30,8 @@ extern int less_is_more;
 extern int header_lines;
 extern IFILE curr_ifile;
 #if EDITOR
-extern char *editor;
-extern char *editproto;
+extern constant char *editor;
+extern constant char *editproto;
 #endif
 
 /*

@@ -1093,7 +1093,7 @@ static char * next_compl(int action, char *prev)
  */
 static int cmd_complete(int action)
 {
-	char *s;
+	constant char *s;
 
 	if (!in_completion || action == EC_EXPAND)
 	{
@@ -1344,7 +1344,7 @@ static int mlist_size(struct mlist *ml)
  */
 static char * histfile_find(int must_exist)
 {
-	char *home = lgetenv("HOME");
+	constant char *home = lgetenv("HOME");
 	char *name = NULL;
 
 	/* Try in $XDG_STATE_HOME, then in $HOME/.local/state, then in $XDG_DATA_HOME, then in $HOME. */
@@ -1371,7 +1371,8 @@ static char * histfile_find(int must_exist)
 
 static char * histfile_name(int must_exist)
 {
-	char *name;
+	constant char *name;
+	char *wname;
 
 	/* See if filename is explicitly specified by $LESSHISTFILE. */
 	name = lgetenv("LESSHISTFILE");
@@ -1387,15 +1388,15 @@ static char * histfile_name(int must_exist)
 	if (strcmp(LESSHISTFILE, "") == 0 || strcmp(LESSHISTFILE, "-") == 0)
 		return (NULL);
 
-	name = NULL;
+	wname = NULL;
 	if (!must_exist)
 	{
 	 	/* If we're writing the file and the file already exists, use it. */
-		name = histfile_find(1);
+		wname = histfile_find(1);
 	}
-	if (name == NULL)
-		name = histfile_find(must_exist);
-	return (name);
+	if (wname == NULL)
+		wname = histfile_find(must_exist);
+	return (wname);
 }
 
 /*
@@ -1632,7 +1633,7 @@ public void save_cmdhist(void)
 	int skip_search;
 	int skip_shell;
 	struct save_ctx ctx;
-	char *s;
+	constant char *s;
 	FILE *fout = NULL;
 	int histsize = 0;
 

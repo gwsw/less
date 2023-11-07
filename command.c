@@ -51,7 +51,7 @@ extern int updown_match;
 extern void *ml_shell;
 #endif
 #if EDITOR
-extern char *editproto;
+extern constant char *editproto;
 #endif
 extern int shift_count;
 extern int forw_prompt;

@@ -46,8 +46,8 @@ public char *   namelogfile = NULL;
 #endif
 
 #if EDITOR
-public char *   editor;
-public char *   editproto;
+public constant char *   editor;
+public constant char *   editproto;
 #endif
 
 #if TAGS
@@ -233,7 +233,7 @@ static void init_secure(void)
 int main(int argc, char *argv[])
 {
 	IFILE ifile;
-	char *s;
+	constant char *s;
 
 #if MSDOS_COMPILER==WIN32C && (defined(MINGW) || defined(_MSC_VER))
 	if (GetACP() != CP_UTF8)  /* not using a UTF-8 manifest */

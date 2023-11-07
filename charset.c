@@ -145,7 +145,7 @@ static void wchar_range_table_set(struct wchar_range_table *tbl, struct xbuffer 
 /*
  * Skip over a "U" or "U+" prefix before a hex codepoint.
  */
-static char * skip_uprefix(char *s)
+static constant char * skip_uprefix(constant char *s)
 {
 	if (*s == 'U' || *s == 'u')
 		if (*++s == '+') ++s;
@@ -155,14 +155,14 @@ static char * skip_uprefix(char *s)
 /*
  * Parse a dash-separated range of hex values.
  */
-static void wchar_range_get(char **ss, struct wchar_range *range)
+static void wchar_range_get(constant char **ss, struct wchar_range *range)
 {
-	char *s = skip_uprefix(*ss);
-	range->first = lstrtoul(s, &s, 16);
+	constant char *s = skip_uprefix(*ss);
+	range->first = lstrtoulc(s, &s, 16);
 	if (s[0] == '-')
 	{
 		s = skip_uprefix(&s[1]);
-		range->last = lstrtoul(s, &s, 16);
+		range->last = lstrtoulc(s, &s, 16);
 	} else 
 	{
 		range->last = range->first;
@@ -173,7 +173,7 @@ static void wchar_range_get(char **ss, struct wchar_range *range)
 /*
  * Parse the LESSUTFCHARDEF variable.
  */
-static void ichardef_utf(char *s)
+static void ichardef_utf(constant char *s)
 {
 	xbuf_init(&user_wide_array);
 	xbuf_init(&user_ubin_array);

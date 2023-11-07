@@ -190,7 +190,7 @@ public int vt_enabled = -1;     /* Is virtual terminal processing available? */
 /*
  * Strings passed to tputs() to do various terminal functions.
  */
-static char
+static constant char
 	*sc_pad,                /* Pad string */
 	*sc_home,               /* Cursor home */
 	*sc_addline,            /* Add line, scroll down following lines */
@@ -237,7 +237,7 @@ public int above_mem, below_mem;        /* Memory retained above/below screen */
 public int can_goto_line;               /* Can move cursor to any line */
 public int clear_bg;            /* Clear fills with background color */
 public int missing_cap = 0;     /* Some capability is missing */
-public char *kent = NULL;       /* Keypad ENTER sequence */
+public constant char *kent = NULL;       /* Keypad ENTER sequence */
 public int term_init_done = FALSE;
 public int full_screen = TRUE;
 
@@ -251,9 +251,9 @@ extern char *ttyin_name;
 #endif /*LESSTEST*/
 
 #if !MSDOS_COMPILER
-static char *cheaper(char *t1, char *t2, char *def);
-static void tmodes(char *incap, char *outcap, char **instr,
-    char **outstr, char *def_instr, char *def_outstr, char **spp);
+static constant char *cheaper(constant char *t1, constant char *t2, constant char *def);
+static void tmodes(constant char *incap, constant char *outcap, constant char **instr,
+    constant char **outstr, constant char *def_instr, constant char *def_outstr, char **spp);
 #endif
 
 /*
@@ -706,7 +706,7 @@ public void raw_mode(int on)
  */
 static int hardcopy;
 
-static char * ltget_env(char *capname)
+static constant char * ltget_env(constant char *capname)
 {
 	char name[64];
 
@@ -732,7 +732,7 @@ static char * ltget_env(char *capname)
 
 static int ltgetflag(char *capname)
 {
-	char *s;
+	constant char *s;
 
 	if ((s = ltget_env(capname)) != NULL)
 		return (*s != '\0' && *s != '0');
@@ -743,7 +743,7 @@ static int ltgetflag(char *capname)
 
 static int ltgetnum(char *capname)
 {
-	char *s;
+	constant char *s;
 
 	if ((s = ltget_env(capname)) != NULL)
 		return (atoi(s));
@@ -752,9 +752,9 @@ static int ltgetnum(char *capname)
 	return (tgetnum(capname));
 }
 
-static char * ltgetstr(char *capname, char **pp)
+static constant char * ltgetstr(constant char *capname, char **pp)
 {
-	char *s;
+	constant char *s;
 
 	if ((s = ltget_env(capname)) != NULL)
 		return (s);
@@ -769,7 +769,7 @@ static char * ltgetstr(char *capname, char **pp)
  */
 static void scrsize(void)
 {
-	char *s;
+	constant char *s;
 	int sys_height;
 	int sys_width;
 #if !MSDOS_COMPILER
@@ -958,7 +958,7 @@ static void delay(int msec)
 public constant char * special_key_str(int key)
 {
 	static char tbuf[40];
-	char *s;
+	constant char *s;
 #if MSDOS_COMPILER || OS2
 	static char k_right[]           = { '\340', PCK_RIGHT, 0 };
 	static char k_left[]            = { '\340', PCK_LEFT, 0  };
@@ -1201,8 +1201,9 @@ public void get_term(void)
 #else /* !MSDOS_COMPILER */
 {
 	char *sp;
-	char *t1, *t2;
-	char *term;
+	constant char *t1;
+	constant char *t2;
+	constant char *term;
 	/*
 	 * Some termcap libraries assume termbuf is static
 	 * (accessible after tgetent returns).
@@ -1214,8 +1215,8 @@ public void get_term(void)
 	/*
 	 * Make sure the termcap database is available.
 	 */
-	sp = lgetenv("TERMCAP");
-	if (isnullenv(sp))
+	constant char *cp = lgetenv("TERMCAP");
+	if (isnullenv(cp))
 	{
 		char *termcap;
 		if ((sp = homefile("termcap.dat")) != NULL)
@@ -1452,7 +1453,7 @@ static int inc_costcount(int c)
 	return (c);
 }
 
-static int cost(char *t)
+static int cost(constant char *t)
 {
 	costcount = 0;
 	tputs(t, sc_height, inc_costcount);
@@ -1464,7 +1465,7 @@ static int cost(char *t)
  * The best, if both exist, is the one with the lower 
  * cost (see cost() function).
  */
-static char * cheaper(char *t1, char *t2, char *def)
+static constant char * cheaper(constant char *t1, constant char *t2, constant char *def)
 {
 	if (*t1 == '\0' && *t2 == '\0')
 	{
@@ -1480,7 +1481,7 @@ static char * cheaper(char *t1, char *t2, char *def)
 	return (t2);
 }
 
-static void tmodes(char *incap, char *outcap, char **instr, char **outstr, char *def_instr, char *def_outstr, char **spp)
+static void tmodes(constant char *incap, constant char *outcap, constant char **instr, constant char **outstr, constant char *def_instr, constant char *def_outstr, char **spp)
 {
 	*instr = ltgetstr(incap, spp);
 	if (*instr == NULL)
@@ -1634,7 +1635,7 @@ static void win32_deinit_term(void)
 #endif
 
 #if !MSDOS_COMPILER
-static void do_tputs(char *str, int affcnt, int (*f_putc)(int))
+static void do_tputs(constant char *str, int affcnt, int (*f_putc)(int))
 {
 #if LESSTEST
 	if (ttyin_name != NULL && f_putc == putchr)
@@ -1648,7 +1649,7 @@ static void do_tputs(char *str, int affcnt, int (*f_putc)(int))
  * Like tputs but we handle $<...> delay strings here because
  * some implementations of tputs don't perform delays correctly.
  */
-static void ltputs(char *str, int affcnt, int (*f_putc)(int))
+static void ltputs(constant char *str, int affcnt, int (*f_putc)(int))
 {
 	while (str != NULL && *str != '\0')
 	{
@@ -1667,7 +1668,7 @@ static void ltputs(char *str, int affcnt, int (*f_putc)(int))
 				do_tputs(str2, affcnt, f_putc);
 				str += slen + 2;
 				/* Perform the delay. */
-				delay = lstrtoi(str, &str, 10);
+				delay = lstrtoic(str, &str, 10);
 				if (*str == '*')
 					if (ckd_mul(&delay, delay, affcnt))
 						delay = INT_MAX;
@@ -2574,7 +2575,7 @@ static void tput_color(constant char *str, int (*f_putc)(int))
 	}
 }
 
-static void tput_inmode(char *mode_str, int attr, int attr_bit, int (*f_putc)(int))
+static void tput_inmode(constant char *mode_str, int attr, int attr_bit, int (*f_putc)(int))
 {
 	constant char *color_str;
 	if ((attr & attr_bit) == 0)
@@ -2590,7 +2591,7 @@ static void tput_inmode(char *mode_str, int attr, int attr_bit, int (*f_putc)(in
 	tput_color(color_str, f_putc);
 }
 
-static void tput_outmode(char *mode_str, int attr_bit, int (*f_putc)(int))
+static void tput_outmode(constant char *mode_str, int attr_bit, int (*f_putc)(int))
 {
 	if ((attrmode & attr_bit) == 0)
 		return;

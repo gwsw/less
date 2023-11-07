@@ -71,8 +71,8 @@ static int last_overstrike = AT_NORMAL;
 static int is_null_line;  /* There is no current line */
 static LWCHAR pendc;
 static POSITION pendpos;
-static char *end_ansi_chars;
-static char *mid_ansi_chars;
+static constant char *end_ansi_chars;
+static constant char *mid_ansi_chars;
 static int in_hilite;
 
 static int attr_swidth(int a);

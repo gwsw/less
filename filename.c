@@ -100,7 +100,7 @@ public char * shell_unquote(constant char *str)
  */
 public constant char * get_meta_escape(void)
 {
-	char *s;
+	constant char *s;
 
 	s = lgetenv("LESSMETAESCAPE");
 	if (s == NULL)
@@ -113,7 +113,7 @@ public constant char * get_meta_escape(void)
  */
 static constant char * metachars(void)
 {
-	static char *mchars = NULL;
+	static constant char *mchars = NULL;
 
 	if (mchars == NULL)
 	{
@@ -551,7 +551,7 @@ static FILE * shellcmd(constant char *cmd)
 	FILE *fd;
 
 #if HAVE_SHELL
-	char *shell;
+	constant char *shell;
 
 	shell = lgetenv("SHELL");
 	if (!isnullenv(shell))
@@ -833,7 +833,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 #if !HAVE_POPEN
 	return (NULL);
 #else
-	char *lessopen;
+	constant char *lessopen;
 	char *qfilename;
 	char *cmd;
 	int len;
@@ -954,7 +954,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 public void close_altfile(constant char *altfilename, constant char *filename)
 {
 #if HAVE_POPEN
-	char *lessclose;
+	constant char *lessclose;
 	char *qfilename;
 	char *qaltfilename;
 	FILE *fd;

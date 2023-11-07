@@ -744,7 +744,7 @@ static struct loption option[] =
 public void init_option(void)
 {
 	struct loption *o;
-	char *p;
+	constant char *p;
 
 	p = lgetenv("LESS_IS_MORE");
 	if (!isnullenv(p))

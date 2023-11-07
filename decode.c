@@ -738,29 +738,29 @@ public int ecmd_decode(constant char *cmd, constant char **sp)
  * Get the value of an environment variable.
  * Looks first in the lesskey file, then in the real environment.
  */
-public char * lgetenv(constant char *var) /*{{const-issue}}*/
+public constant char * lgetenv(constant char *var)
 {
 	int a;
 	constant char *s;
 
 	a = cmd_decode(list_var_tables, var, &s);
 	if (a == EV_OK)
-		return ((char *) s);  /*{{const-issue}}*/
+		return (s);  /*{{const-issue}}*/
 	s = getenv(var);
 	if (s != NULL && *s != '\0')
-		return ((char *) s);  /*{{const-issue}}*/
+		return (s);  /*{{const-issue}}*/
 	a = cmd_decode(list_sysvar_tables, var, &s);
 	if (a == EV_OK)
-		return ((char *) s);  /*{{const-issue}}*/
+		return (s);  /*{{const-issue}}*/
 	return (NULL);
 }
 
 /*
  * Like lgetenv, but also uses a buffer partially filled with an env table.
  */
-public char * lgetenv_ext(constant char *var, unsigned char *env_buf, int env_buf_len)
+public constant char * lgetenv_ext(constant char *var, unsigned char *env_buf, int env_buf_len)
 {
-	char *r;
+	constant char *r;
 	int e;
 	int env_end = 0;
 
@@ -992,21 +992,22 @@ void lesskey_parse_error(char *s)
 public int add_hometable(int (*call_lesskey)(constant char *, int), char *envname, char *def_filename, int sysvar)
 {
 	char *filename;
+	constant char *efilename;
 	int r;
 
-	if (envname != NULL && (filename = lgetenv(envname)) != NULL)
-		filename = save(filename);
+	if (envname != NULL && (efilename = lgetenv(envname)) != NULL)
+		filename = save(efilename);
 	else if (sysvar) /* def_filename is full path */
 		filename = save(def_filename);
 	else /* def_filename is just basename */
 	{
 		/* Remove first char (normally a dot) unless stored in $HOME. */
-		char *xdg = lgetenv("XDG_CONFIG_HOME");
+		constant char *xdg = lgetenv("XDG_CONFIG_HOME");
 		if (!isnullenv(xdg))
 			filename = dirfile(xdg, &def_filename[1], 1);
 		if (filename == NULL)
 		{
-			char *home = lgetenv("HOME");
+			constant char *home = lgetenv("HOME");
 			if (!isnullenv(home))
 			{
 				char *cfg_dir = dirfile(home, ".config", 0);

@@ -510,7 +510,7 @@ static enum tag_result findgtag(char *tag, int type)
 		char *command;
 		char *flag;
 		char *qtag;
-		char *cmd = lgetenv("LESSGLOBALTAGS");
+		constant char *cmd = lgetenv("LESSGLOBALTAGS");
 
 		if (isnullenv(cmd))
 			return TAG_NOFILE;
