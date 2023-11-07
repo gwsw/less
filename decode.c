@@ -991,7 +991,7 @@ void lesskey_parse_error(char *s)
  */
 public int add_hometable(int (*call_lesskey)(constant char *, int), char *envname, char *def_filename, int sysvar)
 {
-	char *filename;
+	char *filename = NULL;
 	constant char *efilename;
 	int r;
 

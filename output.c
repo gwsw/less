@@ -494,7 +494,7 @@ type funcname(char *buf, char **ebuf, int radix) \
 { \
 	constant char *cbuf = buf; \
 	int r = cfuncname(cbuf, &cbuf, radix); \
-	*ebuf = (char *) cbuf; /*{{const-issue}}*/ \
+	if (ebuf != NULL) *ebuf = (char *) cbuf; /*{{const-issue}}*/ \
 	return r; \
 }
 
