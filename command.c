@@ -1234,6 +1234,7 @@ public void commands(void)
 	LWCHAR c;
 	int action;
 	char *cbuf;
+	constant char *msg;
 	int newaction;
 	int save_jump_sline;
 	int save_search_type;
@@ -1932,10 +1933,10 @@ public void commands(void)
 			optgetname = FALSE;
 			mca_opt_toggle();
 			c = getcc();
-			cbuf = opt_toggle_disallowed(c);
-			if (cbuf != NULL)
+			msg = opt_toggle_disallowed(c);
+			if (msg != NULL)
 			{
-				error(cbuf, NULL_PARG);
+				error(msg, NULL_PARG);
 				break;
 			}
 			goto again;

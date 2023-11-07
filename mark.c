@@ -394,7 +394,7 @@ public void save_marks(FILE *fout, constant char *hdr)
 /*
  * Restore one mark from the history file.
  */
-public void restore_mark(char *line)
+public void restore_mark(constant char *line)
 {
 	struct mark *m;
 	int ln;
@@ -408,7 +408,7 @@ public void restore_mark(char *line)
 	if (m == NULL)
 		return;
 	skip_whitespace;
-	ln = lstrtoi(line, &line, 10);
+	ln = lstrtoic(line, &line, 10);
 	if (ln < 0)
 		return;
 	if (ln < 1)
@@ -416,7 +416,7 @@ public void restore_mark(char *line)
 	if (ln > sc_height)
 		ln = sc_height;
 	skip_whitespace;
-	pos = lstrtopos(line, &line, 10);
+	pos = lstrtoposc(line, &line, 10);
 	if (pos < 0)
 		return;
 	skip_whitespace;

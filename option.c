@@ -89,7 +89,7 @@ public void scan_option(constant char *s)
 			switch (pendopt->otype & OTYPE)
 			{
 			case STRING:
-				(*pendopt->ofunc)(INIT, (char*) s); /*{{const-issue}}*/
+				(*pendopt->ofunc)(INIT, s);
 				break;
 			case NUMBER:
 				printopt = opt_desc(pendopt);
@@ -142,7 +142,7 @@ public void scan_option(constant char *s)
 			 * EVERY input file.
 			 */
 			plusoption = TRUE;
-			s = optstring(s, &str, propt('+'), NULL); /*{{const-issue}}*/
+			s = optstring(s, &str, propt('+'), NULL);
 			if (s == NULL)
 				return;
 			if (*str == '+')
@@ -519,7 +519,7 @@ public constant char * opt_prompt(struct loption *o)
  * If the specified option can be toggled, return NULL.
  * Otherwise return an appropriate error message.
  */
-public char * opt_toggle_disallowed(int c)
+public constant char * opt_toggle_disallowed(int c)
 {
 	switch (c)
 	{

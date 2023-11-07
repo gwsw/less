@@ -1480,7 +1480,7 @@ static void addhist_init(void *uparam, struct mlist *ml, constant char *string)
 	if (ml != NULL)
 		cmd_addhist(ml, string, 0);
 	else if (string != NULL)
-		restore_mark((char*)string);  /*{{const-issue}}*/
+		restore_mark(string);
 }
 #endif /* CMD_HISTORY */
 

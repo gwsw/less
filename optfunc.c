@@ -156,7 +156,7 @@ public void opt__O(int type, constant char *s)
 }
 #endif
 
-static int toggle_fraction(int *num, long *frac, constant char *s, char *printopt, void (*calc)(void))
+static int toggle_fraction(int *num, long *frac, constant char *s, constant char *printopt, void (*calc)(void))
 {
 	int err;
 	if (s == NULL)
@@ -188,7 +188,7 @@ static int toggle_fraction(int *num, long *frac, constant char *s, char *printop
 	return 0;
 }
 
-static void query_fraction(int value, long fraction, char *int_msg, char *frac_msg)
+static void query_fraction(int value, long fraction, constant char *int_msg, constant char *frac_msg)
 {
 	PARG parg;
 
@@ -545,7 +545,7 @@ public void opt__V(int type, constant char *s)
 /*
  * Parse an MSDOS color descriptor.
  */
-static void colordesc(char *s, int *fg_color, int *bg_color)
+static void colordesc(constant char *s, int *fg_color, int *bg_color)
 {
 	int fg, bg;
 #if MSDOS_COMPILER==WIN32C
