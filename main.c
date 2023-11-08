@@ -91,7 +91,7 @@ static char *utf8_from_wide(const wchar_t *ws)
  * make them UTF8. CP_ACP remains the original codepage - use less_acp instead.
  * effective on win 10 1803 or later when compiled with ucrt, else no-op.
  */
-static void try_utf8_locale(constant int *pargc, constant char ***pargv)
+static void try_utf8_locale(int *pargc, constant char ***pargv)
 {
 	char *locale_orig = strdup(setlocale(LC_ALL, 0));
 	wchar_t **wargv = 0, *wenv, *wp;
@@ -353,7 +353,7 @@ int main(int argc, constant char *argv[])
 		 * Expand the pattern and iterate over the expanded list.
 		 */
 		struct textlist tlist;
-		char *filename;
+		constant char *filename;
 		char *gfilename;
 		char *qfilename;
 		

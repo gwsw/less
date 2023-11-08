@@ -1348,7 +1348,7 @@ public void commands(void)
 				 * want erase_char/kill_char to be treated
 				 * as line editing characters.
 				 */
-				char tbuf[2] = { c, '\0' };
+				char tbuf[2] = { (char) c, '\0' }; /*{{char-issue}}*/
 				action = fcmd_decode(tbuf, &extra);
 			}
 			/*
@@ -2027,7 +2027,7 @@ public void commands(void)
 					c = '.';
 				if (badmark(c))
 					break;
-				pipec = c;
+				pipec = (char) c;
 				start_mca(A_PIPE, "!", ml_shell, 0);
 				c = getcc();
 				goto again;
