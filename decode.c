@@ -39,6 +39,7 @@ extern int sc_height;
 
 /* "content" is lesskey source, never binary. */
 static void add_content_table(int (*call_lesskey)(constant char *, int), constant char *envname, int sysvar);
+static int add_hometable(int (*call_lesskey)(constant char *, int), constant char *envname, constant char *def_filename, int sysvar);
 
 #define SK(k) \
 	SK_SPECIAL_KEY, (k), 6, 1, 1, 1
@@ -989,7 +990,7 @@ void lesskey_parse_error(char *s)
 /*
  * Add a lesskey file.
  */
-public int add_hometable(int (*call_lesskey)(constant char *, int), char *envname, char *def_filename, int sysvar)
+static int add_hometable(int (*call_lesskey)(constant char *, int), constant char *envname, constant char *def_filename, int sysvar)
 {
 	char *filename = NULL;
 	constant char *efilename;

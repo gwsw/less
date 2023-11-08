@@ -46,8 +46,8 @@ enum {
 
 static enum tag_result findctag(constant char *tag);
 static enum tag_result findgtag(constant char *tag, int type);
-static char *nextgtag(void);
-static char *prevgtag(void);
+static constant char *nextgtag(void);
+static constant char *prevgtag(void);
 static POSITION ctagsearch(void);
 static POSITION gtagsearch(void);
 static int getentry(char *buf, constant char **tag, constant char **file, constant char **line);
@@ -205,9 +205,9 @@ public POSITION tagsearch(void)
 /*
  * Go to the next tag.
  */
-public char * nexttag(int n)
+public constant char * nexttag(int n)
 {
-	char *tagfile = (char *) NULL;
+	constant char *tagfile = (char *) NULL;
 
 	while (n-- > 0)
 		tagfile = nextgtag();
@@ -217,9 +217,9 @@ public char * nexttag(int n)
 /*
  * Go to the previous tag.
  */
-public char * prevtag(int n)
+public constant char * prevtag(int n)
 {
-	char *tagfile = (char *) NULL;
+	constant char *tagfile = (char *) NULL;
 
 	while (n-- > 0)
 		tagfile = prevgtag();
@@ -614,7 +614,7 @@ static int circular = 0;        /* 1: circular tag structure */
  * by findgtag().  The next call to gtagsearch() will try to position at the
  * appropriate tag.
  */
-static char * nextgtag(void)
+static constant char * nextgtag(void)
 {
 	struct tag *tp;
 
@@ -643,7 +643,7 @@ static char * nextgtag(void)
  * setup by findgtat().  The next call to gtagsearch() will try to position
  * at the appropriate tag.
  */
-static char * prevgtag(void)
+static constant char * prevgtag(void)
 {
 	struct tag *tp;
 

@@ -34,7 +34,7 @@ public struct scrpos initial_scrpos;
 public POSITION start_attnpos = NULL_POSITION;
 public POSITION end_attnpos = NULL_POSITION;
 public int      wscroll;
-public char *   progname;
+public constant char *progname;
 public int      quitting;
 public int      dohelp;
 static int      secure_allow_features;
@@ -230,7 +230,7 @@ static void init_secure(void)
 /*
  * Entry point.
  */
-int main(int argc, char *argv[])
+int main(int argc, constant char *argv[])
 {
 	IFILE ifile;
 	constant char *s;

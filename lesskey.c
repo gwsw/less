@@ -103,8 +103,8 @@ constant char editsection[1] =   { EDIT_SECTION };
 constant char varsection[1] =    { VAR_SECTION };
 constant char endsection[1] =    { END_SECTION };
 
-char *infile = NULL;
-char *outfile = NULL ;
+constant char *infile = NULL;
+constant char *outfile = NULL;
 
 extern char version[];
 
@@ -119,9 +119,9 @@ void lesskey_parse_error(constant char *s)
 	fprintf(stderr, "%s\n", s);
 }
 
-int lstrtoi(char *buf, char **ebuf, int radix)
+int lstrtoi(constant char *buf, constant char **ebuf, int radix)
 {
-	return (int) strtol(buf, ebuf, radix);
+	return (int) strtol(buf, (char**)ebuf, radix);
 }
 
 void out_of_memory(void)
@@ -156,7 +156,7 @@ static char * mkpathname(constant char *dirname, constant char *filename)
  */
 char * homefile(constant char *filename)
 {
-	char *p;
+	constant char *p;
 	char *pathname;
 
 	if ((p = getenv("HOME")) != NULL && *p != '\0')
@@ -176,9 +176,9 @@ char * homefile(constant char *filename)
 /*
  * Parse command line arguments.
  */
-static void parse_args(int argc, char **argv)
+static void parse_args(int argc, constant char **argv)
 {
-	char *arg;
+	constant char *arg;
 
 	outfile = NULL;
 	while (--argc > 0)
@@ -274,7 +274,7 @@ static void fputint(FILE *fd, unsigned int val)
 	fwrite(&c, sizeof(char), 1, fd);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, constant char *argv[])
 {
 	struct lesskey_tables tables;
 	FILE *out;
@@ -287,8 +287,8 @@ int main(int argc, char *argv[])
 		 * If there is no HOME environment variable,
 		 * try the concatenation of HOMEDRIVE + HOMEPATH.
 		 */
-		char *drive = getenv("HOMEDRIVE");
-		char *path  = getenv("HOMEPATH");
+		constant char *drive = getenv("HOMEDRIVE");
+		constant char *path  = getenv("HOMEPATH");
 		if (drive != NULL && path != NULL)
 		{
 			char *env = (char *) ecalloc(strlen(drive) + 
