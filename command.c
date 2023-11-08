@@ -90,7 +90,7 @@ struct ungot {
 };
 static struct ungot* ungot = NULL;
 
-static void multi_search(char *pattern, int n, int silent);
+static void multi_search(constant char *pattern, int n, int silent);
 
 /*
  * Move the cursor to start of prompt line before executing a command.
@@ -229,7 +229,8 @@ static void mca_opt_toggle(void)
  */
 static void exec_mca(void)
 {
-	char *cbuf;
+	constant char *cbuf;
+	char *p;
 
 	cmd_exec();
 	cbuf = get_cmdbuf();
@@ -275,7 +276,9 @@ static void exec_mca(void)
 	case A_EXAMINE:
 		if (!secure_allow(SF_EXAMINE))
 			break;
-		edit_list(cbuf);
+		p = save(cbuf);
+		edit_list(p);
+		free(p);
 #if TAGS
 		/* If tag structure is loaded then clean it up. */
 		cleantags();
@@ -392,8 +395,7 @@ static int mca_opt_first_char(LWCHAR c)
  */
 static int mca_opt_nonfirst_char(LWCHAR c)
 {
-	char *p;
-	constant char *cp;
+	constant char *p;
 	constant char *oname;
 	int err;
 
@@ -418,9 +420,7 @@ static int mca_opt_nonfirst_char(LWCHAR c)
 		return (MCA_MORE);
 	opt_lower = ASCII_IS_LOWER(p[0]);
 	err = 0;
-	cp = p;
-	curropt = findopt_name(&cp, &oname, &err);
-	p = (char *) cp; /*{{const-issue}}*/
+	curropt = findopt_name(&p, &oname, &err);
 	if (curropt != NULL)
 	{
 		/*
@@ -430,9 +430,9 @@ static int mca_opt_nonfirst_char(LWCHAR c)
 		 */
 		cmd_reset();
 		mca_opt_toggle();
-		for (cp = oname;  *cp != '\0';  cp++)
+		for (p = oname;  *p != '\0';  p++)
 		{
-			c = *cp;
+			c = *p;
 			if (!opt_lower && ASCII_IS_LOWER(c))
 				c = ASCII_TO_UPPER(c);
 			if (cmd_char(c) != CC_OK)
@@ -705,7 +705,7 @@ static int mca_char(LWCHAR c)
 			/* Incremental search: do a search after every input char. */
 			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX|SRCH_NO_MOVE|SRCH_WRAP|SRCH_SUBSEARCH_ALL));
 			int save_updown_match = updown_match;
-			char *pattern = get_cmdbuf();
+			constant char *pattern = get_cmdbuf();
 			if (pattern == NULL)
 				return (MCA_MORE);
 			/*
@@ -1094,7 +1094,7 @@ public LWCHAR peekcc(void)
  * If SRCH_FIRST_FILE is set, begin searching at the first file.
  * If SRCH_PAST_EOF is set, continue the search thru multiple files.
  */
-static void multi_search(char *pattern, int n, int silent)
+static void multi_search(constant char *pattern, int n, int silent)
 {
 	int nomore;
 	IFILE save_ifile;
@@ -1233,13 +1233,12 @@ public void commands(void)
 {
 	LWCHAR c;
 	int action;
-	char *cbuf;
+	constant char *cbuf;
 	constant char *msg;
 	int newaction;
 	int save_jump_sline;
 	int save_search_type;
 	constant char *extra;
-	char tbuf[2];
 	PARG parg;
 	IFILE old_ifile;
 	IFILE new_ifile;
@@ -1323,6 +1322,7 @@ public void commands(void)
 			/*
 			 * Decode the command character and decide what to do.
 			 */
+			extra = NULL;
 			if (mca)
 			{
 				/*
@@ -1337,6 +1337,7 @@ public void commands(void)
 				cbuf = get_cmdbuf();
 				if (cbuf == NULL)
 					continue;
+				action = fcmd_decode(cbuf, &extra);
 			} else
 			{
 				/*
@@ -1347,12 +1348,9 @@ public void commands(void)
 				 * want erase_char/kill_char to be treated
 				 * as line editing characters.
 				 */
-				tbuf[0] = c;
-				tbuf[1] = '\0';
-				cbuf = tbuf;
+				char tbuf[2] = { c, '\0' };
+				action = fcmd_decode(tbuf, &extra);
 			}
-			extra = NULL;
-			action = fcmd_decode(cbuf, &extra);
 			/*
 			 * If an "extra" string was returned,
 			 * process it as a string of command characters.
@@ -1653,7 +1651,7 @@ public void commands(void)
 			if (number <= 0) number = 1;    \
 			mca_search();                   \
 			cmd_exec();                     \
-			multi_search((char *)NULL, (int) number, 0);
+			multi_search(NULL, (int) number, 0);
 
 		case A_F_SEARCH:
 			/*

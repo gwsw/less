@@ -41,8 +41,8 @@ static int cmd_complete(int action);
 static int in_completion = 0;
 static char *tk_text;
 static char *tk_original;
-static char *tk_ipoint;
-static char *tk_trial = NULL;
+static constant char *tk_ipoint;
+static constant char *tk_trial = NULL;
 static struct textlist tk_tlist;
 #endif
 
@@ -1072,7 +1072,7 @@ static void init_compl(void)
 /*
  * Return the next word in the current completion list.
  */
-static char * next_compl(int action, char *prev)
+static constant char * next_compl(int action, constant char *prev)
 {
 	switch (action)
 	{

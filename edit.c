@@ -59,7 +59,7 @@ public ino_t curr_ino;
  * words, returning each one as a standard null-terminated string.
  * back_textlist does the same, but runs thru the list backwards.
  */
-public void init_textlist(struct textlist *tlist, char *str)
+public void init_textlist(struct textlist *tlist, mutable char *str)
 {
 	char *s;
 #if SPACES_IN_FILENAMES
@@ -100,9 +100,9 @@ public void init_textlist(struct textlist *tlist, char *str)
 	}
 }
 
-public char * forw_textlist(struct textlist *tlist, char *prev)
+public constant char * forw_textlist(struct textlist *tlist, constant char *prev)
 {
-	char *s;
+	constant char *s;
 	
 	/*
 	 * prev == NULL means return the first word in the list.
@@ -121,9 +121,9 @@ public char * forw_textlist(struct textlist *tlist, char *prev)
 	return (s);
 }
 
-public char * back_textlist(struct textlist *tlist, char *prev)
+public constant char * back_textlist(struct textlist *tlist, constant char *prev)
 {
-	char *s;
+	constant char *s;
 	
 	/*
 	 * prev == NULL means return the last word in the list.
@@ -678,9 +678,9 @@ public int edit_list(char *filelist)
 {
 	IFILE save_ifile;
 	constant char *good_filename;
-	char *filename;
+	constant char *filename;
 	char *gfilelist;
-	char *gfilename;
+	constant char *gfilename;
 	char *qfilename;
 	struct textlist tl_files;
 	struct textlist tl_gfiles;
