@@ -408,7 +408,7 @@ static POSITION ctagsearch(void)
 	POSITION pos, linepos;
 	LINENUM linenum;
 	int line_len;
-	char *line;
+	constant char *line;
 	int found;
 
 	pos = ch_zero();

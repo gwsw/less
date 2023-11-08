@@ -587,11 +587,11 @@ public int is_ansi_middle(LWCHAR ch)
  * Skip past an ANSI escape sequence.
  * pp is initially positioned just after the CSI_START char.
  */
-public void skip_ansi(struct ansi_state *pansi, char **pp, constant char *limit)
+public void skip_ansi(struct ansi_state *pansi, constant char **pp, constant char *limit)
 {
 	LWCHAR c;
 	do {
-		c = step_char(pp, +1, limit);
+		c = step_charc(pp, +1, limit);
 	} while (*pp < limit && ansi_step(pansi, c) == ANSI_MID);
 	/* Note that we discard final char, for which is_ansi_end is true. */
 }
@@ -1328,7 +1328,7 @@ public void null_line(void)
  * lines which are not split for screen width.
  * {{ This is supposed to be more efficient than forw_line(). }}
  */
-public POSITION forw_raw_line_len(POSITION curr_pos, int read_len, char **linep, int *line_lenp)
+public POSITION forw_raw_line_len(POSITION curr_pos, int read_len, constant char **linep, int *line_lenp)
 {
 	int n;
 	int c;
@@ -1374,7 +1374,7 @@ public POSITION forw_raw_line_len(POSITION curr_pos, int read_len, char **linep,
 	return (new_pos);
 }
 
-public POSITION forw_raw_line(POSITION curr_pos, char **linep, int *line_lenp)
+public POSITION forw_raw_line(POSITION curr_pos, constant char **linep, int *line_lenp)
 {
 	return forw_raw_line_len(curr_pos, -1, linep, line_lenp);
 }
@@ -1383,7 +1383,7 @@ public POSITION forw_raw_line(POSITION curr_pos, char **linep, int *line_lenp)
  * Analogous to back_line(), but deals with "raw lines".
  * {{ This is supposed to be more efficient than back_line(). }}
  */
-public POSITION back_raw_line(POSITION curr_pos, char **linep, int *line_lenp)
+public POSITION back_raw_line(POSITION curr_pos, constant char **linep, int *line_lenp)
 {
 	int n;
 	int c;
@@ -1453,16 +1453,16 @@ public POSITION back_raw_line(POSITION curr_pos, char **linep, int *line_lenp)
  * Skip cols printable columns at the start of line.
  * Return number of bytes skipped.
  */
-public int skip_columns(int cols, char **linep, int *line_lenp)
+public int skip_columns(int cols, constant char **linep, int *line_lenp)
 {
-	char *line = *linep;
-	char *eline = line + *line_lenp;
+	constant char *line = *linep;
+	constant char *eline = line + *line_lenp;
 	LWCHAR pch = 0;
 	int bytes;
 
 	while (cols > 0 && line < eline)
 	{
-		LWCHAR ch = step_char(&line, +1, eline);
+		LWCHAR ch = step_charc(&line, +1, eline);
 		struct ansi_state *pansi = ansi_start(ch);
 		if (pansi != NULL)
 		{

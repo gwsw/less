@@ -418,9 +418,9 @@ static int mca_opt_nonfirst_char(LWCHAR c)
 		return (MCA_MORE);
 	opt_lower = ASCII_IS_LOWER(p[0]);
 	err = 0;
-	cp = (constant char *) p; /*{{const-issue}}*/
+	cp = p;
 	curropt = findopt_name(&cp, &oname, &err);
-	p = (char *) cp;
+	p = (char *) cp; /*{{const-issue}}*/
 	if (curropt != NULL)
 	{
 		/*

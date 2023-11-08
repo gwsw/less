@@ -716,7 +716,7 @@ public long getfraction(constant char **sp, constant char *printopt, int *errp)
 	}
 	while (fraclen++ < NUM_LOG_FRAC_DENOM)
 		frac *= 10;
-	*sp = /*(char*)*/ s;  /*{{const-issue}}*/
+	*sp = s;
 	if (errp != NULL)
 		*errp = FALSE;
 	return (frac);

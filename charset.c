@@ -652,7 +652,7 @@ public int is_utf8_well_formed(constant char *ss, int slen)
 /*
  * Skip bytes until a UTF-8 lead byte (11xxxxxx) or ASCII byte (0xxxxxxx) is found.
  */
-public void utf_skip_to_lead(char **pp, char *limit)
+public void utf_skip_to_lead(constant char **pp, constant char *limit)
 {
 	do {
 		++(*pp);

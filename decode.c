@@ -958,7 +958,7 @@ static int lesskey_text(constant char *filename, int sysvar, int content)
 	static struct lesskey_tables tables;
 	if (!secure_allow(SF_LESSKEY))
 		return (1);
-	int r = content ? parse_lesskey_content((char*)filename, &tables) : parse_lesskey((char*)filename, &tables); /*{{const-issue}}*/
+	int r = content ? parse_lesskey_content(filename, &tables) : parse_lesskey(filename, &tables);
 	if (r != 0)
 		return (r);
 	add_fcmd_table(tables.cmdtable.buf.data, tables.cmdtable.buf.end);

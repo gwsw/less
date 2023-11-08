@@ -248,7 +248,7 @@ static void check_modelines(void)
 	int i;
 	for (i = 0;  i < modelines;  i++)
 	{
-		char *line;
+		constant char *line;
 		int line_len;
 		if (ABORT_SIGS())
 			return;

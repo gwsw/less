@@ -326,7 +326,7 @@ public LINENUM find_linenum(POSITION pos)
 			/*
 			 * Allow a signal to abort this loop.
 			 */
-			cpos = forw_raw_line(cpos, (char **)NULL, (int *)NULL);
+			cpos = forw_raw_line(cpos, NULL, NULL);
 			if (ABORT_SIGS()) {
 				abort_delayed_msg(&dmsg);
 				return (0);
@@ -357,7 +357,7 @@ public LINENUM find_linenum(POSITION pos)
 			/*
 			 * Allow a signal to abort this loop.
 			 */
-			cpos = back_raw_line(cpos, (char **)NULL, (int *)NULL);
+			cpos = back_raw_line(cpos, NULL, NULL);
 			if (ABORT_SIGS()) {
 				abort_delayed_msg(&dmsg);
 				return (0);
@@ -412,7 +412,7 @@ public POSITION find_pos(LINENUM linenum)
 			/*
 			 * Allow a signal to abort this loop.
 			 */
-			cpos = forw_raw_line(cpos, (char **)NULL, (int *)NULL);
+			cpos = forw_raw_line(cpos, NULL, NULL);
 			if (ABORT_SIGS())
 				return (NULL_POSITION);
 			if (cpos == NULL_POSITION)
@@ -430,7 +430,7 @@ public POSITION find_pos(LINENUM linenum)
 			/*
 			 * Allow a signal to abort this loop.
 			 */
-			cpos = back_raw_line(cpos, (char **)NULL, (int *)NULL);
+			cpos = back_raw_line(cpos, NULL, NULL);
 			if (ABORT_SIGS())
 				return (NULL_POSITION);
 			if (cpos == NULL_POSITION)
@@ -494,7 +494,7 @@ public void scan_eof(void)
 		/* For efficiency, only add one every 256 line numbers. */
 		if ((linenum++ % 256) == 0)
 			add_lnum(linenum, pos);
-		pos = forw_raw_line(pos, (char **)NULL, (int *)NULL);
+		pos = forw_raw_line(pos, NULL, NULL);
 		if (ABORT_SIGS())
 		{
 			abort_delayed_msg(&dmsg);

@@ -245,7 +245,7 @@ public int sindex_from_sline(int sline)
  */
 static int pos_shift(POSITION linepos, int choff)
 {
-	char *line;
+	constant char *line;
 	int line_len;
 	POSITION pos;
 	int cvt_ops;

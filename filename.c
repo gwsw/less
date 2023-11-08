@@ -451,8 +451,8 @@ public int bin_file(int f)
 	int n;
 	int bin_count = 0;
 	char data[256];
-	char* p;
-	char* edata;
+	constant char* p;
+	constant char* edata;
 
 	if (!seekable(f))
 		return (0);
@@ -470,7 +470,7 @@ public int bin_file(int f)
 			utf_skip_to_lead(&p, edata);
 		} else 
 		{
-			LWCHAR c = step_char(&p, +1, edata);
+			LWCHAR c = step_charc(&p, +1, edata);
 			struct ansi_state *pansi;
 			if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(c)) != NULL)
 			{
@@ -527,6 +527,7 @@ static char * readfd(FILE *fd)
 			/*
 			 * The string is too big to fit in the buffer we have.
 			 * Allocate a new buffer, twice as big.
+			 * {{ Use xbuf? }}
 			 */
 			len *= 2;
 			*p = '\0';
@@ -1102,7 +1103,7 @@ public int curr_ifile_changed(void)
 /*
  * 
  */
-public char * shell_coption(void)
+public constant char * shell_coption(void)
 {
 	return ("-c");
 }
