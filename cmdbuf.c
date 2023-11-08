@@ -1308,7 +1308,7 @@ public LINENUM cmd_int(long *frac)
 /*
  * Return a pointer to the command buffer.
  */
-public char * get_cmdbuf(void)
+public constant char * get_cmdbuf(void)
 {
 	if (cmd_mbc_buf_index < cmd_mbc_buf_len)
 		/* Don't return buffer containing an incomplete multibyte char. */
