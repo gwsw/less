@@ -6,8 +6,14 @@
  */
 public void xbuf_init(struct xbuffer *xbuf)
 {
+	xbuf_init_size(xbuf, 16);
+}
+
+public void xbuf_init_size(struct xbuffer *xbuf, int init_size)
+{
 	xbuf->data = NULL;
 	xbuf->size = xbuf->end = 0;
+	xbuf->init_size = init_size;
 }
 
 /*
@@ -36,7 +42,7 @@ public void xbuf_add_byte(struct xbuffer *xbuf, unsigned char b)
 	if (xbuf->end >= xbuf->size)
 	{
 		unsigned char *data;
-		if (ckd_add(&xbuf->size, xbuf->size, xbuf->size ? xbuf->size : 16))
+		if (ckd_add(&xbuf->size, xbuf->size, xbuf->size ? xbuf->size : xbuf->init_size))
 			out_of_memory();
 		data = (unsigned char *) ecalloc(xbuf->size, sizeof(unsigned char));
 		if (xbuf->data != NULL)

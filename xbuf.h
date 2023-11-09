@@ -8,9 +8,11 @@ struct xbuffer
 	unsigned char *data;
 	int end;
 	int size;
+	int init_size;
 };
 
 void xbuf_init(struct xbuffer *xbuf);
+void xbuf_init_size(struct xbuffer *xbuf, int init_size);
 void xbuf_deinit(struct xbuffer *xbuf);
 void xbuf_reset(struct xbuffer *xbuf);
 void xbuf_add_byte(struct xbuffer *xbuf, unsigned char b);
