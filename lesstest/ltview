@@ -418,7 +418,7 @@ sub parse_errfile {
         } elsif (/^RAN\s+(\d+) tests with (\d+) error/) {
             $errf{tests} = $1;
             $errf{errors} = $2;
-        } elsif (/^DATA:\s*(.*)/) {
+        } elsif (/^DATA: (.*)/) {
             if ($datalines) {
                 $errf{$expect} .= parse_errline($1);
             } else {

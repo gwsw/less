@@ -105,6 +105,7 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 		if (!literal) {
 			switch (ch) {
 			case '\\':
+				fprintf(stderr, "\\");
 				literal = 1;
 				continue;
 			case LTS_CHAR_ATTR:
@@ -118,7 +119,7 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 			}
 		}
 		literal = 0;
-		if (is_ascii(ch))
+		if (is_ascii(ch) && ch != '<' && ch != '>')
 			fwrite(&ch, 1, 1, stderr);
 		else
 			fprintf(stderr, "<%lx>", (unsigned long) ch);
