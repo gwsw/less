@@ -507,40 +507,17 @@ static POSITION seek_filesize(int f)
  */
 static char * readfd(FILE *fd)
 {
-	int len;
-	int ch;
-	char *buf;
-	char *p;
-	
-	/* 
-	 * Make a guess about how many chars in the string
-	 * and allocate a buffer to hold it.
-	 */
-	len = 100;
-	buf = (char *) ecalloc(len, sizeof(char));
-	for (p = buf;  ;  p++)
+	struct xbuffer xbuf;
+	xbuf_init(&xbuf);
+	for (;;)
 	{
+		int ch;
 		if ((ch = getc(fd)) == '\n' || ch == EOF)
 			break;
-		if (p - buf >= len-1)
-		{
-			/*
-			 * The string is too big to fit in the buffer we have.
-			 * Allocate a new buffer, twice as big.
-			 * {{ Use xbuf? }}
-			 */
-			len *= 2;
-			*p = '\0';
-			p = (char *) ecalloc(len, sizeof(char));
-			strcpy(p, buf);
-			free(buf);
-			buf = p;
-			p = buf + strlen(buf);
-		}
-		*p = ch;
+		xbuf_add_char(&xbuf, ch);
 	}
-	*p = '\0';
-	return (buf);
+	xbuf_add_char(&xbuf, '\0');
+	return (char *) xbuf.data;
 }
 
 /*
