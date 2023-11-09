@@ -1872,7 +1872,7 @@ public int is_filtering(void)
  */
 public int reg_show_error = 1;
 
-void regerror(char *s)
+void regerror(constant char *s)
 {
 	PARG parg;
 

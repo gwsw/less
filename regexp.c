@@ -158,7 +158,7 @@
 /*
  * Global work variables for regcomp().
  */
-static char *regparse;		/* Input-scan pointer. */
+static constant char *regparse;		/* Input-scan pointer. */
 static int regnpar;		/* () count. */
 static char regdummy;
 static char *regcode;		/* Code-emit pointer; &regdummy = don't. */
@@ -188,7 +188,7 @@ STATIC void reginsert(char, char *);
 STATIC void regtail(char *, char *);
 STATIC void regoptail(char *, char *);
 #ifdef STRCSPN
-STATIC int strcspn(char *, char *);
+STATIC int strcspn(constant char *, constant char *);
 #endif
 
 /*
@@ -207,7 +207,7 @@ STATIC int strcspn(char *, char *);
  * of the structure of the compiled regexp.
  */
 regexp *
-regcomp(char *exp)
+regcomp(constant char *exp)
 {
 	register regexp *r;
 	register char *scan;
@@ -617,7 +617,7 @@ regc(char b)
 static void
 reginsert(char op, char *opnd)
 {
-	register char *src;
+	register constant char *src;
 	register char *dst;
 	register char *place;
 
@@ -687,15 +687,15 @@ regoptail(char *p, char *val)
 /*
  * Global work variables for regexec().
  */
-static char *reginput;		/* String-input pointer. */
-static char *regbol;		/* Beginning of input, for ^ check. */
-static char **regstartp;	/* Pointer to startp array. */
-static char **regendp;		/* Ditto for endp. */
+static constant char *reginput;		/* String-input pointer. */
+static constant char *regbol;		/* Beginning of input, for ^ check. */
+static constant char **regstartp;	/* Pointer to startp array. */
+static constant char **regendp;		/* Ditto for endp. */
 
 /*
  * Forwards.
  */
-STATIC int regtry(regexp *, char *);
+STATIC int regtry(regexp *, constant char *);
 STATIC int regmatch(char *);
 STATIC int regrepeat(char *);
 
@@ -709,9 +709,9 @@ STATIC char *regprop();
  - regexec - match a regexp against a string
  */
 int
-regexec2(register regexp *prog, register char *string, int notbol)
+regexec2(register regexp *prog, register constant char *string, int notbol)
 {
-	register char *s;
+	register constant char *s;
 
 	/* Be paranoid... */
 	if (prog == NULL || string == NULL) {
@@ -768,7 +768,7 @@ regexec2(register regexp *prog, register char *string, int notbol)
 }
 
 int
-regexec(register regexp *prog, register char *string)
+regexec(register regexp *prog, register constant char *string)
 {
 	return regexec2(prog, string, 0);
 }
@@ -777,11 +777,11 @@ regexec(register regexp *prog, register char *string)
  - regtry - try match at specific point
  */
 static int			/* 0 failure, 1 success */
-regtry(regexp *prog, char *string)
+regtry(regexp *prog, constant char *string)
 {
 	register int i;
-	register char **sp;
-	register char **ep;
+	register constant char **sp;
+	register constant char **ep;
 
 	reginput = string;
 	regstartp = prog->startp;
@@ -881,7 +881,7 @@ regmatch(char *prog)
 		case OPEN+8:
 		case OPEN+9: {
 				register int no;
-				register char *save;
+				register constant char *save;
 
 				no = OP(scan) - OPEN;
 				save = reginput;
@@ -910,7 +910,7 @@ regmatch(char *prog)
 		case CLOSE+8:
 		case CLOSE+9: {
 				register int no;
-				register char *save;
+				register constant char *save;
 
 				no = OP(scan) - CLOSE;
 				save = reginput;
@@ -930,7 +930,7 @@ regmatch(char *prog)
 			/* NOTREACHED */
 			break;
 		case BRANCH: {
-				register char *save;
+				register constant char *save;
 
 				if (OP(next) != BRANCH)		/* No choice. */
 					next = OPERAND(scan);	/* Avoid recursion. */
@@ -952,7 +952,7 @@ regmatch(char *prog)
 		case PLUS: {
 				register char nextch;
 				register int no;
-				register char *save;
+				register constant char *save;
 				register int min;
 
 				/*
@@ -1007,7 +1007,7 @@ static int
 regrepeat(char *p)
 {
 	register int count = 0;
-	register char *scan;
+	register constant char *scan;
 	register char *opnd;
 
 	scan = reginput;
@@ -1116,9 +1116,9 @@ regexp *r;
 /*
  - regprop - printable representation of opcode
  */
-static char *
+static constant char *
 regprop(op)
-char *op;
+constant char *op;
 {
 	register char *p;
 	static char buf[50];
@@ -1209,7 +1209,7 @@ char *op;
  */
 
 static int
-strcspn(char *s1, char *s2)
+strcspn(constant char *s1, constant char *s2)
 {
 	register char *scan1;
 	register char *scan2;
