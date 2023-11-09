@@ -46,8 +46,8 @@
 
 /* ---- RE_COMP  ---- */
 #if HAVE_RE_COMP
-char *re_comp(char*);
-int re_exec(char*);
+constant char *re_comp(constant char*);
+int re_exec(constant char*);
 #define PATTERN_TYPE             int
 #define SET_NULL_PATTERN(name)   name = 0
 #endif
