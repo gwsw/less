@@ -4,10 +4,11 @@ use Getopt::Std;
 use IO::Stty;
 
 my $usage =
-    "usage: ltview [-cfr] lt-file [error-file]\n" .
+    "usage: ltview [-cfr] [-w wide.uni] lt-file [error-file]\n" .
     "       -c = use color\n" .
     "       -f = use lt-file even if it does not fit on screen\n" .
     "       -r = don't put terminal in raw mode\n" .
+    "       -w = list of Unicode wide chars\n" .
     "       error-file is output from \"lesstest -D\"\n";
 
 my $help = <<_EOF_;
@@ -31,16 +32,19 @@ my $ATTR_BLINK          = (1<<3);
 my $NULL_COLOR          = 0xFF;
 
 my @show_expects = ('', 'expect', 'got');
+my %wides;
 my %opt;
 
 # ---------------------------------------------------------------------
 exit (main() ? 0 : 1);
 
 sub main {
-    die $usage if not getopts('cfr', \%opt);
+    die $usage if not getopts('cfrw:', \%opt);
     my $ltfile = shift @ARGV;
     my $errfile = shift @ARGV;
+    my $wide_file = ($opt{w} or "../wide.uni");
     die $usage if not defined $ltfile or @ARGV;
+    parse_wides($wide_file);
     my $lt = parse_ltfile($ltfile);
     return 0 if not $lt;
     my $lt_lines = $lt->{lines} + 2; # 2 lines for prompt at bottom of screen
@@ -50,6 +54,7 @@ sub main {
         return 0;
     }
     my $errf = defined $errfile ? parse_errfile($errfile) : undef;
+    binmode(STDOUT, ":encoding(UTF-8)");
     run($lt, $errf);
     return 1;
 }
@@ -175,46 +180,79 @@ sub display {
     tgoto(0,0);
     tclear();
     for (my $cpos = 0; $cpos < length $img; ) {
-        my $ch = substr $img, $cpos++, 1;
+        my $clen = utf8_len(substr($img, $cpos, 1));
+        my $ich = utf8_char(substr($img, $cpos, $clen));
+        $cpos += $clen;
         if (not $literal) {
-            if ($ch eq '\\') { # escape
+            if ($ich eq ord '\\') { # escape
                 $literal = 1;
                 next;
             }
-            if ($ch eq '@') { # attr
+            if ($ich eq ord '@') { # attr
                 $curr_attr = hex substr($img, $cpos, 2);
                 display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
                 $cpos += 2;
                 next;
             }
-            if ($ch eq '$') { # fg color
+            if ($ich eq ord '$') { # fg color
                 $curr_fg_color = hex substr($img, $cpos, 2);
                 display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
                 $cpos += 2;
                 next;
             }
-            if ($ch eq '!') { # bg color
+            if ($ich eq ord '!') { # bg color
                 $curr_bg_color = hex substr($img, $cpos, 2);
                 display_attr_color($curr_attr, $curr_fg_color, $curr_bg_color);
                 $cpos += 2;
                 next;
             }
-            if ($ch eq '#') { # cursor
+            if ($ich eq ord '#') { # cursor
                 $cursor_x = $x;
                 $cursor_y = $y;
                 next;
             }
         }
         $literal = 0;
-        print $ch if length($ch) > 0;
-        if (++$x >= $lt->{columns}) {
-            print "\r\n";
-            $x = 0;
-            ++$y;
+        if ($ich > 0) {
+            print chr($ich);
+            $x += cwidth($ich);
+            if ($x >= $lt->{columns}) {
+                print "\r\n";
+                $x = 0;
+                ++$y;
+            }
         }
     }
     printf "\r\n%s", $prompt;
     tgoto($cursor_x, $cursor_y);
+}
+
+# ---------------------------------------------------------------------
+sub parse_wides {
+    my ($wide_file) = @_;
+    my $wf;
+    if (not open $wf, '<', $wide_file) {
+        print ERR "cannot open $wide_file: $!\n";
+        return 0;
+    }
+    while (<$wf>) {
+        if (/^\s*\{\s*0x([\da-f]+)\s*,\s*0x([\da-f]+)/i) {
+            my $lo = hex $1;
+            my $hi = hex $2;
+            for (my $v = $lo; $v <= $hi; ++$v) {
+                $wides{$v} = 1;
+            }
+        }
+    }
+    close $wf;
+    return 1;
+}
+
+# ---------------------------------------------------------------------
+sub cwidth {
+    my ($ich) = @_;
+    return 2 if $wides{$ich};
+    return 1;
 }
 
 # ---------------------------------------------------------------------
@@ -382,7 +420,7 @@ sub parse_errfile {
             $errf{errors} = $2;
         } elsif (/^DATA:\s*(.*)/) {
             if ($datalines) {
-                $errf{$expect} .= $1;
+                $errf{$expect} .= parse_errline($1);
             } else {
                 print STDERR "$errfile:$linenum: unexpected data line\n";
             }
@@ -396,6 +434,14 @@ sub parse_errfile {
         return undef;
     }
     return \%errf;
+}
+
+# ---------------------------------------------------------------------
+sub parse_errline {
+    my ($line) = @_;
+    $line =~ s/<0>//g;
+    $line =~ s/<([\da-f]+)>/utf8_str($1)/eig;
+    return $line;
 }
 
 # ---------------------------------------------------------------------
@@ -434,4 +480,50 @@ sub parse_keystroke {
     return 0 if not @$states;
     ${$$states[@$states-1]}{keystroke} = hex $hex;
     return 1;
+}
+
+# ---------------------------------------------------------------------
+sub utf8_len {
+    my ($ch) = @_;
+    my $ich = ord $ch;
+    return 2 if ($ich & 0xE0) == 0xC0;
+    return 3 if ($ich & 0xF0) == 0xE0;
+    return 4 if ($ich & 0xF8) == 0xF0;
+    return 1;
+}
+
+# ---------------------------------------------------------------------
+sub utf8_char {
+    my ($ch) = @_;
+    my @ich;
+    for (my $i = 0; $i < length($ch); ++$i) {
+        push @ich, ord substr($ch, $i, 1);
+    }
+    if (@ich == 2) {
+        return (($ich[0] & 0x1F) << 6) | ($ich[1] & 0x3F);
+    }
+    if (@ich == 3) {
+        return (($ich[0] & 0x0F) << 12) | (($ich[1] & 0x3F) << 6) | ($ich[2] & 0x3F);
+    }
+    if (@ich == 4) {
+        return (($ich[0] & 0x07) << 18) | (($ich[1] & 0x3F) << 12) | (($ich[2] & 0x3F) << 6) | ($ich[3] & 0x3F);
+    }
+    die if @ich != 1;
+    return $ich[0];
+}
+
+# ---------------------------------------------------------------------
+sub utf8_str {
+    my ($xch) = @_;
+    my $ich = hex $xch;
+    if ($ich < 0x80) {
+        return chr($ich);
+    }
+    if ($ich < 0x800) {
+        return chr(0xC0 | (($ich >> 6) & 0x1F)) . chr(0x80 | ($ich & 0x3F));
+    }
+    if ($ich < 0x10000) {
+        return chr(0xE0 | (($ich >> 12) & 0x0F)) . chr(0x80 | (($ich >> 6) & 0x3F)) . chr(0x80 | ($ich & 0x3F));
+    }
+    return chr(0xF0 | (($ich >> 18) & 0x07)) . chr(0x80 | (($ich >> 12) & 0x3F)) . chr(0x80 | (($ich >> 6) & 0x3F)) . chr(0x80 | ($ich & 0x3F));
 }
