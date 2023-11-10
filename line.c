@@ -783,7 +783,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 	{
 		/* We haven't left-shifted enough yet. */
 		if (a == AT_ANSI)
-			xbuf_add_char(&shifted_ansi, ch); /* Save ANSI attributes */
+			xbuf_add_char(&shifted_ansi, (char) ch); /* Save ANSI attributes */
 		if (linebuf.end > linebuf.print)
 		{
 			/* Shift left enough to put last byte of this char at print-1. */
@@ -990,13 +990,13 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 		STORE_CHAR(ch, AT_ANSI, rep, pos);
 		if (line_ansi->hlink)
 			hlink_in_line = 1;
-		xbuf_add_char(&last_ansi, ch);
+		xbuf_add_char(&last_ansi, (char) ch);
 		break;
 	case ANSI_END:
 		STORE_CHAR(ch, AT_ANSI, rep, pos);
 		ansi_done(line_ansi);
 		line_ansi = NULL;
-		xbuf_add_char(&last_ansi, ch);
+		xbuf_add_char(&last_ansi, (char) ch);
 		xbuf_set(&last_ansis[curr_last_ansi], &last_ansi);
 		xbuf_reset(&last_ansi);
 		curr_last_ansi = (curr_last_ansi + 1) % NUM_LAST_ANSIS;

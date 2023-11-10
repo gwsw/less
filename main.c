@@ -95,7 +95,8 @@ static void try_utf8_locale(int *pargc, constant char ***pargv)
 {
 	char *locale_orig = strdup(setlocale(LC_ALL, 0));
 	wchar_t **wargv = 0, *wenv, *wp;
-	char **u8argv, *u8e;
+	constant char **u8argv;
+	char *u8e;
 	int i, n;
 
 	if (!setlocale(LC_ALL, ".UTF8"))
