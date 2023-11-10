@@ -21,7 +21,7 @@ HDR = lesstest.h lt_types.h wchar.h
 *.o: $(HDR)
 
 echo_distfiles:
-	@echo $(patsubst %,$(srcdir)/%,$(LESSTEST_SRC) $(LT_SCREEN_SRC) $(HDR) lt/*.lt runtest maketest Makefile)
+	@echo $(patsubst %,$(srcdir)/%,$(LESSTEST_SRC) $(LT_SCREEN_SRC) $(HDR) lt/*.lt runtest maketest extract ltview Makefile README)
 
 clean:
 	rm -f lesstest lt_screen *.o

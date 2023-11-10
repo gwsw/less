@@ -23,3 +23,5 @@ lesskey.nro
 stamp-h
 upload
 .vimrc
+lesstest/lesstest
+lesstest/lt_screen
