@@ -75,12 +75,12 @@ extern int      first_time;
 /* malloc'ed 0-terminated utf8 of 0-terminated wide ws, or null on errors */
 static char *utf8_from_wide(const wchar_t *ws)
 {
-	char *u8 = 0;
-	int n = WideCharToMultiByte(CP_UTF8, 0, ws, -1, 0, 0, 0, 0);
+	char *u8 = NULL;
+	int n = WideCharToMultiByte(CP_UTF8, 0, ws, -1, NULL, 0, NULL, NULL);
 	if (n > 0)
 	{
 		u8 = ecalloc(n, sizeof(char));
-		WideCharToMultiByte(CP_UTF8, 0, ws, -1, u8, n, 0, 0);
+		WideCharToMultiByte(CP_UTF8, 0, ws, -1, u8, n, NULL, NULL);
 	}
 	return u8;
 }
@@ -93,8 +93,8 @@ static char *utf8_from_wide(const wchar_t *ws)
  */
 static void try_utf8_locale(int *pargc, constant char ***pargv)
 {
-	char *locale_orig = strdup(setlocale(LC_ALL, 0));
-	wchar_t **wargv = 0, *wenv, *wp;
+	char *locale_orig = strdup(setlocale(LC_ALL, NULL));
+	wchar_t **wargv = NULL, *wenv, *wp;
 	constant char **u8argv;
 	char *u8e;
 	int i, n;
@@ -111,7 +111,7 @@ static void try_utf8_locale(int *pargc, constant char ***pargv)
 	if (!wargv)
 		goto bad_args;
 
-	u8argv = (char **)ecalloc(n + 1, sizeof(char *));
+	u8argv = (constant char **) ecalloc(n + 1, sizeof(char *));
 	for (i = 0; i < n; ++i)
 	{
 		if (!(u8argv[i] = utf8_from_wide(wargv[i])))
