@@ -120,18 +120,19 @@ public void scan_option(constant char *s)
 			 * "--" indicates an option name instead of a letter.
 			 */
 			if (*s == '-')
-			{
 				optname = ++s;
-				break;
-			}
 			/*
-			 * "-+" means set these options back to their defaults.
-			 * (They may have been set otherwise by previous 
-			 * options.)
+			 * "-+" or "--+" means set these options back to their defaults.
+			 * (They may have been set otherwise by previous options.)
 			 */
 			set_default = (*s == '+');
 			if (set_default)
 				s++;
+			if (optname != NULL)
+			{
+				optname = s;
+				break;
+			}
 			continue;
 		case '+':
 			/*
