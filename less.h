@@ -528,7 +528,7 @@ typedef enum {
 #define ESC             CONTROL('[')
 #define ESCS            "\33"
 #define CSI             ((unsigned char)'\233')
-#define CHAR_END_COMMAND 0x40000000
+#define CHAR_END_COMMAND ((char)0377) /*{{ Is this safe? }}*/
 
 #if _OSK_MWC32
 #define LSIGNAL(sig,func)       os9_signal(sig,func)

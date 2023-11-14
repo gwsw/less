@@ -86,7 +86,7 @@ static char pipec;
 /* Stack of ungotten chars (via ungetcc) */
 struct ungot {
 	struct ungot *ug_next;
-	LWCHAR ug_char;
+	char ug_char;
 };
 static struct ungot* ungot = NULL;
 
@@ -326,7 +326,7 @@ static void exec_mca(void)
 /*
  * Is a character an erase or kill char?
  */
-static int is_erase_char(LWCHAR c)
+static int is_erase_char(char c)
 {
 	return (c == erase_char || c == erase2_char || c == kill_char);
 }
@@ -334,7 +334,7 @@ static int is_erase_char(LWCHAR c)
 /*
  * Is a character a carriage return or newline?
  */
-static int is_newline_char(LWCHAR c)
+static int is_newline_char(char c)
 {
 	return (c == '\n' || c == '\r');
 }
@@ -342,7 +342,7 @@ static int is_newline_char(LWCHAR c)
 /*
  * Handle the first char of an option (after the initial dash).
  */
-static int mca_opt_first_char(LWCHAR c)
+static int mca_opt_first_char(char c)
 {
 	int no_prompt = (optflag & OPT_NO_PROMPT);
 	int flag = (optflag & ~OPT_NO_PROMPT);
@@ -393,7 +393,7 @@ static int mca_opt_first_char(LWCHAR c)
  * If so, display the complete name and stop 
  * accepting chars until user hits RETURN.
  */
-static int mca_opt_nonfirst_char(LWCHAR c)
+static int mca_opt_nonfirst_char(char c)
 {
 	constant char *p;
 	constant char *oname;
@@ -447,7 +447,7 @@ static int mca_opt_nonfirst_char(LWCHAR c)
 /*
  * Handle a char of an option toggle command.
  */
-static int mca_opt_char(LWCHAR c)
+static int mca_opt_char(char c)
 {
 	PARG parg;
 
@@ -525,7 +525,7 @@ public int norm_search_type(int st)
 /*
  * Handle a char of a search command.
  */
-static int mca_search_char(LWCHAR c)
+static int mca_search_char(char c)
 {
 	int flag = 0;
 
@@ -594,7 +594,7 @@ static int mca_search_char(LWCHAR c)
 /*
  * Handle a character of a multi-character command.
  */
-static int mca_char(LWCHAR c)
+static int mca_char(char c)
 {
 	int ret;
 
@@ -940,10 +940,10 @@ static LWCHAR getcc_end_command(void)
 /*
  * Get a command character from the ungotten stack.
  */
-static LWCHAR get_ungot(void)
+static char get_ungot(void)
 {
 	struct ungot *ug = ungot;
-	LWCHAR c = ug->ug_char;
+	char c = ug->ug_char;
 	ungot = ug->ug_next;
 	free(ug);
 	return c;
@@ -964,9 +964,9 @@ public void getcc_clear(void)
  * but may come from ungotten characters
  * (characters previously given to ungetcc or ungetsc).
  */
-static LWCHAR getccu(void)
+static char getccu(void)
 {
-	LWCHAR c = 0;
+	char c = 0;
 	while (c == 0)
 	{
 		if (ungot == NULL)
@@ -990,10 +990,10 @@ static LWCHAR getccu(void)
  * Get a command character, but if we receive the orig sequence,
  * convert it to the repl sequence.
  */
-static LWCHAR getcc_repl(char constant *orig, char constant *repl, LWCHAR (*gr_getc)(void), void (*gr_ungetc)(LWCHAR))
+static char getcc_repl(char constant *orig, char constant *repl, char (*gr_getc)(void), void (*gr_ungetc)(char))
 {
-	LWCHAR c;
-	LWCHAR keys[16];
+	char c;
+	char keys[16];
 	int ki = 0;
 
 	c = (*gr_getc)();
@@ -1039,7 +1039,7 @@ public LWCHAR getcc(void)
  * "Unget" a command character.
  * The next getcc() will return this character.
  */
-public void ungetcc(LWCHAR c)
+public void ungetcc(char c)
 {
 	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
 
@@ -1052,7 +1052,7 @@ public void ungetcc(LWCHAR c)
  * "Unget" a command character.
  * If any other chars are already ungotten, put this one after those.
  */
-public void ungetcc_back(LWCHAR c)
+public void ungetcc_back(char c)
 {
 	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
 	ug->ug_char = c;
@@ -1081,9 +1081,9 @@ public void ungetsc(constant char *s)
 /*
  * Peek the next command character, without consuming it.
  */
-public LWCHAR peekcc(void)
+public char peekcc(void)
 {
-	LWCHAR c = getcc();
+	char c = getcc();
 	ungetcc(c);
 	return c;
 }
@@ -1230,7 +1230,7 @@ static int forw_loop(int until_hilite)
  */
 public void commands(void)
 {
-	LWCHAR c;
+	char c;
 	int action;
 	constant char *cbuf;
 	constant char *msg;
@@ -1347,7 +1347,7 @@ public void commands(void)
 				 * want erase_char/kill_char to be treated
 				 * as line editing characters.
 				 */
-				char tbuf[2] = { (char) c, '\0' }; /*{{char-issue}}*/
+				constant char tbuf[2] = { c, '\0' };
 				action = fcmd_decode(tbuf, &extra);
 			}
 			/*
@@ -2026,7 +2026,7 @@ public void commands(void)
 					c = '.';
 				if (badmark(c))
 					break;
-				pipec = (char) c;
+				pipec = c;
 				start_mca(A_PIPE, "!", ml_shell, 0);
 				c = getcc();
 				goto again;

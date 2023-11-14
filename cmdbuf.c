@@ -784,7 +784,7 @@ public void cmd_accept(void)
  *      CC_OK   Line edit function done.
  *      CC_QUIT The char requests the current command to be aborted.
  */
-static int cmd_edit(int c)
+static int cmd_edit(char c)
 {
 	int action;
 	int flags;
@@ -1185,7 +1185,7 @@ fail:
  *      CC_QUIT         The char requests the command to be aborted.
  *      CC_ERROR        The char could not be accepted due to an error.
  */
-public int cmd_char(int c)
+public int cmd_char(char c)
 {
 	int action;
 	size_t len;

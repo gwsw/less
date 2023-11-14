@@ -1042,7 +1042,7 @@ static void add_content_table(int (*call_lesskey)(constant char *, lbool), const
 /*
  * See if a char is a special line-editing command.
  */
-public int editchar(int c, int flags)
+public int editchar(char c, int flags)
 {
 	int action;
 	int nch;

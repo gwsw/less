@@ -104,7 +104,7 @@ static void mark_get_ifile(struct mark *m)
 /*
  * Return the user mark struct identified by a character.
  */
-static struct mark * getumark(LWCHAR c)
+static struct mark * getumark(char c)
 {
 	PARG parg;
 	if (c >= 'a' && c <= 'z')
@@ -125,7 +125,7 @@ static struct mark * getumark(LWCHAR c)
  * The mark struct may either be in the mark table (user mark)
  * or may be constructed on the fly for certain characters like ^, $.
  */
-static struct mark * getmark(LWCHAR c)
+static struct mark * getmark(char c)
 {
 	struct mark *m;
 	static struct mark sm;
@@ -185,7 +185,7 @@ static struct mark * getmark(LWCHAR c)
 /*
  * Is a mark letter invalid?
  */
-public int badmark(LWCHAR c)
+public int badmark(char c)
 {
 	return (getmark(c) == NULL);
 }
@@ -193,7 +193,7 @@ public int badmark(LWCHAR c)
 /*
  * Set a user-defined mark.
  */
-public void setmark(LWCHAR c, int where)
+public void setmark(char c, int where)
 {
 	struct mark *m;
 	struct scrpos scrpos;
@@ -214,7 +214,7 @@ public void setmark(LWCHAR c, int where)
 /*
  * Clear a user-defined mark.
  */
-public void clrmark(LWCHAR c)
+public void clrmark(char c)
 {
 	struct mark *m;
 
@@ -249,7 +249,7 @@ public void lastmark(void)
 /*
  * Go to a mark.
  */
-public void gomark(LWCHAR c)
+public void gomark(char c)
 {
 	struct mark *m;
 	struct scrpos scrpos;
@@ -290,7 +290,7 @@ public void gomark(LWCHAR c)
  * is associated with, but this doesn't matter much,
  * because it's always the first non-blank line on the screen.
  */
-public POSITION markpos(LWCHAR c)
+public POSITION markpos(char c)
 {
 	struct mark *m;
 
