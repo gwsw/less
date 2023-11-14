@@ -72,7 +72,7 @@ lessecho$(EXEEXT): lessecho.${O} version.${O}
 
 charset.${O}: compose.uni ubin.uni wide.uni
 
-${OBJ}: ${srcdir}/less.h ${srcdir}/funcs.h defines.h 
+${OBJ}: ${srcdir}/less.h ${srcdir}/funcs.h defines.h lang.h pattern.h xbuf.h
 
 install: all ${srcdir}/less.nro ${srcdir}/lesskey.nro ${srcdir}/lessecho.nro installdirs
 	${INSTALL_PROGRAM} less$(EXEEXT) ${DESTDIR}${bindir}/${binprefix}less$(EXEEXT)
