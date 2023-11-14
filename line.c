@@ -317,7 +317,6 @@ static void add_pfx(char ch, int attr)
 public void plinestart(POSITION pos)
 {
 	LINENUM linenum = 0;
-	size_t i;
 
 	if (linenums == OPT_ONPLUS)
 	{
@@ -359,6 +358,7 @@ public void plinestart(POSITION pos)
 	{
 		char buf[INT_STRLEN_BOUND(linenum) + 2];
 		size_t len;
+		size_t i;
 
 		linenum = vlinenum(linenum);
 		if (linenum == 0)
@@ -368,7 +368,7 @@ public void plinestart(POSITION pos)
 			linenumtoa(linenum, buf, 10);
 			len = strlen(buf);
 		}
-		for (i = 0; i < linenum_width - len; i++)
+		for (i = 0; i < (size_t) linenum_width - len; i++)
 			add_pfx(' ', AT_NORMAL);
 		for (i = 0; i < len; i++)
 			add_pfx(buf[i], AT_BOLD|AT_COLOR_LINENUM);

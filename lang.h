@@ -43,12 +43,8 @@ typedef enum lbool { LFALSE, LTRUE } lbool;
 #undef  FALSE
 #define FALSE LFALSE
 
-#if MSDOS_COMPILER==WIN32C
 #if _WIN64
-typedef __int64 ssize_t;
-#else
-typedef __int32 ssize_t;
+typedef int ssize_t;
 #endif
-#endif /* MSDOS_COMPILER==WIN32C */
 
 #endif //  LESS_LANG_H_
