@@ -154,7 +154,7 @@ public void scan_option(constant char *s)
 			} else
 			{
 				ungetsc(str);
-				ungetcc_back(CHAR_END_COMMAND);
+				ungetcc_end_command();
 			}
 			free(str);
 			continue;

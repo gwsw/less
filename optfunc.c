@@ -421,7 +421,7 @@ public void opt_p(int type, constant char *s)
 			  */
 			ungetsc("/");
 			ungetsc(s);
-			ungetcc_back(CHAR_END_COMMAND);
+			ungetcc_end_command();
 		}
 		break;
 	}

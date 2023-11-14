@@ -87,6 +87,7 @@ static char pipec;
 struct ungot {
 	struct ungot *ug_next;
 	char ug_char;
+	lbool ug_end_command;
 };
 static struct ungot* ungot = NULL;
 
@@ -817,7 +818,7 @@ static void prompt(void)
 {
 	constant char *p;
 
-	if (ungot != NULL && ungot->ug_char != CHAR_END_COMMAND)
+	if (ungot != NULL && !ungot->ug_end_command)
 	{
 		/*
 		 * No prompt necessary if commands are from 
@@ -940,10 +941,12 @@ static LWCHAR getcc_end_command(void)
 /*
  * Get a command character from the ungotten stack.
  */
-static char get_ungot(void)
+static char get_ungot(lbool *p_end_command)
 {
 	struct ungot *ug = ungot;
 	char c = ug->ug_char;
+	if (p_end_command != NULL)
+		*p_end_command = ug->ug_end_command;
 	ungot = ug->ug_next;
 	free(ug);
 	return c;
@@ -955,7 +958,7 @@ static char get_ungot(void)
 public void getcc_clear(void)
 {
 	while (ungot != NULL)
-		(void) get_ungot();
+		(void) get_ungot(NULL);
 }
 
 /*
@@ -978,8 +981,9 @@ static char getccu(void)
 		{
 			/* Ungotten chars available:
 			 * Take the top of stack (most recent). */
-			c = get_ungot();
-			if (c == CHAR_END_COMMAND)
+			lbool end_command;
+			c = get_ungot(&end_command);
+			if (end_command)
 				c = getcc_end_command();
 		}
 	}
@@ -1052,10 +1056,11 @@ public void ungetcc(char c)
  * "Unget" a command character.
  * If any other chars are already ungotten, put this one after those.
  */
-public void ungetcc_back(char c)
+static void ungetcc_back1(char c, lbool end_command)
 {
 	struct ungot *ug = (struct ungot *) ecalloc(1, sizeof(struct ungot));
 	ug->ug_char = c;
+	ug->ug_end_command = end_command;
 	ug->ug_next = NULL;
 	if (ungot == NULL)
 		ungot = ug;
@@ -1066,6 +1071,16 @@ public void ungetcc_back(char c)
 			continue;
 		pu->ug_next = ug;
 	}
+}
+
+public void ungetcc_back(char c)
+{
+	ungetcc_back1(c, FALSE);
+}
+
+public void ungetcc_end_command(void)
+{
+	ungetcc_back1('\0', TRUE);
 }
 
 /*

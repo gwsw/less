@@ -635,7 +635,7 @@ public int edit_ifile(IFILE ifile)
 		if (every_first_cmd != NULL)
 		{
 			ungetsc(every_first_cmd);
-			ungetcc_back(CHAR_END_COMMAND);
+			ungetcc_end_command();
 		}
 	}
 
