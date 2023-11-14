@@ -31,7 +31,8 @@ static int prompt_col;           /* Column of cursor just after prompt */
 static char *cp;                 /* Pointer into cmdbuf */
 static int cmd_offset;           /* Index into cmdbuf of first displayed char */
 static int literal;              /* Next input char should not be interpreted */
-public ssize_t updown_match = -1;    /* Prefix length in up/down movement */
+public size_t updown_match;      /* Prefix length in up/down movement */
+public lbool have_updown_match = FALSE;
 
 #if TAB_COMPLETE_FILENAME
 static int cmd_complete(int action);
@@ -124,7 +125,7 @@ public void cmd_reset(void)
 	cmd_offset = 0;
 	literal = 0;
 	cmd_mbc_buf_len = 0;
-	updown_match = -1;
+	have_updown_match = FALSE;
 }
 
 /*
@@ -134,7 +135,7 @@ public void clear_cmd(void)
 {
 	cmd_col = prompt_col = 0;
 	cmd_mbc_buf_len = 0;
-	updown_match = -1;
+	have_updown_match = FALSE;
 }
 
 /*
@@ -193,7 +194,7 @@ static constant char * cmd_step_common(char *p, LWCHAR ch, size_t len, int *pwid
 
 	if (len == 1)
 	{
-		pr = prchar((int) ch);
+		pr = prchar(ch);
 		width = (int) strlen(pr);
 	} else
 	{
@@ -460,7 +461,7 @@ static int cmd_ichar(constant char *cs, size_t clen)
 	/*
 	 * Reprint the tail of the line from the inserted char.
 	 */
-	updown_match = -1;
+	have_updown_match = FALSE;
 	cmd_repaint(cp);
 	cmd_right();
 	return (CC_OK);
@@ -503,7 +504,7 @@ static int cmd_erase(void)
 	/*
 	 * Repaint the buffer after the erased char.
 	 */
-	updown_match = -1;
+	have_updown_match = FALSE;
 	cmd_repaint(cp);
 	
 	/*
@@ -596,7 +597,7 @@ static int cmd_kill(void)
 	cmd_offset = 0;
 	cmd_home();
 	*cp = '\0';
-	updown_match = -1;
+	have_updown_match = FALSE;
 	cmd_repaint(cp);
 
 	/*
@@ -643,8 +644,11 @@ static int cmd_updown(int action)
 		return (CC_OK);
 	}
 
-	if (updown_match < 0)
+	if (!have_updown_match)
+	{
 		updown_match = ptr_diff(cp, cmdbuf);
+		have_updown_match = TRUE;
+	}
 
 	/*
 	 * Find the next history entry which matches.

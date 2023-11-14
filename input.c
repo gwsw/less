@@ -151,7 +151,7 @@ get_forw_line:
 			null_line();
 			return (NULL_POSITION);
 		}
-		backchars = pappend(c, new_pos);
+		backchars = pappend((char) c, new_pos);
 		new_pos++;
 		if (backchars > 0)
 		{
@@ -161,7 +161,7 @@ get_forw_line:
 				do
 				{
 					new_pos++;
-					c = ch_forw_get();
+					c = ch_forw_get(); /* {{ what if c == EOI? }} */
 				} while (c == ' ' || c == '\t');
 				backchars = 1;
 			}
@@ -214,7 +214,7 @@ get_forw_line:
 		/*
 		 * Append the char to the line and get the next char.
 		 */
-		backchars = pappend(c, ch_tell()-1);
+		backchars = pappend((char) c, ch_tell()-1);
 		if (backchars > 0)
 		{
 			/*
@@ -250,10 +250,10 @@ get_forw_line:
 						do
 						{
 							new_pos = ch_tell();
-							c = ch_forw_get();
+							c = ch_forw_get(); /* {{ what if c == EOI? }} */
 						} while (c == ' ' || c == '\t');
 						if (c == '\r')
-							c = ch_forw_get();
+							c = ch_forw_get(); /* {{ what if c == EOI? }} */
 						if (c == '\n')
 							new_pos = ch_tell();
 					} else if (wrap_pos == NULL_POSITION)
@@ -373,6 +373,7 @@ get_back_line:
 		 */
 		(void) ch_forw_get();    /* Skip the newline */
 		c = ch_forw_get();       /* First char of "current" line */
+		/* {{ what if c == EOI? }} */
 		(void) ch_back_get();    /* Restore our position */
 		(void) ch_back_get();
 
@@ -467,7 +468,7 @@ get_back_line:
 			edisp_pos = new_pos;
 			break;
 		}
-		backchars = pappend(c, ch_tell()-1);
+		backchars = pappend((char) c, ch_tell()-1);
 		if (backchars > 0)
 		{
 			/*
@@ -494,14 +495,14 @@ get_back_line:
 				{
 					for (;;)
 					{
-						c = ch_forw_get();
+						c = ch_forw_get(); /* {{ what if c == EOI? }} */
 						if (c == ' ' || c == '\t')
 							new_pos++;
 						else
 						{
 							if (c == '\r')
 							{
-								c = ch_forw_get();
+								c = ch_forw_get(); /* {{ what if c == EOI? }} */
 								if (c == '\n')
 									new_pos++;
 							}

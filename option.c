@@ -48,7 +48,7 @@ static constant char * opt_desc(struct loption *o)
  * Return a string suitable for printing as the "name" of an option.
  * For example, if the option letter is 'x', just return "-x".
  */
-public constant char * propt(int c)
+public constant char * propt(char c)
 {
 	static char buf[MAX_PRCHAR_LEN+2];
 

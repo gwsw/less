@@ -281,7 +281,7 @@ static void expand_special_keys(unsigned char *table, size_t len)
 			if (repl == NULL || strlen(repl) > klen)
 				repl = "\377";
 			while (*repl != '\0')
-				*to++ = *repl++;
+				*to++ = (unsigned char) *repl++; /*{{type-issue}}*/
 		}
 		*to++ = '\0';
 		/*

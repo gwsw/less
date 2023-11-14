@@ -521,9 +521,10 @@ public int binary_char(LWCHAR c)
 /*
  * Is a given character a "control" character?
  */
-public int control_char(LWCHAR c)
+public lbool control_char(LWCHAR c)
 {
-	c &= 0377;
+	if (!is_ascii_char(c))
+		return FALSE;
 	return (chardef[c] & IS_CONTROL_CHAR);
 }
 
@@ -536,7 +537,7 @@ public constant char * prchar(LWCHAR c)
 	/* {{ This buffer can be overrun if LESSBINFMT is a long string. }} */
 	static char buf[MAX_PRCHAR_LEN+1];
 
-	c &= 0377;
+	c &= 0377; /*{{type-issue}}*/
 	if ((c < 128 || !utf_mode) && !control_char(c))
 		SNPRINTF1(buf, sizeof(buf), "%c", (int) c);
 	else if (c == ESC)
@@ -637,8 +638,7 @@ public lbool is_utf8_well_formed(constant char *ss, int slen)
 			return (FALSE);
 	} else
 	{
-		unsigned char mask;
-		mask = (~((1 << (8-len)) - 1)) & 0xFF;
+		unsigned char mask = (~((((unsigned char)1) << (8-len)) - 1)) & 0xFF;
 		if (s[0] == mask && (s[1] & mask) == 0x80)
 			return (FALSE);
 	}

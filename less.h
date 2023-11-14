@@ -77,8 +77,8 @@
  * These substitutes for C23 stdckdint macros do not set *R on overflow,
  * and they assume A and B are nonnegative.  That is good enough for us.
  */
-#define ckd_add(r, a, b) help_ckd_add(r, a, b, sizeof *(r), signed_expr(*(r)))
-#define ckd_mul(r, a, b) help_ckd_mul(r, a, b, sizeof *(r), signed_expr(*(r)))
+#define ckd_add(r, a, b) help_ckd_add(r, (uintmax)(a), (uintmax)(b), sizeof *(r), signed_expr(*(r)))
+#define ckd_mul(r, a, b) help_ckd_mul(r, (uintmax)(a), (uintmax)(b), sizeof *(r), signed_expr(*(r)))
 /* True if the integer expression E, after promotion, is signed.  */
 #define signed_expr(e) ((TRUE ? 0 : e) - 1 < 0)
 #endif
@@ -144,15 +144,15 @@ void free();
 #define TO_LOWER(c)     towlower(c)
 #else
 #if HAVE_UPPER_LOWER
-#define IS_UPPER(c)     isupper((unsigned char) (c))
-#define IS_LOWER(c)     islower((unsigned char) (c))
-#define TO_UPPER(c)     toupper((unsigned char) (c))
-#define TO_LOWER(c)     tolower((unsigned char) (c))
+#define IS_UPPER(c)     (is_ascii_char(c) && isupper((unsigned char) (c)))
+#define IS_LOWER(c)     (is_ascii_char(c) && islower((unsigned char) (c)))
+#define TO_UPPER(c)     (is_ascii_char(c) ? toupper((unsigned char) (c)) : (c))
+#define TO_LOWER(c)     (is_ascii_char(c) ? tolower((unsigned char) (c)) : (c))
 #else
-#define IS_UPPER(c)     ASCII_IS_UPPER(c)
-#define IS_LOWER(c)     ASCII_IS_LOWER(c)
-#define TO_UPPER(c)     ASCII_TO_UPPER(c)
-#define TO_LOWER(c)     ASCII_TO_LOWER(c)
+#define IS_UPPER(c)     (is_ascii_char(c) && ASCII_IS_UPPER(c))
+#define IS_LOWER(c)     (is_ascii_char(c) && ASCII_IS_LOWER(c))
+#define TO_UPPER(c)     (is_ascii_char(c) ? ASCII_TO_UPPER(c) : (c))
+#define TO_LOWER(c)     (is_ascii_char(c) ? ASCII_TO_LOWER(c) : (c))
 #endif
 #endif
 

@@ -122,7 +122,8 @@ struct filestate {
 	thisfile->hashtbl[h].hnext = (bn);
 
 static struct filestate *thisfile;
-static int ch_ungotchar = -1;
+static unsigned char ch_ungotchar;
+static lbool ch_have_ungotchar = FALSE;
 static int maxbufs = -1;
 
 extern int autobuf;
@@ -260,11 +261,11 @@ static int ch_get(void)
 		 * If we read less than a full block, that's ok.
 		 * We use partial block and pick up the rest next time.
 		 */
-		if (ch_ungotchar != -1)
+		if (ch_have_ungotchar)
 		{
 			bp->data[bp->datasize] = ch_ungotchar;
 			n = 1;
-			ch_ungotchar = -1;
+			ch_have_ungotchar = FALSE;
 		} else if (ch_flags & CH_HELPFILE)
 		{
 			bp->data[bp->datasize] = helpdata[ch_fpos];
@@ -372,9 +373,15 @@ static int ch_get(void)
  */
 public void ch_ungetchar(int c)
 {
-	if (c != -1 && ch_ungotchar != -1)
-		error("ch_ungetchar overrun", NULL_PARG);
-	ch_ungotchar = c;
+	if (c < 0)
+		ch_have_ungotchar = FALSE;
+	else
+	{
+		if (ch_have_ungotchar)
+			error("ch_ungetchar overrun", NULL_PARG);
+		ch_ungotchar = (unsigned char) c;
+		ch_have_ungotchar = TRUE;
+	}
 }
 
 #if LOGFILE

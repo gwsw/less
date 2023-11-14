@@ -200,7 +200,7 @@ static int expand_linebuf(void)
 /*
  * Is a character ASCII?
  */
-public int is_ascii_char(LWCHAR ch)
+public lbool is_ascii_char(LWCHAR ch)
 {
 	return (ch <= 0x7F);
 }
@@ -381,13 +381,13 @@ public void plinestart(POSITION pos)
  * Return the width of the line prefix (status column and line number).
  * {{ Actual line number can be wider than linenum_width. }}
  */
-public size_t line_pfx_width(void)
+public int line_pfx_width(void)
 {
-	size_t width = 0;
+	int width = 0;
 	if (status_col)
-		width += (size_t) status_col_width; /*{{type-issue}}*/
+		width += status_col_width;
 	if (linenums == OPT_ONPLUS)
-		width += (size_t) linenum_width + 1; /*{{type-issue}}*/
+		width += linenum_width + 1;
 	return width;
 }
 

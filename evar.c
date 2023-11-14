@@ -144,14 +144,14 @@ static size_t add_evar(struct xbuffer *xbuf, mutable char *buf, size_t len, size
 	{
 		constant char *repl = find_replace(replaces, evar, &v);
 		if (repl == NULL)
-			xbuf_add_byte(xbuf, evar[v++]);
+			xbuf_add_char(xbuf, evar[v++]);
 		else
 		{
 			size_t r;
 			for (r = 0;  repl[r] != '\0';  r++)
 			{
 				if (repl[r] == '\\') ++r;
-				xbuf_add_byte(xbuf, repl[r]);
+				xbuf_add_char(xbuf, repl[r]);
 			}
 		}
 	}
@@ -186,7 +186,7 @@ public void expand_evars(mutable char *buf, size_t len, struct xbuffer *xbuf)
 			i = add_evar(xbuf, buf, len, e, evar, term);
 		} else
 		{
-			xbuf_add_byte(xbuf, buf[i++]);
+			xbuf_add_char(xbuf, buf[i++]);
 		}
 	}
 }

@@ -82,7 +82,7 @@ public void cvt_text(char *odst, constant char *osrc, int *chpos, size_t *lenp, 
 			{
 				if (ansi_step(pansi, ch) != ANSI_MID)
 					break;
-				ch = *src++;
+				ch = (LWCHAR) *src++; /* {{ would step_char work? }} */
 			}
 			ansi_done(pansi);
 		} else

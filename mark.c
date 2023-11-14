@@ -311,7 +311,7 @@ public POSITION markpos(char c)
  */
 public char posmark(POSITION pos)
 {
-	int i;
+	unsigned char i;
 
 	/* Only user marks */
 	for (i = 0;  i < NUMARKS;  i++)

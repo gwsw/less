@@ -247,7 +247,7 @@ public void lsystem(constant char *cmd, constant char *donemsg)
  * If the mark is on the current screen, or if the mark is ".",
  * the whole current screen is piped.
  */
-public int pipe_mark(int c, constant char *cmd)
+public int pipe_mark(char c, constant char *cmd)
 {
 	POSITION mpos, tpos, bpos;
 

@@ -514,7 +514,7 @@ static char * readfd(FILE *fd)
 		int ch;
 		if ((ch = getc(fd)) == '\n' || ch == EOF)
 			break;
-		xbuf_add_char(&xbuf, ch);
+		xbuf_add_char(&xbuf, (char) ch);
 	}
 	xbuf_add_char(&xbuf, '\0');
 	return (char *) xbuf.data;

@@ -920,8 +920,9 @@ public void dispversion(void)
 /*
  * Return a character to complete a partial command, if possible.
  */
-static LWCHAR getcc_end_command(void)
+static char getcc_end_command(void)
 {
+	int ch;
 	switch (mca)
 	{
 	case A_DIGIT:
@@ -934,7 +935,11 @@ static LWCHAR getcc_end_command(void)
 		return ('\n'); 
 	default:
 		/* Some other incomplete command.  Let user complete it. */
-		return ((ungot == NULL) ? getchr() : 0);
+		if (ungot != NULL)
+			return ('\0');
+		ch = getchr();
+		if (ch < 0) ch = '\0';
+		return (char) ch;
 	}
 }
 
@@ -969,7 +974,7 @@ public void getcc_clear(void)
  */
 static char getccu(void)
 {
-	char c = 0;
+	int c = 0;
 	while (c == 0)
 	{
 		if (ungot == NULL)
@@ -977,6 +982,7 @@ static char getccu(void)
 			/* Normal case: no ungotten chars.
 			 * Get char from the user. */
 			c = getchr();
+			if (c < 0) return ('\0');
 		} else
 		{
 			/* Ungotten chars available:
@@ -998,7 +1004,7 @@ static char getcc_repl(char constant *orig, char constant *repl, char (*gr_getc)
 {
 	char c;
 	char keys[16];
-	int ki = 0;
+	size_t ki = 0;
 
 	c = (*gr_getc)();
 	if (orig == NULL || orig[0] == '\0')
@@ -1033,7 +1039,7 @@ static char getcc_repl(char constant *orig, char constant *repl, char (*gr_getc)
 /*
  * Get command character.
  */
-public LWCHAR getcc(void)
+public char getcc(void)
 {
 	/* Replace kent (keypad Enter) with a newline. */
 	return getcc_repl(kent, "\n", getccu, ungetcc);

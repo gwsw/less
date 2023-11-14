@@ -138,9 +138,9 @@ static lbool is_ucase(constant char *str)
 	{
 		ch = step_charc(&str, +1, str_end);
 		if (IS_UPPER(ch))
-			return (1);
+			return (TRUE);
 	}
-	return (0);
+	return (FALSE);
 }
 
 /*
