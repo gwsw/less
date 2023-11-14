@@ -575,7 +575,7 @@ public POSITION prev_unfiltered(POSITION pos)
 
 static void shift_visible(size_t start_off, size_t end_off, size_t line_len)
 {
-	size_t swidth = (size_t) sc_width - line_pfx_width();
+	size_t swidth = (size_t) (sc_width - line_pfx_width());
 	int new_hshift;
 	if (end_off < swidth) /* whole string is in first screen */
 		new_hshift = 0;
@@ -1209,8 +1209,8 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 	int *chpos;
 	POSITION linepos, oldpos;
 	int skip_bytes = 0;
-	size_t swidth = (size_t) sc_width - line_pfx_width(); /*{{type-issue}}*/
-	size_t sheight = (size_t) sc_height - sindex_from_sline(jump_sline);
+	size_t swidth = (size_t) (sc_width - line_pfx_width()); /*{{type-issue}}*/
+	size_t sheight = (size_t) (sc_height - sindex_from_sline(jump_sline));
 
 	linenum = find_linenum(pos);
 	if (nosearch_headers && linenum <= header_lines)
@@ -1423,7 +1423,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						{
 							size_t end_off = ptr_diff(ep[0], cline);
 							if (end_off >= swidth * sheight / 4) /* heuristic */
-								*plastlinepos = get_lastlinepos(linepos, linepos + chpos[end_off], sheight);
+								*plastlinepos = get_lastlinepos(linepos, linepos + chpos[end_off], (int) sheight);
 						}
 					}
 					free(cline);

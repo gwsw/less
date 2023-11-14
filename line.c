@@ -1329,7 +1329,7 @@ public void null_line(void)
  * lines which are not split for screen width.
  * {{ This is supposed to be more efficient than forw_line(). }}
  */
-public POSITION forw_raw_line_len(POSITION curr_pos, ssize_t read_len, constant char **linep, size_t *line_lenp)
+public POSITION forw_raw_line_len(POSITION curr_pos, size_t read_len, constant char **linep, size_t *line_lenp)
 {
 	size_t n;
 	int c;
@@ -1360,7 +1360,7 @@ public POSITION forw_raw_line_len(POSITION curr_pos, ssize_t read_len, constant 
 			}
 		}
 		linebuf.buf[n++] = (char) c;
-		if (read_len >= 0 && n >= read_len)
+		if (read_len != size_t_null && read_len > 0 && n >= read_len)
 		{
 			new_pos = ch_tell();
 			break;
@@ -1377,7 +1377,7 @@ public POSITION forw_raw_line_len(POSITION curr_pos, ssize_t read_len, constant 
 
 public POSITION forw_raw_line(POSITION curr_pos, constant char **linep, size_t *line_lenp)
 {
-	return forw_raw_line_len(curr_pos, -1, linep, line_lenp);
+	return forw_raw_line_len(curr_pos, size_t_null, linep, line_lenp);
 }
 
 /*

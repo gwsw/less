@@ -228,7 +228,7 @@ public void forw(int n, POSITION pos, int force, int only_last, int nblank)
 
 #if HILITE_SEARCH
 	if (pos != NULL_POSITION && (hilite_search == OPT_ONPLUS || is_filtering() || status_col)) {
-		prep_hilite(pos, pos + 4*size_linebuf, ignore_eoi ? 1 : -1);
+		prep_hilite(pos, pos + (POSITION) (4*size_linebuf), ignore_eoi ? 1 : -1);
 		pos = next_unfiltered(pos);
 	}
 #endif
@@ -401,7 +401,7 @@ public void back(int n, POSITION pos, int force, int only_last)
 	do_repaint = (n > get_back_scroll() || (only_last && n > sc_height-1) || header_lines > 0);
 #if HILITE_SEARCH
 	if (pos != NULL_POSITION && (hilite_search == OPT_ONPLUS || is_filtering() || status_col)) {
-		prep_hilite((pos < 3*size_linebuf) ? 0 : pos - 3*size_linebuf, pos, -1);
+		prep_hilite((pos < 3*size_linebuf) ? 0 : pos - (POSITION) (3*size_linebuf), pos, -1);
 	}
 #endif
 	while (--n >= 0)

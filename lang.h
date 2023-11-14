@@ -30,6 +30,8 @@
 
 #define ptr_diff(p1,p2)  ((size_t) ((p1)-(p2)))
 
+#define size_t_null      ((size_t)-1)
+
 #ifndef NULL
 #define NULL    0
 #endif

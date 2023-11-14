@@ -133,13 +133,13 @@ static long lstrtol(char *s, char **pend, int radix)
 	return (n);
 }
 
-static void add_metachar(int ch)
+static void add_metachar(char ch)
 {
 	if (num_metachars+1 >= size_metachars)
 	{
 		char *p;
 		size_metachars = (size_metachars > 0) ? size_metachars*2 : 16;
-		p = (char *) malloc(size_metachars);
+		p = (char *) malloc((size_t) size_metachars);
 		if (p == NULL)
 			pr_error("Cannot allocate memory");
 

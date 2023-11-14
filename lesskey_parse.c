@@ -132,7 +132,7 @@ static void parse_error(constant char *fmt, constant char *arg1)
 	char buf[1024];
 	int n = SNPRINTF2(buf, sizeof(buf), "%s: line %d: ", lesskey_file, linenum);
 	if (n >= 0 && n < sizeof(buf))
-		SNPRINTF1(buf+n, sizeof(buf)-n, fmt, arg1);
+		SNPRINTF1(buf+n, sizeof(buf)-(size_t)n, fmt, arg1);
 	++errors;
 	lesskey_parse_error(buf);
 }
@@ -159,7 +159,7 @@ static void init_tables(struct lesskey_tables *tables)
 
 #define CHAR_STRING_LEN 8
 
-static constant char * char_string(char *buf, int ch, int lit)
+static constant char * char_string(char *buf, char ch, int lit)
 {
 	if (lit || (ch >= 0x20 && ch < 0x7f))
 	{
@@ -209,7 +209,7 @@ static constant char * tstr(char **pp, int xlate)
 			ch = 0;
 			i = 0;
 			do
-				ch = 8*ch + (*p - '0');
+				ch = (char) (8*ch + (*p - '0'));
 			while (*++p >= '0' && *p <= '7' && ++i < 3);
 			*pp = p;
 			if (xlate && ch == CONTROL('K'))
@@ -356,7 +356,7 @@ static void erase_cmd_char(struct lesskey_tables *tables)
 static void add_cmd_str(constant char *s, struct lesskey_tables *tables)
 {
 	for ( ;  *s != '\0';  s++)
-		add_cmd_char(*s, tables);
+		add_cmd_char((unsigned char) *s, tables);
 }
 
 /*

@@ -161,7 +161,7 @@ static lbool help_fixup(void *r, uintmax val, int rsize, int rsigned)
 			*pr = (unsigned long) val;
 #ifdef ULLONG_MAX
 		} else if (rsize == sizeof (unsigned long long)) {
-			long long *pr = r;
+			unsigned long long *pr = r;
 			if (ULLONG_MAX < val)
 				return TRUE;
 			*pr = (unsigned long long) val;
