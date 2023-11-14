@@ -45,9 +45,9 @@ extern int show_attn;
 static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp_pos, POSITION eol_pos)
 {
 	int hl_before = (chop_line() && disp_pos != NULL_POSITION) ?
-	    is_hilited_attr(base_pos, disp_pos, TRUE, NULL) : 0;
+	    is_hilited_attr(base_pos, disp_pos, TRUE, NULL) : FALSE;
 	int hl_after = (chop_line()) ?
-	    is_hilited_attr(edisp_pos, eol_pos, TRUE, NULL) : 0;
+	    is_hilited_attr(edisp_pos, eol_pos, TRUE, NULL) : FALSE;
 	int attr;
 	char ch;
 

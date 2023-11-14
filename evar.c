@@ -25,7 +25,7 @@ struct replace {
  */
 static size_t skipsl(constant char *buf, size_t len, size_t e)
 {
-	int esc = 0;
+	int esc = FALSE;
 	while (e < len && buf[e] != '\0' && (esc || (buf[e] != '/' && buf[e] != '}')))
 	{
 		esc = (!esc && buf[e] == '\\');

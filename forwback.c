@@ -69,14 +69,14 @@ public int eof_displayed(void)
 	POSITION pos;
 
 	if (ignore_eoi)
-		return (0);
+		return (FALSE);
 
 	if (ch_length() == NULL_POSITION)
 		/*
 		 * If the file length is not known,
 		 * we can't possibly be displaying EOF.
 		 */
-		return (0);
+		return (FALSE);
 
 	/*
 	 * If the bottom line is empty, we are at EOF.
@@ -96,7 +96,7 @@ public int entire_file_displayed(void)
 
 	/* Make sure last line of file is displayed. */
 	if (!eof_displayed())
-		return (0);
+		return (FALSE);
 
 	/* Make sure first line of file is displayed. */
 	pos = position(0);
@@ -113,7 +113,7 @@ public void squish_check(void)
 {
 	if (!squished)
 		return;
-	squished = 0;
+	squished = FALSE;
 	repaint();
 }
 

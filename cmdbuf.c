@@ -38,7 +38,7 @@ static int cmd_complete(int action);
 /*
  * These variables are statics used by cmd_complete.
  */
-static int in_completion = 0;
+static int in_completion = FALSE;
 static char *tk_text;
 static char *tk_original;
 static constant char *tk_ipoint;
@@ -771,8 +771,8 @@ public void cmd_accept(void)
 	 */
 	if (curr_mlist == NULL || curr_mlist == ml_examine)
 		return;
-	cmd_addhist(curr_mlist, cmdbuf, 1);
-	curr_mlist->modified = 1;
+	cmd_addhist(curr_mlist, cmdbuf, TRUE);
+	curr_mlist->modified = TRUE;
 #endif
 }
 
@@ -927,8 +927,8 @@ static char * delimit_word(void)
 	char *word;
 #if SPACES_IN_FILENAMES
 	char *p;
-	int delim_quoted = 0;
-	int meta_quoted = 0;
+	int delim_quoted = FALSE;
+	int meta_quoted = FALSE;
 	constant char *esc = get_meta_escape();
 	size_t esclen = strlen(esc);
 #endif
@@ -981,20 +981,20 @@ static char * delimit_word(void)
 	{
 		if (meta_quoted)
 		{
-			meta_quoted = 0;
+			meta_quoted = FALSE;
 		} else if (esclen > 0 && p + esclen < cp &&
 		           strncmp(p, esc, esclen) == 0)
 		{
-			meta_quoted = 1;
+			meta_quoted = TRUE;
 			p += esclen - 1;
 		} else if (delim_quoted)
 		{
 			if (*p == closequote)
-				delim_quoted = 0;
+				delim_quoted = FALSE;
 		} else /* (!delim_quoted) */
 		{
 			if (*p == openquote)
-				delim_quoted = 1;
+				delim_quoted = TRUE;
 			else if (*p == ' ')
 				word = p+1;
 		}
@@ -1117,7 +1117,7 @@ static int cmd_complete(int action)
 			/*
 			 * Use the first filename in the list.
 			 */
-			in_completion = 1;
+			in_completion = TRUE;
 			init_textlist(&tk_tlist, tk_text);
 			tk_trial = next_compl(action, (char*)NULL);
 		}
@@ -1142,7 +1142,7 @@ static int cmd_complete(int action)
 		 * There are no more trial completions.
 		 * Insert the original (uncompleted) filename.
 		 */
-		in_completion = 0;
+		in_completion = FALSE;
 		if (cmd_istr(tk_original) != CC_OK)
 			goto fail;
 	} else
@@ -1170,7 +1170,7 @@ static int cmd_complete(int action)
 	return (CC_OK);
 	
 fail:
-	in_completion = 0;
+	in_completion = FALSE;
 	bell();
 	return (CC_OK);
 }
@@ -1390,7 +1390,7 @@ static char * histfile_name(int must_exist)
 	if (!must_exist)
 	{
 	 	/* If we're writing the file and the file already exists, use it. */
-		wname = histfile_find(1);
+		wname = histfile_find(TRUE);
 	}
 	if (wname == NULL)
 		wname = histfile_find(must_exist);
@@ -1408,7 +1408,7 @@ static void read_cmdhist2(void (*action)(void*,struct mlist*,constant char*), vo
 	FILE *f;
 	int *skip = NULL;
 
-	filename = histfile_name(1);
+	filename = histfile_name(TRUE);
 	if (filename == NULL)
 		return;
 	f = fopen(filename, "r");
@@ -1516,9 +1516,9 @@ static void write_mlist(struct mlist *ml, FILE *f)
 		if (!ml->modified)
 			continue;
 		fprintf(f, "\"%s\n", ml->string);
-		ml->modified = 0;
+		ml->modified = FALSE;
 	}
-	ml->modified = 0; /* entire mlist is now unmodified */
+	ml->modified = FALSE; /* entire mlist is now unmodified */
 }
 
 /*
@@ -1589,13 +1589,13 @@ static void copy_hist(void *uparam, struct mlist *ml, constant char *string)
 static void make_file_private(FILE *f)
 {
 #if HAVE_FCHMOD
-	int do_chmod = 1;
+	int do_chmod = TRUE;
 #if HAVE_STAT
 	struct stat statbuf;
 	int r = fstat(fileno(f), &statbuf);
 	if (r < 0 || !S_ISREG(statbuf.st_mode))
 		/* Don't chmod if not a regular file. */
-		do_chmod = 0;
+		do_chmod = FALSE;
 #endif
 	if (do_chmod)
 		fchmod(fileno(f), 0600);
@@ -1609,14 +1609,14 @@ static void make_file_private(FILE *f)
 static int histfile_modified(void)
 {
 	if (mlist_search.modified)
-		return 1;
+		return TRUE;
 #if SHELL_ESCAPE || PIPEC
 	if (mlist_shell.modified)
-		return 1;
+		return TRUE;
 #endif
 	if (marks_modified)
-		return 1;
-	return 0;
+		return TRUE;
+	return FALSE;
 }
 #endif
 

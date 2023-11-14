@@ -189,7 +189,7 @@ start:
 		/*
 		 * We jumped here from intread.
 		 */
-		reading = 0;
+		reading = FALSE;
 #if HAVE_SIGPROCMASK
 		{
 		  sigset_t mask;
@@ -214,7 +214,7 @@ start:
 	}
 
 	flush();
-	reading = 1;
+	reading = TRUE;
 #if MSDOS_COMPILER==DJGPPC
 	if (isatty(fd))
 	{
@@ -231,7 +231,7 @@ start:
 		FD_SET(fd, &readfds);
 		if (select(fd+1, &readfds, 0, 0, 0) == -1)
 		{
-			reading = 0;
+			reading = FALSE;
 			return (READ_ERR);
 		}
 	}
@@ -244,7 +244,7 @@ start:
 		{
 			if (ret == READ_INTR)
 				sigs |= S_INTERRUPT;
-			reading = 0;
+			reading = FALSE;
 			return (ret);
 		}
 	}
@@ -258,7 +258,7 @@ start:
 		if (c == intr_char)
 		{
 			sigs |= S_INTERRUPT;
-			reading = 0;
+			reading = FALSE;
 			return (READ_INTR);
 		}
 		WIN32ungetch(c);
@@ -266,7 +266,7 @@ start:
 #endif
 #endif
 	n = read(fd, buf, len);
-	reading = 0;
+	reading = FALSE;
 #if 1
 	/*
 	 * This is a kludge to workaround a problem on some systems

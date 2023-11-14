@@ -63,8 +63,8 @@ public void init_textlist(struct textlist *tlist, mutable char *str)
 {
 	char *s;
 #if SPACES_IN_FILENAMES
-	int meta_quoted = 0;
-	int delim_quoted = 0;
+	int meta_quoted = FALSE;
+	int delim_quoted = FALSE;
 	constant char *esc = get_meta_escape();
 	size_t esclen = strlen(esc);
 #endif

@@ -143,8 +143,8 @@ public char * shell_quote(constant char *s)
 	size_t len;
 	constant char *esc = get_meta_escape();
 	size_t esclen = strlen(esc);
-	int use_quotes = 0;
-	int have_quotes = 0;
+	int use_quotes = FALSE;
+	int have_quotes = FALSE;
 
 	/*
 	 * Determine how big a string we need to allocate.
@@ -154,7 +154,7 @@ public char * shell_quote(constant char *s)
 	{
 		len++;
 		if (*p == openquote || *p == closequote)
-			have_quotes = 1;
+			have_quotes = TRUE;
 		if (metachar(*p))
 		{
 			if (esclen == 0)
@@ -163,7 +163,7 @@ public char * shell_quote(constant char *s)
 				 * We've got a metachar, but this shell 
 				 * doesn't support escape chars.  Use quotes.
 				 */
-				use_quotes = 1;
+				use_quotes = TRUE;
 			} else
 			{
 				/*

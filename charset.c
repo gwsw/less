@@ -850,7 +850,7 @@ static int is_in_table(LWCHAR ch, struct wchar_range_table *table)
 
 	/* Binary search in the table. */
 	if (table->table == NULL || table->count == 0 || ch < table->table[0].first)
-		return 0;
+		return FALSE;
 	lo = 0;
 	hi = table->count - 1;
 	while (lo <= hi)
@@ -861,9 +861,9 @@ static int is_in_table(LWCHAR ch, struct wchar_range_table *table)
 		else if (ch < table->table[mid].first)
 			hi = mid - 1;
 		else
-			return 1;
+			return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 
 /*
@@ -872,7 +872,7 @@ static int is_in_table(LWCHAR ch, struct wchar_range_table *table)
  */
 public int is_composing_char(LWCHAR ch)
 {
-	if (is_in_table(ch, &user_prt_table)) return 0;
+	if (is_in_table(ch, &user_prt_table)) return FALSE;
 	return is_in_table(ch, &user_compose_table) ||
 	       is_in_table(ch, &compose_table) ||
 	       (bs_mode != BS_CONTROL && is_in_table(ch, &fmt_table));
@@ -883,7 +883,7 @@ public int is_composing_char(LWCHAR ch)
  */
 public int is_ubin_char(LWCHAR ch)
 {
-	if (is_in_table(ch, &user_prt_table)) return 0;
+	if (is_in_table(ch, &user_prt_table)) return FALSE;
 	return is_in_table(ch, &user_ubin_table) ||
 	       is_in_table(ch, &ubin_table) ||
 	       (bs_mode == BS_CONTROL && is_in_table(ch, &fmt_table));
@@ -911,8 +911,8 @@ public int is_combining_char(LWCHAR ch1, LWCHAR ch2)
 	{
 		if (ch1 == comb_table[i].first &&
 		    ch2 == comb_table[i].last)
-			return 1;
+			return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 

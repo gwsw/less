@@ -809,8 +809,8 @@ public struct loption * findopt_name(constant char **p_optname, constant char **
 	struct loption *maxo = NULL;
 	struct optname *maxoname = NULL;
 	size_t maxlen = 0;
-	int ambig = 0;
-	int exact = 0;
+	int ambig = FALSE;
+	int exact = FALSE;
 
 	/*
 	 * Check all options.
@@ -843,7 +843,7 @@ public struct loption * findopt_name(constant char **p_optname, constant char **
 					 * and now there's another one that
 					 * matches the same length.
 					 */
-					ambig = 1;
+					ambig = TRUE;
 				else if (len > maxlen)
 				{
 					/*
@@ -853,7 +853,7 @@ public struct loption * findopt_name(constant char **p_optname, constant char **
 					maxo = o;
 					maxoname = oname;
 					maxlen = len;
-					ambig = 0;
+					ambig = FALSE;
 					exact = (len == (int)strlen(oname->oname));
 				}
 				if (!(o->otype & TRIPLE))
