@@ -138,10 +138,10 @@ void free();
 #undef IS_DIGIT
 
 #if HAVE_WCTYPE
-#define IS_UPPER(c)     iswupper(c)
-#define IS_LOWER(c)     iswlower(c)
-#define TO_UPPER(c)     towupper(c)
-#define TO_LOWER(c)     towlower(c)
+#define IS_UPPER(c)     iswupper((wint_t) (c))
+#define IS_LOWER(c)     iswlower((wint_t) (c))
+#define TO_UPPER(c)     towupper((wint_t) (c))
+#define TO_LOWER(c)     towlower((wint_t) (c))
 #else
 #if HAVE_UPPER_LOWER
 #define IS_UPPER(c)     (is_ascii_char(c) && isupper((unsigned char) (c)))

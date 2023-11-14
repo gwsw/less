@@ -488,7 +488,7 @@ type cfuncname(constant char *buf, constant char **ebuf, int radix) \
 		v = v || ckd_add(&val, val, digit); \
 	} \
 	if (ebuf != NULL) *ebuf = buf; \
-	return v ? -1 : val; \
+	return v ? (type)(-1) : val; \
 } \
 type funcname(char *buf, char **ebuf, int radix) \
 { \
@@ -563,7 +563,7 @@ public int less_printf(constant char *fmt, PARG *parg)
 				parg++;
 				break;
 			case 'c':
-				s = prchar(parg->p_char);
+				s = prchar((LWCHAR) parg->p_char);
 				parg++;
 				while (*s != '\0')
 				{
@@ -595,7 +595,7 @@ public void get_return(void)
 #else
 	c = getchr();
 	if (c != '\n' && c != '\r' && c != ' ' && c != READ_INTR)
-		ungetcc(c);
+		ungetcc((char) c);
 #endif
 }
 
@@ -626,7 +626,7 @@ public void error(constant char *fmt, PARG *parg)
 	col += less_printf(fmt, parg);
 	putstr(return_to_continue);
 	at_exit();
-	col += sizeof(return_to_continue) + so_e_width;
+	col += (int) sizeof(return_to_continue) + so_e_width;
 
 	get_return();
 	lower_left();
@@ -674,7 +674,7 @@ public void ixerror(constant char *fmt, PARG *parg)
 		ierror(fmt, parg);
 	else
 		ierror_suffix(fmt, parg,
-			"... (", prchar(intr_char), " or interrupt to abort)");
+			"... (", prchar((LWCHAR) intr_char), " or interrupt to abort)");
 }
 
 /*

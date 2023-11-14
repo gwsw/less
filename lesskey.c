@@ -260,7 +260,7 @@ static void fputbytes(FILE *fd, constant char *buf, size_t len)
  */
 static void fputint(FILE *fd, size_t val)
 {
-	char c;
+	char c1, c2;
 
 	if (val >= KRADIX*KRADIX)
 	{
@@ -268,10 +268,17 @@ static void fputint(FILE *fd, size_t val)
 			(long) val, (long) (KRADIX*KRADIX));
 		exit(1);
 	}
-	c = val % KRADIX;
-	fwrite(&c, sizeof(char), 1, fd);
-	c = val / KRADIX;
-	fwrite(&c, sizeof(char), 1, fd);
+	c1 = (char) (val % KRADIX);
+	val /= KRADIX;
+	c2 = (char) (val % KRADIX);
+	val /= KRADIX;
+	if (val != 0) {
+		fprintf(stderr, "error: %ld exceeds max integer size (%ld)\n",
+			(long) val, (long) (KRADIX*KRADIX));
+		exit(1);
+	}
+	fwrite(&c1, sizeof(char), 1, fd);
+	fwrite(&c2, sizeof(char), 1, fd);
 }
 
 int main(int argc, constant char *argv[])

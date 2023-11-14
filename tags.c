@@ -69,7 +69,7 @@ struct tag {
 	char *tag_file;         /* Source file containing the tag */
 	LINENUM tag_linenum;    /* Appropriate line number in source file */
 	char *tag_pattern;      /* Pattern used to find the tag */
-	char tag_endline;       /* True if the pattern includes '$' */
+	lbool tag_endline;      /* True if the pattern includes '$' */
 };
 #define TAG_END  ((struct tag *) &taglist)
 static struct taglist taglist = { TAG_END, TAG_END };
@@ -111,7 +111,7 @@ public void cleantags(void)
 /*
  * Create a new tag entry.
  */
-static struct tag * maketagent(constant char *name, constant char *file, LINENUM linenum, constant char *pattern, int endline)
+static struct tag * maketagent(constant char *name, constant char *file, LINENUM linenum, constant char *pattern, lbool endline)
 {
 	struct tag *tp;
 
@@ -259,7 +259,7 @@ static enum tag_result findctag(constant char *tag)
 	LINENUM taglinenum;
 	char *tagfile;
 	char *tagpattern;
-	int tagendline;
+	lbool tagendline;
 	int search_char;
 	lbool err;
 	char tline[TAGLINE_SIZE];
@@ -320,7 +320,7 @@ static enum tag_result findctag(constant char *tag)
 		/*
 		 * First see if it is a line number. 
 		 */
-		tagendline = 0;
+		tagendline = FALSE;
 		taglinenum = getnum(&p, 0, &err);
 		if (err)
 		{
@@ -583,7 +583,7 @@ static enum tag_result findgtag(constant char *tag, int type)
 			}
 
 			/* Make new entry and add to list. */
-			tp = maketagent(name, file, (LINENUM) atoi(line), NULL, 0);
+			tp = maketagent(name, file, (LINENUM) atoi(line), NULL, FALSE);
 			TAG_INS(tp);
 			total++;
 		}

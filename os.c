@@ -127,11 +127,11 @@ static int check_poll(int fd, int tty)
 	{
 		if (poller[1].revents & POLLIN) 
 		{
-			LWCHAR ch = getchr();
-			if (ch == intr_char)
+			int ch = getchr();
+			if (ch < 0 || ch == intr_char)
 				/* Break out of "waiting for data". */
 				return (READ_INTR);
-			ungetcc_back(ch);
+			ungetcc_back((char) ch);
 		}
 	}
 	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
@@ -417,7 +417,7 @@ public uintmax muldiv(uintmax val, uintmax num, uintmax den)
  */
 public int percentage(POSITION num, POSITION den)
 {
-	return (int) muldiv(num,  (POSITION) 100, den);
+	return (int) muldiv(num, 100, den);
 }
 
 /*
@@ -434,7 +434,7 @@ public POSITION percent_pos(POSITION pos, int percent, long fraction)
 	 */
 	POSITION pctden = (percent * NUM_FRAC_DENOM) + fraction;
 
-	return (POSITION) muldiv(pos, pctden, 100 * (POSITION) NUM_FRAC_DENOM);
+	return (POSITION) muldiv(pos, pctden, 100 * NUM_FRAC_DENOM);
 }
 
 #if !HAVE_STRCHR

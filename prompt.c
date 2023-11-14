@@ -163,7 +163,7 @@ static POSITION curr_byte(int where)
  * question mark followed by a single letter.
  * Here we decode that letter and return the appropriate boolean value.
  */
-static int cond(char c, int where)
+static lbool cond(char c, int where)
 {
 	POSITION len;
 
@@ -183,7 +183,7 @@ static int cond(char c, int where)
 	case 'l': /* Line number known? */
 	case 'd': /* Same as l */
 		if (!linenums)
-			return 0;
+			return FALSE;
 		return (currline(where) != 0);
 	case 'L': /* Final line number known? */
 	case 'D': /* Final page number known? */
@@ -196,13 +196,12 @@ static int cond(char c, int where)
 #endif
 	case 'n': /* First prompt in a new file? */
 #if TAGS
-		return (ntags() ? 1 : new_file ? 1 : 0);
+		return (ntags() ? TRUE : new_file ? TRUE : FALSE);
 #else
-		return (new_file ? 1 : 0);
+		return (new_file ? TRUE : FALSE);
 #endif
 	case 'p': /* Percent into file (bytes) known? */
-		return (curr_byte(where) != NULL_POSITION && 
-				ch_length() > 0);
+		return (curr_byte(where) != NULL_POSITION && ch_length() > 0);
 	case 'P': /* Percent into file (lines) known? */
 		return (currline(where) != 0 &&
 				(len = ch_length()) > 0 &&
@@ -213,11 +212,11 @@ static int cond(char c, int where)
 	case 'x': /* Is there a "next" file? */
 #if TAGS
 		if (ntags())
-			return (0);
+			return (FALSE);
 #endif
 		return (next_ifile(curr_ifile) != NULL_IFILE);
 	}
-	return (0);
+	return (FALSE);
 }
 
 /*

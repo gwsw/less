@@ -132,14 +132,14 @@ static lbool help_fixup(void *r, uintmax val, int rsize, int rsigned)
 			long long *pr = r;
 			if (LLONG_MAX < val)
 				return TRUE;
-			*pr = val;
+			*pr = (long long) val;
 #endif
 #ifdef INTMAX_MAX
 		} else if (rsize == sizeof (intmax_t)) {
 			intmax_t *pr = r;
 			if (INTMAX_MAX < val)
 				return TRUE;
-			*pr = val;
+			*pr = (intmax_t) val;
 #endif
 		} else /* rsize == sizeof (long) */
 		{
@@ -164,12 +164,12 @@ static lbool help_fixup(void *r, uintmax val, int rsize, int rsigned)
 			long long *pr = r;
 			if (ULLONG_MAX < val)
 				return TRUE;
-			*pr = val;
+			*pr = (unsigned long long) val;
 #endif
 		} else /* rsize == sizeof (uintmax) */
 		{
 			uintmax *pr = r;
-			*pr = val;
+			*pr = (uintmax) val;
 		}
 	}
 	return FALSE;
