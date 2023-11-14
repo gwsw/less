@@ -16,7 +16,7 @@
 #include "less.h"
 #include "position.h"
 
-public int squished;
+public lbool squished;
 public int no_back_scroll = 0;
 public int forw_prompt;
 public int first_time = 1;
@@ -27,7 +27,7 @@ extern int quiet;
 extern int sc_width, sc_height;
 extern int hshift;
 extern int auto_wrap;
-extern int plusoption;
+extern lbool plusoption;
 extern int forw_scroll;
 extern int back_scroll;
 extern int ignore_eoi;
@@ -64,7 +64,7 @@ public void eof_bell(void)
 /*
  * Check to see if the end of file is currently displayed.
  */
-public int eof_displayed(void)
+public lbool eof_displayed(void)
 {
 	POSITION pos;
 
@@ -90,7 +90,7 @@ public int eof_displayed(void)
 /*
  * Check to see if the entire file is currently displayed.
  */
-public int entire_file_displayed(void)
+public lbool entire_file_displayed(void)
 {
 	POSITION pos;
 
@@ -157,7 +157,7 @@ public int overlay_header(void)
 {
 	POSITION pos = ch_zero(); /* header lines are at beginning of file */
 	int ln;
-	int moved = FALSE;
+	lbool moved = FALSE;
 
 	if (header_lines > 0)
 	{
@@ -336,7 +336,7 @@ public void forw(int n, POSITION pos, int force, int only_last, int nblank)
 #endif
 		    !plusoption)
 		{
-			squished = 1;
+			squished = TRUE;
 			continue;
 		}
 		put_line();

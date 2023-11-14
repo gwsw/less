@@ -22,7 +22,7 @@
 
 public int fd0 = 0;
 
-extern int new_file;
+extern lbool new_file;
 extern char *every_first_cmd;
 extern int force_open;
 extern int is_tty;
@@ -63,8 +63,8 @@ public void init_textlist(struct textlist *tlist, mutable char *str)
 {
 	char *s;
 #if SPACES_IN_FILENAMES
-	int meta_quoted = FALSE;
-	int delim_quoted = FALSE;
+	lbool meta_quoted = FALSE;
+	lbool delim_quoted = FALSE;
 	constant char *esc = get_meta_escape();
 	size_t esclen = strlen(esc);
 #endif
@@ -173,7 +173,7 @@ static void modeline_option(constant char *str, size_t opt_len)
  */
 static size_t modeline_option_len(constant char *str)
 {
-	int esc = FALSE;
+	lbool esc = FALSE;
 	constant char *s;
 	for (s = str;  *s != '\0';  s++)
 	{

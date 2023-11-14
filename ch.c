@@ -128,7 +128,7 @@ static int maxbufs = -1;
 extern int autobuf;
 extern int sigs;
 extern int follow_mode;
-extern int waiting_for_data;
+extern lbool waiting_for_data;
 extern constant char helpdata[];
 extern constant int size_helpdata;
 extern IFILE curr_ifile;
@@ -155,7 +155,7 @@ static int ch_get(void)
 	struct buf *bp;
 	struct bufnode *bn;
 	ssize_t n;
-	int read_again;
+	lbool read_again;
 	int h;
 	POSITION pos;
 	POSITION len;
@@ -384,7 +384,7 @@ public void ch_ungetchar(int c)
  */
 public void end_logfile(void)
 {
-	static int tried = FALSE;
+	static lbool tried = FALSE;
 
 	if (logfile < 0)
 		return;
@@ -411,7 +411,7 @@ public void sync_logfile(void)
 {
 	struct buf *bp;
 	struct bufnode *bn;
-	int warned = FALSE;
+	lbool warned = FALSE;
 	BLOCKNUM block;
 	BLOCKNUM nblocks;
 
@@ -420,7 +420,7 @@ public void sync_logfile(void)
 	nblocks = (ch_fpos + LBUFSIZE - 1) / LBUFSIZE;
 	for (block = 0;  block < nblocks;  block++)
 	{
-		int wrote = FALSE;
+		lbool wrote = FALSE;
 		FOR_BUFS(bn)
 		{
 			bp = bufnode_buf(bn);
@@ -445,7 +445,7 @@ public void sync_logfile(void)
 /*
  * Determine if a specific block is currently in one of the buffers.
  */
-static int buffered(BLOCKNUM block)
+static lbool buffered(BLOCKNUM block)
 {
 	struct buf *bp;
 	struct bufnode *bn;
@@ -869,7 +869,7 @@ public void ch_init(int f, int flags)
  */
 public void ch_close(void)
 {
-	int keepstate = FALSE;
+	lbool keepstate = FALSE;
 
 	if (thisfile == NULL)
 		return;

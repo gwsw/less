@@ -479,13 +479,13 @@ TYPE_TO_A_FUNC(inttoa, int)
 type cfuncname(constant char *buf, constant char **ebuf, int radix) \
 { \
 	type val = 0; \
-	int v = 0; \
+	lbool v = 0; \
 	for (;; buf++) { \
 		char c = *buf; \
 		int digit = (c >= '0' && c <= '9') ? c - '0' : (c >= 'a' && c <= 'f') ? c - 'a' + 10 : (c >= 'A' && c <= 'F') ? c - 'A' + 10 : -1; \
 		if (digit < 0 || digit >= radix) break; \
-		v |= ckd_mul(&val, val, radix); \
-		v |= ckd_add(&val, val, digit); \
+		v = v || ckd_mul(&val, val, radix); \
+		v = v || ckd_add(&val, val, digit); \
 	} \
 	if (ebuf != NULL) *ebuf = buf; \
 	return v ? -1 : val; \

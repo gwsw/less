@@ -116,7 +116,7 @@ public constant char * xbuf_char_data(constant struct xbuffer *xbuf)
  * Otherwise, possibly set *R to an indeterminate value and return TRUE.
  * R has size RSIZE, and is signed if and only if RSIGNED is nonzero.
  */
-static int help_fixup(void *r, uintmax val, int rsize, int rsigned)
+static lbool help_fixup(void *r, uintmax val, int rsize, int rsigned)
 {
 	if (rsigned)
 	{
@@ -174,19 +174,21 @@ static int help_fixup(void *r, uintmax val, int rsize, int rsigned)
 	}
 	return FALSE;
 }
+
 /*
  * If *R can represent the mathematical sum of A and B, store the sum
  * and return FALSE.  Otherwise, possibly set *R to an indeterminate
  * value and return TRUE.  R has size RSIZE, and is signed if and only
  * if RSIGNED is nonzero.
  */
-public int help_ckd_add(void *r, uintmax a, uintmax b, int rsize, int rsigned)
+public lbool help_ckd_add(void *r, uintmax a, uintmax b, int rsize, int rsigned)
 {
 	uintmax sum = a + b;
 	return sum < a || help_fixup(r, sum, rsize, rsigned);
 }
+
 /* Likewise, but for the product of A and B.  */
-public int help_ckd_mul(void *r, uintmax a, uintmax b, int rsize, int rsigned)
+public lbool help_ckd_mul(void *r, uintmax a, uintmax b, int rsize, int rsigned)
 {
 	uintmax product = a * b;
 	return ((b != 0 && a != product / b)

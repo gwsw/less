@@ -43,7 +43,7 @@ extern int header_cols;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern size_t size_linebuf;
-extern int squished;
+extern lbool squished;
 extern int can_goto_line;
 static int hide_hilite;
 static POSITION prep_startpos;
@@ -113,7 +113,7 @@ struct pattern_info {
 	PATTERN_TYPE compiled;
 	char* text;
 	int search_type;
-	int is_ucase_pattern;
+	lbool is_ucase_pattern;
 	struct pattern_info *next;
 };
 
@@ -129,7 +129,7 @@ public int is_caseless;
 /*
  * Are there any uppercase letters in this string?
  */
-static int is_ucase(constant char *str)
+static lbool is_ucase(constant char *str)
 {
 	constant char *str_end = str + strlen(str);
 	LWCHAR ch;
@@ -513,7 +513,7 @@ static int pos_in_header(POSITION pos)
 /* 
  * Is a line "filtered" -- that is, should it be hidden?
  */
-public int is_filtered(POSITION pos)
+public lbool is_filtered(POSITION pos)
 {
 	struct hilite_node *n;
 

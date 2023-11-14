@@ -21,7 +21,7 @@
 #include "option.h"
 
 static struct loption *pendopt;
-public int plusoption = FALSE;
+public lbool plusoption = FALSE;
 
 static constant char *optstring(constant char *s, char **p_str, constant char *printopt, constant char *validchars);
 static int flip_triple(int val, int lc);
@@ -67,9 +67,9 @@ public void scan_option(constant char *s)
 	constant char *optname;
 	constant char *printopt;
 	char *str;
-	int set_default;
+	lbool set_default;
 	int lc;
-	int err;
+	lbool ambig;
 	PARG parg;
 
 	if (s == NULL)
@@ -93,7 +93,7 @@ public void scan_option(constant char *s)
 				break;
 			case NUMBER:
 				printopt = opt_desc(pendopt);
-				*(pendopt->ovar) = getnumc(&s, printopt, (int*)NULL);
+				*(pendopt->ovar) = getnumc(&s, printopt, NULL);
 				break;
 			}
 		}
@@ -178,7 +178,7 @@ public void scan_option(constant char *s)
 		 * Not a special case.
 		 * Look up the option letter in the option table.
 		 */
-		err = 0;
+		ambig = FALSE;
 		if (optname == NULL)
 		{
 			printopt = propt(optc);
@@ -188,7 +188,7 @@ public void scan_option(constant char *s)
 		{
 			printopt = optname;
 			lc = ASCII_IS_LOWER(optname[0]);
-			o = findopt_name(&optname, NULL, &err);
+			o = findopt_name(&optname, NULL, &ambig);
 			s = optname;
 			optname = NULL;
 			if (*s == '\0' || *s == ' ')
@@ -224,7 +224,7 @@ public void scan_option(constant char *s)
 		if (o == NULL)
 		{
 			parg.p_string = printopt;
-			if (err == OPT_AMBIG)
+			if (ambig)
 				error("%s is an ambiguous abbreviation (\"less --help\" for help)",
 					&parg);
 			else
@@ -282,7 +282,7 @@ public void scan_option(constant char *s)
 			}
 			if (o->otype & UNSUPPORTED)
 				break;
-			*(o->ovar) = getnumc(&s, printopt, (int*)NULL);
+			*(o->ovar) = getnumc(&s, printopt, NULL);
 			break;
 		}
 		/*
@@ -308,7 +308,7 @@ public void toggle_option(struct loption *o, int lower, constant char *s, int ho
 {
 	int num;
 	int no_prompt;
-	int err;
+	lbool err;
 	PARG parg;
 
 	no_prompt = (how_toggle & OPT_NO_PROMPT);
@@ -633,7 +633,7 @@ static constant char * optstring(constant char *s, char **p_str, constant char *
 
 /*
  */
-static int num_error(constant char *printopt, int *errp, int overflow)
+static int num_error(constant char *printopt, lbool *errp, lbool overflow)
 {
 	PARG parg;
 
@@ -658,11 +658,11 @@ static int num_error(constant char *printopt, int *errp, int overflow)
  * Like atoi(), but takes a pointer to a char *, and updates
  * the char * to point after the translated number.
  */
-public int getnumc(constant char **sp, constant char *printopt, int *errp)
+public int getnumc(constant char **sp, constant char *printopt, lbool *errp)
 {
 	constant char *s = *sp;
 	int n;
-	int neg;
+	lbool neg;
 
 	s = skipspc(s);
 	neg = FALSE;
@@ -684,7 +684,7 @@ public int getnumc(constant char **sp, constant char *printopt, int *errp)
 	return (n);
 }
 
-public int getnum(char **sp, constant char *printopt, int *errp)
+public int getnum(char **sp, constant char *printopt, lbool *errp)
 {
 	constant char *cs = *sp;
 	int r = getnumc(&cs, printopt, errp);
@@ -698,7 +698,7 @@ public int getnum(char **sp, constant char *printopt, int *errp)
  * The value of the fraction is returned as parts per NUM_FRAC_DENOM.
  * That is, if "n" is returned, the fraction intended is n/NUM_FRAC_DENOM.
  */
-public long getfraction(constant char **sp, constant char *printopt, int *errp)
+public long getfraction(constant char **sp, constant char *printopt, lbool *errp)
 {
 	constant char *s;
 	long frac = 0;

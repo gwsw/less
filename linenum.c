@@ -63,7 +63,7 @@ static struct linenum_info anchor;      /* Anchor of the list */
 static struct linenum_info *freelist;   /* Anchor of the unused entries */
 static struct linenum_info pool[NPOOL]; /* The pool itself */
 static struct linenum_info *spare;      /* We always keep one spare entry */
-public int scanning_eof = FALSE;
+public lbool scanning_eof = FALSE;
 
 extern int linenums;
 extern int sigs;

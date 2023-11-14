@@ -21,7 +21,7 @@
 #include "position.h"
 
 extern int pr_type;
-extern int new_file;
+extern lbool new_file;
 extern int linenums;
 extern int hshift;
 extern int sc_height;
@@ -196,9 +196,9 @@ static int cond(char c, int where)
 #endif
 	case 'n': /* First prompt in a new file? */
 #if TAGS
-		return (ntags() ? 1 : new_file);
+		return (ntags() ? 1 : new_file ? 1 : 0);
 #else
-		return (new_file);
+		return (new_file ? 1 : 0);
 #endif
 	case 'p': /* Percent into file (bytes) known? */
 		return (curr_byte(where) != NULL_POSITION && 
@@ -541,7 +541,7 @@ public constant char * pr_string(void)
 	type = (!less_is_more) ? pr_type : pr_type ? 0 : 1;
 	prompt = pr_expand((ch_getflags() & CH_HELPFILE) ?
 				hproto : prproto[type]);
-	new_file = 0;
+	new_file = FALSE;
 	return (prompt);
 }
 

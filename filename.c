@@ -143,8 +143,8 @@ public char * shell_quote(constant char *s)
 	size_t len;
 	constant char *esc = get_meta_escape();
 	size_t esclen = strlen(esc);
-	int use_quotes = FALSE;
-	int have_quotes = FALSE;
+	lbool use_quotes = FALSE;
+	lbool have_quotes = FALSE;
 
 	/*
 	 * Determine how big a string we need to allocate.
@@ -1058,7 +1058,7 @@ public POSITION filesize(int f)
 	return (seek_filesize(f));
 }
 
-public int curr_ifile_changed(void)
+public lbool curr_ifile_changed(void)
 {
 #if HAVE_STAT_INO
 	/* 

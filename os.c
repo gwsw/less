@@ -42,13 +42,13 @@
 
 #if HAVE_POLL && !MSDOS_COMPILER
 #define USE_POLL 1
-static int use_poll = TRUE;
+static lbool use_poll = TRUE;
 #else
 #define USE_POLL 0
 #endif
 #if USE_POLL
 #include <poll.h>
-static int any_data = FALSE;
+static lbool any_data = FALSE;
 #endif
 
 /*
@@ -67,7 +67,7 @@ static int any_data = FALSE;
 #endif
 
 public int reading;
-public int waiting_for_data;
+public lbool waiting_for_data;
 public int consecutive_nulls = 0;
 
 /* Milliseconds to wait for data before displaying "waiting for data" message. */

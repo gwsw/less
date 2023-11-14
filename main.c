@@ -26,7 +26,7 @@ public unsigned less_acp = CP_ACP;
 #endif
 
 public char *   every_first_cmd = NULL;
-public int      new_file;
+public lbool    new_file;
 public int      is_tty;
 public IFILE    curr_ifile = NULL_IFILE;
 public IFILE    old_ifile = NULL_IFILE;
@@ -41,7 +41,7 @@ static int      secure_allow_features;
 
 #if LOGFILE
 public int      logfile = -1;
-public int      force_logfile = FALSE;
+public lbool    force_logfile = FALSE;
 public char *   namelogfile = NULL;
 #endif
 

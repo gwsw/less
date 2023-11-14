@@ -261,7 +261,7 @@ static enum tag_result findctag(constant char *tag)
 	char *tagpattern;
 	int tagendline;
 	int search_char;
-	int err;
+	lbool err;
 	char tline[TAGLINE_SIZE];
 	struct tag *tp;
 

@@ -79,18 +79,18 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
  * a line.  The new position is the position of the first character
  * of the NEXT line.  The line obtained is the line starting at curr_pos.
  */
-public POSITION forw_line_seg(POSITION curr_pos, int skipeol, int rscroll, int nochop)
+public POSITION forw_line_seg(POSITION curr_pos, lbool skipeol, lbool rscroll, lbool nochop)
 {
 	POSITION base_pos;
 	POSITION new_pos;
 	POSITION edisp_pos;
 	int c;
-	int blankline;
-	int endline;
-	int chopped;
+	lbool blankline;
+	lbool endline;
+	lbool chopped;
 	int backchars;
 	POSITION wrap_pos;
-	int skipped_leading;
+	lbool skipped_leading;
 
 get_forw_line:
 	if (curr_pos == NULL_POSITION)
@@ -209,7 +209,7 @@ get_forw_line:
 			break;
 		}
 		if (c != '\r')
-			blankline = 0;
+			blankline = FALSE;
 
 		/*
 		 * Append the char to the line and get the next char.
@@ -343,11 +343,11 @@ public POSITION back_line(POSITION curr_pos)
 	POSITION edisp_pos;
 	POSITION begin_new_pos;
 	int c;
-	int endline;
-	int chopped;
+	lbool endline;
+	lbool chopped;
 	int backchars;
 	POSITION wrap_pos;
-	int skipped_leading;
+	lbool skipped_leading;
 
 get_back_line:
 	if (curr_pos == NULL_POSITION || curr_pos <= ch_zero())

@@ -73,7 +73,7 @@ static long fraction;           /* The fractional part of the number */
 static struct loption *curropt;
 static int opt_lower;
 static int optflag;
-static int optgetname;
+static lbool optgetname;
 static POSITION bottompos;
 static int save_hshift;
 static int save_bs_mode;
@@ -397,7 +397,7 @@ static int mca_opt_nonfirst_char(LWCHAR c)
 {
 	constant char *p;
 	constant char *oname;
-	int err;
+	lbool ambig;
 
 	if (curropt != NULL)
 	{
@@ -419,8 +419,7 @@ static int mca_opt_nonfirst_char(LWCHAR c)
 	if (p == NULL)
 		return (MCA_MORE);
 	opt_lower = ASCII_IS_LOWER(p[0]);
-	err = 0;
-	curropt = findopt_name(&p, &oname, &err);
+	curropt = findopt_name(&p, &oname, &ambig);
 	if (curropt != NULL)
 	{
 		/*
@@ -438,7 +437,7 @@ static int mca_opt_nonfirst_char(LWCHAR c)
 			if (cmd_char(c) != CC_OK)
 				return (MCA_DONE);
 		}
-	} else if (err != OPT_AMBIG)
+	} else if (!ambig)
 	{
 		bell();
 	}

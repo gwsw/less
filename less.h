@@ -170,17 +170,6 @@ void free();
 
 #define IS_CSI_START(c) (((LWCHAR)(c)) == ESC || (((LWCHAR)(c)) == CSI))
 
-#ifndef NULL
-#define NULL    0
-#endif
-
-#ifndef TRUE
-#define TRUE            1
-#endif
-#ifndef FALSE
-#define FALSE           0
-#endif
-
 #define OPT_OFF         0
 #define OPT_ON          1
 #define OPT_ONPLUS      2

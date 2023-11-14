@@ -30,4 +30,15 @@
 
 #define ptr_diff(p1,p2)  ((size_t) ((p1)-(p2)))
 
+#ifndef NULL
+#define NULL    0
+#endif
+
+typedef enum lbool { LFALSE, LTRUE } lbool;
+
+#undef  TRUE
+#define TRUE  LTRUE
+#undef  FALSE
+#define FALSE LFALSE
+
 #endif //  LESS_LANG_H_

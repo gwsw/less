@@ -38,7 +38,7 @@ static int cmd_complete(int action);
 /*
  * These variables are statics used by cmd_complete.
  */
-static int in_completion = FALSE;
+static lbool in_completion = FALSE;
 static char *tk_text;
 static char *tk_original;
 static constant char *tk_ipoint;
@@ -71,7 +71,7 @@ struct mlist
 	struct mlist *prev;
 	struct mlist *curr_mp;
 	char *string;
-	int modified;
+	lbool modified;
 };
 
 /*
@@ -709,7 +709,7 @@ static void ml_unlink(struct mlist *ml)
 /*
  * Add a string to an mlist.
  */
-public void cmd_addhist(struct mlist *mlist, constant char *cmd, int modified)
+public void cmd_addhist(struct mlist *mlist, constant char *cmd, lbool modified)
 {
 #if CMD_HISTORY
 	struct mlist *ml;
@@ -1284,7 +1284,7 @@ public LINENUM cmd_int(long *frac)
 {
 	constant char *p;
 	LINENUM n = 0;
-	int err;
+	lbool err;
 
 	for (p = cmdbuf;  *p >= '0' && *p <= '9';  p++)
 	{
@@ -1340,7 +1340,7 @@ static int mlist_size(struct mlist *ml)
 /*
  * Get the name of the history file.
  */
-static char * histfile_find(int must_exist)
+static char * histfile_find(lbool must_exist)
 {
 	constant char *home = lgetenv("HOME");
 	char *name = NULL;
@@ -1367,7 +1367,7 @@ static char * histfile_find(int must_exist)
 	return (name);
 }
 
-static char * histfile_name(int must_exist)
+static char * histfile_name(lbool must_exist)
 {
 	constant char *name;
 	char *wname;
@@ -1465,7 +1465,7 @@ static void read_cmdhist2(void (*action)(void*,struct mlist*,constant char*), vo
 	fclose(f);
 }
 
-static void read_cmdhist(void (*action)(void*,struct mlist*,constant char*), void *uparam, int skip_search, int skip_shell)
+static void read_cmdhist(void (*action)(void*,struct mlist*,constant char*), void *uparam, lbool skip_search, lbool skip_shell)
 {
 	if (!secure_allow(SF_HISTORY))
 		return;
@@ -1589,7 +1589,7 @@ static void copy_hist(void *uparam, struct mlist *ml, constant char *string)
 static void make_file_private(FILE *f)
 {
 #if HAVE_FCHMOD
-	int do_chmod = TRUE;
+	lbool do_chmod = TRUE;
 #if HAVE_STAT
 	struct stat statbuf;
 	int r = fstat(fileno(f), &statbuf);
@@ -1606,7 +1606,7 @@ static void make_file_private(FILE *f)
  * Does the history file need to be updated?
  */
 #if CMD_HISTORY
-static int histfile_modified(void)
+static lbool histfile_modified(void)
 {
 	if (mlist_search.modified)
 		return TRUE;

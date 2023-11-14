@@ -16,7 +16,7 @@
 #include "position.h"
 
 extern int jump_sline;
-extern int squished;
+extern lbool squished;
 extern int sc_width, sc_height;
 extern int show_attn;
 extern int top_scroll;
@@ -271,7 +271,7 @@ public void jump_loc(POSITION pos, int sline)
 			}
 		}
 		lastmark();
-		squished = 0;
+		squished = FALSE;
 		screen_trashed_num(0);
 		forw(sc_height-1, pos, 1, 0, sindex-nline);
 	} else

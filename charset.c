@@ -363,7 +363,7 @@ static void ilocale(void)
 /*
  * Define the printing format for control (or binary utf) chars.
  */
-public void setfmt(constant char *s, constant char **fmtvarptr, int *attrptr, constant char *default_fmt, int for_printf)
+public void setfmt(constant char *s, constant char **fmtvarptr, int *attrptr, constant char *default_fmt, lbool for_printf)
 {
 	if (s && utf_mode)
 	{
@@ -617,36 +617,36 @@ public int utf_len(unsigned char ch)
 /*
  * Does the parameter point to the lead byte of a well-formed UTF-8 character?
  */
-public int is_utf8_well_formed(constant char *ss, int slen)
+public lbool is_utf8_well_formed(constant char *ss, int slen)
 {
 	int i;
 	int len;
 	constant unsigned char *s = (constant unsigned char *) ss;
 
 	if (IS_UTF8_INVALID(s[0]))
-		return (0);
+		return (FALSE);
 
 	len = utf_len(s[0]);
 	if (len > slen)
-		return (0);
+		return (FALSE);
 	if (len == 1)
-		return (1);
+		return (TRUE);
 	if (len == 2)
 	{
 		if (s[0] < 0xC2)
-			return (0);
+			return (FALSE);
 	} else
 	{
 		unsigned char mask;
 		mask = (~((1 << (8-len)) - 1)) & 0xFF;
 		if (s[0] == mask && (s[1] & mask) == 0x80)
-			return (0);
+			return (FALSE);
 	}
 
 	for (i = 1;  i < len;  i++)
 		if (!IS_UTF8_TRAIL(s[i]))
-			return (0);
-	return (1);
+			return (FALSE);
+	return (TRUE);
 }
 
 /*
@@ -843,7 +843,7 @@ static struct wchar_range comb_table[] = {
 };
 
 
-static int is_in_table(LWCHAR ch, struct wchar_range_table *table)
+static lbool is_in_table(LWCHAR ch, struct wchar_range_table *table)
 {
 	unsigned int hi;
 	unsigned int lo;
@@ -870,7 +870,7 @@ static int is_in_table(LWCHAR ch, struct wchar_range_table *table)
  * Is a character a UTF-8 composing character?
  * If a composing character follows any char, the two combine into one glyph.
  */
-public int is_composing_char(LWCHAR ch)
+public lbool is_composing_char(LWCHAR ch)
 {
 	if (is_in_table(ch, &user_prt_table)) return FALSE;
 	return is_in_table(ch, &user_compose_table) ||
@@ -881,7 +881,7 @@ public int is_composing_char(LWCHAR ch)
 /*
  * Should this UTF-8 character be treated as binary?
  */
-public int is_ubin_char(LWCHAR ch)
+public lbool is_ubin_char(LWCHAR ch)
 {
 	if (is_in_table(ch, &user_prt_table)) return FALSE;
 	return is_in_table(ch, &user_ubin_table) ||
@@ -892,7 +892,7 @@ public int is_ubin_char(LWCHAR ch)
 /*
  * Is this a double width UTF-8 character?
  */
-public int is_wide_char(LWCHAR ch)
+public lbool is_wide_char(LWCHAR ch)
 {
 	return is_in_table(ch, &user_wide_table) ||
 	       is_in_table(ch, &wide_table);
@@ -903,7 +903,7 @@ public int is_wide_char(LWCHAR ch)
  * A combining char acts like an ordinary char, but if it follows
  * a specific char (not any char), the two combine into one glyph.
  */
-public int is_combining_char(LWCHAR ch1, LWCHAR ch2)
+public lbool is_combining_char(LWCHAR ch1, LWCHAR ch2)
 {
 	/* The table is small; use linear search. */
 	int i;

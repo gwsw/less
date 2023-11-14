@@ -238,8 +238,8 @@ public int can_goto_line;               /* Can move cursor to any line */
 public int clear_bg;            /* Clear fills with background color */
 public int missing_cap = 0;     /* Some capability is missing */
 public constant char *kent = NULL;       /* Keypad ENTER sequence */
-public int term_init_done = FALSE;
-public int full_screen = TRUE;
+public lbool term_init_done = FALSE;
+public lbool full_screen = TRUE;
 
 static int attrmode = AT_NORMAL;
 static int termcap_debug = -1;
@@ -2596,7 +2596,7 @@ static void tput_outmode(constant char *mode_str, int attr_bit, int (*f_putc)(in
 #else /* MSDOS_COMPILER */
 
 #if MSDOS_COMPILER==WIN32C
-static int WIN32put_fmt(constant char *fmt, int color)
+static lbool WIN32put_fmt(constant char *fmt, int color)
 {
 	char buf[INT_STRLEN_BOUND(int)+16];
 	int len = SNPRINTF1(buf, sizeof(buf), fmt, color);
@@ -2605,11 +2605,11 @@ static int WIN32put_fmt(constant char *fmt, int color)
 }
 #endif
 
-static int win_set_color(int attr)
+static lbool win_set_color(int attr)
 {
 	int fg;
 	int bg;
-	int out = FALSE;
+	lbool out = FALSE;
 	constant char *str = get_color_map(attr);
 	if (str == NULL || str[0] == '\0')
 		return FALSE;
@@ -2848,7 +2848,7 @@ static char win32_get_queue(void)
 /*
  * Handle a mouse input event.
  */
-static int win32_mouse_event(XINPUT_RECORD *xip)
+static lbool win32_mouse_event(XINPUT_RECORD *xip)
 {
 	char b;
 
@@ -2909,7 +2909,7 @@ static LWCHAR *find_last_down(LWCHAR ch)
  * Get an input char from an INPUT_RECORD and store in xip->ichar.
  * Handles surrogate chars, and KeyUp without previous corresponding KeyDown.
  */
-static int win32_get_ichar(XINPUT_RECORD *xip)
+static lbool win32_get_ichar(XINPUT_RECORD *xip)
 {
 	LWCHAR ch = xip->ir.Event.KeyEvent.uChar.UnicodeChar;
 	xip->ichar = ch;
@@ -2921,7 +2921,7 @@ static int win32_get_ichar(XINPUT_RECORD *xip)
 			if (is_down) { /* key was up, now is down */
 				set_last_down(ch);
 			} else { /* key up without previous down: pretend this is a down. */
-				xip->ir.Event.KeyEvent.bKeyDown = TRUE;
+				xip->ir.Event.KeyEvent.bKeyDown = 1;
 			}
 		} else if (!is_down) { /* key was down, now is up */
 			*last_down = 0; /* use this last_down only once */
@@ -2942,7 +2942,7 @@ static int win32_get_ichar(XINPUT_RECORD *xip)
 /*
  * Handle a scan code (non-ASCII) key input.
  */
-static int win32_scan_code(XINPUT_RECORD *xip)
+static lbool win32_scan_code(XINPUT_RECORD *xip)
 {
 	int scan = -1;
 	if (xip->ir.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
@@ -2980,7 +2980,7 @@ static int win32_scan_code(XINPUT_RECORD *xip)
 /*
  * Handle a key input event.
  */
-static int win32_key_event(XINPUT_RECORD *xip)
+static lbool win32_key_event(XINPUT_RECORD *xip)
 {
 	int repeat;
 	char utf8[UTF8_MAX_LENGTH];
@@ -3022,7 +3022,7 @@ static int win32_key_event(XINPUT_RECORD *xip)
 /*
  * Determine whether an input character is waiting to be read.
  */
-public int win32_kbhit(void)
+public lbool win32_kbhit(void)
 {
 	XINPUT_RECORD xip;
 

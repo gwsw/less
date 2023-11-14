@@ -29,7 +29,7 @@
 
 extern int bufspace;
 extern int pr_type;
-extern int plusoption;
+extern lbool plusoption;
 extern int swindow;
 extern int sc_width;
 extern int sc_height;
@@ -68,7 +68,7 @@ extern int tabdefault;
 extern char intr_char;
 #if LOGFILE
 extern char *namelogfile;
-extern int force_logfile;
+extern lbool force_logfile;
 extern int logfile;
 #endif
 #if TAGS
@@ -158,7 +158,7 @@ public void opt__O(int type, constant char *s)
 
 static int toggle_fraction(int *num, long *frac, constant char *s, constant char *printopt, void (*calc)(void))
 {
-	int err;
+	lbool err;
 	if (s == NULL)
 	{
 		(*calc)();
@@ -696,13 +696,13 @@ public void set_tabs(constant char *s, size_t len)
 	for (i = 1;  i < TABSTOP_MAX;  )
 	{
 		int n = 0;
-		int v = FALSE;
+		lbool v = FALSE;
 		while (s < es && *s == ' ')
 			s++;
 		for (; s < es && *s >= '0' && *s <= '9'; s++)
 		{
-			v |= ckd_mul(&n, n, 10);
-			v |= ckd_add(&n, n, *s - '0');
+			v = v || ckd_mul(&n, n, 10);
+			v = v || ckd_add(&n, n, *s - '0');
 		}
 		if (!v && n > tabstops[i-1])
 			tabstops[i++] = n;
@@ -997,7 +997,7 @@ public void opt_intr(int type, constant char *s)
 	/*ARGSUSED*/
 public void opt_header(int type, constant char *s)
 {
-	int err;
+	lbool err;
 	int n;
 
 	switch (type)
