@@ -30,4 +30,12 @@
 
 #define ptr_diff(p1,p2)  ((size_t) ((p1)-(p2)))
 
+#if MSDOS_COMPILER==WIN32C
+#if _WIN64
+typedef signed __int64 ssize_t;
+#else
+typedef signed __int32 ssize_t;
+#endif
+#endif /* MSDOS_COMPILER==WIN32C */
+
 #endif //  LESS_LANG_H_
