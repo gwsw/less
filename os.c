@@ -396,7 +396,7 @@ public constant char * signal_message(int sig)
  * and min(VAL, NUM) <= DEN so the result cannot overflow.
  * Round to the nearest integer, breaking ties by rounding to even.
  */
-public uintmax muldiv(uintmax val, uintmax num, uintmax den)
+public uintmax umuldiv(uintmax val, uintmax num, uintmax den)
 {
 	/*
 	 * Like round(val * (double) num / den), but without rounding error.

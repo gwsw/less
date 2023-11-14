@@ -52,7 +52,7 @@ public constant char * propt(char c)
 {
 	static char buf[MAX_PRCHAR_LEN+2];
 
-	sprintf(buf, "-%s", prchar(c));
+	sprintf(buf, "-%s", prchar((LWCHAR) c));
 	return (buf);
 }
 
@@ -63,7 +63,7 @@ public constant char * propt(char c)
 public void scan_option(constant char *s)
 {
 	struct loption *o;
-	int optc;
+	char optc;
 	constant char *optname;
 	constant char *printopt;
 	char *str;

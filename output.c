@@ -386,9 +386,11 @@ public void set_output(int fd)
 
 /*
  * Output a character.
+ * ch is int for compatibility with tputs.
  */
-public int putchr(int c)
+public int putchr(int ch)
 {
+	char c = (char) ch;
 #if 0 /* fake UTF-8 output for testing */
 	extern int utf_mode;
 	if (utf_mode)

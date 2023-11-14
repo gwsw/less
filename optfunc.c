@@ -816,7 +816,7 @@ public void opt_rscroll(int type, constant char *s)
 		}
 		break; }
 	case QUERY: {
-		p.p_string = rscroll_char ? prchar(rscroll_char) : "-";
+		p.p_string = rscroll_char ? prchar((LWCHAR) rscroll_char) : "-";
 		error("rscroll character is %s", &p);
 		break; }
 	}
@@ -985,7 +985,7 @@ public void opt_intr(int type, constant char *s)
 			intr_char = CONTROL(s[1]);
 		break;
 	case QUERY: {
-		p.p_string = prchar(intr_char);
+		p.p_string = prchar((LWCHAR) intr_char);
 		error("interrupt character is %s", &p);
 		break; }
 	}
@@ -1093,7 +1093,7 @@ public void opt_search_type(int type, constant char *s)
 		if (def_search_type & SRCH_WRAP)       *bp++ = 'W'; 
 		for (i = 1;  i <= NUM_SEARCH_COLORS;  i++)
 			if (def_search_type & SRCH_SUBSEARCH(i))
-				*bp++ = '0'+i;
+				*bp++ = (char) ('0'+i);
 		if (bp == buf)
 			*bp++ = '-';
 		*bp = '\0';

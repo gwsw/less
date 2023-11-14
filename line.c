@@ -471,7 +471,7 @@ public int pwidth(LWCHAR ch, int a, LWCHAR prev_ch, int prev_a)
 
 	if (!utf_mode || is_ascii_char(ch))
 	{
-		if (control_char((char)ch))
+		if (control_char(ch))
 		{
 			/*
 			 * Control characters do unpredictable things,
@@ -759,7 +759,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 		replen = 1;
 	} else
 	{
-		replen = utf_len(rep[0]);
+		replen = (size_t) utf_len(rep[0]); /*{{type-issue}}*/
 	}
 
 	if (cshift == hshift)
@@ -770,7 +770,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 		{
 			/* Copy shifted ANSI sequences to beginning of line. */
 			for (i = 0;  i < shifted_ansi.end;  i++)
-				add_linebuf(shifted_ansi.data[i], AT_ANSI, 0);
+				add_linebuf((char) shifted_ansi.data[i], AT_ANSI, 0);
 			xbuf_reset(&shifted_ansi);
 		}
 	}
@@ -816,10 +816,10 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 
 static int store_string(constant char *s, int a, POSITION pos)
 {
-	if (!fits_on_screen(strlen(s), a))
+	if (!fits_on_screen((int) strlen(s), a))
 		return 1;
 	for ( ;  *s != 0;  s++)
-		STORE_CHAR(*s, a, NULL, pos);
+		STORE_CHAR((LWCHAR)*s, a, NULL, pos);
 	return 0;
 }
 
@@ -869,7 +869,7 @@ static int flush_mbc_buf(POSITION pos)
 	int i;
 
 	for (i = 0; i < mbc_buf_index; i++)
-		if (store_prchar(mbc_buf[i], pos))
+		if (store_prchar((LWCHAR) mbc_buf[i], pos))
 			return mbc_buf_index - i;
 	return 0;
 }
@@ -879,7 +879,7 @@ static int flush_mbc_buf(POSITION pos)
  * Expand tabs into spaces, handle underlining, boldfacing, etc.
  * Returns 0 if ok, 1 if couldn't fit in buffer.
  */
-public int pappend(int c, POSITION pos)
+public int pappend(char c, POSITION pos)
 {
 	int r;
 
@@ -913,14 +913,14 @@ public int pappend(int c, POSITION pos)
 		 * the next char.  If the next char is a newline,
 		 * discard the CR.
 		 */
-		pendc = c;
+		pendc = (LWCHAR) c;
 		pendpos = pos;
 		return (0);
 	}
 
 	if (!utf_mode)
 	{
-		r = do_append(c, NULL, pos);
+		r = do_append((LWCHAR) c, NULL, pos);
 	} else
 	{
 		/* Perform strict validation in all possible cases. */
@@ -930,7 +930,7 @@ public int pappend(int c, POSITION pos)
 			mbc_buf_index = 1;
 			*mbc_buf = c;
 			if (IS_ASCII_OCTET(c))
-				r = do_append(c, NULL, pos);
+				r = do_append((LWCHAR) c, NULL, pos);
 			else if (IS_UTF8_LEAD(c))
 			{
 				mbc_buf_len = utf_len(c);
@@ -978,7 +978,7 @@ static int store_control_char(LWCHAR ch, constant char *rep, POSITION pos)
 	} else 
 	{
 		/* Output a printable representation of the character. */
-		STORE_PRCHAR((char) ch, pos);
+		STORE_PRCHAR(ch, pos);
 	}
 	return (0);
 }
@@ -1125,7 +1125,7 @@ static int do_append(LWCHAR ch, constant char *rep, POSITION pos)
 		STORE_TAB(a, pos);
 		return (0);
 	}
-	if ((!utf_mode || is_ascii_char(ch)) && control_char((char)ch))
+	if ((!utf_mode || is_ascii_char(ch)) && control_char(ch))
 	{
 		return store_control_char(ch, rep, pos);
 	} else if (utf_mode && ctldisp != OPT_ON && is_ubin_char(ch))
@@ -1359,7 +1359,7 @@ public POSITION forw_raw_line_len(POSITION curr_pos, ssize_t read_len, constant 
 				break;
 			}
 		}
-		linebuf.buf[n++] = c;
+		linebuf.buf[n++] = (char) c;
 		if (read_len >= 0 && n >= read_len)
 		{
 			new_pos = ch_tell();
@@ -1441,7 +1441,7 @@ public POSITION back_raw_line(POSITION curr_pos, constant char **linep, size_t *
 				*to = *fm;
 			n = size_linebuf - old_size_linebuf;
 		}
-		linebuf.buf[--n] = c;
+		linebuf.buf[--n] = (char) c;
 	}
 	if (linep != NULL)
 		*linep = &linebuf.buf[n];

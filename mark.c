@@ -73,7 +73,7 @@ public void init_mark(void)
 		switch (i) {
 		case MOUSEMARK: letter = '#'; break;
 		case LASTMARK: letter = '\''; break;
-		default: letter = (i < 26) ? 'a'+i : 'A'+i-26; break;
+		default: letter = (char) ((i < 26) ? 'a'+i : 'A'+i-26); break;
 		}
 		marks[i].m_letter = letter;
 		cmark(&marks[i], NULL_IFILE, NULL_POSITION, -1);
@@ -318,8 +318,8 @@ public char posmark(POSITION pos)
 	{
 		if (marks[i].m_ifile == curr_ifile && marks[i].m_scrpos.pos == pos)
 		{
-			if (i < 26) return 'a' + i;
-			if (i < 26*2) return 'A' + (i - 26);
+			if (i < 26) return (char) ('a' + i);
+			if (i < 26*2) return (char) ('A' + (i - 26));
 			return '#';
 		}
 	}

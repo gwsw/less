@@ -268,7 +268,7 @@ static int ch_get(void)
 			ch_have_ungotchar = FALSE;
 		} else if (ch_flags & CH_HELPFILE)
 		{
-			bp->data[bp->datasize] = helpdata[ch_fpos];
+			bp->data[bp->datasize] = (unsigned char) helpdata[ch_fpos];
 			n = 1;
 		} else
 		{

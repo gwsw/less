@@ -595,7 +595,7 @@ public constant char * prutfchar(LWCHAR ch)
 /*
  * Get the length of a UTF-8 character in bytes.
  */
-public int utf_len(unsigned char ch)
+public int utf_len(char ch)
 {
 	if ((ch & 0x80) == 0)
 		return 1;
@@ -622,29 +622,29 @@ public lbool is_utf8_well_formed(constant char *ss, int slen)
 {
 	int i;
 	int len;
-	constant unsigned char *s = (constant unsigned char *) ss;
+	unsigned char s0 = (unsigned char) ss[0];
 
-	if (IS_UTF8_INVALID(s[0]))
+	if (IS_UTF8_INVALID(s0))
 		return (FALSE);
 
-	len = utf_len(s[0]);
+	len = utf_len(ss[0]);
 	if (len > slen)
 		return (FALSE);
 	if (len == 1)
 		return (TRUE);
 	if (len == 2)
 	{
-		if (s[0] < 0xC2)
+		if (s0 < 0xC2)
 			return (FALSE);
 	} else
 	{
-		unsigned char mask = (~((1 << (8-len)) - 1)) & 0xFF;
-		if (s[0] == mask && (s[1] & mask) == 0x80)
+		unsigned char mask = (unsigned char) (~((1 << (8-len)) - 1));
+		if (s0 == mask && (ss[1] & mask) == 0x80)
 			return (FALSE);
 	}
 
 	for (i = 1;  i < len;  i++)
-		if (!IS_UTF8_TRAIL(s[i]))
+		if (!IS_UTF8_TRAIL(ss[i]))
 			return (FALSE);
 	return (TRUE);
 }
@@ -666,7 +666,7 @@ public void utf_skip_to_lead(constant char **pp, constant char *limit)
 public LWCHAR get_wchar(constant char *sp)
 {
 	constant unsigned char *p = (constant unsigned char *) sp;
-	switch (utf_len(p[0]))
+	switch (utf_len(sp[0]))
 	{
 	case 1:
 	default:
