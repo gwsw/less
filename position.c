@@ -113,7 +113,7 @@ public void pos_init(void)
 		free((char*)table);
 	} else
 		scrpos.pos = NULL_POSITION;
-	table = (POSITION *) ecalloc(sc_height, sizeof(POSITION));
+	table = (POSITION *) ecalloc((size_t) sc_height, sizeof(POSITION)); /*{{type-issue}}*/
 	table_size = sc_height;
 	pos_clear();
 	if (scrpos.pos != NULL_POSITION)
@@ -243,10 +243,10 @@ public int sindex_from_sline(int sline)
  * return the number of characters (not bytes) between the
  * beginning of the line and the first byte of the choff character.
  */
-static int pos_shift(POSITION linepos, int choff)
+static int pos_shift(POSITION linepos, size_t choff)
 {
 	constant char *line;
-	int line_len;
+	size_t line_len;
 	POSITION pos;
 	int cvt_ops;
 	char *cline;
@@ -259,7 +259,7 @@ static int pos_shift(POSITION linepos, int choff)
 	cline = (char *) ecalloc(1, line_len+1);
 	cvt_text(cline, line, NULL, &line_len, cvt_ops);
 	free(cline);
-	return line_len;
+	return (int) line_len;  /*{{type-issue}}*/
 }
 
 /*
@@ -297,6 +297,6 @@ public void pos_rehead(void)
 	if (linepos == tpos)
 		return;
 	table[TOP] = linepos;
-	hshift = pos_shift(linepos, (int)(tpos - linepos));
+	hshift = pos_shift(linepos, (size_t) (tpos - linepos));
 	screen_trashed();
 }

@@ -46,7 +46,7 @@ struct bufnode {
 struct buf {
 	struct bufnode node;
 	BLOCKNUM block;
-	unsigned int datasize;
+	size_t datasize;
 	unsigned char data[LBUFSIZE];
 };
 #define bufnode_buf(bn)  ((struct buf *) bn)
@@ -64,7 +64,7 @@ struct filestate {
 	POSITION fpos;
 	int nbufs;
 	BLOCKNUM block;
-	unsigned int offset;
+	size_t offset;
 	POSITION fsize;
 };
 
@@ -139,6 +139,13 @@ extern char *namelogfile;
 
 static int ch_addbuf();
 
+/*
+ * Return the file position corresponding to an offset within a block.
+ */
+static POSITION ch_position(BLOCKNUM block, size_t offset)
+{
+	return (ch_block * LBUFSIZE) + (POSITION) offset;
+}
 
 /*
  * Get the character pointed to by the read pointer.
@@ -147,7 +154,7 @@ static int ch_get(void)
 {
 	struct buf *bp;
 	struct bufnode *bn;
-	int n;
+	ssize_t n;
 	int read_again;
 	int h;
 	POSITION pos;
@@ -223,7 +230,7 @@ static int ch_get(void)
 
 	for (;;)
 	{
-		pos = (ch_block * LBUFSIZE) + bp->datasize;
+		pos = ch_position(ch_block, bp->datasize);
 		if ((len = ch_length()) != NULL_POSITION && pos >= len)
 			/*
 			 * At end of file.
@@ -264,8 +271,7 @@ static int ch_get(void)
 			n = 1;
 		} else
 		{
-			n = iread(ch_file, &bp->data[bp->datasize], 
-				(unsigned int)(LBUFSIZE - bp->datasize));
+			n = iread(ch_file, &bp->data[bp->datasize], LBUFSIZE - bp->datasize);
 		}
 
 		read_again = FALSE;
@@ -298,12 +304,12 @@ static int ch_get(void)
 		if (secure_allow(SF_LOGFILE))
 		{
 			if (logfile >= 0 && n > 0)
-				write(logfile, (char *) &bp->data[bp->datasize], n);
+				write(logfile, (char *) &bp->data[bp->datasize], (size_t) n);
 		}
 #endif
 
 		ch_fpos += n;
-		bp->datasize += n;
+		bp->datasize += (size_t) n;
 
 		if (n == 0)
 		{
@@ -489,7 +495,7 @@ public int ch_seek(POSITION pos)
 	 * Set read pointer.
 	 */
 	ch_block = new_block;
-	ch_offset = pos % LBUFSIZE;
+	ch_offset = (size_t) (pos % LBUFSIZE);
 	return (0);
 }
 
@@ -536,7 +542,7 @@ public int ch_end_buffer_seek(void)
 	FOR_BUFS(bn)
 	{
 		bp = bufnode_buf(bn);
-		buf_pos = (bp->block * LBUFSIZE) + bp->datasize;
+		buf_pos = ch_position(bp->block, bp->datasize);
 		if (buf_pos > end_pos)
 			end_pos = buf_pos;
 	}
@@ -600,7 +606,7 @@ public POSITION ch_tell(void)
 {
 	if (thisfile == NULL)
 		return (NULL_POSITION);
-	return (ch_block * LBUFSIZE) + ch_offset;
+	return ch_position(ch_block, ch_offset);
 }
 
 /*
@@ -650,14 +656,14 @@ public int ch_back_get(void)
  * Set max amount of buffer space.
  * bufspace is in units of 1024 bytes.  -1 mean no limit.
  */
-public void ch_setbufspace(int bufspace)
+public void ch_setbufspace(size_t bufspace)
 {
 	if (bufspace < 0)
 		maxbufs = -1;
 	else
 	{
-		int lbufk = LBUFSIZE / 1024;
-		maxbufs = bufspace / lbufk + (bufspace % lbufk != 0);
+		size_t lbufk = LBUFSIZE / 1024;
+		maxbufs = (int) (bufspace / lbufk + (bufspace % lbufk != 0));
 		if (maxbufs < 1)
 			maxbufs = 1;
 	}

@@ -42,7 +42,7 @@ extern int header_lines;
 extern int header_cols;
 #if HILITE_SEARCH
 extern int hilite_search;
-extern int size_linebuf;
+extern size_t size_linebuf;
 extern int squished;
 extern int can_goto_line;
 static int hide_hilite;
@@ -573,18 +573,18 @@ public POSITION prev_unfiltered(POSITION pos)
 	return (pos);
 }
 
-static void shift_visible(int start_off, int end_off, int line_len)
+static void shift_visible(size_t start_off, size_t end_off, size_t line_len)
 {
-	int swidth = sc_width - line_pfx_width();
+	size_t swidth = (size_t) sc_width - line_pfx_width();
 	int new_hshift;
 	if (end_off < swidth) /* whole string is in first screen */
 		new_hshift = 0;
 	else if (start_off >= line_len - swidth) /* whole string is in last screen */
-		new_hshift = line_len - swidth;
-	else if (start_off > hshift && end_off < hshift + swidth)
+		new_hshift = (int) (line_len - swidth);
+	else if (start_off > (size_t) hshift && end_off < (size_t) hshift + swidth) /*{{type-issue}}*/
 		new_hshift = hshift; /* already visible; leave hshift unchanged */
 	else /* shift it to column match_shift */
-		new_hshift = (start_off < match_shift) ? 0 : (start_off - match_shift);
+		new_hshift = (start_off < (size_t) match_shift) ? 0 : (int) (start_off - (size_t) match_shift); /*{{type-issue}}*/
 	if (new_hshift != hshift)
 	{
 		hshift = new_hshift;
@@ -661,7 +661,7 @@ static struct hilite_storage * hlist_getstorage(struct hilite_tree *anchor)
 	}
 
 	s = (struct hilite_storage *) ecalloc(1, sizeof(struct hilite_storage));
-	s->nodes = (struct hilite_node *) ecalloc(capacity, sizeof(struct hilite_node));
+	s->nodes = (struct hilite_node *) ecalloc((size_t) capacity, sizeof(struct hilite_node));
 	s->capacity = capacity;
 	s->used = 0;
 	s->next = NULL;
@@ -925,10 +925,10 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
  */
 static void create_hilites(POSITION linepos, constant char *line, constant char *sp, constant char *ep, int attr, int *chpos)
 {
-	int start_index = sp - line;
-	int end_index = ep - line;
+	size_t start_index = ptr_diff(sp, line); /*{{type-issue}}*/
+	size_t end_index = ptr_diff(ep, line);
 	struct hilite hl;
-	int i;
+	size_t i;
 
 	/* Start the first hilite. */
 	hl.hl_startpos = linepos + chpos[start_index];
@@ -962,7 +962,7 @@ static void create_hilites(POSITION linepos, constant char *line, constant char 
  * the current pattern.
  * sp,ep delimit the first match already found.
  */
-static void hilite_line(POSITION linepos, constant char *line, int line_len, int *chpos, constant char **sp, constant char **ep, int nsp, int cvt_ops)
+static void hilite_line(POSITION linepos, constant char *line, size_t line_len, int *chpos, constant char **sp, constant char **ep, int nsp, int cvt_ops)
 {
 	constant char *searchp;
 	constant char *line_end = line + line_len;
@@ -1013,7 +1013,7 @@ static void hilite_line(POSITION linepos, constant char *line, int line_len, int
 		else /* end of line */
 			break;
 	} while (match_pattern(info_compiled(&search_info), search_info.text,
-			searchp, line_end - searchp, sp, ep, nsp, 1, search_info.search_type));
+			searchp, ptr_diff(line_end, searchp), sp, ep, nsp, 1, search_info.search_type));
 }
 #endif
 
@@ -1147,7 +1147,7 @@ static POSITION search_pos(int search_type)
  * If so, add an entry to the filter list.
  */
 #if HILITE_SEARCH
-static int matches_filters(POSITION pos, char *cline, int line_len, int *chpos, POSITION linepos, constant char **sp, constant char **ep, int nsp)
+static int matches_filters(POSITION pos, char *cline, size_t line_len, int *chpos, POSITION linepos, constant char **sp, constant char **ep, int nsp)
 {
 	struct pattern_info *filter;
 
@@ -1198,19 +1198,19 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 {
 	constant char *line;
 	char *cline;
-	int line_len;
+	size_t line_len;
 	LINENUM linenum;
 	#define NSP (NUM_SEARCH_COLORS+2)
 	constant char *sp[NSP];
 	constant char *ep[NSP];
 	int line_match;
 	int cvt_ops;
-	int cvt_len;
+	size_t cvt_len;
 	int *chpos;
 	POSITION linepos, oldpos;
 	int skip_bytes = 0;
-	int swidth = sc_width - line_pfx_width();
-	int sheight = sc_height - sindex_from_sline(jump_sline);
+	size_t swidth = (size_t) sc_width - line_pfx_width(); /*{{type-issue}}*/
+	size_t sheight = (size_t) sc_height - sindex_from_sline(jump_sline);
 
 	linenum = find_linenum(pos);
 	if (nosearch_headers && linenum <= header_lines)
@@ -1405,8 +1405,8 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						 */
 						if (sp[0] != NULL && ep[0] != NULL)
 						{
-							int start_off = sp[0] - cline;
-							int end_off = ep[0] - cline;
+							size_t start_off = ptr_diff(sp[0], cline);
+							size_t end_off = ptr_diff(ep[0], cline);
 							shift_visible(start_off, end_off, line_len);
 						}
 					} else if (plastlinepos != NULL)
@@ -1421,7 +1421,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						 */
 						if (ep[0] != NULL)
 						{
-							int end_off = ep[0] - cline;
+							size_t end_off = ptr_diff(ep[0], cline);
 							if (end_off >= swidth * sheight / 4) /* heuristic */
 								*plastlinepos = get_lastlinepos(linepos, linepos + chpos[end_off], sheight);
 						}
@@ -1665,11 +1665,11 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 	int result;
 	int i;
 
-/*
- * Search beyond where we're asked to search, so the prep region covers
- * more than we need.  Do one big search instead of a bunch of small ones.
- */
-#define SEARCH_MORE (3*size_linebuf)
+	/*
+	 * Search beyond where we're asked to search, so the prep region covers
+	 * more than we need.  Do one big search instead of a bunch of small ones.
+	 */
+	POSITION SEARCH_MORE = (POSITION) (3*size_linebuf);
 
 	if (!prev_pattern(&search_info) && !is_filtering())
 		return;

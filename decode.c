@@ -245,13 +245,13 @@ static struct tablelist *list_sysvar_tables = NULL;
 /*
  * Expand special key abbreviations in a command table.
  */
-static void expand_special_keys(unsigned char *table, int len)
+static void expand_special_keys(unsigned char *table, size_t len)
 {
 	unsigned char *fm;
 	unsigned char *to;
 	int a;
 	constant char *repl;
-	int klen;
+	size_t klen;
 
 	for (fm = table;  fm < table + len; )
 	{
@@ -278,7 +278,7 @@ static void expand_special_keys(unsigned char *table, int len)
 			repl = special_key_str(fm[1]);
 			klen = fm[2] & 0377;
 			fm += klen;
-			if (repl == NULL || (int) strlen(repl) > klen)
+			if (repl == NULL || strlen(repl) > klen)
 				repl = "\377";
 			while (*repl != '\0')
 				*to++ = *repl++;
@@ -308,7 +308,7 @@ static void expand_cmd_table(struct tablelist *tlist)
 	struct tablelist *t;
 	for (t = tlist;  t != NULL;  t = t->t_next)
 	{
-		expand_special_keys(t->t_start, t->t_end - t->t_start);
+		expand_special_keys(t->t_start, ptr_diff(t->t_end, t->t_start));
 	}
 }
 
@@ -378,7 +378,7 @@ public void init_cmds(void)
 /*
  * Add a command table.
  */
-static int add_cmd_table(struct tablelist **tlist, unsigned char *buf, int len)
+static int add_cmd_table(struct tablelist **tlist, unsigned char *buf, size_t len)
 {
 	struct tablelist *t;
 
@@ -434,7 +434,7 @@ static void pop_cmd_table(struct tablelist **tlist)
 /*
  * Add a command table.
  */
-public void add_fcmd_table(unsigned char *buf, int len)
+public void add_fcmd_table(unsigned char *buf, size_t len)
 {
 	if (add_cmd_table(&list_fcmd_tables, buf, len) < 0)
 		error("Warning: some commands disabled", NULL_PARG);
@@ -443,7 +443,7 @@ public void add_fcmd_table(unsigned char *buf, int len)
 /*
  * Add an editing command table.
  */
-public void add_ecmd_table(unsigned char *buf, int len)
+public void add_ecmd_table(unsigned char *buf, size_t len)
 {
 	if (add_cmd_table(&list_ecmd_tables, buf, len) < 0)
 		error("Warning: some edit commands disabled", NULL_PARG);
@@ -452,7 +452,7 @@ public void add_ecmd_table(unsigned char *buf, int len)
 /*
  * Add an environment variable table.
  */
-static void add_var_table(struct tablelist **tlist, unsigned char *buf, int len)
+static void add_var_table(struct tablelist **tlist, unsigned char *buf, size_t len)
 {
 	struct xbuffer xbuf;
 
@@ -759,11 +759,11 @@ public constant char * lgetenv(constant char *var)
 /*
  * Like lgetenv, but also uses a buffer partially filled with an env table.
  */
-public constant char * lgetenv_ext(constant char *var, unsigned char *env_buf, int env_buf_len)
+public constant char * lgetenv_ext(constant char *var, unsigned char *env_buf, size_t env_buf_len)
 {
 	constant char *r;
-	int e;
-	int env_end = 0;
+	size_t e;
+	size_t env_end = 0;
 
 	for (e = 0;;)
 	{
@@ -802,9 +802,9 @@ public int isnullenv(constant char *s)
  * Integers are stored in a funny format: 
  * two bytes, low order first, in radix KRADIX.
  */
-static int gint(unsigned char **sp)
+static size_t gint(unsigned char **sp)
 {
-	int n;
+	size_t n;
 
 	n = *(*sp)++;
 	n += *(*sp)++ * KRADIX;
@@ -814,7 +814,7 @@ static int gint(unsigned char **sp)
 /*
  * Process an old (pre-v241) lesskey file.
  */
-static int old_lesskey(unsigned char *buf, int len)
+static int old_lesskey(unsigned char *buf, size_t len)
 {
 	/*
 	 * Old-style lesskey file.
@@ -832,12 +832,12 @@ static int old_lesskey(unsigned char *buf, int len)
 /* 
  * Process a new (post-v241) lesskey file.
  */
-static int new_lesskey(unsigned char *buf, int len, int sysvar)
+static int new_lesskey(unsigned char *buf, size_t len, int sysvar)
 {
 	unsigned char *p;
 	unsigned char *end;
 	int c;
-	int n;
+	size_t n;
 
 	/*
 	 * New-style lesskey file.
@@ -894,7 +894,7 @@ public int lesskey(constant char *filename, int sysvar)
 {
 	unsigned char *buf;
 	POSITION len;
-	long n;
+	ssize_t n;
 	int f;
 
 	if (!secure_allow(SF_LESSKEY))
@@ -923,7 +923,7 @@ public int lesskey(constant char *filename, int sysvar)
 		close(f);
 		return (-1);
 	}
-	if ((buf = (unsigned char *) calloc((int)len, sizeof(char))) == NULL)
+	if ((buf = (unsigned char *) calloc((size_t)len, sizeof(char))) == NULL)
 	{
 		close(f);
 		return (-1);
@@ -934,7 +934,7 @@ public int lesskey(constant char *filename, int sysvar)
 		close(f);
 		return (-1);
 	}
-	n = read(f, buf, (unsigned int) len);
+	n = read(f, buf, (size_t) len);
 	close(f);
 	if (n != len)
 	{
@@ -949,8 +949,8 @@ public int lesskey(constant char *filename, int sysvar)
 	if (len < 4 || 
 	    buf[0] != C0_LESSKEY_MAGIC || buf[1] != C1_LESSKEY_MAGIC ||
 	    buf[2] != C2_LESSKEY_MAGIC || buf[3] != C3_LESSKEY_MAGIC)
-		return (old_lesskey(buf, (int)len));
-	return (new_lesskey(buf, (int)len, sysvar));
+		return (old_lesskey(buf, (size_t) len));
+	return (new_lesskey(buf, (size_t) len, sysvar));
 }
 
 #if HAVE_LESSKEYSRC 

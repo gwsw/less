@@ -152,7 +152,7 @@ public int compile_pattern(constant char *pattern, int search_type, int show_err
 	} else
 	{
 		char *cvt_pattern = (char*) ecalloc(1, cvt_length(strlen(pattern), CVT_TO_LC));
-		cvt_text(cvt_pattern, pattern, (int *)NULL, (int *)NULL, CVT_TO_LC);
+		cvt_text(cvt_pattern, pattern, NULL, NULL, CVT_TO_LC);
 		result = compile_pattern2(cvt_pattern, search_type, comp_pattern, show_error);
 		free(cvt_pattern);
 	}
@@ -257,7 +257,7 @@ public int is_null_pattern(PATTERN_TYPE pattern)
  * Simple pattern matching function.
  * It supports no metacharacters like *, etc.
  */
-static int match(constant char *pattern, int pattern_len, constant char *buf, int buf_len, constant char ***sp, constant char ***ep, int nsubs)
+static int match(constant char *pattern, size_t pattern_len, constant char *buf, int buf_len, constant char ***sp, constant char ***ep, int nsubs)
 {
 	constant char *pp;
 	constant char *lp;
@@ -294,9 +294,10 @@ static int match(constant char *pattern, int pattern_len, constant char *buf, in
  * Set sp[i] and ep[i] to the start and end of the i-th matched subpattern.
  * Subpatterns are defined by parentheses in the regex language.
  */
-static int match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, int line_len, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
+static int match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, size_t aline_len, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
 {
 	int matched;
+	int line_len = (int) aline_len; /*{{type-issue}}*/
 
 #if NO_REGEX
 	search_type |= SRCH_NO_REGEX;
@@ -442,7 +443,7 @@ static int match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, constan
 	return (matched);
 }
 
-public int match_pattern(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, int line_len, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
+public int match_pattern(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, size_t line_len, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
 {
 	int matched = match_pattern1(pattern, tpattern, line, line_len, sp, ep, nsp, notbol, search_type);
 	int i;

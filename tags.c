@@ -255,7 +255,7 @@ static enum tag_result findctag(constant char *tag)
 	char *p;
 	char *q;
 	FILE *f;
-	int taglen;
+	size_t taglen;
 	LINENUM taglinenum;
 	char *tagfile;
 	char *tagpattern;
@@ -273,7 +273,7 @@ static enum tag_result findctag(constant char *tag)
 
 	cleantags();
 	total = 0;
-	taglen = (int) strlen(tag);
+	taglen = strlen(tag);
 
 	/*
 	 * Search the tags file for the desired tag.
@@ -384,7 +384,7 @@ static int curtag_match(char constant *line, POSITION linepos)
 	 * If tagendline is set, make sure we match all
 	 * the way to end of line (no extra chars after the match).
 	 */
-	int len = (int) strlen(curtag->tag_pattern);
+	size_t len = strlen(curtag->tag_pattern);
 	if (strncmp(curtag->tag_pattern, line, len) == 0 &&
 	    (!curtag->tag_endline || line[len] == '\0' || line[len] == '\r'))
 	{
@@ -407,7 +407,7 @@ static POSITION ctagsearch(void)
 {
 	POSITION pos, linepos;
 	LINENUM linenum;
-	int line_len;
+	size_t line_len;
 	constant char *line;
 	int found;
 
@@ -456,7 +456,7 @@ static POSITION ctagsearch(void)
 		} else
 		{
 			int cvt_ops = CVT_ANSI;
-			int cvt_len = cvt_length(line_len, cvt_ops);
+			size_t cvt_len = cvt_length(line_len, cvt_ops);
 			int *chpos = cvt_alloc_chpos(cvt_len);
 			char *cline = (char *) ecalloc(1, cvt_len);
 			cvt_text(cline, line, chpos, &line_len, cvt_ops);
@@ -552,7 +552,7 @@ static enum tag_result findgtag(constant char *tag, int type)
 			constant char *name;
 			constant char *file;
 			constant char *line;
-			int len;
+			size_t len;
 
 			if (sigs)
 			{
@@ -562,7 +562,7 @@ static enum tag_result findgtag(constant char *tag, int type)
 #endif
 				return TAG_INTR;
 			}
-			len = (int) strlen(buf);
+			len = strlen(buf);
 			if (len > 0 && buf[len-1] == '\n')
 				buf[len-1] = '\0';
 			else

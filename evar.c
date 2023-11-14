@@ -23,7 +23,7 @@ struct replace {
 /*
  * Skip to the next unescaped slash or right curly bracket in a string.
  */
-static int skipsl(constant char *buf, int len, int e)
+static size_t skipsl(constant char *buf, size_t len, size_t e)
 {
 	int esc = 0;
 	while (e < len && buf[e] != '\0' && (esc || (buf[e] != '/' && buf[e] != '}')))
@@ -39,16 +39,16 @@ static int skipsl(constant char *buf, int len, int e)
  * (slash, pattern, slash, replacement), followed by right curly bracket.
  * Replacement may be empty in which case the second slash is optional.
  */
-static struct replace * make_replaces(mutable char *buf, int len, int *pe, char term)
+static struct replace * make_replaces(mutable char *buf, size_t len, size_t *pe, char term)
 {
-	int e = *pe;
+	size_t e = *pe;
 	struct replace *replaces = NULL;
 
 	while (term == '/')
 	{
 		struct replace *repl;
-		int to;
-		int fm = e;
+		size_t to;
+		size_t fm = e;
 		e = skipsl(buf, len, e);
 		if (e >= len) break;
 		if (e == fm) /* missing fm string; we're done */
@@ -98,9 +98,9 @@ static void free_replaces(struct replace *replaces)
  * Backslash escapes in the pattern are ignored.
  * Return the length of the matched substring, or 0 if no match.
  */
-static int evar_match(constant char *str, constant char *pat)
+static size_t evar_match(constant char *str, constant char *pat)
 {
-	int len = 0;
+	size_t len = 0;
 	while (*pat != '\0')
 	{
 		if (*pat == '\\') ++pat;
@@ -114,11 +114,11 @@ static int evar_match(constant char *str, constant char *pat)
  * Find the replacement for a string (&evar[*pv]),
  * given a list of replace structs.
  */
-static constant char * find_replace(constant struct replace *repl, constant char *evar, int *pv)
+static constant char * find_replace(constant struct replace *repl, constant char *evar, size_t *pv)
 {
 	for (;  repl != NULL;  repl = repl->r_next)
 	{
-		int len = evar_match(&evar[*pv], repl->r_fm);
+		size_t len = evar_match(&evar[*pv], repl->r_fm);
 		if (len > 0)
 		{
 			*pv += len;
@@ -135,10 +135,10 @@ static constant char * find_replace(constant struct replace *repl, constant char
  * Write evar to xbuf, performing any specified text replacements.
  * Return the new value of e to point just after the final right curly bracket.
  */
-static int add_evar(struct xbuffer *xbuf, mutable char *buf, int len, int e, constant char *evar, char term)
+static size_t add_evar(struct xbuffer *xbuf, mutable char *buf, size_t len, size_t e, constant char *evar, char term)
 {
 	struct replace *replaces = make_replaces(buf, len, &e, term);
-	int v;
+	size_t v;
 
 	for (v = 0;  evar[v] != '\0'; )
 	{
@@ -147,7 +147,7 @@ static int add_evar(struct xbuffer *xbuf, mutable char *buf, int len, int e, con
 			xbuf_add_byte(xbuf, evar[v++]);
 		else
 		{
-			int r;
+			size_t r;
 			for (r = 0;  repl[r] != '\0';  r++)
 			{
 				if (repl[r] == '\\') ++r;
@@ -163,16 +163,16 @@ static int add_evar(struct xbuffer *xbuf, mutable char *buf, int len, int e, con
  * Expand env variables in a string.
  * Writes expanded output to xbuf. Corrupts buf.
  */
-public void expand_evars(mutable char *buf, int len, struct xbuffer *xbuf)
+public void expand_evars(mutable char *buf, size_t len, struct xbuffer *xbuf)
 {
-	int i;
+	size_t i;
 	for (i = 0;  i < len; )
 	{
 		if (i+1 < len && buf[i] == '$' && buf[i+1] == '{')
 		{
 			constant char *evar;
 			char term;
-			int e;
+			size_t e;
 			i += 2; /* skip "${" */
 			for (e = i;  e < len;  e++)
 				if (buf[e] == '\0' || buf[e] == '}' || buf[e] == '/')

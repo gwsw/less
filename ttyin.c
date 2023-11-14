@@ -179,7 +179,7 @@ public int default_wheel_lines(void)
 public int getchr(void)
 {
 	char c;
-	int result;
+	ssize_t result;
 
 	do
 	{

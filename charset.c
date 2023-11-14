@@ -139,7 +139,7 @@ static struct wchar_range_table user_prt_table;
 static void wchar_range_table_set(struct wchar_range_table *tbl, struct xbuffer *arr)
 {
 	tbl->table = (struct wchar_range *) arr->data;
-	tbl->count = arr->end / sizeof(struct wchar_range);
+	tbl->count = (unsigned int) (arr->end / sizeof(struct wchar_range));
 }
 
 /*
@@ -845,8 +845,8 @@ static struct wchar_range comb_table[] = {
 
 static int is_in_table(LWCHAR ch, struct wchar_range_table *table)
 {
-	int hi;
-	int lo;
+	unsigned int hi;
+	unsigned int lo;
 
 	/* Binary search in the table. */
 	if (table->table == NULL || table->count == 0 || ch < table->table[0].first)
@@ -855,7 +855,7 @@ static int is_in_table(LWCHAR ch, struct wchar_range_table *table)
 	hi = table->count - 1;
 	while (lo <= hi)
 	{
-		int mid = (lo + hi) / 2;
+		unsigned int mid = (lo + hi) / 2;
 		if (ch > table->table[mid].last)
 			lo = mid + 1;
 		else if (ch < table->table[mid].first)

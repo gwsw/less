@@ -31,7 +31,7 @@ static int prompt_col;           /* Column of cursor just after prompt */
 static char *cp;                 /* Pointer into cmdbuf */
 static int cmd_offset;           /* Index into cmdbuf of first displayed char */
 static int literal;              /* Next input char should not be interpreted */
-public int updown_match = -1;    /* Prefix length in up/down movement */
+public ssize_t updown_match = -1;    /* Prefix length in up/down movement */
 
 #if TAB_COMPLETE_FILENAME
 static int cmd_complete(int action);
@@ -186,7 +186,7 @@ public int len_cmdbuf(void)
  * {{ Returning pwidth and bswidth separately is a historical artifact
  *    since they're always the same. Maybe clean this up someday. }}
  */
-static constant char * cmd_step_common(char *p, LWCHAR ch, int len, int *pwidth, int *bswidth)
+static constant char * cmd_step_common(char *p, LWCHAR ch, size_t len, int *pwidth, int *bswidth)
 {
 	constant char *pr;
 	int width;
@@ -226,7 +226,7 @@ static constant char * cmd_step_right(char **pp, int *pwidth, int *bswidth)
 	char *p = *pp;
 	LWCHAR ch = step_char(pp, +1, p + strlen(p));
 
-	return cmd_step_common(p, ch, *pp - p, pwidth, bswidth);
+	return cmd_step_common(p, ch, ptr_diff(*pp, p), pwidth, bswidth);
 }
 
 /*
@@ -237,7 +237,7 @@ static constant char * cmd_step_left(char **pp, int *pwidth, int *bswidth)
 	char *p = *pp;
 	LWCHAR ch = step_char(pp, -1, cmdbuf);
 
-	return cmd_step_common(*pp, ch, p - *pp, pwidth, bswidth);
+	return cmd_step_common(*pp, ch, ptr_diff(p, *pp), pwidth, bswidth);
 }
 
 /*
@@ -436,7 +436,7 @@ static int cmd_left(void)
 /*
  * Insert a char into the command buffer, at the current position.
  */
-static int cmd_ichar(constant char *cs, int clen)
+static int cmd_ichar(constant char *cs, size_t clen)
 {
 	char *s;
 	
@@ -644,9 +644,7 @@ static int cmd_updown(int action)
 	}
 
 	if (updown_match < 0)
-	{
-		updown_match = (int) (cp - cmdbuf);
-	}
+		updown_match = ptr_diff(cp, cmdbuf);
 
 	/*
 	 * Find the next history entry which matches.
@@ -911,7 +909,7 @@ static int cmd_istr(constant char *str)
 	{
 		constant char *os = s;
 		step_charc(&s, +1, endline);
-		action = cmd_ichar(os, s - os);
+		action = cmd_ichar(os, ptr_diff(s, os));
 		if (action != CC_OK)
 			return (action);
 	}
@@ -932,7 +930,7 @@ static char * delimit_word(void)
 	int delim_quoted = 0;
 	int meta_quoted = 0;
 	constant char *esc = get_meta_escape();
-	int esclen = (int) strlen(esc);
+	size_t esclen = strlen(esc);
 #endif
 	
 	/*
@@ -1039,8 +1037,8 @@ static void init_compl(void)
 	 */
 	if (tk_original != NULL)
 		free(tk_original);
-	tk_original = (char *) ecalloc(cp-word+1, sizeof(char));
-	strncpy(tk_original, word, cp-word);
+	tk_original = (char *) ecalloc(ptr_diff(cp,word)+1, sizeof(char));
+	strncpy(tk_original, word, ptr_diff(cp,word));
 	/*
 	 * Get the expanded filename.
 	 * This may result in a single filename, or
@@ -1190,7 +1188,7 @@ fail:
 public int cmd_char(int c)
 {
 	int action;
-	int len;
+	size_t len;
 
 	if (!utf_mode)
 	{

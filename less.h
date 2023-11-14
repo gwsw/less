@@ -353,8 +353,8 @@ struct wchar_range
 
 struct wchar_range_table 
 {
-        struct wchar_range *table;
-        int count;
+	struct wchar_range *table;
+	unsigned int count;
 };
 
 #if HAVE_POLL

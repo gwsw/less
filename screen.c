@@ -1655,7 +1655,7 @@ static void ltputs(constant char *str, int affcnt, int (*f_putc)(int))
 		if (obrac != NULL)
 		{
 			char str2[64];
-			int slen = obrac - str;
+			size_t slen = ptr_diff(obrac, str);
 			if (slen < sizeof(str2))
 			{
 				int delay;

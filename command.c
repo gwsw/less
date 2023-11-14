@@ -2047,13 +2047,13 @@ public void commands(void)
 			 * Shift view left.
 			 */
 			if (number > 0)
-				shift_count = number;
+				shift_count = (int) number;
 			else
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
 			if (number > hshift)
 				number = hshift;
 			pos_rehead();
-			hshift -= number;
+			hshift -= (int) number;
 			screen_trashed();
 			break;
 
@@ -2062,11 +2062,11 @@ public void commands(void)
 			 * Shift view right.
 			 */
 			if (number > 0)
-				shift_count = number;
+				shift_count = (int) number;
 			else
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
 			pos_rehead();
-			hshift += number;
+			hshift += (int) number;
 			screen_trashed();
 			break;
 

@@ -20,7 +20,7 @@
 
 extern void lesskey_parse_error(char *msg);
 extern char *homefile(char *filename);
-extern void *ecalloc(int count, unsigned int size);
+extern void *ecalloc(size_t count, size_t size);
 extern int lstrtoi(char *str, char **end, int radix);
 extern char version[];
 

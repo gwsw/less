@@ -79,11 +79,11 @@ public void init_prompt(void)
  */
 static void ap_str(constant char *s)
 {
-	int len;
+	size_t len;
 
-	len = (int) strlen(s);
+	len = strlen(s);
 	if (mp + len >= message + PROMPT_SIZE)
-		len = (int) (message + PROMPT_SIZE - mp - 1);
+		len = ptr_diff(message, mp) + PROMPT_SIZE - 1;
 	strncpy(mp, s, len);
 	mp += len;
 	*mp = '\0';

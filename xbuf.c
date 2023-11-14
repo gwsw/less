@@ -9,7 +9,7 @@ public void xbuf_init(struct xbuffer *xbuf)
 	xbuf_init_size(xbuf, 16);
 }
 
-public void xbuf_init_size(struct xbuffer *xbuf, int init_size)
+public void xbuf_init_size(struct xbuffer *xbuf, size_t init_size)
 {
 	xbuf->data = NULL;
 	xbuf->size = xbuf->end = 0;
@@ -66,9 +66,9 @@ public void xbuf_add_char(struct xbuffer *xbuf, char c)
 /*
  * Add arbitrary data to an xbuf.
  */
-public void xbuf_add_data(struct xbuffer *xbuf, constant unsigned char *data, int len)
+public void xbuf_add_data(struct xbuffer *xbuf, constant unsigned char *data, size_t len)
 {
-	int i;
+	size_t i;
 	for (i = 0;  i < len;  i++)
 		xbuf_add_byte(xbuf, data[i]);
 }

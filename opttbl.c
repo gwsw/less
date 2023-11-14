@@ -804,11 +804,11 @@ public struct loption * findopt_name(constant char **p_optname, constant char **
 	constant char *optname = *p_optname;
 	struct loption *o;
 	struct optname *oname;
-	int len;
+	size_t len;
 	int uppercase;
 	struct loption *maxo = NULL;
 	struct optname *maxoname = NULL;
-	int maxlen = 0;
+	size_t maxlen = 0;
 	int ambig = 0;
 	int exact = 0;
 
@@ -830,7 +830,7 @@ public struct loption * findopt_name(constant char **p_optname, constant char **
 			for (uppercase = 0;  uppercase <= 1;  uppercase++)
 			{
 				len = sprefix(optname, oname->oname, uppercase);
-				if (len <= 0 || is_optchar(optname[len]))
+				if (len == 0 || is_optchar(optname[len]))
 				{
 					/*
 					 * We didn't use all of the option name.

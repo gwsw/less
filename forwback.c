@@ -35,7 +35,7 @@ extern int header_lines;
 extern int header_cols;
 extern int full_screen;
 #if HILITE_SEARCH
-extern int size_linebuf;
+extern size_t size_linebuf;
 extern int hilite_search;
 extern int status_col;
 #endif

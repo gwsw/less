@@ -19,7 +19,7 @@ extern int utf_mode;
 /*
  * Get the length of a buffer needed to convert a string.
  */
-public int cvt_length(int len, int ops)
+public size_t cvt_length(size_t len, int ops)
 {
 	if (utf_mode)
 		/*
@@ -34,10 +34,10 @@ public int cvt_length(int len, int ops)
 /*
  * Allocate a chpos array for use by cvt_text.
  */
-public int * cvt_alloc_chpos(int len)
+public int * cvt_alloc_chpos(size_t len)
 {
 	int i;
-	int *chpos = (int *) ecalloc(sizeof(int), len);
+	int *chpos = (int *) ecalloc(len, sizeof(int));
 	/* Initialize all entries to an invalid position. */
 	for (i = 0;  i < len;  i++)
 		chpos[i] = -1;
@@ -49,7 +49,7 @@ public int * cvt_alloc_chpos(int len)
  * Returns converted text in odst.  The original offset of each
  * odst character (when it was in osrc) is returned in the chpos array.
  */
-public void cvt_text(char *odst, constant char *osrc, int *chpos, int *lenp, int ops)
+public void cvt_text(char *odst, constant char *osrc, int *chpos, size_t *lenp, int ops)
 {
 	char *dst;
 	char *edst = odst;
@@ -64,8 +64,8 @@ public void cvt_text(char *odst, constant char *osrc, int *chpos, int *lenp, int
 
 	for (src = osrc, dst = odst;  src < src_end;  )
 	{
-		int src_pos = (int) (src - osrc);
-		int dst_pos = (int) (dst - odst);
+		size_t src_pos = ptr_diff(src, osrc);
+		size_t dst_pos = ptr_diff(dst, odst);
 		struct ansi_state *pansi;
 		ch = step_charc(&src, +1, src_end);
 		if ((ops & CVT_BS) && ch == '\b' && dst > odst)
@@ -96,7 +96,7 @@ public void cvt_text(char *odst, constant char *osrc, int *chpos, int *lenp, int
 			if (chpos != NULL)
 			{
 				while (cdst++ < dst)
-					chpos[dst_pos++] = src_pos;
+					chpos[dst_pos++] = (int) src_pos; /*{{type-issue}}*/
 			}
 		}
 		if (dst > edst)
@@ -106,6 +106,6 @@ public void cvt_text(char *odst, constant char *osrc, int *chpos, int *lenp, int
 		edst--;
 	*edst = '\0';
 	if (lenp != NULL)
-		*lenp = (int) (edst - odst);
+		*lenp = ptr_diff(edst, odst);
 	/* FIXME: why was this here?  if (chpos != NULL) chpos[dst - odst] = src - osrc; */
 }

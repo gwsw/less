@@ -199,9 +199,9 @@ static void query_fraction(int value, long fraction, constant char *int_msg, con
 	} else
 	{
 		char buf[INT_STRLEN_BOUND(long)+2];
-		int len;
+		size_t len;
 		SNPRINTF1(buf, sizeof(buf), ".%06ld", fraction);
-		len = (int) strlen(buf);
+		len = strlen(buf);
 		while (len > 2 && buf[len-1] == '0')
 			len--;
 		buf[len] = '\0';
@@ -475,7 +475,7 @@ public void opt_b(int type, constant char *s)
 		/*
 		 * Set the new number of buffers.
 		 */
-		ch_setbufspace(bufspace);
+		ch_setbufspace((size_t) bufspace);
 		break;
 	case QUERY:
 		break;
@@ -688,7 +688,7 @@ public void opt_D(int type, constant char *s)
 
 /*
  */
-public void set_tabs(constant char *s, int len)
+public void set_tabs(constant char *s, size_t len)
 {
 	int i;
 	constant char *es = s + len;

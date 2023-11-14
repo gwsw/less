@@ -130,7 +130,7 @@ void out_of_memory(void)
 	exit(1);
 }
 
-void * ecalloc(int count, unsigned int size)
+void * ecalloc(size_t count, size_t size)
 {
 	void *p;
 
@@ -246,7 +246,7 @@ static void parse_args(int argc, constant char **argv)
 /*
  * Output some bytes.
  */
-static void fputbytes(FILE *fd, constant char *buf, int len)
+static void fputbytes(FILE *fd, constant char *buf, size_t len)
 {
 	while (len-- > 0)
 	{
@@ -258,14 +258,14 @@ static void fputbytes(FILE *fd, constant char *buf, int len)
 /*
  * Output an integer, in special KRADIX form.
  */
-static void fputint(FILE *fd, unsigned int val)
+static void fputint(FILE *fd, size_t val)
 {
 	char c;
 
 	if (val >= KRADIX*KRADIX)
 	{
-		fprintf(stderr, "error: cannot write %d, max %d\n", 
-			val, KRADIX*KRADIX);
+		fprintf(stderr, "error: cannot write %ld, max %ld\n", 
+			(long) val, (long) (KRADIX*KRADIX));
 		exit(1);
 	}
 	c = val % KRADIX;

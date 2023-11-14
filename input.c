@@ -29,7 +29,7 @@ extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 #if HILITE_SEARCH
 extern int hilite_search;
-extern int size_linebuf;
+extern size_t size_linebuf;
 extern int show_attn;
 #endif
 

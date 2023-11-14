@@ -66,7 +66,7 @@ public void init_textlist(struct textlist *tlist, mutable char *str)
 	int meta_quoted = 0;
 	int delim_quoted = 0;
 	constant char *esc = get_meta_escape();
-	int esclen = (int) strlen(esc);
+	size_t esclen = strlen(esc);
 #endif
 	
 	tlist->string = skipsp(str);
@@ -147,9 +147,9 @@ public constant char * back_textlist(struct textlist *tlist, constant char *prev
 /*
  * Parse a single option setting in a modeline.
  */
-static void modeline_option(constant char *str, int opt_len)
+static void modeline_option(constant char *str, size_t opt_len)
 {
-	struct mloption { constant char *opt_name; void (*opt_func)(constant char*,int); };
+	struct mloption { constant char *opt_name; void (*opt_func)(constant char*,size_t); };
 	struct mloption options[] = {
 		{ "ts=",         set_tabs },
 		{ "tabstop=",    set_tabs },
@@ -158,7 +158,7 @@ static void modeline_option(constant char *str, int opt_len)
 	struct mloption *opt;
 	for (opt = options;  opt->opt_name != NULL;  opt++)
 	{
-		int name_len = strlen(opt->opt_name);
+		size_t name_len = strlen(opt->opt_name);
 		if (opt_len > name_len && strncmp(str, opt->opt_name, name_len) == 0)
 		{
 			(*opt->opt_func)(str + name_len, opt_len - name_len);
@@ -171,7 +171,7 @@ static void modeline_option(constant char *str, int opt_len)
  * String length, terminated by option separator (space or colon).
  * Space/colon can be escaped with backspace.
  */
-static int modeline_option_len(constant char *str)
+static size_t modeline_option_len(constant char *str)
 {
 	int esc = FALSE;
 	constant char *s;
@@ -184,7 +184,7 @@ static int modeline_option_len(constant char *str)
 		else if (*s == ' ' || *s == ':') /* separator */
 			break;
 	}
-	return (s - str);
+	return ptr_diff(s, str);
 }
 
 /*
@@ -194,7 +194,7 @@ static void modeline_options(constant char *str, char end_char)
 {
 	for (;;)
 	{
-		int opt_len;
+		size_t opt_len;
 		str = skipspc(str);
 		if (*str == '\0' || *str == end_char)
 			break;
@@ -249,7 +249,7 @@ static void check_modelines(void)
 	for (i = 0;  i < modelines;  i++)
 	{
 		constant char *line;
-		int line_len;
+		size_t line_len;
 		if (ABORT_SIGS())
 			return;
 		pos = forw_raw_line(pos, &line, &line_len);

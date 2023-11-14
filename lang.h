@@ -28,4 +28,6 @@
 
 #define public          /* PUBLIC FUNCTION */
 
-#endif
+#define ptr_diff(p1,p2)  ((size_t) ((p1)-(p2)))
+
+#endif //  LESS_LANG_H_

@@ -163,9 +163,9 @@ public int supports_ctrl_x(void)
  * A call to intread() from a signal handler will interrupt
  * any pending iread().
  */
-public int iread(int fd, unsigned char *buf, unsigned int len)
+public ssize_t iread(int fd, unsigned char *buf, size_t len)
 {
-	int n;
+	ssize_t n;
 
 start:
 #if MSDOS_COMPILER==WIN32C
@@ -360,7 +360,7 @@ public char * errno_message(constant char *filename)
 {
 	char *p;
 	char *m;
-	int len;
+	size_t len;
 #if HAVE_ERRNO
 #if MUST_DEFINE_ERRNO
 	extern int errno;
@@ -369,7 +369,7 @@ public char * errno_message(constant char *filename)
 #else
 	p = "cannot open";
 #endif
-	len = (int) (strlen(filename) + strlen(p) + 3);
+	len = strlen(filename) + strlen(p) + 3;
 	m = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF2(m, len, "%s: %s", filename, p);
 	return (m);
@@ -453,7 +453,7 @@ char * strchr(char *s, char c)
 #endif
 
 #if !HAVE_MEMCPY
-void * memcpy(void *dst, void *src, int len)
+void * memcpy(void *dst, void *src, size_t len)
 {
 	char *dstp = (char *) dst;
 	char *srcp = (char *) src;

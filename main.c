@@ -147,12 +147,12 @@ cleanup:
 }
 #endif
 
-static int security_feature_error(constant char *type, int len, constant char *name)
+static int security_feature_error(constant char *type, size_t len, constant char *name)
 {
 	PARG parg;
-	int msglen = len+strlen(type)+64;
+	size_t msglen = len + strlen(type) + 64;
 	char *msg = ecalloc(msglen, sizeof(char));
-	SNPRINTF3(msg, msglen, "LESSSECURE_ALLOW: %s feature name \"%.*s\"", type, len, name);
+	SNPRINTF3(msg, msglen, "LESSSECURE_ALLOW: %s feature name \"%.*s\"", type, (int) len, name);
 	parg.p_string = msg;
 	error("%s", &parg);
 	free(msg);
@@ -162,7 +162,7 @@ static int security_feature_error(constant char *type, int len, constant char *n
 /*
  * Return the SF_xxx value of a secure feature given the name of the feature.
  */
-static int security_feature(constant char *name, int len)
+static int security_feature(constant char *name, size_t len)
 {
 	struct secure_feature { constant char *name; int sf_value; };
 	static struct secure_feature features[] = {
@@ -221,7 +221,7 @@ static void init_secure(void)
 			estr = strchr(str, ',');
 			if (estr == NULL) estr = str + strlen(str);
 			while (estr > str && estr[-1] == ' ') --estr; /* trim trailing spaces */
-			secure_allow_features |= security_feature(str, estr-str);
+			secure_allow_features |= security_feature(str, ptr_diff(estr, str));
 			str = estr;
 		}
 	}
@@ -489,7 +489,7 @@ public void out_of_memory(void)
  * Allocate memory.
  * Like calloc(), but never returns an error (NULL).
  */
-public void * ecalloc(int count, unsigned int size)
+public void * ecalloc(size_t count, size_t size)
 {
 	void * p;
 
@@ -522,11 +522,11 @@ public constant char * skipspc(constant char *s)
  * If uppercase is true, the first string must begin with an uppercase
  * character; the remainder of the first string may be either case.
  */
-public int sprefix(constant char *ps, constant char *s, int uppercase)
+public size_t sprefix(constant char *ps, constant char *s, int uppercase)
 {
-	int c;
-	int sc;
-	int len = 0;
+	char c;
+	char sc;
+	size_t len = 0;
 
 	for ( ;  *s != '\0';  s++, ps++)
 	{
@@ -534,7 +534,7 @@ public int sprefix(constant char *ps, constant char *s, int uppercase)
 		if (uppercase)
 		{
 			if (len == 0 && ASCII_IS_LOWER(c))
-				return (-1);
+				return (0);
 			if (ASCII_IS_UPPER(c))
 				c = ASCII_TO_LOWER(c);
 		}

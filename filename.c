@@ -83,7 +83,7 @@ public char * shell_unquote(constant char *str)
 	} else
 	{
 		constant char *esc = get_meta_escape();
-		int esclen = (int) strlen(esc);
+		size_t esclen = strlen(esc);
 		while (*str != '\0')
 		{
 			if (esclen > 0 && strncmp(str, esc, esclen) == 0)
@@ -140,9 +140,9 @@ public char * shell_quote(constant char *s)
 	constant char *p;
 	char *np;
 	char *newstr;
-	int len;
+	size_t len;
 	constant char *esc = get_meta_escape();
-	int esclen = (int) strlen(esc);
+	size_t esclen = strlen(esc);
 	int use_quotes = 0;
 	int have_quotes = 0;
 
@@ -180,7 +180,7 @@ public char * shell_quote(constant char *s)
 			 * We can't quote a string that contains quotes.
 			 */
 			return (NULL);
-		len = (int) strlen(s) + 3;
+		len = strlen(s) + 3;
 	}
 	/*
 	 * Allocate and construct the new string.
@@ -215,7 +215,7 @@ public char * shell_quote(constant char *s)
 public char * dirfile(constant char *dirname, constant char *filename, int must_exist)
 {
 	char *pathname;
-	int len;
+	size_t len;
 	int f;
 
 	if (dirname == NULL || *dirname == '\0')
@@ -223,7 +223,7 @@ public char * dirfile(constant char *dirname, constant char *filename, int must_
 	/*
 	 * Construct the full pathname.
 	 */
-	len = (int) (strlen(dirname) + strlen(filename) + 2);
+	len = strlen(dirname) + strlen(filename) + 2;
 	pathname = (char *) calloc(len, sizeof(char));
 	if (pathname == NULL)
 		return (NULL);
@@ -295,7 +295,7 @@ public char * fexpand(constant char *s)
 {
 	constant char *fr;
 	char *to;
-	int n;
+	size_t n;
 	char *e;
 	IFILE ifile;
 
@@ -330,7 +330,7 @@ public char * fexpand(constant char *s)
 				if (ifile == NULL_IFILE)
 					n++;
 				else
-					n += (int) strlen(get_filename(ifile));
+					n += strlen(get_filename(ifile));
 			}
 			/*
 			 * Else it is the first char in a string of
@@ -408,11 +408,11 @@ public char * fcomplete(constant char *s)
 	 */
 	{
 		constant char *slash;
-		int len;
+		size_t len;
 		for (slash = s+strlen(s)-1;  slash > s;  slash--)
 			if (*slash == *PATHNAME_SEP || *slash == '/')
 				break;
-		len = (int) strlen(s) + 4;
+		len = strlen(s) + 4;
 		fpat = (char *) ecalloc(len, sizeof(char));
 		if (strchr(slash, '.') == NULL)
 			SNPRINTF1(fpat, len, "%s*.*", s);
@@ -421,7 +421,7 @@ public char * fcomplete(constant char *s)
 	}
 #else
 	{
-	int len = (int) strlen(s) + 2;
+	size_t len = strlen(s) + 2;
 	fpat = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF1(fpat, len, "%s*", s);
 	}
@@ -448,7 +448,7 @@ public char * fcomplete(constant char *s)
  */
 public int bin_file(int f)
 {
-	int n;
+	ssize_t n;
 	int bin_count = 0;
 	char data[256];
 	constant char* p;
@@ -464,7 +464,7 @@ public int bin_file(int f)
 	edata = &data[n];
 	for (p = data;  p < edata;  )
 	{
-		if (utf_mode && !is_utf8_well_formed(p, edata-p))
+		if (utf_mode && !is_utf8_well_formed(p, (int) ptr_diff(edata,p)))
 		{
 			bin_count++;
 			utf_skip_to_lead(&p, edata);
@@ -547,7 +547,7 @@ static FILE * shellcmd(constant char *cmd)
 			fd = popen(cmd, "r");
 		} else
 		{
-			int len = (int) (strlen(shell) + strlen(esccmd) + 5);
+			size_t len = strlen(shell) + strlen(esccmd) + 5;
 			scmd = (char *) ecalloc(len, sizeof(char));
 			SNPRINTF3(scmd, len, "%s %s %s", shell, shell_coption(), esccmd);
 			free(esccmd);
@@ -586,7 +586,7 @@ public char * lglob(constant char *afilename)
 	/*
 	 * The globbing function returns a list of names.
 	 */
-	int length;
+	size_t length;
 	char *p;
 	char *qfilename;
 	DECL_GLOB_LIST(list)
@@ -632,8 +632,8 @@ public char * lglob(constant char *afilename)
 	 * is called multiple times to walk thru all names.
 	 */
 	char *p;
-	int len;
-	int n;
+	size_t len;
+	size_t n;
 	char *pfilename;
 	char *qfilename;
 	DECL_GLOB_NAME(fnd,drive,dir,fname,ext,handle)
@@ -649,14 +649,14 @@ public char * lglob(constant char *afilename)
 	gfilename = (char *) ecalloc(len, sizeof(char));
 	p = gfilename;
 	do {
-		n = (int) (strlen(drive) + strlen(dir) + strlen(fnd.GLOB_NAME) + 1);
+		n = strlen(drive) + strlen(dir) + strlen(fnd.GLOB_NAME) + 1;
 		pfilename = (char *) ecalloc(n, sizeof(char));
 		SNPRINTF3(pfilename, n, "%s%s%s", drive, dir, fnd.GLOB_NAME);
 		qfilename = shell_quote(pfilename);
 		free(pfilename);
 		if (qfilename != NULL)
 		{
-			n = (int) strlen(qfilename);
+			n = strlen(qfilename);
 			while (p - gfilename + n + 2 >= len)
 			{
 				/*
@@ -697,7 +697,7 @@ public char * lglob(constant char *afilename)
 	char *cmd;
 	constant char *esc;
 	char *qesc;
-	int len;
+	size_t len;
 
 	esc = get_meta_escape();
 	if (strlen(esc) == 0)
@@ -713,7 +713,7 @@ public char * lglob(constant char *afilename)
 	/*
 	 * Invoke lessecho, and read its output (a globbed list of filenames).
 	 */
-	len = (int) (strlen(lessecho) + strlen(filename) + (7*strlen(metachars())) + 24);
+	len = strlen(lessecho) + strlen(filename) + (7*strlen(metachars())) + 24;
 	cmd = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF4(cmd, len, "%s -p0x%x -d0x%x -e%s ", lessecho,
 		(unsigned char) openquote, (unsigned char) closequote, qesc);
@@ -814,7 +814,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 	constant char *lessopen;
 	char *qfilename;
 	char *cmd;
-	int len;
+	size_t len;
 	FILE *fd;
 #if HAVE_FILENO
 	int returnfd = 0;
@@ -859,7 +859,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 	}
 
 	qfilename = shell_quote(filename);
-	len = (int) (strlen(lessopen) + strlen(qfilename) + 2);
+	len = strlen(lessopen) + strlen(qfilename) + 2;
 	cmd = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF1(cmd, len, lessopen, qfilename);
 	free(qfilename);
@@ -937,7 +937,7 @@ public void close_altfile(constant char *altfilename, constant char *filename)
 	char *qaltfilename;
 	FILE *fd;
 	char *cmd;
-	int len;
+	size_t len;
 	
 	if (!secure_allow(SF_LESSOPEN))
 		return;
@@ -951,7 +951,7 @@ public void close_altfile(constant char *altfilename, constant char *filename)
 	}
 	qfilename = shell_quote(filename);
 	qaltfilename = shell_quote(altfilename);
-	len = (int) (strlen(lessclose) + strlen(qfilename) + strlen(qaltfilename) + 2);
+	len = strlen(lessclose) + strlen(qfilename) + strlen(qaltfilename) + 2;
 	cmd = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF2(cmd, len, lessclose, qfilename, qaltfilename);
 	free(qaltfilename);

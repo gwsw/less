@@ -51,7 +51,7 @@ extern int vt_enabled;
 public void put_line(void)
 {
 	int c;
-	int i;
+	size_t i;
 	int a;
 
 	if (ABORT_SIGS())
@@ -291,7 +291,7 @@ static void win_flush(void)
 						 * Leave it unprocessed
 						 * in the buffer.
 						 */
-						int slop = (int) (q - anchor);
+						size_t slop = ptr_diff(q, anchor);
 						/* {{ strcpy args overlap! }} */
 						strcpy(obuf, anchor);
 						ob = &obuf[slop];
@@ -345,9 +345,9 @@ static void win_flush(void)
  */
 public void flush(void)
 {
-	int n;
+	size_t n;
 
-	n = (int) (ob - obuf);
+	n = ptr_diff(ob, obuf);
 	if (n == 0)
 		return;
 	ob = obuf;
