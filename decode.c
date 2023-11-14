@@ -516,13 +516,13 @@ static int mouse_button_right(int x, int y)
 /*
  * Read a decimal integer. Return the integer and set *pterm to the terminating char.
  */
-static int getcc_int(LWCHAR *pterm)
+static int getcc_int(char *pterm)
 {
 	int num = 0;
 	int digits = 0;
 	for (;;)
 	{
-		LWCHAR ch = getcc();
+		char ch = getcc();
 		if (ch < '0' || ch > '9')
 		{
 			if (pterm != NULL) *pterm = ch;
@@ -576,7 +576,7 @@ static int x11mouse_action(int skip)
  */
 static int x116mouse_action(int skip)
 {
-	LWCHAR ch;
+	char ch;
 	int x, y;
 	int b = getcc_int(&ch);
 	if (b < 0 || ch != ';') return (A_NOACTION);

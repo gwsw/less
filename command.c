@@ -993,7 +993,7 @@ static char getccu(void)
 				c = getcc_end_command();
 		}
 	}
-	return (c);
+	return ((char) c);
 }
 
 /*

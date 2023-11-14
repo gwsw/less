@@ -638,7 +638,7 @@ public lbool is_utf8_well_formed(constant char *ss, int slen)
 			return (FALSE);
 	} else
 	{
-		unsigned char mask = (~((((unsigned char)1) << (8-len)) - 1)) & 0xFF;
+		unsigned char mask = (~((1 << (8-len)) - 1)) & 0xFF;
 		if (s[0] == mask && (s[1] & mask) == 0x80)
 			return (FALSE);
 	}

@@ -1246,7 +1246,7 @@ public int cmd_char(char c)
 			goto retry;
 		}
 
-		len = cmd_mbc_buf_len;
+		len = (size_t) cmd_mbc_buf_len; /*{{type-issue}}*/
 		cmd_mbc_buf_len = 0;
 	}
 
