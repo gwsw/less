@@ -181,7 +181,7 @@ static int security_feature(constant char *name, size_t len)
 	int i;
 	int match = -1;
 
-	for (i = 0;  i < sizeof(features)/sizeof(*features);  i++)
+	for (i = 0;  i < countof(features);  i++)
 	{
 		if (strncmp(features[i].name, name, len) == 0)
 		{

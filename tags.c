@@ -111,7 +111,7 @@ public void cleantags(void)
 /*
  * Create a new tag entry.
  */
-static struct tag * maketagent(constant char *name, constant char *file, LINENUM linenum, constant char *pattern, lbool endline)
+static struct tag * maketagent(constant char *file, LINENUM linenum, constant char *pattern, lbool endline)
 {
 	struct tag *tp;
 
@@ -353,7 +353,7 @@ static enum tag_result findctag(constant char *tag)
 				q--;
 			*q = '\0';
 		}
-		tp = maketagent(tag, tagfile, taglinenum, tagpattern, tagendline);
+		tp = maketagent(tagfile, taglinenum, tagpattern, tagendline);
 		TAG_INS(tp);
 		total++;
 	}
@@ -583,7 +583,7 @@ static enum tag_result findgtag(constant char *tag, int type)
 			}
 
 			/* Make new entry and add to list. */
-			tp = maketagent(name, file, (LINENUM) atoi(line), NULL, FALSE);
+			tp = maketagent(file, (LINENUM) atoi(line), NULL, FALSE);
 			TAG_INS(tp);
 			total++;
 		}

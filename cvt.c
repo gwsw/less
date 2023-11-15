@@ -21,6 +21,7 @@ extern int utf_mode;
  */
 public size_t cvt_length(size_t len, int ops)
 {
+	(void) ops;
 	if (utf_mode)
 		/*
 		 * Just copying a string in UTF-8 mode can cause it to grow 

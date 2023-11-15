@@ -40,6 +40,7 @@ extern long jump_sline_fraction;
 	/* ARGSUSED*/
 static RETSIGTYPE u_interrupt(int type)
 {
+	(void) type;
 	bell();
 #if OS2
 	LSIGNAL(SIGINT, SIG_ACK);
@@ -70,6 +71,7 @@ static RETSIGTYPE u_interrupt(int type)
 	/* ARGSUSED*/
 static RETSIGTYPE stop(int type)
 {
+	(void) type;
 	LSIGNAL(SIGTSTP, stop);
 	sigs |= S_STOP;
 	if (reading)
@@ -93,6 +95,7 @@ static RETSIGTYPE stop(int type)
 	/* ARGSUSED*/
 public RETSIGTYPE winch(int type)
 {
+	(void) type;
 	LSIGNAL(SIG_LESSWINDOW, winch);
 	sigs |= S_WINCH;
 	if (reading)
@@ -127,6 +130,7 @@ static BOOL WINAPI wbreak_handler(DWORD dwCtrlType)
 
 static RETSIGTYPE terminate(int type)
 {
+	(void) type;
 	quit(15);
 }
 

@@ -854,7 +854,7 @@ public struct loption * findopt_name(constant char **p_optname, constant char **
 					maxoname = oname;
 					maxlen = len;
 					ambig = FALSE;
-					exact = (len == (int)strlen(oname->oname));
+					exact = (len == strlen(oname->oname));
 				}
 				if (!(o->otype & TRIPLE))
 					break;

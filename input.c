@@ -356,7 +356,8 @@ get_back_line:
 	}
 #if HILITE_SEARCH
 	if (hilite_search == OPT_ONPLUS || is_filtering() || status_col)
-		prep_hilite((curr_pos < 3*size_linebuf) ?  0 : curr_pos - (POSITION) (3*size_linebuf), curr_pos, -1);
+		prep_hilite((curr_pos < (POSITION) (3*size_linebuf)) ? 0 : 
+		    curr_pos - (POSITION) (3*size_linebuf), curr_pos, -1);
 #endif
 	if (ch_seek(curr_pos-1))
 	{

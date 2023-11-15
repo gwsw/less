@@ -1209,7 +1209,7 @@ public int cmd_char(char c)
 			if (IS_ASCII_OCTET(c))
 				cmd_mbc_buf_len = 1;
 #if MSDOS_COMPILER || OS2
-			else if (c == (unsigned char) '\340' && IS_ASCII_OCTET(peekcc()))
+			else if (c == '\340' && IS_ASCII_OCTET(peekcc()))
 			{
 				/* Assume a special key. */
 				cmd_mbc_buf_len = 1;
@@ -1479,6 +1479,7 @@ static void read_cmdhist(void (*action)(void*,struct mlist*,constant char*), voi
 
 static void addhist_init(void *uparam, struct mlist *ml, constant char *string)
 {
+	(void) uparam;
 	if (ml != NULL)
 		cmd_addhist(ml, string, 0);
 	else if (string != NULL)

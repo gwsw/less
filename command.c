@@ -858,7 +858,7 @@ static void prompt(void)
 	{
 		WCHAR w[MAX_PATH+16];
 		p = pr_expand("Less?f - %f.");
-		MultiByteToWideChar(CP_ACP, 0, p, -1, w, sizeof(w)/sizeof(*w));
+		MultiByteToWideChar(CP_ACP, 0, p, -1, w, countof(w));
 		SetConsoleTitleW(w);
 	}
 #endif
@@ -895,7 +895,7 @@ static void prompt(void)
 #if MSDOS_COMPILER==WIN32C
 		WCHAR w[MAX_PATH*2];
 		char  a[MAX_PATH*2];
-		MultiByteToWideChar(less_acp, 0, p, -1, w, sizeof(w)/sizeof(*w));
+		MultiByteToWideChar(less_acp, 0, p, -1, w, countof(w));
 		WideCharToMultiByte(utf_mode ? CP_UTF8 : GetConsoleOutputCP(),
 		                    0, w, -1, a, sizeof(a), NULL, NULL);
 		p = a;

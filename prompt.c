@@ -226,7 +226,7 @@ static lbool cond(char c, int where)
  * Here we decode that letter and take the appropriate action,
  * usually by appending something to the message being built.
  */
-static void protochar(char c, int where, int iseditproto)
+static void protochar(char c, int where)
 {
 	POSITION pos;
 	POSITION len;
@@ -501,13 +501,7 @@ public constant char * pr_expand(constant char *proto)
 			{
 				where = 0;
 				p = wherechar(p, &where);
-				protochar(c, where,
-#if EDITOR
-					(proto == editproto));
-#else
-					0);
-#endif
-
+				protochar(c, where);
 			}
 			break;
 		}

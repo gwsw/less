@@ -962,7 +962,7 @@ static void create_hilites(POSITION linepos, constant char *line, constant char 
  * the current pattern.
  * sp,ep delimit the first match already found.
  */
-static void hilite_line(POSITION linepos, constant char *line, size_t line_len, int *chpos, constant char **sp, constant char **ep, int nsp, int cvt_ops)
+static void hilite_line(POSITION linepos, constant char *line, size_t line_len, int *chpos, constant char **sp, constant char **ep, int nsp)
 {
 	constant char *searchp;
 	constant char *line_end = line + line_len;
@@ -1378,7 +1378,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 					 * Just add the matches in this line to the 
 					 * hilite list and keep searching.
 					 */
-					hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, NSP, cvt_ops);
+					hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, NSP);
 #endif
 				} else if (--matches <= 0)
 				{
@@ -1394,7 +1394,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						 * the matches in this one line.
 						 */
 						clr_hilite();
-						hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, NSP, cvt_ops);
+						hilite_line(linepos + skip_bytes, cline, line_len, chpos, sp, ep, NSP);
 					}
 #endif
 					if (chop_line())

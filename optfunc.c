@@ -475,7 +475,7 @@ public void opt_b(int type, constant char *s)
 		/*
 		 * Set the new number of buffers.
 		 */
-		ch_setbufspace((size_t) bufspace);
+		ch_setbufspace((ssize_t) bufspace);
 		break;
 	case QUERY:
 		break;

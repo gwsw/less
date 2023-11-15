@@ -3094,8 +3094,7 @@ public void WIN32textout(constant char *text, int len)
 		 * wide and use WriteConsoleW.
 		 */
 		WCHAR wtext[1024];
-		len = MultiByteToWideChar(CP_UTF8, 0, text, len, wtext,
-					  sizeof(wtext)/sizeof(*wtext));
+		len = MultiByteToWideChar(CP_UTF8, 0, text, len, wtext, countof(wtext));
 		WriteConsoleW(con_out, wtext, len, &written, NULL);
 	} else
 		WriteConsole(con_out, text, len, &written, NULL);

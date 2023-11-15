@@ -28,7 +28,10 @@
 
 #define public          /* PUBLIC FUNCTION */
 
+#undef  ptr_diff
 #define ptr_diff(p1,p2)  ((size_t) ((p1)-(p2)))
+#undef  countof
+#define countof(a)       ((int)(sizeof(a)/sizeof(*a)))
 
 #define size_t_null      ((size_t)-1)
 

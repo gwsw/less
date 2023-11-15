@@ -819,7 +819,7 @@ public LWCHAR step_char(char **pp, signed int dir, constant char *limit)
 #define DECLARE_RANGE_TABLE_START(name) \
 	static struct wchar_range name##_array[] = {
 #define DECLARE_RANGE_TABLE_END(name) \
-	}; struct wchar_range_table name##_table = { name##_array, sizeof(name##_array)/sizeof(*name##_array) };
+	}; struct wchar_range_table name##_table = { name##_array, countof(name##_array) };
 
 DECLARE_RANGE_TABLE_START(compose)
 #include "compose.uni"
@@ -907,7 +907,7 @@ public lbool is_combining_char(LWCHAR ch1, LWCHAR ch2)
 {
 	/* The table is small; use linear search. */
 	int i;
-	for (i = 0;  i < sizeof(comb_table)/sizeof(*comb_table);  i++)
+	for (i = 0;  i < countof(comb_table);  i++)
 	{
 		if (ch1 == comb_table[i].first &&
 		    ch2 == comb_table[i].last)

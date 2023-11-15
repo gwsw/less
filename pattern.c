@@ -264,6 +264,7 @@ static int match(constant char *pattern, size_t pattern_len, constant char *buf,
 	constant char *pattern_end = pattern + pattern_len;
 	constant char *buf_end = buf + buf_len;
 
+	(void) nsubs;
 	for ( ;  buf < buf_end;  buf++)
 	{
 		for (pp = pattern, lp = buf;  ;  pp++, lp++)

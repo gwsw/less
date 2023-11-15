@@ -484,6 +484,7 @@ static int mouse_wheel_up(void)
  */
 static int mouse_button_left(int x, int y)
 {
+	(void) x;
 	/*
 	 * {{ It would be better to return an action and then do this 
 	 *    in commands() but it's nontrivial to pass y to it. }}
@@ -501,6 +502,7 @@ static int mouse_button_left(int x, int y)
  */
 static int mouse_button_right(int x, int y)
 {
+	(void) x;
 	/*
 	 * {{ unlike mouse_button_left, we could return an action,
 	 *    but keep it near mouse_button_left for readability. }}
@@ -856,21 +858,21 @@ static int new_lesskey(unsigned char *buf, size_t len, lbool sysvar)
 		{
 		case CMD_SECTION:
 			n = gint(&p);
-			if (n < 0 || p+n >= end)
+			if (p+n >= end)
 				return (-1);
 			add_fcmd_table(p, n);
 			p += n;
 			break;
 		case EDIT_SECTION:
 			n = gint(&p);
-			if (n < 0 || p+n >= end)
+			if (p+n >= end)
 				return (-1);
 			add_ecmd_table(p, n);
 			p += n;
 			break;
 		case VAR_SECTION:
 			n = gint(&p);
-			if (n < 0 || p+n >= end)
+			if (p+n >= end)
 				return (-1);
 			add_var_table((sysvar) ? 
 				&list_sysvar_tables : &list_var_tables, p, n);

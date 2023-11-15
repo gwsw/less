@@ -145,7 +145,7 @@ static int ch_addbuf();
  */
 static POSITION ch_position(BLOCKNUM block, size_t offset)
 {
-	return (ch_block * LBUFSIZE) + (POSITION) offset;
+	return (block * LBUFSIZE) + (POSITION) offset;
 }
 
 /*
@@ -663,7 +663,7 @@ public int ch_back_get(void)
  * Set max amount of buffer space.
  * bufspace is in units of 1024 bytes.  -1 mean no limit.
  */
-public void ch_setbufspace(size_t bufspace)
+public void ch_setbufspace(ssize_t bufspace)
 {
 	if (bufspace < 0)
 		maxbufs = -1;

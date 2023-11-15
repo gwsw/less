@@ -632,7 +632,7 @@ public int ansi_step(struct ansi_state *pansi, LWCHAR ch)
 	if (pansi->hindex >= 0)
 	{
 		static char hlink_prefix[] = ESCS "]8;";
-		if (ch == hlink_prefix[pansi->hindex] ||
+		if (ch == (LWCHAR) hlink_prefix[pansi->hindex] ||
 		    (pansi->hindex == 0 && IS_CSI_START(ch)))
 		{
 			pansi->hindex++;
@@ -1556,7 +1556,7 @@ public int rrshift(void)
 static int lookup_color_index(int attr)
 {
 	int cx;
-	for (cx = 0;  cx < sizeof(color_map)/sizeof(*color_map);  cx++)
+	for (cx = 0;  cx < countof(color_map);  cx++)
 		if (color_map[cx].attr == attr)
 			return cx;
 	return -1;

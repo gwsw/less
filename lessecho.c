@@ -245,6 +245,7 @@ int main(int argc, char *argv[])
 				return (0);
 			}
 			pr_error("Invalid option after --");
+			return (0);
 		default:
 			pr_error("Invalid option letter");
 		}

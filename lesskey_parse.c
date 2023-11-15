@@ -382,7 +382,7 @@ static int match_version(char op, int ver)
  * If the version matches, return the part of the line that should be executed.
  * Otherwise, return NULL.
  */
-static char * version_line(char *s, struct lesskey_tables *tables)
+static char * version_line(char *s)
 {
 	char op;
 	int ver;
@@ -445,7 +445,7 @@ static char * control_line(char *s, struct lesskey_tables *tables)
 	}
 	if (PREFIX(s, "#version"))
 	{
-		return (version_line(s, tables));
+		return (version_line(s));
 	}
 	return (s);
 }
@@ -655,7 +655,7 @@ int parse_lesskey(constant char *ainfile, struct lesskey_tables *tables)
  */
 int parse_lesskey_content(constant char *content, struct lesskey_tables *tables)
 {
-	int cx = 0;
+	size_t cx = 0;
 
 	init_tables(tables);
 	errors = 0;
@@ -667,7 +667,7 @@ int parse_lesskey_content(constant char *content, struct lesskey_tables *tables)
 	{
 		/* Extract a line from the content buffer and parse it. */
 		char line[1024];
-		int lx = 0;
+		size_t lx = 0;
 		while (content[cx] != '\0' && content[cx] != '\n' && content[cx] != ';')
 		{
 			if (lx >= sizeof(line)-1) break;
