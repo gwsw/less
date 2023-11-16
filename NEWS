@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 633 and 646
+	Major changes between "less" versions 633 and 647
 
 * Add --match-shift option.
 
@@ -67,6 +67,8 @@
 * Fix bug that made ESC-} fail if top line on screen was empty (github #429).
 
 * Fix bug with --mouse on Windows when used with pipes (github #440).
+
+* Fix bug in --+OPTION command line syntax.
 
 * Update Unicode tables.
 
