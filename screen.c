@@ -2599,8 +2599,9 @@ static void tput_outmode(constant char *mode_str, int attr_bit, int (*f_putc)(in
 static lbool WIN32put_fmt(constant char *fmt, int color)
 {
 	char buf[INT_STRLEN_BOUND(int)+16];
-	int len = SNPRINTF1(buf, sizeof(buf), fmt, color);
-	WIN32textout(buf, len);
+	int len = (size_t) SNPRINTF1(buf, sizeof(buf), fmt, color);
+	if (len > 0)
+		WIN32textout(buf, (size_t) len);
 	return TRUE;
 }
 #endif
@@ -3083,7 +3084,7 @@ public void WIN32setcolors(int fg, int bg)
 
 /*
  */
-public void WIN32textout(constant char *text, int len)
+public void WIN32textout(constant char *text, size_t len)
 {
 #if MSDOS_COMPILER==WIN32C
 	DWORD written;

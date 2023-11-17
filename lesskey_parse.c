@@ -131,8 +131,12 @@ static void parse_error(constant char *fmt, constant char *arg1)
 {
 	char buf[1024];
 	int n = SNPRINTF2(buf, sizeof(buf), "%s: line %d: ", lesskey_file, linenum);
-	if (n >= 0 && n < sizeof(buf))
-		SNPRINTF1(buf+n, sizeof(buf)-(size_t)n, fmt, arg1);
+	if (n >= 0)
+	{
+		size_t len = (size_t) n;
+		if (len < sizeof(buf))
+			SNPRINTF1(buf+len, sizeof(buf)-len, fmt, arg1);
+	}
 	++errors;
 	lesskey_parse_error(buf);
 }

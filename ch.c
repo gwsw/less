@@ -305,7 +305,7 @@ static int ch_get(void)
 		if (secure_allow(SF_LOGFILE))
 		{
 			if (logfile >= 0 && n > 0)
-				write(logfile, (char *) &bp->data[bp->datasize], (size_t) n);
+				write(logfile, &bp->data[bp->datasize], (size_t) n);
 		}
 #endif
 
@@ -433,7 +433,7 @@ public void sync_logfile(void)
 			bp = bufnode_buf(bn);
 			if (bp->block == block)
 			{
-				write(logfile, (char *) bp->data, bp->datasize);
+				write(logfile, bp->data, bp->datasize);
 				wrote = TRUE;
 				break;
 			}

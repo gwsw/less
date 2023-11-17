@@ -233,7 +233,7 @@ static void set_win_colors(t_sgr *sgr)
 static void win_flush(void)
 {
 	if (ctldisp != OPT_ONPLUS || (vt_enabled && sgr_mode))
-		WIN32textout(obuf, ob - obuf);
+		WIN32textout(obuf, ptr_diff(ob, obuf));
 	else
 	{
 		/*
@@ -257,7 +257,7 @@ static void win_flush(void)
 					 * the last escape sequence,
 					 * write them out to the screen.
 					 */
-					WIN32textout(anchor, p-anchor);
+					WIN32textout(anchor, ptr_diff(p, anchor));
 					anchor = p;
 				}
 				p += 2;  /* Skip the "ESC-[" */
@@ -321,7 +321,7 @@ static void win_flush(void)
 		}
 
 		/* Output what's left in the buffer.  */
-		WIN32textout(anchor, ob - anchor);
+		WIN32textout(anchor, ptr_diff(ob, anchor));
 	}
 	ob = obuf;
 }
