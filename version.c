@@ -1004,6 +1004,7 @@ v645  11/5/23   Default Windows charset is utf-8; update Unicode tables;
 v646  11/6/23   Bug fixes.
 v647  11/16/23  Fix --+option; fix compiler warnings.
 v648  11/16/23  Add lang.h to release.
+v649
 */
 
-char version[] = "648";
+char version[] = "649x";
