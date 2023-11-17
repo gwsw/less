@@ -195,7 +195,7 @@ static void set_win_colors(t_sgr *sgr)
 			return;
 		/*
 		 * There's no -Di so italic should not be here, but to
-		 * preserve lagacy behavior, apply -Ds to italic too.
+		 * preserve legacy behavior, apply -Ds to italic too.
 		 */
 		case A_ITALIC:
 			WIN32setcolors(so_fg_color, so_bg_color);
