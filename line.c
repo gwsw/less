@@ -403,6 +403,7 @@ public void pshift_all(void)
 			xbuf_add_char(&shifted_ansi, linebuf.buf[i]);
 	linebuf.end = linebuf.print;
 	end_column = (int) linebuf.pfx_end; /*{{type-issue}}*/
+	line_pos = NULL_POSITION;
 }
 
 /*

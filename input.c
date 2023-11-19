@@ -45,9 +45,9 @@ extern int show_attn;
 static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp_pos, POSITION eol_pos)
 {
 	int hl_before = (chop_line() && disp_pos != NULL_POSITION) ?
-	    is_hilited_attr(base_pos, disp_pos, TRUE, NULL) : FALSE;
+	    is_hilited_attr(base_pos, disp_pos, TRUE, NULL) : 0;
 	int hl_after = (chop_line()) ?
-	    is_hilited_attr(edisp_pos, eol_pos, TRUE, NULL) : FALSE;
+	    is_hilited_attr(edisp_pos, eol_pos, TRUE, NULL) : 0;
 	int attr;
 	char ch;
 
@@ -65,7 +65,7 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
 		ch = '>';
 	} else 
 	{
-		attr = is_hilited_attr(base_pos, eol_pos, TRUE, NULL);
+		attr = is_hilited_attr(disp_pos, edisp_pos, TRUE, NULL);
 		ch = '*';
 	}
 	if (attr)
@@ -224,7 +224,7 @@ get_forw_line:
 			if (skipeol)
 			{
 				/* Read to end of line. */
-				edisp_pos = ch_tell();
+				edisp_pos = ch_tell() - backchars;
 				do
 				{
 					c = ch_forw_get();
@@ -264,6 +264,7 @@ get_forw_line:
 					}
 				}
 				endline = FALSE;
+				edisp_pos = new_pos;
 			}
 			break;
 		}
@@ -507,11 +508,15 @@ get_back_line:
 							}
 							if (c == '\n')
 								new_pos++;
+							edisp_pos = new_pos;
 							break;
 						}
 					}
 					if (new_pos >= curr_pos)
+					{
+						edisp_pos = new_pos;
 						break;
+					}
 					pshift_all();
 				} else
 				{
