@@ -40,6 +40,7 @@ extern int match_shift;
 extern int nosearch_headers;
 extern int header_lines;
 extern int header_cols;
+extern char rscroll_char;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern size_t size_linebuf;
@@ -573,18 +574,28 @@ public POSITION prev_unfiltered(POSITION pos)
 	return (pos);
 }
 
-static void shift_visible(size_t start_off, size_t end_off, size_t line_len)
+static void shift_visible(POSITION line_pos, size_t start_off, size_t end_off)
 {
-	size_t swidth = (size_t) (sc_width - line_pfx_width());
+	POSITION start_pos = line_pos + start_off;
+	POSITION end_pos = line_pos + end_off;
+	int start_col = get_col(line_pos, start_pos, NULL_POSITION, -1);
+	int end_col = get_col(line_pos, end_pos, start_pos, start_col);
+	int swidth = sc_width - line_pfx_width() - (rscroll_char ? 1 : 0);
 	int new_hshift;
-	if (end_off < swidth) /* whole string is in first screen */
+	if (start_col < 0 || end_col < 0)
+		return;
+	if (end_col < swidth) /* whole string is in first screen */
 		new_hshift = 0;
-	else if (start_off >= line_len - swidth) /* whole string is in last screen */
-		new_hshift = (int) (line_len - swidth);
-	else if (start_off > (size_t) hshift && end_off < (size_t) hshift + swidth) /*{{type-issue}}*/
+	else if (start_col > hshift && end_col < hshift + swidth)
 		new_hshift = hshift; /* already visible; leave hshift unchanged */
-	else /* shift it to column match_shift */
-		new_hshift = (start_off < (size_t) match_shift) ? 0 : (int) (start_off - (size_t) match_shift); /*{{type-issue}}*/
+	else 
+	{
+		int eol_col = get_col(line_pos, NULL_POSITION, end_pos, end_col) - swidth;
+		if (start_col >= eol_col) /* whole string is in last screen */
+			new_hshift = eol_col;
+		else /* shift it to column match_shift */
+			new_hshift = (start_col < match_shift) ? 0 : start_col - match_shift;
+	}
 	if (new_hshift != hshift)
 	{
 		hshift = new_hshift;
@@ -1407,7 +1418,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						{
 							size_t start_off = ptr_diff(sp[0], cline);
 							size_t end_off = ptr_diff(ep[0], cline);
-							shift_visible(start_off, end_off, line_len);
+							shift_visible(linepos, start_off, end_off);
 						}
 					} else if (plastlinepos != NULL)
 					{
