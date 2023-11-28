@@ -33,7 +33,7 @@ my $NULL_COLOR          = 0xFF;
 my $DIFF_ATTR_ON        = "\e[5m"; # blink
 my $DIFF_ATTR_OFF       = "\e[m";
 
-my @show_expects = ('', 'expect', 'got');
+my @show_expects = ('', 'expected', 'got');
 my %wides;
 my %opt;
 
@@ -95,19 +95,32 @@ sub run_loop {
 sub display_running {
     my ($lt, $errf, $param, $running) = @_;
     my $states =  $lt->{states};
-    my $sindex_img = ${$$states[$running->{sindex}]}{img};
+    my ($prompt1, $prompt2, $prompt3, $img, $cmp_img);
+    my $filename;
+    my $failure = 0;
     if ($running->{show_expect} > 0) {
         my $exp = $show_expects[$running->{show_expect}];
-        my $prompt = sprintf " %s[%d/%d] %s (%s before %02x) %s %s",
-            attr_string('so'), $errf->{fail_index}, scalar @$states,
-			$errf->{filename}, $exp, $errf->{fail_char}, attr_string(), $param;
-        display($errf->{$exp}, $prompt, $lt, ${$$states[$errf->{fail_index}]}{img});
+        $prompt1 = sprintf "[%d/%d] ", $errf->{fail_index}, scalar @$states;
+        $prompt2 = "($exp)";
+        $prompt3 = sprintf " next: %s", prchar($errf->{fail_char});
+        $filename = $errf->{filename};
+        $img = $errf->{$exp};
+        $cmp_img = ${$$states[$errf->{fail_index}]}{img};
     } else {
-        my $prompt = sprintf " %s[%d/%d] %s %s %s",
-            attr_string('so'), $running->{sindex}, scalar @$states,
-			$lt->{filename}, attr_string(), $param;
-        display($sindex_img, $prompt, $lt);
+        $prompt1 = sprintf "[%d/%d] ", $running->{sindex}, scalar @$states;
+        $prompt2 = "(stored)";
+        $prompt3 = sprintf " next: %s", prchar(${$$states[$running->{sindex}]}{keystroke});
+        $filename = $lt->{filename};
+        $img = ${$$states[$running->{sindex}]}{img};
+        $failure = ($errf and $running->{sindex} == $errf->{fail_index});
     }
+    display($img, $prompt1, $prompt2, $prompt3, $filename, $failure, $lt, $cmp_img);
+}
+
+# ---------------------------------------------------------------------
+sub prchar {
+    my ($ich) = @_;
+    return ($ich >= 0x20 and $ich < 0x7f) ? sprintf("'%c'", $ich) : sprintf("(%02x)", $ich);
 }
 
 # ---------------------------------------------------------------------
@@ -170,7 +183,7 @@ sub check_sindex {
 
 # ---------------------------------------------------------------------
 sub display {
-    my ($img, $prompt, $lt, $cmp_img) = @_;
+    my ($img, $prompt1, $prompt2, $prompt3, $filename, $failure, $lt, $cmp_img) = @_;
     my $x = 0;
     my $y = 0;
     my $cursor_x = 0;
@@ -230,7 +243,15 @@ sub display {
             }
         }
     }
-    printf "\r\n%s", $prompt;
+    my $sp = $lt->{columns} - length($prompt1) - length($prompt2) - length($prompt3) - length($filename) - 2;
+    $sp = 1 if $sp < 1;
+    my $p2 = ($prompt2 =~ /got/ or $failure) ? "go" : ($prompt2 =~ /stored/) ? "st" : "ex";
+    print "\r\n ",
+        attr_string("so"), $prompt1, attr_string(),
+        attr_string($p2), $prompt2, attr_string(),
+        attr_string("so"), $prompt3, attr_string(),
+        ' ' x $sp,
+        attr_string("so"), $filename, attr_string();
     tgoto($cursor_x, $cursor_y);
 }
 
@@ -277,7 +298,10 @@ sub display_attr_color {
 sub attr_string {
     my ($mode) = @_;
     return "\e[m" if not $mode;
-    return ($opt{c} ? "\e[106;30m" : "\e[7m") if $mode eq 'so';
+    return ($opt{c} ? "\e[100;97;1m" : "\e[7;1m") if $mode eq 'so'; # standout: black on cyan
+    return ($opt{c} ? "\e[97;44;1m"  : "\e[7;1m") if $mode eq 'st'; # stored white on blue
+    return ($opt{c} ? "\e[102;30;1m" : "\e[7;1m") if $mode eq 'ex'; # expected: black on green
+    return ($opt{c} ? "\e[101;97;1m" : "\e[7;1m") if $mode eq 'go'; # got: white on red
     return "";
 }
 sub tgoto {
@@ -384,6 +408,7 @@ sub parse_img {
         my $last_state = ${$states}[@$states-1];
         if (not $last_state->{img} or not $last_state->{keystroke}) {
             print STDERR "incomplete state image ignored\n";
+            ## ?? pop @$states;
         }
     }
     push @$states, \%state;
@@ -407,7 +432,7 @@ sub parse_errfile {
         chomp;
         if (0) {
         } elsif (/^INFO: mismatch: expect:/) {
-            $expect = 'expect';
+            $expect = 'expected';
             $datalines = 1;
         } elsif (/^INFO: got:/) {
             $expect = 'got';
@@ -436,7 +461,7 @@ sub parse_errfile {
         }
     }
     close $ef;
-    if (not defined $errf{expect} or not defined $errf{got} or not defined $errf{fail_index}) {
+    if (not defined $errf{expected} or not defined $errf{got} or not defined $errf{fail_index}) {
         print STDERR "incomplete error file $errfile ignored\n";
         return undef;
     }
