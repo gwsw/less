@@ -30,6 +30,8 @@ my $ATTR_UNDERLINE      = (1<<1);
 my $ATTR_STANDOUT       = (1<<2);
 my $ATTR_BLINK          = (1<<3);
 my $NULL_COLOR          = 0xFF;
+my $DIFF_ATTR_ON        = "\e[5m"; # blink
+my $DIFF_ATTR_OFF       = "\e[m";
 
 my @show_expects = ('', 'expect', 'got');
 my %wides;
@@ -93,24 +95,26 @@ sub run_loop {
 sub display_running {
     my ($lt, $errf, $param, $running) = @_;
     my $states =  $lt->{states};
+    my $sindex_img = ${$$states[$running->{sindex}]}{img};
     if ($running->{show_expect} > 0) {
         my $exp = $show_expects[$running->{show_expect}];
         my $prompt = sprintf " %s%s (%s before %02x) [%d/%d] %s %s",
             attr_string('so'), $errf->{filename}, $exp, $errf->{fail_char}, 
             $errf->{fail_index}, scalar @$states, attr_string(), $param;
-        display($errf->{$exp}, $prompt, $lt);
+        my $cmp_img = (($running->{sindex} == $errf->{fail_index}) ? $sindex_img : undef);
+        display($errf->{$exp}, $prompt, $lt, $cmp_img);
     } else {
         my $prompt = sprintf " %s%s [%d/%d]%s %s",
             attr_string('so'), $lt->{filename}, 
             $running->{sindex}, scalar @$states, attr_string(), $param;
-        display(${$$states[$running->{sindex}]}{img}, $prompt, $lt);
+        display($sindex_img, $prompt, $lt);
     }
 }
 
 # ---------------------------------------------------------------------
 sub run_cmd {
     my ($lt, $errf, $ch, $num, $running) = @_;
-    my $states =  $lt->{states};
+    my $states = $lt->{states};
     $num = 0 if $num !~ /^\d+$/ or $num <= 0;
     if ($ch eq '?') {
         tgoto_bot($lt);
@@ -167,7 +171,7 @@ sub check_sindex {
 
 # ---------------------------------------------------------------------
 sub display {
-    my ($img, $prompt, $lt) = @_;
+    my ($img, $prompt, $lt, $cmp_img) = @_;
     my $x = 0;
     my $y = 0;
     my $cursor_x = 0;
@@ -182,6 +186,7 @@ sub display {
     for (my $cpos = 0; $cpos < length $img; ) {
         my $clen = utf8_len(substr($img, $cpos, 1));
         my $ich = utf8_char(substr($img, $cpos, $clen));
+        my $cmp_ich = $cmp_img ? utf8_char(substr($cmp_img, $cpos, $clen)) : $ich;
         $cpos += $clen;
         if (not $literal) {
             if ($ich eq ord '\\') { # escape
@@ -214,7 +219,10 @@ sub display {
         }
         $literal = 0;
         if ($ich > 0) {
+            my $diff = ($cmp_ich != $ich);
+            print $DIFF_ATTR_ON if $diff;
             print chr($ich);
+            print $DIFF_ATTR_OFF if $diff;
             $x += cwidth($ich);
             if ($x >= $lt->{columns}) {
                 print "\r\n";
