@@ -40,7 +40,7 @@ sub main {
 	}
 	if (not defined $ltfile) {
 		for (my $i = 0;; ++$i) {
-			my $suffix = $i ? $i : "";
+			my $suffix = $i ? "-$i" : "";
 			$ltfile = "lt/$textfile$suffix.lt";
 			last if not -e $ltfile;
 		}
