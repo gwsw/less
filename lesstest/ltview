@@ -98,15 +98,14 @@ sub display_running {
     my $sindex_img = ${$$states[$running->{sindex}]}{img};
     if ($running->{show_expect} > 0) {
         my $exp = $show_expects[$running->{show_expect}];
-        my $prompt = sprintf " %s%s (%s before %02x) [%d/%d] %s %s",
-            attr_string('so'), $errf->{filename}, $exp, $errf->{fail_char}, 
-            $errf->{fail_index}, scalar @$states, attr_string(), $param;
-        my $cmp_img = (($running->{sindex} == $errf->{fail_index}) ? $sindex_img : undef);
-        display($errf->{$exp}, $prompt, $lt, $cmp_img);
+        my $prompt = sprintf " %s[%d/%d] %s (%s before %02x) %s %s",
+            attr_string('so'), $errf->{fail_index}, scalar @$states,
+			$errf->{filename}, $exp, $errf->{fail_char}, attr_string(), $param;
+        display($errf->{$exp}, $prompt, $lt, ${$$states[$errf->{fail_index}]}{img});
     } else {
-        my $prompt = sprintf " %s%s [%d/%d]%s %s",
-            attr_string('so'), $lt->{filename}, 
-            $running->{sindex}, scalar @$states, attr_string(), $param;
+        my $prompt = sprintf " %s[%d/%d] %s %s %s",
+            attr_string('so'), $running->{sindex}, scalar @$states,
+			$lt->{filename}, attr_string(), $param;
         display($sindex_img, $prompt, $lt);
     }
 }
