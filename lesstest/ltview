@@ -33,6 +33,13 @@ my $NULL_COLOR          = 0xFF;
 my $DIFF_ATTR_ON        = "\e[5m"; # blink
 my $DIFF_ATTR_OFF       = "\e[m";
 
+my %spec_chars = (
+    ord("\b") => '\\b',
+    ord("\e") => 'ESC',
+    ord("\n") => '\\n',
+    ord("\r") => '\\r',
+);
+
 my @show_expects = ('', 'expected', 'got');
 my %wides;
 my %opt;
@@ -120,6 +127,8 @@ sub display_running {
 # ---------------------------------------------------------------------
 sub prchar {
     my ($ich) = @_;
+    my $spec = $spec_chars{$ich};
+    return "'$spec'" if $spec;
     return ($ich >= 0x20 and $ich < 0x7f) ? sprintf("'%c'", $ich) : sprintf("(%02x)", $ich);
 }
 
