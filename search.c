@@ -49,7 +49,8 @@ extern int can_goto_line;
 static int hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
-static POSITION header_end_pos = NULL_POSITION;
+public POSITION header_start_pos = NULL_POSITION;
+static POSITION header_end_pos;
 
 /*
  * Structures for maintaining a set of ranges for hilites and filtered-out
@@ -496,11 +497,24 @@ static int hilited_range_attr(POSITION pos, POSITION epos)
 }
 
 /*
- * Determine and save the position of the first char after any header lines.
+ * Set header parameters.
  */
-public void set_header_end_pos(void)
+public void set_header(int lines, int cols, POSITION pos)
 {
-	header_end_pos = (header_lines == 0) ? NULL_POSITION : find_pos(header_lines+1);
+	header_cols = cols;
+	header_lines = lines;
+	header_start_pos = (header_lines == 0) ? NULL_POSITION : pos;
+
+	if (header_start_pos != NULL_POSITION)
+	{
+		int ln;
+		for (ln = 0; ln < header_lines; ++ln)
+		{
+			pos = forw_raw_line(pos, NULL, NULL);
+			if (pos == NULL_POSITION) break;
+		}
+		header_end_pos = pos;
+	}
 }
 
 /*
@@ -508,7 +522,8 @@ public void set_header_end_pos(void)
  */
 static int pos_in_header(POSITION pos)
 {
-	return (header_end_pos != NULL_POSITION && pos < header_end_pos);
+	return (header_start_pos != NULL_POSITION &&
+	        pos >= header_start_pos && pos < header_end_pos);
 }
 
 /* 

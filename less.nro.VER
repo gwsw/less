@@ -1213,23 +1213,30 @@ If the reopen succeeds and the file is a different file from the original
 with the same name as the original (now renamed) file),
 .B less
 will display the contents of that new file.
-.IP "\-\-header=\fIN[,M]\fP"
+.IP "\-\-header=\fIL[,C[,N]]\fP"
+.RS
 Sets the number of header lines and columns displayed on the screen.
-The value may be of the form "N,M" where N and M are integers,
-to set the header lines to N and the header columns to M,
-or it may be a single integer "N" which sets the header lines to N 
-and the header columns to zero,
-or it may be ",M" which sets the header columns to M and the 
-header lines to zero.
-When N is nonzero, the first N lines at the top
-of the screen are replaced with the first N lines of the file,
+The number of header lines is set to \fIL\fP.
+If \fIL\fP is empty or missing, the number of header lines is unchanged.
+The number of header columns is set to \fIC\fP.
+If \fIC\fP is empty or missing, the number of header columns is unchanged.
+The first header line is set to line number \fIN\fP in the file.
+If \fIN\fP is empty or missing, it is taken to be 
+the number of the line currently displayed in the first line of the screen
+(if the \-\-header command has been issued from within
+.BR less "),"
+or 1 (if the \-\-header option has been given on the command line).
+The special form "\-\-header=\-" disables all headers, 
+and is equivalent to "\-\-header=0,0".
+.PP
+When \fIL\fP is nonzero, the first \fIL\fP lines at the top
+of the screen are replaced with the \fIL\fP lines of the file beginning at line \fIN\fP,
 regardless of what part of the file are being viewed.
-When M is nonzero, the characters displayed at the 
-beginning of each line are replaced with the first M characters of the line,
+When header lines are displayed, any file contents before the header line cannot be viewed.
+When \fIC\fP is nonzero, the first \fIC\fP characters displayed at the 
+beginning of each line are replaced with the first \fIC\fP characters of the line,
 even if the rest of the line is scrolled horizontally.
-If either N or M is zero, 
-.B less
-stops displaying header lines or columns, respectively.
+.RE
 .IP "\-\-incsearch"
 Subsequent search commands will be "incremental"; that is,
 .B less

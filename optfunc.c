@@ -26,6 +26,7 @@
 
 #include "less.h"
 #include "option.h"
+#include "position.h"
 
 extern int bufspace;
 extern int pr_type;
@@ -66,6 +67,7 @@ extern int tabstops[];
 extern int ntabstops;
 extern int tabdefault;
 extern char intr_char;
+extern POSITION header_start_pos;
 #if LOGFILE
 extern char *namelogfile;
 extern lbool force_logfile;
@@ -992,52 +994,93 @@ public void opt_intr(int type, constant char *s)
 }
 
 /*
+ * Return the next number from a comma-separated list.
+ * Return -1 if the list entry is missing or empty.
+ * Updates *sp to point to the first char of the next number in the list.
+ */
+public int next_cnum(constant char **sp, constant char *printopt, const char *errmsg, lbool *errp)
+{
+	int n;
+	*errp = FALSE;
+	if (**sp == '\0') /* at end of line */
+		return -1;
+	if (**sp == ',') /* that's the next comma; we have an empty string */
+	{
+		++(*sp);
+		return -1;
+	}
+	n = getnumc(sp, printopt, errp);
+	if (*errp)
+	{
+		PARG parg;
+		parg.p_string = errmsg;
+		error("invalid %s", &parg);
+		return -1;
+	}
+	if (**sp == ',')
+		++(*sp);
+	return n;
+}
+
+/*
+ * Parse a parameter to the --header option.
+ * Value is "L,C,N", where each field is a decimal number or empty.
+ */
+static lbool parse_header(const char *s, int *lines, int *cols, POSITION *start_pos)
+{
+	int n;
+	lbool err;
+
+	if (*s == '-')
+		s = "0,0";
+
+	n = next_cnum(&s, "header", "number of lines", &err);
+	if (err) return FALSE;
+	if (n >= 0) *lines = n;
+
+	n = next_cnum(&s, "header", "number of columns", &err);
+	if (err) return FALSE;
+	if (n >= 0) *cols = n;
+
+	n = next_cnum(&s, "header", "line number", &err);
+	if (err) return FALSE;
+	if (n > 0) 
+	{
+		LINENUM lnum = (LINENUM) n;
+		if (lnum < 1) lnum = 1;
+		*start_pos = find_pos(lnum);
+	}
+	return TRUE;
+}
+
+/*
  * Handler for the --header option.
  */
 	/*ARGSUSED*/
 public void opt_header(int type, constant char *s)
 {
-	lbool err;
-	int n;
-
 	switch (type)
 	{
 	case INIT:
-	case TOGGLE:
-		header_lines = 0;
-		header_cols = 0;
-		if (*s != ',')
-		{
-			n = getnumc(&s, "header", &err);
-			if (err)
-			{
-				error("invalid number of lines", NULL_PARG);
-				return;
-			}
-			header_lines = n;
-		}
-		if (*s == ',')
-		{
-			++s;
-			n = getnumc(&s, "header", &err);
-			if (err)
-				error("invalid number of columns", NULL_PARG);
-			else
-				header_cols = n;
-		}
+	case TOGGLE: {
+		int lines = header_lines;
+		int cols = header_cols;
+		POSITION start_pos = (type == INIT) ? ch_zero() : position(TOP);
+		if (start_pos == NULL_POSITION) start_pos = ch_zero();
+		if (!parse_header(s, &lines, &cols, &start_pos))
+			break;
+		set_header(lines, cols, start_pos);
 		calc_jump_sline();
-		if (type == TOGGLE)
-			set_header_end_pos();
-		break;
-	case QUERY:
-		{
-			char buf[2*INT_STRLEN_BOUND(int)+2];
-			PARG parg;
-			SNPRINTF2(buf, sizeof(buf), "%d,%d", header_lines, header_cols);
-			parg.p_string = buf;
-			error("header (lines,columns) is %s", &parg);
-		}
-		break;
+		if (header_lines > 0 || header_cols > 0)
+			error("Header set; use --header=- to disable header", NULL_PARG);
+		break; }
+    case QUERY: {
+        char buf[3*INT_STRLEN_BOUND(long)+3];
+        PARG parg;
+        SNPRINTF3(buf, sizeof(buf), "%ld,%ld,%ld", (long) header_lines, (long) header_cols, (long) find_linenum(header_start_pos));
+        parg.p_string = buf;
+        error("Header (lines,columns,line-number) is %s", &parg);
+        break; }
 	}
 }
 

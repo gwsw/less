@@ -20,6 +20,7 @@ extern lbool squished;
 extern int sc_width, sc_height;
 extern int show_attn;
 extern int top_scroll;
+extern POSITION header_start_pos;
 
 /*
  * Jump to the end of the file.
@@ -183,6 +184,38 @@ public void jump_line_loc(POSITION pos, int sline)
 	jump_loc(pos, sline);
 }
 
+static void after_header_message(void)
+{
+#if HAVE_TIME
+#define MSG_FREQ 1 /* seconds */
+    static time_type last_msg = (time_type) 0;
+    time_type now = get_time();
+    if (now < last_msg + MSG_FREQ)
+        return;
+    last_msg = now;
+#endif
+    bell();
+    /* {{ This message displays before the file text is updated, which is not a good UX. }} */
+    /** error("Cannot display text before header; use --header=- to disable header", NULL_PARG); */
+}
+
+/*
+ * Ensure that a position is not before the header.
+ * If it is, print a message and return the position of the start of the header.
+ * {{ This is probably not being used correctly in all cases. 
+ *    It does not account for the location of pos on the screen, 
+ *    so lines before pos could be displayed. }}
+ */
+public POSITION after_header_pos(POSITION pos)
+{
+	if (header_start_pos != NULL_POSITION && pos < header_start_pos)
+	{
+        after_header_message();
+        pos = header_start_pos;
+	}
+	return pos;
+}
+
 /*
  * Jump to a specified position in the file.
  * The position must be the first character in a line.
@@ -198,6 +231,7 @@ public void jump_loc(POSITION pos, int sline)
 	/*
 	 * Normalize sline.
 	 */
+	pos = after_header_pos(pos);
 	sindex = sindex_from_sline(sline);
 
 	if ((nline = onscreen(pos)) >= 0)
