@@ -825,15 +825,11 @@ static int store_string(constant char *s, int a, POSITION pos)
 }
 
 /*
- * Append a tab to the line buffer.
- * Store spaces to represent the tab.
+ * Return number of spaces from col to the next tab stop.
  */
-#define STORE_TAB(a,pos) \
-	do { if (store_tab((a),(pos))) return (1); } while (0)
-
-static int store_tab(int attr, POSITION pos)
+static int tab_spaces(int col)
 {
-	int to_tab = end_column - (int) linebuf.pfx_end; /*{{type-issue}}*/
+	int to_tab = col - (int) linebuf.pfx_end; /*{{type-issue}}*/
 
 	if (ntabstops < 2 || to_tab >= tabstops[ntabstops-1])
 		to_tab = tabdefault -
@@ -846,7 +842,19 @@ static int store_tab(int attr, POSITION pos)
 				break;
 		to_tab = tabstops[i+1] - to_tab;
 	}
+	return to_tab;
+}
 
+/*
+ * Append a tab to the line buffer.
+ * Store spaces to represent the tab.
+ */
+#define STORE_TAB(a,pos) \
+	do { if (store_tab((a),(pos))) return (1); } while (0)
+
+static int store_tab(int attr, POSITION pos)
+{
+	int to_tab = tab_spaces(end_column);
 	do {
 		STORE_CHAR(' ', attr, " ", pos);
 	} while (--to_tab > 0);
@@ -1257,6 +1265,81 @@ public void pdone(int endline, int chopped, int forw)
 		add_linebuf('\b', AT_NORMAL, -1);
 	}
 	set_linebuf(linebuf.end, '\0', AT_NORMAL);
+}
+
+/*
+ * Return the column number (screen position) of a given file position in its line.
+ * line_pos = position of first char in line
+ * spos = position of char being queried
+ * saved_pos = position of a known column, or NULL_POSITION if no known column
+ * saved_col = column number of a known column, or -1 if no known column
+ *
+ * This attempts to mimic the logic in pappend() and the store_*() functions.
+ * Duplicating this complicated logic is not a good design.
+ */
+public int get_col(POSITION line_pos, POSITION spos, POSITION saved_pos, int saved_col)
+{
+	int col = saved_col;
+	LWCHAR prev_ch = 0;
+	struct ansi_state *pansi = NULL;
+	char utf8_buf[MAX_UTF_CHAR_LEN];
+	int utf8_len = 0;
+
+	if (ch_seek(saved_pos != NULL_POSITION ? saved_pos : line_pos))
+		return -1;
+	while (spos == NULL_POSITION || ch_tell() < spos)
+	{
+		int ich = ch_forw_get();
+		char ch = (char) ich;
+		int cw = 0;
+		if (ich == EOI || ch == '\n')
+			break;
+		if (pansi != NULL)
+		{
+			if (ansi_step(pansi, ch) != ANSI_MID)
+			{
+				ansi_done(pansi);
+				pansi = NULL;
+			}
+		} else if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(ch)) != NULL) {
+			/* start of ansi sequence */ ;
+		} else if (ch == '\b')
+		{
+			if (proc_backspace == OPT_ONPLUS || (bs_mode == BS_CONTROL && proc_backspace == OPT_OFF))
+				cw = strlen(prchar(ch));
+			else
+				cw = (utf_mode && is_wide_char(prev_ch)) ? -2 : -1;
+		} else if (ch == '\t')
+		{
+			if (proc_tab == OPT_ONPLUS || (bs_mode == BS_CONTROL && proc_tab == OPT_OFF))
+				cw = strlen(prchar(ch));
+			else
+				cw = tab_spaces(col);
+		} else if ((!utf_mode || is_ascii_char(ch)) && control_char(ch))
+		{
+			cw = strlen(prchar(ch));
+		} else if (utf8_len < MAX_UTF_CHAR_LEN)
+		{
+			utf8_buf[utf8_len++] = ch;
+			if (is_utf8_well_formed(utf8_buf, utf8_len))
+			{
+				LWCHAR wch = get_wchar(utf8_buf);
+				utf8_len = 0;
+				int attr = 0; /* {{ ignoring attribute is not correct for magic cookie terminals }} */
+				if (utf_mode && ctldisp != OPT_ON && is_ubin_char(wch))
+					cw = strlen(prutfchar(wch));
+				else
+					cw = pwidth(wch, attr, prev_ch, attr);
+				prev_ch = wch;
+			}
+		} else
+		{
+			utf8_len = 0; /* flush invalid UTF-8 */
+		}
+		col += cw;
+		prev_ch = ch;
+	}
+	return col;
 }
 
 /*
