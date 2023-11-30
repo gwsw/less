@@ -1071,8 +1071,6 @@ public void opt_header(int type, constant char *s)
 			break;
 		set_header(lines, cols, start_pos);
 		calc_jump_sline();
-		if (header_lines > 0 || header_cols > 0)
-			error("Header set; use --header=- to disable header", NULL_PARG);
 		break; }
     case QUERY: {
         char buf[3*INT_STRLEN_BOUND(long)+3];
