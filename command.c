@@ -508,7 +508,7 @@ static int mca_opt_char(char c)
 	/*
 	 * Display a prompt appropriate for the option parameter.
 	 */
-	start_mca(A_OPT_TOGGLE, opt_prompt(curropt), (void*)NULL, 0);
+	start_mca(A_OPT_TOGGLE, opt_prompt(curropt), NULL, 0);
 	return (MCA_MORE);
 }
 
@@ -1392,7 +1392,7 @@ public void commands(void)
 			/*
 			 * First digit of a number.
 			 */
-			start_mca(A_DIGIT, ":", (void*)NULL, CF_QUIT_ON_ERASE);
+			start_mca(A_DIGIT, ":", NULL, CF_QUIT_ON_ERASE);
 			goto again;
 
 		case A_F_WINDOW:
@@ -1973,7 +1973,7 @@ public void commands(void)
 			/*
 			 * Set an initial command for new files.
 			 */
-			start_mca(A_FIRSTCMD, "+", (void*)NULL, 0);
+			start_mca(A_FIRSTCMD, "+", NULL, 0);
 			c = getcc();
 			goto again;
 
@@ -2000,7 +2000,7 @@ public void commands(void)
 			 */
 			if (ch_getflags() & CH_HELPFILE)
 				break;
-			start_mca(A_SETMARK, "set mark: ", (void*)NULL, 0);
+			start_mca(A_SETMARK, "set mark: ", NULL, 0);
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
@@ -2012,7 +2012,7 @@ public void commands(void)
 			/*
 			 * Clear a mark.
 			 */
-			start_mca(A_CLRMARK, "clear mark: ", (void*)NULL, 0);
+			start_mca(A_CLRMARK, "clear mark: ", NULL, 0);
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
@@ -2024,7 +2024,7 @@ public void commands(void)
 			/*
 			 * Jump to a marked position.
 			 */
-			start_mca(A_GOMARK, "goto mark: ", (void*)NULL, 0);
+			start_mca(A_GOMARK, "goto mark: ", NULL, 0);
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
@@ -2039,7 +2039,7 @@ public void commands(void)
 #if PIPEC
 			if (secure_allow(SF_PIPE))
 			{
-				start_mca(A_PIPE, "|mark: ", (void*)NULL, 0);
+				start_mca(A_PIPE, "|mark: ", NULL, 0);
 				c = getcc();
 				if (is_erase_char(c))
 					break;
@@ -2058,7 +2058,7 @@ public void commands(void)
 
 		case A_B_BRACKET:
 		case A_F_BRACKET:
-			start_mca(action, "Brackets: ", (void*)NULL, 0);
+			start_mca(action, "Brackets: ", NULL, 0);
 			c = getcc();
 			goto again;
 
@@ -2117,8 +2117,7 @@ public void commands(void)
 			if (mca != A_PREFIX)
 			{
 				cmd_reset();
-				start_mca(A_PREFIX, " ", (void*)NULL,
-					CF_QUIT_ON_ERASE);
+				start_mca(A_PREFIX, " ", NULL, CF_QUIT_ON_ERASE);
 				(void) cmd_char(c);
 			}
 			c = getcc();

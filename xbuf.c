@@ -52,7 +52,7 @@ public void xbuf_add_byte(struct xbuffer *xbuf, unsigned char b)
 		}
 		xbuf->data = data;
 	}
-	xbuf->data[xbuf->end++] = (unsigned char) b;
+	xbuf->data[xbuf->end++] = b;
 }
 
 /*

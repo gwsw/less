@@ -111,7 +111,7 @@ typedef struct t_sgr {
 	t_color bg;
 } t_sgr;
 
-static const t_sgr SGR_DEFAULT; /* = {0} */
+static constant t_sgr SGR_DEFAULT; /* = {0} */
 
 static void update_sgr(t_sgr *sgr, long code)
 {

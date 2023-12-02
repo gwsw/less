@@ -73,7 +73,7 @@ extern int      first_time;
 
 #if MSDOS_COMPILER==WIN32C && (defined(MINGW) || defined(_MSC_VER))
 /* malloc'ed 0-terminated utf8 of 0-terminated wide ws, or null on errors */
-static char *utf8_from_wide(const wchar_t *ws)
+static char *utf8_from_wide(constant wchar_t *ws)
 {
 	char *u8 = NULL;
 	int n = WideCharToMultiByte(CP_UTF8, 0, ws, -1, NULL, 0, NULL, NULL);

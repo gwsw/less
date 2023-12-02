@@ -1000,7 +1000,7 @@ public void opt_intr(int type, constant char *s)
  * Return -1 if the list entry is missing or empty.
  * Updates *sp to point to the first char of the next number in the list.
  */
-public int next_cnum(constant char **sp, constant char *printopt, const char *errmsg, lbool *errp)
+public int next_cnum(constant char **sp, constant char *printopt, constant char *errmsg, lbool *errp)
 {
 	int n;
 	*errp = FALSE;
@@ -1028,7 +1028,7 @@ public int next_cnum(constant char **sp, constant char *printopt, const char *er
  * Parse a parameter to the --header option.
  * Value is "L,C,N", where each field is a decimal number or empty.
  */
-static lbool parse_header(const char *s, int *lines, int *cols, POSITION *start_pos)
+static lbool parse_header(constant char *s, int *lines, int *cols, POSITION *start_pos)
 {
 	int n;
 	lbool err;

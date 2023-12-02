@@ -87,8 +87,8 @@ struct hilite_node
 };
 struct hilite_storage
 {
-	int capacity;
-	int used;
+	size_t capacity;
+	size_t used;
 	struct hilite_storage *next;
 	struct hilite_node *nodes;
 };
@@ -587,6 +587,10 @@ public POSITION prev_unfiltered(POSITION pos)
 	return (pos);
 }
 
+/*
+ * Set the hshift for the line starting at line_pos so that the string 
+ * between start_off and end_off is visible on the screen.
+ */
 static void shift_visible(POSITION line_pos, size_t start_off, size_t end_off)
 {
 	POSITION start_pos = line_pos + start_off;
@@ -674,7 +678,7 @@ public int is_hilited_attr(POSITION pos, POSITION epos, int nohide, int *p_match
  */
 static struct hilite_storage * hlist_getstorage(struct hilite_tree *anchor)
 {
-	int capacity = 1;
+	size_t capacity = 1;
 	struct hilite_storage *s;
 
 	if (anchor->current)
@@ -685,7 +689,7 @@ static struct hilite_storage * hlist_getstorage(struct hilite_tree *anchor)
 	}
 
 	s = (struct hilite_storage *) ecalloc(1, sizeof(struct hilite_storage));
-	s->nodes = (struct hilite_node *) ecalloc((size_t) capacity, sizeof(struct hilite_node));
+	s->nodes = (struct hilite_node *) ecalloc(capacity, sizeof(struct hilite_node));
 	s->capacity = capacity;
 	s->used = 0;
 	s->next = NULL;
