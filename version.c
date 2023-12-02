@@ -1005,6 +1005,7 @@ v646  11/6/23   Bug fixes.
 v647  11/16/23  Fix --+option; fix compiler warnings.
 v648  11/16/23  Add lang.h to release.
 v649  12/1/23   Add line number param to --header.
+v650
 */
 
-char version[] = "649";
+char version[] = "650x";
