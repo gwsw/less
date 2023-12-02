@@ -11,13 +11,15 @@
 
 ======================================================================
 
-	Major changes between "less" versions 643 and 649
+	Major changes between "less" versions 643 and 650
 
 * Add --match-shift option.
 
 * Add --lesskey-content option (github #447).
 
 * Add LESSKEY_CONTENT environment variable.
+
+* Add --no-search-header-lines and --no-search-header-columns options.
 
 * Allow expansion of environment variables in lesskey files.
 

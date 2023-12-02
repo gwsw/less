@@ -70,7 +70,8 @@ public int status_line;         /* Highlight entire marked lines */
 public int header_lines;        /* Freeze header lines at top of screen */
 public int header_cols;         /* Freeze header columns at left of screen */
 public int nonum_headers;       /* Don't give headers line numbers */
-public int nosearch_headers;    /* Don't search in header lines or columns */
+public int nosearch_header_lines = 0; /* Don't search in header lines */
+public int nosearch_header_cols = 0; /* Don't search in header columns */
 public int redraw_on_quit;      /* Redraw last screen after term deinit */
 public int def_search_type;     /* */
 public int exit_F_on_close;     /* Exit F command when input closes */
@@ -162,6 +163,8 @@ static struct optname status_line_optname = { "status-line",     NULL };
 static struct optname header_optname = { "header",               NULL };
 static struct optname nonum_headers_optname = { "no-number-headers", NULL };
 static struct optname nosearch_headers_optname = { "no-search-headers", NULL };
+static struct optname nosearch_header_lines_optname = { "no-search-header-lines", NULL };
+static struct optname nosearch_header_cols_optname = { "no-search-header-columns", NULL };
 static struct optname redraw_on_quit_optname = { "redraw-on-quit", NULL };
 static struct optname search_type_optname = { "search-options", NULL };
 static struct optname exit_F_on_close_optname = { "exit-follow-on-close", NULL };
@@ -625,11 +628,21 @@ static struct loption option[] =
 		}
 	},
 	{ OLETTER_NONE, &nosearch_headers_optname,
-		BOOL|HL_REPAINT, 0, &nosearch_headers, NULL,
+		BOOL|HL_REPAINT, 0, NULL, opt_nosearch_headers,
 		{
-			"Search includes header lines",
-			"Search does not include header lines",
-			NULL
+			NULL, NULL, NULL
+		}
+	},
+	{ OLETTER_NONE, &nosearch_header_lines_optname,
+		BOOL|HL_REPAINT, 0, NULL, opt_nosearch_header_lines,
+		{
+			NULL, NULL, NULL
+		}
+	},
+	{ OLETTER_NONE, &nosearch_header_cols_optname,
+		BOOL|HL_REPAINT, 0, NULL, opt_nosearch_header_cols,
+		{
+			NULL, NULL, NULL
 		}
 	},
 	{ OLETTER_NONE, &redraw_on_quit_optname,

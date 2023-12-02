@@ -1323,6 +1323,10 @@ Normally, a string may appear multiple times.
 .IP "\-\-no-number-headers"
 Header lines (defined via the \-\-header option) are not assigned line numbers.
 Line number 1 is assigned to the first line after any header lines.
+.IP "\-\-no-search-header-lines"
+Searches do not include header lines, but still include header columns.
+.IP "\-\-no-search-header-columns"
+Searches do not include header columns, but still include header lines.
 .IP "\-\-no-search-headers"
 Searches do not include header lines or header columns.
 .IP "\-\-no-vbell"

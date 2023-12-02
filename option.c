@@ -239,18 +239,24 @@ public void scan_option(constant char *s)
 		case BOOL:
 			if (o->otype & UNSUPPORTED)
 				break;
-			if (set_default)
-				*(o->ovar) = o->odefault;
-			else
-				*(o->ovar) = ! o->odefault;
+			if (o->ovar != NULL)
+			{
+				if (set_default)
+					*(o->ovar) = o->odefault;
+				else
+					*(o->ovar) = ! o->odefault;
+			}
 			break;
 		case TRIPLE:
 			if (o->otype & UNSUPPORTED)
 				break;
-			if (set_default)
-				*(o->ovar) = o->odefault;
-			else
-				*(o->ovar) = flip_triple(o->odefault, lc);
+			if (o->ovar != NULL)
+			{
+				if (set_default)
+					*(o->ovar) = o->odefault;
+				else
+					*(o->ovar) = flip_triple(o->odefault, lc);
+			}
 			break;
 		case STRING:
 			if (*s == '\0')
@@ -365,17 +371,20 @@ public void toggle_option(struct loption *o, int lower, constant char *s, int ho
 			/*
 			 * Boolean.
 			 */
-			switch (how_toggle)
+			if (o->ovar != NULL)
 			{
-			case OPT_TOGGLE:
-				*(o->ovar) = ! *(o->ovar);
-				break;
-			case OPT_UNSET:
-				*(o->ovar) = o->odefault;
-				break;
-			case OPT_SET:
-				*(o->ovar) = ! o->odefault;
-				break;
+				switch (how_toggle)
+				{
+				case OPT_TOGGLE:
+					*(o->ovar) = ! *(o->ovar);
+					break;
+				case OPT_UNSET:
+					*(o->ovar) = o->odefault;
+					break;
+				case OPT_SET:
+					*(o->ovar) = ! o->odefault;
+					break;
+				}
 			}
 			break;
 		case TRIPLE:
@@ -386,17 +395,20 @@ public void toggle_option(struct loption *o, int lower, constant char *s, int ho
 			 *      If user gave the upper case letter, then switch
 			 *      to 2 unless already 2, in which case make it 0.
 			 */
-			switch (how_toggle)
+			if (o->ovar != NULL)
 			{
-			case OPT_TOGGLE:
-				*(o->ovar) = flip_triple(*(o->ovar), lower);
-				break;
-			case OPT_UNSET:
-				*(o->ovar) = o->odefault;
-				break;
-			case OPT_SET:
-				*(o->ovar) = flip_triple(o->odefault, lower);
-				break;
+				switch (how_toggle)
+				{
+				case OPT_TOGGLE:
+					*(o->ovar) = flip_triple(*(o->ovar), lower);
+					break;
+				case OPT_UNSET:
+					*(o->ovar) = o->odefault;
+					break;
+				case OPT_SET:
+					*(o->ovar) = flip_triple(o->odefault, lower);
+					break;
+				}
 			}
 			break;
 		case STRING:
@@ -460,7 +472,8 @@ public void toggle_option(struct loption *o, int lower, constant char *s, int ho
 			/*
 			 * Print the odesc message.
 			 */
-			error(o->odesc[*(o->ovar)], NULL_PARG);
+			if (o->ovar != NULL)
+				error(o->odesc[*(o->ovar)], NULL_PARG);
 			break;
 		case NUMBER:
 			/*

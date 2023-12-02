@@ -37,7 +37,8 @@ extern int sc_width;
 extern int sc_height;
 extern int hshift;
 extern int match_shift;
-extern int nosearch_headers;
+extern int nosearch_header_lines;
+extern int nosearch_header_cols;
 extern int header_lines;
 extern int header_cols;
 extern char rscroll_char;
@@ -499,12 +500,9 @@ static int hilited_range_attr(POSITION pos, POSITION epos)
 /*
  * Set header parameters.
  */
-public void set_header(int lines, int cols, POSITION pos)
+public void set_header(POSITION pos)
 {
-	header_cols = cols;
-	header_lines = lines;
 	header_start_pos = (header_lines == 0) ? NULL_POSITION : pos;
-
 	if (header_start_pos != NULL_POSITION)
 	{
 		int ln;
@@ -1239,7 +1237,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 	size_t sheight = (size_t) (sc_height - sindex_from_sline(jump_sline));
 
 	linenum = find_linenum(pos);
-	if (nosearch_headers && linenum <= header_lines)
+	if (nosearch_header_lines && linenum <= header_lines)
 	{
 		linenum = header_lines + 1;
 		pos = find_pos(linenum);
@@ -1356,7 +1354,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 		if (is_filtered(linepos))
 			continue;
 #endif
-		if (nosearch_headers)
+		if (nosearch_header_cols)
 			skip_bytes = skip_columns(header_cols, &line, &line_len);
 
 		/*

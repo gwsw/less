@@ -67,6 +67,8 @@ extern int tabstops[];
 extern int ntabstops;
 extern int tabdefault;
 extern char intr_char;
+extern int nosearch_header_lines;
+extern int nosearch_header_cols;
 extern POSITION header_start_pos;
 #if LOGFILE
 extern char *namelogfile;
@@ -1069,7 +1071,9 @@ public void opt_header(int type, constant char *s)
 		if (start_pos == NULL_POSITION) start_pos = ch_zero();
 		if (!parse_header(s, &lines, &cols, &start_pos))
 			break;
-		set_header(lines, cols, start_pos);
+		header_lines = lines;
+		header_cols = cols;
+		set_header(start_pos);
 		calc_jump_sline();
 		break; }
     case QUERY: {
@@ -1142,6 +1146,50 @@ public void opt_search_type(int type, constant char *s)
 		error("search options: %s", &parg);
 		break;
 	}
+}
+
+/*
+ * Handler for the --no-search-headers, --no-search-header-lines
+ * and --no-search-header-cols options.
+ */
+static void do_nosearch_headers(int type, int no_header_lines, int no_header_cols)
+{
+	switch (type)
+	{
+	case INIT:
+		break;
+	case TOGGLE:
+		nosearch_header_lines = no_header_lines;
+		nosearch_header_cols = no_header_cols;
+		break;
+	case QUERY:
+		if (nosearch_header_lines && nosearch_header_cols)
+			error("Search does not include header lines or columns", NULL_PARG);
+		else if (nosearch_header_lines)
+			error("Search includes header columns but not header lines", NULL_PARG);
+		else if (nosearch_header_cols)
+			error("Search includes header lines but not header columns", NULL_PARG);
+		else
+			error("Search includes header lines and columns", NULL_PARG);
+	}
+}
+
+	/*ARGSUSED*/
+public void opt_nosearch_headers(int type, constant char *s)
+{
+	do_nosearch_headers(type, 1, 1);
+}
+
+	/*ARGSUSED*/
+public void opt_nosearch_header_lines(int type, constant char *s)
+{
+	do_nosearch_headers(type, 1, 0);
+}
+
+	/*ARGSUSED*/
+public void opt_nosearch_header_cols(int type, constant char *s)
+{
+	do_nosearch_headers(type, 0, 1);
 }
 
 #if LESSTEST

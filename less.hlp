@@ -235,8 +235,12 @@
                   Remove duplicates from command history.
                 --no-number-headers
                   Don't give line numbers to header lines.
+                --no-search-header-lines
+                  Searches do not include header lines.
+                --no-search-header-columns
+                  Searches do not include header columns.
                 --no-search-headers
-                  Don't search in header lines or columns.
+                  Searches do not include header lines or columns.
                 --no-vbell
                   Disable the terminal's visual bell.
                 --redraw-on-quit
