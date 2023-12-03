@@ -253,6 +253,9 @@ That is, if the search reaches the end of the current file
 without finding a match, the search continues from the first line of the
 current file up to the line where it started.
 If the \(haW modifier is set, the \(haE modifier is ignored.
+.IP "\(haL"
+The next character is taken literally; that is, it becomes part of the pattern
+even if it is one of the above search modifier characters.
 .RE
 .IP ?pattern
 Search backward in the file for the N-th line containing the pattern.

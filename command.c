@@ -79,6 +79,7 @@ static int save_hshift;
 static int save_bs_mode;
 static int save_proc_backspace;
 static int screen_trashed_value = 0;
+static lbool literal_char = FALSE;
 #if PIPEC
 static char pipec;
 #endif
@@ -178,6 +179,8 @@ static void mca_search1(void)
 			cmd_putstr(buf);
 		}
 	}
+	if (literal_char)
+		cmd_putstr("Lit ");
 
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
@@ -537,8 +540,11 @@ static int mca_search_char(char c)
 	 *      *  Toggle the PAST_EOF flag
 	 *      @  Toggle the FIRST_FILE flag
 	 */
-	if (len_cmdbuf() > 0)
+	if (len_cmdbuf() > 0 || literal_char)
+	{
+		literal_char = FALSE;
 		return (NO_MCA);
+	}
 
 	switch (c)
 	{
@@ -579,6 +585,10 @@ static int mca_search_char(char c)
 	case CONTROL('N'): /* NOT match */
 	case '!':
 		flag = SRCH_NO_MATCH;
+		break;
+	case CONTROL('L'):
+		literal_char = TRUE;
+		flag = -1;
 		break;
 	}
 

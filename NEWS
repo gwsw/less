@@ -21,6 +21,8 @@
 
 * Add --no-search-header-lines and --no-search-header-columns options.
 
+* Add ctrl-L search modifier.
+
 * Allow expansion of environment variables in lesskey files.
 
 * Add LESSSECURE_ALLOW environment variable (github #449).
