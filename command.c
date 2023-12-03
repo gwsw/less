@@ -1691,6 +1691,7 @@ public void commands(void)
 			search_type = SRCH_FORW | def_search_type;
 			if (number <= 0)
 				number = 1;
+			literal_char = FALSE;
 			mca_search();
 			c = getcc();
 			goto again;
@@ -1703,6 +1704,7 @@ public void commands(void)
 			search_type = SRCH_BACK | def_search_type;
 			if (number <= 0)
 				number = 1;
+			literal_char = FALSE;
 			mca_search();
 			c = getcc();
 			goto again;
@@ -1710,6 +1712,7 @@ public void commands(void)
 		case A_FILTER:
 #if HILITE_SEARCH
 			search_type = SRCH_FORW | SRCH_FILTER;
+			literal_char = FALSE;
 			mca_search();
 			c = getcc();
 			goto again;
