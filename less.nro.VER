@@ -462,6 +462,8 @@ current file.
 A pound sign (#) is replaced by the name of the previously examined file.
 "!!" repeats the last shell command.
 "!" with no shell command simply invokes a shell.
+If a \(haP (CONTROL-P) is entered immediately after the !,
+no "done" message is printed after the shell command is executed.
 On Unix systems, the shell is taken from the environment variable SHELL,
 or defaults to "sh".
 On MS-DOS and OS/2 systems, the shell is the normal command processor.
@@ -478,6 +480,8 @@ The entire current screen is included, regardless of whether the
 marked position is before or after the current screen.
 <m> may also be \(ha or $ to indicate beginning or end of file respectively.
 If <m> is \&.\& or newline, the current screen is piped.
+If a \(haP (CONTROL-P) is entered immediately after the mark letter,
+no "done" message is printed after the shell command is executed.
 .IP "s filename"
 Save the input to a file.
 This works only if the input is a pipe, not an ordinary file.

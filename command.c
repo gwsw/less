@@ -290,39 +290,47 @@ static void exec_mca(void)
 		break;
 #endif
 #if SHELL_ESCAPE
-	case A_SHELL:
+	case A_SHELL: {
 		/*
 		 * !! just uses whatever is in shellcmd.
 		 * Otherwise, copy cmdbuf to shellcmd,
 		 * expanding any special characters ("%" or "#").
 		 */
+		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : "!done";
+		if (done_msg == NULL)
+			++cbuf;
 		if (*cbuf != '!')
 		{
 			if (shellcmd != NULL)
 				free(shellcmd);
 			shellcmd = fexpand(cbuf);
 		}
-
 		if (!secure_allow(SF_SHELL))
 			break;
 		if (shellcmd == NULL)
-			lsystem("", "!done");
-		else
-			lsystem(shellcmd, "!done");
-		break;
-	case A_PSHELL:
+			shellcmd = "";
+		lsystem(shellcmd, done_msg);
+		break; }
+	case A_PSHELL: {
+		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : "#done";
+		if (done_msg == NULL)
+			++cbuf;
 		if (!secure_allow(SF_SHELL))
 			break;
-		lsystem(pr_expand(cbuf), "#done");
-		break;
+		lsystem(pr_expand(cbuf), done_msg);
+		break; }
 #endif
 #if PIPEC
-	case A_PIPE:
+	case A_PIPE: {
+		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : "|done";
+		if (done_msg == NULL)
+			++cbuf;
 		if (!secure_allow(SF_PIPE))
 			break;
 		(void) pipe_mark(pipec, cbuf);
-		error("|done", NULL_PARG);
-		break;
+		if (done_msg != NULL)
+			error(done_msg, NULL_PARG);
+		break; }
 #endif
 	}
 }
@@ -1825,7 +1833,7 @@ public void commands(void)
 				 */
 				make_display();
 				cmd_exec();
-				lsystem(pr_expand(editproto), (char*)NULL);
+				lsystem(pr_expand(editproto), NULL);
 				break;
 			}
 #endif
