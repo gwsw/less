@@ -17,11 +17,15 @@
 
 * Add --lesskey-content option (github #447).
 
-* Add LESSKEY_CONTENT environment variable.
+* Add LESSKEY_CONTENT environment variable (github #447).
 
-* Add --no-search-header-lines and --no-search-header-columns options.
+* Add --no-search-header-lines and --no-search-header-columns options
+  (github #397).
 
-* Add ctrl-L search modifier.
+* Add ctrl-L search modifier (github #367).
+
+* A ctrl-P at the start of a shell command suppresses the "done" 
+  message (github #462).
 
 * Allow expansion of environment variables in lesskey files.
 
