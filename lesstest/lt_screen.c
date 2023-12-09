@@ -362,13 +362,11 @@ static int add_char(wchar ch) {
 				// The "shadow" is the second column used by a wide char.
 				screen_char_set(screen.cx, screen.cy, WIDESHADOW_CHAR, 0, NULL_COLOR, NULL_COLOR);
 				fits = screen_incr(&screen.cx, &screen.cy);
-			} else {
-				ScreenChar* sc = screen_char(screen.cx, screen.cy);
-				if (sc->ch == WIDESHADOW_CHAR) {
-					// We overwrote the first half of a wide character.
-					// Change the orphaned shadow to an error char.
-					screen_char_set(screen.cx, screen.cy, ERROR_CHAR, screen.curr_attr, NULL_COLOR, NULL_COLOR);
-				}
+			}
+			if (screen_char(screen.cx, screen.cy)->ch == WIDESHADOW_CHAR) {
+				// We overwrote the first half of a wide character.
+				// Change the orphaned shadow to an error char.
+				screen_char_set(screen.cx, screen.cy, ERROR_CHAR, screen.curr_attr, NULL_COLOR, NULL_COLOR);
 			}
 		}
 	}
