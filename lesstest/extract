@@ -13,18 +13,19 @@ _EOF_
 
 my %opt;
 
-main();
+exit(main() ? 0 : 1);
 sub main() {
     die $usage if not getopts('cfkv', \%opt);
     foreach my $in_filename (@ARGV) {
         my $in;
         if (not open $in, '<', $in_filename) {
             print STDERR "ERROR: cannot open $in_filename: $!\n";
-            next;
+            return 0;
         }
-        read_ltfile($in, $in_filename);
+        return 0 if not read_ltfile($in, $in_filename);
         close $in;
     }
+    return 1;
 }
 
 sub read_ltfile {
@@ -36,15 +37,16 @@ sub read_ltfile {
         } else {
             if (not $is_lt_file) {
                 print STDERR "WARNING: skipping $in_filename: not an lt file\n";
-                return;
+                return 0;
             }
             if (/^F\s*"([^"]+)"\s*(\d+)/) {
-                create_text_file($1, $2, $in);
+                return 0 if not create_text_file($1, $2, $in);
             } elsif (/^\+([0-9a-fA-F]+)/) {
                 print "$1\n" if $opt{k};
             }
         }
     }
+    return 1;
 }
 
 sub create_text_file {
@@ -57,18 +59,20 @@ sub create_text_file {
     } else {
         if (-f $out_filename and not $opt{f}) {
             print STDERR "WARNING: skipping existing file $out_filename (use -f to overwrite)\n";
-            return;
+            return 0;
         }
         if (not open($out, '>', $out_filename)) {
             print STDERR "ERROR: cannot create $out_filename: $!\n";
-            return;
+            return 0;
         }
     }
     my $buf;
     my $nread = read $in, $buf, $filelen;
     print STDERR "$out_filename: read $nread/$filelen\n" if $opt{v};
     print STDERR "WARNING: read only $nread of $filelen bytes\n" if not $nread or $nread != $filelen;
-    return if $opt{k};
-    print $out $buf;
-    close $out unless $opt{c};
+    if (not $opt{k}) {
+        print $out $buf;
+        close $out unless $opt{c};
+    }
+    return 1;
 }
