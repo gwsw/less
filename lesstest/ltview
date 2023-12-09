@@ -30,7 +30,7 @@ my $ATTR_UNDERLINE      = (1<<1);
 my $ATTR_STANDOUT       = (1<<2);
 my $ATTR_BLINK          = (1<<3);
 my $NULL_COLOR          = 0xFF;
-my $DIFF_ATTR_ON        = "\e[5m"; # blink
+my $DIFF_ATTR_ON        = "\e[101m"; # blink
 my $DIFF_ATTR_OFF       = "\e[m";
 
 my %spec_chars = (
@@ -480,7 +480,6 @@ sub parse_errfile {
 # ---------------------------------------------------------------------
 sub parse_errline {
     my ($line) = @_;
-    $line =~ s/<0>//g;
     $line =~ s/<([\da-f]+)>/utf8_str($1)/eig;
     return $line;
 }
