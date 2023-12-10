@@ -52,6 +52,7 @@ static POSITION prep_startpos;
 static POSITION prep_endpos;
 public POSITION header_start_pos = NULL_POSITION;
 static POSITION header_end_pos;
+public lbool search_wrapped = FALSE;
 
 /*
  * Structures for maintaining a set of ranges for hilites and filtered-out
@@ -1332,6 +1333,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 					 * the flag so we don't wrap again, and
 					 * continue the search at new pos.
 					 */
+					search_wrapped = TRUE;
 					search_type &= ~SRCH_WRAP;
 					linenum = find_linenum(pos);
 					continue;

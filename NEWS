@@ -42,6 +42,8 @@
 
 * Change default character set on Windows from dos to utf-8.
 
+* Add message when search with ^W wraps (github #459).
+
 * UCRT builds on Windows 10 and later now support Unicode file names
   (github #438).
 

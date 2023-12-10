@@ -47,6 +47,7 @@ extern void *ml_examine;
 extern int wheel_lines;
 extern int def_search_type;
 extern int updown_match;
+extern lbool search_wrapped;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
@@ -903,6 +904,14 @@ static void prompt(void)
 	if (is_filtering())
 		putstr("& ");
 #endif
+	if (search_wrapped)
+	{
+		if (search_type & SRCH_BACK)
+			error("Search hit top; continuing at bottom", NULL_PARG);
+		else
+			error("Search hit bottom; continuing at top", NULL_PARG);
+		search_wrapped = FALSE;
+	}
 	if (p == NULL || *p == '\0')
 	{
 		at_enter(AT_NORMAL|AT_COLOR_PROMPT);
