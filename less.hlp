@@ -75,6 +75,11 @@
 
   m_<_l_e_t_t_e_r_>            Mark the current top line with <letter>.
   M_<_l_e_t_t_e_r_>            Mark the current bottom line with <letter>.
+  ^O^I_<_i_d_>             Search for an OSC 8 <id> in the file.
+  ^O^P                 Go to previous OSC 8 link.
+  ^O^N                 Go to next OSC 8 link.
+  ^O^O                 Open current OSC 8 link with LESSOSC8OPEN.
+  ^O^L_<_i_d_>             Combined ^O^I plus ^O^O.
   '_<_l_e_t_t_e_r_>            Go to a previously marked position.
   ''                   Go to the previous position.
   ^X^X                 Same as '.

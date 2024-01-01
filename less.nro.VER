@@ -105,6 +105,17 @@ and LEFTARROW commands.
 Scroll horizontally right to show the end of the longest displayed line.
 .IP "ESC-{ or \(haLEFTARROW"
 Scroll horizontally left back to the first column.
+.IP "^O^I"
+Search for an OSC 8 ID in the file.
+.IP "^O^P"
+Go to the previous OSC 8 link.
+.IP "^O^N"
+Go to the next OSC 8 link.
+.IP "^O^O"
+Open the current OSC 8 link with the command specified
+in the LESSOSC8OPEN environment variable.
+.IP "^O^L"
+Combined ^O^I plus ^O^O.
 .IP "r or \(haR or \(haL"
 Repaint the screen.
 .IP R
@@ -2316,6 +2327,11 @@ Enables individual features which are normally disabled by LESSSECURE.
 See discussion under SECURITY.
 .IP LESSSEPARATOR
 String to be appended to a directory name in filename completion.
+.IP LESSOSC8OPEN
+Command line to invoke when following OSC 8 links.
+Without this being set only
+.IR man (1)
+references like "man:ls(1)" can be opened.
 .IP LESSUTFBINFMT
 Format for displaying non-printable Unicode code points.
 .IP LESSUTFCHARDEF 

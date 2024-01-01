@@ -77,6 +77,11 @@
 #define A_X116MOUSE_IN         68
 #define A_PSHELL               69
 #define A_CLR_SEARCH           70
+#define A_OSC8_ID_SEARCH       84
+#define A_OSC8_ID_SEARCH_LOAD  85
+#define A_OSC8_GOTO_P          86
+#define A_OSC8_GOTO_N          87
+#define A_OSC8_OPEN            88
 
 /* These values must not conflict with any A_* or EC_* value. */
 #define A_INVALID              100
