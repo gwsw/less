@@ -16,7 +16,7 @@
 #if HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
-#if OS2 || (defined WIFSIGNALED && defined WTERMSIG)
+#if OS2 || __MVS__ || (defined WIFSIGNALED && defined WTERMSIG)
 #include <signal.h>
 #endif
 
@@ -305,11 +305,7 @@ static void close_pipe(FILE *pipefd)
 	if (WIFSIGNALED(status))
 	{
 		int sig = WTERMSIG(status);
-		if (
-#ifdef SIGPIPE
-      sig != SIGPIPE ||
-#endif
-      ch_length() != NULL_POSITION)
+		if (sig != SIGPIPE || ch_length() != NULL_POSITION)
 		{
 			parg.p_string = signal_message(sig);
 			error("Input preprocessor terminated: %s", &parg);
