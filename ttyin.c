@@ -83,6 +83,10 @@ public int open_tty(void)
 		fd = open_tty_device("/dev/tty");
 	if (fd < 0)
 		fd = 2;
+#ifdef __MVS__
+	struct f_cnvrt cvtreq = {SETCVTON, 0, 1047};
+	fcntl(fd, F_CONTROL_CVT, &cvtreq);
+#endif
 	return fd;
 }
 #endif /* MSDOS_COMPILER */
