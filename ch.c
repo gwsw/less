@@ -718,21 +718,27 @@ public void ch_flush(void)
 
 #if HAVE_PROCFS
 	/*
-	 * This is a kludge to workaround a Linux kernel bug: files in
-	 * /proc have a size of 0 according to fstat() but have readable 
-	 * data.  They are sometimes, but not always, seekable.
-	 * Force them to be non-seekable here.
+	 * This is a kludge to workaround a Linux kernel bug: files in some
+	 * pseudo filesystems like /proc and tracefs have a size of 0
+	 * according to fstat() but have readable data.  They are sometimes,
+	 * but not always, seekable. Force them to be non-seekable here.
 	 */
 	if (ch_fsize == 0)
 	{
 		struct statfs st;
 		if (fstatfs(ch_file, &st) == 0)
 		{
+#if HAVE_TRACEFS
+			if (st.f_type == PROC_SUPER_MAGIC ||
+			    st.f_type == TRACEFS_MAGIC)
+#else
 			if (st.f_type == PROC_SUPER_MAGIC)
+#endif
 			{
 				ch_fsize = NULL_POSITION;
 				ch_flags &= ~CH_CANSEEK;
 			}
+
 		}
 	}
 #endif
