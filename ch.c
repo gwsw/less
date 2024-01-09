@@ -20,13 +20,6 @@
 #include <windows.h>
 #endif
 
-#if HAVE_PROCFS
-#include <sys/statfs.h>
-#if HAVE_LINUX_MAGIC_H
-#include <linux/magic.h>
-#endif
-#endif
-
 typedef POSITION BLOCKNUM;
 
 public int ignore_eoi;
@@ -705,37 +698,17 @@ public void ch_flush(void)
 	}
 
 	/*
-	 * Figure out the size of the file, if we can.
-	 */
-	ch_fsize = filesize(ch_file);
-
-	/*
 	 * Seek to a known position: the beginning of the file.
 	 */
 	ch_fpos = 0;
 	ch_block = 0; /* ch_fpos / LBUFSIZE; */
 	ch_offset = 0; /* ch_fpos % LBUFSIZE; */
 
-#if HAVE_PROCFS
-	/*
-	 * This is a kludge to workaround a Linux kernel bug: files in
-	 * /proc have a size of 0 according to fstat() but have readable 
-	 * data.  They are sometimes, but not always, seekable.
-	 * Force them to be non-seekable here.
-	 */
-	if (ch_fsize == 0)
+	if (ch_flags & CH_NOTRUSTSIZE)
 	{
-		struct statfs st;
-		if (fstatfs(ch_file, &st) == 0)
-		{
-			if (st.f_type == PROC_SUPER_MAGIC)
-			{
-				ch_fsize = NULL_POSITION;
-				ch_flags &= ~CH_CANSEEK;
-			}
-		}
+		ch_fsize = NULL_POSITION;
+		ch_flags &= ~CH_CANSEEK;
 	}
-#endif
 
 	if (less_lseek(ch_file, (less_off_t)0, SEEK_SET) == BAD_LSEEK)
 	{
@@ -837,7 +810,7 @@ public void ch_set_eof(void)
 /*
  * Initialize file state for a new file.
  */
-public void ch_init(int f, int flags)
+public void ch_init(int f, int flags, ssize_t nread)
 {
 	/*
 	 * See if we already have a filestate for this file.
@@ -868,6 +841,22 @@ public void ch_init(int f, int flags)
 	}
 	if (thisfile->file == -1)
 		thisfile->file = f;
+
+	/*
+	 * Figure out the size of the file, if we can.
+	 */
+	ch_fsize = filesize(ch_file);
+
+	/*
+	 * This is a kludge to workaround a Linux kernel bug: files in some
+	 * pseudo filesystems like /proc and tracefs have a size of 0 according
+	 * to fstat() but have readable data.
+	 */
+	if (ch_fsize == 0 && nread > 0)
+	{
+		ch_flags |= CH_NOTRUSTSIZE;
+	}
+
 	ch_flush();
 }
 

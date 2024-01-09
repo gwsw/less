@@ -451,10 +451,13 @@ public char * fcomplete(constant char *s)
 /*
  * Try to determine if a file is "binary".
  * This is just a guess, and we need not try too hard to make it accurate.
+ *
+ * The number of bytes read is returned to the caller, because it will
+ * be used later to compare to st_size from stat(2) to see if the file
+ * is lying about its size.
  */
-public int bin_file(int f)
+public int bin_file(int f, ssize_t *n)
 {
-	ssize_t n;
 	int bin_count = 0;
 	char data[256];
 	constant char* p;
@@ -464,10 +467,10 @@ public int bin_file(int f)
 		return (0);
 	if (less_lseek(f, (less_off_t)0, SEEK_SET) == BAD_LSEEK)
 		return (0);
-	n = read(f, data, sizeof(data));
-	if (n <= 0)
+	*n = read(f, data, sizeof(data));
+	if (*n <= 0)
 		return (0);
-	edata = &data[n];
+	edata = &data[*n];
 	for (p = data;  p < edata;  )
 	{
 		if (utf_mode && !is_utf8_well_formed(p, (int) ptr_diff(edata,p)))

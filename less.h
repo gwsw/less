@@ -593,6 +593,7 @@ typedef enum {
 #define CH_POPENED      004
 #define CH_HELPFILE     010
 #define CH_NODATA       020     /* Special case for zero length files */
+#define CH_NOTRUSTSIZE  040     /* For files that claim 0 length size falsely */
 
 #define ch_zero()       ((POSITION)0)
 
