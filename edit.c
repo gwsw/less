@@ -441,6 +441,7 @@ public int edit_ifile(IFILE ifile)
 	IFILE was_curr_ifile;
 	char *p;
 	PARG parg;
+	ssize_t nread;
 
 	if (ifile == curr_ifile)
 	{
@@ -543,7 +544,7 @@ public int edit_ifile(IFILE ifile)
 			} else 
 			{
 				chflags |= CH_CANSEEK;
-				if (!force_open && !opened(ifile) && bin_file(f))
+				if (bin_file(f, &nread) && !force_open && !opened(ifile))
 				{
 					/*
 					 * Looks like a binary file.  
@@ -607,7 +608,7 @@ public int edit_ifile(IFILE ifile)
 	set_altpipe(curr_ifile, altpipe);
 	set_open(curr_ifile); /* File has been opened */
 	get_pos(curr_ifile, &initial_scrpos);
-	ch_init(f, chflags);
+	ch_init(f, chflags, nread);
 	consecutive_nulls = 0;
 	check_modelines();
 
