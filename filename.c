@@ -777,9 +777,24 @@ public char * lrealpath(constant char *path)
 	if (!is_fake_pathname(path))
 	{
 #if HAVE_REALPATH
+		/*
+		 * Not all systems support the POSIX.1-2008 realpath() behavior
+		 * of allocating when passing a NULL argument. And PATH_MAX is
+		 * not required to be defined, or might contain an exceedingly
+		 * big value. We assume that if it is not defined (such as on
+		 * GNU/Hurd), then realpath() accepts NULL.
+		 */
+#ifndef PATH_MAX
+		char *rpath;
+
+		rpath = realpath(path, NULL);
+		if (rpath != NULL)
+			return (rpath);
+#else
 		char rpath[PATH_MAX];
 		if (realpath(path, rpath) != NULL)
 			return (save(rpath));
+#endif
 #endif
 	}
 	return (save(path));
