@@ -90,6 +90,12 @@
 #define	LOGFILE		(!SECURE)
 
 /*
+ * OSC8_SEARCH is 1 if you wish to allow the ^O^O and related commands
+ * (to open OSC8 hyperlinks).
+ */
+#define OSC8_LINK	1
+
+/*
  * GNU_OPTIONS is 1 if you wish to support the GNU-style command
  * line options --help and --version.
  */

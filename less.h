@@ -392,13 +392,27 @@ typedef short POLL_EVENTS;
 #define SRCH_FILTER     (1 << 13) /* Search is for '&' (filter) command */
 #define SRCH_AFTER_TARGET (1 << 14) /* Start search after the target line */
 #define SRCH_WRAP       (1 << 15) /* Wrap-around search (continue at BOF/EOF) */
-#define SRCH_SUBSEARCH(i) (1 << (16+(i))) /* Search for subpattern */
+#if OSC8_LINK
+#define SRCH_OSC8       (1 << 16) /* */
+#endif
+#define SRCH_SUBSEARCH(i) (1 << (17+(i))) /* Search for subpattern */
 /* {{ Depends on NUM_SEARCH_COLORS==5 }} */
 #define SRCH_SUBSEARCH_ALL (SRCH_SUBSEARCH(1)|SRCH_SUBSEARCH(2)|SRCH_SUBSEARCH(3)|SRCH_SUBSEARCH(4)|SRCH_SUBSEARCH(5))
 
 #define SRCH_REVERSE(t) (((t) & SRCH_FORW) ? \
                                 (((t) & ~SRCH_FORW) | SRCH_BACK) : \
                                 (((t) & ~SRCH_BACK) | SRCH_FORW))
+#if OSC8_LINK
+/* Parsing position in an OSC8 link: "\e]8;PARAMS;URI\e\\" (final "\e\\" may be "\7") */
+typedef enum osc8_state {
+	OSC8_NOT,     /* This is not an OSC8 link */
+	OSC8_PREFIX,  /* In the "\e]8;" */
+	OSC8_PARAMS,  /* In the parameters */
+	OSC8_URI,     /* In the URI */
+	OSC8_ST_ESC,  /* After the final \e */
+	OSC8_END,     /* At end */
+} osc8_state;
+#endif
 
 /* */
 #define NO_MCA          0
@@ -617,6 +631,7 @@ typedef enum {
 #define SF_SHELL            (1<<9)  /* Shell command (!) */
 #define SF_STOP             (1<<10) /* Stop signal */
 #define SF_TAGS             (1<<11) /* Tags */
+#define SF_OSC8_OPEN        (1<<12) /* OSC8 open */
 
 #if LESSTEST
 #define LESS_DUMP_CHAR CONTROL(']')

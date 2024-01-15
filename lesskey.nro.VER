@@ -213,6 +213,11 @@ n	repeat-search
 \een	repeat-search-all
 N	reverse-search
 \eeN	reverse-search-all
+^O^N	osc8-forw-search
+^On	osc8-forw-search
+^O^P	osc8-back-search
+^Op	osc8-back-search
+^O^O	osc8-open
 &	filter
 m	set-mark
 M	set-mark-bottom

@@ -379,6 +379,10 @@ Go to the next tag, if there were more than one matches for the current tag.
 See the \-t option for more details about tags.
 .IP "T"
 Go to the previous tag, if there were more than one matches for the current tag.
+.IP "\(haO\(haN or \(haOn"
+Search forward in the file for the N-th next OSC8 hyperlink.
+.IP "\(haO\(haP or \(haOp"
+Search backward in the file for the N-th previous OSC8 hyperlink.
 .IP "= or \(haG or :f"
 Prints some information about the file being viewed,
 including its name
@@ -446,7 +450,7 @@ Exits
 .BR less .
 .PP
 The following
-six
+seven
 commands may or may not be valid, depending on your particular installation.
 .
 .IP v
@@ -485,6 +489,8 @@ no "done" message is printed after the shell command is executed.
 .IP "s filename"
 Save the input to a file.
 This works only if the input is a pipe, not an ordinary file.
+.IP "^O^O"
+Open the currently selected OSC8 hyperlink.
 .IP "\(haX"
 When the "Waiting for data" message is displayed,
 such as while in the F command, pressing \(haX
@@ -2141,6 +2147,8 @@ use of lesskey files (-k and --lesskey-src)
 input preprocessor (LESSOPEN environment variable)
 .IP "logfile"
 log files (s and -o)
+.IP "osc8"
+opening OSC8 links (^O^O)
 .IP "pipe"
 the pipe command (|) 
 .IP "shell"

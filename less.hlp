@@ -41,6 +41,8 @@
   N                 *  Repeat previous search in reverse direction.
   ESC-n             *  Repeat previous search, spanning files.
   ESC-N             *  Repeat previous search, reverse dir. & spanning files.
+  ^O^N  ^On         *  Search forward for (_N-th) OSC8 hyperlink.
+  ^O^P  ^Op         *  Search backword for (_N-th) OSC8 hyperlink.
   ESC-u                Undo (toggle) search highlighting.
   ESC-U                Clear search highlighting.
   &_p_a_t_t_e_r_n          *  Display only matching lines.
@@ -93,6 +95,7 @@
   :n                *  Examine the (_N-th) next file from the command line.
   :p                *  Examine the (_N-th) previous file from the command line.
   :x                *  Examine the first (or _N-th) file from the command line.
+  ^O^O                 Open the currently selected OSC8 hyperlink.
   :d                   Delete the current file from the command line list.
   =  ^G  :f            Print current file name.
  ---------------------------------------------------------------------------

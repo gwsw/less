@@ -20,6 +20,7 @@ public lbool squished;
 public int no_back_scroll = 0;
 public int forw_prompt;
 public int first_time = 1;
+public lbool no_eof_bell = FALSE;
 
 extern int sigs;
 extern int top_scroll;
@@ -49,6 +50,8 @@ extern char *tagoption;
  */
 public void eof_bell(void)
 {
+	if (no_eof_bell)
+		return;
 #if HAVE_TIME
 	static time_type last_eof_bell = 0;
 	time_type now = get_time();

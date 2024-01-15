@@ -1726,6 +1726,40 @@ public void commands(void)
 			c = getcc();
 			goto again;
 
+		case A_OSC8_F_SEARCH:
+#if OSC8_LINK
+			cmd_exec();
+			if (number <= 0)
+				number = 1;
+			osc8_search(SRCH_FORW, number);
+#else
+			error("Command not available", NULL_PARG);
+#endif
+			break;
+
+		case A_OSC8_B_SEARCH:
+#if OSC8_LINK
+			cmd_exec();
+			if (number <= 0)
+				number = 1;
+			osc8_search(SRCH_BACK, number);
+#else
+			error("Command not available", NULL_PARG);
+#endif
+			break;
+
+		case A_OSC8_OPEN:
+#if OSC8_LINK
+			if (secure_allow(SF_OSC8_OPEN))
+			{
+				cmd_exec();
+				osc8_open();
+				break;
+			}
+#endif
+			error("Command not available", NULL_PARG);
+			break;
+
 		case A_FILTER:
 #if HILITE_SEARCH
 			search_type = SRCH_FORW | SRCH_FILTER;

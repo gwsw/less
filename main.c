@@ -177,6 +177,7 @@ static int security_feature(constant char *name, size_t len)
 		{ "shell",    SF_SHELL },
 		{ "stop",     SF_STOP },
 		{ "tags",     SF_TAGS },
+		{ "osc8",     SF_OSC8_OPEN },
 	};
 	int i;
 	int match = -1;
