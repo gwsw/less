@@ -1301,8 +1301,10 @@ public int get_col(POSITION line_pos, POSITION spos, POSITION saved_pos, int sav
 				ansi_done(pansi);
 				pansi = NULL;
 			}
-		} else if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(ch)) != NULL) {
-			/* start of ansi sequence */ ;
+		} else if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(ch)) != NULL)
+		{
+			/* start of ansi sequence */
+			(void) ansi_step(pansi, ch);
 		} else if (ch == '\b')
 		{
 			if (proc_backspace == OPT_ONPLUS || (bs_mode == BS_CONTROL && proc_backspace == OPT_OFF))

@@ -1437,7 +1437,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 						{
 							size_t start_off = ptr_diff(sp[0], cline);
 							size_t end_off = ptr_diff(ep[0], cline);
-							shift_visible(linepos, start_off, end_off);
+							shift_visible(linepos, chpos[start_off], chpos[end_off]);
 						}
 					} else if (plastlinepos != NULL)
 					{
