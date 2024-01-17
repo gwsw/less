@@ -135,7 +135,7 @@ static int metachar(char c)
 /*
  * Insert a backslash before each metacharacter in a string.
  */
-public char * shell_quote(constant char *s)
+public char * shell_quoten(constant char *s, size_t slen)
 {
 	constant char *p;
 	char *np;
@@ -150,7 +150,7 @@ public char * shell_quote(constant char *s)
 	 * Determine how big a string we need to allocate.
 	 */
 	len = 1; /* Trailing null byte */
-	for (p = s;  *p != '\0';  p++)
+	for (p = s;  p < s + slen;  p++)
 	{
 		len++;
 		if (*p == openquote || *p == closequote)
@@ -180,7 +180,7 @@ public char * shell_quote(constant char *s)
 			 * We can't quote a string that contains quotes.
 			 */
 			return (NULL);
-		len = strlen(s) + 3;
+		len = slen + 3;
 	}
 	/*
 	 * Allocate and construct the new string.
@@ -188,10 +188,11 @@ public char * shell_quote(constant char *s)
 	newstr = np = (char *) ecalloc(len, sizeof(char));
 	if (use_quotes)
 	{
-		SNPRINTF3(newstr, len, "%c%s%c", openquote, s, closequote);
+		SNPRINTF4(newstr, len, "%c%.*s%c", openquote, (int) slen, s, closequote);
 	} else
 	{
-		while (*s != '\0')
+		constant char *es = s + slen;
+		while (s < es)
 		{
 			if (metachar(*s))
 			{
@@ -206,6 +207,11 @@ public char * shell_quote(constant char *s)
 		*np = '\0';
 	}
 	return (newstr);
+}
+
+public char * shell_quote(constant char *s)
+{
+	return shell_quoten(s, strlen(s));
 }
 
 /*
@@ -505,7 +511,7 @@ static POSITION seek_filesize(int f)
  * Read a string from a file.
  * Return a pointer to the string in memory.
  */
-static char * readfd(FILE *fd)
+public char * readfd(FILE *fd)
 {
 	struct xbuffer xbuf;
 	xbuf_init(&xbuf);

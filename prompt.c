@@ -29,6 +29,7 @@ extern int jump_sline;
 extern int less_is_more;
 extern int header_lines;
 extern IFILE curr_ifile;
+extern char *osc8_path;
 #if EDITOR
 extern constant char *editor;
 extern constant char *editproto;
@@ -79,9 +80,7 @@ public void init_prompt(void)
  */
 static void ap_str(constant char *s)
 {
-	size_t len;
-
-	len = strlen(s);
+	size_t len = strlen(s);
 	if (mp + len >= message + PROMPT_SIZE)
 		len = ptr_diff(message, mp) + PROMPT_SIZE - 1;
 	strncpy(mp, s, len);
@@ -322,6 +321,12 @@ static void protochar(char c, int where)
 		else
 #endif
 			ap_int(nifile());
+		break;
+	case 'o': /* path (URI without protocol) of selected OSC8 link */
+		if (osc8_path == NULL)
+			ap_quest();
+		else
+			ap_str(osc8_path);
 		break;
 	case 'p': /* Percent into file (bytes) */
 		pos = curr_byte(where);

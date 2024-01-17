@@ -58,10 +58,13 @@ public lbool search_wrapped = FALSE;
 public POSITION osc8_linepos = NULL_POSITION;
 public POSITION osc8_match_start = NULL_POSITION;
 public POSITION osc8_match_end = NULL_POSITION;
+public POSITION osc8_params_start = NULL_POSITION;
+public POSITION osc8_params_end = NULL_POSITION;
 public POSITION osc8_uri_start = NULL_POSITION;
 public POSITION osc8_uri_end = NULL_POSITION;
 public POSITION osc8_text_start = NULL_POSITION;
 public POSITION osc8_text_end = NULL_POSITION;
+char *osc8_path;
 #endif
 
 /*
@@ -1361,12 +1364,14 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 		}
 	}
 	osc8_linepos = linepos;
-	osc8_match_start = spos + ptr_diff(op1.osc8_start, line);
-	osc8_match_end   = spos + ptr_diff(op2.osc8_end,   line);
-	osc8_uri_start   = spos + ptr_diff(op1.uri_start,  line);
-	osc8_uri_end     = spos + ptr_diff(op1.uri_end,    line);
-	osc8_text_start  = spos + ptr_diff(op1.osc8_end,   line);
-	osc8_text_end    = spos + ptr_diff(op2.osc8_start, line);
+	osc8_match_start  = spos + ptr_diff(op1.osc8_start,   line);
+	osc8_match_end    = spos + ptr_diff(op2.osc8_end,     line);
+	osc8_params_start = spos + ptr_diff(op1.params_start, line);
+	osc8_params_end   = spos + ptr_diff(op1.params_end,   line);
+	osc8_uri_start    = spos + ptr_diff(op1.uri_start,    line);
+	osc8_uri_end      = spos + ptr_diff(op1.uri_end,      line);
+	osc8_text_start   = spos + ptr_diff(op1.osc8_end,     line);
+	osc8_text_end     = spos + ptr_diff(op2.osc8_start,   line);
 	return TRUE;
 }
 
@@ -1683,6 +1688,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 }
 
 #if OSC8_LINK
+
 /*
  * Search for and select the next OSC8 sequence, forward or backward.
  */
@@ -1730,17 +1736,117 @@ public void osc8_search(int search_type, int matches)
 }
 
 /*
+ * Return the length of the scheme prefix in a URI.
+ */
+static int scheme_length(constant char *uri, size_t uri_len)
+{
+	int plen;
+	for (plen = 0;  plen < uri_len;  plen++)
+		if (uri[plen] == ':')
+			return plen;
+	return 0;
+}
+
+/*
+ * Does a URI contain any dangerous characters?
+ */
+static lbool bad_uri(constant char *uri, size_t uri_len)
+{
+	int i;
+	for (i = 0;  i < uri_len;  i++)
+		if (strchr("'\"", uri[i]) != NULL)
+			return TRUE;
+	return FALSE;
+}
+
+/*
+ * Re-read the line containing the selected OSC8 link.
+ */
+static lbool osc8_read_selected(struct osc8_parse_info *op)
+{
+	constant char *line;
+	size_t line_len;
+	POSITION pos;
+
+	pos = forw_raw_line(osc8_linepos, &line, &line_len);
+	if (pos == NULL_POSITION)
+		return FALSE;
+	op->osc8_start    = &line[osc8_match_start - osc8_linepos];
+	op->osc8_end      = &line[osc8_match_end - osc8_linepos];
+	op->params_start  = &line[osc8_params_start - osc8_linepos];
+	op->params_end    = &line[osc8_params_end - osc8_linepos];
+	op->uri_start     = &line[osc8_uri_start - osc8_linepos];
+	op->uri_end       = &line[osc8_uri_end - osc8_linepos];
+	return TRUE;
+}
+
+/*
  * Open the currently selected OSC8 link.
  */
 public void osc8_open(void)
 {
+#if HAVE_POPEN
+	struct osc8_parse_info op;
+	char env_name[64];
+	size_t scheme_len;
+	constant char *handler;
+	char *open_cmd;
+	size_t uri_len;
+	FILE *hf;
+	static constant char *env_name_pfx = "LESS_OSC8_";
+
 	if (osc8_linepos == NULL_POSITION)
 	{
 		error("No OSC8 link selected", NULL_PARG);
 		return;
 	}
-	/* {{ NOT YET IMPLEMENTED }} */
+	if (!osc8_read_selected(&op))
+	{
+		error("Cannot find OSC8 link", NULL_PARG);
+		return;
+	}
+	/*
+	 * Read a "handler" shell cmd from environment variable "LESS_OSC8_scheme".
+	 * pr_expand the handler cmd (to expand %o -> osc8_path) and execute it.
+	 * Handler's stdout is an "opener" shell cmd; execute opener to open the link.
+	 */
+	uri_len = ptr_diff(op.uri_end, op.uri_start);
+	if (bad_uri(op.uri_start, uri_len))
+	{
+		error("Cannot open link containing dangerous characters", NULL_PARG);
+		return;
+	}
+	scheme_len = scheme_length(op.uri_start, uri_len);
+	SNPRINTF3(env_name, sizeof(env_name), "%s%.*s", env_name_pfx, (int) scheme_len, op.uri_start);
+	handler = lgetenv(env_name);
+	if (isnullenv(handler))
+	{
+		PARG parg;
+		parg.p_string = env_name + strlen(env_name_pfx); /* {{ tricky }} */
+		error("No handler for \"%s\" link type", &parg);
+		return;
+	}
+	/* {{ ugly global osc8_path }} */
+	osc8_path = shell_quoten(op.uri_start, uri_len);
+	hf = popen(pr_expand(handler), "r");
+	free(osc8_path);
+	osc8_path = NULL;
+	if (hf == NULL)
+	{
+		PARG parg;
+		parg.p_string = env_name;
+		error("Cannot execute protocol handler in %s", &parg);
+		return;
+	}
+	open_cmd = readfd(hf);
+	pclose(hf);
+	lsystem(open_cmd, "^O done");
+	free(open_cmd);
+#else
+	error("Cannot open OSC8 link because your system does not support popen", NULL_PARG);
+#endif /* HAVE_POPEN */
 }
+
 #endif /* OSC8_LINK */
 
 /*

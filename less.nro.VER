@@ -489,8 +489,54 @@ no "done" message is printed after the shell command is executed.
 .IP "s filename"
 Save the input to a file.
 This works only if the input is a pipe, not an ordinary file.
-.IP "^O^O"
-Open the currently selected OSC8 hyperlink.
+.IP "\(haO\(haO"
+.RS
+Open the URI in the currently selected OSC8 hyperlink.
+To find a shell command to open a URI, 
+the environment variable named "LESS_OSC8_xxx" is read, 
+where "xxx" is the scheme from the URI (the part before the first colon),
+or is empty if there is no colon in the URI.
+The value of the environment variable is then expanded the same way as prompt 
+strings (in particular, any instance of "%o" is replaced with the URI)
+to produce an OSC8 "handler" shell command.
+The standard output of the handler is an "opener" shell command 
+which is then executed to open the URI.
+.PP
+In a simple case, such as where the opener accepts the complete URI
+as a command line parameter, the handler may be as simple as
+.nf
+.sp
+echo "mybrowser %o"
+.sp
+.fi
+In other cases, the URI may need to be modified, so the handler
+may have to do some manipulation of the %o value.
+.PP
+If the LESS_OSC8_xxx variable is not set, links using that scheme 
+cannot be opened. 
+However, there are built-in handlers for the schemes "man" and "file",
+which should work on systems which provide the
+.BR sed (1)
+command.
+These are used if LESS_OSC8_man or LESS_OSC8_file respectively are not set.
+As an example handler, this is the built-in value for "LESS_OSC8_man",
+used to open man files:
+.nf
+.sp
+echo\ %o\ |\ sed\ "s,\(haman\e:\e\e([\(ha(]*\e\e)(\ *\e\e([\(ha)]*\e\e)\e.*,-man\ '\e\e2'\ '\e\e1',"
+.fi
+.PP
+The URI passed to an OSC8 handler is guaranteed not to contain single quote
+or double quote characters, but it may contain any other shell metacharacters
+such as semicolons, dollar signs, ampersands, etc.
+The handler should take care to appropriately quote parameters in the opener command,
+to prevent execution of unintended shell commands in the case of opening
+a URI which contains shell metacharacters.
+Also note that since the handler command is expanded like a command prompt,
+any metacharacters interpreted by prompt expansion 
+(such as percent, dot, colon, backslash, etc.) must be escaped with a backslash
+(see the PROMPTS section for details).
+.RE
 .IP "\(haX"
 When the "Waiting for data" message is displayed,
 such as while in the F command, pressing \(haX
@@ -1991,6 +2037,10 @@ The line to be used is determined by the \fIX\fP, as with the %b option.
 Replaced by the line number of the last line in the input file.
 .IP "%m"
 Replaced by the total number of input files.
+.IP "%o"
+Replaced by the shell-escaped URI of the currently selected OSC8 hyperlink,
+or a question mark if no hyperlink is selected.
+This is used by OSC8 handlers as explained in the \(haO\(haO command description.
 .IP "%p\fIX\fP"
 Replaced by the percent into the current input file, based on byte offsets.
 The line used is determined by the \fIX\fP as with the %b option.
@@ -2148,7 +2198,7 @@ input preprocessor (LESSOPEN environment variable)
 .IP "logfile"
 log files (s and -o)
 .IP "osc8"
-opening OSC8 links (^O^O)
+opening OSC8 links (\(haO\(haO)
 .IP "pipe"
 the pipe command (|) 
 .IP "shell"
@@ -2356,6 +2406,9 @@ The default is 4000 (4 seconds).
 Emulate the
 .BR more (1)
 command.
+.IP LESS_OSC8_xxx
+Where "xxx" is a URI scheme such as "http" or "file",
+sets an OSC8 handler for opening OSC8 links containing a URI with that scheme.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 
 of the termcap "xx" capability for the terminal.

@@ -229,6 +229,19 @@ static unsigned char edittable[] =
 	ESC,'[','<',0,                  EC_X116MOUSE,   /* X11 1006 mouse report */
 };
 
+static unsigned char dflt_vartable[] =
+{
+	'L','E','S','S','_','O','S','C','8','_','m','a','n', 0, EV_OK|A_EXTRA,
+		/* echo %o | sed "s,^man\:\\([^(]*\\)( *\\([^)]*\\)\.*,-man '\\2' '\\1'," */
+		'e','c','h','o',' ','%','o',' ','|',' ','s','e','d',' ','"','s',',','^','m','a','n','\\',':','\\','\\','(','[','^','(',']','*','\\','\\',')','(',' ','*','\\','\\','(','[','^',')',']','*','\\','\\',')','\\','.','*',',','-','m','a','n',' ','\'','\\','\\','2','\'',' ','\'','\\','\\','1','\'',',','"',
+		0,
+
+	'L','E','S','S','_','O','S','C','8','_','f','i','l','e', 0, EV_OK|A_EXTRA,
+		/* echo %o | sed "s,^file\://\\([^/]*\\)\\(/\.*\\),-if [ \\1 = $HOSTNAME ]; then less \\2; else echo Cannot open remote file on \\1; fi," */
+		'e','c','h','o',' ','%','o',' ','|',' ','s','e','d',' ','"','s',',','^','f','i','l','e','\\',':','/','/','\\','\\','(','[','^','/',']','*','\\','\\',')','\\','\\','(','/','\\','.','*','\\','\\',')',',','-','i','f',' ','[',' ','\\','\\','1',' ','=',' ','$','H','O','S','T','N','A','M','E',' ',']',';',' ','t','h','e','n',' ','l','e','s','s',' ','\\','\\','2',';',' ','e','l','s','e',' ','e','c','h','o',' ','C','a','n','n','o','t',' ','o','p','e','n',' ','r','e','m','o','t','e',' ','f','i','l','e',' ','o','n',' ','\\','\\','1',';',' ','f','i',',','"',
+		0,
+};
+
 /*
  * Structure to support a list of command tables.
  */
@@ -339,6 +352,7 @@ public void init_cmds(void)
 	 */
 	add_fcmd_table(cmdtable, sizeof(cmdtable));
 	add_ecmd_table(edittable, sizeof(edittable));
+	add_sysvar_table(dflt_vartable, sizeof(dflt_vartable));
 #if USERFILE
 #ifdef BINDIR /* For backwards compatibility */
 	/* Try to add tables in the OLD system lesskey file. */
@@ -467,6 +481,16 @@ static void add_var_table(struct tablelist **tlist, unsigned char *buf, size_t l
 	/* {{ We leak the table in buf. expand_evars scribbled in it so it's useless anyway. }} */
 	if (add_cmd_table(tlist, xbuf.data, xbuf.end) < 0)
 		error("Warning: environment variables from lesskey file unavailable", NULL_PARG);
+}
+
+public void add_uvar_table(unsigned char *buf, size_t len)
+{
+	add_var_table(&list_var_tables, buf, len);
+}
+
+public void add_sysvar_table(unsigned char *buf, size_t len)
+{
+	add_var_table(&list_sysvar_tables, buf, len);
 }
 
 /*
@@ -790,7 +814,7 @@ public constant char * lgetenv_ext(constant char *var, unsigned char *env_buf, s
 		env_end = e;
 	}
 	/* Temporarily add env_buf to var_tables, do the lookup, then remove it. */
-	add_var_table(&list_var_tables, env_buf, env_end);
+	add_uvar_table(env_buf, env_end);
 	r = lgetenv(var);
 	pop_cmd_table(&list_var_tables);
 	return r;
@@ -880,8 +904,10 @@ static int new_lesskey(unsigned char *buf, size_t len, lbool sysvar)
 			n = gint(&p);
 			if (p+n >= end)
 				return (-1);
-			add_var_table((sysvar) ? 
-				&list_sysvar_tables : &list_var_tables, p, n);
+			if (sysvar)
+				add_sysvar_table(p, n);
+			else
+				add_uvar_table(p, n);
 			p += n;
 			break;
 		case END_SECTION:
@@ -972,8 +998,10 @@ static int lesskey_text(constant char *filename, lbool sysvar, lbool content)
 		return (r);
 	add_fcmd_table(tables.cmdtable.buf.data, tables.cmdtable.buf.end);
 	add_ecmd_table(tables.edittable.buf.data, tables.edittable.buf.end);
-	add_var_table(sysvar ? &list_sysvar_tables : &list_var_tables,
-		tables.vartable.buf.data, tables.vartable.buf.end);
+	if (sysvar)
+		add_sysvar_table(tables.vartable.buf.data, tables.vartable.buf.end);
+	else
+		add_uvar_table(tables.vartable.buf.data, tables.vartable.buf.end);
 	return (0);
 }
 
