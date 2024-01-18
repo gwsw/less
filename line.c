@@ -654,8 +654,10 @@ public int ansi_step(struct ansi_state *pansi, LWCHAR ch)
 		}
 		pansi->ostate = OSC8_END;
 		return ANSI_END;
-	case OSC8_END: case OSC8_NOT:
+	case OSC8_END:
 		return ANSI_END;
+	case OSC8_NOT:
+		break;
 	}
 	/* Check for SGR sequences */
 	if (is_ansi_middle(ch))
