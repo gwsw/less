@@ -1367,7 +1367,7 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 	}
 	osc8_linepos = linepos;
 	osc8_match_start  = spos + ptr_diff(op1.osc8_start,   line);
-	osc8_match_end    = spos + ptr_diff(op2.osc8_end,     line);
+	osc8_match_end    = spos + ptr_diff(op2.osc8_start,   line);
 	osc8_params_start = spos + ptr_diff(op1.params_start, line);
 	osc8_params_end   = spos + ptr_diff(op1.params_end,   line);
 	osc8_uri_start    = spos + ptr_diff(op1.uri_start,    line);
