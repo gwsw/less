@@ -54,6 +54,9 @@ extern void *ml_shell;
 #if EDITOR
 extern constant char *editproto;
 #endif
+#if OSC8_LINK
+extern char *osc8_uri;
+#endif
 extern int shift_count;
 extern int forw_prompt;
 extern int incr_search;
@@ -911,6 +914,14 @@ static void prompt(void)
 		else
 			error("Search hit bottom; continuing at top", NULL_PARG);
 		search_wrapped = FALSE;
+	}
+	if (osc8_uri != NULL)
+	{
+		PARG parg;
+		parg.p_string = osc8_uri;
+		error("Link: %s", &parg);
+		free(osc8_uri);
+		osc8_uri = NULL;
 	}
 	if (p == NULL || *p == '\0')
 	{
