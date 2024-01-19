@@ -1158,9 +1158,9 @@ static void multi_search(constant char *pattern, int n, int silent)
 {
 	int nomore;
 	IFILE save_ifile;
-	int changed_file;
+	lbool changed_file;
 
-	changed_file = 0;
+	changed_file = FALSE;
 	save_ifile = save_curr_ifile();
 
 	if ((search_type & (SRCH_FORW|SRCH_BACK)) == 0)
@@ -1180,7 +1180,7 @@ static void multi_search(constant char *pattern, int n, int silent)
 			unsave_ifile(save_ifile);
 			return;
 		}
-		changed_file = 1;
+		changed_file = TRUE;
 		search_type &= ~SRCH_FIRST_FILE;
 	}
 
@@ -1225,7 +1225,7 @@ static void multi_search(constant char *pattern, int n, int silent)
 			nomore = edit_prev(1);
 		if (nomore)
 			break;
-		changed_file = 1;
+		changed_file = TRUE;
 	}
 
 	/*

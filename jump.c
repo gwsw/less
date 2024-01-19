@@ -247,7 +247,7 @@ public void jump_loc(POSITION pos, int sline)
 			back(-nline, position(TOP), 1, 0);
 #if HILITE_SEARCH
 		if (show_attn)
-			repaint_hilite(1);
+			repaint_hilite(TRUE);
 #endif
 		return;
 	}
@@ -288,7 +288,7 @@ public void jump_loc(POSITION pos, int sline)
 				forw(sc_height-sindex+nline-1, bpos, 1, 0, 0);
 #if HILITE_SEARCH
 				if (show_attn)
-					repaint_hilite(1);
+					repaint_hilite(TRUE);
 #endif
 				return;
 			}
@@ -341,7 +341,7 @@ public void jump_loc(POSITION pos, int sline)
 				back(nline+1, tpos, 1, 0);
 #if HILITE_SEARCH
 				if (show_attn)
-					repaint_hilite(1);
+					repaint_hilite(TRUE);
 #endif
 				return;
 			}

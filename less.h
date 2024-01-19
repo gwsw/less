@@ -462,9 +462,12 @@ typedef enum {
 } COLOR_VALUE;
 
 /* ANSI states */
-#define ANSI_MID    1
-#define ANSI_ERR    2
-#define ANSI_END    3
+typedef enum {
+	ANSI_NULL,
+	ANSI_MID,
+	ANSI_ERR,
+	ANSI_END,
+} ansi_state;
 
 #if '0' == 240
 #define IS_EBCDIC_HOST 1

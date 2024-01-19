@@ -357,7 +357,7 @@ public void toggle_option(struct loption *o, int lower, constant char *s, int ho
 
 #if HILITE_SEARCH
 	if (how_toggle != OPT_NO_TOGGLE && (o->otype & HL_REPAINT))
-		repaint_hilite(0);
+		repaint_hilite(FALSE);
 #endif
 
 	/*

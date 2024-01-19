@@ -52,7 +52,7 @@ static int curr_last_ansi;
 
 public size_t size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
-static int ansi_in_line;
+static lbool ansi_in_line;
 static int hlink_in_line;
 static int line_mark_attr;
 static int cshift;   /* Current left-shift of output line buffer */
@@ -246,7 +246,7 @@ public void prewind(void)
 	is_null_line = 0;
 	pendc = '\0';
 	in_hilite = 0;
-	ansi_in_line = 0;
+	ansi_in_line = FALSE;
 	hlink_in_line = 0;
 	line_mark_attr = 0;
 	line_pos = NULL_POSITION;
@@ -616,7 +616,7 @@ public struct ansi_state * ansi_start(LWCHAR ch)
  * Determine whether the next char in an ANSI escape sequence
  * ends the sequence.
  */
-public int ansi_step(struct ansi_state *pansi, LWCHAR ch)
+public ansi_state ansi_step(struct ansi_state *pansi, LWCHAR ch)
 {
 	static constant char osc8_prefix[] = ESCS "]8;";
 
@@ -1051,6 +1051,8 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 		ansi_done(line_ansi);
 		line_ansi = NULL;
 		break;
+	default:
+		break;
 	}
 	return (0);
 } 
@@ -1079,7 +1081,7 @@ static int do_append(LWCHAR ch, constant char *rep, POSITION pos)
 	{
 		line_ansi = ansi_start(ch);
 		if (line_ansi != NULL)
-			ansi_in_line = 1;
+			ansi_in_line = TRUE;
 	}
 
 	overstrike = 0;

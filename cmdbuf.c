@@ -30,7 +30,7 @@ static int cmd_col;              /* Current column of the cursor */
 static int prompt_col;           /* Column of cursor just after prompt */
 static char *cp;                 /* Pointer into cmdbuf */
 static int cmd_offset;           /* Index into cmdbuf of first displayed char */
-static int literal;              /* Next input char should not be interpreted */
+static lbool literal;            /* Next input char should not be interpreted */
 public size_t updown_match;      /* Prefix length in up/down movement */
 public lbool have_updown_match = FALSE;
 
@@ -123,7 +123,7 @@ public void cmd_reset(void)
 	*cp = '\0';
 	cmd_col = 0;
 	cmd_offset = 0;
-	literal = 0;
+	literal = FALSE;
 	cmd_mbc_buf_len = 0;
 	have_updown_match = FALSE;
 }
@@ -879,7 +879,7 @@ static int cmd_edit(char c)
 		not_in_completion();
 		return (cmd_wdelete());
 	case EC_LITERAL:
-		literal = 1;
+		literal = TRUE;
 		return (CC_OK);
 #if CMD_HISTORY
 	case EC_UP:
@@ -1255,7 +1255,7 @@ public int cmd_char(char c)
 		/*
 		 * Insert the char, even if it is a line-editing char.
 		 */
-		literal = 0;
+		literal = FALSE;
 		return (cmd_ichar(cmd_mbc_buf, len));
 	}
 		

@@ -48,7 +48,7 @@ extern size_t size_linebuf;
 extern lbool squished;
 extern int can_goto_line;
 extern lbool no_eof_bell;
-static int hide_hilite;
+static lbool hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
 public POSITION header_start_pos = NULL_POSITION;
@@ -259,11 +259,11 @@ static int prev_pattern(struct pattern_info *info)
  * Repaint each line which contains highlighted text.
  * If on==0, force all hilites off.
  */
-public void repaint_hilite(int on)
+public void repaint_hilite(lbool on)
 {
 	int sindex;
 	POSITION pos;
-	int save_hide_hilite;
+	lbool save_hide_hilite;
 
 	if (squished)
 		repaint();
@@ -273,7 +273,7 @@ public void repaint_hilite(int on)
 	{
 		if (hide_hilite)
 			return;
-		hide_hilite = 1;
+		hide_hilite = TRUE;
 	}
 
 	if (!can_goto_line)
@@ -371,7 +371,7 @@ public void undo_search(lbool clear)
 		}
 		hide_hilite = !hide_hilite;
 	}
-	repaint_hilite(1);
+	repaint_hilite(TRUE);
 #endif
 }
 
@@ -1081,7 +1081,7 @@ static void hilite_screen(void)
 	if (scrpos.pos == NULL_POSITION)
 		return;
 	prep_hilite(scrpos.pos, position(BOTTOM_PLUS_ONE), -1);
-	repaint_hilite(1);
+	repaint_hilite(TRUE);
 }
 
 /*
@@ -1093,7 +1093,7 @@ public void chg_hilite(void)
 	 * Erase any highlights currently on screen.
 	 */
 	clr_hilite();
-	hide_hilite = 0;
+	hide_hilite = FALSE;
 
 	if (hilite_search == OPT_ONPLUS)
 		/*
@@ -1719,7 +1719,7 @@ public void osc8_search(int search_type, int matches)
 				no_eof_bell = FALSE;
 				osc8_shift_visible();
 #if HILITE_SEARCH
-				repaint_hilite(1);
+				repaint_hilite(TRUE);
 #endif
 				return;
 			}
@@ -1739,7 +1739,7 @@ public void osc8_search(int search_type, int matches)
 	}
 	jump_loc(pos, jump_sline);
 #if HILITE_SEARCH
-	repaint_hilite(1);
+	repaint_hilite(TRUE);
 #endif
 }
 
@@ -1748,7 +1748,7 @@ public void osc8_search(int search_type, int matches)
  */
 static int scheme_length(constant char *uri, size_t uri_len)
 {
-	int plen;
+	size_t plen;
 	for (plen = 0;  plen < uri_len;  plen++)
 		if (uri[plen] == ':')
 			return plen;
@@ -1760,7 +1760,7 @@ static int scheme_length(constant char *uri, size_t uri_len)
  */
 static lbool bad_uri(constant char *uri, size_t uri_len)
 {
-	int i;
+	size_t i;
 	for (i = 0;  i < uri_len;  i++)
 		if (strchr("'\"", uri[i]) != NULL)
 			return TRUE;
@@ -1960,7 +1960,7 @@ public int search(int search_type, constant char *pattern, int n)
 			 * Erase the highlights currently on screen.
 			 * If the search fails, we'll redisplay them later.
 			 */
-			repaint_hilite(0);
+			repaint_hilite(FALSE);
 		}
 		if (hilite_search == OPT_ONPLUS && hide_hilite)
 		{
@@ -1968,10 +1968,10 @@ public int search(int search_type, constant char *pattern, int n)
 			 * Highlight any matches currently on screen,
 			 * before we actually start the search.
 			 */
-			hide_hilite = 0;
+			hide_hilite = FALSE;
 			hilite_screen();
 		}
-		hide_hilite = 0;
+		hide_hilite = FALSE;
 #endif
 	} else
 	{
@@ -1988,8 +1988,8 @@ public int search(int search_type, constant char *pattern, int n)
 			 * Erase the highlights currently on screen.
 			 * Also permanently delete them from the hilite list.
 			 */
-			repaint_hilite(0);
-			hide_hilite = 0;
+			repaint_hilite(FALSE);
+			hide_hilite = FALSE;
 			clr_hilite();
 		}
 		if (hilite_search == OPT_ONPLUS || status_col)
@@ -2017,7 +2017,7 @@ public int search(int search_type, constant char *pattern, int n)
 			return (n);
 #if HILITE_SEARCH
 		if (hilite_search == OPT_ON || status_col)
-			repaint_hilite(1);
+			repaint_hilite(TRUE);
 #endif
 		error("Nothing to search", NULL_PARG);
 		return (-1);
@@ -2043,7 +2043,7 @@ public int search(int search_type, constant char *pattern, int n)
 			/*
 			 * Redisplay old hilites.
 			 */
-			repaint_hilite(1);
+			repaint_hilite(TRUE);
 #endif
 		return (n);
 	}
@@ -2064,7 +2064,7 @@ public int search(int search_type, constant char *pattern, int n)
 		/*
 		 * Display new hilites in the matching line.
 		 */
-		repaint_hilite(1);
+		repaint_hilite(TRUE);
 #endif
 	return (0);
 }
