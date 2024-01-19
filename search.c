@@ -1848,7 +1848,13 @@ public void osc8_open(void)
 	}
 	open_cmd = readfd(hf);
 	pclose(hf);
-	lsystem(open_cmd, "link done");
+	if (strncmp(open_cmd, ":e", 2) == 0)
+	{
+		edit(skipsp(&open_cmd[2]));
+	} else
+	{
+		lsystem(open_cmd, "link done");
+	}
 	free(open_cmd);
 #else
 	error("Cannot open OSC8 link because your system does not support popen", NULL_PARG);

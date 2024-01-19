@@ -29,7 +29,9 @@ extern int jump_sline;
 extern int less_is_more;
 extern int header_lines;
 extern IFILE curr_ifile;
+#if OSC8_LINK
 extern char *osc8_path;
+#endif
 #if EDITOR
 extern constant char *editor;
 extern constant char *editproto;
@@ -323,10 +325,12 @@ static void protochar(char c, int where)
 			ap_int(nifile());
 		break;
 	case 'o': /* path (URI without protocol) of selected OSC8 link */
-		if (osc8_path == NULL)
-			ap_quest();
-		else
+#if OSC8_LINK
+		if (osc8_path != NULL)
 			ap_str(osc8_path);
+		else
+#endif
+			ap_quest();
 		break;
 	case 'p': /* Percent into file (bytes) */
 		pos = curr_byte(where);

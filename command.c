@@ -915,6 +915,7 @@ static void prompt(void)
 			error("Search hit bottom; continuing at top", NULL_PARG);
 		search_wrapped = FALSE;
 	}
+#if OSC8_LINK
 	if (osc8_uri != NULL)
 	{
 		PARG parg;
@@ -923,6 +924,7 @@ static void prompt(void)
 		free(osc8_uri);
 		osc8_uri = NULL;
 	}
+#endif
 	if (p == NULL || *p == '\0')
 	{
 		at_enter(AT_NORMAL|AT_COLOR_PROMPT);

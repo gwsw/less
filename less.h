@@ -402,7 +402,6 @@ typedef short POLL_EVENTS;
 #define SRCH_REVERSE(t) (((t) & SRCH_FORW) ? \
                                 (((t) & ~SRCH_FORW) | SRCH_BACK) : \
                                 (((t) & ~SRCH_BACK) | SRCH_FORW))
-#if OSC8_LINK
 /* Parsing position in an OSC8 link: "\e]8;PARAMS;URI\e\\" (final "\e\\" may be "\7") */
 typedef enum osc8_state {
 	OSC8_NOT,     /* This is not an OSC8 link */
@@ -412,7 +411,6 @@ typedef enum osc8_state {
 	OSC8_ST_ESC,  /* After the final \e */
 	OSC8_END,     /* At end */
 } osc8_state;
-#endif
 
 /* */
 #define NO_MCA          0

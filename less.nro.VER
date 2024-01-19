@@ -491,22 +491,27 @@ Save the input to a file.
 This works only if the input is a pipe, not an ordinary file.
 .IP "\(haO\(haO"
 .RS
-Run a shell command to open the URI in the currently selected OSC8 hyperlink.
+Run a shell command to open the URI in the current OSC8 hyperlink,
+selected by a previous \(haO\(haN or \(haO\(haP command.
 To find the shell command,
 the environment variable named "LESS_OSC8_xxx" is read, 
 where "xxx" is the scheme from the URI (the part before the first colon),
 or is empty if there is no colon in the URI.
-The value of the environment variable is then expanded the same way as prompt 
-strings (in particular, any instance of "%o" is replaced with the URI)
+The value of the environment variable is then expanded in the same way as 
+prompt strings (in particular, any instance of "%o" is replaced with the URI)
 to produce an OSC8 "handler" shell command.
-The standard output of the handler is an "opener" shell command 
+The standard output from the handler is an "opener" shell command 
 which is then executed to open the URI.
+If the opener begins with the characters ":e" and a filename,
+then instead of running the opener as a shell command,
+the specified filename is opened in the current instance of
+.BR less .
 .PP
 In a simple case where the opener accepts the complete URI
 as a command line parameter, the handler may be as simple as
 .nf
 .sp
-echo "mybrowser %o"
+echo mybrowser %o
 .sp
 .fi
 In other cases, the URI may need to be modified, so the handler
@@ -514,19 +519,19 @@ may have to do some manipulation of the %o value.
 .PP
 If the LESS_OSC8_xxx variable is not set, links using that scheme 
 cannot be opened. 
-However, there are built-in default handlers for the schemes "man" and "file",
+However, there are default handlers for the schemes "man" and "file",
 which should work on systems which provide the
 .BR sed (1)
-command and a shell with Bourne-shell-like syntax.
-These are used if LESS_OSC8_man or LESS_OSC8_file respectively are not set.
-As an example handler, this is the built-in value for "LESS_OSC8_man",
-used to open man files:
+command and a shell with syntax compatible with the Bourne shell
+.BR sh (1).
+These default handlers are used if LESS_OSC8_man or LESS_OSC8_file are not set.
+As an example handler, this is the default value for "LESS_OSC8_man":
 .nf
 .sp
 echo\ %o\ |\ sed\ "s,\(haman\e:\e\e([\(ha(]*\e\e)(\ *\e\e([\(ha)]*\e\e)\e.*,-man\ '\e\e2'\ '\e\e1',"
 .fi
 .PP
-The URI passed to an OSC8 handler via %o is guaranteed not to contain single quote
+The URI passed to an OSC8 handler via %o is guaranteed not to contain any single quote
 or double quote characters, but it may contain any other shell metacharacters
 such as semicolons, dollar signs, ampersands, etc.
 The handler should take care to appropriately quote parameters in the opener command,

@@ -13,7 +13,7 @@
 
 	Major changes between "less" versions 643 and 650
 
-* Add ^O^N, ^O^P and ^O^O commands.
+* Add ^O^N, ^O^P and ^O^O commands to find and open OSC8 hyperlinks.
 
 * Add --match-shift option.
 
