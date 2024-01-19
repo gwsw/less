@@ -46,7 +46,7 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
 {
 	int hl_before = (chop_line() && disp_pos != NULL_POSITION) ?
 	    is_hilited_attr(base_pos, disp_pos, TRUE, NULL) : 0;
-	int hl_after = (chop_line()) ?
+	int hl_after = (chop_line() && edisp_pos != NULL_POSITION) ?
 	    is_hilited_attr(edisp_pos, eol_pos, TRUE, NULL) : 0;
 	int attr;
 	char ch;
@@ -63,7 +63,7 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
 	{
 		attr = hl_after;
 		ch = '>';
-	} else 
+	} else if (disp_pos != NULL_POSITION)
 	{
 		attr = is_hilited_attr(disp_pos, edisp_pos, TRUE, NULL);
 		ch = '*';
