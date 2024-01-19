@@ -1272,9 +1272,9 @@ static lbool osc8_parse(constant char *line, constant char *line_end, struct osc
 	if (pansi == NULL)
 		return FALSE;
 	pop->osc8_start = oline; /* start at the ESC */
-	while (line < line_end)
+	for (;;)
 	{
-		int ansi_state = ansi_step(pansi, ch);
+		ansi_state astate = ansi_step(pansi, ch);
 		osc8_state ostate = ansi_osc8_state(pansi);
 		if (ostate == OSC8_NOT)
 			break;
@@ -1306,7 +1306,7 @@ static lbool osc8_parse(constant char *line, constant char *line_end, struct osc
 		default:
 			break;
 		}
-		if (ansi_state != ANSI_MID)
+		if (astate != ANSI_MID || line >= line_end)
 			break;
 		oline = line;
 		ch = step_charc(&line, +1, line_end);
@@ -1323,7 +1323,6 @@ static lbool osc8_parse(constant char *line, constant char *line_end, struct osc
 static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos, constant char *line, size_t line_len)
 {
 	constant char *line_end = &line[line_len];
-	lbool found = FALSE;
 	struct osc8_parse_info op1;
 	struct osc8_parse_info op2;
 	constant char *linep;
@@ -1332,24 +1331,27 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 
 	if (search_type & SRCH_FORW)
 	{
-		/* Find the first nonempty OSC8 sequence in the line,
-		 * which begins the hypertext. */
 		for (linep = line; ; linep++)
 		{
 			if (linep + min_osc8_size > line_end)
 				return FALSE;
+			/* Find the first nonempty OSC8 sequence in the line,
+			 * which begins the hypertext. */
 			if (osc8_parse(linep, line_end, &op1) && op1.uri_end > op1.uri_start)
-				break;
+			{
+				/* Now find the next OSC8 sequence, which ends the hypertext. */
+				constant char *linep2;
+				for (linep2 = op1.osc8_end; linep2 < line_end; linep2++)
+				{
+					if (osc8_parse(linep2, line_end, &op2))
+						break;
+				}
+				if (linep2 == line_end)
+					op2.osc8_end = op2.osc8_start = line_end;
+				if (op2.osc8_start > op1.osc8_end)
+					break;
+			}
 		}
-		/* Now find the next OSC8 sequence, which ends the hypertext. */
-		for (linep = op1.osc8_end; linep < line_end; linep++)
-		{
-			found = osc8_parse(linep, line_end, &op2);
-			if (found)
-				break;
-		}
-		if (!found)
-			op2.osc8_end = op2.osc8_start = line_end;
 	} else
 	{
 		op2.osc8_end = op2.osc8_start = line_end;
@@ -1359,7 +1361,7 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 				return FALSE;
 			if (osc8_parse(linep, line_end, &op1))
 			{
-				if (op1.uri_end > op1.uri_start)
+				if (op1.uri_end > op1.uri_start && op2.osc8_start > op1.osc8_end)
 					break;
 				op2 = op1;
 			}
