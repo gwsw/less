@@ -471,13 +471,17 @@ int main(int argc, constant char *argv[])
  * Copy a string to a "safe" place
  * (that is, to a buffer allocated by calloc).
  */
+public char * saven(constant char *s, size_t n)
+{
+	char *p = (char *) ecalloc(n+1, sizeof(char));
+	strncpy(p, s, n);
+	p[n] = '\0';
+	return (p);
+}
+
 public char * save(constant char *s)
 {
-	char *p;
-
-	p = (char *) ecalloc(strlen(s)+1, sizeof(char));
-	strcpy(p, s);
-	return (p);
+	return saven(s, strlen(s));
 }
 
 public void out_of_memory(void)

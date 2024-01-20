@@ -521,7 +521,7 @@ In a simple case where the opener accepts the complete URI
 as a command line parameter, the handler may be as simple as
 .nf
 .sp
-echo mybrowser %o
+echo mybrowser '%o'
 .sp
 .fi
 In other cases, the URI may need to be modified, so the handler
@@ -529,17 +529,13 @@ may have to do some manipulation of the %o value.
 .PP
 If the LESS_OSC8_xxx variable is not set, links using that scheme 
 cannot be opened. 
-However, there are default handlers for the schemes "man" and "file",
+However, there are default handlers for the 
+schemes "man" (used when LESS_OSC_man is not set)
+and "file" (used when LESS_OSC_file is not set),
 which should work on systems which provide the
 .BR sed (1)
 command and a shell with syntax compatible with the Bourne shell
 .BR sh (1).
-These default handlers are used if LESS_OSC8_man or LESS_OSC8_file are not set.
-As an example handler, this is the default value for "LESS_OSC8_man":
-.nf
-.sp
-echo\ %o\ |\ sed\ "s,\(haman\e:\e\e([\(ha(]*\e\e)(\ *\e\e([\(ha)]*\e\e)\e.*,-man\ '\e\e2'\ '\e\e1',"
-.fi
 .PP
 The URI passed to an OSC8 handler via %o is guaranteed not to contain any single quote
 or double quote characters, but it may contain any other shell metacharacters
@@ -2053,7 +2049,7 @@ Replaced by the line number of the last line in the input file.
 .IP "%m"
 Replaced by the total number of input files.
 .IP "%o"
-Replaced by the shell-escaped URI of the currently selected OSC8 hyperlink,
+Replaced by the URI of the currently selected OSC8 hyperlink,
 or a question mark if no hyperlink is selected.
 This is used by OSC8 handlers as explained in the \(haO\(haO command description.
 .IP "%p\fIX\fP"

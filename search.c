@@ -1356,7 +1356,6 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 	struct osc8_parse_info op1;
 	struct osc8_parse_info op2;
 	constant char *linep;
-	size_t uri_len;
 	constant size_t min_osc8_size = 6; /* "\e]8;;\7" */
 
 	if (search_type & SRCH_FORW)
@@ -1415,10 +1414,7 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 	osc8_text_end     = spos + ptr_diff(op2.osc8_start,   line);
 
 	/* Save URI for message in prompt(). */
-	uri_len = ptr_diff(op1.uri_end, op1.uri_start);
-	osc8_uri = ecalloc(uri_len+1, sizeof(char));
-	strncpy(osc8_uri, op1.uri_start, uri_len);
-	osc8_uri[uri_len] = '\0';
+	osc8_uri = saven(op1.uri_start, ptr_diff(op1.uri_end, op1.uri_start));
 	return TRUE;
 }
 
@@ -1889,7 +1885,7 @@ public void osc8_open(void)
 		return;
 	}
 	/* {{ ugly global osc8_path }} */
-	osc8_path = shell_quoten(op.uri_start, uri_len);
+	osc8_path = saven(op.uri_start, uri_len);
 	hf = popen(pr_expand(handler), "r");
 	free(osc8_path);
 	osc8_path = NULL;
