@@ -66,6 +66,7 @@ public POSITION osc8_text_start = NULL_POSITION;
 public POSITION osc8_text_end = NULL_POSITION;
 char *osc8_path = NULL;
 char *osc8_uri = NULL;
+constant char *osc8_search_param = NULL;
 #endif
 
 /*
@@ -1255,7 +1256,7 @@ struct osc8_parse_info {
 	constant char *params_end;
 	constant char *uri_start;
 	constant char *uri_end;
-} osc8_parse_info;
+};
 
 /*
  * Parse an OSC8 sequence in a string.
@@ -1316,11 +1317,40 @@ static lbool osc8_parse(constant char *line, constant char *line_end, struct osc
 }
 
 /*
- * Find the next OSC8 hyperlink in a line.
- * A hyperlink is two OSC8 sequences (the first nonempty)
- * plus the text between them.
+ * Does an OSC8 sequence contain a specified parameter?
  */
-static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos, constant char *line, size_t line_len)
+static lbool osc8_param_match(struct osc8_parse_info *op, constant char *param)
+{
+	size_t param_len;
+	constant char *p;
+
+	if (param == NULL)
+		return TRUE;
+	param_len = strlen(param);
+	/* Parameters are separated by colons. */
+	for (p = op->params_start;  p + param_len <= op->params_end; )
+	{
+		if (strncmp(p, param, param_len) == 0)
+		{
+		    p += param_len;
+			if (p == op->params_end || *p == ':')
+				return TRUE;
+		}
+		while (p < op->params_end && *p != ':')
+			++p;
+		while (p < op->params_end && *p == ':')
+			++p;
+	}
+	return FALSE;
+}
+
+/*
+ * Find the next OSC8 hyperlink in a line.
+ * A hyperlink is two OSC8 sequences (the first with a nonempty URI)
+ * plus the non-empty text between them.
+ * But if searching for a parameter, allow text to be empty.
+ */
+static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos, constant char *line, size_t line_len, constant char *param)
 {
 	constant char *line_end = &line[line_len];
 	struct osc8_parse_info op1;
@@ -1335,7 +1365,7 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 		{
 			if (linep + min_osc8_size > line_end)
 				return FALSE;
-			/* Find the first nonempty OSC8 sequence in the line,
+			/* Find the first OSC8 sequence in the line with a nonempty URI,
 			 * which begins the hypertext. */
 			if (osc8_parse(linep, line_end, &op1) && op1.uri_end > op1.uri_start)
 			{
@@ -1348,7 +1378,8 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 				}
 				if (linep2 == line_end)
 					op2.osc8_end = op2.osc8_start = line_end;
-				if (op2.osc8_start > op1.osc8_end)
+				if ((op2.osc8_start > op1.osc8_end || param != NULL) &&
+				    osc8_param_match(&op1, param))
 					break;
 			}
 		}
@@ -1361,12 +1392,18 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 				return FALSE;
 			if (osc8_parse(linep, line_end, &op1))
 			{
-				if (op1.uri_end > op1.uri_start && op2.osc8_start > op1.osc8_end)
+				if (op1.uri_end > op1.uri_start &&
+				    (op2.osc8_start > op1.osc8_end || param != NULL) &&
+				    osc8_param_match(&op1, param))
 					break;
 				op2 = op1;
 			}
 		}
 	}
+	if (param != NULL)
+		/* Don't set osc8 globals if we're just searching for a parameter. */
+		return TRUE;
+
 	osc8_linepos = linepos;
 	osc8_match_start  = spos + ptr_diff(op1.osc8_start,   line);
 	osc8_match_end    = spos + ptr_diff(op2.osc8_start,   line);
@@ -1388,7 +1425,7 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 /*
  * Find the N-th OSC8 hyperlink in a line.
  */
-static lbool osc8_search_line(int search_type, POSITION linepos, constant char *line, size_t line_len, int *matches)
+static lbool osc8_search_line(int search_type, POSITION linepos, constant char *line, size_t line_len, constant char *param, int *matches)
 {
 	while (*matches > 0)
 	{
@@ -1412,7 +1449,7 @@ static lbool osc8_search_line(int search_type, POSITION linepos, constant char *
 				sline_len = (size_t) (osc8_match_start - linepos);
 			}
 		}
-		if (!osc8_search_line1(search_type, linepos, spos, sline, sline_len))
+		if (!osc8_search_line1(search_type, linepos, spos, sline, sline_len, param))
 			break;
 		if (--*matches <= 0)
 			return TRUE;
@@ -1581,7 +1618,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 #if OSC8_LINK
 		if (search_type & SRCH_OSC8)
 		{
-			if (osc8_search_line(search_type, linepos, line, line_len, &matches))
+			if (osc8_search_line(search_type, linepos, line, line_len, osc8_search_param, &matches))
 			{
 				if (plinepos != NULL)
 					*plinepos = linepos;
@@ -1702,9 +1739,10 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 /*
  * Search for and select the next OSC8 sequence, forward or backward.
  */
-public void osc8_search(int search_type, int matches)
+public void osc8_search(int search_type, constant char *param, int matches)
 {
 	POSITION pos;
+	int match;
 
 	if (osc8_linepos != NULL_POSITION)
 	{
@@ -1714,7 +1752,7 @@ public void osc8_search(int search_type, int matches)
 		pos = forw_raw_line(osc8_linepos, &line, &line_len);
 		if (pos != NULL_POSITION)
 		{
-			if (osc8_search_line(search_type, osc8_linepos, line, line_len, &matches))
+			if (osc8_search_line(search_type, osc8_linepos, line, line_len, param, &matches))
 			{
 				no_eof_bell = TRUE;
 				jump_loc(osc8_linepos, jump_sline);
@@ -1734,7 +1772,10 @@ public void osc8_search(int search_type, int matches)
 		error("Nothing to search", NULL_PARG);
 		return;
 	}
-	if (search_range(pos, NULL_POSITION, search_type | SRCH_OSC8, matches, -1, &pos, NULL, NULL) != 0)
+	osc8_search_param = param;
+	match = search_range(pos, NULL_POSITION, search_type | SRCH_OSC8, matches, -1, &pos, NULL, NULL);
+	osc8_search_param = NULL;
+	if (match != 0)
 	{
 		error("OSC8 link not found", NULL_PARG);
 		return;
@@ -1795,7 +1836,6 @@ static lbool osc8_read_selected(struct osc8_parse_info *op)
  */
 public void osc8_open(void)
 {
-#if HAVE_POPEN
 	struct osc8_parse_info op;
 	char env_name[64];
 	size_t scheme_len;
@@ -1821,12 +1861,24 @@ public void osc8_open(void)
 	 * Handler's stdout is an "opener" shell cmd; execute opener to open the link.
 	 */
 	uri_len = ptr_diff(op.uri_end, op.uri_start);
+	scheme_len = scheme_length(op.uri_start, uri_len);
+	if (scheme_len == 0 && op.uri_start[0] == '#')
+	{
+		/* Link to "id=" in same file. */
+		char *param = ecalloc(uri_len+3, sizeof(char));
+		strcpy(param, "id=");
+		strncpy(param+3, op.uri_start+1, uri_len-1);
+		param[uri_len+2] = '\0';
+		osc8_search(SRCH_FORW|SRCH_WRAP, param, 1);
+		free(param);
+		return;
+	}
+#if HAVE_POPEN
 	if (bad_uri(op.uri_start, uri_len))
 	{
 		error("Cannot open link containing dangerous characters", NULL_PARG);
 		return;
 	}
-	scheme_len = scheme_length(op.uri_start, uri_len);
 	SNPRINTF3(env_name, sizeof(env_name), "%s%.*s", env_name_pfx, (int) scheme_len, op.uri_start);
 	handler = lgetenv(env_name);
 	if (isnullenv(handler))
@@ -1859,7 +1911,7 @@ public void osc8_open(void)
 	}
 	free(open_cmd);
 #else
-	error("Cannot open OSC8 link because your system does not support popen", NULL_PARG);
+	error("Cannot open link because your system does not support popen", NULL_PARG);
 #endif /* HAVE_POPEN */
 }
 

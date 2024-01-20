@@ -1744,7 +1744,7 @@ public void commands(void)
 			cmd_exec();
 			if (number <= 0)
 				number = 1;
-			osc8_search(SRCH_FORW, number);
+			osc8_search(SRCH_FORW, NULL, number);
 #else
 			error("Command not available", NULL_PARG);
 #endif
@@ -1755,7 +1755,7 @@ public void commands(void)
 			cmd_exec();
 			if (number <= 0)
 				number = 1;
-			osc8_search(SRCH_BACK, number);
+			osc8_search(SRCH_BACK, NULL, number);
 #else
 			error("Command not available", NULL_PARG);
 #endif

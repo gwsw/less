@@ -502,10 +502,20 @@ prompt strings (in particular, any instance of "%o" is replaced with the URI)
 to produce an OSC8 "handler" shell command.
 The standard output from the handler is an "opener" shell command 
 which is then executed to open the URI.
-If the opener begins with the characters ":e" and a filename,
+.PP
+There are two special cases:
+.RS
+.IP 1.
+If the URI begins with "#", the remainder of the URI is taken to be 
+the value of the id parameter in another OSC8 link in the same file,
+and \(haO\(haO will simply jump to that link.
+.IP 2.
+If the opener begins with the characters ":e" followed by 
+whitespace and a filename,
 then instead of running the opener as a shell command,
 the specified filename is opened in the current instance of
 .BR less .
+.RE
 .PP
 In a simple case where the opener accepts the complete URI
 as a command line parameter, the handler may be as simple as
