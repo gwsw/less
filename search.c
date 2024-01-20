@@ -1247,7 +1247,7 @@ static POSITION get_lastlinepos(POSITION pos, POSITION tpos, int sheight)
 #if OSC8_LINK
 
 /*
- * osc8_parse_info points to the component fields in a parsed OSC8 hyperlink.
+ * osc8_parse_info points to the component fields in a parsed OSC8 sequence.
  */
 struct osc8_parse_info {
 	constant char *osc8_start;
@@ -1348,7 +1348,7 @@ static lbool osc8_param_match(struct osc8_parse_info *op, constant char *param)
  * Find the next OSC8 hyperlink in a line.
  * A hyperlink is two OSC8 sequences (the first with a nonempty URI)
  * plus the non-empty text between them.
- * But if searching for a parameter, allow text to be empty.
+ * But if searching for a parameter, allow URI and/or text to be empty.
  */
 static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos, constant char *line, size_t line_len, constant char *param)
 {
@@ -1366,7 +1366,8 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 				return FALSE;
 			/* Find the first OSC8 sequence in the line with a nonempty URI,
 			 * which begins the hypertext. */
-			if (osc8_parse(linep, line_end, &op1) && op1.uri_end > op1.uri_start)
+			if (osc8_parse(linep, line_end, &op1) &&
+			    (op1.uri_end > op1.uri_start || param != NULL))
 			{
 				/* Now find the next OSC8 sequence, which ends the hypertext. */
 				constant char *linep2;
@@ -1391,8 +1392,7 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 				return FALSE;
 			if (osc8_parse(linep, line_end, &op1))
 			{
-				if (op1.uri_end > op1.uri_start &&
-				    (op2.osc8_start > op1.osc8_end || param != NULL) &&
+				if (((op1.uri_end > op1.uri_start && op2.osc8_start > op1.osc8_end) || param != NULL) &&
 				    osc8_param_match(&op1, param))
 					break;
 				op2 = op1;
