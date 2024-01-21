@@ -679,6 +679,9 @@ the normal format change and the specified color should both be used.
 For example, \-Dug displays underlined text as green without underlining;
 the green color has replaced the usual underline formatting.
 But \-Du+g displays underlined text as both green and in underlined format.
+Other special characters are * for bold mode, _ for underline mode, & for blink
+mode, and ~ for standout mode.
+Thus, \-Du_*g displays underlined text as green, underlined and bold.
 .PP
 \fIcolor\fP is either a 4-bit color string or an 8-bit color string:
 .PP

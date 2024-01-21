@@ -2483,7 +2483,7 @@ public COLOR_TYPE parse_color(constant char *str, int *p_fg, int *p_bg)
 
 	if (str == NULL || *str == '\0')
 		return CT_NULL;
-	if (*str == '+')
+	while (*str == '+' || *str == '_' || *str == '*' || *str == '~' || *str == '&')
 		str++; /* ignore leading + */
 
 	fg = parse_color4(str[0]);
@@ -2576,11 +2576,22 @@ static void tput_inmode(constant char *mode_str, int attr, int attr_bit, int (*f
 	if ((attr & attr_bit) == 0)
 		return;
 	color_str = get_color_map(attr_bit);
-	if (color_str == NULL || *color_str == '\0' || *color_str == '+')
+	enum lbool is_valid_mod = FALSE;
+	while (color_str == NULL || *color_str == '\0' || (is_valid_mod = *color_str == '+' || *color_str == '*' || *color_str == '_' || *color_str == '~' || *color_str == '&'))
 	{
-		ltputs(mode_str, 1, f_putc);
-		if (color_str == NULL || *color_str++ != '+')
+		if (*color_str == '*')
+			ltputs(sc_b_in, 1, f_putc);
+		else if (*color_str == '&')
+			ltputs(sc_bl_in, 1, f_putc);
+		else if (*color_str == '~')
+			ltputs(sc_s_in, 1, f_putc);
+		else if (*color_str == '_')
+			ltputs(sc_u_in, 1, f_putc);
+		else
+			ltputs(mode_str, 1, f_putc);
+		if (color_str == NULL || !is_valid_mod)
 			return;
+		color_str++;
 	}
 	/* Color overrides mode string */
 	tput_color(color_str, f_putc);
