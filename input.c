@@ -67,7 +67,10 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
 	{
 		attr = is_hilited_attr(disp_pos, edisp_pos, TRUE, NULL);
 		ch = '*';
-	}
+	} else
+    {
+        attr = 0;
+    }
 	if (attr)
 		set_status_col(ch, attr);
 }
