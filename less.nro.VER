@@ -383,6 +383,8 @@ Go to the previous tag, if there were more than one matches for the current tag.
 Search forward in the file for the N-th next OSC8 hyperlink.
 .IP "\(haO\(haP or \(haOp"
 Search backward in the file for the N-th previous OSC8 hyperlink.
+.IP "\(haO\(haL or \(haOl"
+Jump to the currently selected OSC8 hyperlink.
 .IP "= or \(haG or :f"
 Prints some information about the file being viewed,
 including its name

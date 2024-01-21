@@ -1773,6 +1773,15 @@ public void commands(void)
 			error("Command not available", NULL_PARG);
 			break;
 
+		case A_OSC8_JUMP:
+#if OSC8_LINK
+			cmd_exec();
+			osc8_jump();
+#else
+			error("Command not available", NULL_PARG);
+#endif
+			break;
+
 		case A_FILTER:
 #if HILITE_SEARCH
 			search_type = SRCH_FORW | SRCH_FILTER;

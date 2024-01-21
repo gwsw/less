@@ -1911,6 +1911,19 @@ public void osc8_open(void)
 #endif /* HAVE_POPEN */
 }
 
+/*
+ * Jump to the currently selected OSC8 link.
+ */
+public void osc8_jump(void)
+{
+	if (osc8_linepos == NULL_POSITION)
+	{
+		error("No OSC8 link selected", NULL_PARG);
+		return;
+	}
+	jump_loc(osc8_linepos, jump_sline);
+}
+
 #endif /* OSC8_LINK */
 
 /*

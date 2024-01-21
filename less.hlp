@@ -42,7 +42,8 @@
   ESC-n             *  Repeat previous search, spanning files.
   ESC-N             *  Repeat previous search, reverse dir. & spanning files.
   ^O^N  ^On         *  Search forward for (_N-th) OSC8 hyperlink.
-  ^O^P  ^Op         *  Search backword for (_N-th) OSC8 hyperlink.
+  ^O^P  ^Op         *  Search backward for (_N-th) OSC8 hyperlink.
+  ^O^L  ^Ol            Jump to the currently selected OSC8 hyperlink.
   ESC-u                Undo (toggle) search highlighting.
   ESC-U                Clear search highlighting.
   &_p_a_t_t_e_r_n          *  Display only matching lines.

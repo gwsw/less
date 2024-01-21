@@ -80,6 +80,7 @@
 #define A_OSC8_F_SEARCH        71
 #define A_OSC8_B_SEARCH        72
 #define A_OSC8_OPEN            73
+#define A_OSC8_JUMP            74
 
 /* These values must not conflict with any A_* or EC_* value. */
 #define A_INVALID              100

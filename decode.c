@@ -163,6 +163,8 @@ static unsigned char cmdtable[] =
 	CONTROL('O'),'p',0,             A_OSC8_B_SEARCH,
 	CONTROL('O'),CONTROL('O'),0,    A_OSC8_OPEN,
 	CONTROL('O'),'o',0,             A_OSC8_OPEN,
+	CONTROL('O'),CONTROL('L'),0,    A_OSC8_JUMP,
+	CONTROL('O'),'l',0,             A_OSC8_JUMP,
 	't',0,                          A_NEXT_TAG,
 	'T',0,                          A_PREV_TAG,
 	':','x',0,                      A_INDEX_FILE,
