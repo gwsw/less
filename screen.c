@@ -497,6 +497,9 @@ public void raw_mode(int on)
 #ifdef VSTART
 			s.c_cc[VSTART] = 0;
 #endif
+#ifdef VDISCARD
+			s.c_cc[VDISCARD] = 0;
+#endif
 #if MUST_SET_LINE_DISCIPLINE
 			/*
 			 * System's termios is broken; need to explicitly 
