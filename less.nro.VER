@@ -532,8 +532,8 @@ may have to do some manipulation of the %o value.
 If the LESS_OSC8_xxx variable is not set, links using that scheme 
 cannot be opened. 
 However, there are default handlers for the 
-schemes "man" (used when LESS_OSC_man is not set)
-and "file" (used when LESS_OSC_file is not set),
+schemes "man" (used when LESS_OSC8_man is not set)
+and "file" (used when LESS_OSC8_file is not set),
 which should work on systems which provide the
 .BR sed (1)
 command and a shell with syntax compatible with the Bourne shell
