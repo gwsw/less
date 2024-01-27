@@ -763,7 +763,7 @@ public char * lglob(constant char *afilename)
 /*
  * Does path not represent something in the file system?
  */
-public int is_fake_pathname(constant char *path)
+public lbool is_fake_pathname(constant char *path)
 {
 	return (strcmp(path, "-") == 0 ||
 	        strcmp(path, FAKE_HELPFILE) == 0 || strcmp(path, FAKE_EMPTYFILE) == 0);
@@ -990,9 +990,9 @@ public void close_altfile(constant char *altfilename, constant char *filename)
 /*
  * Is the specified file a directory?
  */
-public int is_dir(constant char *filename)
+public lbool is_dir(constant char *filename)
 {
-	int isdir = 0;
+	lbool isdir = FALSE;
 
 #if HAVE_STAT
 {

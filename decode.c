@@ -825,7 +825,7 @@ public constant char * lgetenv_ext(constant char *var, unsigned char *env_buf, s
 /*
  * Is a string null or empty? 
  */
-public int isnullenv(constant char *s)
+public lbool isnullenv(constant char *s)
 {
 	return (s == NULL || *s == '\0');
 }

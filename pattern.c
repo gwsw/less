@@ -226,7 +226,7 @@ public int valid_pattern(char *pattern)
 /*
  * Is a compiled pattern null?
  */
-public int is_null_pattern(PATTERN_TYPE pattern)
+public lbool is_null_pattern(PATTERN_TYPE pattern)
 {
 #if HAVE_GNU_REGEX
 	return (pattern == NULL);

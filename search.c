@@ -2344,10 +2344,10 @@ public void set_filter_pattern(constant char *pattern, int search_type)
 /*
  * Is there a line filter in effect?
  */
-public int is_filtering(void)
+public lbool is_filtering(void)
 {
 	if (ch_getflags() & CH_HELPFILE)
-		return (0);
+		return (FALSE);
 	return (filter_infos != NULL);
 }
 #endif

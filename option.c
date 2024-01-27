@@ -552,7 +552,7 @@ public constant char * opt_toggle_disallowed(int c)
  * In that case, the current option is taken to be the string for
  * the previous option.
  */
-public int isoptpending(void)
+public lbool isoptpending(void)
 {
 	return (pendopt != NULL);
 }

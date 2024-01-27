@@ -68,7 +68,7 @@ static int right_curr;
 static int right_column;
 static int overstrike;  /* Next char should overstrike previous char */
 static int last_overstrike = AT_NORMAL;
-static int is_null_line;  /* There is no current line */
+static lbool is_null_line;  /* There is no current line */
 static LWCHAR pendc;
 static POSITION pendpos;
 static constant char *end_ansi_chars;
@@ -243,7 +243,7 @@ public void prewind(void)
 	overstrike = 0;
 	last_overstrike = AT_NORMAL;
 	mbc_buf_len = 0;
-	is_null_line = 0;
+	is_null_line = FALSE;
 	pendc = '\0';
 	in_hilite = 0;
 	ansi_in_line = FALSE;
@@ -564,22 +564,22 @@ public void loadc(void)
 /*
  * Is a character the end of an ANSI escape sequence?
  */
-public int is_ansi_end(LWCHAR ch)
+public lbool is_ansi_end(LWCHAR ch)
 {
 	if (!is_ascii_char(ch))
-		return (0);
+		return (FALSE);
 	return (strchr(end_ansi_chars, (char) ch) != NULL);
 }
 
 /*
  * Can a char appear in an ANSI escape sequence, before the end char?
  */
-public int is_ansi_middle(LWCHAR ch)
+public lbool is_ansi_middle(LWCHAR ch)
 {
 	if (!is_ascii_char(ch))
-		return (0);
+		return (FALSE);
 	if (is_ansi_end(ch))
-		return (0);
+		return (FALSE);
 	return (strchr(mid_ansi_chars, (char) ch) != NULL);
 }
 
@@ -1432,7 +1432,7 @@ public int gline(size_t i, int *ap)
  */
 public void null_line(void)
 {
-	is_null_line = 1;
+	is_null_line = TRUE;
 	cshift = 0;
 }
 

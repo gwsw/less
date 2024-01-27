@@ -342,7 +342,7 @@ static void exec_mca(void)
 /*
  * Is a character an erase or kill char?
  */
-static int is_erase_char(char c)
+static lbool is_erase_char(char c)
 {
 	return (c == erase_char || c == erase2_char || c == kill_char);
 }
@@ -350,7 +350,7 @@ static int is_erase_char(char c)
 /*
  * Is a character a carriage return or newline?
  */
-static int is_newline_char(char c)
+static lbool is_newline_char(char c)
 {
 	return (c == '\n' || c == '\r');
 }

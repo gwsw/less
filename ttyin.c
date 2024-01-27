@@ -41,7 +41,7 @@ public int tty;
 extern int sigs;
 #if LESSTEST
 public char *ttyin_name = NULL;
-public int is_lesstest(void)
+public lbool is_lesstest(void)
 {
 	return ttyin_name != NULL;
 }

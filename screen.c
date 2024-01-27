@@ -2717,7 +2717,7 @@ public void at_switch(int attr)
 	}
 }
 
-public int is_at_equiv(int attr1, int attr2)
+public lbool is_at_equiv(int attr1, int attr2)
 {
 	attr1 = apply_at_specials(attr1);
 	attr2 = apply_at_specials(attr2);

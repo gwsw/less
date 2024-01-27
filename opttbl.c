@@ -795,15 +795,15 @@ public struct loption * findopt(int c)
 /*
  *
  */
-static int is_optchar(char c)
+static lbool is_optchar(char c)
 {
 	if (ASCII_IS_UPPER(c))
-		return 1;
+		return TRUE;
 	if (ASCII_IS_LOWER(c))
-		return 1;
+		return TRUE;
 	if (c == '-')
-		return 1;
-	return 0;
+		return TRUE;
+	return FALSE;
 }
 
 /*
