@@ -529,8 +529,9 @@ echo mybrowser '%o'
 In other cases, the URI may need to be modified, so the handler
 may have to do some manipulation of the %o value.
 .PP
-If the LESS_OSC8_xxx variable is not set, links using that scheme 
-cannot be opened. 
+If the LESS_OSC8_xxx variable is not set, the variable LESS_OSC8_ANY is tried. 
+If neither LESS_OSC8_xxx nor LESS_OSC8_ANY is set, 
+links using the "xxx" scheme cannot be opened. 
 However, there are default handlers for the 
 schemes "man" (used when LESS_OSC8_man is not set)
 and "file" (used when LESS_OSC8_file is not set),
@@ -538,6 +539,9 @@ which should work on systems which provide the
 .BR sed (1)
 command and a shell with syntax compatible with the Bourne shell
 .BR sh (1).
+If you use LESS_OSC8_ANY to override LESS_OSC8_file, you must 
+set LESS_OSC8_file to "-" to indicate that the default value 
+should not be used, and likewise for LESS_OSC8_man.
 .PP
 The URI passed to an OSC8 handler via %o is guaranteed not to contain any single quote
 or double quote characters, but it may contain any other shell metacharacters
@@ -2422,6 +2426,9 @@ command.
 .IP LESS_OSC8_xxx
 Where "xxx" is a URI scheme such as "http" or "file",
 sets an OSC8 handler for opening OSC8 links containing a URI with that scheme.
+.IP LESS_OSC8_ANY
+Sets an OSC8 handler for opening OSC8 links for which there is 
+no specific LESS_OSC8_xxx handler set for the "xxx" scheme.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 
 of the termcap "xx" capability for the terminal.
