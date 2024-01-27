@@ -1877,6 +1877,8 @@ public void osc8_open(void)
 	}
 	SNPRINTF3(env_name, sizeof(env_name), "%s%.*s", env_name_pfx, (int) scheme_len, op.uri_start);
 	handler = lgetenv(env_name);
+	if (isnullenv(handler) || strcmp(handler, "-") == 0)
+        handler = lgetenv("LESS_OSC8_ANY");
 	if (isnullenv(handler))
 	{
 		PARG parg;
