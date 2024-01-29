@@ -122,7 +122,8 @@ For example, see the "{" and ":t" commands in the example below.
 The extra string has a special meaning for the "quit" action:
 when
 .B less
-quits, the first character of the extra string is used as its exit status.
+quits, the ASCII value of the first character of the extra string 
+is used as its exit status.
 .
 .SH EXAMPLE
 The following input file describes the set of
