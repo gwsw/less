@@ -716,7 +716,7 @@ public LWCHAR get_wchar(constant char *sp)
 /*
  * Store a character into a UTF-8 string.
  */
-public void put_wchar(char **pp, LWCHAR ch)
+public void put_wchar(mutable char **pp, LWCHAR ch)
 {
 	if (!utf_mode || ch < 0x80) 
 	{

@@ -1783,7 +1783,7 @@ public void osc8_search(int search_type, constant char *param, int matches)
 	osc8_search_param = NULL;
 	if (match != 0)
 	{
-		error("OSC8 link not found", NULL_PARG);
+		error("OSC 8 link not found", NULL_PARG);
 		return;
 	}
 	jump_loc(pos, jump_sline);
