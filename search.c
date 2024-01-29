@@ -1345,6 +1345,16 @@ static lbool osc8_param_match(struct osc8_parse_info *op, constant char *param)
 }
 
 /*
+ * Is the URI in an OSC8 sequence empty?
+ * "Empty" means zero length, or equal to "#".
+ */
+static lbool osc8_empty_uri(constant struct osc8_parse_info *op)
+{
+	return op->uri_end == op->uri_start ||
+	       (op->uri_end == op->uri_start+1 && op->uri_start[0] == '#');
+}
+
+/*
  * Find the next OSC8 hyperlink in a line.
  * A hyperlink is two OSC8 sequences (the first with a nonempty URI)
  * plus the non-empty text between them.
@@ -1367,7 +1377,7 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 			/* Find the first OSC8 sequence in the line with a nonempty URI,
 			 * which begins the hypertext. */
 			if (osc8_parse(linep, line_end, &op1) &&
-			    (op1.uri_end > op1.uri_start || param != NULL))
+			    (!osc8_empty_uri(&op1) || param != NULL))
 			{
 				/* Now find the next OSC8 sequence, which ends the hypertext. */
 				constant char *linep2;
@@ -1392,7 +1402,7 @@ static lbool osc8_search_line1(int search_type, POSITION linepos, POSITION spos,
 				return FALSE;
 			if (osc8_parse(linep, line_end, &op1))
 			{
-				if (((op1.uri_end > op1.uri_start && op2.osc8_start > op1.osc8_end) || param != NULL) &&
+				if (((!osc8_empty_uri(&op1) && op2.osc8_start > op1.osc8_end) || param != NULL) &&
 				    osc8_param_match(&op1, param))
 					break;
 				op2 = op1;
