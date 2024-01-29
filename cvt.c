@@ -50,7 +50,7 @@ public int * cvt_alloc_chpos(size_t len)
  * Returns converted text in odst.  The original offset of each
  * odst character (when it was in osrc) is returned in the chpos array.
  */
-public void cvt_text(char *odst, constant char *osrc, int *chpos, size_t *lenp, int ops)
+public void cvt_text(mutable char *odst, constant char *osrc, mutable int *chpos, mutable size_t *lenp, int ops)
 {
 	char *dst;
 	char *edst = odst;

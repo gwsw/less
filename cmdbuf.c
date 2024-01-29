@@ -1284,7 +1284,7 @@ public int cmd_char(char c)
 /*
  * Return the number currently in the command buffer.
  */
-public LINENUM cmd_int(long *frac)
+public LINENUM cmd_int(mutable long *frac)
 {
 	constant char *p;
 	LINENUM n = 0;
