@@ -1303,7 +1303,10 @@ public void pdone(int endline, int chopped, int forw)
  * This attempts to mimic the logic in pappend() and the store_*() functions.
  * Duplicating this complicated logic is not a good design.
  */
-public int col_from_pos(POSITION line_pos, POSITION spos, POSITION saved_pos, int saved_col)
+
+struct col_pos { int col; POSITION pos; };
+
+static void col_vs_pos(POSITION line_pos, mutable struct col_pos *cp, POSITION saved_pos, int saved_col)
 {
 	int col = saved_col;
 	LWCHAR prev_ch = 0;
@@ -1312,12 +1315,31 @@ public int col_from_pos(POSITION line_pos, POSITION spos, POSITION saved_pos, in
 	int utf8_len = 0;
 
 	if (ch_seek(saved_pos != NULL_POSITION ? saved_pos : line_pos))
-		return -1;
-	while (spos == NULL_POSITION || ch_tell() < spos)
+		return;
+	for (;;)
 	{
-		int ich = ch_forw_get();
-		char ch = (char) ich;
+		int ich;
+		char ch;
 		int cw = 0;
+
+		if (cp->pos != NULL_POSITION)
+		{
+			if (ch_tell() >= cp->pos)
+			{
+				cp->col = col;
+				break;
+			}
+		}
+		if (cp->col >= 0)
+		{
+			if (col >= cp->col)
+			{
+				cp->pos = ch_tell();
+				break;
+			}
+		}
+		ich = ch_forw_get();
+		ch = (char) ich;
 		if (ich == EOI || ch == '\n')
 			break;
 		if (pansi != NULL)
@@ -1367,7 +1389,24 @@ public int col_from_pos(POSITION line_pos, POSITION spos, POSITION saved_pos, in
 		col += cw;
 		prev_ch = ch;
 	}
-	return col;
+}
+
+public int col_from_pos(POSITION line_pos, POSITION spos, POSITION saved_pos, int saved_col)
+{
+	struct col_pos cp;
+	cp.pos = spos;
+	cp.col = -1;
+	col_vs_pos(line_pos, &cp, saved_pos, saved_col);
+	return cp.col;
+}
+
+public POSITION pos_from_col(POSITION line_pos, int col, POSITION saved_pos, int saved_col)
+{
+	struct col_pos cp;
+	cp.col = col;
+	cp.pos = NULL_POSITION;
+	col_vs_pos(line_pos, &cp, saved_pos, saved_col);
+	return cp.pos;
 }
 
 /*
