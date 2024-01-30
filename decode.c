@@ -694,8 +694,7 @@ static int cmd_search(constant char *cmd, constant char *table, constant char *e
 			 * but not the end of the string in the command table.
 			 * The user's command is incomplete.
 			 */
-			if (a == A_INVALID)
-				a = A_PREFIX;
+			return A_PREFIX;
 		} else
 		{
 			/*
