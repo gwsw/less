@@ -614,8 +614,8 @@ static void shift_visible(POSITION line_pos, size_t start_off, size_t end_off)
 {
 	POSITION start_pos = line_pos + start_off;
 	POSITION end_pos = line_pos + end_off;
-	int start_col = get_col(line_pos, start_pos, NULL_POSITION, -1);
-	int end_col = get_col(line_pos, end_pos, start_pos, start_col);
+	int start_col = col_from_pos(line_pos, start_pos, NULL_POSITION, -1);
+	int end_col = col_from_pos(line_pos, end_pos, start_pos, start_col);
 	int swidth = sc_width - line_pfx_width() - (rscroll_char ? 1 : 0);
 	int new_hshift;
 	if (start_col < 0 || end_col < 0)
@@ -626,7 +626,7 @@ static void shift_visible(POSITION line_pos, size_t start_off, size_t end_off)
 		new_hshift = hshift; /* already visible; leave hshift unchanged */
 	else 
 	{
-		int eol_col = get_col(line_pos, NULL_POSITION, end_pos, end_col) - swidth;
+		int eol_col = col_from_pos(line_pos, NULL_POSITION, end_pos, end_col) - swidth;
 		if (start_col >= eol_col) /* whole string is in last screen */
 			new_hshift = eol_col;
 		else /* shift it to column match_shift */

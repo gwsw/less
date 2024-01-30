@@ -1303,7 +1303,7 @@ public void pdone(int endline, int chopped, int forw)
  * This attempts to mimic the logic in pappend() and the store_*() functions.
  * Duplicating this complicated logic is not a good design.
  */
-public int get_col(POSITION line_pos, POSITION spos, POSITION saved_pos, int saved_col)
+public int col_from_pos(POSITION line_pos, POSITION spos, POSITION saved_pos, int saved_col)
 {
 	int col = saved_col;
 	LWCHAR prev_ch = 0;
