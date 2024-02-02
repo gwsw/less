@@ -380,11 +380,11 @@ See the \-t option for more details about tags.
 .IP "T"
 Go to the previous tag, if there were more than one matches for the current tag.
 .IP "\(haO\(haN or \(haOn"
-Search forward in the file for the N-th next OSC8 hyperlink.
+Search forward in the file for the N-th next OSC 8 hyperlink.
 .IP "\(haO\(haP or \(haOp"
-Search backward in the file for the N-th previous OSC8 hyperlink.
+Search backward in the file for the N-th previous OSC 8 hyperlink.
 .IP "\(haO\(haL or \(haOl"
-Jump to the currently selected OSC8 hyperlink.
+Jump to the currently selected OSC 8 hyperlink.
 .IP "= or \(haG or :f"
 Prints some information about the file being viewed,
 including its name
@@ -493,7 +493,7 @@ Save the input to a file.
 This works only if the input is a pipe, not an ordinary file.
 .IP "\(haO\(haO"
 .RS
-Run a shell command to open the URI in the current OSC8 hyperlink,
+Run a shell command to open the URI in the current OSC 8 hyperlink,
 selected by a previous \(haO\(haN or \(haO\(haP command.
 To find the shell command,
 the environment variable named "LESS_OSC8_xxx" is read, 
@@ -501,7 +501,7 @@ where "xxx" is the scheme from the URI (the part before the first colon),
 or is empty if there is no colon in the URI.
 The value of the environment variable is then expanded in the same way as 
 prompt strings (in particular, any instance of "%o" is replaced with the URI)
-to produce an OSC8 "handler" shell command.
+to produce an OSC 8 "handler" shell command.
 The standard output from the handler is an "opener" shell command 
 which is then executed to open the URI.
 .PP
@@ -509,7 +509,7 @@ There are two special cases:
 .RS
 .IP 1.
 If the URI begins with "#", the remainder of the URI is taken to be 
-the value of the id parameter in another OSC8 link in the same file,
+the value of the id parameter in another OSC 8 link in the same file,
 and \(haO\(haO will simply jump to that link.
 .IP 2.
 If the opener begins with the characters ":e" followed by 
@@ -1379,6 +1379,8 @@ scrolling the mouse wheel down moves forward in the file,
 scrolling the mouse wheel up moves backwards in the file,
 left-click sets the "#" mark to the line where the mouse is clicked,
 and right-click (or any other) returns to the "#" mark position.
+If a left-click is performed with the mouse cursor on an OSC 8 hyperlink,
+the hyperlink is selected as if by \(haO\(haN.
 The number of lines to scroll when the wheel is moved
 can be set by the \-\-wheel-lines option.
 Mouse input works only on terminals which support X11 mouse reporting,
@@ -2055,9 +2057,9 @@ Replaced by the line number of the last line in the input file.
 .IP "%m"
 Replaced by the total number of input files.
 .IP "%o"
-Replaced by the URI of the currently selected OSC8 hyperlink,
+Replaced by the URI of the currently selected OSC 8 hyperlink,
 or a question mark if no hyperlink is selected.
-This is used by OSC8 handlers as explained in the \(haO\(haO command description.
+This is used by OSC 8 handlers as explained in the \(haO\(haO command description.
 .IP "%p\fIX\fP"
 Replaced by the percent into the current input file, based on byte offsets.
 The line used is determined by the \fIX\fP as with the %b option.
@@ -2215,7 +2217,7 @@ input preprocessor (LESSOPEN environment variable)
 .IP "logfile"
 log files (s and -o)
 .IP "osc8"
-opening OSC8 links (\(haO\(haO)
+opening OSC 8 links (\(haO\(haO)
 .IP "pipe"
 the pipe command (|) 
 .IP "shell"
@@ -2425,9 +2427,9 @@ Emulate the
 command.
 .IP LESS_OSC8_xxx
 Where "xxx" is a URI scheme such as "http" or "file",
-sets an OSC8 handler for opening OSC8 links containing a URI with that scheme.
+sets an OSC 8 handler for opening OSC 8 links containing a URI with that scheme.
 .IP LESS_OSC8_ANY
-Sets an OSC8 handler for opening OSC8 links for which there is 
+Sets an OSC 8 handler for opening OSC 8 links for which there is 
 no specific LESS_OSC8_xxx handler set for the "xxx" scheme.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 

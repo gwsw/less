@@ -1295,7 +1295,7 @@ public void pdone(int endline, int chopped, int forw)
 
 /*
  * Return the column number (screen position) of a given file position in its line.
- * line_pos = position of first char in line
+ * linepos = position of first char in line
  * spos = position of char being queried
  * saved_pos = position of a known column, or NULL_POSITION if no known column
  * saved_col = column number of a known column, or -1 if no known column
@@ -1306,15 +1306,16 @@ public void pdone(int endline, int chopped, int forw)
 
 struct col_pos { int col; POSITION pos; };
 
-static void col_vs_pos(POSITION line_pos, mutable struct col_pos *cp, POSITION saved_pos, int saved_col)
+static void col_vs_pos(POSITION linepos, mutable struct col_pos *cp, POSITION saved_pos, int saved_col)
 {
-	int col = saved_col;
+	int col = (saved_col < 0) ? 0 : saved_col;
 	LWCHAR prev_ch = 0;
 	struct ansi_state *pansi = NULL;
 	char utf8_buf[MAX_UTF_CHAR_LEN];
 	int utf8_len = 0;
+	POSITION chpos;
 
-	if (ch_seek(saved_pos != NULL_POSITION ? saved_pos : line_pos))
+	if (ch_seek(saved_pos != NULL_POSITION ? saved_pos : linepos))
 		return;
 	for (;;)
 	{
@@ -1322,22 +1323,7 @@ static void col_vs_pos(POSITION line_pos, mutable struct col_pos *cp, POSITION s
 		char ch;
 		int cw = 0;
 
-		if (cp->pos != NULL_POSITION)
-		{
-			if (ch_tell() >= cp->pos)
-			{
-				cp->col = col;
-				break;
-			}
-		}
-		if (cp->col >= 0)
-		{
-			if (col >= cp->col)
-			{
-				cp->pos = ch_tell();
-				break;
-			}
-		}
+		chpos = ch_tell();
 		ich = ch_forw_get();
 		ch = (char) ich;
 		if (ich == EOI || ch == '\n')
@@ -1386,26 +1372,33 @@ static void col_vs_pos(POSITION line_pos, mutable struct col_pos *cp, POSITION s
 		{
 			utf8_len = 0; /* flush invalid UTF-8 */
 		}
+
+		if (cp->pos != NULL_POSITION && chpos == cp->pos) /* found the position we want */
+			break;
+		if (cp->col >= 0 && col >= cp->col && cw > 0) /* found the column we want */
+			break;
 		col += cw;
 		prev_ch = ch;
 	}
+	cp->col = col;
+	cp->pos = chpos;
 }
 
-public int col_from_pos(POSITION line_pos, POSITION spos, POSITION saved_pos, int saved_col)
+public int col_from_pos(POSITION linepos, POSITION spos, POSITION saved_pos, int saved_col)
 {
 	struct col_pos cp;
 	cp.pos = spos;
 	cp.col = -1;
-	col_vs_pos(line_pos, &cp, saved_pos, saved_col);
+	col_vs_pos(linepos, &cp, saved_pos, saved_col);
 	return cp.col;
 }
 
-public POSITION pos_from_col(POSITION line_pos, int col, POSITION saved_pos, int saved_col)
+public POSITION pos_from_col(POSITION linepos, int col, POSITION saved_pos, int saved_col)
 {
 	struct col_pos cp;
 	cp.col = col;
 	cp.pos = NULL_POSITION;
-	col_vs_pos(line_pos, &cp, saved_pos, saved_col);
+	col_vs_pos(linepos, &cp, saved_pos, saved_col);
 	return cp.pos;
 }
 

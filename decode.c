@@ -516,11 +516,16 @@ static int mouse_wheel_up(void)
  */
 static int mouse_button_left(int x, int y)
 {
-	(void) x;
 	/*
 	 * {{ It would be better to return an action and then do this 
 	 *    in commands() but it's nontrivial to pass y to it. }}
 	 */
+#if OSC8_LINK
+	if (osc8_click(y, x))
+		return (A_NOACTION);
+#else
+	(void) x;
+#endif /* OSC8_LINK */
 	if (y < sc_height-1)
 	{
 		setmark('#', y);
