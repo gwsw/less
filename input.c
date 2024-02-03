@@ -289,8 +289,10 @@ get_forw_line:
 #if HILITE_SEARCH
 	if (blankline && show_attn)
 	{
-		/* Add spurious space to carry possible attn hilite. */
-		pappend(' ', ch_tell()-1);
+		/* Add spurious space to carry possible attn hilite.
+		 * Use pappend_b so that if line ended with \r\n,
+		 * we insert the space before the \r. */
+		pappend_b(' ', ch_tell()-1, TRUE);
 	}
 #endif
 	pdone(endline, rscroll && chopped, 1);

@@ -912,11 +912,11 @@ static int flush_mbc_buf(POSITION pos)
  * Expand tabs into spaces, handle underlining, boldfacing, etc.
  * Returns 0 if ok, 1 if couldn't fit in buffer.
  */
-public int pappend(char c, POSITION pos)
+public int pappend_b(char c, POSITION pos, lbool before_pendc)
 {
 	int r;
 
-	if (pendc)
+	if (pendc && !before_pendc)
 	{
 		if (c == '\r' && pendc == '\r')
 			return (0);
@@ -1000,6 +1000,11 @@ public int pappend(char c, POSITION pos)
 		r = (!utf_mode) ? 1 : mbc_buf_index;
 	}
 	return (r);
+}
+
+public int pappend(char c, POSITION pos)
+{
+	return pappend_b(c, pos, FALSE);
 }
 
 static int store_control_char(LWCHAR ch, constant char *rep, POSITION pos)
