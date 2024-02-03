@@ -85,6 +85,9 @@
 
 * Fix bug in --+OPTION command line syntax.
 
+* Fix display bug when using -w with an empty line with a CR/LF
+  line ending (github #474).
+
 * Update Unicode tables.
 
 ======================================================================
