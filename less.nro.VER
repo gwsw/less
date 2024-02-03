@@ -1380,7 +1380,9 @@ scrolling the mouse wheel up moves backwards in the file,
 left-click sets the "#" mark to the line where the mouse is clicked,
 and right-click (or any other) returns to the "#" mark position.
 If a left-click is performed with the mouse cursor on an OSC 8 hyperlink,
-the hyperlink is selected as if by \(haO\(haN.
+the hyperlink is selected as if by the \(haO\(haN command.
+If a left-click is performed with the mouse cursor on an OSC 8 hyperlink
+which is already selected, the hyperlink is opened as if by the \(haO\(haO command.
 The number of lines to scroll when the wheel is moved
 can be set by the \-\-wheel-lines option.
 Mouse input works only on terminals which support X11 mouse reporting,
