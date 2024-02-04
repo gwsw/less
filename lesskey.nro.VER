@@ -182,8 +182,6 @@ g	goto-line
 \ee<	goto-line
 p	percent
 %	percent
-\ee[	left-scroll
-\ee]	right-scroll
 \ee(	left-scroll
 \ee)	right-scroll
 \ekl	left-scroll

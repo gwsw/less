@@ -98,8 +98,6 @@ static unsigned char cmdtable[] =
 	ESC,'<',0,                      A_GOLINE,
 	'p',0,                          A_PERCENT,
 	'%',0,                          A_PERCENT,
-	ESC,'[',0,                      A_LSHIFT,
-	ESC,']',0,                      A_RSHIFT,
 	ESC,'(',0,                      A_LSHIFT,
 	ESC,')',0,                      A_RSHIFT,
 	ESC,'{',0,                      A_LLSHIFT,
