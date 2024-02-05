@@ -1401,7 +1401,7 @@ public int col_from_pos(POSITION linepos, POSITION spos, POSITION saved_pos, int
 public POSITION pos_from_col(POSITION linepos, int col, POSITION saved_pos, int saved_col)
 {
 	struct col_pos cp;
-	cp.col = col;
+	cp.col = col + hshift - line_pfx_width();
 	cp.pos = NULL_POSITION;
 	col_vs_pos(linepos, &cp, saved_pos, saved_col);
 	return cp.pos;
