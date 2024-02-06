@@ -1005,9 +1005,9 @@ v646  11/6/23   Bug fixes.
 v647  11/16/23  Fix --+option; fix compiler warnings.
 v648  11/16/23  Add lang.h to release.
 v649  12/1/23   Add line number param to --header.
-v650            Add --no-search-header-lines and --no-search-header-columns;
+v650  2/6/24    Add --no-search-header-lines and --no-search-header-columns;
                 add ^L search modifier; add ^P shell command modifier;
                 add search wrap message; add ^O^N, ^O^P, ^O^L and ^O^O commands.
 */
 
-char version[] = "650x";
+char version[] = "650";
