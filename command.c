@@ -880,7 +880,7 @@ static void prompt(void)
 	{
 		WCHAR w[MAX_PATH+16];
 		p = pr_expand("Less?f - %f.");
-		MultiByteToWideChar(CP_ACP, 0, p, -1, w, countof(w));
+		MultiByteToWideChar(less_acp, 0, p, -1, w, countof(w));
 		SetConsoleTitleW(w);
 	}
 #endif
