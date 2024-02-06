@@ -88,7 +88,9 @@ static char *utf8_from_wide(constant wchar_t *ws)
 /*
  * similar to using UTF8 manifest to make the ANSI APIs UTF8, but dynamically
  * with setlocale. unlike the manifest, argv and environ are already ACP, so
- * make them UTF8. CP_ACP remains the original codepage - use less_acp instead.
+ * make them UTF8. Additionally, this affects only the libc/crt API, and so
+ * e.g. fopen filename becomes UTF-8, but CreateFileA filename remains CP_ACP.
+ * CP_ACP remains the original codepage - use the dynamic less_acp instead.
  * effective on win 10 1803 or later when compiled with ucrt, else no-op.
  */
 static void try_utf8_locale(int *pargc, constant char ***pargv)
