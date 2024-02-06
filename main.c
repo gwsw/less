@@ -57,7 +57,7 @@ extern int      jump_sline;
 #endif
 
 #ifdef WIN32
-static char consoleTitle[256];
+static wchar_t consoleTitle[256];
 #endif
 
 public int      one_screen;
@@ -272,7 +272,8 @@ int main(int argc, constant char *argv[])
 			putenv(env);
 		}
 	}
-	GetConsoleTitle(consoleTitle, sizeof(consoleTitle)/sizeof(char));
+	/* on failure, consoleTitle is already a valid empty string */
+	GetConsoleTitleW(consoleTitle, countof(consoleTitle));
 #endif /* WIN32 */
 
 	/*
@@ -600,7 +601,7 @@ public void quit(int status)
 	close(2);
 #endif
 #ifdef WIN32
-	SetConsoleTitle(consoleTitle);
+	SetConsoleTitleW(consoleTitle);
 #endif
 	close_getchr();
 	exit(status);
