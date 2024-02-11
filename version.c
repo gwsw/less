@@ -1008,6 +1008,7 @@ v649  12/1/23   Add line number param to --header.
 v650  2/6/24    Add --no-search-header-lines and --no-search-header-columns;
                 add ^L search modifier; add ^P shell command modifier;
                 add search wrap message; add ^O^N, ^O^P, ^O^L and ^O^O commands.
+v651
 */
 
-char version[] = "650";
+char version[] = "651x";
