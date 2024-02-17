@@ -175,11 +175,11 @@ static int security_feature(constant char *name, size_t len)
 		{ "lesskey",  SF_LESSKEY },
 		{ "lessopen", SF_LESSOPEN },
 		{ "logfile",  SF_LOGFILE },
+		{ "osc8",     SF_OSC8_OPEN },
 		{ "pipe",     SF_PIPE },
 		{ "shell",    SF_SHELL },
 		{ "stop",     SF_STOP },
 		{ "tags",     SF_TAGS },
-		{ "osc8",     SF_OSC8_OPEN },
 	};
 	int i;
 	int match = -1;
