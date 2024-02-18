@@ -2473,15 +2473,16 @@ static int parse_color6(constant char **ps)
 }
 
 /*
- * Parse a color pair and return the foreground/background values.
+ * Parse a color pair and return the foreground/background/attribute values.
  * Return type of color specifier:
  *  CV_4BIT: fg/bg values are OR of CV_{RGB} bits.
  *  CV_6BIT: fg/bg values are integers entered by user.
  */
-public COLOR_TYPE parse_color(constant char *str, mutable int *p_fg, mutable int *p_bg)
+public COLOR_TYPE parse_color(constant char *str, mutable int *p_fg, mutable int *p_bg, mutable CHAR_ATTR *p_attr)
 {
 	int fg;
-	int bg;
+	int bg = CV_ERROR;
+	CHAR_ATTR attr = ATTR_NULL;
 	COLOR_TYPE type = CT_NULL;
 
 	if (str == NULL || *str == '\0')
@@ -2489,19 +2490,57 @@ public COLOR_TYPE parse_color(constant char *str, mutable int *p_fg, mutable int
 	if (*str == '+')
 		str++; /* ignore leading + */
 
-	fg = parse_color4(str[0]);
-	bg = parse_color4((strlen(str) < 2) ? '-' : str[1]);
+	fg = parse_color4(*str);
+	if (fg != CV_ERROR)
+	{
+		if (str[1] == '\0' || strchr("*~_&", str[1]) != NULL)
+		{
+			bg = CV_NOCHANGE;
+			str++; /* skip the fg char */
+		} else
+		{
+			bg = parse_color4(str[1]);
+			if (bg != CV_ERROR)
+				str += 2; /* skip both fg and bg chars */
+		}
+	}
 	if (fg != CV_ERROR && bg != CV_ERROR)
 		type = CT_4BIT;
 	else
 	{
-		fg = parse_color6(&str);
-		bg = (fg != CV_ERROR && *str++ == '.') ? parse_color6(&str) : CV_NOCHANGE;
+		fg = (*str == '.') ? CV_NOCHANGE : parse_color6(&str);
+		if (fg != CV_ERROR)
+		{
+			if (*str != '.')
+				bg = CV_NOCHANGE;
+			else
+			{
+				str++; /* skip the dot */
+				bg = parse_color6(&str);
+			}
+		}
 		if (fg != CV_ERROR && bg != CV_ERROR)
 			type = CT_6BIT;
 	}
-	if (p_fg != NULL) *p_fg = fg;
-	if (p_bg != NULL) *p_bg = bg;
+	if (type != CT_NULL)
+	{
+		for (;; str++)
+		{
+			if (*str == '*')
+				attr |= ATTR_BOLD;
+			else if (*str == '~')
+				attr |= ATTR_STANDOUT;
+			else if (*str == '_')
+				attr |= ATTR_UNDERLINE;
+			else if (*str == '&')
+				attr |= ATTR_BLINK;
+			else
+				break;
+		}
+		if (p_fg != NULL) *p_fg = fg;
+		if (p_bg != NULL) *p_bg = bg;
+		if (p_attr != NULL) *p_attr = attr;
+	}
 	return type;
 }
 
@@ -2543,10 +2582,23 @@ static void tput_fmt(constant char *fmt, int color, int (*f_putc)(int))
 	attrcolor = color;
 }
 
+static void tput_char_attr(CHAR_ATTR attr, int (*f_putc)(int))
+{
+	if (attr & ATTR_UNDERLINE)
+		ltputs(sc_u_in, 1, f_putc);
+	if (attr & ATTR_BOLD)
+		ltputs(sc_b_in, 1, f_putc);
+	if (attr & ATTR_BLINK)
+		ltputs(sc_bl_in, 1, f_putc);
+	if (attr & ATTR_STANDOUT)
+		ltputs(sc_s_in, 1, f_putc);
+}
+
 static void tput_color(constant char *str, int (*f_putc)(int))
 {
 	int fg;
 	int bg;
+	CHAR_ATTR attr;
 
 	if (str != NULL && strcmp(str, "*") == 0)
 	{
@@ -2554,19 +2606,21 @@ static void tput_color(constant char *str, int (*f_putc)(int))
 		tput_fmt(ESCS"[m", -1, f_putc);
 		return;
 	}
-	switch (parse_color(str, &fg, &bg))
+	switch (parse_color(str, &fg, &bg, &attr))
 	{
 	case CT_4BIT:
 		if (fg >= 0)
 			tput_fmt(ESCS"[%dm", sgr_color(fg), f_putc);
 		if (bg >= 0)
 			tput_fmt(ESCS"[%dm", sgr_color(bg)+10, f_putc);
+		tput_char_attr(attr, f_putc);
 		break;
 	case CT_6BIT:
 		if (fg >= 0)
 			tput_fmt(ESCS"[38;5;%dm", fg, f_putc);
 		if (bg >= 0)
 			tput_fmt(ESCS"[48;5;%dm", bg, f_putc);
+		tput_char_attr(attr, f_putc);
 		break;
 	default:
 		break;
@@ -2617,7 +2671,7 @@ static lbool win_set_color(int attr)
 	constant char *str = get_color_map(attr);
 	if (str == NULL || str[0] == '\0')
 		return FALSE;
-	switch (parse_color(str, &fg, &bg))
+	switch (parse_color(str, &fg, &bg, NULL))
 	{
 	case CT_4BIT:
 		if (fg >= 0 && bg >= 0)

@@ -472,7 +472,7 @@ If a \(haP (CONTROL-P) is entered immediately after the !,
 no "done" message is printed after the shell command is executed.
 On Unix systems, the shell is taken from the environment variable SHELL,
 or defaults to "sh".
-On MS-DOS and OS/2 systems, the shell is the normal command processor.
+On MS-DOS, Windows, and OS/2 systems, the shell is the normal command processor.
 .IP "# shell-command"
 Similar to the "!" command, 
 except that the command is expanded in the same way as prompt strings.
@@ -606,7 +606,7 @@ or if you use
 .sp
 LESS="\-options"; export LESS
 .sp
-On MS-DOS, you don't need the quotes, but you should replace any
+On MS-DOS and Windows, you don't need the quotes, but you should replace any
 percent signs in the options string by double percent signs.
 .sp
 The environment variable is parsed before the command line,
@@ -789,7 +789,7 @@ https://en.wikipedia.org/wiki/ANSI_escape_code#SGR)
 .hy
 If either integer is a "-" or is omitted,
 the corresponding color is set to that of normal text.
-On MS-DOS versions of 
+On MS-DOS and Windows versions of 
 .BR less ,
 8-bit color is not supported; instead, decimal values are interpreted as 4-bit
 CHAR_INFO.Attributes values
@@ -799,7 +799,19 @@ CHAR_INFO.Attributes values
 https://docs.microsoft.com/en-us/windows/console/char-info-str).
 .hy
 .PP
-On MS-DOS only, the \-Da option may be used to specify strict parsing of 
+A 4-bit or 8-bit color string may be followed by one or more of the
+following characters to set text attributes in addition to the color.
+(These attribute characters are not supported on MS-DOS/Windows versions.)
+.IP "*"
+Bold
+.IP "~"
+Standout
+.IP "_"
+Underline
+.IP "&"
+Blink
+.PP
+On MS-DOS and Windows only, the \-Da option may be used to specify strict parsing of 
 ANSI color (SGR) sequences when the \-R option is used.
 Without this option, sequences that change text attributes 
 (bold, underline, etc.) may clear the text color.
@@ -1582,7 +1594,7 @@ If it matches more than one filename, the first match
 is entered into the command line.
 Repeated TABs will cycle thru the other matching filenames.
 If the completed filename is a directory, a "/" is appended to the filename.
-(On MS-DOS systems, a "\e" is appended.)
+(On MS-DOS and Windows systems, a "\e" is appended.)
 The environment variable LESSSEPARATOR can be used to specify a
 different character to append to a directory name.
 .IP "BACKTAB [ ESC-TAB ]"
@@ -1591,7 +1603,7 @@ Like, TAB, but cycles in the reverse direction thru the matching filenames.
 Complete the partial filename to the left of the cursor.
 If it matches more than one filename, all matches are entered into
 the command line (if they fit).
-.IP "\(haU (Unix and OS/2) or ESC (MS-DOS)"
+.IP "\(haU (Unix and OS/2) or ESC (MS-DOS and Windows)"
 Delete the entire command line,
 or cancel the command if the command line is empty.
 If you have changed your line-kill character in Unix to something
@@ -2456,7 +2468,7 @@ automatically when running in
 .BR more "-compatible mode."
 .IP PATH
 User's search path (used to find a lesskey file
-on MS-DOS and OS/2 systems).
+on MS-DOS, Windows, and OS/2 systems).
 .IP SHELL
 The shell used to execute the !\& command, as well as to expand filenames.
 .IP TERM

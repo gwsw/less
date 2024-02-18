@@ -30,6 +30,9 @@
 * A ctrl-P at the start of a shell command suppresses the "done" 
   message (github #462).
 
+* Add attribute characters ('*', '~', '_', '&') to --color
+  parameter (github #471).
+
 * Allow expansion of environment variables in lesskey files.
 
 * Add LESSSECURE_ALLOW environment variable (github #449).

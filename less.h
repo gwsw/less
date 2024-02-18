@@ -461,6 +461,14 @@ typedef enum {
 	CV_ERROR    = -1
 } COLOR_VALUE;
 
+typedef enum {
+	ATTR_NULL       = 0,
+	ATTR_STANDOUT   = (1 << 0),
+	ATTR_BOLD       = (1 << 1),
+	ATTR_UNDERLINE  = (1 << 2),
+	ATTR_BLINK      = (1 << 3),
+} CHAR_ATTR;
+
 /* ANSI states */
 typedef enum {
 	ANSI_NULL,

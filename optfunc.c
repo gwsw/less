@@ -567,7 +567,7 @@ static void colordesc(constant char *s, int *fg_color, int *bg_color)
 		}
 	}
 #endif
-	if (parse_color(s, &fg, &bg) == CT_NULL)
+	if (parse_color(s, &fg, &bg, NULL) == CT_NULL)
 	{
 		PARG p;
 		p.p_string = s;
