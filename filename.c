@@ -290,12 +290,30 @@ public char * homefile(constant char *filename)
 	return (NULL);
 }
 
+typedef struct xcpy { char *dest; size_t copied; } xcpy;
+
+static void xcpy_char(xcpy *xp, char ch)
+{
+	if (xp->dest != NULL) *(xp->dest)++ = ch; 
+	xp->copied++;
+}
+
+static void xcpy_string(xcpy *xp, constant char *str)
+{
+	for (;  *str != '\0';  str++)
+	{
+		if (*str == ' ')
+			xcpy_char(xp, '\\');
+		cpy_char(xp, *str);
+	}
+}
+
 static size_t fexpand_copy(constant char *fr, char *to)
 {
 	constant char *ofr = fr;
-	size_t copied = 0;
-	#define xcpy_char(ch)    do { if (to != NULL) { *to++ = ch; } copied++; } while(0)
-	#define xcpy_string(str) do { if (to != NULL) { strcpy(to, str); to += strlen(to); } copied += strlen(str); } while(0)
+	xcpy xp;
+	xp.copied = 0;
+	xp.dest = to;
 
 	for (;  *fr != '\0';  fr++)
 	{
@@ -309,7 +327,7 @@ static size_t fexpand_copy(constant char *fr, char *to)
 				 * Second (or later) char in a string
 				 * of identical chars.  Treat as normal.
 				 */
-				xcpy_char(*fr);
+				xcpy_char(&xp, *fr);
 			} else if (fr[1] != *fr)
 			{
 				/*
@@ -317,9 +335,9 @@ static size_t fexpand_copy(constant char *fr, char *to)
 				 */
 				IFILE ifile = (*fr == '%') ? curr_ifile : (*fr == '#') ? old_ifile : NULL_IFILE;
 				if (ifile == NULL_IFILE)
-					xcpy_char(*fr);
+					xcpy_char(&xp, *fr);
 				else
-					xcpy_string(get_filename(ifile));
+					xcpy_string(&xp, get_filename(ifile));
 			}
 			/*
 			 * Else it is the first char in a string of
@@ -327,12 +345,12 @@ static size_t fexpand_copy(constant char *fr, char *to)
 			 */
 			break;
 		default:
-			xcpy_char(*fr);
+			xcpy_char(&xp, *fr);
 			break;
 		}
 	}
-	if (to != NULL) *to = '\0';
-	return copied;
+	if (xp.dest != NULL) *xp.dest = '\0';
+	return xp.copied;
 }
 
 /*
