@@ -290,6 +290,51 @@ public char * homefile(constant char *filename)
 	return (NULL);
 }
 
+static size_t fexpand_copy(constant char *fr, char *to)
+{
+	constant char *ofr = fr;
+	size_t copied = 0;
+	#define xcpy_char(ch)    do { if (to != NULL) { *to++ = ch; } copied++; } while(0)
+	#define xcpy_string(str) do { if (to != NULL) { strcpy(to, str); to += strlen(to); } copied += strlen(str); } while(0)
+
+	for (;  *fr != '\0';  fr++)
+	{
+		switch (*fr)
+		{
+		case '%':
+		case '#':
+			if (fr > ofr && fr[-1] == *fr)
+			{
+				/*
+				 * Second (or later) char in a string
+				 * of identical chars.  Treat as normal.
+				 */
+				xcpy_char(*fr);
+			} else if (fr[1] != *fr)
+			{
+				/*
+				 * Single char (not repeated). Expand to a file name.
+				 */
+				IFILE ifile = (*fr == '%') ? curr_ifile : (*fr == '#') ? old_ifile : NULL_IFILE;
+				if (ifile == NULL_IFILE)
+					xcpy_char(*fr);
+				else
+					xcpy_string(get_filename(ifile));
+			}
+			/*
+			 * Else it is the first char in a string of
+			 * identical chars.  Just discard it.
+			 */
+			break;
+		default:
+			xcpy_char(*fr);
+			break;
+		}
+	}
+	if (to != NULL) *to = '\0';
+	return copied;
+}
+
 /*
  * Expand a string, substituting any "%" with the current filename,
  * and any "#" with the previous filename.
@@ -299,89 +344,20 @@ public char * homefile(constant char *filename)
  */
 public char * fexpand(constant char *s)
 {
-	constant char *fr;
-	char *to;
 	size_t n;
 	char *e;
-	IFILE ifile;
-
-#define fchar_ifile(c) \
-	((c) == '%' ? curr_ifile : \
-	 (c) == '#' ? old_ifile : NULL_IFILE)
 
 	/*
 	 * Make one pass to see how big a buffer we 
 	 * need to allocate for the expanded string.
 	 */
-	n = 0;
-	for (fr = s;  *fr != '\0';  fr++)
-	{
-		switch (*fr)
-		{
-		case '%':
-		case '#':
-			if (fr > s && fr[-1] == *fr)
-			{
-				/*
-				 * Second (or later) char in a string
-				 * of identical chars.  Treat as normal.
-				 */
-				n++;
-			} else if (fr[1] != *fr)
-			{
-				/*
-				 * Single char (not repeated).  Treat specially.
-				 */
-				ifile = fchar_ifile(*fr);
-				if (ifile == NULL_IFILE)
-					n++;
-				else
-					n += strlen(get_filename(ifile));
-			}
-			/*
-			 * Else it is the first char in a string of
-			 * identical chars.  Just discard it.
-			 */
-			break;
-		default:
-			n++;
-			break;
-		}
-	}
-
+	n = fexpand_copy(s, NULL);
 	e = (char *) ecalloc(n+1, sizeof(char));
 
 	/*
 	 * Now copy the string, expanding any "%" or "#".
 	 */
-	to = e;
-	for (fr = s;  *fr != '\0';  fr++)
-	{
-		switch (*fr)
-		{
-		case '%':
-		case '#':
-			if (fr > s && fr[-1] == *fr)
-			{
-				*to++ = *fr;
-			} else if (fr[1] != *fr)
-			{
-				ifile = fchar_ifile(*fr);
-				if (ifile == NULL_IFILE)
-					*to++ = *fr;
-				else
-				{
-					strcpy(to, get_filename(ifile));
-					to += strlen(to);
-				}
-			}
-			break;
-		default:
-			*to++ = *fr;
-			break;
-		}
-	}
-	*to = '\0';
+	fexpand_copy(s, e);
 	return (e);
 }
 
