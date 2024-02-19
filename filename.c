@@ -298,14 +298,22 @@ static void xcpy_char(xcpy *xp, char ch)
 	xp->copied++;
 }
 
-static void xcpy_string(xcpy *xp, constant char *str)
+static void xcpy_filename(xcpy *xp, constant char *str)
 {
+#if MSDOS_COMPILER
+	lbool need_quotes = (strchr(str, ' ') != NULL);
+	if (need_quotes) xcpy_char(xp, '"');
+	for (;  *str != '\0';  str++)
+		xcpy_char(xp, *str);
+	if (need_quotes) xcpy_char(xp, '"');
+#else
 	for (;  *str != '\0';  str++)
 	{
 		if (*str == ' ')
 			xcpy_char(xp, '\\');
-		cpy_char(xp, *str);
+		xcpy_char(xp, *str);
 	}
+#endif /* MSDOS_COMPILER */
 }
 
 static size_t fexpand_copy(constant char *fr, char *to)
@@ -337,7 +345,7 @@ static size_t fexpand_copy(constant char *fr, char *to)
 				if (ifile == NULL_IFILE)
 					xcpy_char(&xp, *fr);
 				else
-					xcpy_string(&xp, get_filename(ifile));
+					xcpy_filename(&xp, get_filename(ifile));
 			}
 			/*
 			 * Else it is the first char in a string of
