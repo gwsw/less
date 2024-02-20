@@ -91,6 +91,9 @@
 * Fix display bug when using -w with an empty line with a CR/LF
   line ending (github #474).
 
+* When substituting '#' or '%' with a filename, quote the filename
+  if it contains a space (github #480).
+
 * Update Unicode tables.
 
 ======================================================================
