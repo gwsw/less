@@ -113,7 +113,8 @@ typedef struct t_sgr {
 
 static constant t_sgr SGR_DEFAULT; /* = {0} */
 
-static void update_sgr(t_sgr *sgr, long code)
+/* returns 0 on success, non-0 on unknown SGR code */
+static int update_sgr(t_sgr *sgr, long code)
 {
 	switch (code)
 	{
@@ -150,7 +151,11 @@ static void update_sgr(t_sgr *sgr, long code)
 	case 44: case 45: case 46: case 47:
 		sgr->bg = C_ANSI(code - 40);
 		break;
+	default:
+		return 1;
 	}
+
+	return 0;
 }
 
 static void set_win_colors(t_sgr *sgr)
@@ -250,6 +255,14 @@ static void win_flush(void)
 			p = p_next;
 			if (p[1] == '[')  /* "ESC-[" sequence */
 			{
+				/*
+				* unknown SGR code ignores the rest of the seq,
+				* and allows ignoring sequences such as
+				* ^[[38;5;123m or ^[[38;2;5;6;7m
+				* (prior known codes at the same seq do apply)
+				*/
+				int bad_code = 0;
+
 				if (p > anchor)
 				{
 					/*
@@ -299,16 +312,20 @@ static void win_flush(void)
 					}
 
 					if (q == p ||
-						code > 49 || code < 0 ||
 						(!is_ansi_end(*q) && *q != ';'))
 					{
+						/*
+						 * can't parse. passthrough
+						 * till the end of the buffer
+						 */
 						p_next = q;
 						break;
 					}
 					if (*q == ';')
 						q++;
 
-					update_sgr(&sgr, code);
+					if (!bad_code)
+						bad_code = update_sgr(&sgr, code);
 					p = q;
 				}
 				if (!is_ansi_end(*p) || p == p_next)
