@@ -49,7 +49,6 @@ extern int ctldisp;
 extern int utf_mode;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
-extern char *fexpand_esc;
 #if SPACES_IN_FILENAMES
 extern char openquote;
 extern char closequote;
@@ -301,72 +300,56 @@ static void xcpy_char(xcpy *xp, char ch)
 
 static void xcpy_filename(xcpy *xp, constant char *str)
 {
-	char quote = '\0';
-	if (strcmp(fexpand_esc, "quote") == 0)
-		quote = '"';
-	else if (strcmp(fexpand_esc, "squote") == 0)
-		quote = '\'';
-	if (quote != '\0')
-	{
-		lbool need_quotes = (strchr(str, ' ') != NULL);
-		if (need_quotes) xcpy_char(xp, quote);
-		for (;  *str != '\0';  str++)
-			xcpy_char(xp, *str);
-		if (need_quotes) xcpy_char(xp, quote);
-	} else
-	{
-		char esc = (fexpand_esc[0] == '1') ? '\\' : fexpand_esc[0];
-		for (;  *str != '\0';  str++)
-		{
-			if (*str == ' ')
-				xcpy_char(xp, esc);
-			xcpy_char(xp, *str);
-		}
-	}
+	/* If filename contains spaces, quote it 
+	 * to prevent edit_list from splitting it. */
+	lbool quote = (strchr(str, ' ') != NULL);
+	if (quote)
+		xcpy_char(xp, openquote);
+	for (;  *str != '\0';  str++)
+		xcpy_char(xp, *str);
+	if (quote)
+		xcpy_char(xp, closequote);
 }
 
 static size_t fexpand_copy(constant char *fr, char *to)
 {
-	constant char *ofr = fr;
 	xcpy xp;
 	xp.copied = 0;
 	xp.dest = to;
 
 	for (;  *fr != '\0';  fr++)
 	{
+		lbool expand = FALSE;
 		switch (*fr)
 		{
 		case '%':
 		case '#':
-			if (fr > ofr && fr[-1] == *fr)
+			if (fr[1] == *fr)
 			{
-				/*
-				 * Second (or later) char in a string
-				 * of identical chars.  Treat as normal.
-				 */
-				xcpy_char(&xp, *fr);
-			} else if (fr[1] != *fr)
+				/* Two identical chars. Output just one. */
+				fr += 1;
+			} else 
 			{
-				/*
-				 * Single char (not repeated). Expand to a file name.
-				 */
-				IFILE ifile = (*fr == '%') ? curr_ifile : (*fr == '#') ? old_ifile : NULL_IFILE;
-				if (ifile == NULL_IFILE)
-					xcpy_char(&xp, *fr);
-				else
-					xcpy_filename(&xp, get_filename(ifile));
+				/* Single char. Expand to a (quoted) file name. */
+				expand = TRUE;
 			}
-			/*
-			 * Else it is the first char in a string of
-			 * identical chars.  Just discard it.
-			 */
 			break;
 		default:
-			xcpy_char(&xp, *fr);
 			break;
 		}
+		if (expand)
+		{
+			IFILE ifile = (*fr == '%') ? curr_ifile : (*fr == '#') ? old_ifile : NULL_IFILE;
+			if (ifile == NULL_IFILE)
+				xcpy_char(&xp, *fr);
+			else
+				xcpy_filename(&xp, get_filename(ifile));
+		} else
+		{
+			xcpy_char(&xp, *fr);
+		}
 	}
-	if (xp.dest != NULL) *xp.dest = '\0';
+	if (xp.dest != NULL) xcpy_char(&xp, '\0');
 	return xp.copied;
 }
 
@@ -387,7 +370,7 @@ public char * fexpand(constant char *s)
 	 * need to allocate for the expanded string.
 	 */
 	n = fexpand_copy(s, NULL);
-	e = (char *) ecalloc(n+1, sizeof(char));
+	e = (char *) ecalloc(n, sizeof(char));
 
 	/*
 	 * Now copy the string, expanding any "%" or "#".
