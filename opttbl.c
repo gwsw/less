@@ -83,6 +83,11 @@ public int proc_return;         /* Special handling of carriage return */
 public int match_shift;         /* Extra horizontal shift on search match */
 public long match_shift_fraction = NUM_FRAC_DENOM/2; /* 1/2 of screen width */
 public char intr_char = CONTROL('X'); /* Char to interrupt reads */
+#if MSDOS_COMPILER
+public char *fexpand_esc = "quote";
+#else
+public char *fexpand_esc = "\\";
+#endif
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif

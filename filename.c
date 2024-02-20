@@ -49,6 +49,7 @@ extern int ctldisp;
 extern int utf_mode;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
+extern char *fexpand_esc;
 #if SPACES_IN_FILENAMES
 extern char openquote;
 extern char closequote;
@@ -300,20 +301,28 @@ static void xcpy_char(xcpy *xp, char ch)
 
 static void xcpy_filename(xcpy *xp, constant char *str)
 {
-#if MSDOS_COMPILER
-	lbool need_quotes = (strchr(str, ' ') != NULL);
-	if (need_quotes) xcpy_char(xp, '"');
-	for (;  *str != '\0';  str++)
-		xcpy_char(xp, *str);
-	if (need_quotes) xcpy_char(xp, '"');
-#else
-	for (;  *str != '\0';  str++)
+	char quote = '\0';
+	if (strcmp(fexpand_esc, "quote") == 0)
+		quote = '"';
+	else if (strcmp(fexpand_esc, "squote") == 0)
+		quote = '\'';
+	if (quote != '\0')
 	{
-		if (*str == ' ')
-			xcpy_char(xp, '\\');
-		xcpy_char(xp, *str);
+		lbool need_quotes = (strchr(str, ' ') != NULL);
+		if (need_quotes) xcpy_char(xp, quote);
+		for (;  *str != '\0';  str++)
+			xcpy_char(xp, *str);
+		if (need_quotes) xcpy_char(xp, quote);
+	} else
+	{
+		char esc = (fexpand_esc[0] == '1') ? '\\' : fexpand_esc[0];
+		for (;  *str != '\0';  str++)
+		{
+			if (*str == ' ')
+				xcpy_char(xp, esc);
+			xcpy_char(xp, *str);
+		}
 	}
-#endif /* MSDOS_COMPILER */
 }
 
 static size_t fexpand_copy(constant char *fr, char *to)
