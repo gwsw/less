@@ -1027,7 +1027,7 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 	{
 	case ANSI_MID:
 		STORE_CHAR(ch, AT_ANSI, rep, pos);
-		if (ansi_osc8_state(line_ansi) == OSC8_PREFIX)
+		if (ansi_osc8_state(line_ansi) == OSC8_PARAMS)
 			hlink_in_line = 1;
 		xbuf_add_char(&last_ansi, (char) ch);
 		break;
