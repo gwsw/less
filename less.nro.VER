@@ -606,8 +606,9 @@ or if you use
 .sp
 LESS="\-options"; export LESS
 .sp
-On MS-DOS and Windows, you don't need the quotes, but you should replace any
-percent signs in the options string by double percent signs.
+On MS-DOS and Windows, you don't need the quotes, but you should 
+be careful that any percent signs in the options string are not
+interpreted as an environment variable expansion.
 .sp
 The environment variable is parsed before the command line,
 so command line options override the LESS environment variable.
