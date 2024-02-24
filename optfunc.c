@@ -552,21 +552,6 @@ public void opt__V(int type, constant char *s)
 static void colordesc(constant char *s, int *fg_color, int *bg_color)
 {
 	int fg, bg;
-#if MSDOS_COMPILER==WIN32C
-	int ul = 0;
- 
-	if (*s == 'u')
-	{
-		ul = COMMON_LVB_UNDERSCORE;
-		s++;
-		if (*s == '\0')
-		{
-			*fg_color = nm_fg_color | ul;
-			*bg_color = nm_bg_color;
-			return;
-		}
-	}
-#endif
 	if (parse_color(s, &fg, &bg, NULL) == CT_NULL)
 	{
 		PARG p;
@@ -574,13 +559,6 @@ static void colordesc(constant char *s, int *fg_color, int *bg_color)
 		error("Invalid color string \"%s\"", &p);
 	} else
 	{
-		if (fg == CV_NOCHANGE)
-			fg = nm_fg_color;
-		if (bg == CV_NOCHANGE)
-			bg = nm_bg_color;
-#if MSDOS_COMPILER==WIN32C
-		fg |= ul;
-#endif
 		*fg_color = fg;
 		*bg_color = bg;
 	}
@@ -667,6 +645,7 @@ public void opt_D(int type, constant char *s)
 				colordesc(s, &so_fg_color, &so_bg_color);
 				break;
 			}
+			init_win_colors();
 			if (type == TOGGLE)
 			{
 				at_enter(AT_STANDOUT);

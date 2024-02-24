@@ -164,17 +164,17 @@ static void win32_deinit_term();
 #endif
 
 #if MSDOS_COMPILER
-public int nm_fg_color;         /* Color of normal text */
-public int nm_bg_color;
-public int bo_fg_color;         /* Color of bold text */
-public int bo_bg_color;
-public int ul_fg_color;         /* Color of underlined text */
-public int ul_bg_color;
-public int so_fg_color;         /* Color of standout text */
-public int so_bg_color;
-public int bl_fg_color;         /* Color of blinking text */
-public int bl_bg_color;
-static int sy_fg_color;         /* Color of system text (before less) */
+public int nm_fg_color = CV_ERROR; /* Color of normal text */
+public int nm_bg_color = CV_ERROR;
+public int bo_fg_color = CV_ERROR; /* Color of bold text */
+public int bo_bg_color = CV_ERROR;
+public int ul_fg_color = CV_ERROR; /* Color of underlined text */
+public int ul_bg_color = CV_ERROR;
+public int so_fg_color = CV_ERROR; /* Color of standout text */
+public int so_bg_color = CV_ERROR;
+public int bl_fg_color = CV_ERROR; /* Color of blinking text */
+public int bl_bg_color = CV_ERROR;
+static int sy_fg_color;            /* Color of system text (before less) */
 static int sy_bg_color;
 public int sgr_mode;            /* Honor ANSI sequences rather than using above */
 #if MSDOS_COMPILER==WIN32C
@@ -1132,6 +1132,20 @@ public constant char * special_key_str(int key)
 	return (s);
 }
 
+public void init_win_colors(void)
+{
+	if (nm_fg_color == CV_ERROR || nm_fg_color == CV_NOCHANGE) nm_fg_color = sy_fg_color;
+	if (nm_bg_color == CV_ERROR || nm_bg_color == CV_NOCHANGE) nm_bg_color = sy_bg_color;
+	if (bo_fg_color == CV_NOCHANGE) bo_fg_color = sy_fg_color; else if (bo_fg_color == CV_ERROR) bo_fg_color = sy_fg_color | 8;
+	if (bo_bg_color == CV_NOCHANGE) bo_bg_color = sy_bg_color; else if (bo_bg_color == CV_ERROR) bo_bg_color = sy_bg_color;
+	if (ul_fg_color == CV_NOCHANGE) ul_fg_color = sy_fg_color; else if (ul_fg_color == CV_ERROR) ul_fg_color = (sy_bg_color == 3 || sy_bg_color == 11) ? 0 : 11;
+	if (ul_bg_color == CV_NOCHANGE) ul_bg_color = sy_bg_color; else if (ul_bg_color == CV_ERROR) ul_bg_color = sy_bg_color;
+	if (so_fg_color == CV_NOCHANGE) so_fg_color = sy_fg_color; else if (so_fg_color == CV_ERROR) so_fg_color = sy_bg_color;
+	if (so_bg_color == CV_NOCHANGE) so_bg_color = sy_bg_color; else if (so_bg_color == CV_ERROR) so_bg_color = sy_fg_color;
+	if (bl_fg_color == CV_NOCHANGE) bl_fg_color = sy_fg_color; else if (bl_fg_color == CV_ERROR) bl_fg_color = ul_bg_color;
+	if (bl_bg_color == CV_NOCHANGE) bl_bg_color = sy_bg_color; else if (bl_bg_color == CV_ERROR) bl_bg_color = ul_fg_color;
+}
+
 /*
  * Get terminal capabilities via termcap.
  */
@@ -1179,24 +1193,13 @@ public void get_term(void)
 #endif
 #endif
 #endif
-	nm_fg_color = sy_fg_color;
-	nm_bg_color = sy_bg_color;
-	bo_fg_color = sy_fg_color | 8;
-	bo_bg_color = sy_bg_color;
-	ul_fg_color = (sy_bg_color == 3 || sy_bg_color == 11) ? 0 : 11;
-	ul_bg_color = sy_bg_color;
-	so_fg_color = sy_bg_color;
-	so_bg_color = sy_fg_color;
-	bl_fg_color = ul_bg_color;
-	bl_bg_color = ul_fg_color;
-	sgr_mode = 0;
+	init_win_colors();
 
 	/*
 	 * Get size of the screen.
 	 */
 	scrsize();
 	pos_init();
-
 
 #else /* !MSDOS_COMPILER */
 {
