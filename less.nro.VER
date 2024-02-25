@@ -802,15 +802,14 @@ https://docs.microsoft.com/en-us/windows/console/char-info-str).
 .PP
 A 4-bit or 8-bit color string may be followed by one or more of the
 following characters to set text attributes in addition to the color.
-(These attribute characters are not supported on MS-DOS/Windows versions.)
-.IP "*"
-Bold
-.IP "~"
+.IP "~ or s"
 Standout
-.IP "_"
+.IP "_ or u"
 Underline
-.IP "&"
-Blink
+.IP "* or d"
+Bold (not supported on MS-DOS/Windows)
+.IP "& or l"
+Blink (not supported on MS-DOS/Windows)
 .PP
 On MS-DOS and Windows only, the \-Da option may be used to specify strict parsing of 
 ANSI color (SGR) sequences when the \-R option is used.

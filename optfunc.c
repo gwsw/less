@@ -85,15 +85,18 @@ extern constant char *ttyin_name;
 extern int is_tty;
 #endif /*LESSTEST*/
 #if MSDOS_COMPILER
-extern int nm_fg_color, nm_bg_color;
-extern int bo_fg_color, bo_bg_color;
-extern int ul_fg_color, ul_bg_color;
-extern int so_fg_color, so_bg_color;
-extern int bl_fg_color, bl_bg_color;
+extern int nm_fg_color, nm_bg_color, nm_attr;
+extern int bo_fg_color, bo_bg_color, bo_attr;
+extern int ul_fg_color, ul_bg_color, ul_attr;
+extern int so_fg_color, so_bg_color, so_attr;
+extern int bl_fg_color, bl_bg_color, bl_attr;
 extern int sgr_mode;
 #if MSDOS_COMPILER==WIN32C
 #ifndef COMMON_LVB_UNDERSCORE
 #define COMMON_LVB_UNDERSCORE 0x8000
+#endif
+#ifndef COMMON_LVB_REVERSE_VIDEO
+#define COMMON_LVB_REVERSE_VIDEO 0x4000
 #endif
 #endif
 #endif
@@ -549,10 +552,11 @@ public void opt__V(int type, constant char *s)
 /*
  * Parse an MSDOS color descriptor.
  */
-static void colordesc(constant char *s, int *fg_color, int *bg_color)
+static void colordesc(constant char *s, int *fg_color, int *bg_color, int *dattr)
 {
 	int fg, bg;
-	if (parse_color(s, &fg, &bg, NULL) == CT_NULL)
+	CHAR_ATTR attr;
+	if (parse_color(s, &fg, &bg, &attr) == CT_NULL)
 	{
 		PARG p;
 		p.p_string = s;
@@ -561,6 +565,13 @@ static void colordesc(constant char *s, int *fg_color, int *bg_color)
 	{
 		*fg_color = fg;
 		*bg_color = bg;
+		*dattr = 0;
+#if MSDOS_COMPILER==WIN32C
+		if (attr & ATTR_UNDERLINE)
+			*dattr |= COMMON_LVB_UNDERSCORE;
+		if (attr & ATTR_STANDOUT)
+			*dattr |= COMMON_LVB_REVERSE_VIDEO;
+#endif
 	}
 }
 #endif
@@ -630,19 +641,19 @@ public void opt_D(int type, constant char *s)
 			switch (attr)
 			{
 			case AT_NORMAL:
-				colordesc(s, &nm_fg_color, &nm_bg_color);
+				colordesc(s, &nm_fg_color, &nm_bg_color, &nm_attr);
 				break;
 			case AT_BOLD:
-				colordesc(s, &bo_fg_color, &bo_bg_color);
+				colordesc(s, &bo_fg_color, &bo_bg_color, &bo_attr);
 				break;
 			case AT_UNDERLINE:
-				colordesc(s, &ul_fg_color, &ul_bg_color);
+				colordesc(s, &ul_fg_color, &ul_bg_color, &ul_attr);
 				break;
 			case AT_BLINK:
-				colordesc(s, &bl_fg_color, &bl_bg_color);
+				colordesc(s, &bl_fg_color, &bl_bg_color, &bl_attr);
 				break;
 			case AT_STANDOUT:
-				colordesc(s, &so_fg_color, &so_bg_color);
+				colordesc(s, &so_fg_color, &so_bg_color, &so_attr);
 				break;
 			}
 			init_win_colors();

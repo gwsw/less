@@ -166,14 +166,19 @@ static void win32_deinit_term();
 #if MSDOS_COMPILER
 public int nm_fg_color = CV_ERROR; /* Color of normal text */
 public int nm_bg_color = CV_ERROR;
+public int nm_attr = 0;
 public int bo_fg_color = CV_ERROR; /* Color of bold text */
 public int bo_bg_color = CV_ERROR;
+public int bo_attr = 0;
 public int ul_fg_color = CV_ERROR; /* Color of underlined text */
 public int ul_bg_color = CV_ERROR;
+public int ul_attr = 0;
 public int so_fg_color = CV_ERROR; /* Color of standout text */
 public int so_bg_color = CV_ERROR;
+public int so_attr = 0;
 public int bl_fg_color = CV_ERROR; /* Color of blinking text */
 public int bl_bg_color = CV_ERROR;
+public int bl_attr = 0;
 static int sy_fg_color;            /* Color of system text (before less) */
 static int sy_bg_color;
 public int sgr_mode;            /* Honor ANSI sequences rather than using above */
@@ -1132,6 +1137,7 @@ public constant char * special_key_str(int key)
 	return (s);
 }
 
+#if MSDOS_COMPILER
 public void init_win_colors(void)
 {
 	if (nm_fg_color == CV_ERROR || nm_fg_color == CV_NOCHANGE) nm_fg_color = sy_fg_color;
@@ -1144,7 +1150,13 @@ public void init_win_colors(void)
 	if (so_bg_color == CV_NOCHANGE) so_bg_color = sy_bg_color; else if (so_bg_color == CV_ERROR) so_bg_color = sy_fg_color;
 	if (bl_fg_color == CV_NOCHANGE) bl_fg_color = sy_fg_color; else if (bl_fg_color == CV_ERROR) bl_fg_color = ul_bg_color;
 	if (bl_bg_color == CV_NOCHANGE) bl_bg_color = sy_bg_color; else if (bl_bg_color == CV_ERROR) bl_bg_color = ul_fg_color;
+	nm_fg_color |= nm_attr;
+	bo_fg_color |= bo_attr;
+	ul_fg_color |= ul_attr;
+	so_fg_color |= so_attr;
+	bl_fg_color |= bl_attr;
 }
+#endif /* MSDOS_COMPILER */
 
 /*
  * Get terminal capabilities via termcap.
@@ -2496,7 +2508,7 @@ public COLOR_TYPE parse_color(constant char *str, mutable int *p_fg, mutable int
 	fg = parse_color4(*str);
 	if (fg != CV_ERROR)
 	{
-		if (str[1] == '\0' || strchr("*~_&", str[1]) != NULL)
+		if (str[1] == '\0' || strchr("*~_&dsul", str[1]) != NULL)
 		{
 			bg = CV_NOCHANGE;
 			str++; /* skip the fg char */
@@ -2529,13 +2541,13 @@ public COLOR_TYPE parse_color(constant char *str, mutable int *p_fg, mutable int
 	{
 		for (;; str++)
 		{
-			if (*str == '*')
+			if (*str == '*' || *str == 'd')
 				attr |= ATTR_BOLD;
-			else if (*str == '~')
+			else if (*str == '~' || *str == 's')
 				attr |= ATTR_STANDOUT;
-			else if (*str == '_')
+			else if (*str == '_' || *str == 'u')
 				attr |= ATTR_UNDERLINE;
-			else if (*str == '&')
+			else if (*str == '&' || *str == 'l') /* can't use 'k' because of conflict with "black" */
 				attr |= ATTR_BLINK;
 			else
 				break;
