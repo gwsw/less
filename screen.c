@@ -2676,17 +2676,30 @@ static lbool WIN32put_fmt(constant char *fmt, int color)
 		WIN32textout(buf, (size_t) len);
 	return TRUE;
 }
+
+static void win_set_attr(CHAR_ATTR cattr)
+{
+	if (cattr & ATTR_UNDERLINE)
+		WIN32textout(ESCS"[4m", 4);
+	if (cattr & ATTR_BOLD)
+		WIN32textout(ESCS"[1m", 4);
+	if (cattr & ATTR_BLINK)
+		WIN32textout(ESCS"[5m", 4);
+	if (cattr & ATTR_STANDOUT)
+		WIN32textout(ESCS"[7m", 4);
+}
 #endif
 
 static lbool win_set_color(int attr)
 {
 	int fg;
 	int bg;
+	CHAR_ATTR cattr;
 	lbool out = FALSE;
 	constant char *str = get_color_map(attr);
 	if (str == NULL || str[0] == '\0')
 		return FALSE;
-	switch (parse_color(str, &fg, &bg, NULL))
+	switch (parse_color(str, &fg, &bg, &cattr))
 	{
 	case CT_4BIT:
 		if (fg >= 0 && bg >= 0)
@@ -2702,6 +2715,10 @@ static lbool win_set_color(int attr)
 			SET_BG_COLOR(bg);
 			out = TRUE;
 		}
+#if MSDOS_COMPILER==WIN32C
+		if (vt_enabled)
+			win_set_attr(cattr);
+#endif
 		break;
 #if MSDOS_COMPILER==WIN32C
 	case CT_6BIT:
@@ -2711,6 +2728,7 @@ static lbool win_set_color(int attr)
 				out = WIN32put_fmt(ESCS"[38;5;%dm", fg);
 			if (bg > 0)
 				out = WIN32put_fmt(ESCS"[48;5;%dm", bg);
+			win_set_attr(cattr);
 		}
 		break;
 #endif
