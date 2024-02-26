@@ -656,9 +656,9 @@ public void opt_D(int type, constant char *s)
 				colordesc(s, &so_fg_color, &so_bg_color, &so_attr);
 				break;
 			}
-			init_win_colors();
 			if (type == TOGGLE)
 			{
+				init_win_colors();
 				at_enter(AT_STANDOUT);
 				at_exit();
 			}
