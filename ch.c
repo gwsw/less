@@ -845,7 +845,7 @@ public void ch_init(int f, int flags, ssize_t nread)
 	/*
 	 * Figure out the size of the file, if we can.
 	 */
-	ch_fsize = filesize(ch_file);
+	ch_fsize = (flags & CH_HELPFILE) ? size_helpdata : filesize(ch_file);
 
 	/*
 	 * This is a kludge to workaround a Linux kernel bug: files in some
