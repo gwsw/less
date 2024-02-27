@@ -1242,7 +1242,7 @@ public void pdone(int endline, int chopped, int forw)
 			 * This may be necessary if the char we overwrote
 			 * was double-width.
 			 */
-			add_linebuf(' ', rscroll_attr, 1);
+			add_linebuf(' ', 0, 1);
 		}
 		/* Print rscroll char. It must be single-width. */
 		add_linebuf(rscroll_char, rscroll_attr, 1);
