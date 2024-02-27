@@ -567,9 +567,9 @@ static void colordesc(constant char *s, int *fg_color, int *bg_color, int *dattr
 		*bg_color = bg;
 		*dattr = 0;
 #if MSDOS_COMPILER==WIN32C
-		if (attr & ATTR_UNDERLINE)
+		if (attr & CATTR_UNDERLINE)
 			*dattr |= COMMON_LVB_UNDERSCORE;
-		if (attr & ATTR_STANDOUT)
+		if (attr & CATTR_STANDOUT)
 			*dattr |= COMMON_LVB_REVERSE_VIDEO;
 #endif
 	}

@@ -2493,11 +2493,11 @@ static int parse_color6(constant char **ps)
  *  CV_4BIT: fg/bg values are OR of CV_{RGB} bits.
  *  CV_6BIT: fg/bg values are integers entered by user.
  */
-public COLOR_TYPE parse_color(constant char *str, mutable int *p_fg, mutable int *p_bg, mutable CHAR_ATTR *p_attr)
+public COLOR_TYPE parse_color(constant char *str, mutable int *p_fg, mutable int *p_bg, mutable CHAR_ATTR *p_cattr)
 {
 	int fg;
 	int bg = CV_ERROR;
-	CHAR_ATTR attr = ATTR_NULL;
+	CHAR_ATTR cattr = CATTR_NULL;
 	COLOR_TYPE type = CT_NULL;
 
 	if (str == NULL || *str == '\0')
@@ -2542,19 +2542,19 @@ public COLOR_TYPE parse_color(constant char *str, mutable int *p_fg, mutable int
 		for (;; str++)
 		{
 			if (*str == '*' || *str == 'd')
-				attr |= ATTR_BOLD;
+				cattr |= CATTR_BOLD;
 			else if (*str == '~' || *str == 's')
-				attr |= ATTR_STANDOUT;
+				cattr |= CATTR_STANDOUT;
 			else if (*str == '_' || *str == 'u')
-				attr |= ATTR_UNDERLINE;
+				cattr |= CATTR_UNDERLINE;
 			else if (*str == '&' || *str == 'l') /* can't use 'k' because of conflict with "black" */
-				attr |= ATTR_BLINK;
+				cattr |= CATTR_BLINK;
 			else
 				break;
 		}
 		if (p_fg != NULL) *p_fg = fg;
 		if (p_bg != NULL) *p_bg = bg;
-		if (p_attr != NULL) *p_attr = attr;
+		if (p_cattr != NULL) *p_cattr = cattr;
 	}
 	return type;
 }
@@ -2597,15 +2597,15 @@ static void tput_fmt(constant char *fmt, int color, int (*f_putc)(int))
 	attrcolor = color;
 }
 
-static void tput_char_attr(CHAR_ATTR attr, int (*f_putc)(int))
+static void tput_char_attr(CHAR_ATTR cattr, int (*f_putc)(int))
 {
-	if (attr & ATTR_UNDERLINE)
+	if (cattr & CATTR_UNDERLINE)
 		ltputs(sc_u_in, 1, f_putc);
-	if (attr & ATTR_BOLD)
+	if (cattr & CATTR_BOLD)
 		ltputs(sc_b_in, 1, f_putc);
-	if (attr & ATTR_BLINK)
+	if (cattr & CATTR_BLINK)
 		ltputs(sc_bl_in, 1, f_putc);
-	if (attr & ATTR_STANDOUT)
+	if (cattr & CATTR_STANDOUT)
 		ltputs(sc_s_in, 1, f_putc);
 }
 
@@ -2613,7 +2613,7 @@ static void tput_color(constant char *str, int (*f_putc)(int))
 {
 	int fg;
 	int bg;
-	CHAR_ATTR attr;
+	CHAR_ATTR cattr;
 
 	if (str != NULL && strcmp(str, "*") == 0)
 	{
@@ -2621,21 +2621,21 @@ static void tput_color(constant char *str, int (*f_putc)(int))
 		tput_fmt(ESCS"[m", -1, f_putc);
 		return;
 	}
-	switch (parse_color(str, &fg, &bg, &attr))
+	switch (parse_color(str, &fg, &bg, &cattr))
 	{
 	case CT_4BIT:
 		if (fg >= 0)
 			tput_fmt(ESCS"[%dm", sgr_color(fg), f_putc);
 		if (bg >= 0)
 			tput_fmt(ESCS"[%dm", sgr_color(bg)+10, f_putc);
-		tput_char_attr(attr, f_putc);
+		tput_char_cattr(cattr, f_putc);
 		break;
 	case CT_6BIT:
 		if (fg >= 0)
 			tput_fmt(ESCS"[38;5;%dm", fg, f_putc);
 		if (bg >= 0)
 			tput_fmt(ESCS"[48;5;%dm", bg, f_putc);
-		tput_char_attr(attr, f_putc);
+		tput_char_cattr(cattr, f_putc);
 		break;
 	default:
 		break;
@@ -2677,15 +2677,15 @@ static lbool WIN32put_fmt(constant char *fmt, int color)
 	return TRUE;
 }
 
-static void win_set_attr(CHAR_ATTR cattr)
+static void win_set_cattr(CHAR_ATTR cattr)
 {
-	if (cattr & ATTR_UNDERLINE)
+	if (cattr & CATTR_UNDERLINE)
 		WIN32textout(ESCS"[4m", 4);
-	if (cattr & ATTR_BOLD)
+	if (cattr & CATTR_BOLD)
 		WIN32textout(ESCS"[1m", 4);
-	if (cattr & ATTR_BLINK)
+	if (cattr & CATTR_BLINK)
 		WIN32textout(ESCS"[5m", 4);
-	if (cattr & ATTR_STANDOUT)
+	if (cattr & CATTR_STANDOUT)
 		WIN32textout(ESCS"[7m", 4);
 }
 #endif
@@ -2717,7 +2717,7 @@ static lbool win_set_color(int attr)
 		}
 #if MSDOS_COMPILER==WIN32C
 		if (vt_enabled)
-			win_set_attr(cattr);
+			win_set_cattr(cattr);
 #endif
 		break;
 #if MSDOS_COMPILER==WIN32C
@@ -2728,7 +2728,7 @@ static lbool win_set_color(int attr)
 				out = WIN32put_fmt(ESCS"[38;5;%dm", fg);
 			if (bg > 0)
 				out = WIN32put_fmt(ESCS"[48;5;%dm", bg);
-			win_set_attr(cattr);
+			win_set_cattr(cattr);
 		}
 		break;
 #endif

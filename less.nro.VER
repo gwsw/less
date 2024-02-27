@@ -714,6 +714,8 @@ Prompts.
 The rscroll character.
 .IP "S"
 Search results.
+.IP "W"
+The highlight enabled via the \-w option.
 .IP "1-5"
 The text in a search result which matches
 the first through fifth parenthesized sub-pattern.
@@ -721,8 +723,6 @@ Sub-pattern coloring works only if
 .B less 
 is built with one of the regular expression libraries
 .BR posix ", " pcre ", or " pcre2 .
-.IP "W"
-The highlight enabled via the \-w option.
 .IP "d"
 Bold text.
 .IP "k"
@@ -732,7 +732,7 @@ Standout text.
 .IP "u"
 Underlined text.
 .RE
- 
+
 .RS
 The uppercase letters and digits can be used only when the \-\-use-color option is enabled.
 When text color is specified by both an uppercase letter and a lowercase letter,
@@ -742,7 +742,8 @@ So if both "s" and "E" are given a color, the "E" color applies
 to error messages, and the "s" color applies to other standout text.
 The "d" and "u" letters refer to bold and underline text formed by 
 overstriking with backspaces (see the \-U option), 
-not to text using ANSI escape sequences with the \-R option.
+not to text using ANSI escape sequences with the \-R option
+(but see the note below for behavior on Windows and MS-DOS).
 .PP
 A lowercase letter may be followed by a + to indicate that
 the normal format change and the specified color should both be used.
@@ -790,31 +791,48 @@ https://en.wikipedia.org/wiki/ANSI_escape_code#SGR)
 .hy
 If either integer is a "-" or is omitted,
 the corresponding color is set to that of normal text.
-On MS-DOS and Windows versions of 
-.BR less ,
-8-bit color is not supported; instead, decimal values are interpreted as 4-bit
-CHAR_INFO.Attributes values
-(see 
-.br
-.nh
-https://docs.microsoft.com/en-us/windows/console/char-info-str).
-.hy
 .PP
 A 4-bit or 8-bit color string may be followed by one or more of the
 following characters to set text attributes in addition to the color.
-.IP "~ or s"
-Standout
-.IP "_ or u"
+.IP "s or ~"
+Standout (reverse video)
+.IP "u or _"
 Underline
-.IP "* or d"
-Bold (not supported on MS-DOS/Windows)
-.IP "& or l"
-Blink (not supported on MS-DOS/Windows)
+.IP "d or *"
+Bold
+.IP "l or &"
+Blinking
 .PP
-On MS-DOS and Windows only, the \-Da option may be used to specify strict parsing of 
-ANSI color (SGR) sequences when the \-R option is used.
-Without this option, sequences that change text attributes 
-(bold, underline, etc.) may clear the text color.
+On MS-DOS and Windows, the --color option behaves
+differently from what is described above in these ways:
+.IP \(bu
+The bold and blinking text attributes are not supported.
+.IP \(bu
+When a numeric color value is given with a lowercase color selector letter,
+the number is not interpreted a "CSI 38;5" color value as described above,
+but as a 4-bit CHAR_INFO.Attributes value between 0 and 15 inclusive
+(see 
+.br
+.nh
+https://learn.microsoft.com/en-us/windows/console/char-info-str).
+.hy
+However, it is recommended to use the 4-bit color letters rather than numbers
+to select color on MS-DOS/Windows, unless \-Da is also used.
+.IP \(bu
+When a numeric color value is given with an uppercase color selector letter,
+numeric color values are interpreted as "CSI 38;5" values,
+but this is supported only on Windows 10 and later.
+.IP \(bu
+The "d" and "u" color selector letters refer 
+to bold and underline text formed both by
+overstriking with backspaces (see the \-U option), 
+and also to text made bold/underlined using ANSI escape sequences with the \-R option.
+.IP \(bu
+The \-Da option makes the behavior of \-\-color 
+more similar to its behavior on non-MS-DOS/Windows systems by (1)
+interpreting numeric color values with lowercase color selectors
+as "CSI 38;5" color values (but only on Windows 10 and later), and (2)
+making the "d" and "u" color selector letters refer only to overstruck text.
 .RE
 .IP "\-e or \-\-quit-at-eof"
 Causes

@@ -462,11 +462,11 @@ typedef enum {
 } COLOR_VALUE;
 
 typedef enum {
-	ATTR_NULL       = 0,
-	ATTR_STANDOUT   = (1 << 0),
-	ATTR_BOLD       = (1 << 1),
-	ATTR_UNDERLINE  = (1 << 2),
-	ATTR_BLINK      = (1 << 3),
+	CATTR_NULL       = 0,
+	CATTR_STANDOUT   = (1 << 0),
+	CATTR_BOLD       = (1 << 1),
+	CATTR_UNDERLINE  = (1 << 2),
+	CATTR_BLINK      = (1 << 3),
 } CHAR_ATTR;
 
 /* ANSI states */
