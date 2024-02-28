@@ -2597,7 +2597,7 @@ static void tput_fmt(constant char *fmt, int color, int (*f_putc)(int))
 	attrcolor = color;
 }
 
-static void tput_char_attr(CHAR_ATTR cattr, int (*f_putc)(int))
+static void tput_char_cattr(CHAR_ATTR cattr, int (*f_putc)(int))
 {
 	if (cattr & CATTR_UNDERLINE)
 		ltputs(sc_u_in, 1, f_putc);
