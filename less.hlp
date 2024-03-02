@@ -212,7 +212,7 @@
                   Set shell quote characters.
   -~  ........  --tilde
                   Don't display tildes after end of file.
-  -# [_N]  ....  --shift=[_N]
+  -# [_N]  ....  --shift=_N
                   Set horizontal scroll amount (0 = one half screen width).
                 --exit-follow-on-close
                   Exit F command on a pipe when writer closes pipe.
@@ -220,7 +220,7 @@
                   Automatically determine the size of the input file.
                 --follow-name
                   The F command changes files if the input file is renamed.
-                --header=[_L[,_C[,_N]]
+                --header=_L[,_C[,_N]]
                   Use _L lines (starting at line _N) and _C columns as headers.
                 --incsearch
                   Search file as each pattern character is typed in.
