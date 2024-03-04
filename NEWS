@@ -64,6 +64,8 @@
 
 * Improve colors of bold, underline and standout text on Windows.
 
+* Allow --rscroll to accept non-ASCII characters.
+
 * Fix bug where # substitution failed after viewing help (github #420).
 
 * Fix crash if files are deleted while less is viewing them (github #404).

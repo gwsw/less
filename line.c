@@ -99,7 +99,7 @@ extern int sc_width, sc_height;
 extern int utf_mode;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
-extern char rscroll_char;
+extern LWCHAR rscroll_char;
 extern int rscroll_attr;
 extern int use_color;
 extern int status_line;
@@ -1223,6 +1223,9 @@ public void pdone(int endline, int chopped, int forw)
 
 	if (chopped && rscroll_char)
 	{
+		char rscroll_utf8[MAX_UTF_CHAR_LEN+1];
+		char *up = rscroll_utf8;
+
 		/*
 		 * Display the right scrolling char.
 		 * If we've already filled the rightmost screen char 
@@ -1244,8 +1247,11 @@ public void pdone(int endline, int chopped, int forw)
 			 */
 			add_linebuf(' ', 0, 1);
 		}
-		/* Print rscroll char. It must be single-width. */
-		add_linebuf(rscroll_char, rscroll_attr, 1);
+		/* Print rscroll char. */
+		put_wchar(&up, rscroll_char);
+		*up = '\0';
+		addstr_linebuf(rscroll_utf8, rscroll_attr, 0);
+		inc_end_column(1); /* assume rscroll_char is single-width */
 	} else
 	{
 		add_attr_normal();

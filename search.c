@@ -41,7 +41,7 @@ extern int nosearch_header_lines;
 extern int nosearch_header_cols;
 extern int header_lines;
 extern int header_cols;
-extern char rscroll_char;
+extern LWCHAR rscroll_char;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern size_t size_linebuf;

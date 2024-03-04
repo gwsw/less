@@ -620,7 +620,7 @@ Some options like \-k or \-D require a string to follow the option letter.
 The string for that option is considered to end when a dollar sign ($) is found.
 For example, you can set two \-D options like this:
 .sp
-LESS="Dn9.1$Ds4.1"
+LESS="Dnwb$Dsbw"
 .sp
 If the \-\-use-backslash option appears earlier in the options, then
 a dollar sign or backslash may be included literally in an option string

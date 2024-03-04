@@ -50,7 +50,7 @@ extern int shift_count;
 extern long shift_count_fraction;
 extern int match_shift;
 extern long match_shift_fraction;
-extern char rscroll_char;
+extern LWCHAR rscroll_char;
 extern int rscroll_attr;
 extern int mousecap;
 extern int wheel_lines;
@@ -805,8 +805,17 @@ public void opt_rscroll(int type, constant char *s)
 			rscroll_char = 0;
 		} else
 		{
-			rscroll_char = *fmt ? *fmt : '>';
 			rscroll_attr = attr|AT_COLOR_RSCROLL;
+			if (*fmt == '\0')
+				rscroll_char = '>';
+			else
+			{
+				LWCHAR ch = step_charc(&fmt, +1, fmt+strlen(fmt));
+				if (pwidth(ch, rscroll_attr, 0, 0) > 1)
+					error("cannot set rscroll to a wide character", NULL_PARG);
+				else
+					rscroll_char = ch;
+			}
 		}
 		break; }
 	case QUERY: {

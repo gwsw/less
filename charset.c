@@ -365,21 +365,6 @@ static void ilocale(void)
  */
 public void setfmt(constant char *s, constant char **fmtvarptr, int *attrptr, constant char *default_fmt, lbool for_printf)
 {
-	if (s && utf_mode)
-	{
-		/* It would be too hard to account for width otherwise.  */
-		char constant *t = s;
-		while (*t)
-		{
-			if (*t < ' ' || *t > '~')
-			{
-				s = default_fmt;
-				goto attr;
-			}
-			t++;
-		}
-	}
-
 	if (s == NULL || *s == '\0')
 		s = default_fmt;
 	else if (for_printf &&
@@ -534,7 +519,7 @@ public lbool control_char(LWCHAR c)
  */
 public constant char * prchar(LWCHAR c)
 {
-	/* {{ This buffer can be overrun if LESSBINFMT is a long string. }} */
+	/* {{ Fixed buffer size means LESSBINFMT etc can be truncated. }} */
 	static char buf[MAX_PRCHAR_LEN+1];
 
 	c &= 0377; /*{{type-issue}}*/
