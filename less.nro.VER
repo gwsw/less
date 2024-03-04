@@ -740,10 +740,11 @@ the uppercase letter takes precedence.
 For example, error messages are normally displayed as standout text.
 So if both "s" and "E" are given a color, the "E" color applies
 to error messages, and the "s" color applies to other standout text.
-The "d" and "u" letters refer to bold and underline text formed by 
-overstriking with backspaces (see the \-U option), 
-not to text using ANSI escape sequences with the \-R option
-(but see the note below for behavior on Windows and MS-DOS).
+The lowercase letters refer to bold and underline text formed by 
+overstriking with backspaces (see the \-U option) and to non-content
+text (such as line numbers and prompts), 
+but not to text formatted using ANSI escape sequences with the \-R option
+(but see the note below for different behavior on Windows and MS-DOS).
 .PP
 A lowercase letter may be followed by a + to indicate that
 the normal format change and the specified color should both be used.
@@ -753,7 +754,7 @@ But \-Du+g displays underlined text as both green and in underlined format.
 .PP
 \fIcolor\fP is either a 4-bit color string or an 8-bit color string:
 .PP
-A 4-bit color string is zero, one or two characters, where 
+A 4-bit color string is one or two characters, where 
 the first character specifies the foreground color and 
 the second specifies the background color as follows:
 .IP "b"
@@ -784,7 +785,7 @@ An 8-bit color string is one or two decimal integers separated by a dot,
 where the first integer specifies the foreground color and 
 the second specifies the background color.
 Each integer is a value between 0 and 255 inclusive which selects
-a "CSI 38;5" color value (see
+a "CSI 38;5" true color value (see
 .br
 .nh
 https://en.wikipedia.org/wiki/ANSI_escape_code#SGR)
@@ -803,36 +804,40 @@ Bold
 .IP "l or &"
 Blinking
 .PP
-On MS-DOS and Windows, the --color option behaves
+On MS-DOS and Windows, the \-\-color option behaves
 differently from what is described above in these ways:
 .IP \(bu
-The bold and blinking text attributes are not supported.
+The bold (d and *) and blinking (l and &) text attributes are not supported.
 .IP \(bu
-When a numeric color value is given with a lowercase color selector letter,
-the number is not interpreted a "CSI 38;5" color value as described above,
-but as a 4-bit CHAR_INFO.Attributes value between 0 and 15 inclusive
+Lowercase color selector letters refer to text formatted by ANSI
+escape sequences with \-R,
+in addition to overstruck and non-content text (but see \-Da).
+.IP \(bu
+For historical reasons, when a lowercase color selector letter 
+is followed by a numeric color value,
+the number is not interpreted as an 8-bit "CSI 38;5" true color value as described above,
+but instead as a 4-bit CHAR_INFO.Attributes value, between 0 and 15 inclusive
 (see 
 .br
 .nh
 https://learn.microsoft.com/en-us/windows/console/char-info-str).
 .hy
-However, it is recommended to use the 4-bit color letters rather than numbers
-to select color on MS-DOS/Windows, unless \-Da is also used.
+To avoid confusion, it is recommended that the equivalent letters rather than numbers
+be used after a lowercase color selector on MS-DOS/Windows.
 .IP \(bu
-When a numeric color value is given with an uppercase color selector letter,
-numeric color values are interpreted as "CSI 38;5" values,
-but this is supported only on Windows 10 and later.
+Numeric color values ("CSI 38;5" true color) following an uppercase color selector letter 
+are not supported on systems earlier than Windows 10.
 .IP \(bu
-The "d" and "u" color selector letters refer 
-to bold and underline text formed both by
-overstriking with backspaces (see the \-U option), 
-and also to text made bold/underlined using ANSI escape sequences with the \-R option.
+Only a limited set of ANSI escape sequences to set color in the content work correctly.
+4-bit color sequences work, but "CSI 38;5" true color sequences do not.
 .IP \(bu
 The \-Da option makes the behavior of \-\-color 
 more similar to its behavior on non-MS-DOS/Windows systems by (1)
-interpreting numeric color values with lowercase color selectors
-as "CSI 38;5" color values (but only on Windows 10 and later), and (2)
-making the "d" and "u" color selector letters refer only to overstruck text.
+making lowercase color selector letters not affect text formatted
+with ANSI escape sequences, and (2)
+allowing "CSI 38;5" true color sequences in the content
+work by passing them to the terminal (only on Windows 10 and later; on
+earlier Windows systems, such sequences do not work regardless of the setting of \-Da).
 .RE
 .IP "\-e or \-\-quit-at-eof"
 Causes
@@ -906,6 +911,8 @@ is recalculated if the terminal window is resized.
 If the \-\-header option is used and the target line specified by \-j
 would be obscured by the header, the target line is moved to the first
 line after the header.
+While the \-\-header option is active, the \-S option is ignored,
+and lines longer than the screen width are truncated.
 .RS
 .PP
 If any form of the \-j option is used,
@@ -2243,11 +2250,11 @@ and filename completion (TAB, \(haL)
 .IP "history"
 history file
 .IP "lesskey"
-use of lesskey files (-k and --lesskey-src)
+use of lesskey files (-k and \-\-lesskey-src)
 .IP "lessopen"
 input preprocessor (LESSOPEN environment variable)
 .IP "logfile"
-log files (s and -o)
+log files (s and \-o)
 .IP "osc8"
 opening OSC 8 links (\(haO\(haO)
 .IP "pipe"
