@@ -815,7 +815,7 @@ in addition to overstruck and non-content text (but see \-Da).
 .IP \(bu
 For historical reasons, when a lowercase color selector letter 
 is followed by a numeric color value,
-the number is not interpreted as an 8-bit "CSI 38;5" true color value as described above,
+the number is not interpreted as an "CSI 38;5" true color value as described above,
 but instead as a 4-bit CHAR_INFO.Attributes value, between 0 and 15 inclusive
 (see 
 .br
