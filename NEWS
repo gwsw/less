@@ -64,7 +64,7 @@
 
 * Improve colors of bold, underline and standout text on Windows.
 
-* Allow --rscroll to accept non-ASCII characters.
+* Allow --rscroll to accept non-ASCII characters (github #483).
 
 * Fix bug where # substitution failed after viewing help (github #420).
 
