@@ -499,7 +499,7 @@ public void sleep_ms(int ms)
 	nanosleep(&t, NULL);
 #else
 #if HAVE_USLEEP
-	usleep(ms);
+	usleep(ms * 1000);
 #else
 	sleep(ms / 1000 + (ms % 1000 != 0));
 #endif
