@@ -785,11 +785,11 @@ An 8-bit color string is one or two decimal integers separated by a dot,
 where the first integer specifies the foreground color and 
 the second specifies the background color.
 Each integer is a value between 0 and 255 inclusive which selects
-a "CSI 38;5" true color value (see
-.br
+a "CSI 38;5" color value (see
 .nh
-https://en.wikipedia.org/wiki/ANSI_escape_code#SGR)
+https://en.wikipedia.org/wiki/ANSI_escape_code#SGR
 .hy
+).
 If either integer is a "-" or is omitted,
 the corresponding color is set to that of normal text.
 .PP
@@ -807,7 +807,8 @@ Blinking
 On MS-DOS and Windows, the \-\-color option behaves
 differently from what is described above in these ways:
 .IP \(bu
-The bold (d and *) and blinking (l and &) text attributes are not supported.
+The bold (d and *) and blinking (l and &) text attributes
+at the end of a color string are not supported.
 .IP \(bu
 Lowercase color selector letters refer to text formatted by ANSI
 escape sequences with \-R,
@@ -815,27 +816,31 @@ in addition to overstruck and non-content text (but see \-Da).
 .IP \(bu
 For historical reasons, when a lowercase color selector letter 
 is followed by a numeric color value,
-the number is not interpreted as an "CSI 38;5" true color value as described above,
-but instead as a 4-bit CHAR_INFO.Attributes value, between 0 and 15 inclusive
-(see 
-.br
+the number is not interpreted as an "CSI 38;5" color value as described above,
+but instead as a 4-bit 
 .nh
-https://learn.microsoft.com/en-us/windows/console/char-info-str).
+CHAR_INFO.Attributes 
 .hy
+value, between 0 and 15 inclusive
+(see 
+.nh
+https://learn.microsoft.com/en-us/windows/console/char-info-str
+.hy
+).
 To avoid confusion, it is recommended that the equivalent letters rather than numbers
 be used after a lowercase color selector on MS-DOS/Windows.
 .IP \(bu
-Numeric color values ("CSI 38;5" true color) following an uppercase color selector letter 
+Numeric color values ("CSI 38;5" color) following an uppercase color selector letter 
 are not supported on systems earlier than Windows 10.
 .IP \(bu
 Only a limited set of ANSI escape sequences to set color in the content work correctly.
-4-bit color sequences work, but "CSI 38;5" true color sequences do not.
+4-bit color sequences work, but "CSI 38;5" color sequences do not.
 .IP \(bu
 The \-Da option makes the behavior of \-\-color 
 more similar to its behavior on non-MS-DOS/Windows systems by (1)
 making lowercase color selector letters not affect text formatted
 with ANSI escape sequences, and (2)
-allowing "CSI 38;5" true color sequences in the content
+allowing "CSI 38;5" color sequences in the content
 work by passing them to the terminal (only on Windows 10 and later; on
 earlier Windows systems, such sequences do not work regardless of the setting of \-Da).
 .RE
@@ -1185,8 +1190,9 @@ the name of a command compatible with
 and that command is executed to find the tag.
 (See 
 .nh
-http://www.gnu.org/software/global/global.html).
+http://www.gnu.org/software/global/global.html
 .hy
+).
 The \-t option may also be specified from within
 .B less
 (using the \- command) as a way of examining a new file.
@@ -1533,12 +1539,11 @@ This allows a dollar sign to be included in option strings.
 Enables colored text in various places.
 The \-D option can be used to change the colors.
 Colored text works only if the terminal supports 
-ANSI color escape sequences (as defined in ECMA-48 SGR;
-see 
-.br
+ANSI color escape sequences (as defined in 
 .nh
-https://www.ecma-international.org/publications-and-standards/standards/ecma-48).
+https://www.ecma-international.org/publications-and-standards/standards/ecma-48
 .hy
+).
 .IP "\-\-wheel-lines=\fIn\fP"
 Set the number of lines to scroll when the mouse wheel is scrolled
 and the \-\-mouse or \-\-MOUSE option is in effect.
