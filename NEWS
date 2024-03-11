@@ -96,6 +96,8 @@
 * When substituting '#' or '%' with a filename, quote the filename
   if it contains a space (github #480).
 
+* Fix wrong sleep time when system has usleep but not nanosleep (github #489).
+
 * Update Unicode tables.
 
 ======================================================================
