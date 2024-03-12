@@ -130,7 +130,7 @@ The following input file describes the set of
 default command keys used by 
 .BR less .
 Documentation on each command can be found in the
-.less
+.B less
 man page, under the key sequence which invokes the command.
 .sp
 .RS 5m
