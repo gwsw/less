@@ -1011,6 +1011,7 @@ v650  2/6/24    Add --no-search-header-lines and --no-search-header-columns;
 v651  3/4/24    Add --color attributes (*~_&); fix #/% substitution if name 
                 contains spaces; allow --rscroll with non-ASCII char.
 v652  3/11/24   Fix sleep_ms with usleep.
+v653
 */
 
-char version[] = "652";
+char version[] = "653x";
