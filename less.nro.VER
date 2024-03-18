@@ -1969,8 +1969,7 @@ variables.
 .PP
 Finally, if the
 .I setlocale
-interface is also not available, the default character set is latin1.
-On Windows the default character set is utf-8.
+interface is also not available, the default character set is utf-8.
 .PP
 Control and binary characters are displayed in standout (reverse video).
 Each such character is displayed in caret notation if possible

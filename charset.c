@@ -453,21 +453,12 @@ static void set_charset(void)
 #else
 #if MSDOS_COMPILER
 #if MSDOS_COMPILER==WIN32C
-	/*
-	 * Default to "utf-8" on Windows.
-	 */
 	(void) icharset("utf-8", 1);
 #else
-	/*
-	 * Default to "dos".
-	 */
 	(void) icharset("dos", 1);
 #endif
 #else
-	/*
-	 * Default to "latin1".
-	 */
-	(void) icharset("latin1", 1);
+	(void) icharset("utf-8", 1);
 #endif
 #endif
 }

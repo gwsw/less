@@ -46,7 +46,7 @@
 * Ensure that the target line is not obscured by a header line 
   set by --header (github #444).
 
-* Change default character set on Windows from dos to utf-8.
+* Change default character set to "utf-8", except remains "dos" on MS-DOS.
 
 * Add message when search with ^W wraps (github #459).
 
