@@ -1,9 +1,18 @@
 # Makefile for authoring less.
+#
+# Targets:
+#   all             Make files needed to run Makefile (after configure).
+#   clean           Removes files that can be rebuilt.
+#   unicode-check   If newer Unicode files are available, download them.
+#   release         Makes a numbered release, ready to upload to greenwoodsoftware.com.
+#   gnu-upload      Make files needed to upload a release to gnu.org.
+#
 
 EMAIL = bug-less@gnu.org
 HOMEPAGE = https://greenwoodsoftware.com/less
 SHELL = /bin/sh
 GIT = git
+GPG = gpg
 NROFF = nroff -t -man
 
 srcdir = .
@@ -41,12 +50,12 @@ DISTFILES = \
 	less.hlp \
 	mkhelp.pl \
 	mkhelp.py \
-	mkutable $(UNICODE_FILES) \
+	mkutable ${UNICODE_FILES} \
 	$(shell ${MAKE} -s -f ${srcdir}/lesstest/Makefile echo_distfiles srcdir=${srcdir}/lesstest) \
 	${DISTFILES_W}
 
 
-all: help.c funcs.h $(UNICODE_FILES) ${srcdir}/configure 
+all: help.c funcs.h ${UNICODE_FILES} ${srcdir}/configure 
 
 release: .FORCE
 	@if ${srcdir}/ready_to_release -d ${srcdir}; then :; else exit 1; fi
@@ -145,7 +154,7 @@ dist: ${DISTFILES}
 	echo "Creating $$RELDIR/$$TARF" && \
 	tar -cf - $$LESSREL | gzip -c >$$RELDIR/$$TARF && \
 	echo "Signing $$RELDIR/$$TARF" && \
-	gpg --detach-sign $$RELDIR/$$TARF && \
+	${GPG} --detach-sign $$RELDIR/$$TARF && \
 	mv $$RELDIR/$$TARF.sig $$RELDIR/$$LESSREL.sig && \
 	echo "Creating $$RELDIR/$$ZIPF" && \
 	zip -rq $$RELDIR/$$ZIPF $$LESSREL && \
@@ -153,15 +162,16 @@ dist: ${DISTFILES}
 
 tagall:
 	echo "tagging v${REL}"; \
-	$(GIT) tag -a -f -m "v${REL}" "v${REL}"
+	${GIT} tag -a -f -m "v${REL}" "v${REL}"
 
-gnu_upload:
+gnu-upload:
 	@if [ -z "${REL}" ]; then echo "Please set REL=nnn"; exit 1; fi; \
 	LESSREL=less-${REL} && RELDIR=release/$$LESSREL && \
 	TARF=$$LESSREL.tar.gz && \
 	if [ ! -s $$RELDIR/$$TARF ]; then echo "$$RELDIR/$$TARF does not exist"; exit 1; fi; \
 	cd $$RELDIR && \
-	gpg -b $$TARF && \
+	${GPG} -b $$TARF && \
 	( echo "version: 1.2"; echo "directory: less"; echo "filename: $$TARF" ) > $$TARF.directive && \
-	gpg --clearsign $$TARF.directive && \
-	echo "upload ready: cd $$RELDIR; ftp ftp-upload.gnu.org; cd /incoming/ftp; put $$TARF $$TARF.sig $$TARF.directive.asc" 
+	${GPG} --clearsign $$TARF.directive && \
+	echo "upload ready: cd $$RELDIR; ftp ftp-upload.gnu.org; cd /incoming/ftp; put ... { $TARF, $$TARF.sig, $$TARF.directive.asc }" 
+
