@@ -2,14 +2,13 @@
 #
 # Targets:
 #   all             Make files needed to run Makefile (after configure).
-#   clean           Removes files that can be rebuilt.
+#   clean           Remove files that can be rebuilt.
 #   unicode-check   If newer Unicode files are available, download them.
-#   release         Makes a numbered release, ready to upload to greenwoodsoftware.com.
+#   release         Make a numbered release, ready to upload to greenwoodsoftware.com.
 #   gnu-upload      Make files needed to upload a release to gnu.org.
 #
 
 EMAIL = bug-less@gnu.org
-HOMEPAGE = https://greenwoodsoftware.com/less
 SHELL = /bin/sh
 GIT = git
 GPG = gpg
