@@ -584,6 +584,7 @@ public void nopendopt(void)
  *   "." means an optional leading "." is allowed (after any "-")
  *   "d" indicates a string of one or more digits (0-9)
  *   "," indicates a comma-separated list of digit strings is allowed
+ *   "s" means a space char terminates the argument
  */
 static constant char * optstring(constant char *s, char **p_str, constant char *printopt, constant char *validchars)
 {
@@ -609,7 +610,11 @@ static constant char * optstring(constant char *s, char **p_str, constant char *
 		{
 			if (validchars != NULL)
 			{
-				if (*p == '-')
+				if (validchars[0] == 's')
+				{
+					if (*p == ' ')
+						break;
+				} else if (*p == '-')
 				{
 					if (validchars[0] != '-')
 						break;
