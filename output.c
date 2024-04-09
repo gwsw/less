@@ -237,7 +237,11 @@ static void set_win_colors(t_sgr *sgr)
 
 static void win_flush(void)
 {
-	if (ctldisp != OPT_ONPLUS || (vt_enabled && sgr_mode))
+	if (ctldisp != OPT_ONPLUS
+#if MSDOS_COMPILER==WIN32C
+	    || (vt_enabled && sgr_mode)
+#endif
+	   )
 		WIN32textout(obuf, ptr_diff(ob, obuf));
 	else
 	{

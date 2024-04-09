@@ -3190,10 +3190,12 @@ public void WIN32textout(constant char *text, size_t len)
 	} else
 		WriteConsole(con_out, text, len, &written, NULL);
 #else
-	char c = text[len];
-	text[len] = '\0';
-	cputs(text);
-	text[len] = c;
+	char buf[2048];
+	if (len >= sizeof(buf))
+		len = sizeof(buf) - 1;
+	memcpy(buf, text, len);
+	buf[len] = 0;
+	cputs(buf);
 #endif
 }
 #endif

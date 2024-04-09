@@ -53,7 +53,7 @@ lessecho: lessecho.${O} version.${O}
 	${CC} ${LDFLAGS} -o $@ lessecho.${O} version.${O}
 
 defines.h: defines.ds
-	command.com /c copy $< $@
+	command.com /c copy $< $@ || cmd.exe /c copy $< $@ || cp $< $@
 
 ${OBJ}: ${srcdir}/less.h defines.h ${srcdir}/funcs.h
 
