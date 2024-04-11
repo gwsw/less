@@ -959,7 +959,6 @@ public void close_altfile(constant char *altfilename, constant char *filename)
 	
 	if (!secure_allow(SF_LESSOPEN))
 		return;
-	ch_ungetchar(-1);
 	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)
 		return;
 	if (num_pct_s(lessclose) > 2) 
