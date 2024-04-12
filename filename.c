@@ -127,9 +127,18 @@ static constant char * metachars(void)
 /*
  * Is this a shell metacharacter?
  */
-static int metachar(char c)
+static lbool metachar(char c)
 {
 	return (strchr(metachars(), c) != NULL);
+}
+
+/*
+ * Must use quotes rather than escape char for this metachar?
+ */
+static lbool must_quote(char c)
+{
+	/* {{ Maybe the set of must_quote chars should be configurable? }} */
+	return (c == '\n'); 
 }
 
 /*
@@ -164,6 +173,9 @@ public char * shell_quoten(constant char *s, size_t slen)
 				 * doesn't support escape chars.  Use quotes.
 				 */
 				use_quotes = TRUE;
+			} else if (must_quote(*p))
+			{
+				len += 3; /* open quote + char + close quote */
 			} else
 			{
 				/*
@@ -194,15 +206,22 @@ public char * shell_quoten(constant char *s, size_t slen)
 		constant char *es = s + slen;
 		while (s < es)
 		{
-			if (metachar(*s))
+			if (!metachar(*s))
 			{
-				/*
-				 * Add the escape char.
-				 */
+				*np++ = *s++;
+			} else if (must_quote(*s))
+			{
+				/* Surround the char with quotes. */
+				*np++ = openquote;
+				*np++ = *s++;
+				*np++ = closequote;
+			} else
+			{
+				/* Insert an escape char before the char. */
 				strcpy(np, esc);
 				np += esclen;
+				*np++ = *s++;
 			}
-			*np++ = *s++;
 		}
 		*np = '\0';
 	}
