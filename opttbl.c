@@ -239,11 +239,7 @@ static struct loption option[] =
 	},
 	{ 'D', &D__optname,
 		STRING|REPAINT|NO_QUERY, 0, NULL, opt_D,
-		{
-			"color desc: ", 
-			NULL,
-			NULL
-		}
+		{ "color desc: ", "s", NULL }
 	},
 	{ 'e', &e_optname,
 		TRIPLE, OPT_OFF, &quit_at_eof, NULL,
@@ -473,7 +469,7 @@ static struct loption option[] =
 	},
 	{ '"', &quote_optname,
 		STRING, 0, NULL, opt_quote,
-		{ "quotes: ", NULL, NULL }
+		{ "quotes: ", "s", NULL }
 	},
 	{ '~', &tilde_optname,
 		BOOL|REPAINT, OPT_ON, &twiddle, NULL,
@@ -529,7 +525,7 @@ static struct loption option[] =
 	},
 	{ OLETTER_NONE, &rscroll_optname,
 		STRING|REPAINT|INIT_HANDLER, 0, NULL, opt_rscroll,
-		{ "rscroll character: ", NULL, NULL }
+		{ "rscroll character: ", "s", NULL }
 	},
 	{ OLETTER_NONE, &nohistdups_optname,
 		BOOL, OPT_OFF, &no_hist_dups, NULL,
@@ -613,11 +609,7 @@ static struct loption option[] =
 	},
 	{ OLETTER_NONE, &header_optname,
 		STRING|REPAINT, 0, NULL, opt_header,
-		{
-			"Header lines: ",
-			NULL,
-			NULL
-		}
+		{ "Header lines: ", "d,", NULL }
 	},
 	{ OLETTER_NONE, &nonum_headers_optname,
 		BOOL|REPAINT, 0, &nonum_headers, NULL,
@@ -655,11 +647,7 @@ static struct loption option[] =
 	},
 	{ OLETTER_NONE, &search_type_optname,
 		STRING, 0, NULL, opt_search_type,
-		{
-			"Search options: ",
-			NULL,
-			NULL
-		}
+		{ "Search options: ", "s", NULL }
 	},
 	{ OLETTER_NONE, &exit_F_on_close_optname,
 		BOOL, OPT_OFF, &exit_F_on_close, NULL,
@@ -687,7 +675,7 @@ static struct loption option[] =
 	},
 	{ OLETTER_NONE, &intr_optname,
 		STRING, 0, NULL, opt_intr,
-		{ "interrupt character: ", NULL, NULL }
+		{ "interrupt character: ", "s", NULL }
 	},
 	{ OLETTER_NONE, &wordwrap_optname,
 		BOOL|REPAINT, OPT_OFF, &wordwrap, NULL,

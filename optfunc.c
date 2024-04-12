@@ -1156,7 +1156,6 @@ static void do_nosearch_headers(int type, int no_header_lines, int no_header_col
 	switch (type)
 	{
 	case INIT:
-		break;
 	case TOGGLE:
 		nosearch_header_lines = no_header_lines;
 		nosearch_header_cols = no_header_cols;

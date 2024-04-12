@@ -66,6 +66,10 @@
 
 * Allow --rscroll to accept non-ASCII characters (github #483).
 
+* Allow the parameter to certain options to be terminated with a
+  space (--color, --quotes, --rscroll, --search-options 
+  and --intr) (github #495).
+
 * Fix bug where # substitution failed after viewing help (github #420).
 
 * Fix crash if files are deleted while less is viewing them (github #404).
