@@ -376,7 +376,6 @@ public void setfmt(constant char *s, constant char **fmtvarptr, int *attrptr, co
 	/*
 	 * Select the attributes if it starts with "*".
 	 */
- attr:
 	if (*s == '*' && s[1] != '\0')
 	{
 		switch (s[1])
