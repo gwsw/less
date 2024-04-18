@@ -432,7 +432,7 @@ In those older versions, all #version lines are ignored.
 .
 .SH EXAMPLE
 The following input file sets the \-i and \-S options when
-.less
+.B less
 is run and, on version 595 and higher, adds a \-\-color option.
 .sp
 .nf
