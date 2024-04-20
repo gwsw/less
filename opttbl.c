@@ -748,7 +748,7 @@ public void init_option(void)
 	constant char *p;
 
 	p = lgetenv("LESS_IS_MORE");
-	if (!isnullenv(p))
+	if (!isnullenv(p) && p[0] == '1' && p[1] == '\0')
 		less_is_more = 1;
 
 	for (o = option;  o->oletter != '\0';  o++)
