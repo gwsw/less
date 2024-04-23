@@ -485,12 +485,13 @@ public void init_charset(void)
 /*
  * Is a given character a "binary" character?
  */
-public int binary_char(LWCHAR c)
+public lbool binary_char(LWCHAR c)
 {
 	if (utf_mode)
 		return (is_ubin_char(c));
-	c &= 0377;
-	return (chardef[c] & IS_BINARY_CHAR);
+	if (!is_ascii_char(c))
+		return TRUE;
+	return ((chardef[c] & IS_BINARY_CHAR) != 0);
 }
 
 /*
@@ -499,7 +500,7 @@ public int binary_char(LWCHAR c)
 public lbool control_char(LWCHAR c)
 {
 	if (!is_ascii_char(c))
-		return FALSE;
+		return TRUE;
 	return (chardef[c] & IS_CONTROL_CHAR);
 }
 

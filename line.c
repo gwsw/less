@@ -914,11 +914,12 @@ static int flush_mbc_buf(POSITION pos)
  */
 public int pappend_b(char c, POSITION pos, lbool before_pendc)
 {
+	LWCHAR ch = c & 0377;
 	int r;
 
 	if (pendc && !before_pendc)
 	{
-		if (c == '\r' && pendc == '\r')
+		if (ch == '\r' && pendc == '\r')
 			return (0);
 		if (do_append(pendc, NULL, pendpos))
 			/*
@@ -929,7 +930,7 @@ public int pappend_b(char c, POSITION pos, lbool before_pendc)
 		pendc = '\0';
 	}
 
-	if (c == '\r' && (proc_return == OPT_ON || (bs_mode == BS_SPECIAL && proc_return == OPT_OFF)))
+	if (ch == '\r' && (proc_return == OPT_ON || (bs_mode == BS_SPECIAL && proc_return == OPT_OFF)))
 	{
 		if (mbc_buf_len > 0)  /* utf_mode must be on. */
 		{
@@ -946,14 +947,14 @@ public int pappend_b(char c, POSITION pos, lbool before_pendc)
 		 * the next char.  If the next char is a newline,
 		 * discard the CR.
 		 */
-		pendc = (LWCHAR) c;
+		pendc = ch;
 		pendpos = pos;
 		return (0);
 	}
 
 	if (!utf_mode)
 	{
-		r = do_append((LWCHAR) c, NULL, pos);
+		r = do_append(ch, NULL, pos);
 	} else
 	{
 		/* Perform strict validation in all possible cases. */
@@ -963,7 +964,7 @@ public int pappend_b(char c, POSITION pos, lbool before_pendc)
 			mbc_buf_index = 1;
 			*mbc_buf = c;
 			if (IS_ASCII_OCTET(c))
-				r = do_append((LWCHAR) c, NULL, pos);
+				r = do_append(ch, NULL, pos);
 			else if (IS_UTF8_LEAD(c))
 			{
 				mbc_buf_len = utf_len(c);
