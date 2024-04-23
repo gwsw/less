@@ -1013,7 +1013,7 @@ v651  3/4/24    Add --color attributes (*~_&); fix #/% substitution if name
 v652  3/11/24   Fix sleep_ms with usleep.
 v653  3/20/24   Make default charset utf-8.
 v654            Allow space to end parameter for some options; fix usleep bug;
-                fix bug when filename contains \n; fix DJGPP build.
+                fix bugs when filename contains control chars; fix DJGPP build.
 */
 
 char version[] = "654x";

@@ -104,6 +104,8 @@
 
 * Fix bug when file name contains a newline.
 
+* Fix bug when file name contains nonprintable characters (github #503).
+
 * Fix DJGPP build (github #497).
 
 * Update Unicode tables.
