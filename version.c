@@ -40,7 +40,7 @@ v19    5/2/85   Got rid of "verbose" eq_message().
 v20    5/21/85  Fixed screen.c ioctls for System V.
 v21    5/23/85  Fixed some first_cmd bugs.
 v22    5/24/85  Added support for no RECOMP nor REGCMP.
-v23    5/25/85  Miscellanous changes and prettying up.
+v23    5/25/85  Miscellaneous changes and prettying up.
                 Posted to USENET.
 -----------------------------------------------------------------
 v24    6/3/85   Added ti,te terminal init & de-init.       
@@ -628,7 +628,7 @@ v373  1/14/02   Improve handling of filenames containing shell metachars.
 v374   2/7/02   Fix memory leak; fix bug in -x argument parsing.
 v375   4/7/02   Fix searching for SGR sequences; fix SECURE build;
                 add SGR support to DJGPP version (thanks to Eli Zaretskii).
-v376  6/10/02   Fix bug in overstriking mulitbyte UTF-8 characters
+v376  6/10/02   Fix bug in overstriking multibyte UTF-8 characters
                 (thanks to Jungshik Shin).
                 Posted to Web page.
 -----------------------------------------------------------------
@@ -1012,7 +1012,8 @@ v651  3/4/24    Add --color attributes (*~_&); fix #/% substitution if name
                 contains spaces; allow --rscroll with non-ASCII char.
 v652  3/11/24   Fix sleep_ms with usleep.
 v653  3/20/24   Make default charset utf-8.
-v654
+v654            Allow space to end parameter for some options; fix usleep bug;
+                fix bug when filename contains \n; fix DJGPP build.
 */
 
 char version[] = "654x";

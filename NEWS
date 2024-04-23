@@ -102,6 +102,10 @@
 
 * Fix wrong sleep time when system has usleep but not nanosleep (github #489).
 
+* Fix bug when file name contains a newline.
+
+* Fix DJGPP build (github #497).
+
 * Update Unicode tables.
 
 ======================================================================

@@ -689,7 +689,7 @@ static POSITION gtagsearch(void)
  * |func     21      subr.c         func(arg)
  *
  * The following commands write this format.
- *      o Traditinal Ctags with -x option
+ *      o Traditional Ctags with -x option
  *      o Global with -x option
  *              See <http://www.gnu.org/software/global/global.html>
  *

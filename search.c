@@ -1268,7 +1268,7 @@ static lbool osc8_parse(constant char *line, constant char *line_end, struct osc
 
 	oline = line;
 	LWCHAR ch = step_charc(&line, +1, line_end);
-	/* oline points to charcter ch, line points to the one after it. */
+	/* oline points to character ch, line points to the one after it. */
 	struct ansi_state *pansi = ansi_start(ch);
 	if (pansi == NULL)
 		return FALSE;
