@@ -28,6 +28,7 @@ extern int sc_height;
 extern int jump_sline;
 extern int less_is_more;
 extern int header_lines;
+extern int utf_mode;
 extern IFILE curr_ifile;
 #if OSC8_LINK
 extern char *osc8_path;
@@ -82,11 +83,17 @@ public void init_prompt(void)
  */
 static void ap_str(constant char *s)
 {
-	size_t len = strlen(s);
-	if (mp + len >= message + PROMPT_SIZE)
-		len = ptr_diff(message, mp) + PROMPT_SIZE - 1;
-	strncpy(mp, s, len);
-	mp += len;
+	constant char *es = s + strlen(s);
+	while (*s != '\0')
+	{
+		LWCHAR ch = step_charc(&s, +1, es);
+		constant char *ps = utf_mode ? prutfchar(ch) : prchar(ch);
+		size_t plen = strlen(ps);
+		if (mp + plen >= message + PROMPT_SIZE)
+			break;
+		strcpy(mp, ps);
+		mp += plen;
+	}
 	*mp = '\0';
 }
 
