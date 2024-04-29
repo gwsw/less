@@ -1012,8 +1012,8 @@ v651  3/4/24    Add --color attributes (*~_&); fix #/% substitution if name
                 contains spaces; allow --rscroll with non-ASCII char.
 v652  3/11/24   Fix sleep_ms with usleep.
 v653  3/20/24   Make default charset utf-8.
-v654            Allow space to end parameter for some options; fix usleep bug;
+v654  4/28/24   Allow space to end parameter for some options; fix usleep bug;
                 fix bugs when filename contains control chars; fix DJGPP build.
 */
 
-char version[] = "654x";
+char version[] = "654";
