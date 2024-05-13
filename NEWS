@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 643 and 654
+	Major changes between "less" versions 643 and 655
 
 * Add ^O^N, ^O^P, ^O^L and ^O^O commands and mouse clicks (with --mouse)
   to find and open OSC8 hyperlinks (github #251).
