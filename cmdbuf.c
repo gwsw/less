@@ -31,8 +31,8 @@ static int prompt_col;           /* Column of cursor just after prompt */
 static char *cp;                 /* Pointer into cmdbuf */
 static int cmd_offset;           /* Index into cmdbuf of first displayed char */
 static lbool literal;            /* Next input char should not be interpreted */
-public size_t updown_match;      /* Prefix length in up/down movement */
-public lbool have_updown_match = FALSE;
+static size_t updown_match;      /* Prefix length in up/down movement */
+static lbool have_updown_match = FALSE;
 
 #if TAB_COMPLETE_FILENAME
 static int cmd_complete(int action);
