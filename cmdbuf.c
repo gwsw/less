@@ -688,7 +688,23 @@ static int cmd_updown(int action)
 	bell();
 	return (CC_OK);
 }
-#endif
+
+/*
+ * Yet another lesson in the evils of global variables.
+ */
+public ssize_t save_updown_match(void)
+{
+	if (!have_updown_match)
+		return (ssize_t)(-1);
+	return (ssize_t) updown_match;
+}
+
+public void restore_updown_match(ssize_t udm)
+{
+	updown_match = udm;
+	have_updown_match = (udm != (ssize_t)(-1));
+}
+#endif /* CMD_HISTORY */
 
 /*
  *

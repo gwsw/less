@@ -46,7 +46,6 @@ extern void *ml_search;
 extern void *ml_examine;
 extern int wheel_lines;
 extern int def_search_type;
-extern int updown_match;
 extern lbool search_wrapped;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
@@ -726,7 +725,7 @@ static int mca_char(char c)
 		{
 			/* Incremental search: do a search after every input char. */
 			int st = (search_type & (SRCH_FORW|SRCH_BACK|SRCH_NO_MATCH|SRCH_NO_REGEX|SRCH_NO_MOVE|SRCH_WRAP|SRCH_SUBSEARCH_ALL));
-			int save_updown_match = updown_match;
+			ssize_t save_updown;
 			constant char *pattern = get_cmdbuf();
 			if (pattern == NULL)
 				return (MCA_MORE);
@@ -735,6 +734,7 @@ static int mca_char(char c)
 			 * reinits it. That breaks history scrolling.
 			 * {{ This is ugly. mca_search probably shouldn't call set_mlist. }}
 			 */
+			save_updown = save_updown_match();
 			cmd_exec();
 			if (*pattern == '\0')
 			{
@@ -753,7 +753,7 @@ static int mca_char(char c)
 				repaint();
 			}
 			mca_search1();
-			updown_match = save_updown_match;
+			restore_updown_match(save_updown);
 			cmd_repaint(NULL);
 		}
 		break;
