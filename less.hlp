@@ -227,10 +227,10 @@
                   Search file as each pattern character is typed in.
                 --intr=[_C]
                   Use _C instead of ^X to interrupt a read.
-				--lesskey-context=_t_e_x_t
-				  Use lesskey source file contents.
-				--lesskey-src=_f_i_l_e
-				  Use a lesskey source file.
+                --lesskey-context=_t_e_x_t
+                  Use lesskey source file contents.
+                --lesskey-src=_f_i_l_e
+                  Use a lesskey source file.
                 --line-num-width=[_N]
                   Set the width of the -N line number field to _N characters.
                 --match-shift=[_N]
