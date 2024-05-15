@@ -489,7 +489,7 @@ public lbool binary_char(LWCHAR c)
 {
 	if (utf_mode)
 		return (is_ubin_char(c));
-	if (!is_ascii_char(c))
+	if (c >= sizeof(chardef))
 		return TRUE;
 	return ((chardef[c] & IS_BINARY_CHAR) != 0);
 }
@@ -499,7 +499,7 @@ public lbool binary_char(LWCHAR c)
  */
 public lbool control_char(LWCHAR c)
 {
-	if (!is_ascii_char(c))
+	if (c >= sizeof(chardef))
 		return TRUE;
 	return (chardef[c] & IS_CONTROL_CHAR);
 }
