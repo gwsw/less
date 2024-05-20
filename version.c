@@ -1015,6 +1015,7 @@ v653  3/20/24   Make default charset utf-8.
 v654  4/28/24   Allow space to end parameter for some options; fix usleep bug;
                 fix bugs when filename contains control chars; fix DJGPP build.
 v655  5/16/24   Fix search history bug with --incsearch.
+v656
 */
 
-char version[] = "655";
+char version[] = "656x";
