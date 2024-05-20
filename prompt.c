@@ -80,15 +80,30 @@ public void init_prompt(void)
 
 /*
  * Append a string to the end of the message.
+ * nprt means the character *may* be nonprintable
+ * and should be converted to printable form.
  */
-static void ap_str(constant char *s)
+static void ap_estr(constant char *s, lbool nprt)
 {
 	constant char *es = s + strlen(s);
 	while (*s != '\0')
 	{
 		LWCHAR ch = step_charc(&s, +1, es);
-		constant char *ps = utf_mode ? prutfchar(ch) : prchar(ch);
-		size_t plen = strlen(ps);
+		constant char *ps;
+		char ubuf[MAX_UTF_CHAR_LEN+1];
+		size_t plen;
+
+		if (nprt)
+		{
+			ps = utf_mode ? prutfchar(ch) : prchar(ch);
+		} else
+		{
+			char *up = ubuf;
+			put_wchar(&up, ch);
+			*up = '\0';
+			ps = ubuf;
+		}
+		plen = strlen(ps);
 		if (mp + plen >= message + PROMPT_SIZE)
 			break;
 		strcpy(mp, ps);
@@ -96,6 +111,12 @@ static void ap_str(constant char *s)
 	}
 	*mp = '\0';
 }
+
+static void ap_str(constant char *s)
+{
+	ap_estr(s, FALSE);
+}
+
 
 /*
  * Append a character to the end of the message.
@@ -289,10 +310,10 @@ static void protochar(char c, int where)
 		break;
 #endif
 	case 'f': /* File name */
-		ap_str(get_filename(curr_ifile));
+		ap_estr(get_filename(curr_ifile), TRUE);
 		break;
 	case 'F': /* Last component of file name */
-		ap_str(last_component(get_filename(curr_ifile)));
+		ap_estr(last_component(get_filename(curr_ifile)), TRUE);
 		break;
 	case 'g': /* Shell-escaped file name */
 		s = shell_quote(get_filename(curr_ifile));
