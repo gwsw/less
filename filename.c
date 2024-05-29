@@ -368,7 +368,7 @@ static size_t fexpand_copy(constant char *fr, char *to)
 			xcpy_char(&xp, *fr);
 		}
 	}
-	if (xp.dest != NULL) xcpy_char(&xp, '\0');
+	xcpy_char(&xp, '\0');
 	return xp.copied;
 }
 
