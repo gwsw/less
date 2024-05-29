@@ -73,6 +73,7 @@ static LWCHAR pendc;
 static POSITION pendpos;
 static constant char *end_ansi_chars;
 static constant char *mid_ansi_chars;
+static constant char *osc_ansi_chars;
 static int in_hilite;
 
 static int attr_swidth(int a);
@@ -137,8 +138,8 @@ static struct color_map color_map[] = {
 
 /* State while processing an ANSI escape sequence */
 struct ansi_state {
-	int oindex;   /* Index into OSC8 prefix */
 	osc8_state ostate; /* State while processing OSC8 sequence */
+	unsigned int otype;
 };
 
 /*
@@ -155,6 +156,10 @@ public void init_line(void)
 	mid_ansi_chars = lgetenv("LESSANSIMIDCHARS");
 	if (isnullenv(mid_ansi_chars))
 		mid_ansi_chars = "0123456789:;[?!\"'#%()*+ ";
+
+	osc_ansi_chars = lgetenv("LESSANSIOSCCHARS");
+	if (isnullenv(osc_ansi_chars))
+		osc_ansi_chars = "";
 
 	linebuf.buf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
 	linebuf.attr = (int *) ecalloc(LINEBUF_SIZE, sizeof(int));
@@ -587,12 +592,12 @@ public lbool is_ansi_middle(LWCHAR ch)
  * Skip past an ANSI escape sequence.
  * pp is initially positioned just after the CSI_START char.
  */
-public void skip_ansi(struct ansi_state *pansi, constant char **pp, constant char *limit)
+public void skip_ansi(struct ansi_state *pansi, LWCHAR ch, constant char **pp, constant char *limit)
 {
-	LWCHAR c;
+	ansi_step(pansi, ch);
 	do {
-		c = step_charc(pp, +1, limit);
-	} while (*pp < limit && ansi_step(pansi, c) == ANSI_MID);
+		ch = step_charc(pp, +1, limit);
+	} while (*pp < limit && ansi_step(pansi, ch) == ANSI_MID);
 	/* Note that we discard final char, for which is_ansi_end is true. */
 }
 
@@ -607,9 +612,18 @@ public struct ansi_state * ansi_start(LWCHAR ch)
 	if (!IS_CSI_START(ch))
 		return NULL;
 	pansi = ecalloc(1, sizeof(struct ansi_state));
-	pansi->oindex = 0;
-	pansi->ostate = OSC8_PREFIX;
+	pansi->ostate = OSC_START;
+	pansi->otype = 0;
 	return pansi;
+}
+
+/*
+ * Helper function for ansi_step.
+ */
+static ansi_state osc_return(struct ansi_state *pansi, osc8_state ostate, ansi_state astate)
+{
+	pansi->ostate = ostate;
+	return astate;
 }
 
 /*
@@ -618,45 +632,68 @@ public struct ansi_state * ansi_start(LWCHAR ch)
  */
 public ansi_state ansi_step(struct ansi_state *pansi, LWCHAR ch)
 {
-	static constant char osc8_prefix[] = ESCS "]8;";
-
+	/*
+	 * Pass thru OS commands. Assume OSC commands do not move the cursor.
+	 * A "typed" OSC starts with ESC ] <integer> <semicolon>, followed by an
+	 * arbitrary string, and ends with a String Terminator (ESC-backslash or BEL).
+	 * An untyped OSC starts with ESC ] and ends with ST.
+	 * The only typed OSC we actually parse is OSC 8.
+	 */
 	switch (pansi->ostate)
 	{
-	case OSC8_PREFIX:
-		if (ch != (LWCHAR) osc8_prefix[pansi->oindex] &&
-		    !(pansi->oindex == 0 && IS_CSI_START(ch)))
+	case OSC_START:
+		if (IS_CSI_START(ch))
+			return osc_return(pansi, OSC_BRACKET, ANSI_MID);
+		break;
+	case OSC_BRACKET:
+		if (ch == ']')
+			return osc_return(pansi, OSC_TYPENUM, ANSI_MID);
+		if (is_ascii_char(ch) && strchr(osc_ansi_chars, (char) ch) != NULL)
+			return osc_return(pansi, OSC_STRING, ANSI_MID);
+		if (IS_CSI_START(ch))
+			return osc_return(pansi, OSC_BRACKET, ANSI_MID);
+		/* ESC not followed by bracket; restart. */
+		pansi->ostate = OSC_START;
+		break;
+	case OSC_TYPENUM:
+		if (ch >= '0' && ch <= '9')
 		{
-			pansi->ostate = OSC8_NOT; /* not an OSC8 sequence */
-			break;
+			if (ckd_mul(&pansi->otype, pansi->otype, 10) ||
+			    ckd_add(&pansi->otype, pansi->otype, ch - '0'))
+				return osc_return(pansi, OSC_STRING, ANSI_MID);
+			return osc_return(pansi, OSC_TYPENUM, ANSI_MID);
 		}
-		pansi->oindex++;
-		if (osc8_prefix[pansi->oindex] == '\0') /* end of prefix */
-			pansi->ostate = OSC8_PARAMS;
-		return ANSI_MID;
+		if (ch == ';')
+			return osc_return(pansi, (pansi->otype == 8) ? OSC8_PARAMS : OSC_STRING, ANSI_MID);
+		/* OSC is untyped */
+		if (IS_CSI_START(ch))
+			return osc_return(pansi, OSC_END_CSI, ANSI_MID);
+		if (ch == '\7')
+			return osc_return(pansi, OSC_END, ANSI_END);
+		return osc_return(pansi, OSC_STRING, ANSI_MID);
 	case OSC8_PARAMS:
 		if (ch == ';')
-			pansi->ostate = OSC8_URI;
-		return ANSI_MID;
+			return osc_return(pansi, OSC8_URI, ANSI_MID);
+		/* FALLTHRU */
 	case OSC8_URI:
-		/* URI ends with \7 or ESC-backslash. */
+	case OSC_STRING:
+		/* Look for ST. */
 		if (ch == '\7')
-		{
-			pansi->ostate = OSC8_END;
-			return ANSI_END;
-		}
-		if (ch == ESC)
-			pansi->ostate = OSC8_ST_ESC;
+			return osc_return(pansi, OSC_END, ANSI_END);
+		if (IS_CSI_START(ch))
+			return osc_return(pansi, OSC_END_CSI, ANSI_MID);
+		/* Stay in same ostate */
 		return ANSI_MID;
-	case OSC8_ST_ESC:
-		if (ch != '\\') 
-		{
-			return ANSI_ERR;
-		}
-		pansi->ostate = OSC8_END;
-		return ANSI_END;
-	case OSC8_END:
+	case OSC_END_CSI:
+		/* Got ESC of ST, expect backslash next. */
+		if (ch == '\\')
+			return osc_return(pansi, OSC_END, ANSI_END);
+		/* ESC not followed by backslash. */
+		return osc_return(pansi, OSC_STRING, ANSI_MID);
+	case OSC_END:
 		return ANSI_END;
 	case OSC8_NOT:
+		/* cannot happen */
 		break;
 	}
 	/* Check for SGR sequences */
@@ -686,11 +723,11 @@ public void ansi_done(struct ansi_state *pansi)
 /*
  * Will w characters in attribute a fit on the screen?
  */
-static int fits_on_screen(int w, int a)
+static lbool fits_on_screen(int w, int a)
 {
 	if (ctldisp == OPT_ON)
 		/* We're not counting, so say that everything fits. */
-		return 1;
+		return TRUE;
 	return (end_column - cshift + w + attr_ewidth(a) <= sc_width);
 }
 
@@ -1623,7 +1660,7 @@ public int skip_columns(int cols, constant char **linep, size_t *line_lenp)
 		struct ansi_state *pansi = ansi_start(ch);
 		if (pansi != NULL)
 		{
-			skip_ansi(pansi, &line, eline);
+			skip_ansi(pansi, ch, &line, eline);
 			ansi_done(pansi);
 			pch = 0;
 		} else

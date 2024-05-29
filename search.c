@@ -1292,12 +1292,14 @@ static lbool osc8_parse(constant char *line, constant char *line_end, struct osc
 				pop->uri_start = line;
 			}
 			break;
-		case OSC8_ST_ESC:
+		case OSC_END_CSI:
 			if (pop->uri_end == NULL)
 				pop->uri_end = oline;
 			break;
-		case OSC8_END:
+		case OSC_END:
 			ansi_done(pansi);
+			if (pop->params_start == NULL || pop->uri_start == NULL)
+				return FALSE;
 			pop->osc8_end = line;
 			if (pop->uri_end == NULL) /* happens when ST is "\7" */
 				pop->uri_end = oline;
@@ -1930,7 +1932,7 @@ public void osc8_open(void)
 #if HAVE_POPEN
 	if (bad_uri(op.uri_start, uri_len))
 	{
-		error("Cannot open link containing dangerous characters", NULL_PARG);
+		error("Cannot open link containing quote characters", NULL_PARG);
 		return;
 	}
 	SNPRINTF3(env_name, sizeof(env_name), "%s%.*s", env_name_pfx, (int) scheme_len, op.uri_start);
