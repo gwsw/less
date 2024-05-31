@@ -496,7 +496,7 @@ public int bin_file(int f, ssize_t *n)
 			struct ansi_state *pansi;
 			if (ctldisp == OPT_ONPLUS && (pansi = ansi_start(c)) != NULL)
 			{
-				skip_ansi(pansi, c, &p, edata);
+				skip_ansi(pansi, &p, edata);
 				ansi_done(pansi);
 			} else if (binary_char(c))
 				bin_count++;

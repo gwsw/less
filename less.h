@@ -404,16 +404,12 @@ typedef short POLL_EVENTS;
                                 (((t) & ~SRCH_BACK) | SRCH_FORW))
 /* Parsing position in an OSC8 link: "\e]8;PARAMS;URI\e\\" (final "\e\\" may be "\7") */
 typedef enum osc8_state {
-	OSC_START,    /* Waiting for initial \e */
-	OSC_BRACKET,  /* Waiting for ] */
-	OSC_TYPENUM,  /* Reading OS command type */
-	OSC_STRING,   /* Reading OS command string */
-	OSC_END_CSI,  /* Waiting for backslash after the final ESC. */
-	OSC_END,      /* At end */
-
-	OSC8_PARAMS,  /* In the OSC8 parameters */
-	OSC8_URI,     /* In the OSC8 URI */
 	OSC8_NOT,     /* This is not an OSC8 link */
+	OSC8_PREFIX,  /* In the "\e]8;" */
+	OSC8_PARAMS,  /* In the parameters */
+	OSC8_URI,     /* In the URI */
+	OSC8_ST_ESC,  /* After the final \e */
+	OSC8_END,     /* At end */
 } osc8_state;
 
 /* */
