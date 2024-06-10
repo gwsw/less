@@ -1017,6 +1017,7 @@ v654  4/28/24   Allow space to end parameter for some options; fix usleep bug;
 v655  5/16/24   Fix search history bug with --incsearch.
 v656  5/23/24   Fix bug using escape sequences in prompt.
 v657  5/31/24   Fix buffer overrun when using LESSOPEN.
+v658
 */
 
-char version[] = "657";
+char version[] = "658x";
