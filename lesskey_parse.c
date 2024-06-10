@@ -619,13 +619,14 @@ static void parse_line(char *line, struct lesskey_tables *tables)
 /*
  * Parse a lesskey source file and store result in tables.
  */
-int parse_lesskey(constant char *ainfile, struct lesskey_tables *tables)
+int parse_lesskey(constant char *infile, struct lesskey_tables *tables)
 {
 	FILE *desc;
 	char line[1024];
-	char *infile = (ainfile != NULL) ? strdup(ainfile) : homefile(DEF_LESSKEYINFILE);
-	if (lesskey_file != NULL) free(lesskey_file);
-	lesskey_file = infile;
+
+	lesskey_file = (infile != NULL) ? strdup(infile) : homefile(DEF_LESSKEYINFILE);
+	if (lesskey_file == NULL)
+		return (-1);
 
 	init_tables(tables);
 	errors = 0;
@@ -636,24 +637,29 @@ int parse_lesskey(constant char *ainfile, struct lesskey_tables *tables)
 	/*
 	 * Open the input file.
 	 */
-	if (strcmp(infile, "-") == 0)
+	if (strcmp(lesskey_file, "-") == 0)
 		desc = stdin;
-	else if ((desc = fopen(infile, "r")) == NULL)
+	else if ((desc = fopen(lesskey_file, "r")) == NULL)
 	{
-		/* parse_error("cannot open lesskey file %s", infile); */
-		return (-1);
+		/* parse_error("cannot open lesskey file %s", lesskey_file); */
+		errors = -1;
 	}
-	free(infile);
 
 	/*
 	 * Read and parse the input file, one line at a time.
 	 */
-	while (fgets(line, sizeof(line), desc) != NULL)
+	if (desc != NULL)
 	{
-		++linenum;
-		parse_line(line, tables);
+		while (fgets(line, sizeof(line), desc) != NULL)
+		{
+			++linenum;
+			parse_line(line, tables);
+		}
+		if (desc != stdin)
+			fclose(desc);
 	}
-	fclose(desc);
+	free(lesskey_file);
+	lesskey_file = NULL;
 	return (errors);
 }
 
@@ -664,6 +670,7 @@ int parse_lesskey_content(constant char *content, struct lesskey_tables *tables)
 {
 	size_t cx = 0;
 
+	lesskey_file = "lesskey-content";
 	init_tables(tables);
 	errors = 0;
 	linenum = 0;
@@ -687,5 +694,6 @@ int parse_lesskey_content(constant char *content, struct lesskey_tables *tables)
 		parse_line(line, tables);
 		if (content[cx] != '\0') ++cx; /* skip newline or semicolon */
 	}
+	lesskey_file = NULL;
 	return (errors);
 }
