@@ -108,6 +108,8 @@
 
 * Fix DJGPP build (github #497).
 
+* Fix crash when using -N with small value for --line-num-width (github #529).
+
 * Update Unicode tables.
 
 ======================================================================

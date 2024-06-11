@@ -367,7 +367,7 @@ public void plinestart(POSITION pos)
 			linenumtoa(linenum, buf, 10);
 			len = strlen(buf);
 		}
-		for (i = 0; i < (size_t) linenum_width - len; i++)
+		for (i = 0; i + len < (size_t) linenum_width; i++)
 			add_pfx(' ', AT_NORMAL);
 		for (i = 0; i < len; i++)
 			add_pfx(buf[i], AT_BOLD|AT_COLOR_LINENUM);
