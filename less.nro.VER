@@ -1332,10 +1332,10 @@ will display the contents of that new file.
 .RS
 Sets the number of header lines and columns displayed on the screen.
 The number of header lines is set to \fIL\fP.
-if \fIL\fP is 0, header lines are disabled.
+If \fIL\fP is 0, header lines are disabled.
 If \fIL\fP is empty or missing, the number of header lines is unchanged.
 The number of header columns is set to \fIC\fP.
-if \fIC\fP is 0, header columns are disabled.
+If \fIC\fP is 0, header columns are disabled.
 If \fIC\fP is empty or missing, the number of header columns is unchanged.
 The first header line is set to line number \fIN\fP in the file.
 If \fIN\fP is empty or missing, it is taken to be 
@@ -1348,7 +1348,7 @@ and is equivalent to "\-\-header=0,0".
 .PP
 When \fIL\fP is nonzero, the first \fIL\fP lines at the top
 of the screen are replaced with the \fIL\fP lines of the file beginning at line \fIN\fP,
-regardless of what part of the file are being viewed.
+regardless of what part of the file is being viewed.
 When header lines are displayed, any file contents before the header line cannot be viewed.
 When \fIC\fP is nonzero, the first \fIC\fP characters displayed at the 
 beginning of each line are replaced with the first \fIC\fP characters of the line,
