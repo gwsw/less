@@ -2085,6 +2085,7 @@ public void commands(void)
 			 * Set a mark.
 			 */
 			if (ch_getflags() & CH_HELPFILE)
+				c = getcc();
 				break;
 			start_mca(A_SETMARK, "set mark: ", NULL, 0);
 			c = getcc();
