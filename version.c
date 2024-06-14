@@ -1017,8 +1017,8 @@ v654  4/28/24   Allow space to end parameter for some options; fix usleep bug;
 v655  5/16/24   Fix search history bug with --incsearch.
 v656  5/23/24   Fix bug using escape sequences in prompt.
 v657  5/31/24   Fix buffer overrun when using LESSOPEN.
-v658            Fix double-free in lesskey parser; fix crash using small value 
+v658  6/13/24   Fix double-free in lesskey parser; fix crash using small value 
                 for --line-num-width.
 */
 
-char version[] = "658x";
+char version[] = "658";
