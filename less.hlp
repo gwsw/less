@@ -265,15 +265,15 @@
                   Display a message if preprocessor exits with an error status.
                 --proc-backspace
                   Process backspaces for bold/underline.
-                --SPECIAL-BACKSPACE
+                --PROC-BACKSPACE
                   Treat backspaces as control characters.
                 --proc-return
                   Delete carriage returns before newline.
-                --SPECIAL-RETURN
+                --PROC-RETURN
                   Treat carriage returns as control characters.
                 --proc-tab
                   Expand tabs to spaces.
-                --SPECIAL-TAB
+                --PROC-TAB
                   Treat tabs as control characters.
                 --status-col-width=[_N]
                   Set the width of the -J status column to _N characters.
