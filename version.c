@@ -1019,7 +1019,7 @@ v656  5/23/24   Fix bug using escape sequences in prompt.
 v657  5/31/24   Fix buffer overrun when using LESSOPEN.
 v658  6/13/24   Fix double-free in lesskey parser; fix crash using small value 
                 for --line-num-width.
-v659
+v659  6/20/24   Fix typo in help.
 */
 
-char version[] = "659x";
+char version[] = "659";
