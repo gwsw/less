@@ -1160,7 +1160,8 @@ static void do_nosearch_headers(int type, int no_header_lines, int no_header_col
 	case TOGGLE:
 		nosearch_header_lines = no_header_lines;
 		nosearch_header_cols = no_header_cols;
-		break;
+		if (type != TOGGLE) break;
+		/*FALLTHRU*/
 	case QUERY:
 		if (nosearch_header_lines && nosearch_header_cols)
 			error("Search does not include header lines or columns", NULL_PARG);
