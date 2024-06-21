@@ -24,7 +24,7 @@ static struct loption *pendopt;
 public lbool plusoption = FALSE;
 
 static constant char *optstring(constant char *s, char **p_str, constant char *printopt, constant char *validchars);
-static int flip_triple(int val, int lc);
+static int flip_triple(int val, lbool lc);
 
 extern int less_is_more;
 extern int quit_at_eof;
@@ -68,7 +68,7 @@ public void scan_option(constant char *s)
 	constant char *printopt;
 	char *str;
 	lbool set_default;
-	int lc;
+	lbool lc;
 	lbool ambig;
 	PARG parg;
 
@@ -310,7 +310,7 @@ public void scan_option(constant char *s)
  *      OPT_UNSET       set to the default value
  *      OPT_SET         set to the inverse of the default value
  */
-public void toggle_option(struct loption *o, int lower, constant char *s, int how_toggle)
+public void toggle_option(struct loption *o, lbool lower, constant char *s, int how_toggle)
 {
 	int num;
 	int no_prompt;
@@ -498,7 +498,7 @@ public void toggle_option(struct loption *o, int lower, constant char *s, int ho
 /*
  * "Toggle" a triple-valued option.
  */
-static int flip_triple(int val, int lc)
+static int flip_triple(int val, lbool lc)
 {
 	if (lc)
 		return ((val == OPT_ON) ? OPT_OFF : OPT_ON);

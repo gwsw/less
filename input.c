@@ -295,7 +295,7 @@ get_forw_line:
 		pappend_b(' ', ch_tell()-1, TRUE);
 	}
 #endif
-	pdone(endline, rscroll && chopped, 1);
+	pdone(endline, rscroll && chopped, TRUE);
 
 #if HILITE_SEARCH
 	if (is_filtered(base_pos))
@@ -550,7 +550,7 @@ get_back_line:
 		}
 	}
 
-	pdone(endline, chopped, 0);
+	pdone(endline, chopped, FALSE);
 
 #if HILITE_SEARCH
 	if (is_filtered(base_pos))

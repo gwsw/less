@@ -74,7 +74,7 @@ static int last_search_type;    /* Type of last executed search */
 static LINENUM number;          /* The number typed by the user */
 static long fraction;           /* The fractional part of the number */
 static struct loption *curropt;
-static int opt_lower;
+static lbool opt_lower;
 static int optflag;
 static lbool optgetname;
 static POSITION bottompos;

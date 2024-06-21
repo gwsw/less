@@ -1210,7 +1210,7 @@ static void add_attr_normal(void)
 /*
  * Terminate the line in the line buffer.
  */
-public void pdone(int endline, int chopped, int forw)
+public void pdone(lbool endline, lbool chopped, lbool forw)
 {
 	(void) pflushmbc();
 
