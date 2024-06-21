@@ -720,11 +720,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 		int resend_last = 0;
 		int hl_attr = 0;
 
-		if (pos == NULL_POSITION)
-		{
-			/* Color the prompt unless it has ansi sequences in it. */
-			hl_attr = ansi_in_line ? 0 : AT_STANDOUT|AT_COLOR_PROMPT;
-		} else if (a != AT_ANSI)
+		if (pos != NULL_POSITION && a != AT_ANSI)
 		{
 			hl_attr = is_hilited_attr(pos, pos+1, 0, &matches);
 			if (hl_attr == 0 && status_line)
@@ -1676,6 +1672,14 @@ public void load_line(constant char *str)
 		hshift += 1;
 	}
 	set_linebuf(linebuf.end, '\0', AT_NORMAL);
+
+	/* Color the prompt unless it has ansi sequences in it. */
+	if (!ansi_in_line)
+	{
+		int i;
+		for (i = linebuf.print;  i < linebuf.end;  i++)
+			set_linebuf(i, linebuf.buf[i], AT_STANDOUT|AT_COLOR_PROMPT);
+	}
 	hshift = save_hshift;
 }
 
