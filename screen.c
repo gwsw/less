@@ -219,6 +219,8 @@ static constant char
 	*sc_e_keypad,           /* End keypad mode */
 	*sc_s_mousecap,         /* Start mouse capture mode */
 	*sc_e_mousecap,         /* End mouse capture mode */
+	*sc_s_bracketed_paste,  /* Start bracketed paste mode */
+	*sc_e_bracketed_paste,  /* End bracketed paste mode */
 	*sc_init,               /* Startup terminal initialization */
 	*sc_deinit;             /* Exit terminal de-initialization */
 
@@ -283,6 +285,7 @@ extern int oldbot;
 extern int mousecap;
 extern int is_tty;
 extern int use_color;
+extern int no_paste;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
@@ -1320,6 +1323,13 @@ public void get_term(void)
 	if (sc_e_mousecap == NULL)
 		sc_e_mousecap = ESCS "[?1006l" ESCS "[?1000l";
 
+	sc_s_bracketed_paste = ltgetstr("BRACKETED_PASTE_START", &sp);
+	if (sc_s_bracketed_paste == NULL)
+		sc_s_bracketed_paste = ESCS"[?2004h";
+	sc_e_bracketed_paste = ltgetstr("BRACKETED_PASTE_END", &sp);
+	if (sc_e_bracketed_paste == NULL)
+		sc_e_bracketed_paste = ESCS"[?2004l";
+
 	sc_init = ltgetstr("ti", &sp);
 	if (sc_init == NULL)
 		sc_init = "";
@@ -1762,6 +1772,8 @@ public void init(void)
 			ltputs(sc_s_keypad, sc_height, putchr);
 		if (mousecap)
 			init_mouse();
+		if (no_paste)
+			init_bracketed_paste();
 	}
 	init_done = 1;
 	if (top_scroll) 
@@ -1811,6 +1823,8 @@ public void deinit(void)
 	{
 		if (mousecap)
 			deinit_mouse();
+        if (no_paste)
+            deinit_bracketed_paste();
 		if (!no_keypad)
 			ltputs(sc_e_keypad, sc_height, putchr);
 		if (!no_init)
@@ -2432,6 +2446,25 @@ public void clear_bot(void)
 		clear_eol_bot();
 		at_enter(saved_attrmode);
 	}
+}
+
+/*
+ * Enable or disable bracketed paste mode.
+ * When enabled, the terminal sends an "open bracket" sequence 
+ * before pasted content and "close bracket" after it.
+ */
+public void init_bracketed_paste(void)
+{
+#if !MSDOS_COMPILER
+    ltputs(sc_s_bracketed_paste, 1, putchr);
+#endif
+}
+
+public void deinit_bracketed_paste(void)
+{
+#if !MSDOS_COMPILER
+    ltputs(sc_e_bracketed_paste, 1, putchr);
+#endif
 }
 
 /*

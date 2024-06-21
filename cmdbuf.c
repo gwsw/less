@@ -24,6 +24,8 @@ extern int sc_width;
 extern int utf_mode;
 extern int no_hist_dups;
 extern int marks_modified;
+extern int no_paste;
+public lbool pasting = FALSE;
 
 static char cmdbuf[CMDBUF_SIZE]; /* Buffer for holding a multi-char command */
 static int cmd_col;              /* Current column of the cursor */
@@ -836,10 +838,19 @@ static int cmd_edit(char c)
 #endif
 
 	action = editchar(c, flags);
+	if (is_ignoring_input(action))
+		return (CC_OK);
 
 	switch (action)
 	{
 	case A_NOACTION:
+		return (CC_OK);
+	case EC_START_PASTE:
+		if (no_paste)
+			pasting = TRUE;
+		return (CC_OK);
+	case EC_END_PASTE:
+		stop_ignoring_input();
 		return (CC_OK);
 	case EC_RIGHT:
 		not_in_completion();

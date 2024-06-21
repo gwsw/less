@@ -47,6 +47,8 @@ extern void *ml_examine;
 extern int wheel_lines;
 extern int def_search_type;
 extern lbool search_wrapped;
+extern int no_paste;
+extern lbool pasting;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
@@ -83,6 +85,10 @@ static int save_bs_mode;
 static int save_proc_backspace;
 static int screen_trashed_value = 0;
 static lbool literal_char = FALSE;
+static lbool ignoring_input = FALSE;
+#if HAVE_TIME
+static time_type ignoring_input_time;
+#endif
 #if PIPEC
 static char pipec;
 #endif
@@ -688,9 +694,13 @@ static int mca_char(char c)
 	 */
 	if (is_newline_char(c))
 	{
-		/*
-		 * Execute the command.
-		 */
+		if (pasting && no_paste)
+		{
+			/* Ignore pasted input after (and including) the first newline */
+			start_ignoring_input();
+			return (MCA_MORE);
+		}
+		/* Execute the command. */
 		exec_mca();
 		return (MCA_DONE);
 	}
@@ -1286,6 +1296,46 @@ static int forw_loop(int until_hilite)
 }
 
 /*
+ * Ignore subsequent (pasted) input chars.
+ */
+public void start_ignoring_input()
+{
+	ignoring_input = TRUE;
+#if HAVE_TIME
+	ignoring_input_time = get_time();
+#endif
+}
+
+/*
+ * Stop ignoring input chars.
+ */
+public void stop_ignoring_input()
+{
+	ignoring_input = FALSE;
+	pasting = FALSE;
+}
+
+/*
+ * Are we ignoring input chars?
+ */
+public lbool is_ignoring_input(int action)
+{
+	if (!ignoring_input)
+		return FALSE;
+	if (action == A_END_PASTE)
+		stop_ignoring_input();
+#if HAVE_TIME
+	if (get_time() >= ignoring_input_time + MAX_PASTE_IGNORE_SEC)
+		stop_ignoring_input();
+#endif
+	/*
+	 * Don't ignore prefix chars so we can parse a full command
+	 * (which might be A_END_PASTE).
+	 */
+	return (action != A_PREFIX);
+}
+
+/*
  * Main command processor.
  * Accept and execute commands until a quit command.
  */
@@ -1426,8 +1476,16 @@ public void commands(void)
 		if (action != A_PREFIX)
 			cmd_reset();
 
+		if (is_ignoring_input(action))
+			continue;
+
 		switch (action)
 		{
+		case A_START_PASTE:
+			if (no_paste)
+				start_ignoring_input();
+			break;
+
 		case A_DIGIT:
 			/*
 			 * First digit of a number.

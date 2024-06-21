@@ -176,6 +176,8 @@ static unsigned char cmdtable[] =
 	'!',0,                          A_SHELL,
 	'#',0,                          A_PSHELL,
 	'+',0,                          A_FIRSTCMD,
+	ESC,'[','2','0','0','~',0,      A_START_PASTE,
+	ESC,'[','2','0','1','~',0,      A_END_PASTE,
 
 	'H',0,                          A_HELP,
 	'h',0,                          A_HELP,
@@ -227,6 +229,8 @@ static unsigned char edittable[] =
 	CONTROL('G'),0,                 EC_ABORT,       /* CTRL-G */
 	ESC,'[','M',0,                  EC_X11MOUSE,    /* X11 mouse report */
 	ESC,'[','<',0,                  EC_X116MOUSE,   /* X11 1006 mouse report */
+	ESC,'[','2','0','0','~',0,      A_START_PASTE,  /* open paste bracket */
+	ESC,'[','2','0','1','~',0,      A_END_PASTE,    /* close paste bracket */
 };
 
 static unsigned char dflt_vartable[] =

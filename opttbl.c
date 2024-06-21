@@ -81,6 +81,7 @@ public int proc_backspace;      /* Special handling of backspace */
 public int proc_tab;            /* Special handling of tab */
 public int proc_return;         /* Special handling of carriage return */
 public int match_shift;         /* Extra horizontal shift on search match */
+public int no_paste;            /* Don't accept pasted input */
 public long match_shift_fraction = NUM_FRAC_DENOM/2; /* 1/2 of screen width */
 public char intr_char = CONTROL('X'); /* Char to interrupt reads */
 #if HILITE_SEARCH
@@ -161,6 +162,7 @@ static struct optname use_color_optname = { "use-color",         NULL };
 static struct optname want_filesize_optname = { "file-size",     NULL };
 static struct optname status_line_optname = { "status-line",     NULL };
 static struct optname header_optname = { "header",               NULL };
+static struct optname no_paste_optname = { "no-paste",           NULL };
 static struct optname nonum_headers_optname = { "no-number-headers", NULL };
 static struct optname nosearch_headers_optname = { "no-search-headers", NULL };
 static struct optname nosearch_header_lines_optname = { "no-search-header-lines", NULL };
@@ -610,6 +612,14 @@ static struct loption option[] =
 	{ OLETTER_NONE, &header_optname,
 		STRING|REPAINT, 0, NULL, opt_header,
 		{ "Header lines: ", "d,", NULL }
+	},
+	{ OLETTER_NONE, &no_paste_optname,
+		BOOL, OPT_OFF, &no_paste, opt_no_paste,
+		{ 
+			"Accept pasted input",
+			"Ignore pasted input",
+			NULL
+		}
 	},
 	{ OLETTER_NONE, &nonum_headers_optname,
 		BOOL|REPAINT, 0, &nonum_headers, NULL,

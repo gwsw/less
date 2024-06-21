@@ -1444,6 +1444,14 @@ Normally, a string may appear multiple times.
 .IP "\-\-no-number-headers"
 Header lines (defined via the \-\-header option) are not assigned line numbers.
 Line number 1 is assigned to the first line after any header lines.
+.IP "\-\-no-paste"
+If the terminal supports xterm-compatible "bracketed paste",
+any text pasted into
+.B less
+is ignored, except that one line of text may be pasted into the command line 
+at the bottom of the screen (search strings, file names, etc).
+That is, the first newline of text pasted into the command line
+and any text that follows it is ignored.
 .IP "\-\-no-search-header-lines"
 Searches do not include header lines, but still include header columns.
 .IP "\-\-no-search-header-columns"

@@ -245,6 +245,8 @@
                   Remove duplicates from command history.
                 --no-number-headers
                   Don't give line numbers to header lines.
+                --no-paste
+                  Ignore pasted input.
                 --no-search-header-lines
                   Searches do not include header lines.
                 --no-search-header-columns

@@ -81,6 +81,8 @@
 #define A_OSC8_B_SEARCH        72
 #define A_OSC8_OPEN            73
 #define A_OSC8_JUMP            74
+#define A_START_PASTE          75 /* must not overlap EC_* */
+#define A_END_PASTE            76 /* must not overlap EC_* */
 
 /* These values must not conflict with any A_* or EC_* value. */
 #define A_INVALID              100
@@ -117,6 +119,8 @@
 #define EC_ABORT               20
 #define EC_X11MOUSE            21
 #define EC_X116MOUSE           22
+#define EC_START_PASTE         A_START_PASTE
+#define EC_END_PASTE           A_END_PASTE
 
 #define EC_UINVALID            102
 

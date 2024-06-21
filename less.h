@@ -364,6 +364,14 @@ typedef short POLL_EVENTS;
 #define NUM_FRAC_DENOM                  1000000
 #define NUM_LOG_FRAC_DENOM              6
 
+/*
+ * Max expected reasonable duration of a paste.
+ * Increasing this value avoids accidentally reenabling unwanted paste input 
+ * in the middle of a very long paste but risks apparently frozen UI if the 
+ * end bracket is missing.
+ */
+#define MAX_PASTE_IGNORE_SEC            5
+
 /* How quiet should we be? */
 #define NOT_QUIET       0       /* Ring bell at eof and for errors */
 #define LITTLE_QUIET    1       /* Ring bell only for errors */
