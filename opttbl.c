@@ -886,3 +886,40 @@ public struct loption * findopt_name(constant char **p_optname, constant char **
 		*p_oname = maxoname == NULL ? NULL : maxoname->oname;
 	return (maxo);
 }
+
+/*
+ * Find all toggleable options whose names begin with a specified string.
+ * Return them in a space-separated string.
+ */
+public char * findopts_name(constant char *pfx)
+{
+	constant struct loption *o;
+	constant struct optname *oname;
+	struct xbuffer xbuf;
+	int uppercase;
+
+	xbuf_init(&xbuf);
+	for (o = option;  o->oletter != '\0';  o++)
+	{
+		if (o->otype & NO_TOGGLE)
+			continue;
+		for (oname = o->onames;  oname != NULL;  oname = oname->onext)
+		{
+			for (uppercase = 0;  uppercase <= 1;  uppercase++)
+			{
+				size_t len = sprefix(pfx, oname->oname, uppercase);
+				if (len >= strlen(pfx))
+				{
+					constant char *np;
+					for (np = oname->oname;  *np != '\0';  np++)
+						xbuf_add_char(&xbuf, uppercase && ASCII_IS_LOWER(*np) ? ASCII_TO_UPPER(*np) : *np);
+					xbuf_add_char(&xbuf, ' ');
+				}
+				if (!(o->otype & TRIPLE))
+					break;
+			}
+		}
+	}
+	xbuf_add_char(&xbuf, '\0');
+	return (char *) xbuf.data;
+}

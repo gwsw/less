@@ -434,7 +434,8 @@ typedef enum osc8_state {
 #define CC_ERROR        2       /* Char could not be accepted due to error */
 #define CC_PASS         3       /* Char was rejected (internal) */
 
-#define CF_QUIT_ON_ERASE 0001   /* Abort cmd if its entirely erased */
+#define CF_QUIT_ON_ERASE (1<<0) /* Abort cmd if its entirely erased */
+#define CF_OPTION        (1<<1) /* A_OPT_TOGGLE */
 
 /* Special char bit-flags used to tell put_line() to do something special */
 #define AT_NORMAL       (0)

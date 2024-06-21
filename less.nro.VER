@@ -404,7 +404,9 @@ the current setting is printed and nothing is changed.
 .IP \-\-
 Like the \- command, but takes a long option name (see OPTIONS below)
 rather than a single option letter.
-You must press ENTER or RETURN after typing the option name.
+Press ENTER or RETURN after typing the option name to change it.
+You can enter just the beginning of an option name, 
+then press TAB to find all option names which begin with that string.
 A \(haP immediately after the second dash suppresses printing of a
 message describing the new setting, as in the \- command.
 .IP \-+

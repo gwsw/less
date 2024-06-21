@@ -234,7 +234,7 @@ static void mca_opt_toggle(void)
 		break;
 	}
 	forw_prompt = 0;
-	set_mlist(NULL, 0);
+	set_mlist(NULL, CF_OPTION);
 }
 
 /*
@@ -419,16 +419,18 @@ static int mca_opt_nonfirst_char(char c)
 	constant char *p;
 	constant char *oname;
 	lbool ambig;
+	struct loption *was_curropt;
 
 	if (curropt != NULL)
 	{
-		/*
-		 * Already have a match for the name.
-		 * Don't accept anything but erase/kill.
-		 */
+		/* Already have a match for the name. */
 		if (is_erase_char(c))
 			return (MCA_DONE);
-		return (MCA_MORE);
+		/* {{ Checking for TAB here is ugly.
+		 *    Also doesn't extend well -- can't do BACKTAB this way
+		 *    because it's a multichar sequence. }} */
+		if (c != '\t') 
+			return (MCA_MORE);
 	}
 	/*
 	 * Add char to cmd buffer and try to match
@@ -437,26 +439,23 @@ static int mca_opt_nonfirst_char(char c)
 	if (cmd_char(c) == CC_QUIT)
 		return (MCA_DONE);
 	p = get_cmdbuf();
-	if (p == NULL)
+	if (p == NULL || p[0] == '\0')
 		return (MCA_MORE);
 	opt_lower = ASCII_IS_LOWER(p[0]);
+	was_curropt = curropt;
 	curropt = findopt_name(&p, &oname, &ambig);
 	if (curropt != NULL)
 	{
-		/*
-		 * Got a match.
-		 * Remember the option and
-		 * display the full option name.
-		 */
-		cmd_reset();
-		mca_opt_toggle();
-		for (p = oname;  *p != '\0';  p++)
+		if (was_curropt == NULL)
 		{
-			c = *p;
-			if (!opt_lower && ASCII_IS_LOWER(c))
-				c = ASCII_TO_UPPER(c);
-			if (cmd_char(c) != CC_OK)
-				return (MCA_DONE);
+			/*
+			 * Got a match.
+			 * Remember the option and
+			 * display the full option name.
+			 */
+			cmd_reset();
+			mca_opt_toggle();
+			cmd_setstring(oname, !opt_lower);
 		}
 	} else if (!ambig)
 	{
@@ -528,7 +527,7 @@ static int mca_opt_char(char c)
 	/*
 	 * Display a prompt appropriate for the option parameter.
 	 */
-	start_mca(A_OPT_TOGGLE, opt_prompt(curropt), NULL, 0);
+	start_mca(A_OPT_TOGGLE, opt_prompt(curropt), NULL, CF_OPTION);
 	return (MCA_MORE);
 }
 

@@ -1158,7 +1158,6 @@ public int editchar(char c, int flags)
 		}
 	}
 #endif
-#if TAB_COMPLETE_FILENAME
 	if (flags & ECF_NOCOMPLETE) 
 	{
 		/*
@@ -1174,7 +1173,6 @@ public int editchar(char c, int flags)
 			break;
 		}
 	}
-#endif
 	if ((flags & ECF_PEEK) || action == A_INVALID)
 	{
 		/*
