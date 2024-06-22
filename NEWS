@@ -11,6 +11,19 @@
 
 ======================================================================
 
+	Major changes between "less" versions 659 and 659.1
+
+* Add --no-paste option (github #523).
+
+* Make TAB complete option name in -- command (github #531).
+
+* Make -R pass through all OSC escape sequences (not just OSC 8)
+  (github #504).
+
+* Fix bug when coloring prompt string with SGR sequences (github #516).
+
+======================================================================
+
 	Major changes between "less" versions 643 and 659
 
 * Add ^O^N, ^O^P, ^O^L and ^O^O commands and mouse clicks (with --mouse)
