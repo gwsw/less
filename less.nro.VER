@@ -2367,7 +2367,14 @@ Characters which may end an ANSI color escape sequence
 .IP LESSANSIMIDCHARS
 Characters which may appear between the ESC character and the
 end character in an ANSI color escape sequence
-(default "0123456789:;[?!"\(aq#%()*+\ ".
+(default "0123456789:;[?!"\(aq#%()*+\ ").
+.IP LESSANSIOSCCHARS
+Characters which may follow an ESC character to mark the start
+of an "OS Command" sequence. 
+All characters that follow this character up to a 
+String Terminator (ESC-backslash or BEL)
+are considered to be part of the OSC sequence 
+(default "]").
 .IP LESSBINFMT
 Format for displaying non-printable, non-control characters.
 .IP LESSCHARDEF
