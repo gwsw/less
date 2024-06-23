@@ -85,81 +85,109 @@ static int outfd = 2; /* stderr */
 
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 
-typedef unsigned t_attr;
+/* color uses 26 bits (type:2, up to rgb:24). we use long - guaranteed 32+ */
+enum color_type {
+	T_DEFAULT = 0,
+	T_ANSI,  /* 0-7 */
+	T_256,   /* 0-255, 8-15 also mapped from aixterm bright-only SGR 9x/10x */
+	T_RGB
+};
 
-#define A_BOLD      (1u<<0)
-#define A_ITALIC    (1u<<1)
-#define A_UNDERLINE (1u<<2)
-#define A_BLINK     (1u<<3)
-#define A_INVERSE   (1u<<4)
-#define A_CONCEAL   (1u<<5)
-
-/* long is guaranteed 32 bits, and we reserve bits for type + RGB */
-typedef unsigned long t_color;
-
-#define T_DEFAULT   0ul
-#define T_ANSI      1ul  /* colors 0-7 */
-
+#define CGET_TYPE(c) ((c) >>24)
 #define CGET_ANSI(c) ((c) & 0x7)
+#define CGET_256(c)  ((c) & 0xff)
+#define CGET_R(c)    (((c) >>16) & 0xff)
+#define CGET_G(c)    (((c) >>8) & 0xff)
+#define CGET_B(c)    ((c) & 0xff)
 
-#define C_DEFAULT    (T_DEFAULT <<24) /* 0 */
-#define C_ANSI(c)   ((T_ANSI    <<24) | (c))
+#define C_DEFAULT       ((long)T_DEFAULT <<24) /* 0 */
+#define C_ANSI(c)       (((long)T_ANSI <<24) | (c))
+#define C_256(c)        (((long)T_256 <<24) | (c))
+#define C_RGB(r, g, b)  (((long)T_RGB  <<24) | ((r) <<16) | ((g) <<8) | (b))
+
+
+/* attributes we care about in some way */
+#define A_BOLD        (1u<<0)
+#define A_ITALIC      (1u<<1)
+#define A_UNDERLINE   (1u<<2)
+#define A_BLINK       (1u<<3)
+#define A_INVERSE     (1u<<4)
+#define A_CONCEAL     (1u<<5)
+
 
 /* attr/fg/bg/all 0 is the default attr/fg/bg/all, respectively */
-typedef struct t_sgr {
-	t_attr attr;
-	t_color fg;
-	t_color bg;
-} t_sgr;
+typedef struct sgr_state {
+	unsigned attr;
+	long fg;
+	long bg;
+} sgr_state;
 
-static constant t_sgr SGR_DEFAULT; /* = {0} */
 
-/* returns 0 on success, non-0 on unknown SGR code */
-static int update_sgr(t_sgr *sgr, long code)
+#define CASE_RANGE_8(base) \
+	case base+0: case base+1: case base+2: case base+3: \
+	case base+4: case base+5: case base+6: case base+7 /* : */
+
+static void update_sgr(sgr_state *sgr, const unsigned char* vals, int len)
 {
-	switch (code)
-	{
-	case  0: *sgr = SGR_DEFAULT; break;
+	for (; len; ++vals, --len) {
+		unsigned v = vals[0];
+		switch (v) {
+		case  0: *sgr = (sgr_state){0}; break;
 
-	case  1: sgr->attr |=  A_BOLD; break;
-	case 22: sgr->attr &= ~A_BOLD; break;
+		case  1: sgr->attr |=  A_BOLD; break;
+		case 22: sgr->attr &= ~A_BOLD; break;
 
-	case  3: sgr->attr |=  A_ITALIC; break;
-	case 23: sgr->attr &= ~A_ITALIC; break;
+		case  3: sgr->attr |=  A_ITALIC; break;
+		case 23: sgr->attr &= ~A_ITALIC; break;
 
-	case  4: sgr->attr |=  A_UNDERLINE; break;
-	case 24: sgr->attr &= ~A_UNDERLINE; break;
+		case  4: sgr->attr |=  A_UNDERLINE; break;
+		case 24: sgr->attr &= ~A_UNDERLINE; break;
 
-	case  6: /* fast-blink, fallthrough */
-	case  5: sgr->attr |=  A_BLINK; break;
-	case 25: sgr->attr &= ~A_BLINK; break;
+		case  5: /* fallthrough */
+		case  6: sgr->attr |=  A_BLINK; break;
+		case 25: sgr->attr &= ~A_BLINK; break;
 
-	case  7: sgr->attr |=  A_INVERSE; break;
-	case 27: sgr->attr &= ~A_INVERSE; break;
+		case  7: sgr->attr |=  A_INVERSE; break;
+		case 27: sgr->attr &= ~A_INVERSE; break;
 
-	case  8: sgr->attr |=  A_CONCEAL; break;
-	case 28: sgr->attr &= ~A_CONCEAL; break;
+		case  8: sgr->attr |=  A_CONCEAL; break;
+		case 28: sgr->attr &= ~A_CONCEAL; break;
 
-	case 39: sgr->fg = C_DEFAULT; break;
-	case 49: sgr->bg = C_DEFAULT; break;
+		case 39: sgr->fg = C_DEFAULT; break;
+		case 49: sgr->bg = C_DEFAULT; break;
 
-	case 30: case 31: case 32: case 33:
-	case 34: case 35: case 36: case 37:
-		sgr->fg = C_ANSI(code - 30);
-		break;
+		CASE_RANGE_8(30): sgr->fg = C_ANSI(v - 30); break;
+		CASE_RANGE_8(40): sgr->bg = C_ANSI(v - 40); break;
 
-	case 40: case 41: case 42: case 43:
-	case 44: case 45: case 46: case 47:
-		sgr->bg = C_ANSI(code - 40);
-		break;
-	default:
-		return 1;
+		CASE_RANGE_8(90): sgr->fg = C_256(8 + v - 90); break;
+		CASE_RANGE_8(100):sgr->bg = C_256(8 + v - 100); break;
+
+		case 38: case 48: case 58: {  /* expecting: 5;n or 2;r;g;b */
+			long color, advance;
+
+			if (len >= 3 && vals[1] == 5)
+				color = C_256(vals[2]);
+			else if (len >= 5 && vals[1] == 2)
+				color = C_RGB(vals[2], vals[3], vals[4]);
+			else  /* invalid and we've lost sync, abort */
+				return;
+
+			if (v == 38)
+				sgr->fg = color;
+			else if (v == 48)
+				sgr->bg = color;
+			/* else ignore underline color */
+
+			advance = vals[1] == 5 ? 2 : 4;
+			vals += advance;
+			len -= advance;
+			break;
+		}  /* 38 48 58 */
+		}
 	}
-
-	return 0;
 }
 
-static void set_win_colors(t_sgr *sgr)
+int static get_win_color(long color, int def)
 {
 #if MSDOS_COMPILER==WIN32C
 	/* Screen colors used by 3x and 4x SGR commands. */
@@ -180,51 +208,80 @@ static void set_win_colors(t_sgr *sgr)
 	};
 #endif
 
-	int fg, bg, tmp;  /* Windows colors */
+	static const int x256[6] = {0, 0x5f, 0x87, 0xaf, 0xd7, 0xff};
+	int r, g, b, tmp, any, high;
 
-	/* Not "SGR mode": apply -D<x> to default fg+bg with one attribute */
-	if (!sgr_mode && sgr->fg == C_DEFAULT && sgr->bg == C_DEFAULT)
-	{
-		switch (sgr->attr)
-		{
-		case A_BOLD:
-			WIN32setcolors(bo_fg_color, bo_bg_color);
-			return;
-		case A_UNDERLINE:
-			WIN32setcolors(ul_fg_color, ul_bg_color);
-			return;
-		case A_BLINK:
-			WIN32setcolors(bl_fg_color, bl_bg_color);
-			return;
-		case A_INVERSE:
-			WIN32setcolors(so_fg_color, so_bg_color);
-			return;
-		/*
-		 * There's no -Di so italic should not be here, but to
-		 * preserve legacy behavior, apply -Ds to italic too.
-		 */
-		case A_ITALIC:
-			WIN32setcolors(so_fg_color, so_bg_color);
-			return;
+	switch (CGET_TYPE(color)) {
+	case T_DEFAULT:
+		return def;
+	case T_ANSI:
+		return screen_color[CGET_ANSI(color)];
+	case T_RGB:
+		r = CGET_R(color), g = CGET_G(color), b = CGET_B(color);
+		break;
+	default:  /* T_256 */
+		tmp = CGET_256(color);
+		if (tmp < 16)  /* 8 ANSI + 8 bright */
+			return screen_color[tmp & 7] | (tmp & 8);
+
+		tmp -= 16;
+		if (tmp >= 216)  /* linear grayscale */
+			r = g = b = 8 + 10 * (tmp - 216);
+		else  /* non linear, indexed 6x6x6 color cube */
+			r = x256[tmp / 36], g = x256[tmp / 6 % 6], b = x256[tmp % 6];
+	}
+
+	/*
+	 * convert RGB to 3 bit color + 1 bit brightness.
+	 * each channel is considered in one of 3 states: off/low/high.
+	 * for white/black do 2 bit grayscale, alse if there are highs then
+	 * ignore the lows and do bright, else normal color without bright.
+	 * the thresholds 112/196 are arbitrary-ish to work well in practice.
+	 */
+	any = (r > 112) + (g > 112) + (b > 112);
+	high = (r > 196) + (g > 196) + (b > 196);
+	tmp = (r + g + b) / 3;
+
+	/* bright threshold is 60 (not 64) to balance the 256 color grayscale */
+	if (any == 0 || (any == 3 && high != 2))  /* do grayscale */
+		return screen_color[tmp & 0x80 ? 7 : 0]
+			| ((tmp & ~0x80) >= 60 ? 8 : 0);
+
+	return high ? screen_color[(r > 196) | 2 * (g > 196) | 4 * (b > 196)] | 8
+	            : screen_color[(r > 112) | 2 * (g > 112) | 4 * (b > 112)];
+}
+
+static void set_win_colors(sgr_state *sgr)
+{
+	int fg, bg, tmp;
+
+	/* !sgr_mode -> exactly one attribute with default fg+bg maps to -Dx config */
+	if (!sgr_mode && sgr->fg == C_DEFAULT && sgr->bg == C_DEFAULT) {
+		switch (sgr->attr) {
+		case A_BOLD:      WIN32setcolors(bo_fg_color, bo_bg_color); return;
+		case A_UNDERLINE: WIN32setcolors(ul_fg_color, ul_bg_color); return;
+		case A_BLINK:     WIN32setcolors(bl_fg_color, bl_bg_color); return;
+		case A_INVERSE:   WIN32setcolors(so_fg_color, so_bg_color); return;
+
+		/* there's no -Di so italic should not be here, but for backward
+		 * compatibility: -Ds applies to standout (inverse), but because
+		 * italic is applied as inverse, -Ds was applied to italic too
+		 * TODO: support -Di... ? */
+		case A_ITALIC:    WIN32setcolors(so_fg_color, so_bg_color); return;
 		}
 	}
 
-	/* generic application of the SGR state as Windows colors */
-
-	fg = sgr->fg == C_DEFAULT ? nm_fg_color
-	                          : screen_color[CGET_ANSI(sgr->fg)];
-
-	bg = sgr->bg == C_DEFAULT ? nm_bg_color
-	                          : screen_color[CGET_ANSI(sgr->bg)];
+	/* resolve the color, then apply attributes as additional mods */
+	fg = get_win_color(sgr->fg, nm_fg_color);
+	bg = get_win_color(sgr->bg, nm_bg_color);
 
 	if (sgr->attr & A_BOLD)
 		fg |= 8;
 
 	if (sgr->attr & (A_BLINK | A_UNDERLINE))
-		bg |= 8;  /* TODO: can be illegible */
+		bg |= 8;
 
-	if (sgr->attr & (A_INVERSE | A_ITALIC))
-	{
+	if (sgr->attr & (A_INVERSE | A_ITALIC)) {
 		tmp = fg;
 		fg = bg;
 		bg = tmp;
@@ -236,117 +293,119 @@ static void set_win_colors(t_sgr *sgr)
 	WIN32setcolors(fg, bg);
 }
 
+enum PARSE_STATE {
+	PS_NORMAL = 0,
+	PS_ESC,        // right after ESC
+	PS_CSI,        // after ESC[ and before the end of sequence
+	PS_OSC,        // after ESC] and before ST or BEL
+	PS_OSC_ESC,    // right after ESC in PS_OSC
+};
+
+/* we maintain a parsing state, and the sgr state of our virtual terminal.
+ * specifically, we don't maintain a state of the current windows colors.
+ * once an SGR sequence completes, we apply the sgr state as windows olors.
+ * if the buffer ends inside a sequence, we'll continue from the exact place */
 static void win_flush(void)
 {
-	if (ctldisp != OPT_ONPLUS
-#if MSDOS_COMPILER==WIN32C
-	    || (vt_enabled && sgr_mode)
+	static sgr_state sgr;
+	static enum PARSE_STATE parse_state;
+	static unsigned v;  /* currently parsed sgr value */
+	static unsigned char sgr_vals[64];
+	static int sgr_len;
+
+#if MSDOS_COMPILER != WIN32C
+	static const int vt_enabled = 0;  /* global only with WIN32C */
 #endif
-	   )
-		WIN32textout(obuf, ptr_diff(ob, obuf));
-	else
-	{
-		/*
-		 * Digest text, apply embedded SGR sequences as Windows-colors.
-		 * By default - when -Da ("SGR mode") is unset - also apply
-		 * translation of -D command-line options (at set_win_colors)
-		 */
-		char *anchor, *p, *p_next;
-		static t_sgr sgr;
 
-		for (anchor = p_next = obuf;
-			 (p_next = memchr(p_next, ESC, ob - p_next)) != NULL; )
-		{
-			p = p_next;
-			if (p[1] == '[')  /* "ESC-[" sequence */
-			{
-				/*
-				* unknown SGR code ignores the rest of the seq,
-				* and allows ignoring sequences such as
-				* ^[[38;5;123m or ^[[38;2;5;6;7m
-				* (prior known codes at the same seq do apply)
-				*/
-				int bad_code = 0;
+	char *p = obuf, *oend = ob;
+	ob = obuf;  /* we always consume the whole buffer */
 
-				if (p > anchor)
-				{
-					/*
-					 * If some chars seen since
-					 * the last escape sequence,
-					 * write them out to the screen.
-					 */
-					WIN32textout(anchor, ptr_diff(p, anchor));
-					anchor = p;
-				}
-				p += 2;  /* Skip the "ESC-[" */
-				if (is_ansi_end(*p))
-				{
-					/*
-					 * Handle null escape sequence
-					 * "ESC[m" as if it was "ESC[0m"
-					 */
-					p++;
-					anchor = p_next = p;
-					update_sgr(&sgr, 0);
-					set_win_colors(&sgr);
-					continue;
-				}
-				p_next = p;
+	if (ctldisp != OPT_ONPLUS || (vt_enabled && sgr_mode)) {
+		WIN32textout(obuf, oend - obuf);
+		return;
+	}
 
-				/*
-				 * Parse and apply SGR values to the SGR state
-				 * based on the escape sequence. 
-				 */
-				while (!is_ansi_end(*p))
-				{
-					char *q;
-					long code = strtol(p, &q, 10);
+	for (; p != oend; ++p) {
+		switch (parse_state) {
+		case PS_NORMAL: {
+			char *pesc = memchr(p, ESC, oend - p);
+			if (!pesc) {
+				WIN32textout(p, oend - p);
+				return;
+			}
+			if (pesc > p)
+				WIN32textout(p, pesc - p);
 
-					if (*q == '\0')
-					{
-						/*
-						 * Incomplete sequence.
-						 * Leave it unprocessed
-						 * in the buffer.
-						 */
-						size_t slop = ptr_diff(q, anchor);
-						/* {{ strcpy args overlap! }} */
-						strcpy(obuf, anchor);
-						ob = &obuf[slop];
-						return;
-					}
-
-					if (q == p ||
-						(!is_ansi_end(*q) && *q != ';'))
-					{
-						/*
-						 * can't parse. passthrough
-						 * till the end of the buffer
-						 */
-						p_next = q;
-						break;
-					}
-					if (*q == ';')
-						q++;
-
-					if (!bad_code)
-						bad_code = update_sgr(&sgr, code);
-					p = q;
-				}
-				if (!is_ansi_end(*p) || p == p_next)
-					break;
-
-				set_win_colors(&sgr);
-				p_next = anchor = p + 1;
-			} else
-				p_next++;
+			p = pesc;
+			parse_state = PS_ESC;
+			continue;
 		}
 
-		/* Output what's left in the buffer.  */
-		WIN32textout(anchor, ptr_diff(ob, anchor));
+		case PS_ESC:
+			parse_state = *p == '[' ? PS_CSI
+			            : *p == ']' ? PS_OSC
+			            : PS_NORMAL; /* assume ESC-<one-char-thing> */
+
+			/* OSC is passthrough on VT terminal, else eaten */
+			if (*p == ']' && vt_enabled)
+				WIN32textout("\033]", 2);
+			continue;
+
+		case PS_CSI:
+			/* we parse the CSI as if it was an SGR sequence, eventhough
+			 * we don't know that yet. we'll discard if it ends up not SGR. */
+			if (*p >= '0' && *p <= '9') {
+				v = v * 10 + *p - '0';
+				continue;
+			}
+			/* separator or end of CSI */
+			if (sgr_len < sizeof(sgr_vals))  /* ignore overflow vals */
+				sgr_vals[sgr_len++] = v;
+			v = 0;
+
+			if ((unsigned char)*p < 0x40)
+				continue;  /* still in CSI */
+
+			/* end of CSI */
+			if (is_ansi_end(*p)) {  /* which was SGR */
+				/* len >= 1 always, with value 0 if got nothing */
+				update_sgr(&sgr, sgr_vals, sgr_len);
+				set_win_colors(&sgr);
+			}
+			sgr_len = 0;
+			parse_state = PS_NORMAL;
+			continue;
+
+		case PS_OSC: {
+			/* ends at ST (ESC'\\') or BEL ('\a') */
+			/* try to write in one go - avoid breaking UTF8 */
+			char *p0 = p;
+			while (p != oend && *p != '\a' && *p != ESC)
+				++p;
+			if (vt_enabled)  /* write also the '\a' or ESC */
+				WIN32textout(p0, p - p0 + (p != oend));
+
+			if (p == oend)
+				return;
+			parse_state = *p == '\a' ? PS_NORMAL : PS_OSC_ESC;
+			continue;
+		}
+
+		case PS_OSC_ESC:
+			if (*p == '\\') {
+				if (vt_enabled)
+					WIN32textout(p, 1);
+				parse_state = PS_NORMAL;
+			} else {
+				--p;  /* not ST, re-process *p */
+				parse_state = PS_OSC;
+			}
+			continue;
+
+		}  /* switch */
 	}
-	ob = obuf;
 }
+
 #endif
 
 /*
