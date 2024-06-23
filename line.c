@@ -1713,7 +1713,7 @@ public void load_line(constant char *str)
 	/* Color the prompt unless it has ansi sequences in it. */
 	if (!ansi_in_line)
 	{
-		int i;
+		size_t i;
 		for (i = linebuf.print;  i < linebuf.end;  i++)
 			set_linebuf(i, linebuf.buf[i], AT_STANDOUT|AT_COLOR_PROMPT);
 	}
