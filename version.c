@@ -1020,7 +1020,7 @@ v657  5/31/24   Fix buffer overrun when using LESSOPEN.
 v658  6/13/24   Fix double-free in lesskey parser; fix crash using small value 
                 for --line-num-width.
 v659  6/20/24   Fix typo in help.
-v660
+v660  6/24/24   Fix bug in ixerror.
 */
 
-char version[] = "660x";
+char version[] = "660";
