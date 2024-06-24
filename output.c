@@ -704,8 +704,11 @@ public void ixerror(constant char *fmt, PARG *parg)
 	if (!supports_ctrl_x())
 		ierror(fmt, parg);
 	else
-		ierror_suffix(fmt, parg,
-			"... (", prchar((LWCHAR) intr_char), " or interrupt to abort)");
+	{
+		char *ichar = save(prchar((LWCHAR) intr_char));
+		ierror_suffix(fmt, parg, "... (", ichar, " or interrupt to abort)");
+		free(ichar);
+	}
 }
 
 /*
