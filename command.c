@@ -2142,7 +2142,18 @@ public void commands(void)
 			 * Set a mark.
 			 */
 			if (ch_getflags() & CH_HELPFILE)
+			{
+				if (ungot != NULL)
+				{
+					/*
+					 * Probably from a lesskey file, in which case there 
+					 * is probably an ungotten letter from the "extra" string.
+					 * Eat it so it is not interpreted as a command.
+					 */
+					(void) getcc();
+				}
 				break;
+			}
 			start_mca(A_SETMARK, "set mark: ", NULL, 0);
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
