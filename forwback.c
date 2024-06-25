@@ -35,6 +35,7 @@ extern int ignore_eoi;
 extern int header_lines;
 extern int header_cols;
 extern int full_screen;
+extern int stop_on_form_feed;
 extern POSITION header_start_pos;
 #if HILITE_SEARCH
 extern size_t size_linebuf;
@@ -345,6 +346,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, int nblank)
 			continue;
 		}
 		put_line();
+		if (stop_on_form_feed && !do_repaint && line_is_ff() && position(TOP) != NULL_POSITION)
+			break;
 #if 0
 		/* {{ 
 		 * Can't call clear_eol here.  The cursor might be at end of line
@@ -431,6 +434,8 @@ public void back(int n, POSITION pos, lbool force, lbool only_last)
 			home();
 			add_line();
 			put_line();
+			if (stop_on_form_feed && line_is_ff())
+				break;
 		}
 	}
 	if (nlines == 0)

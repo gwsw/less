@@ -1330,6 +1330,10 @@ If the reopen succeeds and the file is a different file from the original
 with the same name as the original (now renamed) file),
 .B less
 will display the contents of that new file.
+.IP "\-\-form-feed"
+When scrolling forward or backward in the file,
+stop if a line beginning with a form feed character (\(haL) is reached.
+This can be useful when viewing a file which uses form feeds between pages.
 .IP "\-\-header=\fIL\fP,\fIC\fP,\fIN\fP"
 .RS
 Sets the number of header lines and columns displayed on the screen.

@@ -53,6 +53,7 @@ static int curr_last_ansi;
 public size_t size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
 static lbool ansi_in_line;
+static int ff_starts_line;
 static int hlink_in_line;
 static int line_mark_attr;
 static int cshift;   /* Current left-shift of output line buffer */
@@ -252,6 +253,7 @@ public void prewind(void)
 	pendc = '\0';
 	in_hilite = 0;
 	ansi_in_line = FALSE;
+	ff_starts_line = -1;
 	hlink_in_line = 0;
 	line_mark_attr = 0;
 	line_pos = NULL_POSITION;
@@ -1038,7 +1040,14 @@ public int pappend_b(char c, POSITION pos, lbool before_pendc)
 
 public int pappend(char c, POSITION pos)
 {
+	if (ff_starts_line < 0)
+		ff_starts_line = (c == CONTROL('L'));
 	return pappend_b(c, pos, FALSE);
+}
+
+public lbool line_is_ff(void)
+{
+	return (ff_starts_line == 1);
 }
 
 static int store_control_char(LWCHAR ch, constant char *rep, POSITION pos)

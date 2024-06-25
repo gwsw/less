@@ -221,6 +221,8 @@
                   Automatically determine the size of the input file.
                 --follow-name
                   The F command changes files if the input file is renamed.
+                --form-feed
+                  Stop scrolling when a form feed character is reached.
                 --header=[_L[,_C[,_N]]]
                   Use _L lines (starting at line _N) and _C columns as headers.
                 --incsearch
