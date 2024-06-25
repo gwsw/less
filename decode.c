@@ -37,6 +37,8 @@ extern int erase_char, erase2_char, kill_char;
 extern int mousecap;
 extern int sc_height;
 
+static constant lbool allow_drag = TRUE;
+
 /* "content" is lesskey source, never binary. */
 static void add_content_table(int (*call_lesskey)(constant char *, lbool), constant char *envname, lbool sysvar);
 static int add_hometable(int (*call_lesskey)(constant char *, lbool), constant char *envname, constant char *def_filename, lbool sysvar);
@@ -516,22 +518,42 @@ static int mouse_wheel_up(void)
 /*
  * Return action for the left mouse button trigger.
  */
-static int mouse_button_left(int x, int y)
+static int mouse_button_left(int x, int y, lbool down, lbool drag)
 {
-	/*
-	 * {{ It would be better to return an action and then do this 
-	 *    in commands() but it's nontrivial to pass y to it. }}
-	 */
-#if OSC8_LINK
-	if (osc8_click(y, x))
-		return (A_NOACTION);
-#else
-	(void) x;
-#endif /* OSC8_LINK */
-	if (y < sc_height-1)
+	static int last_drag_y = -1;
+	static int last_click_y = -1;
+
+	if (down && !drag)
 	{
-		setmark('#', y);
-		screen_trashed();
+		last_drag_y = last_click_y = y;
+	}
+	if (allow_drag && drag && last_drag_y >= 0)
+	{
+		/* Drag text up/down */
+		if (y > last_drag_y)
+		{
+			cmd_exec();
+			backward(y - last_drag_y, FALSE, FALSE);
+			last_drag_y = y;
+		} else if (y < last_drag_y)
+		{
+			cmd_exec();
+			forward(last_drag_y - y, FALSE, FALSE);
+			last_drag_y = y;
+		}
+	} else if (!down)
+	{
+#if OSC8_LINK
+		if (osc8_click(y, x))
+			return (A_NOACTION);
+#else
+		(void) x;
+#endif /* OSC8_LINK */
+		if (y < sc_height-1 && y == last_click_y)
+		{
+			setmark('#', y);
+			screen_trashed();
+		}
 	}
 	return (A_NOACTION);
 }
@@ -539,14 +561,14 @@ static int mouse_button_left(int x, int y)
 /*
  * Return action for the right mouse button trigger.
  */
-static int mouse_button_right(int x, int y)
+static int mouse_button_right(int x, int y, lbool down, lbool drag)
 {
-	(void) x;
+	(void) x; (void) drag;
 	/*
 	 * {{ unlike mouse_button_left, we could return an action,
 	 *    but keep it near mouse_button_left for readability. }}
 	 */
-	if (y < sc_height-1)
+	if (!down && y < sc_height-1)
 	{
 		gomark('#');
 		screen_trashed();
@@ -577,6 +599,19 @@ static int getcc_int(char *pterm)
 	}
 }
 
+static int x11mouse_button(int btn, int x, int y, lbool down, lbool drag)
+{
+	switch (btn) {
+	case X11MOUSE_BUTTON1:
+		return mouse_button_left(x, y, down, drag);
+	/* is BUTTON2 the rightmost with 2-buttons mouse? */
+	case X11MOUSE_BUTTON2:
+	case X11MOUSE_BUTTON3:
+		return mouse_button_right(x, y, down, drag);
+	}
+	return (A_NOACTION);
+}
+
 /*
  * Read suffix of mouse input and return the action to take.
  * The prefix ("\e[M") has already been read.
@@ -584,31 +619,28 @@ static int getcc_int(char *pterm)
 static int x11mouse_action(int skip)
 {
 	static int prev_b = X11MOUSE_BUTTON_REL;
+	int x, y;
 	int b = getcc() - X11MOUSE_OFFSET;
-	int x = getcc() - X11MOUSE_OFFSET-1;
-	int y = getcc() - X11MOUSE_OFFSET-1;
+	lbool drag = ((b & X11MOUSE_DRAG) != 0);
+	b &= ~X11MOUSE_DRAG;
+	x = getcc() - X11MOUSE_OFFSET-1;
+	y = getcc() - X11MOUSE_OFFSET-1;
 	if (skip)
 		return (A_NOACTION);
 	switch (b) {
-	default:
-		prev_b = b;
-		return (A_NOACTION);
 	case X11MOUSE_WHEEL_DOWN:
 		return mouse_wheel_down();
 	case X11MOUSE_WHEEL_UP:
 		return mouse_wheel_up();
-	case X11MOUSE_BUTTON_REL:
-		/* to trigger on button-up, we check the last button-down */
-		switch (prev_b) {
-		case X11MOUSE_BUTTON1:
-			return mouse_button_left(x, y);
-		/* is BUTTON2 the rightmost with 2-buttons mouse? */
-		case X11MOUSE_BUTTON2:
-		case X11MOUSE_BUTTON3:
-			return mouse_button_right(x, y);
-		}
-		return (A_NOACTION);
+	case X11MOUSE_BUTTON1:
+	case X11MOUSE_BUTTON2:
+	case X11MOUSE_BUTTON3:
+		prev_b = b;
+		return x11mouse_button(b, x, y, TRUE, drag);
+	case X11MOUSE_BUTTON_REL: /* button up */
+		return x11mouse_button(prev_b, x, y, FALSE, drag);
 	}
+	return (A_NOACTION);
 }
 
 /*
@@ -620,6 +652,8 @@ static int x116mouse_action(int skip)
 	char ch;
 	int x, y;
 	int b = getcc_int(&ch);
+	lbool drag = ((b & X11MOUSE_DRAG) != 0);
+	b &= ~X11MOUSE_DRAG;
 	if (b < 0 || ch != ';') return (A_NOACTION);
 	x = getcc_int(&ch) - 1;
 	if (x < 0 || ch != ';') return (A_NOACTION);
@@ -633,13 +667,15 @@ static int x116mouse_action(int skip)
 	case X11MOUSE_WHEEL_UP:
 		return mouse_wheel_up();
 	case X11MOUSE_BUTTON1:
-		if (ch != 'm') return (A_NOACTION);
-		return mouse_button_left(x, y);
-	default:
-		if (ch != 'm') return (A_NOACTION);
-		/* any other button release */
-		return mouse_button_right(x, y);
+	case X11MOUSE_BUTTON2:
+	case X11MOUSE_BUTTON3: {
+		lbool down = (ch == 'M');
+		lbool up = (ch == 'm');
+		if (up || down)
+			return x11mouse_button(b, x, y, down, drag);
+		break; }
 	}
+	return (A_NOACTION);
 }
 
 /*

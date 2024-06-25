@@ -108,7 +108,7 @@ static void multi_search(constant char *pattern, int n, int silent);
  * This looks nicer if the command takes a long time before
  * updating the screen.
  */
-static void cmd_exec(void)
+public void cmd_exec(void)
 {
 	clear_attn();
 	clear_bot();
