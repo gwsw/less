@@ -572,6 +572,7 @@ public POSITION next_unfiltered(POSITION pos)
 	if (pos_in_header(pos))
 		return (pos);
 
+	flush();
 	n = hlist_find(&filter_anchor, pos);
 	while (n != NULL && pos >= n->r.hl_startpos)
 	{
@@ -594,6 +595,7 @@ public POSITION prev_unfiltered(POSITION pos)
 	if (pos_in_header(pos))
 		return (pos);
 
+	flush();
 	n = hlist_find(&filter_anchor, pos);
 	while (n != NULL && pos >= n->r.hl_startpos)
 	{
@@ -1231,6 +1233,7 @@ static POSITION get_lastlinepos(POSITION pos, POSITION tpos, int sheight)
 {
 	int nlines;
 
+	flush();
 	for (nlines = 0;;  nlines++)
 	{
 		POSITION npos = forw_line(pos);
@@ -1526,6 +1529,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 	/* When the search wraps around, end at starting position. */
 	if ((search_type & SRCH_WRAP) && endpos == NULL_POSITION)
 		endpos = pos;
+	flush();
 	for (;;)
 	{
 		/*
