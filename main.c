@@ -62,7 +62,7 @@ static wchar_t consoleTitle[256];
 
 public int      one_screen;
 extern int      less_is_more;
-extern int      missing_cap;
+extern lbool    missing_cap;
 extern int      know_dumb;
 extern int      quit_if_one_screen;
 extern int      no_init;

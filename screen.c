@@ -242,9 +242,9 @@ public int so_s_width, so_e_width;      /* Printing width of standout seq */
 public int bl_s_width, bl_e_width;      /* Printing width of blink seq */
 public int above_mem, below_mem;        /* Memory retained above/below screen */
 public int can_goto_line;               /* Can move cursor to any line */
-public int clear_bg;            /* Clear fills with background color */
-public int missing_cap = 0;     /* Some capability is missing */
-public constant char *kent = NULL;       /* Keypad ENTER sequence */
+public int clear_bg;                    /* Clear fills with background color */
+public lbool missing_cap = FALSE;       /* Some capability is missing */
+public constant char *kent = NULL;      /* Keypad ENTER sequence */
 public lbool term_init_done = FALSE;
 public lbool full_screen = TRUE;
 
@@ -1341,21 +1341,21 @@ public void get_term(void)
 	sc_eol_clear = ltgetstr("ce", &sp);
 	if (sc_eol_clear == NULL || *sc_eol_clear == '\0')
 	{
-		missing_cap = 1;
+		missing_cap = TRUE;
 		sc_eol_clear = "";
 	}
 
 	sc_eos_clear = ltgetstr("cd", &sp);
 	if (below_mem && (sc_eos_clear == NULL || *sc_eos_clear == '\0'))
 	{
-		missing_cap = 1;
+		missing_cap = TRUE;
 		sc_eos_clear = "";
 	}
 
 	sc_clear = ltgetstr("cl", &sp);
 	if (sc_clear == NULL || *sc_clear == '\0')
 	{
-		missing_cap = 1;
+		missing_cap = TRUE;
 		sc_clear = "\n\n";
 	}
 
@@ -1494,7 +1494,7 @@ static constant char * cheaper(constant char *t1, constant char *t2, constant ch
 {
 	if (*t1 == '\0' && *t2 == '\0')
 	{
-		missing_cap = 1;
+		missing_cap = TRUE;
 		return (def);
 	}
 	if (*t1 == '\0')
