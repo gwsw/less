@@ -705,9 +705,9 @@ public void ixerror(constant char *fmt, PARG *parg)
 		ierror(fmt, parg);
 	else
 	{
-		char *ichar = save(prchar((LWCHAR) intr_char));
+		char ichar[MAX_PRCHAR_LEN+1];
+		strcpy(ichar, prchar((LWCHAR) intr_char));
 		ierror_suffix(fmt, parg, "... (", ichar, " or interrupt to abort)");
-		free(ichar);
 	}
 }
 
