@@ -20,6 +20,7 @@ public lbool squished;
 public int no_back_scroll = 0;
 public int forw_prompt;
 public int first_time = 1;
+public int onescreen_offset = 0;
 public lbool no_eof_bell = FALSE;
 
 extern int sigs;
@@ -87,7 +88,7 @@ public lbool eof_displayed(void)
 	 * If the bottom line ends at the file length,
 	 * we must be just at EOF.
 	 */
-	pos = position(BOTTOM_PLUS_ONE);
+	pos = position(onescreen_offset ? BOTTOM_OFFSET : BOTTOM_PLUS_ONE);
 	return (pos == NULL_POSITION || pos == ch_length());
 }
 
@@ -535,10 +536,17 @@ public int get_one_screen(void)
 	int nlines;
 	POSITION pos = ch_zero();
 
-	for (nlines = 0;  nlines < sc_height;  nlines++)
+	int offn, offheight;
+	const char *off = lgetenv("LESS_ONESCREEN_OFFSET");
+
+	offn = off == NULL ? 0 : atoi(off);
+	onescreen_offset = offn < 0 ? 0 : offn < sc_height ? offn : 0;
+	offheight = sc_height - onescreen_offset;
+
+	for (nlines = 0; nlines < offheight; nlines++)
 	{
 		pos = forw_line(pos);
 		if (pos == NULL_POSITION) break;
 	}
-	return (nlines < sc_height);
+	return (nlines < offheight);
 }

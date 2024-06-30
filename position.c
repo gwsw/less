@@ -26,6 +26,7 @@ static int table_size = 0;
 
 extern int sc_width, sc_height;
 extern int hshift;
+extern int onescreen_offset;
 
 /*
  * Return the starting file position of a line displayed on the screen.
@@ -45,6 +46,9 @@ public POSITION position(int sindex)
 		break;
 	case BOTTOM_PLUS_ONE:
 		sindex = sc_height - 1;
+		break;
+	case BOTTOM_OFFSET:
+		sindex = sc_height - onescreen_offset - 1;
 		break;
 	case MIDDLE:
 		sindex = (sc_height - 1) / 2;

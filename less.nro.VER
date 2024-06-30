@@ -2459,6 +2459,12 @@ so scrolling may be slower.
 Duration (in milliseconds) after starting to read data from the input,
 after which the "Waiting for data" message will be displayed.
 The default is 4000 (4 seconds).
+.IP LESS_ONESCREEN_OFFSET
+Reduce the number of input lines needed to trigger paging with the \-F
+(\-\-quit-if-one-screen) option.  By default (value 0), paging happens only
+if the input exceeds one less lines than screen height.  Incrementing
+this value decreases that threshold.  Use if your shell prompt contains extra
+newlines, so no unpaged output scrolls off the screen.
 .IP LESS_IS_MORE
 Emulate the
 .BR more (1)
