@@ -294,7 +294,8 @@ int main(int argc, constant char *argv[])
 	 * If the name of the executable program is "more",
 	 * act like LESS_IS_MORE is set.
 	 */
-	if (strcmp(last_component(progname), "more") == 0)
+	if (strcmp(last_component(progname), "more") == 0 &&
+			isnullenv(lgetenv("LESS_IS_MORE")))
 		less_is_more = 1;
 
 	init_prompt();
