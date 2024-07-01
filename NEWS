@@ -15,6 +15,8 @@
 
 * Add --no-paste option (github #523).
 
+* Add --no-edit-warn option (github #513).
+
 * Make TAB complete option name in -- command (github #531).
 
 * Make -R pass through all OSC escape sequences (not just OSC 8)

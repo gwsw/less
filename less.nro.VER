@@ -1436,6 +1436,10 @@ and on the Windows version of
 .IP "\-\-MOUSE"
 Like \-\-mouse, except the direction scrolled
 on mouse wheel movement is reversed.
+.IP "\-\-no-edit-warn"
+Don't print a warning message when using the v command
+on a file which was opened using a LESSOPEN preprocessor
+(see the INPUT PREPROCESSOR section below).
 .IP "\-\-no-keypad"
 Disables sending the keypad initialization and deinitialization strings
 to the terminal.

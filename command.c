@@ -49,6 +49,7 @@ extern int def_search_type;
 extern lbool search_wrapped;
 extern int no_paste;
 extern lbool pasting;
+extern int no_edit_warn;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
@@ -1941,10 +1942,9 @@ public void commands(void)
 					error("Cannot edit standard input", NULL_PARG);
 					break;
 				}
-				if (get_altfilename(curr_ifile) != NULL)
+				if (!no_edit_warn && get_altfilename(curr_ifile) != NULL)
 				{
-					error("WARNING: This file was viewed via LESSOPEN",
-						NULL_PARG);
+					error("WARNING: This file was viewed via LESSOPEN", NULL_PARG);
 				}
 				start_mca(A_SHELL, "!", ml_shell, 0);
 				/*

@@ -241,6 +241,8 @@
                   Read _N lines from the input file and look for vim modelines.
                 --mouse
                   Enable mouse input.
+                --no-edit-warn
+                  Don't warn when using v command on a file opened via LESSOPEN.
                 --no-keypad
                   Don't send termcap keypad init/deinit strings.
                 --no-histdups
