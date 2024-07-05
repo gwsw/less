@@ -2315,7 +2315,8 @@ In that case, the LESSSECURE and LESSSECURE_ALLOW variables are ignored.
 .
 .SH "COMPATIBILITY WITH MORE"
 If the environment variable LESS_IS_MORE is set to 1,
-or if the program is invoked via a file link named "more",
+or if the program is invoked via a file link named "more"
+and the environment variable LESS_IS_MORE is not set to 0,
 .B less
 behaves (mostly) in conformance with the POSIX 
 .BR more (1)
