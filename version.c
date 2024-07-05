@@ -1022,7 +1022,8 @@ v658  6/13/24   Fix double-free in lesskey parser; fix crash using small value
 v659  6/20/24   Fix typo in help.
 v660  6/24/24   Fix bug in ixerror.
 v661  6/29/24   Simpler fix for ixerror bug.
-v659.1          Add --no-paste; add --no-edit-warn; add TAB for -- command.
+v659.1          Add --no-paste; add --no-edit-warn; add TAB for -- command;
+                add LESSANSIOSCALLOW and LESSANSIOSCCCHARS.
 */
 
 char version[] = "659.1x";

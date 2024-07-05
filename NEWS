@@ -19,8 +19,14 @@
 
 * Make TAB complete option name in -- command (github #531).
 
-* Make -R pass through all OSC escape sequences (not just OSC 8)
-  (github #504).
+* Make -R able to pass through any OSC escape sequences,
+  not just OSC 8 (github #504).
+
+* Pass through escape sequences in prompts even if -R is not set.
+
+* Add LESSANSIOSCALLOW to define OSC types which may be passed through.
+
+* Add LESSANSIOSCCHARS to define non-standard OSC intro chars.
 
 * Fix bug when coloring prompt string with SGR sequences (github #516).
 

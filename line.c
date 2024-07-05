@@ -54,7 +54,7 @@ public size_t size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
 static lbool ansi_in_line;
 static int ff_starts_line;
-static int hlink_in_line;
+static lbool hlink_in_line;
 static int line_mark_attr;
 static int cshift;   /* Current left-shift of output line buffer */
 public int hshift;   /* Desired left-shift of output line buffer */
@@ -75,6 +75,8 @@ static POSITION pendpos;
 static constant char *end_ansi_chars;
 static constant char *mid_ansi_chars;
 static constant char *osc_ansi_chars;
+static int osc_ansi_allow_count;
+static long *osc_ansi_allow;
 static int in_hilite;
 
 static int attr_swidth(int a);
@@ -140,7 +142,8 @@ static struct color_map color_map[] = {
 /* State while processing an ANSI escape sequence */
 struct ansi_state {
 	osc8_state ostate; /* State while processing OSC8 sequence */
-	unsigned int otype;
+	unsigned int otype; /* OSC type number */
+	unsigned int escs_in_seq;
 };
 
 /*
@@ -149,6 +152,7 @@ struct ansi_state {
 public void init_line(void)
 {
 	int ax;
+	constant char *s;
 
 	end_ansi_chars = lgetenv("LESSANSIENDCHARS");
 	if (isnullenv(end_ansi_chars))
@@ -161,6 +165,28 @@ public void init_line(void)
 	osc_ansi_chars = lgetenv("LESSANSIOSCCHARS");
 	if (isnullenv(osc_ansi_chars))
 		osc_ansi_chars = "";
+
+	osc_ansi_allow_count = 0;
+	s = lgetenv("LESSANSIOSCALLOW");
+	if (!isnullenv(s))
+	{
+		struct xbuffer xbuf;
+		xbuf_init(&xbuf);
+		for (;;)
+		{
+			long num;
+			s = skipspc(s);
+			if (*s == '\0')
+				break;
+			num = lstrtoulc(s, &s, 10);
+			s = skipspc(s);
+			if (*s == ',')
+				++s;
+			xbuf_add_data(&xbuf, (constant void *) &num, sizeof(num));
+			++osc_ansi_allow_count;
+		}
+		osc_ansi_allow = (long *) xbuf.data;
+	}
 
 	linebuf.buf = (char *) ecalloc(LINEBUF_SIZE, sizeof(char));
 	linebuf.attr = (int *) ecalloc(LINEBUF_SIZE, sizeof(int));
@@ -254,7 +280,7 @@ public void prewind(void)
 	in_hilite = 0;
 	ansi_in_line = FALSE;
 	ff_starts_line = -1;
-	hlink_in_line = 0;
+	hlink_in_line = FALSE;
 	line_mark_attr = 0;
 	line_pos = NULL_POSITION;
 	xbuf_reset(&shifted_ansi);
@@ -616,7 +642,36 @@ public struct ansi_state * ansi_start(LWCHAR ch)
 	pansi = ecalloc(1, sizeof(struct ansi_state));
 	pansi->ostate = OSC_START;
 	pansi->otype = 0;
+	pansi->escs_in_seq = 0;
 	return pansi;
+}
+
+/*
+ * Is a character a valid intro char for an OSC sequence?
+ * An intro char is the one immediately after the ESC, usually ']'.
+ */
+static lbool valid_osc_intro(char ch, lbool content)
+{
+	constant char *p = strchr(osc_ansi_chars, ch);
+	if (p == NULL)
+		return FALSE;
+	return (!content || p[1] == '*');
+}
+
+/*
+ * Is a given number a valid OSC type?
+ */
+static lbool valid_osc_type(int otype, lbool content)
+{
+	int i;
+	if (!content)
+		return TRUE;
+	if (otype == 8)
+		return TRUE;
+	for (i = 0;  i < osc_ansi_allow_count;  i++)
+		if (osc_ansi_allow[i] == otype)
+			return TRUE;
+	return FALSE;
 }
 
 /*
@@ -632,28 +687,29 @@ static ansi_state osc_return(struct ansi_state *pansi, osc8_state ostate, ansi_s
  * Determine whether the next char in an ANSI escape sequence
  * ends the sequence.
  */
-public ansi_state ansi_step(struct ansi_state *pansi, LWCHAR ch)
+static ansi_state ansi_step2(struct ansi_state *pansi, LWCHAR ch, lbool content)
 {
 	/*
 	 * Pass thru OS commands. Assume OSC commands do not move the cursor.
 	 * A "typed" OSC starts with ESC ] <integer> <semicolon>, followed by an
 	 * arbitrary string, and ends with a String Terminator (ESC-backslash or BEL).
-	 * An untyped OSC starts with ESC ] and ends with ST.
+	 * An untyped OSC starts with ESC ] or ESC x where x is in osc_ansi_chars,
+	 * and ends with ST.
 	 * The only typed OSC we actually parse is OSC 8.
 	 */
 	switch (pansi->ostate)
 	{
 	case OSC_START:
 		if (IS_CSI_START(ch))
-			return osc_return(pansi, OSC_BRACKET, ANSI_MID);
+			return osc_return(pansi, OSC_INTRO, ANSI_MID);
 		break;
-	case OSC_BRACKET:
+	case OSC_INTRO:
 		if (ch == ']')
 			return osc_return(pansi, OSC_TYPENUM, ANSI_MID);
-		if (is_ascii_char(ch) && strchr(osc_ansi_chars, (char) ch) != NULL)
+		if (is_ascii_char(ch) && valid_osc_intro((char) ch, content))
 			return osc_return(pansi, OSC_STRING, ANSI_MID);
 		if (IS_CSI_START(ch))
-			return osc_return(pansi, OSC_BRACKET, ANSI_MID);
+			return osc_return(pansi, OSC_INTRO, ANSI_MID);
 		/* ESC not followed by bracket; restart. */
 		pansi->ostate = OSC_START;
 		break;
@@ -681,15 +737,18 @@ public ansi_state ansi_step(struct ansi_state *pansi, LWCHAR ch)
 	case OSC_STRING:
 		/* Look for ST. */
 		if (ch == '\7')
-			return osc_return(pansi, OSC_END, ANSI_END);
+			return osc_return(pansi, OSC_END, valid_osc_type(pansi->otype, content) ? ANSI_END : ANSI_ERR);
 		if (IS_CSI_START(ch))
+		{
+			pansi->escs_in_seq++;
 			return osc_return(pansi, OSC_END_CSI, ANSI_MID);
+		}
 		/* Stay in same ostate */
 		return ANSI_MID;
 	case OSC_END_CSI:
 		/* Got ESC of ST, expect backslash next. */
 		if (ch == '\\')
-			return osc_return(pansi, OSC_END, ANSI_END);
+			return osc_return(pansi, OSC_END, valid_osc_type(pansi->otype, content) ? ANSI_END : ANSI_ERR);
 		/* ESC not followed by backslash. */
 		return osc_return(pansi, OSC_STRING, ANSI_MID);
 	case OSC_END:
@@ -704,6 +763,11 @@ public ansi_state ansi_step(struct ansi_state *pansi, LWCHAR ch)
 	if (is_ansi_end(ch))
 		return ANSI_END;
 	return ANSI_ERR;
+}
+
+public ansi_state ansi_step(struct ansi_state *pansi, LWCHAR ch)
+{
+	return ansi_step2(pansi, ch, TRUE);
 }
 
 /*
@@ -1066,12 +1130,15 @@ static int store_control_char(LWCHAR ch, constant char *rep, POSITION pos)
 
 static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 {
-	switch (ansi_step(line_ansi, ch))
+	switch (ansi_step2(line_ansi, ch, pos != NULL_POSITION))
 	{
 	case ANSI_MID:
 		STORE_CHAR(ch, AT_ANSI, rep, pos);
-		if (ansi_osc8_state(line_ansi) == OSC8_PARAMS)
-			hlink_in_line = 1;
+		switch (ansi_osc8_state(line_ansi))
+		{
+		case OSC_TYPENUM: case OSC_STRING: hlink_in_line = TRUE; break;
+		default: break;
+		}
 		xbuf_add_char(&last_ansi, (char) ch);
 		break;
 	case ANSI_END:
@@ -1092,7 +1159,7 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 			LWCHAR bch;
 			do {
 				bch = step_charc(&p, -1, start);
-			} while (p > start && !IS_CSI_START(bch));
+			} while (p > start && (!IS_CSI_START(bch) || line_ansi->escs_in_seq-- > 0));
 			*end = ptr_diff(p, start);
 		}
 		xbuf_reset(&last_ansi);
@@ -1125,7 +1192,7 @@ static int do_append(LWCHAR ch, constant char *rep, POSITION pos)
 	int a = AT_NORMAL;
 	int in_overstrike = overstrike;
 
-	if (ctldisp == OPT_ONPLUS && line_ansi == NULL)
+	if ((ctldisp == OPT_ONPLUS || pos == NULL_POSITION) && line_ansi == NULL)
 	{
 		line_ansi = ansi_start(ch);
 		if (line_ansi != NULL)
@@ -1242,6 +1309,22 @@ public int pflushmbc(void)
  */
 static void add_attr_normal(void)
 {
+	if (line_ansi != NULL)
+	{
+		switch (line_ansi->ostate)
+		{
+		case OSC_TYPENUM:
+		case OSC8_PARAMS:
+		case OSC8_URI:
+		case OSC_STRING:
+			addstr_linebuf("\033\\", AT_ANSI, 0);
+			break;
+		default:
+			break;
+		}
+		ansi_done(line_ansi);
+		line_ansi = NULL;
+	}
 	if (ctldisp != OPT_ONPLUS || !is_ansi_end('m'))
 		return;
 	addstr_linebuf("\033[m", AT_ANSI, 0);

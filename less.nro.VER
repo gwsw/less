@@ -1126,32 +1126,34 @@ each type of control character).
 Thus, various display problems may result,
 such as long lines being split in the wrong place.
 .sp
-USE OF THE \-r OPTION IS NOT RECOMMENDED.
+USE OF THE \-r OPTION IS DANGEROUS AND IS NOT RECOMMENDED.
 .IP "\-R or \-\-RAW-CONTROL-CHARS"
-Like \-r, but only ANSI "color" escape sequences and OSC 8 hyperlink
+Like \-r, but only a limited set of escape 
 sequences are output in "raw" form.
-Unlike \-r, the screen appearance is maintained correctly,
-provided that there are no escape sequences in the file 
-other than these types of escape sequences.
-Color escape sequences are only supported when the color
-is changed within one line, not across lines. 
-In other words, the beginning of each line is assumed to be
-normal (non-colored), regardless of any escape sequences in previous lines.
-For the purpose of keeping track of screen appearance,
-these escape sequences are assumed to not move the cursor.
+Unlike \-r, the screen appearance is maintained correctly.
+The sequences which are output raw are:
 .sp
-OSC 8 hyperlinks are sequences of the form:
+1. ANSI SGR ("color") sequences
 .sp
-	ESC ] 8 ; \&...\& \\7
+2. OSC 8 hyperlinks
 .sp
-The terminating sequence may be either a BEL character (\\7) 
-or the two-character sequence "ESC \\".
+3. Other OSC sequences, if the OSC type number is listed in
+the LESSANSIOSCALLOW environment variable
+.sp
+4. OSC sequences starting with a non-standard introductory character
+(that is, something other than "]"), if the character is listed in
+the LESSANSIOSCCHARS environment variable followed by an asterisk
 .sp
 ANSI color escape sequences are sequences of the form:
 .sp
 	ESC [ \&...\& m
 .sp
 where the "...\&" is zero or more color specification characters.
+Color escape sequences are only supported when the color
+is changed within one line, not across lines. 
+In other words, the beginning of each line is assumed to be
+normal (non-colored), regardless of any escape sequences in previous lines.
+.sp
 You can make
 .B less
 think that characters other than "m" can end ANSI color escape sequences
@@ -1162,6 +1164,14 @@ And you can make
 think that characters other than the standard ones may appear between
 the ESC and the m by setting the environment variable LESSANSIMIDCHARS
 to the list of characters which can appear.
+.sp
+OSC sequences are of the form:
+.sp
+	ESC ] N ; \&...\& \\7
+.sp
+where the OSC type number N is a decimal integer.
+The terminating sequence may be either a BEL character (\\7) 
+as above, or the two-character sequence "ESC \\".
 .IP "\-s or \-\-squeeze-blank-lines"
 Causes consecutive blank lines to be squeezed into a single blank line.
 This is useful when viewing
@@ -2376,6 +2386,10 @@ Characters which may end an ANSI color escape sequence
 Characters which may appear between the ESC character and the
 end character in an ANSI color escape sequence
 (default "0123456789:;[?!"\(aq#%()*+\ ").
+.IP LESSANSIOSCALLOW
+A comma-separated list of OSC types which are output directly to the
+terminal when \-R is in effect.
+By default, only OSC 8 sequences are output directly.
 .IP LESSANSIOSCCHARS
 Characters which may follow an ESC character to mark the start
 of an "OS Command" sequence. 
@@ -2383,6 +2397,10 @@ All characters that follow this character up to a
 String Terminator (ESC-backslash or BEL)
 are considered to be part of the OSC sequence 
 (default "]").
+If a character in LESSANSIOSCCHARS is followed by an asterisk,
+sequences that begin with that character in the file contents 
+are passed through to the terminal;
+otherwise only sequences that appear in a prompt string are passed through.
 .IP LESSBINFMT
 Format for displaying non-printable, non-control characters.
 .IP LESSCHARDEF
