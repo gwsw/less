@@ -1,0 +1,31 @@
+#!/bin/sh
+usage="usage: remaketest FILE.lt..."
+
+# Create a .lt file, using the same inputs as were used to create an existing .lt file.
+# Moves the current .lt file to xxx.lt.old
+
+if [ $# -eq 0 -o "$1" = '-?' -o "$1" = '--help' ]; then echo $usage; exit 1; fi
+
+lt_dir=.
+for lt_file in "$@"; do
+    if [ ! -r "$lt_file" ]; then echo "cannot open $lt_file"; exit 1; fi
+    
+    # "extract -v" prints the text file name on stderr.
+    if $lt_dir/extract -fv "$lt_file" >"$lt_file.textname" 2>&1; then
+        text_file=$(sed 's/:.*//' < "$lt_file.textname")
+    else
+        rm -f "$lt_file.textname"
+        exit 1
+    fi
+    rm -f "$lt_file.textname"
+    if [ ! -r "$text_file" ]; then echo "cannot read $text_file"; exit 1; fi
+
+    # Extract the input keypresses from lt_file and pass them to maketest.
+    if $lt_dir/extract -k "$lt_file" > "$lt_file.k" && 
+       $lt_dir/maketest -o "$lt_file.new" "-Ok$lt_file.k" "$text_file"; then
+        mv -f "$lt_file" "$lt_file.old"
+        mv "$lt_file.new" "$lt_file" 
+    fi
+    rm -f "$text_file" "$lt_file.k"
+    echo "remade $lt_file"
+done
