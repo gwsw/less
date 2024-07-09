@@ -616,7 +616,7 @@ static int x11mouse_button(int btn, int x, int y, lbool down, lbool drag)
  * Read suffix of mouse input and return the action to take.
  * The prefix ("\e[M") has already been read.
  */
-static int x11mouse_action(int skip)
+static int x11mouse_action(lbool skip)
 {
 	static int prev_b = X11MOUSE_BUTTON_REL;
 	int x, y;
@@ -647,7 +647,7 @@ static int x11mouse_action(int skip)
  * Read suffix of mouse input and return the action to take.
  * The prefix ("\e[<") has already been read.
  */
-static int x116mouse_action(int skip)
+static int x116mouse_action(lbool skip)
 {
 	char ch;
 	int x, y;
@@ -679,94 +679,84 @@ static int x116mouse_action(int skip)
 }
 
 /*
+ * Return the largest N such that the first N chars of goal
+ * are equal to the last N chars of str.
+ */
+static size_t cmd_match(constant char *goal, constant char *str)
+{
+	size_t slen = strlen(str);
+	size_t len;
+	for (len = slen;  len > 0;  len--)
+		if (strncmp(str + slen - len, goal, len) == 0)
+			break;
+	return len;
+}
+
+/*
+ * Return pointer to next command table entry.
+ * Also return the action and the extra string from the entry.
+ */
+static constant unsigned char * cmd_next_entry(constant unsigned char *entry, mutable int *action, mutable constant unsigned char **extra, mutable size_t *cmdlen)
+{
+	int a;
+	constant unsigned char *oentry = entry;
+	while (*entry != '\0') /* skip cmd */
+		++entry;
+	if (cmdlen != NULL)
+		*cmdlen = ptr_diff(entry, oentry);
+	a = *++entry; /* get action */
+	while (a == A_SKIP)
+		a = *++entry;
+	++entry; /* skip action */
+	if (extra != NULL)
+		*extra = (a & A_EXTRA) ? entry : NULL;
+	if (a & A_EXTRA)
+	{
+		while (*entry != '\0') /* skip extra string */
+			++entry;
+		++entry; /* skip the terminating null */
+		a &= ~A_EXTRA;
+	}
+	if (action != NULL)
+		*action = a;
+	return entry;
+}
+
+/*
  * Search a single command table for the command string in cmd.
  */
-static int cmd_search(constant char *cmd, constant char *table, constant char *endtable, constant char **sp)
+static int cmd_search(constant char *cmd, constant unsigned char *table, constant unsigned char *endtable, constant unsigned char **extra)
 {
-	constant char *p;
-	constant char *q;
-	int a = A_INVALID;
-
-	*sp = NULL;
-	for (p = table, q = cmd;  p < endtable;  p++, q++)
+	int action = A_INVALID;
+	size_t match_len = 0;
+	if (extra != NULL)
+		*extra = NULL;
+	while (table < endtable)
 	{
-		if (*p == *q)
+		int taction;
+		const unsigned char *textra;
+		size_t cmdlen;
+		size_t match = cmd_match((constant char *) table, cmd);
+		table = cmd_next_entry(table, &taction, &textra, &cmdlen);
+		if (taction == A_END_LIST)
+			return (A_UINVALID);
+		if (match == cmdlen && match >= match_len) /* (last chars of) cmd matches this table entry */
 		{
-			/*
-			 * Current characters match.
-			 * If we're at the end of the string, we've found it.
-			 * Return the action code, which is the character
-			 * after the null at the end of the string
-			 * in the command table.
-			 */
-			if (*p == '\0')
-			{
-				a = *++p & 0377;
-				while (a == A_SKIP)
-					a = *++p & 0377;
-				if (a == A_END_LIST)
-				{
-					/*
-					 * We get here only if the original
-					 * cmd string passed in was empty ("").
-					 * I don't think that can happen,
-					 * but just in case ...
-					 */
-					return (A_UINVALID);
-				}
-				/*
-				 * Check for an "extra" string.
-				 */
-				if (a & A_EXTRA)
-				{
-					*sp = ++p;
-					while (*p != '\0')
-						++p;
-					a &= ~A_EXTRA;
-				}
-				if (a == A_X11MOUSE_IN)
-					a = x11mouse_action(0);
-				else if (a == A_X116MOUSE_IN)
-					a = x116mouse_action(0);
-				q = cmd-1;
-			}
-		} else if (*q == '\0')
+			action = taction;
+			*extra = textra;
+			if (action == A_X11MOUSE_IN)
+				action = x11mouse_action(FALSE);
+			else if (action == A_X116MOUSE_IN)
+				action = x116mouse_action(FALSE);
+		} else if (match > 0) /* cmd is a prefix of this table entry */
 		{
-			/*
-			 * Hit the end of the user's command,
-			 * but not the end of the string in the command table.
-			 * The user's command is incomplete.
-			 */
-			if (a == A_INVALID)
-				a = A_PREFIX;
-			q = cmd-1;
-		} else
-		{
-			/*
-			 * Not a match.
-			 * Skip ahead to the next command in the
-			 * command table, and reset the pointer
-			 * to the beginning of the user's command.
-			 */
-			if (*p == '\0' && p[1] == A_END_LIST)
-			{
-				/*
-				 * A_END_LIST is a special marker that tells 
-				 * us to abort the cmd search.
-				 */
-				return (A_UINVALID);
-			}
-			while (*p++ != '\0')
-				continue;
-			while (*p == A_SKIP)
-				p++;
-			if (*p & A_EXTRA)
-				while (*++p != '\0')
-					continue;
-			q = cmd-1;
+			if (action == A_INVALID)
+				action = A_PREFIX;
 		}
+		if (match > match_len)
+			match_len = match;
 	}
-	return (a);
+	return (action);
 }
 
 /*
@@ -785,14 +775,14 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 	*sp = NULL;
 	for (t = tlist;  t != NULL;  t = t->t_next)
 	{
-		constant char *tsp;
-		int taction = cmd_search(cmd, (char *) t->t_start, (char *) t->t_end, &tsp);
+		constant unsigned char *tsp;
+		int taction = cmd_search(cmd, t->t_start, t->t_end, &tsp);
 		if (taction == A_UINVALID)
 			taction = A_INVALID;
 		if (taction != A_INVALID)
 		{
 			action = taction;
-			*sp = tsp;
+			*sp = (constant char *) tsp;
 		}
 	}
 	return (action);
@@ -813,6 +803,7 @@ public int ecmd_decode(constant char *cmd, constant char **sp)
 {
 	return (cmd_decode(list_ecmd_tables, cmd, sp));
 }
+
 
 /*
  * Get the value of an environment variable.
@@ -1164,9 +1155,9 @@ public int editchar(char c, int flags)
 	} while (action == A_PREFIX && nch < MAX_CMDLEN);
 
 	if (action == EC_X11MOUSE)
-		return (x11mouse_action(1));
+		return (x11mouse_action(TRUE));
 	if (action == EC_X116MOUSE)
-		return (x116mouse_action(1));
+		return (x116mouse_action(TRUE));
 
 	if (flags & ECF_NORIGHTLEFT)
 	{
