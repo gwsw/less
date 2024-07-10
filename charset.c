@@ -760,7 +760,10 @@ public LWCHAR step_charc(constant char **pp, signed int dir, constant char *limi
 		if (p + len > limit)
 		{
 			ch = 0;
-			p = (char *) limit;
+			p = limit;
+		} else if (!is_utf8_well_formed(p, len))
+		{
+			ch = *p++ & 0xff;
 		} else
 		{
 			ch = get_wchar(p);
@@ -770,10 +773,22 @@ public LWCHAR step_charc(constant char **pp, signed int dir, constant char *limi
 	{
 		while (p > limit && IS_UTF8_TRAIL(p[-1]))
 			p--;
-		if (p > limit)
-			ch = get_wchar(--p);
-		else
+		if (p <= limit)
+		{
 			ch = 0;
+			p = limit;
+		} else
+		{
+			--p;
+			if (!is_utf8_well_formed(p, ptr_diff(*pp, p)))
+			{
+				p = *pp - 1;
+				ch = *p & 0xff;
+			} else
+			{
+				ch = get_wchar(p);
+			}
+		}
 	}
 	*pp = p;
 	return ch;
