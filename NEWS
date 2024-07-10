@@ -31,7 +31,12 @@
 
 * Add LESSANSIOSCCHARS to define non-standard OSC intro chars.
 
+* Fix unexpected behavior when entering a partial command followed by 
+  a valid command (github #543).
+
 * Fix bug when coloring prompt string with SGR sequences (github #516).
+
+* Fix bug when searching for text near an invalid UTF-8 sequence (github #542).
 
 ======================================================================
 
