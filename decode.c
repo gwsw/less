@@ -740,7 +740,7 @@ static int cmd_search(constant char *cmd, constant unsigned char *table, constan
 		table = cmd_next_entry(table, &taction, &textra, &cmdlen);
 		if (taction == A_END_LIST)
 			return (A_UINVALID);
-		if (match > match_len)
+		if (match >= match_len)
 		{
 			if (match == cmdlen) /* (last chars of) cmd matches this table entry */
 			{
@@ -750,7 +750,7 @@ static int cmd_search(constant char *cmd, constant unsigned char *table, constan
 					action = x11mouse_action(FALSE);
 				else if (action == A_X116MOUSE_IN)
 					action = x116mouse_action(FALSE);
-			} else /* cmd is a prefix of this table entry */
+			} else if (match > 0) /* cmd is a prefix of this table entry */
 			{
 				action = A_PREFIX;
 			}
