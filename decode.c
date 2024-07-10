@@ -704,17 +704,16 @@ static constant unsigned char * cmd_next_entry(constant unsigned char *entry, mu
 		++entry;
 	if (cmdlen != NULL)
 		*cmdlen = ptr_diff(entry, oentry);
-	a = *++entry; /* get action */
-	while (a == A_SKIP)
-		a = *++entry;
+	do 
+		a = *++entry; /* get action */
+	while (a == A_SKIP);
 	++entry; /* skip action */
 	if (extra != NULL)
 		*extra = (a & A_EXTRA) ? entry : NULL;
 	if (a & A_EXTRA)
 	{
-		while (*entry != '\0') /* skip extra string */
-			++entry;
-		++entry; /* skip the terminating null */
+		while (*entry++ != '\0') /* skip extra string */
+			continue;
 		a &= ~A_EXTRA;
 	}
 	if (action != NULL)
