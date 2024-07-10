@@ -725,7 +725,7 @@ static constant unsigned char * cmd_next_entry(constant unsigned char *entry, mu
 /*
  * Search a single command table for the command string in cmd.
  */
-static int cmd_search(constant char *cmd, constant unsigned char *table, constant unsigned char *endtable, constant unsigned char **extra)
+static int cmd_search(constant char *cmd, constant unsigned char *table, constant unsigned char *endtable, constant unsigned char **extra, size_t *mlen)
 {
 	int action = A_INVALID;
 	size_t match_len = 0;
@@ -757,6 +757,8 @@ static int cmd_search(constant char *cmd, constant unsigned char *table, constan
 			match_len = match;
 		}
 	}
+	if (mlen != NULL)
+		*mlen = match_len;
 	return (action);
 }
 
@@ -768,6 +770,7 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 {
 	struct tablelist *t;
 	int action = A_INVALID;
+	int match_len = 0;
 
 	/*
 	 * Search for the cmd thru all the command tables.
@@ -777,13 +780,18 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 	for (t = tlist;  t != NULL;  t = t->t_next)
 	{
 		constant unsigned char *tsp;
-		int taction = cmd_search(cmd, t->t_start, t->t_end, &tsp);
-		if (taction == A_UINVALID)
-			taction = A_INVALID;
-		if (taction != A_INVALID)
+		size_t mlen;
+		int taction = cmd_search(cmd, t->t_start, t->t_end, &tsp, &mlen);
+		if (mlen >= match_len)
 		{
-			action = taction;
-			*sp = (constant char *) tsp;
+			match_len = mlen;
+			if (taction == A_UINVALID)
+				taction = A_INVALID;
+			if (taction != A_INVALID)
+			{
+				action = taction;
+				*sp = (constant char *) tsp;
+			}
 		}
 	}
 	return (action);
