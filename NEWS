@@ -11,6 +11,14 @@
 
 ======================================================================
 
+	Major changes between "less" versions 661 and 662
+
+* Make 256/true colors work better without -Da.
+
+* Fix build using --with-secure.
+
+======================================================================
+
 	Major changes between "less" versions 643 and 661
 
 * Add ^O^N, ^O^P, ^O^L and ^O^O commands and mouse clicks (with --mouse)
