@@ -756,34 +756,33 @@ public LWCHAR step_charc(constant char **pp, signed int dir, constant char *limi
 			ch = (LWCHAR) (unsigned char) ((p > limit) ? *--p : 0);
 	} else if (dir > 0)
 	{
-		len = utf_len(*p);
-		if (p + len > limit)
-		{
+		if (p >= limit)
 			ch = 0;
-			p = limit;
-		} else if (!is_utf8_well_formed(p, len))
+		else 
 		{
-			ch = *p++ & 0xff;
-		} else
-		{
-			ch = get_wchar(p);
-			p += len;
+			len = utf_len(*p);
+			if (p + len > limit || !is_utf8_well_formed(p, len))
+			{
+				ch = (LWCHAR) (unsigned char) *p++;
+			} else
+			{
+				ch = get_wchar(p);
+				p += len;
+			}
 		}
 	} else
 	{
 		while (p > limit && IS_UTF8_TRAIL(p[-1]))
 			p--;
 		if (p <= limit)
-		{
 			ch = 0;
-			p = limit;
-		} else
+		else
 		{
-			--p;
-			if (!is_utf8_well_formed(p, ptr_diff(*pp, p)))
+			len = utf_len(*--p);
+			if (p + len != *pp || !is_utf8_well_formed(p, len))
 			{
 				p = *pp - 1;
-				ch = *p & 0xff;
+				ch = (LWCHAR) (unsigned char) *p;
 			} else
 			{
 				ch = get_wchar(p);
