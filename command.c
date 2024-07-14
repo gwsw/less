@@ -244,7 +244,6 @@ static void mca_opt_toggle(void)
 static void exec_mca(void)
 {
 	constant char *cbuf;
-	char *p;
 
 	cmd_exec();
 	cbuf = get_cmdbuf();
@@ -287,7 +286,8 @@ static void exec_mca(void)
 		match_brac(cbuf[1], cbuf[0], 0, (int) number);
 		break;
 #if EXAMINE
-	case A_EXAMINE:
+	case A_EXAMINE: {
+		char *p;
 		if (!secure_allow(SF_EXAMINE))
 			break;
 		p = save(cbuf);
@@ -297,7 +297,7 @@ static void exec_mca(void)
 		/* If tag structure is loaded then clean it up. */
 		cleantags();
 #endif
-		break;
+		break; }
 #endif
 #if SHELL_ESCAPE
 	case A_SHELL: {
@@ -1352,7 +1352,9 @@ public void commands(void)
 	PARG parg;
 	IFILE old_ifile;
 	IFILE new_ifile;
+#if TAGS
 	constant char *tagfile;
+#endif
 
 	search_type = SRCH_FORW;
 	wscroll = (sc_height + 1) / 2;

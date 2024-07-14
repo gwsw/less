@@ -1538,6 +1538,7 @@ static void read_cmdhist2(void (*action)(void*,struct mlist*,constant char*), vo
 #else
 			ml = NULL;
 			skip = NULL;
+			(void) skip_shell;
 #endif
 		} else if (strcmp(line, HISTFILE_MARK_SECTION) == 0)
 		{
@@ -1748,6 +1749,8 @@ public void save_cmdhist(void)
 		skip_search = mlist_size(&mlist_search) - histsize;
 #if SHELL_ESCAPE || PIPEC
 		skip_shell = mlist_size(&mlist_shell) - histsize;
+#else
+		skip_shell = 0; /* not actually used */
 #endif
 		fprintf(fout, "%s\n", HISTFILE_FIRST_LINE);
 		ctx.fout = fout;

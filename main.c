@@ -149,6 +149,7 @@ cleanup:
 }
 #endif
 
+#if !SECURE
 static int security_feature_error(constant char *type, size_t len, constant char *name)
 {
 	PARG parg;
@@ -197,6 +198,7 @@ static int security_feature(constant char *name, size_t len)
 		return security_feature_error("invalid", len, name);
 	return features[match].sf_value;
 }
+#endif /* !SECURE */
 
 /*
  * Set the secure_allow_features bitmask, which controls
