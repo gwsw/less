@@ -40,6 +40,14 @@
 
 ======================================================================
 
+	Major changes between "less" versions 661 and 662
+
+* Make 256/true colors work better on Windows without -Da (github #539).
+
+* Fix build using --with-secure (github #544).
+
+======================================================================
+
 	Major changes between "less" versions 643 and 661
 
 * Add ^O^N, ^O^P, ^O^L and ^O^O commands and mouse clicks (with --mouse)

@@ -39,9 +39,11 @@ extern int sc_height;
 
 static constant lbool allow_drag = TRUE;
 
+#if USERFILE
 /* "content" is lesskey source, never binary. */
 static void add_content_table(int (*call_lesskey)(constant char *, lbool), constant char *envname, lbool sysvar);
 static int add_hometable(int (*call_lesskey)(constant char *, lbool), constant char *envname, constant char *def_filename, lbool sysvar);
+#endif /* USERFILE */
 
 #define SK(k) \
 	SK_SPECIAL_KEY, (k), 6, 1, 1, 1
@@ -395,10 +397,10 @@ public void init_cmds(void)
 		 */
 		add_hometable(lesskey, "LESSKEY", LESSKEYFILE, FALSE);
 	}
-#endif
 	
 	add_content_table(lesskey_content, "LESSKEY_CONTENT_SYSTEM", TRUE);
 	add_content_table(lesskey_content, "LESSKEY_CONTENT", FALSE);
+#endif /* USERFILE */
 }
 
 /*
