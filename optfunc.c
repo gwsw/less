@@ -70,6 +70,7 @@ extern char intr_char;
 extern int nosearch_header_lines;
 extern int nosearch_header_cols;
 extern POSITION header_start_pos;
+extern char *init_header;
 #if LOGFILE
 extern char *namelogfile;
 extern lbool force_logfile;
@@ -1063,6 +1064,10 @@ public void opt_header(int type, constant char *s)
 	switch (type)
 	{
 	case INIT:
+		/* Can't call parse_header now because input file is not yet opened,
+		 * so find_pos won't work. */
+		init_header = save(s);
+		break;
 	case TOGGLE: {
 		int lines = header_lines;
 		int cols = header_cols;

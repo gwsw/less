@@ -17,6 +17,8 @@
 
 * Fix build using --with-secure (github #544).
 
+* Fix crash when using --header on command line (github #545).
+
 ======================================================================
 
 	Major changes between "less" versions 643 and 661
