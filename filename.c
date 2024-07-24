@@ -288,7 +288,7 @@ public char * homefile(constant char *filename)
 	if (pathname != NULL)
 		return (pathname);
 #endif
-#if (MSDOS_COMPILER && MSDOS_COMPILER!=WIN32C) || OS2
+#if MSDOS_COMPILER || OS2
 	/* Look for the file anywhere on search path. */
 	pathname = (char *) ecalloc(_MAX_PATH, sizeof(char));
 #if MSDOS_COMPILER==DJGPPC
