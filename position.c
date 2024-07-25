@@ -256,7 +256,7 @@ static int pos_shift(POSITION linepos, size_t choff)
 		return -1;
 	cvt_ops = get_cvt_ops(0); /* {{ Passing 0 ignores SRCH_NO_REGEX; does it matter? }} */
 	/* {{ It would be nice to be able to call cvt_text with dst=NULL, to avoid need to alloc a useless cline. }} */
-	cline = (char *) ecalloc(1, line_len+1);
+	cline = (char *) ecalloc(1, cvt_length(line_len, cvt_ops));
 	cvt_text(cline, line, NULL, &line_len, cvt_ops);
 	free(cline);
 	return (int) line_len;  /*{{type-issue}}*/
