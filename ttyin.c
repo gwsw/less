@@ -69,7 +69,11 @@ public int open_tty(void)
 	int fd = -1;
 #if LESSTEST
 	if (is_lesstest())
+	{
 		fd = open_tty_device(ttyin_name);
+		if (fd < 0)
+			fd = 0; /* assume lesstest uses stdin */
+	}
 #endif /*LESSTEST*/
 #if HAVE_TTYNAME
 	if (fd < 0)
