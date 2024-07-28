@@ -332,8 +332,7 @@ static void win_flush(void)
 						 * in the buffer.
 						 */
 						size_t slop = ptr_diff(q, anchor);
-						/* {{ strcpy args overlap! }} */
-						strcpy(obuf, anchor);
+						memmove(obuf, anchor, slop);
 						ob = &obuf[slop];
 						return;
 					}
