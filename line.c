@@ -601,7 +601,7 @@ public lbool is_ansi_end(LWCHAR ch)
 {
 	if (!is_ascii_char(ch))
 		return (FALSE);
-	return (strchr(end_ansi_chars, (char) ch) != NULL);
+	return (ch != 0 && strchr(end_ansi_chars, (char) ch) != NULL);
 }
 
 /*
@@ -613,7 +613,7 @@ public lbool is_ansi_middle(LWCHAR ch)
 		return (FALSE);
 	if (is_ansi_end(ch))
 		return (FALSE);
-	return (strchr(mid_ansi_chars, (char) ch) != NULL);
+	return (ch != 0 && strchr(mid_ansi_chars, (char) ch) != NULL);
 }
 
 /*
