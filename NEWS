@@ -38,6 +38,8 @@
 
 * Fix bug when searching for text near an invalid UTF-8 sequence (github #542).
 
+* Fix display bug when file contains ESC followed by NUL (github #550).
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 662
