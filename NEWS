@@ -21,6 +21,8 @@
 
 * Fix possible crash when scrolling left/right or toggling -S (github #547).
 
+* Fix bug when using #stop in a lesskey file (github #551).
+
 ======================================================================
 
 	Major changes between "less" versions 643 and 661
