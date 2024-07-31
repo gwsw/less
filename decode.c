@@ -715,8 +715,10 @@ static int cmd_search(constant char *cmd, constant char *table, constant char *e
 				/*
 				 * A_END_LIST is a special marker that tells 
 				 * us to abort the cmd search.
+				 * Negative action means accept this action
+				 * without searching any more cmd tables.
 				 */
-				return (A_UINVALID);
+				return -a;
 			}
 			while (*p++ != '\0')
 				continue;
@@ -753,8 +755,10 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 			taction = A_INVALID;
 		if (taction != A_INVALID)
 		{
-			action = taction;
 			*sp = tsp;
+			if (taction < 0)
+				return (-taction);
+			action = taction;
 		}
 	}
 	return (action);
