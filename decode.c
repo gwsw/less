@@ -740,7 +740,7 @@ static int cmd_search(constant char *cmd, constant unsigned char *table, constan
 		size_t match = cmd_match((constant char *) table, cmd);
 		table = cmd_next_entry(table, &taction, &textra, &cmdlen);
 		if (taction == A_END_LIST)
-			return (A_UINVALID);
+			return (-action);
 		if (match >= match_len)
 		{
 			if (match == cmdlen) /* (last chars of) cmd matches this table entry */
@@ -790,8 +790,10 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 				taction = A_INVALID;
 			if (taction != A_INVALID)
 			{
-				action = taction;
 				*sp = (constant char *) tsp;
+				if (taction < 0)
+					return (-taction);
+				action = taction;
 			}
 		}
 	}
