@@ -40,6 +40,8 @@
 
 * Fix display bug when file contains ESC followed by NUL (github #550).
 
+* Fix bug when using +:n +:p +:x or +:d on the command line (github #552).
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 662

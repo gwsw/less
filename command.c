@@ -1977,6 +1977,7 @@ public void commands(void)
 #endif
 			if (number <= 0)
 				number = 1;
+			cmd_exec();
 			if (edit_next((int) number))
 			{
 				if (get_quit_at_eof() && eof_displayed() && 
@@ -2000,6 +2001,7 @@ public void commands(void)
 #endif
 			if (number <= 0)
 				number = 1;
+			cmd_exec();
 			if (edit_prev((int) number))
 			{
 				parg.p_string = (number > 1) ? "(N-th) " : "";
@@ -2063,6 +2065,7 @@ public void commands(void)
 			 */
 			if (number <= 0)
 				number = 1;
+			cmd_exec();
 			if (edit_index((int) number))
 				error("No such file", NULL_PARG);
 			break;
@@ -2075,6 +2078,7 @@ public void commands(void)
 				break;
 			old_ifile = curr_ifile;
 			new_ifile = getoff_ifile(curr_ifile);
+			cmd_exec();
 			if (new_ifile == NULL_IFILE)
 			{
 				bell();
