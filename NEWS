@@ -23,6 +23,9 @@
 
 * Fix bug when using #stop in a lesskey file (github #551).
 
+* Fix bug when using --shift or --match-shift on command line with
+  a parameter starting with '.' (github #553).
+
 ======================================================================
 
 	Major changes between "less" versions 643 and 661

@@ -911,7 +911,17 @@ static void scrsize(void)
 	}
 	if (sc_width <= 0)
 		sc_width = DEF_SC_WIDTH;
+	screen_size_changed();
+}
+
+/*
+ * Recalculate things that depend on the screen size.
+ */
+public void screen_size_changed(void)
+{
 	calc_jump_sline();
+	calc_shift_count();
+	calc_match_shift();
 }
 
 #if MSDOS_COMPILER==MSOFTC
