@@ -708,6 +708,9 @@ public void ch_flush(void)
 	{
 		ch_fsize = NULL_POSITION;
 		ch_flags &= ~CH_CANSEEK;
+	} else
+	{
+		ch_fsize = (ch_flags & CH_HELPFILE) ? size_helpdata : filesize(ch_file);
 	}
 
 	if (less_lseek(ch_file, (less_off_t)0, SEEK_SET) == BAD_LSEEK)

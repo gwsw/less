@@ -54,6 +54,13 @@
 
 * Fix possible crash when scrolling left/right or toggling -S (github #547).
 
+* Fix bug when using #stop in a lesskey file (github #551).
+
+* Fix bug when using --shift or --match-shift on command line with
+  a parameter starting with '.' (github #554).
+
+* Fix bug in R command when file size changes (github #553).
+
 ======================================================================
 
 	Major changes between "less" versions 643 and 661
