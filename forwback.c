@@ -216,7 +216,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, int nblank)
 	int nlines = 0;
 	lbool do_repaint;
 
-	pos = after_header_pos(pos);
+	if (pos != NULL_POSITION)
+		pos = after_header_pos(pos);
 	squish_check();
 
 	/*
