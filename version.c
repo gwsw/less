@@ -1022,10 +1022,10 @@ v658  6/13/24   Fix double-free in lesskey parser; fix crash using small value
 v659  6/20/24   Fix typo in help.
 v660  6/24/24   Fix bug in ixerror.
 v661  6/29/24   Simpler fix for ixerror bug.
-v662            Fix build with --with-secure; improve true colors on Windows;
+v662  8/8/24    Fix build with --with-secure; improve true colors on Windows;
                 fix crash with --header; fix crash with -S; fix #stop;
 				fix --shift with fractional parameter; fix EOF bug in R command;
 				fix --header with short file.
 */
 
-char version[] = "662x";
+char version[] = "662";
