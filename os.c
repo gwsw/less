@@ -80,6 +80,7 @@ extern int exit_F_on_close;
 extern int follow_mode;
 extern int scanning_eof;
 extern char intr_char;
+extern int is_tty;
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
@@ -237,7 +238,7 @@ start:
 	}
 #endif
 #if USE_POLL
-	if (fd != tty && use_poll)
+	if (is_tty && fd != tty && use_poll)
 	{
 		int ret = check_poll(fd, tty);
 		if (ret != 0)

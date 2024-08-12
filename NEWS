@@ -44,7 +44,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 661 and 662
+	Major changes between "less" versions 661 and 663
 
 * Make 256/true colors work better on Windows without -Da (github #539).
 
@@ -60,6 +60,10 @@
   a parameter starting with '.' (github #554).
 
 * Fix bug in R command when file size changes (github #553).
+
+* Fix bug using --header when file does not fill screen (github #556).
+
+* Fix ^X bug when output is not a terminal (github #558).
 
 ======================================================================
 
