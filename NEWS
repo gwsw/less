@@ -27,6 +27,9 @@
 
 * Pass through escape sequences in prompts even if -R is not set.
 
+* Add LESS_SHELL_LINES to support shell prompts which use more than
+  one line (github #514).
+
 * Add LESSANSIOSCALLOW to define OSC types which may be passed through.
 
 * Add LESSANSIOSCCHARS to define non-standard OSC intro chars.

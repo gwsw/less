@@ -205,7 +205,7 @@ static lbool cond(char c, int where)
 	case 'c':
 		return (hshift != 0);
 	case 'e': /* At end of file? */
-		return (eof_displayed());
+		return (eof_displayed(FALSE));
 	case 'f': /* Filename known? */
 	case 'g':
 		return (strcmp(get_filename(curr_ifile), "-") != 0);

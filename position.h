@@ -16,3 +16,4 @@
 #define BOTTOM          (-1)
 #define BOTTOM_PLUS_ONE (-2)
 #define MIDDLE          (-3)
+#define BOTTOM_OFFSET   (-4)

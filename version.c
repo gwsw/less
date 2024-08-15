@@ -1028,7 +1028,7 @@ v662  8/8/24    Fix build with --with-secure; improve true colors on Windows;
                 fix --header with short file; fix ^X bug when output is not tty.
 v659.1          Add --no-paste; add --no-edit-warn; add TAB for -- command;
                 add LESSANSIOSCALLOW and LESSANSIOSCCCHARS; fix bug searching 
-                near invalid UTF-8 sequence.
+                near invalid UTF-8 sequence; add LESS_SHELL_LINES.
 */
 
 char version[] = "659.1x";

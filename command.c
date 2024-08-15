@@ -869,7 +869,7 @@ static void prompt(void)
 	 * If we've hit EOF on the last file and the -E flag is set, quit.
 	 */
 	if (get_quit_at_eof() == OPT_ONPLUS &&
-	    eof_displayed() && !(ch_getflags() & CH_HELPFILE) && 
+	    eof_displayed(FALSE) && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
 
@@ -1980,7 +1980,7 @@ public void commands(void)
 			cmd_exec();
 			if (edit_next((int) number))
 			{
-				if (get_quit_at_eof() && eof_displayed() && 
+				if (get_quit_at_eof() && eof_displayed(FALSE) && 
 				    !(ch_getflags() & CH_HELPFILE))
 					quit(QUIT_OK);
 				parg.p_string = (number > 1) ? "(N-th) " : "";

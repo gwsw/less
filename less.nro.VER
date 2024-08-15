@@ -869,6 +869,7 @@ Causes
 .B less
 to automatically exit
 if the entire file can be displayed on the first screen.
+Also see the description of the LESS_SHELL_LINES environment variable below.
 .IP "\-g or \-\-hilite-search"
 Normally,
 .B less
@@ -2513,6 +2514,16 @@ sets an OSC 8 handler for opening OSC 8 links containing a URI with that scheme.
 .IP LESS_OSC8_ANY
 Sets an OSC 8 handler for opening OSC 8 links for which there is 
 no specific LESS_OSC8_xxx handler set for the "xxx" scheme.
+.IP LESS_SHELL_LINES
+When the \-F option is set,
+.B less
+exits automatically if the number of screen lines used to display the file 
+is less than or equal to the screen height minus the value of 
+the LESS_SHELL_LINES variable.
+Thus, if you use a shell prompt which occupies more than one screen line,
+this variable can be set to the number of lines used by your prompt,
+to ensure that the entire file can be seen when \-F is used.
+If not set, LESS_SHELL_LINES is assumed to be 1.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 
 of the termcap "xx" capability for the terminal.
