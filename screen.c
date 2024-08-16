@@ -253,6 +253,7 @@ static int termcap_debug = -1;
 static int no_alt_screen;       /* sc_init does not switch to alt screen */
 extern int binattr;
 extern int one_screen;
+extern int shell_lines;
 
 #if !MSDOS_COMPILER
 static constant char *cheaper(constant char *t1, constant char *t2, constant char *def);
@@ -1469,6 +1470,12 @@ public void get_term(void)
 	}
 }
 #endif /* MSDOS_COMPILER */
+	{
+		const char *env = lgetenv("LESS_SHELL_LINES");
+		shell_lines = isnullenv(env) ? 1 : atoi(env);
+		if (shell_lines >= sc_height)
+			shell_lines = sc_height - 1;
+	}
 }
 
 #if !MSDOS_COMPILER

@@ -539,11 +539,9 @@ public int get_back_scroll(void)
  */
 public lbool get_one_screen(void)
 {
-	const char *env = lgetenv("LESS_SHELL_LINES");
-	int nlines = isnullenv(env) ? 1 : atoi(env);
+	int nlines;
 	POSITION pos = ch_zero();
 
-	shell_lines = (nlines < sc_height) ? nlines : sc_height - 1;
 	for (nlines = 0;  nlines + shell_lines <= sc_height;  nlines++)
 	{
 		pos = forw_line(pos);
