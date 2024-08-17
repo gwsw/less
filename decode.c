@@ -771,7 +771,7 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 {
 	struct tablelist *t;
 	int action = A_INVALID;
-	int match_len = 0;
+	size_t match_len = 0;
 
 	/*
 	 * Search for the cmd thru all the command tables.

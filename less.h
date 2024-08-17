@@ -7,8 +7,6 @@
  * For more information, see the README file.
  */
 
-#define NEWBOT 1
-
 /*
  * Standard include file for "less".
  */
@@ -288,15 +286,6 @@ typedef off_t           LINENUM;
 #else
 #define SET_BINARY(f)
 #endif
-#endif
-
-/*
- * Does the shell treat "?" as a metacharacter?
- */
-#if MSDOS_COMPILER || OS2 || _OSK
-#define SHELL_META_QUEST 0
-#else
-#define SHELL_META_QUEST 1
 #endif
 
 #define SPACES_IN_FILENAMES 1
