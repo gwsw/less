@@ -1026,6 +1026,7 @@ v662  8/8/24    Fix build with --with-secure; improve true colors on Windows;
                 fix crash with --header; fix crash with -S; fix #stop;
                 fix --shift with fractional parameter; fix EOF bug in R command;
                 fix --header with short file; fix ^X bug when output is not tty.
+v663  8/16/24   Fix ^X bug when output is not a tty.
 v659.1          Add --no-paste; add --no-edit-warn; add TAB for -- command;
                 add LESSANSIOSCALLOW and LESSANSIOSCCCHARS; fix bug searching 
                 near invalid UTF-8 sequence; add LESS_SHELL_LINES.
