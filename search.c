@@ -1849,7 +1849,7 @@ public lbool osc8_click(int sindex, int col)
 /*
  * Return the length of the scheme prefix in a URI.
  */
-static int scheme_length(constant char *uri, size_t uri_len)
+static size_t scheme_length(constant char *uri, size_t uri_len)
 {
 	size_t plen;
 	for (plen = 0;  plen < uri_len;  plen++)

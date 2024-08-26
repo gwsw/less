@@ -3235,10 +3235,10 @@ public void WIN32textout(constant char *text, size_t len)
 		 * wide and use WriteConsoleW.
 		 */
 		WCHAR wtext[1024];
-		len = MultiByteToWideChar(CP_UTF8, 0, text, len, wtext, countof(wtext));
-		WriteConsoleW(con_out, wtext, len, &written, NULL);
+		len = MultiByteToWideChar(CP_UTF8, 0, text, (int) len, wtext, countof(wtext));
+		WriteConsoleW(con_out, wtext, (DWORD) len, &written, NULL);
 	} else
-		WriteConsole(con_out, text, len, &written, NULL);
+		WriteConsole(con_out, text, (DWORD) len, &written, NULL);
 #else
 	char buf[2048];
 	if (len >= sizeof(buf))

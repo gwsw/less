@@ -1479,18 +1479,18 @@ static void col_vs_pos(POSITION linepos, mutable struct col_pos *cp, POSITION sa
 		} else if (ch == '\b')
 		{
 			if (proc_backspace == OPT_ONPLUS || (bs_mode == BS_CONTROL && proc_backspace == OPT_OFF))
-				cw = strlen(prchar(ch));
+				cw = (int) strlen(prchar(ch));
 			else
 				cw = (utf_mode && is_wide_char(prev_ch)) ? -2 : -1;
 		} else if (ch == '\t')
 		{
 			if (proc_tab == OPT_ONPLUS || (bs_mode == BS_CONTROL && proc_tab == OPT_OFF))
-				cw = strlen(prchar(ch));
+				cw = (int) strlen(prchar(ch));
 			else
 				cw = tab_spaces(col);
 		} else if ((!utf_mode || is_ascii_char(ch)) && control_char(ch))
 		{
-			cw = strlen(prchar(ch));
+			cw = (int) strlen(prchar(ch));
 		} else if (utf8_len < MAX_UTF_CHAR_LEN)
 		{
 			utf8_buf[utf8_len++] = ch;
@@ -1500,7 +1500,7 @@ static void col_vs_pos(POSITION linepos, mutable struct col_pos *cp, POSITION sa
 				utf8_len = 0;
 				int attr = 0; /* {{ ignoring attribute is not correct for magic cookie terminals }} */
 				if (utf_mode && ctldisp != OPT_ON && is_ubin_char(wch))
-					cw = strlen(prutfchar(wch));
+					cw = (int) strlen(prutfchar(wch));
 				else
 					cw = pwidth(wch, attr, prev_ch, attr);
 				prev_ch = wch;
