@@ -13,7 +13,6 @@
  */
 
 #include "less.h"
-#include "option.h"
 #if MSDOS_COMPILER==WIN32C
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -25,6 +24,8 @@
 
 public unsigned less_acp = CP_ACP;
 #endif
+
+#include "option.h"
 
 public char *   every_first_cmd = NULL;
 public lbool    new_file;
