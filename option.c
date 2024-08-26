@@ -84,14 +84,14 @@ public void scan_option(constant char *s)
 	 */
 	if (pendopt != NULL)
 	{
-		if (!(pendopt->otype & UNSUPPORTED))
+		if (!(pendopt->otype & O_UNSUPPORTED))
 		{
 			switch (pendopt->otype & OTYPE)
 			{
-			case STRING:
+			case O_STRING:
 				(*pendopt->ofunc)(INIT, s);
 				break;
-			case NUMBER:
+			case O_NUMBER:
 				printopt = opt_desc(pendopt);
 				*(pendopt->ovar) = getnumc(&s, printopt, NULL);
 				break;
@@ -203,8 +203,8 @@ public void scan_option(constant char *s)
 				 * The option name is followed by "=value".
 				 */
 				if (o != NULL &&
-				    (o->otype & OTYPE) != STRING &&
-				    (o->otype & OTYPE) != NUMBER)
+				    (o->otype & OTYPE) != O_STRING &&
+				    (o->otype & OTYPE) != O_NUMBER)
 				{
 					parg.p_string = printopt;
 					error("The %s option should not be followed by =",
@@ -236,8 +236,8 @@ public void scan_option(constant char *s)
 		str = NULL;
 		switch (o->otype & OTYPE)
 		{
-		case BOOL:
-			if (o->otype & UNSUPPORTED)
+		case O_BOOL:
+			if (o->otype & O_UNSUPPORTED)
 				break;
 			if (o->ovar != NULL)
 			{
@@ -247,8 +247,8 @@ public void scan_option(constant char *s)
 					*(o->ovar) = ! o->odefault;
 			}
 			break;
-		case TRIPLE:
-			if (o->otype & UNSUPPORTED)
+		case O_TRIPLE:
+			if (o->otype & O_UNSUPPORTED)
 				break;
 			if (o->ovar != NULL)
 			{
@@ -258,7 +258,7 @@ public void scan_option(constant char *s)
 					*(o->ovar) = flip_triple(o->odefault, lc);
 			}
 			break;
-		case STRING:
+		case O_STRING:
 			if (*s == '\0')
 			{
 				/*
@@ -280,13 +280,13 @@ public void scan_option(constant char *s)
 			if (s == NULL)
 				return;
 			break;
-		case NUMBER:
+		case O_NUMBER:
 			if (*s == '\0')
 			{
 				pendopt = o;
 				return;
 			}
-			if (o->otype & UNSUPPORTED)
+			if (o->otype & O_UNSUPPORTED)
 				break;
 			*(o->ovar) = getnumc(&s, printopt, NULL);
 			break;
@@ -294,7 +294,7 @@ public void scan_option(constant char *s)
 		/*
 		 * If the option has a handling function, call it.
 		 */
-		if (o->ofunc != NULL && !(o->otype & UNSUPPORTED))
+		if (o->ofunc != NULL && !(o->otype & O_UNSUPPORTED))
 			(*o->ofunc)(INIT, str);
 		if (str != NULL)
 			free(str);
@@ -326,14 +326,14 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 		return;
 	}
 
-	if (how_toggle == OPT_TOGGLE && (o->otype & NO_TOGGLE))
+	if (how_toggle == OPT_TOGGLE && (o->otype & O_NO_TOGGLE))
 	{
 		parg.p_string = opt_desc(o);
 		error("Cannot change the %s option", &parg);
 		return;
 	}
 
-	if (how_toggle == OPT_NO_TOGGLE && (o->otype & NO_QUERY))
+	if (how_toggle == OPT_NO_TOGGLE && (o->otype & O_NO_QUERY))
 	{
 		parg.p_string = opt_desc(o);
 		error("Cannot query the %s option", &parg);
@@ -348,15 +348,15 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 	 */
 	switch (o->otype & OTYPE)
 	{
-	case STRING:
-	case NUMBER:
+	case O_STRING:
+	case O_NUMBER:
 		if (how_toggle == OPT_TOGGLE && *s == '\0')
 			how_toggle = OPT_NO_TOGGLE;
 		break;
 	}
 
 #if HILITE_SEARCH
-	if (how_toggle != OPT_NO_TOGGLE && (o->otype & HL_REPAINT))
+	if (how_toggle != OPT_NO_TOGGLE && (o->otype & O_HL_REPAINT))
 		repaint_hilite(FALSE);
 #endif
 
@@ -367,7 +367,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 	{
 		switch (o->otype & OTYPE)
 		{
-		case BOOL:
+		case O_BOOL:
 			/*
 			 * Boolean.
 			 */
@@ -387,7 +387,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 				}
 			}
 			break;
-		case TRIPLE:
+		case O_TRIPLE:
 			/*
 			 * Triple:
 			 *      If user gave the lower case letter, then switch 
@@ -411,7 +411,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 				}
 			}
 			break;
-		case STRING:
+		case O_STRING:
 			/*
 			 * String: don't do anything here.
 			 *      The handling function will do everything.
@@ -425,7 +425,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 				return;
 			}
 			break;
-		case NUMBER:
+		case O_NUMBER:
 			/*
 			 * Number: set the variable to the given number.
 			 */
@@ -456,7 +456,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 		(*o->ofunc)((how_toggle==OPT_NO_TOGGLE) ? QUERY : TOGGLE, s);
 
 #if HILITE_SEARCH
-	if (how_toggle != OPT_NO_TOGGLE && (o->otype & HL_REPAINT))
+	if (how_toggle != OPT_NO_TOGGLE && (o->otype & O_HL_REPAINT))
 		chg_hilite();
 #endif
 
@@ -467,15 +467,15 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 		 */
 		switch (o->otype & OTYPE)
 		{
-		case BOOL:
-		case TRIPLE:
+		case O_BOOL:
+		case O_TRIPLE:
 			/*
 			 * Print the odesc message.
 			 */
 			if (o->ovar != NULL)
 				error(o->odesc[*(o->ovar)], NULL_PARG);
 			break;
-		case NUMBER:
+		case O_NUMBER:
 			/*
 			 * The message is in odesc[1] and has a %d for 
 			 * the value of the variable.
@@ -483,7 +483,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 			parg.p_int = *(o->ovar);
 			error(o->odesc[1], &parg);
 			break;
-		case STRING:
+		case O_STRING:
 			/*
 			 * Message was already printed by the handling function.
 			 */
@@ -491,7 +491,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 		}
 	}
 
-	if (how_toggle != OPT_NO_TOGGLE && (o->otype & REPAINT))
+	if (how_toggle != OPT_NO_TOGGLE && (o->otype & O_REPAINT))
 		screen_trashed();
 }
 
@@ -513,7 +513,7 @@ public int opt_has_param(struct loption *o)
 {
 	if (o == NULL)
 		return (0);
-	if (o->otype & (BOOL|TRIPLE|NOVAR|NO_TOGGLE))
+	if (o->otype & (O_BOOL|O_TRIPLE|O_NOVAR|O_NO_TOGGLE))
 		return (0);
 	return (1);
 }
@@ -524,7 +524,7 @@ public int opt_has_param(struct loption *o)
  */
 public constant char * opt_prompt(struct loption *o)
 {
-	if (o == NULL || (o->otype & (STRING|NUMBER)) == 0)
+	if (o == NULL || (o->otype & (O_STRING|O_NUMBER)) == 0)
 		return ("?");
 	return (o->odesc[0]);
 }
@@ -766,7 +766,7 @@ public void init_unsupport(void)
 			if (opt != NULL) ++s;
 		}
 		if (opt != NULL)
-			opt->otype |= UNSUPPORTED;
+			opt->otype |= O_UNSUPPORTED;
 	}
 }
 
