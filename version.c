@@ -1027,7 +1027,7 @@ v662  8/8/24    Fix build with --with-secure; improve true colors on Windows;
                 fix --shift with fractional parameter; fix EOF bug in R command;
                 fix --header with short file; fix ^X bug when output is not tty.
 v663  8/16/24   Fix ^X bug when output is not a tty.
-v664            Fix Windows compile error.
+v664  8/28/24   Fix Windows compile error, fix output bug on Windows with -Da.
 */
 
-char version[] = "664x";
+char version[] = "664";
