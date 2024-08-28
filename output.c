@@ -79,17 +79,13 @@ public void put_line(void)
 	at_exit();
 }
 
-#if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 /*
  * win_flush has at least one non-critical issue when an escape sequence
  * begins at the last char of the buffer, and possibly more issues.
  * as a temporary measure to reduce likelyhood of encountering end-of-buffer
- * issues till the SGR parser is replaced, use bigger (8K) buffer.
+ * issues till the SGR parser is replaced, OUTBUF_SIZE is 8K on Windows.
  */
-static char obuf[OUTBUF_SIZE * 8];
-#else
 static char obuf[OUTBUF_SIZE];
-#endif
 static char *ob = obuf;
 static int outfd = 2; /* stderr */
 

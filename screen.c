@@ -3193,8 +3193,11 @@ public void WIN32textout(constant char *text, size_t len)
 		/*
 		 * We've got UTF-8 text in a non-UTF-8 console.  Convert it to
 		 * wide and use WriteConsoleW.
+		 * Biggest input len is OUTBUF_SIZE of obuf from win_flush,
+		 * which is also the biggest output count if it's ASCII.
+		 * "static" wtext is not a state - only avoid 16K on stack.
 		 */
-		WCHAR wtext[1024];
+		static WCHAR wtext[OUTBUF_SIZE];
 		len = MultiByteToWideChar(CP_UTF8, 0, text, len, wtext, countof(wtext));
 		WriteConsoleW(con_out, wtext, len, &written, NULL);
 	} else

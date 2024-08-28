@@ -196,7 +196,7 @@
 #define	CMDBUF_SIZE	2048	/* Buffer for multichar commands */
 #define	UNGOT_SIZE	200	/* Max chars to unget() */
 #define	LINEBUF_SIZE	1024	/* Initial max size of line in input file */
-#define	OUTBUF_SIZE	1024	/* Output buffer */
+#define	OUTBUF_SIZE	8192	/* Output buffer: 8K avoids end-of-buffer bugs in win_flush */
 #define	PROMPT_SIZE	2048	/* Max size of prompt string */
 #define	TERMBUF_SIZE	2048	/* Termcap buffer for tgetent */
 #define	TERMSBUF_SIZE	1024	/* Buffer to hold termcap strings */
