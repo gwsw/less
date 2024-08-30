@@ -33,6 +33,8 @@
 
 * Fix ^X bug when output is not a terminal (github #558).
 
+* Fix bug where ^Z is not handled immediately (github #563).
+
 ======================================================================
 
 	Major changes between "less" versions 643 and 661
