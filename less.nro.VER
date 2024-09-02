@@ -992,7 +992,9 @@ read the
 file directly and ignore the binary file if the source file exists.
 Note the warning under "\-\-lesskey-content" below.
 .IP "\-\-lesskey-content=\fItext\fP"
-Causes less to interpret the specified text as the contents of a
+Causes
+.B less
+to interpret the specified text as the contents of a
 .BR lesskey (1)
 source file.
 In the text,
@@ -1176,7 +1178,7 @@ as above, or the two-character sequence "ESC \\".
 .IP "\-s or \-\-squeeze-blank-lines"
 Causes consecutive blank lines to be squeezed into a single blank line.
 This is useful when viewing
-.B nroff
+.BR nroff (1)
 output.
 .IP "\-S or \-\-chop-long-lines"
 Causes lines longer than the screen width to be
@@ -1508,7 +1510,7 @@ If set, tabs are handled as if the \-U option were not set.
 That is, tabs are expanded to spaces.
 This option overrides the \-U option, so that display of
 tabs can be controlled separate from that of backspaces and carriage returns.
-If not set, tab display is controlled by the \-U options.
+If not set, tab display is controlled by the \-U option.
 .IP "\-\-PROC-TAB"
 If set, tabs are handled as if the \-U option were set;
 that is tabs are treated as control characters.
