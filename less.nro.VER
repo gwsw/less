@@ -38,7 +38,7 @@ so it can run on a variety of terminals.
 There is even limited support for hardcopy terminals.
 (On a hardcopy terminal, lines which should be printed at the top
 of the screen are prefixed with a caret.)
-.PP
+.SH COMMANDS
 Commands are based on both
 .B more
 and
@@ -46,8 +46,7 @@ and
 Commands may be preceded by a decimal number,
 called N in the descriptions below.
 The number is used by some commands, as indicated.
-.
-.SH COMMANDS
+.PP
 In the following descriptions, \(haX means control-X.
 ESC stands for the ESCAPE key; for example ESC-v means the
 two character sequence "ESCAPE", then "v".
@@ -285,6 +284,8 @@ WRAP around the current file.
 That is, if the search reaches the beginning of the current file
 without finding a match, the search continues from the last line of the
 current file up to the line where it started.
+.IP "\(haL"
+As in forward searches.
 .RE
 .IP "ESC-/pattern"
 Same as "/*".
@@ -298,6 +299,8 @@ If the previous search was modified by \(haE, the search continues
 in the next (or previous) file if not satisfied in the current file.
 If the previous search was modified by \(haR, the search is done
 without using regular expressions.
+If the previous search was modified by \(haW, the search wraps at
+the end (or beginning) of the file.
 There is no effect if the previous search was modified by \(haF or \(haK.
 .IP N
 Repeat previous search, but in the reverse direction.
@@ -467,7 +470,7 @@ A percent sign (%) in the command is replaced by the name of the
 current file.
 A pound sign (#) is replaced by the name of the previously examined file.
 "!!" repeats the last shell command.
-"!" with no shell command simply invokes a shell.
+"!" with no shell command invokes an interactive shell.
 If a \(haP (CONTROL-P) is entered immediately after the !,
 no "done" message is printed after the shell command is executed.
 On Unix systems, the shell is taken from the environment variable SHELL,
@@ -584,8 +587,8 @@ either a dash followed by a single letter,
 or two dashes followed by a long option name.
 A long option name may be abbreviated as long as
 the abbreviation is unambiguous.
-For example, \-\-quit-at-eof may be abbreviated \-\-quit, but not
-\-\-qui, since both \-\-quit-at-eof and \-\-quiet begin with \-\-qui.
+For example, \-\-mouse may be abbreviated \-\-mou, but not
+\-\-mo, since both \-\-mouse and \-\-modelines begin with \-\-mo.
 Some long option names are in uppercase, such as \-\-QUIT-AT-EOF, as
 distinct from \-\-quit-at-eof.
 Such option names need only have their first letter capitalized;
@@ -950,7 +953,7 @@ and there are matches beyond both sides of the screen.
 There are matches in the visible part of the line
 but none to the right or left of it.
 .IP "a-z, A-Z"
-The line has been marked with the corresponding letter via the m command.
+The line has been marked with the corresponding letter via the m or M command.
 .RE
 .IP "\-k\fIfilename\fP or \-\-lesskey-file=\fIfilename\fP"
 Causes
@@ -973,22 +976,19 @@ to open and interpret the named file as a
 source file. 
 If the LESSKEYIN or LESSKEYIN_SYSTEM environment variable is set, or
 if a lesskey source file is found in a standard place (see KEY BINDINGS),
-it is also used as a
-.I "lesskey source"
-file.
+it is also used as a lesskey source file.
 Prior to version 582, the
 .B lesskey
-program needed to be run to convert a 
-.I "lesskey source"
-file to a 
-.I "lesskey binary"
+program needed to be run to convert a lesskey 
+.I source
+file to a lesskey 
+.I binary
 file for
 .B less
 to use.
 Newer versions of
 .B less
-read the
-.I "lesskey source"
+read the lesskey source
 file directly and ignore the binary file if the source file exists.
 Note the warning under "\-\-lesskey-content" below.
 .IP "\-\-lesskey-content=\fItext\fP"
@@ -1048,7 +1048,6 @@ Suppresses line numbers.
 The default (to use line numbers) may cause
 .B less
 to run more slowly in some cases, especially with a very large input file.
-Suppressing line numbers with the \-n option will avoid this problem.
 Using line numbers means: the line number will be displayed in the verbose
 prompt and in the = command,
 and the v command will pass the current line number to the editor
@@ -1437,6 +1436,7 @@ scrolling the mouse wheel down moves forward in the file,
 scrolling the mouse wheel up moves backwards in the file,
 left-click sets the "#" mark to the line where the mouse is clicked,
 and right-click (or any other) returns to the "#" mark position.
+Holding down the left button and dragging also moves in the file.
 If a left-click is performed with the mouse cursor on an OSC 8 hyperlink,
 the hyperlink is selected as if by the \(haO\(haN command.
 If a left-click is performed with the mouse cursor on an OSC 8 hyperlink
@@ -1607,7 +1607,7 @@ certain keys can be used to manipulate the command line.
 Most commands have an alternate form in [ brackets ] which can be used if
 a key does not exist on a particular keyboard.
 (Note that the forms beginning with ESC do not work
-in some MS-DOS and Windows systems because ESC is the line erase character.)
+on some MS-DOS and Windows systems because ESC is the line erase character.)
 Any of these special keys may be entered literally by preceding
 it with the "literal" character, either \(haV or \(haA.
 A backslash itself may also be entered literally by entering two backslashes.
@@ -1720,7 +1720,7 @@ that directory is where the sysless file is found.)
 On MS-DOS and Windows systems, the system-wide lesskey file is c:\e_syslesskey.
 On OS/2 systems, the system-wide lesskey file is c:\esyslesskey.ini.
 .PP
-Previous versions of
+Older versions of
 .B less
 (before v582) used lesskey files with a binary format, produced by the
 .B lesskey
@@ -1733,7 +1733,7 @@ You may define an "input preprocessor" for
 .BR less .
 Before
 .B less
-opens a file, it first gives your input preprocessor a chance to modify the
+opens a file, it first gives the input preprocessor a chance to modify the
 way the contents of the file are displayed.
 An input preprocessor is simply an executable program (or shell script),
 which writes the contents of the file to a different file,
