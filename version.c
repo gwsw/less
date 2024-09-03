@@ -1030,7 +1030,9 @@ v663  8/16/24   Fix ^X bug when output is not a tty.
 v664            Fix Windows compile error.
 v659.1          Add --no-paste; add --no-edit-warn; add TAB for -- command;
                 add LESSANSIOSCALLOW and LESSANSIOSCCCHARS; fix bug searching 
-                near invalid UTF-8 sequence; add LESS_SHELL_LINES.
+                near invalid UTF-8 sequence; add LESS_SHELL_LINES; fix bug 
+                with --no-number-headers.
+
 */
 
 char version[] = "659.1x";

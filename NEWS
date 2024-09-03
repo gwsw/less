@@ -45,6 +45,9 @@
 
 * Fix bug when using +:n +:p +:x or +:d on the command line (github #552).
 
+* Fix bug with --no-number-headers when header is not at start of file
+  (github #566).
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 664

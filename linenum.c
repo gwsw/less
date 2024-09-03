@@ -70,6 +70,7 @@ extern int sigs;
 extern int sc_height;
 extern int header_lines;
 extern int nonum_headers;
+extern POSITION header_start_pos;
 
 /*
  * Initialize the line number structures.
@@ -511,7 +512,14 @@ public void scan_eof(void)
  */
 public LINENUM vlinenum(LINENUM linenum)
 {
-	if (nonum_headers)
-		linenum = (linenum < header_lines) ? 0 : linenum - header_lines;
+	if (nonum_headers && header_lines > 0)
+	{
+		LINENUM header_start_line = find_linenum(header_start_pos);
+		if (header_start_line != 0)
+		{
+			LINENUM header_end_line = header_start_line + header_lines; /* first line after header */
+			linenum = (linenum < header_end_line) ? 0 : linenum - header_end_line + 1;
+		}
+	}
 	return linenum;
 }
