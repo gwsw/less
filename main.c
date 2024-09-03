@@ -37,7 +37,7 @@ public POSITION start_attnpos = NULL_POSITION;
 public POSITION end_attnpos = NULL_POSITION;
 public int      wscroll;
 public constant char *progname;
-public int      quitting;
+public lbool    quitting = FALSE;
 public int      dohelp;
 public char *   init_header = NULL;
 static int      secure_allow_features;
@@ -72,7 +72,7 @@ extern int      no_init;
 extern int      errmsgs;
 extern int      redraw_on_quit;
 extern int      term_init_done;
-extern int      first_time;
+extern lbool    first_time;
 
 #if MSDOS_COMPILER==WIN32C && (defined(MINGW) || defined(_MSC_VER))
 /* malloc'ed 0-terminated utf8 of 0-terminated wide ws, or null on errors */
@@ -583,7 +583,7 @@ public void quit(int status)
 		status = save_status;
 	else
 		save_status = status;
-	quitting = 1;
+	quitting = TRUE;
 	check_altpipe_error();
 	if (interactive())
 		clear_bot();
@@ -596,7 +596,7 @@ public void quit(int status)
 		 * alternate screen, which now (since deinit) cannot be seen.
 		 * redraw_on_quit tells us to redraw it on the main screen.
 		 */
-		first_time = 1; /* Don't print "skipping" or tildes */
+		first_time = TRUE; /* Don't print "skipping" or tildes */
 		repaint();
 		flush();
 	}

@@ -29,7 +29,7 @@ extern int sc_height;
 extern char *kent;
 extern int swindow;
 extern int jump_sline;
-extern int quitting;
+extern lbool quitting;
 extern int wscroll;
 extern int top_scroll;
 extern int ignore_eoi;

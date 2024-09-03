@@ -19,7 +19,7 @@
 public lbool squished;
 public int no_back_scroll = 0;
 public int forw_prompt;
-public int first_time = 1;
+public lbool first_time = TRUE; /* We're printing the first screen of output */
 public int shell_lines = 1;
 public lbool no_eof_bell = FALSE;
 
@@ -382,7 +382,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, int nblank)
 		overlay_header();
 		/* lower_left(); {{ considered harmful? }} */
 	}
-	first_time = 0;
+	first_time = FALSE;
 	(void) currline(BOTTOM);
 }
 

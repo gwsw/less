@@ -145,7 +145,7 @@ static HANDLE con_out_ours = INVALID_HANDLE_VALUE; /* our own */
 HANDLE con_out = INVALID_HANDLE_VALUE;             /* current console */
 
 extern int utf_mode;
-extern int quitting;
+extern lbool quitting;
 static void win32_init_term();
 static void win32_deinit_term();
 
