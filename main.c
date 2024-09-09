@@ -336,7 +336,7 @@ int main(int argc, constant char *argv[])
 
 #if EDITOR
 	editor = lgetenv("VISUAL");
-	if (editor == NULL || *editor == '\0')
+	if (isnullenv(editor))
 	{
 		editor = lgetenv("EDITOR");
 		if (isnullenv(editor))
