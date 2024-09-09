@@ -149,10 +149,7 @@ static int ch_get(void)
 	struct buf *bp;
 	struct bufnode *bn;
 	ssize_t n;
-	lbool read_again;
 	int h;
-	POSITION pos;
-	POSITION len;
 
 	if (thisfile == NULL)
 		return (EOI);
@@ -224,12 +221,19 @@ static int ch_get(void)
 
 	for (;;)
 	{
-		pos = ch_position(ch_block, bp->datasize);
+		lbool read_again;
+		POSITION len;
+		POSITION pos = ch_position(ch_block, bp->datasize);
 		if ((len = ch_length()) != NULL_POSITION && pos >= len)
+		{
 			/*
-			 * At end of file.
+			 * Apparently at end of file.
+			 * Double-check the file size in case it has changed.
 			 */
-			return (EOI);
+			ch_resize();
+			if ((len = ch_length()) != NULL_POSITION && pos >= len)
+				return (EOI);
+		}
 
 		if (pos != ch_fpos)
 		{
@@ -597,6 +601,16 @@ public POSITION ch_length(void)
 	if (ch_flags & CH_NODATA)
 		return (0);
 	return (ch_fsize);
+}
+
+/*
+ * Check the file size, in case it has changed.
+ */
+public void ch_resize(void)
+{
+	POSITION fsize = filesize(ch_file);
+	if (fsize != NULL_POSITION)
+		ch_fsize = fsize;
 }
 
 /*
