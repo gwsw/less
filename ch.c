@@ -604,7 +604,7 @@ public POSITION ch_length(void)
 }
 
 /*
- * Check the file size, in case it has changed.
+ * Update the file size, in case it has changed.
  */
 public void ch_resize(void)
 {
