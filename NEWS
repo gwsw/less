@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 661 and 665
+	Major changes between "less" versions 661 and 666
 
 * Make 256/true colors work better on Windows without -Da
   (github #539, github #546, github #562).
