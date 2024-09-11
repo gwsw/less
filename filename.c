@@ -912,7 +912,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 #if HAVE_FILENO
 	if (returnfd)
 	{
-		char c;
+		unsigned char c;
 		int f;
 
 		/*
