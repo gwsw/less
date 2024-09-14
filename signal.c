@@ -97,6 +97,15 @@ public RETSIGTYPE winch(int type)
 {
 	(void) type;
 	LSIGNAL(SIG_LESSWINDOW, winch);
+#if LESSTEST
+	/*
+	 * Ignore window changes during lesstest.
+	 * Changes in the real window are unrelated to the simulated
+	 * screen used by lesstest.
+	 */
+	if (is_lesstest())
+		return;
+#endif
 	sigs |= S_WINCH;
 	if (reading)
 		intread();

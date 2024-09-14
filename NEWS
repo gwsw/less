@@ -50,6 +50,8 @@
 * Fix bug with --no-number-headers when header is not at start of file
   (github #566).
 
+* Fix bug where lesstest fails if window is resized (github #570).
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 664
