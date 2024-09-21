@@ -1029,7 +1029,7 @@ v662  8/8/24    Fix build with --with-secure; improve true colors on Windows;
 v663  8/16/24   Fix ^X bug when output is not a tty.
 v664  8/28/24   Fix Windows compile error, fix output bug on Windows with -Da.
 v665  9/4/24    Fix ^Z bug.
-v666
+v666  9/21/24   Fix missing first byte from LESSOPEN if >0x7f.
 */
 
-char version[] = "666x";
+char version[] = "666";
