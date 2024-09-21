@@ -747,10 +747,6 @@ static int cmd_search(constant char *cmd, constant unsigned char *table, constan
 			{
 				action = taction;
 				*extra = textra;
-				if (action == A_X11MOUSE_IN)
-					action = x11mouse_action(FALSE);
-				else if (action == A_X116MOUSE_IN)
-					action = x116mouse_action(FALSE);
 			} else if (match > 0) /* cmd is a prefix of this table entry */
 			{
 				action = A_PREFIX;
@@ -792,11 +788,18 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 			{
 				*sp = (constant char *) tsp;
 				if (taction < 0)
-					return (-taction);
+				{
+					action = -taction;
+					break;
+				}
 				action = taction;
 			}
 		}
 	}
+	if (action == A_X11MOUSE_IN)
+		action = x11mouse_action(FALSE);
+	else if (action == A_X116MOUSE_IN)
+		action = x116mouse_action(FALSE);
 	return (action);
 }
 

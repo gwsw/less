@@ -36,6 +36,8 @@
 
 * Add LESSANSIOSCCHARS to define non-standard OSC intro chars.
 
+* Add mouse and mouse6 commands to lesskey (github #569).
+
 * Fix unexpected behavior when entering a partial command followed by 
   a valid command (github #543).
 
