@@ -275,7 +275,8 @@ static int ch_get(void)
 		read_again = FALSE;
 		if (n == READ_INTR)
 		{
-			ch_fsize = pos;
+			if (ch_flags & CH_CANSEEK)
+				ch_fsize = pos;
 			return (EOI);
 		}
 		if (n == READ_AGAIN)
@@ -608,7 +609,11 @@ public POSITION ch_length(void)
  */
 public void ch_resize(void)
 {
-	POSITION fsize = filesize(ch_file);
+	POSITION fsize;
+
+	if (!(ch_flags & CH_CANSEEK))
+		return;
+	fsize = filesize(ch_file);
 	if (fsize != NULL_POSITION)
 		ch_fsize = fsize;
 }
