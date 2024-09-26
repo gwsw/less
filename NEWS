@@ -38,6 +38,8 @@
 * Fix bug where first byte from a LESSOPEN filter is deleted if it is
   greater than 0x7F (github #568).
 
+* Fix uninitialized variable in edit_ifile (github #573).
+
 ======================================================================
 
 	Major changes between "less" versions 643 and 661
