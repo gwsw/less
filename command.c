@@ -1025,7 +1025,7 @@ public void getcc_clear(void)
 static char getccu(void)
 {
 	int c = 0;
-	while (c == 0)
+	while (c == 0 && !ABORT_SIGS())
 	{
 		if (ungot == NULL)
 		{

@@ -56,9 +56,10 @@
 
 ======================================================================
 
-	Major changes between "less" versions 661 and 664
+	Major changes between "less" versions 661 and 667
 
-* Make 256/true colors work better on Windows without -Da (github #539).
+* Make 256/true colors work better on Windows without -Da
+  (github #539, github #546, github #562).
 
 * Fix build using --with-secure (github #544).
 
@@ -76,6 +77,13 @@
 * Fix bug using --header when file does not fill screen (github #556).
 
 * Fix ^X bug when output is not a terminal (github #558).
+
+* Fix bug where ^Z is not handled immediately (github #563).
+
+* Fix bug where first byte from a LESSOPEN filter is deleted if it is
+  greater than 0x7F (github #568).
+
+* Fix uninitialized variable in edit_ifile (github #573).
 
 ======================================================================
 
