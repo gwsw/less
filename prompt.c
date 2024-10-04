@@ -117,17 +117,15 @@ static void ap_str(constant char *s)
 	ap_estr(s, FALSE);
 }
 
-
 /*
  * Append a character to the end of the message.
  */
 static void ap_char(char c)
 {
-	char buf[2];
-
-	buf[0] = c;
-	buf[1] = '\0';
-	ap_str(buf);
+	if (mp + 1 >= message + PROMPT_SIZE)
+		return;
+	*mp++ = c;
+	*mp = '\0';
 }
 
 /*

@@ -40,6 +40,8 @@
 
 * Fix uninitialized variable in edit_ifile (github #573).
 
+* Fix incorrect handling of UTF-8 chars in prompts (github #576).
+
 ======================================================================
 
 	Major changes between "less" versions 643 and 661
