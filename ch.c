@@ -412,6 +412,7 @@ public void sync_logfile(void)
 	struct buf *bp;
 	struct bufnode *bn;
 	lbool warned = FALSE;
+	int h;
 	BLOCKNUM block;
 	BLOCKNUM nblocks;
 
@@ -421,7 +422,8 @@ public void sync_logfile(void)
 	for (block = 0;  block < nblocks;  block++)
 	{
 		lbool wrote = FALSE;
-		FOR_BUFS(bn)
+		h = BUFHASH(block);
+		FOR_BUFS_IN_CHAIN(h, bn)
 		{
 			bp = bufnode_buf(bn);
 			if (bp->block == block)
