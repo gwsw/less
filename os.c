@@ -81,6 +81,7 @@ extern int follow_mode;
 extern int scanning_eof;
 extern char intr_char;
 extern int is_tty;
+extern int no_poll;
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
@@ -152,7 +153,7 @@ public int supports_ctrl_x(void)
 	return (TRUE);
 #else
 #if USE_POLL
-	return (use_poll);
+	return (use_poll && !no_poll);
 #else
 	return (FALSE);
 #endif /* USE_POLL */
@@ -238,7 +239,7 @@ start:
 	}
 #endif
 #if USE_POLL
-	if (is_tty && fd != tty && use_poll)
+	if (is_tty && fd != tty && use_poll && !no_poll)
 	{
 		int ret = check_poll(fd, tty);
 		if (ret != 0)

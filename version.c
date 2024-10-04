@@ -1034,7 +1034,8 @@ v667  9/26/24   Fix uninitialized variable in edit_ifile.
 v659.1          Add --no-paste; add --no-edit-warn; add TAB for -- command;
                 add LESSANSIOSCALLOW and LESSANSIOSCCCHARS; fix bug searching 
                 near invalid UTF-8 sequence; add LESS_SHELL_LINES; fix bug 
-                with --no-number-headers; add mouse cmds to lesskey.
+                with --no-number-headers; add mouse cmds to lesskey;
+				add form-feed; add --no-poll.
 
 */
 

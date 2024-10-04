@@ -21,6 +21,8 @@
 
 * Add --form-feed option (github #496).
 
+* Add --no-poll option (github #557).
+
 * Make TAB complete option name in -- command (github #531).
 
 * Make -R able to pass through any OSC escape sequences,
