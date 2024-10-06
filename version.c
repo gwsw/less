@@ -1031,7 +1031,7 @@ v664  8/28/24   Fix Windows compile error, fix output bug on Windows with -Da.
 v665  9/4/24    Fix ^Z bug.
 v666  9/21/24   Fix missing first byte from LESSOPEN if >0x7f.
 v667  9/26/24   Fix uninitialized variable in edit_ifile.
-v668
+v668  10/6/24   Fix UTF-8 chars in prompt.
 */
 
-char version[] = "668x";
+char version[] = "668";
