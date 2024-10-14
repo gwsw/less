@@ -1475,6 +1475,22 @@ is ignored, except that one line of text may be pasted into the command line
 at the bottom of the screen (search strings, file names, etc).
 That is, the first newline of text pasted into the command line
 and any text that follows it is ignored.
+.IP "\-\-no-poll"
+Disables polling for \(haX (or the character specified by the 
+.nh
+\-\-intr 
+.hy
+option)
+while reading file input.
+Only the interrupt character (usually \(haC) can be used to regain
+control when the "Waiting for data" message is displayed,
+such as in the F command.
+This can sometimes be useful if it is expected that
+.B less
+will exit immediately due to the \-F or \-E option;
+in such a case \-\-no-poll will prevent
+.B less
+from consuming typed-ahead characters from the terminal.
 .IP "\-\-no-search-header-lines"
 Searches do not include header lines, but still include header columns.
 .IP "\-\-no-search-header-columns"
