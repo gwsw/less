@@ -420,7 +420,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 			{
 			case OPT_SET:
 			case OPT_UNSET:
-				error("Cannot use \"-+\" or \"--\" for a string option",
+				error("Cannot use \"-+\" or \"-!\" for a string option",
 					NULL_PARG);
 				return;
 			}
