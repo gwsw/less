@@ -90,7 +90,8 @@ distclean: clean
 realclean: clean
 
 REPLACE_VERSION = \
-	DT=`date '+%d %h %Y'`; \
+	if [ -n "${SOURCE_DATE_EPOCH}" ]; then DFLAG="-d@${SOURCE_DATE_EPOCH}"; fi; \
+	DT=`date $$DFLAG '+%d %h %Y'`; \
 	echo "Stuffing version number ${REL} into $@"; \
 	rm -f $@; \
 	sed \
