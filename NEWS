@@ -40,6 +40,8 @@
 
 * Add LESSANSIOSCCHARS to define non-standard OSC intro chars.
 
+* Add LESS_SIGUSR1 and LESS_SIGUSR2 to define signal handlers (github #582).
+
 * Add mouse and mouse6 commands to lesskey (github #569).
 
 * Fix unexpected behavior when entering a partial command followed by 

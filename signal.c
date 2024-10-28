@@ -144,6 +144,39 @@ static RETSIGTYPE terminate(int type)
 }
 
 /*
+ * Handle a SIGUSR signal.
+ */
+#if defined(SIGUSR1) || defined(SIGUSR2)
+static void sigusr(constant char *var)
+{
+	constant char *cmd = lgetenv(var);
+	if (isnullenv(cmd))
+		return;
+	ungetsc(cmd);
+	if (reading)
+		intread();
+}
+#endif
+
+#ifdef SIGUSR1
+static RETSIGTYPE sigusr1(int type)
+{
+	(void) type;
+	LSIGNAL(SIGUSR1, sigusr1);
+	sigusr("LESS_SIGUSR1");
+}
+#endif
+
+#ifdef SIGUSR1
+static RETSIGTYPE sigusr2(int type)
+{
+	(void) type;
+	LSIGNAL(SIGUSR2, sigusr2);
+	sigusr("LESS_SIGUSR2");
+}
+#endif
+
+/*
  * Set up the signal handlers.
  */
 public void init_signals(int on)
@@ -173,6 +206,12 @@ public void init_signals(int on)
 #ifdef SIGTERM
 		(void) LSIGNAL(SIGTERM, terminate);
 #endif
+#ifdef SIGUSR1
+		(void) LSIGNAL(SIGUSR1, sigusr1);
+#endif
+#ifdef SIGUSR2
+		(void) LSIGNAL(SIGUSR2, sigusr2);
+#endif
 	} else
 	{
 		/*
@@ -197,6 +236,12 @@ public void init_signals(int on)
 #endif
 #ifdef SIGTERM
 		(void) LSIGNAL(SIGTERM, SIG_DFL);
+#endif
+#ifdef SIGUSR1
+		(void) LSIGNAL(SIGUSR1, SIG_DFL);
+#endif
+#ifdef SIGUSR2
+		(void) LSIGNAL(SIGUSR2, SIG_DFL);
 #endif
 	}
 }

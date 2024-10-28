@@ -2542,6 +2542,16 @@ Thus, if you use a shell prompt which occupies more than one screen line,
 this variable can be set to the number of lines used by your prompt,
 to ensure that the entire file can be seen when \-F is used.
 If not set, LESS_SHELL_LINES is assumed to be 1.
+.IP LESS_SIGUSR1
+If set to a string of one or more
+.B less
+command characters, those commands will be executed when
+.B less
+receives a SIGUSR1 signal.
+.IP LESS_SIGUSR2
+Like LESS_SIGUSR1, but the string is executed when
+.B less
+receives a SIGUSR2 signal.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 
 of the termcap "xx" capability for the terminal.
