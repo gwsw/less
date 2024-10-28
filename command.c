@@ -1032,7 +1032,7 @@ static char getccu(void)
 			/* Normal case: no ungotten chars.
 			 * Get char from the user. */
 			c = getchr();
-			if (c < 0) return ('\0');
+			if (c < 0) c = '\0';
 		} else
 		{
 			/* Ungotten chars available:
