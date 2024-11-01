@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 659 and 659.1
+	Major changes between "less" versions 668 and 669
 
 * Update the file size on an attempt to go past end of file.
 
