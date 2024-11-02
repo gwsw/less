@@ -351,10 +351,11 @@ fi
 
 # Compile in secure mode?
 AC_ARG_WITH(secure,
-  [  --with-secure           Compile in secure mode],
+  [  --with-secure           Compile in secure mode])
+AS_IF([test "x$with_secure" = "xyes"],[
   AC_DEFINE(SECURE_COMPILE, 1)
-  AC_SUBST(SECURE_COMPILE,1), AC_DEFINE(SECURE_COMPILE, 0)
-  AC_SUBST(SECURE_COMPILE,0))
+  AC_SUBST(SECURE_COMPILE,1)], [AC_DEFINE(SECURE_COMPILE, 0)
+  AC_SUBST(SECURE_COMPILE,0)])
 
 # Checks for regular expression functions.
 have_regex=no

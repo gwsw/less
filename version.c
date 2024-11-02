@@ -1036,7 +1036,8 @@ v669            Add --no-paste; add --no-edit-warn; add TAB for -- command;
                 add LESSANSIOSCALLOW and LESSANSIOSCCCHARS; fix bug searching 
                 near invalid UTF-8 sequence; add LESS_SHELL_LINES; fix bug 
                 with --no-number-headers; add mouse cmds to lesskey;
-				add form-feed; add --no-poll; add LESS_SIGUSR[12].
+				add form-feed; add --no-poll; add LESS_SIGUSR[12];
+				fix "configure --with-secure=no".
 */
 
 char version[] = "669x";
