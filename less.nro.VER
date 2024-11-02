@@ -2548,8 +2548,6 @@ If set to a string of one or more
 command characters, those commands will be executed when
 .B less
 receives a SIGUSR1 signal.
-.IP LESS_SIGUSR2
-Like LESS_SIGUSR1, but the string is executed when
 .B less
 receives a SIGUSR2 signal.
 .IP LESS_TERMCAP_xx
