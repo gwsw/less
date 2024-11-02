@@ -951,6 +951,7 @@ public char * findopts_name(constant char *pfx)
 			}
 		}
 	}
+	xbuf_pop(&xbuf); /* remove final space */
 	xbuf_add_char(&xbuf, '\0');
 	return (char *) xbuf.data;
 }
