@@ -134,6 +134,7 @@ static int check_poll(int fd, int tty)
 				/* Break out of "waiting for data". */
 				return (READ_INTR);
 			ungetcc_back((char) ch);
+			return (READ_INTR);
 		}
 	}
 	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
