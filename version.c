@@ -1032,7 +1032,7 @@ v665  9/4/24    Fix ^Z bug.
 v666  9/21/24   Fix missing first byte from LESSOPEN if >0x7f.
 v667  9/26/24   Fix uninitialized variable in edit_ifile.
 v668  10/6/24   Fix UTF-8 chars in prompt.
-v669            Add --no-paste; add --no-edit-warn; add TAB for -- command;
+v669  11/6/24   Add --no-paste; add --no-edit-warn; add TAB for -- command;
                 add LESSANSIOSCALLOW and LESSANSIOSCCCHARS; fix bug searching 
                 near invalid UTF-8 sequence; add LESS_SHELL_LINES; fix bug 
                 with --no-number-headers; add mouse cmds to lesskey;
@@ -1040,4 +1040,4 @@ v669            Add --no-paste; add --no-edit-warn; add TAB for -- command;
                 fix "configure --with-secure=no".
 */
 
-char version[] = "669x";
+char version[] = "669";
