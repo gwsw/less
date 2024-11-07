@@ -2990,8 +2990,7 @@ static lbool win32_mouse_event(XINPUT_RECORD *xip)
 {
 	char b;
 
-	if (!mousecap || xip->ir.EventType != MOUSE_EVENT ||
-		xip->ir.Event.MouseEvent.dwEventFlags == MOUSE_MOVED)
+	if (!mousecap || xip->ir.EventType != MOUSE_EVENT)
 		return (FALSE);
 
 	/* Generate an X11 mouse sequence from the mouse event. */
@@ -3012,6 +3011,12 @@ static lbool win32_mouse_event(XINPUT_RECORD *xip)
 		break;
 	case MOUSE_WHEELED:
 		b = X11MOUSE_OFFSET + (((int)xip->ir.Event.MouseEvent.dwButtonState < 0) ? X11MOUSE_WHEEL_DOWN : X11MOUSE_WHEEL_UP);
+		break;
+	case MOUSE_MOVED:
+		if (xip->ir.Event.MouseEvent.dwButtonState != 1)
+			return (FALSE);
+		/* Drag with left button down. */
+		b = X11MOUSE_OFFSET + X11MOUSE_DRAG;
 		break;
 	default:
 		return (FALSE);
