@@ -1038,6 +1038,7 @@ v669  11/6/24   Add --no-paste; add --no-edit-warn; add TAB for -- command;
                 with --no-number-headers; add mouse cmds to lesskey;
                 add form-feed; add --no-poll; add LESS_SIGUSR1;
                 fix "configure --with-secure=no".
+v670
 */
 
-char version[] = "669";
+char version[] = "670x";
