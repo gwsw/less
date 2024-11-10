@@ -1607,6 +1607,8 @@ public void commands(void)
 			/*
 			 * Forward forever, ignoring EOF.
 			 */
+			if (get_altfilename(curr_ifile) != NULL)
+				error("Warning: command may not work correctly when file is viewed via LESSOPEN", NULL_PARG);
 			if (show_attn)
 				set_attnpos(bottompos);
 			newaction = forw_loop(0);
