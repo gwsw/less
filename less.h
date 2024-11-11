@@ -167,7 +167,7 @@ void free();
 #define IS_DIGIT(c)     ((c) >= '0' && (c) <= '9')
 #endif
 
-#define IS_CSI_START(c) (((LWCHAR)(c)) == ESC || (((LWCHAR)(c)) == CSI))
+#define IS_CSI_START(c) (control_char(c) && (((LWCHAR)(c)) == ESC || (((LWCHAR)(c)) == CSI)))
 
 #define OPT_OFF         0
 #define OPT_ON          1
