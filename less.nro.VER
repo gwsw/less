@@ -919,8 +919,6 @@ is recalculated if the terminal window is resized.
 If the \-\-header option is used and the target line specified by \-j
 would be obscured by the header, the target line is moved to the first
 line after the header.
-While the \-\-header option is active, the \-S option is ignored,
-and lines longer than the screen width are truncated.
 .RS
 .PP
 If any form of the \-j option is used,
@@ -1187,6 +1185,8 @@ the screen width is not displayed until you press RIGHT-ARROW.
 The default is to wrap long lines; that is, display the remainder
 on the next line.
 See also the \-\-wordwrap option.
+While the \-\-header option is active, the \-S option is ignored,
+and lines longer than the screen width are truncated.
 .IP "\-t\fItag\fP or \-\-tag=\fItag\fP"
 The \-t option, followed immediately by a TAG,
 will edit the file containing that tag.
@@ -1371,6 +1371,10 @@ When header lines are displayed, any file contents before the header line cannot
 When \fIC\fP is nonzero, the first \fIC\fP characters displayed at the 
 beginning of each line are replaced with the first \fIC\fP characters of the line,
 even if the rest of the line is scrolled horizontally.
+.PP
+While the \-\-header option is active, 
+lines longer than the screen width are truncated, 
+and the \-S option is ignored.
 .RE
 .IP "\-\-incsearch"
 Subsequent search commands will be "incremental"; that is,
