@@ -55,11 +55,13 @@ public void eof_bell(void)
 	if (no_eof_bell)
 		return;
 #if HAVE_TIME
-	static time_type last_eof_bell = 0;
-	time_type now = get_time();
-	if (now == last_eof_bell) /* max once per second */
-		return;
-	last_eof_bell = now;
+	{
+		static time_type last_eof_bell = 0;
+		time_type now = get_time();
+		if (now == last_eof_bell) /* max once per second */
+			return;
+		last_eof_bell = now;
+	}
 #endif
 	if (quiet == NOT_QUIET)
 		bell();

@@ -1267,12 +1267,14 @@ struct osc8_parse_info {
 static lbool osc8_parse(constant char *line, constant char *line_end, struct osc8_parse_info *pop)
 {
 	constant char *oline;
-	pop->osc8_start = pop->osc8_end = pop->uri_start = pop->uri_end = pop->params_start = pop->params_end = NULL;
+	LWCHAR ch;
+	struct ansi_state *pansi;
 
+	pop->osc8_start = pop->osc8_end = pop->uri_start = pop->uri_end = pop->params_start = pop->params_end = NULL;
 	oline = line;
-	LWCHAR ch = step_charc(&line, +1, line_end);
+	ch = step_charc(&line, +1, line_end);
 	/* oline points to character ch, line points to the one after it. */
-	struct ansi_state *pansi = ansi_start(ch);
+	pansi = ansi_start(ch);
 	if (pansi == NULL)
 		return FALSE;
 	pop->osc8_start = oline; /* start at the ESC */
