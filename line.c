@@ -1497,8 +1497,8 @@ static void col_vs_pos(POSITION linepos, mutable struct col_pos *cp, POSITION sa
 			if (is_utf8_well_formed(utf8_buf, utf8_len))
 			{
 				LWCHAR wch = get_wchar(utf8_buf);
-				utf8_len = 0;
 				int attr = 0; /* {{ ignoring attribute is not correct for magic cookie terminals }} */
+				utf8_len = 0;
 				if (utf_mode && ctldisp != OPT_ON && is_ubin_char(wch))
 					cw = (int) strlen(prutfchar(wch));
 				else

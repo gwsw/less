@@ -1043,10 +1043,12 @@ public int lesskey(constant char *filename, lbool sysvar)
 #if HAVE_LESSKEYSRC 
 static int lesskey_text(constant char *filename, lbool sysvar, lbool content)
 {
+	int r;
 	static struct lesskey_tables tables;
+
 	if (!secure_allow(SF_LESSKEY))
 		return (1);
-	int r = content ? parse_lesskey_content(filename, &tables) : parse_lesskey(filename, &tables);
+	r = content ? parse_lesskey_content(filename, &tables) : parse_lesskey(filename, &tables);
 	if (r != 0)
 		return (r);
 	add_fcmd_table(tables.cmdtable.buf.data, tables.cmdtable.buf.end);
@@ -1120,8 +1122,10 @@ static int add_hometable(int (*call_lesskey)(constant char *, lbool), constant c
  */
 static void add_content_table(int (*call_lesskey)(constant char *, lbool), constant char *envname, lbool sysvar)
 {
+	constant char *content;
+
 	(void) call_lesskey; /* not used */
-	constant char *content = lgetenv(envname);
+	content = lgetenv(envname);
 	if (isnullenv(content))
 		return;
 	lesskey_content(content, sysvar);
