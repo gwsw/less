@@ -197,8 +197,10 @@ public int getchr(void)
 		 * In raw read, we don't see ^C so look here for it.
 		 */
 #if MSDOS_COMPILER==WIN32C
+#if 0
 		if (ABORT_SIGS())
 			return (READ_INTR);
+#endif
 		c = WIN32getch();
 #else
 		c = getch();

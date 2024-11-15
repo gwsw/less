@@ -258,13 +258,11 @@ start:
 		int c;
 
 		c = WIN32getch();
-		if (c == intr_char)
-		{
-			sigs |= S_INTERRUPT;
-			reading = FALSE;
-			return (READ_INTR);
-		}
-		WIN32ungetch(c);
+		sigs |= S_INTERRUPT;
+		reading = FALSE;
+		if (c != CONTROL('C') && c != intr_char)
+			WIN32ungetch((char) c);
+		return (READ_INTR);
 	}
 #endif
 #endif
