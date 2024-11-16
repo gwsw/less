@@ -224,6 +224,7 @@ static int ch_get(void)
 		lbool read_again;
 		POSITION len;
 		POSITION pos = ch_position(ch_block, bp->datasize);
+		lbool read_pipe_at_eof = FALSE;
 		if ((len = ch_length()) != NULL_POSITION && pos >= len)
 		{
 			/*
@@ -232,7 +233,15 @@ static int ch_get(void)
 			 */
 			ch_resize();
 			if ((len = ch_length()) != NULL_POSITION && pos >= len)
-				return (EOI);
+			{
+				if (ch_flags & CH_CANSEEK)
+					return (EOI);
+				/* ch_length doesn't work for pipes, so just try to
+				 * read from the pipe to see if more data has appeared.
+				 * This can happen only in limited situations, such as
+				 * a fifo that the writer has closed and reopened. */
+				read_pipe_at_eof = TRUE;
+			}
 		}
 
 		if (pos != ch_fpos)
@@ -309,6 +318,8 @@ static int ch_get(void)
 
 		ch_fpos += n;
 		bp->datasize += (size_t) n;
+		if (read_pipe_at_eof)
+			ch_set_eof(); /* update length of pipe */
 
 		if (n == 0)
 		{
@@ -335,6 +346,9 @@ static int ch_get(void)
 				return (EOI);
 			}
 			if (sigs)
+				return (EOI);
+			if (read_pipe_at_eof)
+				/* No new data; we are still at EOF on the pipe. */
 				return (EOI);
 		}
 
