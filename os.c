@@ -32,6 +32,9 @@
 #if HAVE_ERRNO_H
 #include <errno.h>
 #endif
+#if MUST_DEFINE_ERRNO
+extern int errno;
+#endif
 #if HAVE_VALUES_H
 #include <values.h>
 #endif
@@ -66,13 +69,15 @@ static lbool any_data = FALSE;
 #define LONG_JUMP       longjmp
 #endif
 
-public int reading;
+static lbool reading;
+static lbool opening;
 public lbool waiting_for_data;
 public int consecutive_nulls = 0;
 
 /* Milliseconds to wait for data before displaying "waiting for data" message. */
 static int waiting_for_data_delay = 4000;
 static jmp_buf read_label;
+static jmp_buf open_label;
 
 extern int sigs;
 extern int ignore_eoi;
@@ -163,7 +168,7 @@ public int supports_ctrl_x(void)
 
 /*
  * Like read() system call, but is deliberately interruptible.
- * A call to intread() from a signal handler will interrupt
+ * A call to intio() from a signal handler will interrupt
  * any pending iread().
  */
 public ssize_t iread(int fd, unsigned char *buf, size_t len)
@@ -190,7 +195,7 @@ start:
 	if (!reading && SET_JUMP(read_label))
 	{
 		/*
-		 * We jumped here from intread.
+		 * We jumped here from intio.
 		 */
 		reading = FALSE;
 #if HAVE_SIGPROCMASK
@@ -292,9 +297,6 @@ start:
 		/*
 		 * Certain values of errno indicate we should just retry the read.
 		 */
-#if MUST_DEFINE_ERRNO
-		extern int errno;
-#endif
 #ifdef EINTR
 		if (errno == EINTR)
 			goto start;
@@ -314,11 +316,41 @@ start:
 }
 
 /*
- * Interrupt a pending iread().
+ * Like open() system call, but is interruptible.
  */
-public void intread(void)
+public int iopen(constant char *filename, int flags)
 {
-	LONG_JUMP(read_label, 1);
+	int r;
+	if (!opening && SET_JUMP(open_label))
+	{
+		opening = FALSE;
+		sigs = 0;
+#if HAVE_SETTABLE_ERRNO
+#ifdef EINTR
+		errno = EINTR;
+#endif
+#endif
+		return -1;
+	}
+	opening = TRUE;
+	r = open(filename, flags);
+	opening = FALSE;
+	return r;
+}
+
+/*
+ * Interrupt a pending iopen() or iread().
+ */
+public void intio(void)
+{
+	if (opening)
+	{
+		LONG_JUMP(open_label, 1);
+	}
+	if (reading)
+	{
+		LONG_JUMP(read_label, 1);
+	}
 }
 
 /*
@@ -363,9 +395,6 @@ public char * errno_message(constant char *filename)
 	char *m;
 	size_t len;
 #if HAVE_ERRNO
-#if MUST_DEFINE_ERRNO
-	extern int errno;
-#endif
 	p = strerror(errno);
 #else
 	p = "cannot open";

@@ -531,7 +531,7 @@ public int edit_ifile(IFILE ifile)
 				error("%s", &parg);
 				free(p);
 				return edit_error(filename, alt_filename, altpipe, ifile);
-			} else if ((f = open(open_filename, OPEN_READ)) < 0)
+			} else if ((f = iopen(open_filename, OPEN_READ)) < 0)
 			{
 				/*
 				 * Got an error trying to open it.

@@ -215,7 +215,9 @@ AH_TEMPLATE([HAVE_FILENO],
 AH_TEMPLATE([HAVE_ERRNO],
 	[Define HAVE_ERRNO if you have the errno variable.])
 AH_TEMPLATE([MUST_DEFINE_ERRNO],
-	[Define MUST_DEFINE_ERRNO if you have errno but it is not define in errno.h.])
+	[Define MUST_DEFINE_ERRNO if you have errno but it is not defined in errno.h.])
+AH_TEMPLATE([HAVE_SETTABLE_ERRNO],
+	[Define HAVE_SETTABLE_ERRNO if the errno variable can be assigned to.])
 AH_TEMPLATE([HAVE_SYS_ERRLIST],
 	[Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable.])
 AH_TEMPLATE([HAVE_OSPEED],
@@ -318,6 +320,17 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #if HAVE_ERRNO_H
 #include <errno.h>
 #endif]], [[extern int errno; static int x; x = errno;]])],[AC_MSG_RESULT(yes - must define); AC_DEFINE(HAVE_ERRNO) AC_DEFINE(MUST_DEFINE_ERRNO)],[AC_MSG_RESULT(no)])
+fi
+
+have_settable_errno=no
+if test $have_errno = yes; then
+AC_MSG_CHECKING(for settable errno)
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#if HAVE_ERRNO_H
+#include <errno.h>
+#else
+extern int errno;
+#endif]], [[errno = 0;]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_SETTABLE_ERRNO)],[])
 fi
 
 AC_MSG_CHECKING(for locale)

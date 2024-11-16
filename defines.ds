@@ -278,6 +278,7 @@
 #define HAVE_ERRNO 1
 #define MUST_DEFINE_ERRNO 1
 #endif
+#define HAVE_SETTABLE_ERRNO 1
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
 #define HAVE_SYS_ERRLIST 1

@@ -1,3 +1,4 @@
+#include <errno.h>
 /*
  * Copyright (C) 1984-2024  Mark Nudelman
  *
@@ -15,7 +16,7 @@
  * At some convenient time, the mainline code checks to see if any
  * signals need processing by calling psignal().
  * If we happen to be reading from a file [in iread()] at the time
- * the signal is received, we call intread to interrupt the iread.
+ * the signal is received, we call intio to interrupt the iread.
  */
 
 #include "less.h"
@@ -29,7 +30,6 @@ public int sigs;
 extern int sc_width, sc_height;
 extern int linenums;
 extern int wscroll;
-extern int reading;
 extern int quit_on_intr;
 extern long jump_sline_fraction;
 
@@ -59,8 +59,7 @@ static RETSIGTYPE u_interrupt(int type)
 #if HILITE_SEARCH
 	set_filter_pattern(NULL, 0);
 #endif
-	if (reading)
-		intread(); /* May longjmp */
+	intio();
 }
 #endif
 
@@ -74,8 +73,7 @@ static RETSIGTYPE stop(int type)
 	(void) type;
 	LSIGNAL(SIGTSTP, stop);
 	sigs |= S_STOP;
-	if (reading)
-		intread();
+	intio();
 }
 #endif
 
@@ -107,8 +105,7 @@ public RETSIGTYPE winch(int type)
 		return;
 #endif
 	sigs |= S_WINCH;
-	if (reading)
-		intread();
+	intio();
 }
 #endif
 
@@ -153,8 +150,7 @@ static void sigusr(constant char *var)
 	if (isnullenv(cmd))
 		return;
 	ungetsc(cmd);
-	if (reading)
-		intread();
+	intio();
 }
 
 static RETSIGTYPE sigusr1(int type)
