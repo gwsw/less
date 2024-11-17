@@ -273,7 +273,7 @@ start:
 #endif
 	n = read(fd, buf, len);
 	reading = FALSE;
-#if 1
+#if 0
 	/*
 	 * This is a kludge to workaround a problem on some systems
 	 * where terminating a remote tty connection causes read() to
