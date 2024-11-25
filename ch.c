@@ -234,7 +234,7 @@ static int ch_get(void)
 			ch_resize();
 			if ((len = ch_length()) != NULL_POSITION && pos >= len)
 			{
-				if (ch_flags & CH_CANSEEK)
+				if (ch_flags & (CH_CANSEEK|CH_HELPFILE))
 					return (EOI);
 				/* ch_length doesn't work for pipes, so just try to
 				 * read from the pipe to see if more data has appeared.
