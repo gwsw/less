@@ -481,4 +481,6 @@ See the GNU General Public License for more details.
 .
 Mark Nudelman
 .br
-Report bugs at https://github.com/gwsw/less/issues.
+Report bugs at 
+.UR https://github.com/gwsw/less/issues
+.UE .
