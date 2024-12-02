@@ -250,11 +250,10 @@ static int is_ansi_end_0(char c)
 
 static void win_flush(void)
 {
-	if (ctldisp != OPT_ONPLUS
-#if MSDOS_COMPILER==WIN32C
-	    || (vt_enabled && sgr_mode)
+#if MSDOS_COMPILER != WIN32C
+	static constant int vt_enabled = 0;
 #endif
-	   )
+	if (ctldisp != OPT_ONPLUS || (vt_enabled && sgr_mode))
 		WIN32textout(obuf, ptr_diff(ob, obuf));
 	else
 	{
