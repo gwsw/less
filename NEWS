@@ -62,6 +62,8 @@
 
 * Fix bug using "configure --with-secure=no" (github #584).
 
+* Fix bug using multibyte command chars (github #595).
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 668

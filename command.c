@@ -1448,7 +1448,10 @@ public void commands(void)
 					continue;
 				cbuf = get_cmdbuf();
 				if (cbuf == NULL)
-					continue;
+				{
+					c = getcc();
+					goto again;
+				}
 				action = fcmd_decode(cbuf, &extra);
 			} else
 			{
