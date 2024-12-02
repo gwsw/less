@@ -79,6 +79,12 @@ public void put_line(void)
 	at_exit();
 }
 
+/*
+ * win_flush has at least one non-critical issue when an escape sequence
+ * begins at the last char of the buffer, and possibly more issues.
+ * as a temporary measure to reduce likelyhood of encountering end-of-buffer
+ * issues till the SGR parser is replaced, OUTBUF_SIZE is 8K on Windows.
+ */
 static char obuf[OUTBUF_SIZE];
 static char *ob = obuf;
 static int outfd = 2; /* stderr */
@@ -236,6 +242,12 @@ static void set_win_colors(t_sgr *sgr)
 	WIN32setcolors(fg, bg);
 }
 
+/* like is_ansi_end, but doesn't assume c != 0  (returns 0 for c == 0) */
+static int is_ansi_end_0(char c)
+{
+	return c && is_ansi_end((unsigned char)c);
+}
+
 static void win_flush(void)
 {
 	if (ctldisp != OPT_ONPLUS
@@ -253,6 +265,21 @@ static void win_flush(void)
 		 */
 		char *anchor, *p, *p_next;
 		static t_sgr sgr;
+
+		/* when unsupported SGR value is encountered, like 38/48 for
+		 * 256/true colors, then we abort processing this sequence,
+		 * because it may expect followup values, but we don't know
+		 * how many, so we've lost sync of this sequence parsing.
+		 * Without VT enabled it's OK because we can't do much anyway,
+		 * but with VT enabled we choose to passthrough this sequence
+		 * to the terminal - which can handle it better than us.
+		 * however, this means that our "sgr" var is no longer in sync
+		 * with the actual terminal state, which can lead to broken
+		 * colors with future sequences which we _can_ fully parse.
+		 * in such case, once it happens, we keep passthrough sequences
+		 * until we know we're in sync again - on a valid reset.
+		 */
+		static int sgr_bad_sync;
 
 		for (anchor = p_next = obuf;
 			 (p_next = memchr(p_next, ESC, ob - p_next)) != NULL; )
@@ -279,7 +306,7 @@ static void win_flush(void)
 					anchor = p;
 				}
 				p += 2;  /* Skip the "ESC-[" */
-				if (is_ansi_end(*p))
+				if (is_ansi_end_0(*p))
 				{
 					/*
 					 * Handle null escape sequence
@@ -289,6 +316,7 @@ static void win_flush(void)
 					anchor = p_next = p;
 					update_sgr(&sgr, 0);
 					set_win_colors(&sgr);
+					sgr_bad_sync = 0;
 					continue;
 				}
 				p_next = p;
@@ -297,7 +325,7 @@ static void win_flush(void)
 				 * Parse and apply SGR values to the SGR state
 				 * based on the escape sequence. 
 				 */
-				while (!is_ansi_end(*p))
+				while (!is_ansi_end_0(*p))
 				{
 					char *q;
 					long code = strtol(p, &q, 10);
@@ -310,14 +338,13 @@ static void win_flush(void)
 						 * in the buffer.
 						 */
 						size_t slop = ptr_diff(q, anchor);
-						/* {{ strcpy args overlap! }} */
-						strcpy(obuf, anchor);
+						memmove(obuf, anchor, slop);
 						ob = &obuf[slop];
 						return;
 					}
 
 					if (q == p ||
-						(!is_ansi_end(*q) && *q != ';'))
+						(!is_ansi_end_0(*q) && *q != ';'))
 					{
 						/*
 						 * can't parse. passthrough
@@ -331,12 +358,26 @@ static void win_flush(void)
 
 					if (!bad_code)
 						bad_code = update_sgr(&sgr, code);
+
+					if (bad_code)
+						sgr_bad_sync = 1;
+					else if (code == 0)
+						sgr_bad_sync = 0;
+
 					p = q;
 				}
-				if (!is_ansi_end(*p) || p == p_next)
+				if (!is_ansi_end_0(*p) || p == p_next)
 					break;
 
-				set_win_colors(&sgr);
+				if (sgr_bad_sync && vt_enabled) {
+					/* this or a prior sequence had unknown
+					 * SGR value. passthrough all sequences
+					 * until we're in-sync again
+					 */
+					WIN32textout(anchor, ptr_diff(p+1, anchor));
+				} else {
+					set_win_colors(&sgr);
+				}
 				p_next = anchor = p + 1;
 			} else
 				p_next++;
