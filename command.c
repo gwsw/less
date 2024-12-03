@@ -477,7 +477,7 @@ static int mca_opt_char(char c)
 	 * or one char of a long option name,
 	 * or one char of the option parameter.
 	 */
-	if (curropt == NULL && len_cmdbuf() == 0)
+	if (curropt == NULL && cmdbuf_empty())
 	{
 		int ret = mca_opt_first_char(c);
 		if (ret != NO_MCA)
@@ -557,7 +557,7 @@ static int mca_search_char(char c)
 	 *      *  Toggle the PAST_EOF flag
 	 *      @  Toggle the FIRST_FILE flag
 	 */
-	if (len_cmdbuf() > 0 || literal_char)
+	if (!cmdbuf_empty() || literal_char)
 	{
 		literal_char = FALSE;
 		return (NO_MCA);
@@ -1444,7 +1444,7 @@ public void commands(void)
 				 * If the user backspaces past the start 
 				 * of the line, abort the command.
 				 */
-				if (cmd_char(c) == CC_QUIT || len_cmdbuf() == 0)
+				if (cmd_char(c) == CC_QUIT || cmdbuf_empty())
 					continue;
 				cbuf = get_cmdbuf();
 				if (cbuf == NULL)

@@ -183,6 +183,16 @@ public int len_cmdbuf(void)
 }
 
 /*
+ * Is the command buffer empty?
+ * It is considered nonempty if there is any text in it,
+ * or if a multibyte command is being entered but not yet complete.
+ */
+public lbool cmdbuf_empty(void)
+{
+	return cp == cmdbuf && cmd_mbc_buf_len == 0;
+}
+
+/*
  * Common part of cmd_step_right() and cmd_step_left().
  * {{ Returning pwidth and bswidth separately is a historical artifact
  *    since they're always the same. Maybe clean this up someday. }}
