@@ -176,7 +176,7 @@ public int overlay_header(void)
 			pos = forw_line(pos);
 			set_attr_header(ln);
 			clear_eol();
-			put_line();
+			put_line(FALSE);
 		}
 		moved = TRUE;
 	}
@@ -196,7 +196,7 @@ public int overlay_header(void)
 				/* Need skipeol for all header lines except the last one. */
 				pos = forw_line_pfx(pos, header_cols, ln+1 < header_lines);
 				set_attr_header(ln);
-				put_line();
+				put_line(FALSE);
 			}
 		}
 		moved = TRUE;
@@ -349,7 +349,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, int nblank)
 			squished = TRUE;
 			continue;
 		}
-		put_line();
+		put_line(TRUE);
 		if (stop_on_form_feed && !do_repaint && line_is_ff() && position(TOP) != NULL_POSITION)
 			break;
 #if 0
@@ -437,7 +437,7 @@ public void back(int n, POSITION pos, lbool force, lbool only_last)
 		{
 			home();
 			add_line();
-			put_line();
+			put_line(FALSE);
 			if (stop_on_form_feed && line_is_ff())
 				break;
 		}

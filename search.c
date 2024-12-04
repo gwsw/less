@@ -292,7 +292,7 @@ public void repaint_hilite(lbool on)
 		(void) forw_line(pos);
 		goto_line(sindex);
 		clear_eol();
-		put_line();
+		put_line(FALSE);
 	}
 	overlay_header();
 	lower_left();
@@ -339,7 +339,7 @@ public void clear_attn(void)
 			(void) forw_line(pos);
 			goto_line(sindex);
 			clear_eol();
-			put_line();
+			put_line(FALSE);
 			moved = 1;
 		}
 	}

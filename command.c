@@ -951,7 +951,7 @@ static void prompt(void)
 		p = a;
 #endif
 		load_line(p);
-		put_line();
+		put_line(FALSE);
 	}
 	clear_eol();
 }

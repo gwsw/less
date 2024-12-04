@@ -78,6 +78,7 @@ static constant char *osc_ansi_chars;
 static int osc_ansi_allow_count;
 static long *osc_ansi_allow;
 static int in_hilite;
+static lbool clear_after_line;
 
 static int attr_swidth(int a);
 static int attr_ewidth(int a);
@@ -281,6 +282,7 @@ public void prewind(void)
 	ansi_in_line = FALSE;
 	ff_starts_line = -1;
 	hlink_in_line = FALSE;
+	clear_after_line = FALSE;
 	line_mark_attr = 0;
 	line_pos = NULL_POSITION;
 	xbuf_reset(&shifted_ansi);
@@ -1427,6 +1429,14 @@ public void pdone(lbool endline, lbool chopped, lbool forw)
 		add_linebuf(' ', AT_NORMAL, 1);
 		add_linebuf('\b', AT_NORMAL, -1);
 	}
+	/*
+	 * If a terminal moves the cursor to the next line immediately after
+	 * writing into the last char of a line, the following line may get
+	 * colored with the last char's background color before the color
+	 * reset sequence is sent. Clear the line to reset the background color.
+	 */
+	if (auto_wrap && !ignaw && end_column >= sc_width + cshift)
+		clear_after_line = TRUE;
 	set_linebuf(linebuf.end, '\0', AT_NORMAL);
 }
 
@@ -1594,6 +1604,14 @@ public int gline(size_t i, int *ap)
 	i += linebuf.print - linebuf.pfx_end;
 	*ap = linebuf.attr[i];
 	return (linebuf.buf[i] & 0xFF);
+}
+
+/*
+ * Should we clear to end of line after printing this line?
+ */
+public lbool should_clear_after_line(void)
+{
+	return clear_after_line;
 }
 
 /*

@@ -49,7 +49,7 @@ extern int vt_enabled;
 /*
  * Display the line which is in the line buffer.
  */
-public void put_line(void)
+public void put_line(lbool forw_scroll)
 {
 	int c;
 	size_t i;
@@ -75,8 +75,10 @@ public void put_line(void)
 		else
 			putchr(c);
 	}
-
 	at_exit();
+
+	if (forw_scroll && should_clear_after_line())
+		clear_eol();
 }
 
 /*
