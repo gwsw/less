@@ -1039,7 +1039,7 @@ v669  11/6/24   Add --no-paste; add --no-edit-warn; add TAB for -- command;
                 add form-feed; add --no-poll; add LESS_SIGUSR1;
                 fix "configure --with-secure=no".
 v670  11/16/24  Fix SIGWINCH handling; add iopen.
-v671            Fix multibyte command chars.
+v671  12/6/24   Fix multibyte command chars; fix Windows auto_wrap.
 */
 
-char version[] = "671x";
+char version[] = "671";

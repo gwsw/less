@@ -64,6 +64,8 @@
 
 * Fix bug using multibyte command chars (github #595).
 
+* Fix auto_wrap setting on Windows (github #497).
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 668
