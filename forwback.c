@@ -22,6 +22,7 @@ public int forw_prompt;
 public lbool first_time = TRUE; /* We're printing the first screen of output */
 public int shell_lines = 1;
 public lbool no_eof_bell = FALSE;
+extern int no_poll;
 
 extern int sigs;
 extern int top_scroll;
@@ -543,12 +544,18 @@ public lbool get_one_screen(void)
 {
 	int nlines;
 	POSITION pos = ch_zero();
+	lbool ret = FALSE;
 
+	no_poll = 1;
 	for (nlines = 0;  nlines + shell_lines <= sc_height;  nlines++)
 	{
 		pos = forw_line(pos);
 		if (pos == NULL_POSITION)
-			return TRUE;
+		{
+			ret = TRUE;
+			break;
+		}
 	}
-	return FALSE;
+	no_poll = 0;
+	return ret;
 }
