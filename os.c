@@ -323,9 +323,14 @@ start:
 public int iopen(constant char *filename, int flags)
 {
 	int r;
-	if (!opening && SET_JUMP(open_label))
+	while (!opening && SET_JUMP(open_label))
 	{
 		opening = FALSE;
+		if (sigs & S_STOP)
+		{
+			psignals(); /* Stop the process */
+			continue;
+		}
 		sigs = 0;
 #if HAVE_SETTABLE_ERRNO
 #ifdef EINTR

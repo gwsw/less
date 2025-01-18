@@ -254,7 +254,16 @@ public void psignals(void)
 		LSIGNAL(SIGTTOU, SIG_DFL);
 #endif
 		LSIGNAL(SIGTSTP, SIG_DFL);
+		/*
+		 * {{ For reasons I don't understand, sending SIGTSTP does not stop
+		 *    the process if called from iopen, even though we set SIGTSTP
+		 *    to SIG_DFL above. So we use SIGSTOP if possible. }}
+		 */
+#ifdef SIGSTOP
+		kill(getpid(), SIGSTOP);
+#else
 		kill(getpid(), SIGTSTP);
+#endif
 		/*
 		 * ... Bye bye. ...
 		 * Hopefully we'll be back later and resume here...
