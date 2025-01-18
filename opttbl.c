@@ -84,7 +84,6 @@ public int match_shift;         /* Extra horizontal shift on search match */
 public int no_paste;            /* Don't accept pasted input */
 public int no_edit_warn;        /* Don't warn when editing a LESSOPENed file */
 public int stop_on_form_feed;   /* Stop scrolling on a line starting with form feed */
-public int no_poll;             /* Don't poll tty for ^X */
 public long match_shift_fraction = NUM_FRAC_DENOM/2; /* 1/2 of screen width */
 public char intr_char = CONTROL('X'); /* Char to interrupt reads */
 #if HILITE_SEARCH
@@ -185,7 +184,6 @@ static struct optname proc_backspace_optname = { "proc-backspace", NULL };
 static struct optname proc_tab_optname = { "proc-tab", NULL };
 static struct optname proc_return_optname = { "proc-return", NULL };
 static struct optname match_shift_optname = { "match-shift", NULL };
-static struct optname no_poll_optname = { "no-poll", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/
@@ -755,14 +753,6 @@ static struct loption option[] =
 		{
 			"Search match shift: ",
 			".d",
-			NULL
-		}
-	},
-	{ OLETTER_NONE, &no_poll_optname,
-		O_BOOL, OPT_OFF, &no_poll, NULL,
-		{
-			"Poll for ^X when reading data",
-			"Don't poll for ^X when reading data",
 			NULL
 		}
 	},

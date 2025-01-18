@@ -22,7 +22,6 @@ public int forw_prompt;
 public lbool first_time = TRUE; /* We're printing the first screen of output */
 public int shell_lines = 1;
 public lbool no_eof_bell = FALSE;
-extern int no_poll;
 
 extern int sigs;
 extern int top_scroll;
@@ -39,6 +38,7 @@ extern int header_cols;
 extern int full_screen;
 extern int stop_on_form_feed;
 extern POSITION header_start_pos;
+extern lbool no_poll;
 #if HILITE_SEARCH
 extern size_t size_linebuf;
 extern int hilite_search;
@@ -545,8 +545,10 @@ public lbool get_one_screen(void)
 	int nlines;
 	POSITION pos = ch_zero();
 	lbool ret = FALSE;
+	lbool save_no_poll = no_poll;
 
-	no_poll = 1;
+    /* Disable polling until we know whether we will exit early due to -F. */
+	no_poll = TRUE;
 	for (nlines = 0;  nlines + shell_lines <= sc_height;  nlines++)
 	{
 		pos = forw_line(pos);
@@ -556,6 +558,6 @@ public lbool get_one_screen(void)
 			break;
 		}
 	}
-	no_poll = 0;
+	no_poll = save_no_poll;
 	return ret;
 }

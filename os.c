@@ -73,6 +73,7 @@ static lbool reading;
 static lbool opening;
 public lbool waiting_for_data;
 public int consecutive_nulls = 0;
+public lbool no_poll = FALSE;
 
 /* Milliseconds to wait for data before displaying "waiting for data" message. */
 static int waiting_for_data_delay = 4000;
@@ -86,7 +87,6 @@ extern int follow_mode;
 extern int scanning_eof;
 extern char intr_char;
 extern int is_tty;
-extern int no_poll;
 extern int quit_if_one_screen;
 extern int one_screen;
 #if !MSDOS_COMPILER
