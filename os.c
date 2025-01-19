@@ -119,7 +119,7 @@ public void init_poll(void)
 static int check_poll(int fd, int tty)
 {
 	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
-	int timeout = (waiting_for_data && !(scanning_eof && follow_mode == FOLLOW_NAME)) ? -1 : waiting_for_data_delay;
+	int timeout = (waiting_for_data && !(scanning_eof && follow_mode == FOLLOW_NAME)) ? -1 : (ignore_eoi && !waiting_for_data) ? 0 : waiting_for_data_delay;
 	if (!any_data)
 	{
 		/*
