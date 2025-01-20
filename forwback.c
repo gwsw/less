@@ -547,7 +547,7 @@ public lbool get_one_screen(void)
 	lbool ret = FALSE;
 	lbool save_no_poll = no_poll;
 
-    /* Disable polling until we know whether we will exit early due to -F. */
+	/* Disable polling until we know whether we will exit early due to -F. */
 	no_poll = TRUE;
 	for (nlines = 0;  nlines + shell_lines <= sc_height;  nlines++)
 	{
