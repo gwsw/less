@@ -236,6 +236,8 @@ AH_TEMPLATE([HAVE_SIGSET_T],
 	[Define HAVE_SIGSET_T you have the sigset_t type.])
 AH_TEMPLATE([HAVE_SIGEMPTYSET],
 	[Define HAVE_SIGEMPTYSET if you have the sigemptyset macro.])
+AH_TEMPLATE([HAVE_SIGSETJMP],
+	[Define HAVE_SIGSETJMP if you have sigsetjmp and siglongjmp.])
 AH_TEMPLATE([EDIT_PGM],
 	[Define EDIT_PGM to your editor.])
 AH_TEMPLATE([SECURE_COMPILE],
@@ -258,6 +260,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[int f(int a) { return a; }]])],[AC_MS
 
 # Checks for library functions.
 AC_CHECK_FUNCS([fchmod fsync nanosleep poll popen realpath _setjmp sigprocmask sigsetmask snprintf stat strsignal system ttyname usleep])
+AC_CHECK_DECL(sigsetjmp, [AC_DEFINE(HAVE_SIGSETJMP)], [], [#include <setjmp.h>])
 
 # AC_CHECK_FUNCS may not work for inline functions, so test these separately.
 AC_MSG_CHECKING(for memcpy)

@@ -61,12 +61,20 @@ static lbool any_data = FALSE;
  * On other systems, setjmp() doesn't affect the signal mask and so
  * _setjmp() does not exist; we just use setjmp().
  */
-#if HAVE__SETJMP && HAVE_SIGSETMASK
-#define SET_JUMP        _setjmp
-#define LONG_JUMP       _longjmp
+#if HAVE_SIGSETJMP
+#define SET_JUMP(label)        sigsetjmp(label, 1)
+#define LONG_JUMP(label, val)  siglongjmp(label, val)
+#define JUMP_BUF               sigjmp_buf
 #else
-#define SET_JUMP        setjmp
-#define LONG_JUMP       longjmp
+#if HAVE__SETJMP && HAVE_SIGSETMASK
+#define SET_JUMP(label)        _setjmp(label)
+#define LONG_JUMP(label, val)  _longjmp(label, val)
+#define JUMP_BUF               jmp_buf
+#else
+#define SET_JUMP(label)        setjmp(label)
+#define LONG_JUMP(label, val)  longjmp(label, val)
+#define JUMP_BUF               jmp_buf
+#endif
 #endif
 
 static lbool reading;
@@ -77,8 +85,8 @@ public lbool no_poll = FALSE;
 
 /* Milliseconds to wait for data before displaying "waiting for data" message. */
 static int waiting_for_data_delay = 4000;
-static jmp_buf read_label;
-static jmp_buf open_label;
+static JUMP_BUF read_label;
+static JUMP_BUF open_label;
 
 extern int sigs;
 extern int ignore_eoi;
@@ -326,18 +334,17 @@ public int iopen(constant char *filename, int flags)
 	while (!opening && SET_JUMP(open_label))
 	{
 		opening = FALSE;
-		if (sigs & S_STOP)
+		if (sigs & S_INTERRUPT)
 		{
-			psignals(); /* Stop the process */
-			continue;
-		}
-		sigs = 0;
+			sigs = 0;
 #if HAVE_SETTABLE_ERRNO
 #ifdef EINTR
-		errno = EINTR;
+			errno = EINTR;
 #endif
 #endif
-		return -1;
+			return -1;
+		}
+		psignals(); /* Handle S_STOP or S_WINCH */
 	}
 	opening = TRUE;
 	r = open(filename, flags);
