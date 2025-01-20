@@ -232,6 +232,7 @@ public void jump_loc(POSITION pos, int sline)
 	 * Normalize sline.
 	 */
 	pos = after_header_pos(pos);
+	pos = next_unfiltered(pos);
 	sindex = sindex_from_sline(sline);
 
 	if ((nline = onscreen(pos)) >= 0)
