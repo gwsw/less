@@ -1125,6 +1125,10 @@ Thus, various display problems may result,
 such as long lines being split in the wrong place.
 .sp
 USE OF THE \-r OPTION IS DANGEROUS AND IS NOT RECOMMENDED.
+.br
+The \-r option can be set on the command line or via the \- command, 
+but to avoid unintentional use, it cannot be set in a LESS environment variable.
+If \-r appears in a LESS environment variable, it is treated as if it were \-R.
 .IP "\-R or \-\-RAW-CONTROL-CHARS"
 Like \-r, but only a limited set of escape 
 sequences are output in "raw" form.

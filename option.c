@@ -30,6 +30,7 @@ extern int less_is_more;
 extern int quit_at_eof;
 extern char *every_first_cmd;
 extern int opt_use_backslash;
+extern int ctldisp;
 
 /*
  * Return a printable description of an option.
@@ -60,7 +61,7 @@ public constant char * propt(char c)
  * Scan an argument (either from the command line or from the 
  * LESS environment variable) and process it.
  */
-public void scan_option(constant char *s)
+public void scan_option(constant char *s, lbool is_env)
 {
 	struct loption *o;
 	char optc;
@@ -254,6 +255,9 @@ public void scan_option(constant char *s)
 			{
 				if (set_default)
 					*(o->ovar) = o->odefault;
+				else if (is_env && o->ovar == &ctldisp)
+					/* If -r appears in an env var, treat it as -R. */
+					*(o->ovar) = OPT_ONPLUS;
 				else
 					*(o->ovar) = flip_triple(o->odefault, lc);
 			}

@@ -13,6 +13,8 @@
 
 	Major changes between "less" versions 668 and 673
 
+* Treat -r in LESS environment variable as -R.
+
 * Update the file size on an attempt to go past end of file.
 
 * Add --no-paste option (github #523).

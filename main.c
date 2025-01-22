@@ -308,7 +308,7 @@ int main(int argc, constant char *argv[])
 	init_unsupport();
 	s = lgetenv(less_is_more ? "MORE" : "LESS");
 	if (s != NULL)
-		scan_option(s);
+		scan_option(s, TRUE);
 
 #define isoptstring(s)  (((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
 	while (argc > 0 && (isoptstring(*argv) || isoptpending()))
@@ -317,7 +317,7 @@ int main(int argc, constant char *argv[])
 		argc--;
 		if (strcmp(s, "--") == 0)
 			break;
-		scan_option(s);
+		scan_option(s, FALSE);
 	}
 #undef isoptstring
 
