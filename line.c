@@ -77,7 +77,7 @@ static constant char *mid_ansi_chars;
 static constant char *osc_ansi_chars;
 static int osc_ansi_allow_count;
 static long *osc_ansi_allow;
-static int in_hilite;
+static lbool in_hilite;
 static lbool clear_after_line;
 
 static int attr_swidth(int a);
@@ -278,7 +278,7 @@ public void prewind(void)
 	mbc_buf_len = 0;
 	is_null_line = FALSE;
 	pendc = '\0';
-	in_hilite = 0;
+	in_hilite = FALSE;
 	ansi_in_line = FALSE;
 	ff_starts_line = -1;
 	hlink_in_line = FALSE;
@@ -840,7 +840,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 			a |= hl_attr;
 			if (highest_hilite != NULL_POSITION && pos != NULL_POSITION && pos > highest_hilite)
 				highest_hilite = pos;
-			in_hilite = 1;
+			in_hilite = TRUE;
 		} else 
 		{
 			if (in_hilite)
@@ -851,7 +851,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 				 */
 				resend_last = 1;
 			}
-			in_hilite = 0;
+			in_hilite = FALSE;
 		}
 		if (resend_last)
 		{
