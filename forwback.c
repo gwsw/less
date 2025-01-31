@@ -139,7 +139,7 @@ static POSITION forw_line_pfx(POSITION pos, int pfx, int skipeol)
 	sc_width = pfx + line_pfx_width();
 	auto_wrap = 0;
 	hshift = 0;
-	pos = forw_line_seg(pos, skipeol, FALSE, FALSE);
+	pos = forw_line_seg(pos, skipeol, FALSE, FALSE, NULL);
 	sc_width = save_sc_width;
 	auto_wrap = save_auto_wrap;
 	hshift = save_hshift;
@@ -174,7 +174,7 @@ public int overlay_header(void)
 		home();
 		for (ln = 0; ln < header_lines; ++ln)
 		{
-			pos = forw_line(pos);
+			pos = forw_line(pos, NULL);
 			set_attr_header(ln);
 			clear_eol();
 			put_line(FALSE);
@@ -215,11 +215,13 @@ public int overlay_header(void)
  * "nblank" is the number of blank lines to draw before the first
  *   real line.  If nblank > 0, the pos must be NULL_POSITION.
  *   The first real line after the blanks will start at ch_zero().
+ * "to_newline" means count file lines rather than screen lines.
  */
-public void forw(int n, POSITION pos, lbool force, lbool only_last, int nblank)
+public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_newline, int nblank)
 {
 	int nlines = 0;
 	lbool do_repaint;
+	lbool newline;
 
 	if (pos != NULL_POSITION)
 		pos = after_header_pos(pos);
@@ -302,7 +304,9 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, int nblank)
 			/* 
 			 * Get the next line from the file.
 			 */
-			pos = forw_line(pos);
+			pos = forw_line(pos, &newline);
+			if (to_newline && !newline)
+				++n;
 #if HILITE_SEARCH
 			pos = next_unfiltered(pos);
 #endif
@@ -392,10 +396,11 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, int nblank)
 /*
  * Display n lines, scrolling backward.
  */
-public void back(int n, POSITION pos, lbool force, lbool only_last)
+public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_newline)
 {
 	int nlines = 0;
 	lbool do_repaint;
+	lbool newline;
 
 	squish_check();
 	do_repaint = (n > get_back_scroll() || (only_last && n > sc_height-1) || header_lines > 0);
@@ -412,7 +417,9 @@ public void back(int n, POSITION pos, lbool force, lbool only_last)
 #if HILITE_SEARCH
 		pos = prev_unfiltered(pos);
 #endif
-		pos = back_line(pos);
+		pos = back_line(pos, &newline);
+		if (to_newline && !newline)
+			++n;
 		if (pos == NULL_POSITION)
 		{
 			/*
@@ -459,7 +466,7 @@ public void back(int n, POSITION pos, lbool force, lbool only_last)
  * Display n more lines, forward.
  * Start just after the line currently displayed at the bottom of the screen.
  */
-public void forward(int n, lbool force, lbool only_last)
+public void forward(int n, lbool force, lbool only_last, lbool to_newline)
 {
 	POSITION pos;
 
@@ -490,7 +497,7 @@ public void forward(int n, lbool force, lbool only_last)
 			{
 				do
 				{
-					back(1, position(TOP), 1, 0);
+					back(1, position(TOP), TRUE, FALSE, FALSE);
 					pos = position(BOTTOM_PLUS_ONE);
 				} while (pos == NULL_POSITION && !ABORT_SIGS());
 			}
@@ -500,14 +507,14 @@ public void forward(int n, lbool force, lbool only_last)
 			return;
 		}
 	}
-	forw(n, pos, force, only_last, 0);
+	forw(n, pos, force, only_last, to_newline, 0);
 }
 
 /*
  * Display n more lines, backward.
  * Start just before the line currently displayed at the top of the screen.
  */
-public void backward(int n, lbool force, lbool only_last)
+public void backward(int n, lbool force, lbool only_last, lbool to_newline)
 {
 	POSITION pos;
 
@@ -517,7 +524,7 @@ public void backward(int n, lbool force, lbool only_last)
 		eof_bell();
 		return;
 	}
-	back(n, pos, force, only_last);
+	back(n, pos, force, only_last, to_newline);
 }
 
 /*
@@ -551,7 +558,7 @@ public lbool get_one_screen(void)
 	no_poll = TRUE;
 	for (nlines = 0;  nlines + shell_lines <= sc_height;  nlines++)
 	{
-		pos = forw_line(pos);
+		pos = forw_line(pos, NULL);
 		if (pos == NULL_POSITION)
 		{
 			ret = TRUE;

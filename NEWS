@@ -15,7 +15,7 @@
 
 * Treat -r in LESS environment variable as -R.
 
-* Update the file size on an attempt to go past end of file.
+* Add ESC-j and ESC-k commands (github #560).
 
 * Add --no-paste option (github #523).
 
@@ -24,6 +24,8 @@
 * Add --form-feed option (github #496).
 
 * Make TAB complete option name in -- command (github #531).
+
+* Update the file size on an attempt to go past end of file.
 
 * Make -R able to pass through any OSC escape sequences,
   not just OSC 8 (github #504).

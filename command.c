@@ -37,6 +37,7 @@ extern int hshift;
 extern int bs_mode;
 extern int proc_backspace;
 extern int show_attn;
+extern int chopline;
 extern POSITION highest_hilite;
 extern char *every_first_cmd;
 extern char version[];
@@ -1280,7 +1281,7 @@ static int forw_loop(int until_hilite)
 			break;
 		}
 		make_display();
-		forward(1, 0, 0);
+		forward(1, FALSE, FALSE, FALSE);
 	}
 	ignore_eoi = 0;
 	ch_set_eof();
@@ -1514,7 +1515,7 @@ public void commands(void)
 			cmd_exec();
 			if (show_attn)
 				set_attnpos(bottompos);
-			forward((int) number, 0, 1);
+			forward((int) number, FALSE, TRUE, FALSE);
 			break;
 
 		case A_B_WINDOW:
@@ -1531,10 +1532,12 @@ public void commands(void)
 			if (number <= 0)
 				number = get_swindow();
 			cmd_exec();
-			backward((int) number, 0, 1);
+			backward((int) number, FALSE, TRUE, FALSE);
 			break;
 
 		case A_F_LINE:
+		case A_F_NEWLINE:
+
 			/*
 			 * Forward N (default 1) line.
 			 */
@@ -1543,17 +1546,18 @@ public void commands(void)
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS && number > 1)
 				set_attnpos(bottompos);
-			forward((int) number, 0, 0);
+			forward((int) number, FALSE, FALSE, action == A_F_NEWLINE && !chopline);
 			break;
 
 		case A_B_LINE:
+		case A_B_NEWLINE:
 			/*
 			 * Backward N (default 1) line.
 			 */
 			if (number <= 0)
 				number = 1;
 			cmd_exec();
-			backward((int) number, 0, 0);
+			backward((int) number, FALSE, FALSE, action == A_B_NEWLINE && !chopline);
 			break;
 
 		case A_F_MOUSE:
@@ -1561,7 +1565,7 @@ public void commands(void)
 			 * Forward wheel_lines lines.
 			 */
 			cmd_exec();
-			forward(wheel_lines, 0, 0);
+			forward(wheel_lines, FALSE, FALSE, FALSE);
 			break;
 
 		case A_B_MOUSE:
@@ -1569,7 +1573,7 @@ public void commands(void)
 			 * Backward wheel_lines lines.
 			 */
 			cmd_exec();
-			backward(wheel_lines, 0, 0);
+			backward(wheel_lines, FALSE, FALSE, FALSE);
 			break;
 
 		case A_FF_LINE:
@@ -1581,7 +1585,7 @@ public void commands(void)
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS && number > 1)
 				set_attnpos(bottompos);
-			forward((int) number, 1, 0);
+			forward((int) number, TRUE, FALSE, FALSE);
 			break;
 
 		case A_BF_LINE:
@@ -1591,7 +1595,7 @@ public void commands(void)
 			if (number <= 0)
 				number = 1;
 			cmd_exec();
-			backward((int) number, 1, 0);
+			backward((int) number, TRUE, FALSE, FALSE);
 			break;
 		
 		case A_FF_SCREEN:
@@ -1603,7 +1607,7 @@ public void commands(void)
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS)
 				set_attnpos(bottompos);
-			forward((int) number, 1, 0);
+			forward((int) number, TRUE, FALSE, FALSE);
 			break;
 
 		case A_F_FOREVER:
@@ -1631,7 +1635,7 @@ public void commands(void)
 			cmd_exec();
 			if (show_attn == OPT_ONPLUS)
 				set_attnpos(bottompos);
-			forward(wscroll, 0, 0);
+			forward(wscroll, FALSE, FALSE, FALSE);
 			break;
 
 		case A_B_SCROLL:
@@ -1642,7 +1646,7 @@ public void commands(void)
 			if (number > 0)
 				wscroll = (int) number;
 			cmd_exec();
-			backward(wscroll, 0, 0);
+			backward(wscroll, FALSE, FALSE, FALSE);
 			break;
 
 		case A_FREPAINT:

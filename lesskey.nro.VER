@@ -153,6 +153,8 @@ y	back-line
 J	forw-line-force
 K	back-line-force
 Y	back-line-force
+\eej	forw-newline
+\eek	back-newline
 d	forw-scroll
 ^D	forw-scroll
 u	back-scroll

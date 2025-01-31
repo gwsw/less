@@ -68,6 +68,8 @@
 #define A_GOEND_BUF            57
 #define A_LLSHIFT              58
 #define A_RRSHIFT              59
+#define A_F_NEWLINE            60
+#define A_B_NEWLINE            61
 #define A_CLRMARK              62
 #define A_SETMARKBOT           63
 #define A_X11MOUSE_IN          64

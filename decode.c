@@ -88,6 +88,8 @@ static unsigned char cmdtable[] =
 	'z',0,                          A_F_WINDOW,
 	'w',0,                          A_B_WINDOW,
 	ESC,' ',0,                      A_FF_SCREEN,
+	ESC,'j',0,                      A_F_NEWLINE,
+	ESC,'k',0,                      A_B_NEWLINE,
 	'F',0,                          A_F_FOREVER,
 	ESC,'F',0,                      A_F_UNTIL_HILITE,
 	'R',0,                          A_FREPAINT,
@@ -535,12 +537,12 @@ static int mouse_button_left(int x, int y, lbool down, lbool drag)
 		if (y > last_drag_y)
 		{
 			cmd_exec();
-			backward(y - last_drag_y, FALSE, FALSE);
+			backward(y - last_drag_y, FALSE, FALSE, FALSE);
 			last_drag_y = y;
 		} else if (y < last_drag_y)
 		{
 			cmd_exec();
-			forward(last_drag_y - y, FALSE, FALSE);
+			forward(last_drag_y - y, FALSE, FALSE, FALSE);
 			last_drag_y = y;
 		}
 	} else if (!down)

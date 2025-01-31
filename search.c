@@ -289,7 +289,7 @@ public void repaint_hilite(lbool on)
 		pos = position(sindex);
 		if (pos == NULL_POSITION)
 			continue;
-		(void) forw_line(pos);
+		(void) forw_line(pos, NULL);
 		goto_line(sindex);
 		clear_eol();
 		put_line(FALSE);
@@ -336,7 +336,7 @@ public void clear_attn(void)
 		if (pos <= old_end_attnpos &&
 		     (epos == NULL_POSITION || epos > old_start_attnpos))
 		{
-			(void) forw_line(pos);
+			(void) forw_line(pos, NULL);
 			goto_line(sindex);
 			clear_eol();
 			put_line(FALSE);
@@ -1236,7 +1236,7 @@ static POSITION get_lastlinepos(POSITION pos, POSITION tpos, int sheight)
 	flush();
 	for (nlines = 0;;  nlines++)
 	{
-		POSITION npos = forw_line(pos);
+		POSITION npos = forw_line(pos, NULL);
 		if (npos > tpos)
 		{
 			if (nlines < sheight)
