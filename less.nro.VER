@@ -86,6 +86,11 @@ subsequent d and u commands.
 Like j, but continues to scroll beyond the end of the file.
 .IP "K or Y"
 Like k, but continues to scroll beyond the beginning of the file.
+.IP "ESC-j"
+Scroll forward N file lines, default 1.
+A file line is a complete line in the file, terminated by a newline.
+.IP "ESC-k"
+Scroll backwards N file lines, default 1.
 .IP "ESC-) or RIGHTARROW"
 Scroll horizontally right N characters, default half the screen width
 (see the \-# option).

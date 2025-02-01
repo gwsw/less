@@ -1847,7 +1847,7 @@ public int rrshift(void)
 			break;
 	for (; sline < sc_height && pos != NULL_POSITION; sline++)
 	{
-		pos = forw_line(pos);
+		pos = forw_line(pos, NULL);
 		if (end_column > longest)
 			longest = end_column;
 	}

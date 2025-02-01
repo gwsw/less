@@ -68,9 +68,9 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
 		attr = is_hilited_attr(disp_pos, edisp_pos, TRUE, NULL);
 		ch = '*';
 	} else
-    {
-        attr = 0;
-    }
+	{
+		attr = 0;
+	}
 	if (attr)
 		set_status_col(ch, attr);
 }
@@ -82,7 +82,7 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
  * a line.  The new position is the position of the first character
  * of the NEXT line.  The line obtained is the line starting at curr_pos.
  */
-public POSITION forw_line_seg(POSITION curr_pos, lbool skipeol, lbool rscroll, lbool nochop)
+public POSITION forw_line_seg(POSITION curr_pos, lbool skipeol, lbool rscroll, lbool nochop, lbool *p_newline)
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -324,14 +324,14 @@ get_forw_line:
 			(void) ch_back_get();
 		new_pos = ch_tell();
 	}
-
+	if (p_newline != NULL)
+		*p_newline = endline;
 	return (new_pos);
 }
 
-public POSITION forw_line(POSITION curr_pos)
+public POSITION forw_line(POSITION curr_pos, lbool *p_newline)
 {
-
-	return forw_line_seg(curr_pos, (chop_line() || hshift > 0), TRUE, FALSE);
+	return forw_line_seg(curr_pos, (chop_line() || hshift > 0), TRUE, FALSE, p_newline);
 }
 
 /*
@@ -341,7 +341,7 @@ public POSITION forw_line(POSITION curr_pos)
  * a line.  The new position is the position of the first character
  * of the PREVIOUS line.  The line obtained is the one starting at new_pos.
  */
-public POSITION back_line(POSITION curr_pos)
+public POSITION back_line(POSITION curr_pos, lbool *p_newline)
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -445,6 +445,8 @@ get_back_line:
 	endline = FALSE;
 	prewind();
 	plinestart(new_pos);
+	if (p_newline != NULL)
+		*p_newline = TRUE;
     loop:
 	wrap_pos = NULL_POSITION;
 	skipped_leading = FALSE;
@@ -489,6 +491,8 @@ get_back_line:
 				edisp_pos = new_pos;
 				break;
 			}
+			if (p_newline != NULL)
+				*p_newline = FALSE;
 		shift:
 			if (!wordwrap)
 			{
@@ -565,7 +569,6 @@ get_back_line:
 	if (status_col)
 		init_status_col(base_pos, line_position(), edisp_pos, new_pos);
 #endif
-
 	return (begin_new_pos);
 }
 

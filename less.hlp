@@ -13,6 +13,8 @@
 
   e  ^E  j  ^N  CR  *  Forward  one line   (or _N lines).
   y  ^Y  k  ^K  ^P  *  Backward one line   (or _N lines).
+  ESC-j             *  Forward  one file line (or _N file lines).
+  ESC-k             *  Backward one file line (or _N file lines).
   f  ^F  ^V  SPACE  *  Forward  one window (or _N lines).
   b  ^B  ESC-v      *  Backward one window (or _N lines).
   z                 *  Forward  one window (and set window to _N).
