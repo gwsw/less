@@ -295,7 +295,7 @@ static int match(constant char *pattern, size_t pattern_len, constant char *buf,
  * Set sp[i] and ep[i] to the start and end of the i-th matched subpattern.
  * Subpatterns are defined by parentheses in the regex language.
  */
-static int match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, size_t aline_len, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
+static lbool match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, size_t aline_len, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
 {
 	int matched;
 	int line_len = (int) aline_len; /*{{type-issue}}*/
@@ -441,19 +441,37 @@ static int match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, constan
 	*sp = *ep = NULL;
 	matched = (!(search_type & SRCH_NO_MATCH) && matched) ||
 			((search_type & SRCH_NO_MATCH) && !matched);
-	return (matched);
+	return (matched != 0);
 }
 
-public int match_pattern(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, size_t line_len, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
+/*
+ * Return TRUE if the match satisfies all SUBSEARCH conditions.
+ */
+static lbool subsearch_ok(constant char **sp, constant char **ep, int search_type)
 {
-	int matched = match_pattern1(pattern, tpattern, line, line_len, sp, ep, nsp, notbol, search_type);
 	int i;
 	for (i = 1;  i <= NUM_SEARCH_COLORS;  i++)
 	{
 		if ((search_type & SRCH_SUBSEARCH(i)) && ep[i] == sp[i])
-			matched = 0;
+			return FALSE;
 	}
-	return matched;
+	return TRUE;
+}
+
+public lbool match_pattern(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, size_t line_len, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
+{
+	while (line_len > 0)
+	{
+		size_t mlen;
+		lbool matched = match_pattern1(pattern, tpattern, line, line_len, sp, ep, nsp, notbol, search_type);
+		if (!matched || subsearch_ok(sp, ep, search_type))
+			return matched;
+		mlen = ep[0] - line;
+		line += mlen;
+		line_len -= mlen;
+		notbol = 1;
+	}
+	return FALSE;
 }
 
 /*

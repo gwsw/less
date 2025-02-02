@@ -1208,7 +1208,7 @@ static int matches_filters(POSITION pos, char *cline, size_t line_len, int *chpo
 
 	for (filter = filter_infos; filter != NULL; filter = filter->next)
 	{
-		int line_filter = match_pattern(info_compiled(filter), filter->text,
+		lbool line_filter = match_pattern(info_compiled(filter), filter->text,
 			cline, line_len, sp, ep, nsp, 0, filter->search_type);
 		if (line_filter)
 		{
@@ -1510,7 +1510,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 	#define NSP (NUM_SEARCH_COLORS+2)
 	constant char *sp[NSP];
 	constant char *ep[NSP];
-	int line_match;
+	lbool line_match;
 	int cvt_ops;
 	size_t cvt_len;
 	int *chpos;
@@ -2326,7 +2326,7 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 	if (epos == NULL_POSITION || epos > spos)
 	{
 		int search_type = SRCH_FORW | SRCH_FIND_ALL;
-		search_type |= (search_info.search_type & (SRCH_NO_REGEX|SRCH_SUBSEARCH_ALL));
+		search_type |= (search_info.search_type & SRCH_NO_REGEX);
 		for (;;) 
 		{
 			result = search_range(spos, epos, search_type, 0, maxlines, (POSITION*)NULL, &new_epos, (POSITION*)NULL);
