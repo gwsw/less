@@ -460,7 +460,7 @@ static lbool subsearch_ok(constant char **sp, constant char **ep, int search_typ
 
 public lbool match_pattern(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, size_t line_len, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
 {
-	while (line_len > 0)
+	for (;;)
 	{
 		size_t mlen;
 		lbool matched = match_pattern1(pattern, tpattern, line, line_len, sp, ep, nsp, notbol, search_type);
@@ -471,7 +471,6 @@ public lbool match_pattern(PATTERN_TYPE pattern, constant char *tpattern, consta
 		line_len -= mlen;
 		notbol = 1;
 	}
-	return FALSE;
 }
 
 /*
