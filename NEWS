@@ -68,6 +68,8 @@
 
 * Fix auto_wrap setting on Windows (github #497).
 
+* Fix two bugs using ^S search modifier (github #605).
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 668
