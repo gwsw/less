@@ -41,7 +41,6 @@ datarootdir = @datarootdir@
 mandir = @mandir@
 manext = 1
 manprefix = 
-DESTDIR =
 
 #### End of system configuration section. ####
 
