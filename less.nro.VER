@@ -243,6 +243,9 @@ that is, do a simple textual comparison.
 Followed by a digit N between 1 and 5.
 Only text which has a non-empty match for the N-th parenthesized SUB-PATTERN 
 will be considered to match the pattern.
+For example, searching for "(abc)|(def)" modified with \(haS1
+would search for instances of "abc", but would highlight 
+instances of both "abc" and "def".
 (Supported only if
 .B less 
 is built with one of the regular expression libraries
