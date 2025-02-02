@@ -245,7 +245,7 @@ public int get_cvt_ops(int search_type)
 /*
  * Is there a previous (remembered) search pattern?
  */
-static int prev_pattern(struct pattern_info *info)
+static lbool prev_pattern(struct pattern_info *info)
 {
 #if !NO_REGEX
 	if ((info->search_type & SRCH_NO_REGEX) == 0)
@@ -537,7 +537,7 @@ public void set_header(POSITION pos)
 /*
  * Is a position within the header lines?
  */
-static int pos_in_header(POSITION pos)
+static lbool pos_in_header(POSITION pos)
 {
 	return (header_start_pos != NULL_POSITION &&
 	        pos >= header_start_pos && pos < header_end_pos);
@@ -1202,7 +1202,7 @@ static POSITION search_pos(int search_type)
  * If so, add an entry to the filter list.
  */
 #if HILITE_SEARCH
-static int matches_filters(POSITION pos, char *cline, size_t line_len, int *chpos, POSITION linepos, constant char **sp, constant char **ep, int nsp)
+static lbool matches_filters(POSITION pos, char *cline, size_t line_len, int *chpos, POSITION linepos, constant char **sp, constant char **ep, int nsp)
 {
 	struct pattern_info *filter;
 
@@ -1218,10 +1218,10 @@ static int matches_filters(POSITION pos, char *cline, size_t line_len, int *chpo
 			add_hilite(&filter_anchor, &hl);
 			free(cline);
 			free(chpos);
-			return (1);
+			return (TRUE);
 		}
 	}
-	return (0);
+	return (FALSE);
 }
 #endif
 

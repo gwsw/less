@@ -245,9 +245,9 @@ static void set_win_colors(t_sgr *sgr)
 }
 
 /* like is_ansi_end, but doesn't assume c != 0  (returns 0 for c == 0) */
-static int is_ansi_end_0(char c)
+static lbool is_ansi_end_0(char c)
 {
-	return c && is_ansi_end((unsigned char)c);
+	return c != '\0' && is_ansi_end((unsigned char)c);
 }
 
 static void win_flush(void)
