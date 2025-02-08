@@ -40,7 +40,6 @@ extern int stop_on_form_feed;
 extern POSITION header_start_pos;
 extern lbool no_poll;
 #if HILITE_SEARCH
-extern size_t size_linebuf;
 extern int hilite_search;
 extern int status_col;
 #endif
@@ -139,7 +138,7 @@ static POSITION forw_line_pfx(POSITION pos, int pfx, int skipeol)
 	sc_width = pfx + line_pfx_width();
 	auto_wrap = 0;
 	hshift = 0;
-	pos = forw_line_seg(pos, skipeol, FALSE, FALSE, NULL);
+	pos = forw_line_seg(pos, skipeol, FALSE, FALSE, NULL, NULL);
 	sc_width = save_sc_width;
 	auto_wrap = save_auto_wrap;
 	hshift = save_hshift;
@@ -174,7 +173,7 @@ public int overlay_header(void)
 		home();
 		for (ln = 0; ln < header_lines; ++ln)
 		{
-			pos = forw_line(pos, NULL);
+			pos = forw_line(pos, NULL, NULL);
 			set_attr_header(ln);
 			clear_eol();
 			put_line(FALSE);
@@ -222,6 +221,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 	int nlines = 0;
 	lbool do_repaint;
 	lbool newline;
+	lbool new_screen = FALSE;
 
 	if (pos != NULL_POSITION)
 		pos = after_header_pos(pos);
@@ -238,14 +238,6 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 	 */
 	do_repaint = (only_last && n > sc_height-1) || 
 		(forw_scroll >= 0 && n > forw_scroll && n != sc_height-1);
-
-#if HILITE_SEARCH
-	if (pos != NULL_POSITION && (hilite_search == OPT_ONPLUS || is_filtering() || status_col)) {
-		prep_hilite(pos, pos + (POSITION) (4*size_linebuf), ignore_eoi ? 1 : -1);
-		pos = next_unfiltered(pos);
-	}
-#endif
-
 	if (!do_repaint)
 	{
 		if (top_scroll && n >= sc_height - 1 && pos != ch_length())
@@ -256,8 +248,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			 *    to hit eof in the middle of this screen,
 			 *    but we don't yet know if that will happen. }}
 			 */
+			new_screen = TRUE;
 			pos_clear();
-			add_forw_pos(pos);
 			force = TRUE;
 			clear();
 			home();
@@ -270,8 +262,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			 * currently displayed.  Clear the screen image 
 			 * (position table) and start a new screen.
 			 */
+			new_screen = TRUE;
 			pos_clear();
-			add_forw_pos(pos);
 			force = TRUE;
 			if (top_scroll)
 			{
@@ -286,6 +278,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 
 	while (--n >= 0)
 	{
+		POSITION linepos;
 		/*
 		 * Read the next line of input.
 		 */
@@ -304,12 +297,9 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			/* 
 			 * Get the next line from the file.
 			 */
-			pos = forw_line(pos, &newline);
+			pos = forw_line(pos, &linepos, &newline);
 			if (to_newline && !newline)
 				++n;
-#if HILITE_SEARCH
-			pos = next_unfiltered(pos);
-#endif
 			if (pos == NULL_POSITION)
 			{
 				/*
@@ -330,6 +320,11 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		 * Add the position of the next line to the position table.
 		 * Display the current line on the screen.
 		 */
+		if (new_screen)
+		{
+			add_forw_pos(linepos);
+			new_screen = FALSE;
+		}
 		add_forw_pos(pos);
 		nlines++;
 		if (do_repaint)
@@ -357,27 +352,6 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		put_line(TRUE);
 		if (stop_on_form_feed && !do_repaint && line_is_ff() && position(TOP) != NULL_POSITION)
 			break;
-#if 0
-		/* {{ 
-		 * Can't call clear_eol here.  The cursor might be at end of line
-		 * on an ignaw terminal, so clear_eol would clear the last char
-		 * of the current line instead of all of the next line.
-		 * If we really need to do this on clear_bg terminals, we need
-		 * to find a better way.
-		 * }}
-		 */
-		if (clear_bg && apply_at_specials(final_attr) != AT_NORMAL)
-		{
-			/*
-			 * Writing the last character on the last line
-			 * of the display may have scrolled the screen.
-			 * If we were in standout mode, clear_bg terminals 
-			 * will fill the new line with the standout color.
-			 * Now we're in normal mode again, so clear the line.
-			 */
-			clear_eol();
-		}
-#endif
 		forw_prompt = 1;
 	}
 	if (nlines == 0 && !ignore_eoi)
@@ -401,23 +375,17 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 	int nlines = 0;
 	lbool do_repaint;
 	lbool newline;
+	POSITION linepos;
 
 	squish_check();
 	do_repaint = (n > get_back_scroll() || (only_last && n > sc_height-1) || header_lines > 0);
-#if HILITE_SEARCH
-	if (pos != NULL_POSITION && (hilite_search == OPT_ONPLUS || is_filtering() || status_col)) {
-		prep_hilite((pos < (POSITION) (3*size_linebuf)) ? 0 : pos - (POSITION) (3*size_linebuf), pos, -1);
-	}
-#endif
+
 	while (--n >= 0)
 	{
 		/*
 		 * Get the previous line of input.
 		 */
-#if HILITE_SEARCH
-		pos = prev_unfiltered(pos);
-#endif
-		pos = back_line(pos, &newline);
+		pos = back_line(pos, &linepos, &newline);
 		if (to_newline && !newline)
 			++n;
 		if (pos == NULL_POSITION)
@@ -439,7 +407,7 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		 * Add the position of the previous line to the position table.
 		 * Display the line on the screen.
 		 */
-		add_back_pos(pos);
+		add_back_pos(linepos);
 		nlines++;
 		if (!do_repaint)
 		{
@@ -558,7 +526,7 @@ public lbool get_one_screen(void)
 	no_poll = TRUE;
 	for (nlines = 0;  nlines + shell_lines <= sc_height;  nlines++)
 	{
-		pos = forw_line(pos, NULL);
+		pos = forw_line(pos, NULL, NULL);
 		if (pos == NULL_POSITION)
 		{
 			ret = TRUE;

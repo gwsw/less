@@ -44,7 +44,6 @@ extern int header_cols;
 extern LWCHAR rscroll_char;
 #if HILITE_SEARCH
 extern int hilite_search;
-extern size_t size_linebuf;
 extern lbool squished;
 extern int can_goto_line;
 extern lbool no_eof_bell;
@@ -289,7 +288,7 @@ public void repaint_hilite(lbool on)
 		pos = position(sindex);
 		if (pos == NULL_POSITION)
 			continue;
-		(void) forw_line(pos, NULL);
+		(void) forw_line(pos, NULL, NULL);
 		goto_line(sindex);
 		clear_eol();
 		put_line(FALSE);
@@ -336,7 +335,7 @@ public void clear_attn(void)
 		if (pos <= old_end_attnpos &&
 		     (epos == NULL_POSITION || epos > old_start_attnpos))
 		{
-			(void) forw_line(pos, NULL);
+			(void) forw_line(pos, NULL, NULL);
 			goto_line(sindex);
 			clear_eol();
 			put_line(FALSE);
@@ -550,11 +549,10 @@ public lbool is_filtered(POSITION pos)
 {
 	struct hilite_node *n;
 
-	if (ch_getflags() & CH_HELPFILE)
+	if (!is_filtering())
 		return (FALSE);
 	if (pos_in_header(pos))
 		return (FALSE);
-
 	n = hlist_find(&filter_anchor, pos);
 	return (n != NULL && pos >= n->r.hl_startpos);
 }
@@ -565,47 +563,19 @@ public lbool is_filtered(POSITION pos)
  */
 public POSITION next_unfiltered(POSITION pos)
 {
-	struct hilite_node *n;
-
-	if (ch_getflags() & CH_HELPFILE)
+	if (!is_filtering())
 		return (pos);
 	if (pos_in_header(pos))
 		return (pos);
-
 	flush();
-	n = hlist_find(&filter_anchor, pos);
-	while (n != NULL && pos >= n->r.hl_startpos)
+	while (pos != NULL_POSITION)
 	{
-		pos = n->r.hl_endpos;
-		n = n->next;
-	}
-	return (pos);
-}
-
-/*
- * If pos is hidden, return the previous position which isn't or 0 if
- * we're filtered right to the beginning, otherwise just return pos.
- */
-public POSITION prev_unfiltered(POSITION pos)
-{
-	struct hilite_node *n;
-
-	if (ch_getflags() & CH_HELPFILE)
-		return (pos);
-	if (pos_in_header(pos))
-		return (pos);
-
-	flush();
-	n = hlist_find(&filter_anchor, pos);
-	while (n != NULL && pos >= n->r.hl_startpos)
-	{
-		pos = n->r.hl_startpos;
-		if (pos == 0)
+		prep_hilite(pos, NULL_POSITION, 1);
+		if (!is_filtered(pos))
 			break;
-		pos--;
-		n = n->prev;
+		pos = forw_raw_line(pos, NULL, NULL);
 	}
-	return (pos);
+	return pos;
 }
 
 /*
@@ -1236,7 +1206,7 @@ static POSITION get_lastlinepos(POSITION pos, POSITION tpos, int sheight)
 	flush();
 	for (nlines = 0;;  nlines++)
 	{
-		POSITION npos = forw_line(pos, NULL);
+		POSITION npos = forw_line(pos, NULL, NULL);
 		if (npos > tpos)
 		{
 			if (nlines < sheight)
@@ -2220,12 +2190,6 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 	int result;
 	int i;
 
-	/*
-	 * Search beyond where we're asked to search, so the prep region covers
-	 * more than we need.  Do one big search instead of a bunch of small ones.
-	 */
-	POSITION SEARCH_MORE = (POSITION) (3*size_linebuf);
-
 	if (!prev_pattern(&search_info) && !is_filtering())
 		return;
 
@@ -2247,6 +2211,8 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 		for (i = 0;  i < maxlines;  i++)
 			max_epos = forw_raw_line(max_epos, NULL, NULL);
 	}
+	if (epos == NULL_POSITION || (max_epos != NULL_POSITION && epos > max_epos))
+		epos = max_epos;
 
 	/*
 	 * Find two ranges:
@@ -2264,28 +2230,13 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 		 */
 		clr_hilite();
 		clr_filter();
-		if (epos != NULL_POSITION)
-			epos += SEARCH_MORE;
 		nprep_startpos = spos;
 	} else
 	{
 		/*
 		 * New range partially or completely overlaps old prep region.
 		 */
-		if (epos == NULL_POSITION)
-		{
-			/*
-			 * New range goes to end of file.
-			 */
-			;
-		} else if (epos > prep_endpos)
-		{
-			/*
-			 * New range ends after old prep region.
-			 * Extend prep region to end at end of new range.
-			 */
-			epos += SEARCH_MORE;
-		} else /* (epos <= prep_endpos) */
+		if (epos != NULL_POSITION && epos <= prep_endpos)
 		{
 			/*
 			 * New range ends within old prep region.
@@ -2293,7 +2244,6 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 			 */
 			epos = prep_startpos;
 		}
-
 		if (spos < prep_startpos)
 		{
 			/*
@@ -2301,10 +2251,6 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 			 * Extend old prep region backwards to start at 
 			 * start of new range.
 			 */
-			if (spos < SEARCH_MORE)
-				spos = 0;
-			else
-				spos -= SEARCH_MORE;
 			nprep_startpos = spos;
 		} else /* (spos >= prep_startpos) */
 		{
@@ -2315,13 +2261,6 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 			spos = prep_endpos;
 		}
 	}
-
-	if (epos != NULL_POSITION && max_epos != NULL_POSITION &&
-	    epos > max_epos)
-		/*
-		 * Don't go past the max position we're allowed.
-		 */
-		epos = max_epos;
 
 	if (epos == NULL_POSITION || epos > spos)
 	{

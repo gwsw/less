@@ -29,7 +29,6 @@ extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 #if HILITE_SEARCH
 extern int hilite_search;
-extern size_t size_linebuf;
 extern int show_attn;
 #endif
 
@@ -82,7 +81,7 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
  * a line.  The new position is the position of the first character
  * of the NEXT line.  The line obtained is the line starting at curr_pos.
  */
-public POSITION forw_line_seg(POSITION curr_pos, lbool skipeol, lbool rscroll, lbool nochop, lbool *p_newline)
+public POSITION forw_line_seg(POSITION curr_pos, lbool skipeol, lbool rscroll, lbool nochop, POSITION *p_linepos, lbool *p_newline)
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -111,8 +110,7 @@ get_forw_line:
 		 * If we're not ignoring EOI, we *could* do the same, but
 		 * for efficiency we prepare several lines ahead at once.
 		 */
-		prep_hilite(curr_pos, curr_pos + (POSITION) (3*size_linebuf), ignore_eoi ? 1 : -1);
-		curr_pos = next_unfiltered(curr_pos);
+		prep_hilite(curr_pos, NULL_POSITION, 1);
 	}
 #endif
 	if (ch_seek(curr_pos))
@@ -324,14 +322,16 @@ get_forw_line:
 			(void) ch_back_get();
 		new_pos = ch_tell();
 	}
+	if (p_linepos != NULL)
+		*p_linepos = base_pos;
 	if (p_newline != NULL)
 		*p_newline = endline;
 	return (new_pos);
 }
 
-public POSITION forw_line(POSITION curr_pos, lbool *p_newline)
+public POSITION forw_line(POSITION curr_pos, POSITION *p_linepos, lbool *p_newline)
 {
-	return forw_line_seg(curr_pos, (chop_line() || hshift > 0), TRUE, FALSE, p_newline);
+	return forw_line_seg(curr_pos, (chop_line() || hshift > 0), TRUE, FALSE, p_linepos, p_newline);
 }
 
 /*
@@ -341,7 +341,7 @@ public POSITION forw_line(POSITION curr_pos, lbool *p_newline)
  * a line.  The new position is the position of the first character
  * of the PREVIOUS line.  The line obtained is the one starting at new_pos.
  */
-public POSITION back_line(POSITION curr_pos, lbool *p_newline)
+public POSITION back_line(POSITION curr_pos, POSITION *p_linepos, lbool *p_newline)
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -360,11 +360,6 @@ get_back_line:
 		null_line();
 		return (NULL_POSITION);
 	}
-#if HILITE_SEARCH
-	if (hilite_search == OPT_ONPLUS || is_filtering() || status_col)
-		prep_hilite((curr_pos < (POSITION) (3*size_linebuf)) ? 0 : 
-		    curr_pos - (POSITION) (3*size_linebuf), curr_pos, -1);
-#endif
 	if (ch_seek(curr_pos-1))
 	{
 		null_line();
@@ -426,6 +421,11 @@ get_back_line:
 			break;
 		}
 	}
+
+#if HILITE_SEARCH
+	if (hilite_search == OPT_ONPLUS || is_filtering() || status_col)
+		prep_hilite(base_pos, NULL_POSITION, 1);
+#endif
 
 	/*
 	 * Now scan forwards from the beginning of this line.
@@ -569,6 +569,8 @@ get_back_line:
 	if (status_col)
 		init_status_col(base_pos, line_position(), edisp_pos, new_pos);
 #endif
+	if (p_linepos != NULL)
+		*p_linepos = base_pos;
 	return (begin_new_pos);
 }
 

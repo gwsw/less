@@ -50,7 +50,7 @@ static struct xbuffer last_ansi;
 static struct xbuffer last_ansis[NUM_LAST_ANSIS];
 static int curr_last_ansi;
 
-public size_t size_linebuf = 0; /* Size of line buffer (and attr buffer) */
+static size_t size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
 static lbool ansi_in_line;
 static int ff_starts_line;
@@ -1847,7 +1847,7 @@ public int rrshift(void)
 			break;
 	for (; sline < sc_height && pos != NULL_POSITION; sline++)
 	{
-		pos = forw_line(pos, NULL);
+		pos = forw_line(pos, NULL, NULL);
 		if (end_column > longest)
 			longest = end_column;
 	}
