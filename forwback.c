@@ -22,6 +22,9 @@ public int forw_prompt;
 public lbool first_time = TRUE; /* We're printing the first screen of output */
 public int shell_lines = 1;
 public lbool no_eof_bell = FALSE;
+/* soft_eof is set as end-of-file when a read attempt returns EOF. This can
+ * differ from actual EOF (ch_length()) if & filtering is in effect. */
+public POSITION soft_eof = NULL_POSITION;
 
 extern int sigs;
 extern int top_scroll;
@@ -92,7 +95,7 @@ public lbool eof_displayed(lbool offset)
 	 * we must be just at EOF.
 	 */
 	pos = position(offset ? BOTTOM_OFFSET : BOTTOM_PLUS_ONE);
-	return (pos == NULL_POSITION || pos == ch_length());
+	return (pos == NULL_POSITION || pos == ch_length() || pos == soft_eof);
 }
 
 /*
@@ -297,6 +300,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			/* 
 			 * Get the next line from the file.
 			 */
+			POSITION opos = pos;
 			pos = forw_line(pos, &linepos, &newline);
 			if (to_newline && !newline)
 				++n;
@@ -308,6 +312,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 				 * Even if force is true, stop when the last
 				 * line in the file reaches the top of screen.
 				 */
+				soft_eof = opos;
 				if (!force && position(TOP) != NULL_POSITION)
 					break;
 				if (!empty_lines(0, 0) && 

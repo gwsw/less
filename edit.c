@@ -36,6 +36,7 @@ extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
 extern void *ml_examine;
+extern POSITION soft_eof;
 #if SPACES_IN_FILENAMES
 extern char openquote;
 extern char closequote;
@@ -604,6 +605,7 @@ public int edit_ifile(IFILE ifile)
 	 * Get the saved position for the file.
 	 */
 	curr_ifile = ifile;
+	soft_eof = NULL_POSITION;
 	set_altfilename(curr_ifile, alt_filename);
 	set_altpipe(curr_ifile, altpipe);
 	set_open(curr_ifile); /* File has been opened */

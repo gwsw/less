@@ -51,6 +51,7 @@ extern lbool search_wrapped;
 extern int no_paste;
 extern lbool pasting;
 extern int no_edit_warn;
+extern POSITION soft_eof;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
@@ -261,6 +262,7 @@ static void exec_mca(void)
 	case A_FILTER:
 		search_type ^= SRCH_NO_MATCH;
 		set_filter_pattern(cbuf, search_type);
+		soft_eof = NULL_POSITION;
 		break;
 #endif
 	case A_FIRSTCMD:
