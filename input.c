@@ -94,6 +94,9 @@ public POSITION forw_line_seg(POSITION curr_pos, lbool skipeol, lbool rscroll, l
 	POSITION wrap_pos;
 	lbool skipped_leading;
 
+	if (p_linepos != NULL)
+		*p_linepos = NULL_POSITION;
+
 get_forw_line:
 	if (curr_pos == NULL_POSITION)
 	{
@@ -353,6 +356,9 @@ public POSITION back_line(POSITION curr_pos, POSITION *p_linepos, lbool *p_newli
 	int backchars;
 	POSITION wrap_pos;
 	lbool skipped_leading;
+
+	if (p_linepos != NULL)
+		*p_linepos = NULL_POSITION;
 
 get_back_line:
 	if (curr_pos == NULL_POSITION || curr_pos <= ch_zero())
