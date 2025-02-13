@@ -3170,11 +3170,11 @@ static lbool win32_key_event(XINPUT_RECORD *xip)
 /*
  * Determine whether an input character is waiting to be read.
  */
-public lbool win32_kbhit(void)
+public lbool win32_kbhit2(lbool no_queued)
 {
 	XINPUT_RECORD xip;
 
-	if (win32_queued_char())
+	if (!no_queued && win32_queued_char())
 		return (TRUE);
 
 	for (;;)
@@ -3197,6 +3197,11 @@ public lbool win32_kbhit(void)
 			break;
 	}
 	return (TRUE);
+}
+
+public lbool win32_kbhit(void)
+{
+	return win32_kbhit2(FALSE);
 }
 
 /*

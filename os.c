@@ -268,7 +268,7 @@ start:
 	}
 #else
 #if MSDOS_COMPILER==WIN32C
-	if (win32_kbhit())
+	if (win32_kbhit2(TRUE))
 	{
 		int c;
 
