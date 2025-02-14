@@ -380,7 +380,6 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 	int nlines = 0;
 	lbool do_repaint;
 	lbool newline;
-	POSITION linepos;
 
 	squish_check();
 	do_repaint = (n > get_back_scroll() || (only_last && n > sc_height-1) || header_lines > 0);
@@ -390,7 +389,7 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		/*
 		 * Get the previous line of input.
 		 */
-		pos = back_line(pos, &linepos, &newline);
+		pos = back_line(pos, NULL, &newline);
 		if (to_newline && !newline)
 			++n;
 		if (pos == NULL_POSITION)
@@ -412,7 +411,7 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		 * Add the position of the previous line to the position table.
 		 * Display the line on the screen.
 		 */
-		add_back_pos(linepos);
+		add_back_pos(pos);
 		nlines++;
 		if (!do_repaint)
 		{
