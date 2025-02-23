@@ -690,6 +690,7 @@ AH_TOP([
 #define	TERMSBUF_SIZE	1024	/* Buffer to hold termcap strings */
 #define	TAGLINE_SIZE	512	/* Max size of line in tags file */
 #define	TABSTOP_MAX	32	/* Max number of custom tab stops */
+#define LINENUM_POOL    200     /* Size of line number pool */
 #else /* more reasonable sizes for modern machines */
 #define	CMDBUF_SIZE	2048	/* Buffer for multichar commands */
 #define	UNGOT_SIZE	200	/* Max chars to unget() */
@@ -700,6 +701,7 @@ AH_TOP([
 #define	TERMSBUF_SIZE	1024	/* Buffer to hold termcap strings */
 #define	TAGLINE_SIZE	1024	/* Max size of line in tags file */
 #define	TABSTOP_MAX	128	/* Max number of custom tab stops */
+#define LINENUM_POOL    1024    /* Size of line number pool */
 #endif
 
 /* Define as the return type of signal handlers (int or void).  */
