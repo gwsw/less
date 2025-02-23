@@ -344,7 +344,7 @@ public POSITION forw_line(POSITION curr_pos, POSITION *p_linepos, lbool *p_newli
  * a line.  The new position is the position of the first character
  * of the PREVIOUS line.  The line obtained is the one starting at new_pos.
  */
-public POSITION back_line(POSITION curr_pos, POSITION *p_linepos, lbool *p_newline)
+public POSITION back_line(POSITION curr_pos, lbool *p_newline)
 {
 	POSITION base_pos;
 	POSITION new_pos;
@@ -356,9 +356,6 @@ public POSITION back_line(POSITION curr_pos, POSITION *p_linepos, lbool *p_newli
 	int backchars;
 	POSITION wrap_pos;
 	lbool skipped_leading;
-
-	if (p_linepos != NULL)
-		*p_linepos = NULL_POSITION;
 
 get_back_line:
 	if (curr_pos == NULL_POSITION || curr_pos <= ch_zero())
@@ -575,8 +572,6 @@ get_back_line:
 	if (status_col)
 		init_status_col(base_pos, line_position(), edisp_pos, new_pos);
 #endif
-	if (p_linepos != NULL)
-		*p_linepos = base_pos;
 	return (begin_new_pos);
 }
 

@@ -53,7 +53,7 @@ public void jump_forw(void)
 	 * to get to the beginning of the last line.
 	 */
 	pos_clear();
-	pos = back_line(end_pos, NULL, NULL);
+	pos = back_line(end_pos, NULL);
 	if (pos == NULL_POSITION)
 		jump_loc(ch_zero(), sc_height-1);
 	else
@@ -293,7 +293,7 @@ public void jump_loc(POSITION pos, int sline)
 #endif
 				return;
 			}
-			pos = back_line(pos, NULL, NULL);
+			pos = back_line(pos, NULL);
 			if (pos == NULL_POSITION)
 			{
 				/*
