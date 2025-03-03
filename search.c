@@ -989,8 +989,7 @@ static void create_hilites(POSITION linepos, constant char *line, constant char 
  */
 static void hilite_line(POSITION linepos, constant char *line, size_t line_len, int *chpos, constant char **sp, constant char **ep, int nsp)
 {
-	constant char *searchp;
-	constant char *line_end = line + line_len;
+	size_t line_off = 0;
 
 	/*
 	 * sp[0] and ep[0] delimit the first match in the line.
@@ -1004,7 +1003,6 @@ static void hilite_line(POSITION linepos, constant char *line, size_t line_len, 
 	 * sp[i] and ep[i] for i>0 delimit subpattern matches.
 	 * Color each of them with its unique color.
 	 */
-	searchp = line;
 	do {
 		constant char *lep = sp[0];
 		int i;
@@ -1031,14 +1029,14 @@ static void hilite_line(POSITION linepos, constant char *line, size_t line_len, 
 		 * move to the first char after the string we matched.
 		 * If we matched zero, just move to the next char.
 		 */
-		if (ep[0] > searchp)
-			searchp = ep[0];
-		else if (searchp != line_end)
-			searchp++;
+		if (ep[0] > &line[line_off])
+			line_off = ptr_diff(ep[0], line);
+		else if (line_off != line_len)
+			line_off++;
 		else /* end of line */
 			break;
 	} while (match_pattern(info_compiled(&search_info), search_info.text,
-			searchp, ptr_diff(line_end, searchp), sp, ep, nsp, 1, search_info.search_type));
+			line, line_len, line_off, sp, ep, nsp, 1, search_info.search_type));
 }
 #endif
 
@@ -1179,7 +1177,7 @@ static lbool matches_filters(POSITION pos, char *cline, size_t line_len, int *ch
 	for (filter = filter_infos; filter != NULL; filter = filter->next)
 	{
 		lbool line_filter = match_pattern(info_compiled(filter), filter->text,
-			cline, line_len, sp, ep, nsp, 0, filter->search_type);
+			cline, line_len, 0, sp, ep, nsp, 0, filter->search_type);
 		if (line_filter)
 		{
 			struct hilite hl;
@@ -1655,7 +1653,7 @@ static int search_range(POSITION pos, POSITION endpos, int search_type, int matc
 		if (prev_pattern(&search_info))
 		{
 			line_match = match_pattern(info_compiled(&search_info), search_info.text,
-				cline, line_len, sp, ep, NSP, 0, search_type);
+				cline, line_len, 0, sp, ep, NSP, 0, search_type);
 			if (line_match)
 			{
 				/*
