@@ -81,6 +81,7 @@ static int compile_pattern2(constant char *pattern, int search_type, PATTERN_TYP
 	PCRE2_SIZE erroffset;
 	PARG parg;
 	pcre2_code *comp = pcre2_compile((PCRE2_SPTR)pattern, strlen(pattern),
+			((utf_mode) ? PCRE2_UTF | PCRE2_NO_UTF_CHECK : 0) |
 			(is_caseless ? PCRE2_CASELESS : 0),
 			&errcode, &erroffset, NULL);
 	if (comp == NULL)

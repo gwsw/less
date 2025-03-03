@@ -70,6 +70,8 @@
 
 * Fix two bugs using ^S search modifier (github #605).
 
+* Fix bug searching for UTF-8 strings with the PCRE2 library (github #610).
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 668
