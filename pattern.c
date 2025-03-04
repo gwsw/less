@@ -326,10 +326,12 @@ static lbool match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, const
 		#define RM_COUNT (NUM_SEARCH_COLORS+2)
 		regmatch_t rm[RM_COUNT];
 		int flags = (notbol) ? REG_NOTBOL : 0;
+
 #ifdef REG_STARTEND
 		flags |= REG_STARTEND;
-		rm[0].rm_so = 0;
+		rm[0].rm_so = line_off;
 		rm[0].rm_eo = line_len;
+		line_off = 0;
 #endif
 		matched = !regexec(pattern, line + line_off, RM_COUNT, rm, flags);
 		if (matched)
@@ -345,12 +347,12 @@ static lbool match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, const
 			{
 				if (rm[i].rm_so < 0)
 				{
-					*sp++ = *ep++ = line;
+					*sp++ = *ep++ = line + line_off;
 				} else
 				{
 #ifndef __WATCOMC__
-					*sp++ = line + rm[i].rm_so;
-					*ep++ = line + rm[i].rm_eo;
+					*sp++ = line + line_off + rm[i].rm_so;
+					*ep++ = line + line_off + rm[i].rm_eo;
 #else
 					*sp++ = rm[i].rm_sp;
 					*ep++ = rm[i].rm_ep;
