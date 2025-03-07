@@ -313,6 +313,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 				 * line in the file reaches the top of screen.
 				 */
 				soft_eof = opos;
+				if (ABORT_SIGS())
+					break;
 				if (!force && position(TOP) != NULL_POSITION)
 					break;
 				if (!empty_lines(0, 0) && 
