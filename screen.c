@@ -1609,7 +1609,8 @@ static void win32_init_vt_term(void)
 
 	/* don't care about the initial mode, and win VT hard-enables am+xn */
 	vt_enabled = SetConsoleMode(con_out, ENABLE_PROCESSED_OUTPUT |
-	                                     ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	                                     ENABLE_VIRTUAL_TERMINAL_PROCESSING |
+										 ENABLE_WRAP_AT_EOL_OUTPUT);
 	if (vt_enabled)
 	{
 		auto_wrap = 1;
