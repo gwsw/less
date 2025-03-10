@@ -61,12 +61,13 @@ If the command section is the first section in the file,
 this line may be omitted.
 The command section consists of lines of the form:
 .sp
-	\fIstring\fP <whitespace> \fIaction\fP [extra-string] <newline>
+	\fIstring\fP <whitespace> \fIaction\fP <whitespace> [extra-string] <newline>
 .sp
 Whitespace is any sequence of one or more spaces and/or tabs.
 The \fIstring\fP is the command key(s) which invoke the action.
 The \fIstring\fP may be a single command key, or a sequence of up to 15 keys.
-The \fIaction\fP is the name of the less action, from the list below.
+The \fIaction\fP is the name of the less action, 
+from the lists in the EXAMPLE sections below.
 The characters in the \fIstring\fP may appear literally, or be
 prefixed by a caret to indicate a control key.
 A backslash followed by one to three octal digits may be used to
