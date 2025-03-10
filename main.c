@@ -59,6 +59,10 @@ extern char *   tagoption;
 extern int      jump_sline;
 #endif
 
+#if HAVE_TIME
+public time_type less_start_time;
+#endif
+
 #ifdef WIN32
 static wchar_t consoleTitle[256];
 #endif
@@ -409,6 +413,9 @@ int main(int argc, constant char *argv[])
 	open_getchr();
 	raw_mode(1);
 	init_signals(1);
+#if HAVE_TIME
+	less_start_time = get_time();
+#endif
 
 	/*
 	 * Select the first file to examine.

@@ -81,10 +81,13 @@ static lbool reading;
 static lbool opening;
 public lbool waiting_for_data;
 public int consecutive_nulls = 0;
-public lbool no_poll = FALSE;
+public lbool getting_one_screen = FALSE;
 
 /* Milliseconds to wait for data before displaying "waiting for data" message. */
 static int waiting_for_data_delay = 4000;
+/* Max milliseconds expected to "normally" read and display a screen of text. */
+public int screenfill_ms = 3000;
+
 static JUMP_BUF read_label;
 static JUMP_BUF open_label;
 
@@ -97,6 +100,9 @@ extern char intr_char;
 extern int is_tty;
 extern int quit_if_one_screen;
 extern int one_screen;
+#if HAVE_TIME
+extern time_type less_start_time;
+#endif
 #if !MSDOS_COMPILER
 extern int tty;
 #endif
@@ -107,6 +113,10 @@ public void init_poll(void)
 	int idelay = (delay == NULL) ? 0 : atoi(delay);
 	if (idelay > 0)
 		waiting_for_data_delay = idelay;
+	delay = lgetenv("LESS_SCREENFILL_TIME");
+	idelay = (delay == NULL) ? 0 : atoi(delay);
+	if (idelay > 0)
+		screenfill_ms = idelay;
 #if USE_POLL
 #if defined(__APPLE__)
 	/* In old versions of MacOS, poll() does not work with /dev/tty. */
@@ -128,6 +138,10 @@ static int check_poll(int fd, int tty)
 {
 	struct pollfd poller[2] = { { fd, POLLIN, 0 }, { tty, POLLIN, 0 } };
 	int timeout = (waiting_for_data && !(scanning_eof && follow_mode == FOLLOW_NAME)) ? -1 : (ignore_eoi && !waiting_for_data) ? 0 : waiting_for_data_delay;
+#if HAVE_TIME
+	if (getting_one_screen && get_time() < less_start_time + screenfill_ms/1000)
+		return (0);
+#endif
 	if (!any_data)
 	{
 		/*
@@ -255,7 +269,7 @@ start:
 	}
 #endif
 #if USE_POLL
-	if (is_tty && fd != tty && use_poll && !no_poll && !(quit_if_one_screen && one_screen))
+	if (is_tty && fd != tty && use_poll && !(quit_if_one_screen && one_screen))
 	{
 		int ret = check_poll(fd, tty);
 		if (ret != 0)

@@ -41,7 +41,7 @@ extern int header_cols;
 extern int full_screen;
 extern int stop_on_form_feed;
 extern POSITION header_start_pos;
-extern lbool no_poll;
+extern lbool getting_one_screen;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern int status_col;
@@ -526,19 +526,20 @@ public lbool get_one_screen(void)
 	int nlines;
 	POSITION pos = ch_zero();
 	lbool ret = FALSE;
-	lbool save_no_poll = no_poll;
 
 	/* Disable polling until we know whether we will exit early due to -F. */
-	no_poll = TRUE;
+	getting_one_screen = TRUE;
 	for (nlines = 0;  nlines + shell_lines <= sc_height;  nlines++)
 	{
 		pos = forw_line(pos, NULL, NULL);
+		if (ABORT_SIGS())
+			break;
 		if (pos == NULL_POSITION)
 		{
 			ret = TRUE;
 			break;
 		}
 	}
-	no_poll = save_no_poll;
+	getting_one_screen = FALSE;
 	return ret;
 }
