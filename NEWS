@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 668 and 673
+	Major changes between "less" versions 668 and 674
 
 * Treat -r in LESS environment variable as -R.
 
