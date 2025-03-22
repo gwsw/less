@@ -2544,8 +2544,6 @@ If set to a string of one or more
 command characters, those commands will be executed when
 .B less
 receives a SIGUSR1 signal.
-.B less
-receives a SIGUSR2 signal.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 
 of the termcap "xx" capability for the terminal.
