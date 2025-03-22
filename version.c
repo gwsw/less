@@ -1042,6 +1042,7 @@ v670  11/16/24  Fix SIGWINCH handling; add iopen.
 v671  12/6/24   Fix multibyte command chars; fix Windows auto_wrap.
 v672  1/20/25   Don't poll with -F on short file; remove --no-poll.
 v673  3/13/25   Treat -r in LESS var as -R; add ESC-j and ESC-k.
+v674
 */
 
-char version[] = "673";
+char version[] = "674x";
