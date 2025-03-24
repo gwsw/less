@@ -46,6 +46,8 @@
 
 * Add mouse and mouse6 commands to lesskey (github #569).
 
+* Improve behavior of ^O^N and ^O^P commands.
+
 * Fix unexpected behavior when entering a partial command followed by 
   a valid command (github #543).
 
