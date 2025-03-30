@@ -1043,6 +1043,7 @@ v671  12/6/24   Fix multibyte command chars; fix Windows auto_wrap.
 v672  1/20/25   Don't poll with -F on short file; remove --no-poll.
 v673  3/13/25   Treat -r in LESS var as -R; add ESC-j and ESC-k.
 v674  3/24/25   Improve behavior of ^O^N and ^O^P commands.
+v675
 */
 
-char version[] = "674";
+char version[] = "675x";
