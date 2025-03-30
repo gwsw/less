@@ -419,6 +419,8 @@ public void end_logfile(void)
 	logfile = -1;
 	free(namelogfile);
 	namelogfile = NULL;
+	putstr("\n");
+	flush();
 }
 
 /*
