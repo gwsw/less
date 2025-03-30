@@ -21,7 +21,6 @@ public int no_back_scroll = 0;
 public int forw_prompt;
 public lbool first_time = TRUE; /* We're printing the first screen of output */
 public int shell_lines = 1;
-public lbool no_eof_bell = FALSE;
 /* soft_eof is set as end-of-file when a read attempt returns EOF. This can
  * differ from actual EOF (ch_length()) if & filtering is in effect. */
 public POSITION soft_eof = NULL_POSITION;
@@ -55,8 +54,6 @@ extern char *tagoption;
  */
 public void eof_bell(void)
 {
-	if (no_eof_bell)
-		return;
 #if HAVE_TIME
 	{
 		static time_type last_eof_bell = 0;

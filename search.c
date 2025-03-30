@@ -46,7 +46,6 @@ extern LWCHAR rscroll_char;
 extern int hilite_search;
 extern lbool squished;
 extern int can_goto_line;
-extern lbool no_eof_bell;
 static lbool hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
@@ -1737,8 +1736,9 @@ public void osc8_search(int search_type, constant char *param, int matches)
 {
 	POSITION pos;
 	int match;
+	int curr_sindex = -1;
 
-	if (osc8_linepos != NULL_POSITION)
+	if (osc8_linepos != NULL_POSITION && (curr_sindex = onscreen(osc8_linepos)) >= 0)
 	{
 		/* Continue search in same line as current match. */
 		constant char *line;
@@ -1748,9 +1748,6 @@ public void osc8_search(int search_type, constant char *param, int matches)
 		{
 			if (osc8_search_line(search_type, osc8_linepos, line, line_len, param, NULL_POSITION, &matches) != OSC8_NO_MATCH)
 			{
-				no_eof_bell = TRUE;
-				jump_loc(osc8_linepos, jump_sline);
-				no_eof_bell = FALSE;
 				osc8_shift_visible();
 #if HILITE_SEARCH
 				repaint_hilite(TRUE);
@@ -1760,7 +1757,14 @@ public void osc8_search(int search_type, constant char *param, int matches)
 		}
 		search_type |= SRCH_AFTER_TARGET;
 	}
-	pos = search_pos(search_type);
+	/*
+	 * If the current OSC 8 link is on screen, start searching after it.
+	 * Otherwise, start searching at the -j line like a normal search.
+	 */
+	if (curr_sindex >= 0)
+		pos = osc8_linepos;
+	else
+		pos = search_pos(search_type);
 	if (pos == NULL_POSITION)
 	{
 		error("Nothing to search", NULL_PARG);
@@ -1774,7 +1778,9 @@ public void osc8_search(int search_type, constant char *param, int matches)
 		error("OSC 8 link not found", NULL_PARG);
 		return;
 	}
-	jump_loc(pos, jump_sline);
+	/* If new link is on screen, just highlight it without scrolling. */
+	if (onscreen(pos) < 0)
+		jump_loc(pos, jump_sline);
 #if HILITE_SEARCH
 	repaint_hilite(TRUE);
 #endif
@@ -1912,7 +1918,7 @@ public void osc8_open(void)
 	SNPRINTF3(env_name, sizeof(env_name), "%s%.*s", env_name_pfx, (int) scheme_len, op.uri_start);
 	handler = lgetenv(env_name);
 	if (isnullenv(handler) || strcmp(handler, "-") == 0)
-        handler = lgetenv("LESS_OSC8_ANY");
+		handler = lgetenv("LESS_OSC8_ANY");
 	if (isnullenv(handler))
 	{
 		PARG parg;
