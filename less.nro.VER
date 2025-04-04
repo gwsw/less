@@ -59,9 +59,6 @@ If N is more than the screen size, only the final screenful is displayed.
 Warning: some systems use \(haV as a special literalization character.
 .IP "z"
 Like SPACE, but if N is specified, it becomes the new window size.
-.IP "ESC-SPACE"
-Like SPACE, but scrolls a full screenful, even if it reaches
-end-of-file in the process.
 .IP "ENTER or RETURN or \(haN or e or \(haE or j or \(haJ"
 Scroll forward N lines, default 1.
 The entire N lines are displayed, even if N is more than the screen size.
@@ -86,6 +83,12 @@ subsequent d and u commands.
 Like j, but continues to scroll beyond the end of the file.
 .IP "K or Y"
 Like k, but continues to scroll beyond the beginning of the file.
+.IP "ESC-SPACE"
+Like SPACE, but scrolls a full screenful,
+even if it reaches the end of the file.
+.IP "ESC-b"
+Like b, but scrolls a full screenful,
+even if it reaches the beginning of the file.
 .IP "ESC-j"
 Scroll forward N file lines, default 1.
 A file line is a complete line in the file, terminated by a newline.

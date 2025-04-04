@@ -31,6 +31,7 @@
 #define A_HELP                 19
 #define A_NEXT_FILE            20
 #define A_PERCENT              21
+#define A_BF_SCREEN            22
 #define A_PREV_FILE            23
 #define A_QUIT                 24
 #define A_REPAINT              25

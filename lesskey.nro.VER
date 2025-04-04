@@ -172,6 +172,7 @@ b	back-screen
 z	forw-window
 w	back-window
 \ee\e40	forw-screen-force
+\eeb	back-screen-force
 F	forw-forever
 \eeF	forw-until-hilite
 R	repaint-flush

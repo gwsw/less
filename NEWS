@@ -23,6 +23,8 @@
 
 * Add --form-feed option (github #496).
 
+* Add ESC-b command (github #615).
+
 * Make TAB complete option name in -- command (github #531).
 
 * Update the file size on an attempt to go past end of file.

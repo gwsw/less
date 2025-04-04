@@ -88,6 +88,7 @@ static unsigned char cmdtable[] =
 	'z',0,                          A_F_WINDOW,
 	'w',0,                          A_B_WINDOW,
 	ESC,' ',0,                      A_FF_SCREEN,
+	ESC,'b',0,                      A_BF_SCREEN,
 	ESC,'j',0,                      A_F_NEWLINE,
 	ESC,'k',0,                      A_B_NEWLINE,
 	'F',0,                          A_F_FOREVER,

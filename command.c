@@ -1612,6 +1612,16 @@ public void commands(void)
 			forward((int) number, TRUE, FALSE, FALSE);
 			break;
 
+		case A_BF_SCREEN:
+			/*
+			 * Force backward one screen.
+			 */
+			if (number <= 0)
+				number = get_swindow();
+			cmd_exec();
+			backward((int) number, TRUE, FALSE, FALSE);
+			break;
+
 		case A_F_FOREVER:
 			/*
 			 * Forward forever, ignoring EOF.

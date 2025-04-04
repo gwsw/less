@@ -36,6 +36,7 @@ static constant struct lesskey_cmdname cmdnames[] =
 	{ "back-line-force",      A_BF_LINE },
 	{ "back-newline",         A_B_NEWLINE },
 	{ "back-screen",          A_B_SCREEN },
+	{ "back-screen-force",    A_BF_SCREEN },
 	{ "back-scroll",          A_B_SCROLL },
 	{ "back-search",          A_B_SEARCH },
 	{ "back-window",          A_B_WINDOW },
