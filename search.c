@@ -632,7 +632,7 @@ public int is_hilited_attr(POSITION pos, POSITION epos, int nohide, int *p_match
 
 #if OSC8_LINK
 	if (osc8_linepos != NULL_POSITION && 
-			pos <= osc8_text_end && (epos == NULL_POSITION || epos > osc8_text_start))
+			pos < osc8_text_end && (epos == NULL_POSITION || epos > osc8_text_start))
 		return (AT_HILITE|AT_COLOR_SEARCH);
 #endif
 
