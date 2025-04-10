@@ -354,9 +354,7 @@ public void clear_attn(void)
 public void undo_search(lbool clear)
 {
 	clear_pattern(&search_info);
-#if OSC8_LINK
-	osc8_linepos = NULL_POSITION;
-#endif
+	undo_osc8();
 #if HILITE_SEARCH
 	if (clear)
 	{
@@ -371,6 +369,15 @@ public void undo_search(lbool clear)
 		hide_hilite = !hide_hilite;
 	}
 	repaint_hilite(TRUE);
+#endif
+}
+
+/*
+ */
+public void undo_osc8(void)
+{
+#if OSC8_LINK
+	osc8_linepos = NULL_POSITION;
 #endif
 }
 

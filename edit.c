@@ -658,6 +658,7 @@ public int edit_ifile(IFILE ifile)
 #if HILITE_SEARCH
 		clr_hilite();
 #endif
+		undo_osc8();
 		hshift = 0;
 		if (strcmp(filename, FAKE_HELPFILE) && strcmp(filename, FAKE_EMPTYFILE))
 		{
