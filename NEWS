@@ -76,6 +76,8 @@
 
 * Fix bug searching for UTF-8 strings with the PCRE2 library (github #610).
 
+* Fix bug highlighting OSC 8 links when opening a new file.
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 668
