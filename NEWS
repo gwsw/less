@@ -78,6 +78,8 @@
 
 * Fix bug highlighting OSC 8 links when opening a new file.
 
+* Fix bug when & filtering is active (github #618).
+
 ======================================================================
 
 	Major changes between "less" versions 661 and 668

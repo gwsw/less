@@ -1045,7 +1045,7 @@ v673  3/13/25   Treat -r in LESS var as -R; add ESC-j and ESC-k.
 v674  3/24/25   Improve behavior of ^O^N and ^O^P commands.
 v675  4/3/25    Add ESC-b.
 v676  4/16/25   Fix two OSC 8 display bugs.
-v677
+v677            Fix & filtering bug.
 */
 
 char version[] = "677x";
