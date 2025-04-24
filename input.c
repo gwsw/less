@@ -326,7 +326,7 @@ get_forw_line:
 		new_pos = ch_tell();
 	}
 	if (p_linepos != NULL)
-		*p_linepos = base_pos;
+		*p_linepos = curr_pos;
 	if (p_newline != NULL)
 		*p_newline = endline;
 	return (new_pos);
