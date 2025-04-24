@@ -221,7 +221,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 	int nlines = 0;
 	lbool do_repaint;
 	lbool newline;
-	lbool new_screen = FALSE;
+	lbool first_line = TRUE;
 
 	if (pos != NULL_POSITION)
 		pos = after_header_pos(pos);
@@ -248,7 +248,6 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			 *    to hit eof in the middle of this screen,
 			 *    but we don't yet know if that will happen. }}
 			 */
-			new_screen = TRUE;
 			pos_clear();
 			force = TRUE;
 			clear();
@@ -262,7 +261,6 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			 * currently displayed.  Clear the screen image 
 			 * (position table) and start a new screen.
 			 */
-			new_screen = TRUE;
 			pos_clear();
 			force = TRUE;
 			if (top_scroll)
@@ -278,7 +276,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 
 	while (--n >= 0)
 	{
-		POSITION linepos;
+		POSITION linepos = NULL_POSITION;
 		/*
 		 * Read the next line of input.
 		 */
@@ -324,12 +322,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		 * Add the position of the next line to the position table.
 		 * Display the current line on the screen.
 		 */
-		if (new_screen)
-		{
-			add_forw_pos(linepos);
-			new_screen = FALSE;
-		}
-		add_forw_pos(pos);
+		add_forw_pos(linepos, first_line);
+		first_line = FALSE;
 		nlines++;
 		if (do_repaint)
 			continue;
@@ -358,6 +352,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			break;
 		forw_prompt = 1;
 	}
+	if (!first_line)
+		add_forw_pos(pos, FALSE);
 	if (nlines == 0 && !ignore_eoi)
 		eof_bell();
 	else if (do_repaint)

@@ -60,15 +60,18 @@ public POSITION position(int sindex)
 /*
  * Add a new file position to the bottom of the position table.
  */
-public void add_forw_pos(POSITION pos)
+public void add_forw_pos(POSITION pos, lbool no_scroll)
 {
 	int i;
 
 	/*
 	 * Scroll the position table up.
 	 */
-	for (i = 1;  i < sc_height;  i++)
-		table[i-1] = table[i];
+	if (!no_scroll)
+	{
+		for (i = 1;  i < sc_height;  i++)
+			table[i-1] = table[i];
+	}
 	table[sc_height - 1] = pos;
 }
 
