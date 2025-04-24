@@ -388,7 +388,7 @@ sub parse_ltfile {
 # ---------------------------------------------------------------------
 sub parse_env {
     my ($line, $lt) = @_;
-    my ($ename, $evalue) = /^E \s* "(\w*)" \s* "([^"]*)" /x;
+    my ($ename, $evalue) = /^E \s* "([^"]*)" \s* "([^"]*)" /x;
     if ($ename eq "COLUMNS") {
         $lt->{columns} = $evalue;
     } elsif ($ename eq "LINES") {
@@ -539,6 +539,9 @@ sub utf8_char {
     my @ich;
     for (my $i = 0; $i < length($ch); ++$i) {
         push @ich, ord substr($ch, $i, 1);
+    }
+    if (@ich == 0) {
+        return '';
     }
     if (@ich == 2) {
         return (($ich[0] & 0x1F) << 6) | ($ich[1] & 0x3F);
