@@ -319,7 +319,8 @@ public void jump_loc(POSITION pos, int sline)
 		 */
 		for (nline = sindex;  nline < sc_height - 1;  nline++)
 		{
-			pos = forw_line(pos, NULL, NULL);
+			POSITION linepos;
+			pos = forw_line(pos, &linepos, NULL);
 			if (pos == NULL_POSITION)
 			{
 				/*
@@ -329,14 +330,14 @@ public void jump_loc(POSITION pos, int sline)
 				 */
 				break;
 			}
-			if (pos >= tpos)
+			if (linepos >= tpos)
 			{
 				/* 
 				 * Surprise!  The desired line is
 				 * close enough to the current screen
 				 * that we can just scroll there after all.
 				 */
-				back(nline+1, tpos, TRUE, FALSE, FALSE);
+				back(nline, tpos, TRUE, FALSE, FALSE);
 #if HILITE_SEARCH
 				if (show_attn)
 					repaint_hilite(TRUE);
