@@ -50,6 +50,8 @@
 
 * Improve behavior of ^O^N and ^O^P commands.
 
+* Leave stty tabs setting unchanged (github #620).
+
 * Fix unexpected behavior when entering a partial command followed by 
   a valid command (github #543).
 

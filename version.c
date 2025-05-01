@@ -1046,7 +1046,7 @@ v674  3/24/25   Improve behavior of ^O^N and ^O^P commands.
 v675  4/3/25    Add ESC-b.
 v676  4/16/25   Fix two OSC 8 display bugs.
 v677  4/27/25   Fix & filtering bug.
-v678
+v678  5/1/25    Don't change stty tab setting.
 */
 
-char version[] = "678x";
+char version[] = "678";
