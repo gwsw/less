@@ -328,17 +328,6 @@ static void set_termio_flags(
 	);
 
 	s->c_oflag |= (0
-#ifdef OXTABS
-		| OXTABS
-#else
-#ifdef TAB3
-		| TAB3
-#else
-#ifdef XTABS
-		| XTABS
-#endif
-#endif
-#endif
 #ifdef OPOST
 		| OPOST
 #endif
@@ -628,7 +617,7 @@ public void raw_mode(int on)
 		 * Set the modes to the way we want them.
 		 */
 		s.sg_flags |= CBREAK;
-		s.sg_flags &= ~(ECHO|XTABS);
+		s.sg_flags &= ~(ECHO);
 	} else
 	{
 		/*
