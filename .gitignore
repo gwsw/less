@@ -26,7 +26,6 @@ upload
 lesstest/lesstest
 lesstest/lt_screen
 
-
 # Windows artifacts
 *.obj
 *.exe
