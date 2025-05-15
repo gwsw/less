@@ -150,12 +150,15 @@ INSTALLATION (MS-DOS systems only,
 
 =======================================================================
 INSTALLATION (Windows-95, Windows-98 and Windows-NT systems only,
-              with Borland C or Microsoft Visual C++)
+              with Borland C,
+              Mingw-w64 or Microsoft Visual C++)
 
 1. Move the distributed source to its own directory.
 
 2. If you are using Borland C, rename Makefile.wnb to Makefile.
-   If you are using Microsoft Visual C++, rename Makefile.wnm to Makefile.
+   If you are using Microsoft Visual C++(MSVC), rename Makefile.wnm to
+   Makefile.
+   If you are using Mingw-w64, rename Makefile.wng to Makefile.
 
 3. Check the Makefile to make sure the definitions look ok.
 
@@ -164,8 +167,9 @@ INSTALLATION (Windows-95, Windows-98 and Windows-NT systems only,
    wish to edit the manual page less.man and the help page help.c
    to remove the descriptions of the features which you are removing.
 
-5. If you are using Borland C, type "make" and watch the fun.
-   If you are using Microsoft Visual C++, run
+5. If you are using Borland C or Mingw-w64, type "make" and watch the fun.
+   If you are using Microsoft Visual C++:
+   run "nmake", not any other "make" distribution in the wild and run:
    "nmake generated" for generating funcs.h and help.c
    "nmake all" for making binaries.
 
