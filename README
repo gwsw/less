@@ -164,7 +164,10 @@ INSTALLATION (Windows-95, Windows-98 and Windows-NT systems only,
    wish to edit the manual page less.man and the help page help.c
    to remove the descriptions of the features which you are removing.
 
-5. Type "make" and watch the fun.
+5. If you are using Borland C, type "make" and watch the fun.
+   If you are using Microsoft Visual C++, run
+   "nmake generated" for generating funcs.h and help.c
+   "nmake all" for making binaries.
 
 6. If the make succeeds, it will generate the programs "less.exe" and
    "lesskey.exe" in your current directory.  Test the generated programs.

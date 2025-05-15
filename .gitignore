@@ -25,3 +25,8 @@ upload
 .vimrc
 lesstest/lesstest
 lesstest/lt_screen
+
+
+# Windows artifacts
+*.obj
+*.exe
