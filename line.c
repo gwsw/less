@@ -93,7 +93,6 @@ extern int linenums;
 extern int ctldisp;
 extern int twiddle;
 extern int quit_if_one_screen;
-extern int one_screen;
 extern int status_col;
 extern int status_col_width;
 extern int linenum_width;
@@ -1588,7 +1587,7 @@ public int gline(size_t i, int *ap)
 		{
 
 			/* Don't bother if we're not actually paging. */
-			if(quit_if_one_screen && one_screen)
+			if(quit_if_one_screen)
 			{
 				return '\0';
 			}
