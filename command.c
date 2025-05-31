@@ -65,6 +65,7 @@ extern int shift_count;
 extern int forw_prompt;
 extern int incr_search;
 extern int full_screen;
+extern int hide_prompt;
 #if MSDOS_COMPILER==WIN32C
 extern int utf_mode;
 extern unsigned less_acp;
@@ -940,9 +941,12 @@ static void prompt(void)
 #endif
 	if (p == NULL || *p == '\0')
 	{
-		at_enter(AT_NORMAL|AT_COLOR_PROMPT);
-		putchr(':');
-		at_exit();
+		if (!hide_prompt)
+		{
+			at_enter(AT_NORMAL|AT_COLOR_PROMPT);
+			putchr(':');
+			at_exit();
+		}
 	} else
 	{
 #if MSDOS_COMPILER==WIN32C
