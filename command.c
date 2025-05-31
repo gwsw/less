@@ -27,7 +27,6 @@ extern int one_screen;
 extern int sc_width;
 extern int sc_height;
 extern char *kent;
-extern char *sc_move;
 extern int swindow;
 extern void hide_cursor(void);
 extern void show_cursor(void);
@@ -130,6 +129,8 @@ static void set_mca(int action)
 	mca = action;
 	clear_bot();
 	clear_cmd();
+	/* Show cursor during command input, even with -H option */
+	show_cursor();
 }
 
 /*
@@ -140,6 +141,11 @@ static void clear_mca(void)
 	if (mca == 0)
 		return;
 	mca = 0;
+	/* Restore cursor visibility based on hide_prompt option */
+	if (hide_prompt)
+		hide_cursor();
+	else
+		show_cursor();
 }
 
 /*

@@ -2166,22 +2166,29 @@ public void line_left(void)
 #endif
 }
 
+static lbool cursor_is_hidden = FALSE;
+
 /*
  * Hide cursor by making it invisible.
  */
 public void hide_cursor(void)
 {
+	if (cursor_is_hidden)
+		return;
 	assert_interactive();
 #if !MSDOS_COMPILER
 	if (sc_cursor_invis != NULL && *sc_cursor_invis != '\0')
+	{
 		ltputs(sc_cursor_invis, 1, putchr);
-	else if (sc_move != NULL && *sc_move != '\0')
-		/* Fallback: move cursor off-screen if no invisibility support */
-		ltputs(tgoto(sc_move, sc_width, sc_height), 1, putchr);
+		cursor_is_hidden = TRUE;
+	}
+	/* Note: Removed off-screen cursor positioning fallback as it may be
+	 * unsafe on some terminals per terminfo documentation */
 #else
-	/* Windows: move cursor off-screen (no standard invisibility control) */
+	/* Windows: move cursor to bottom-right corner */
 	flush();
-	_settextposition(sc_height+1, sc_width+1);
+	_settextposition(sc_height, sc_width);
+	cursor_is_hidden = TRUE;
 #endif
 }
 
@@ -2190,14 +2197,20 @@ public void hide_cursor(void)
  */
 public void show_cursor(void)
 {
+	if (!cursor_is_hidden)
+		return;
 	assert_interactive();
 #if !MSDOS_COMPILER
 	if (sc_cursor_norm != NULL && *sc_cursor_norm != '\0')
+	{
 		ltputs(sc_cursor_norm, 1, putchr);
+		cursor_is_hidden = FALSE;
+	}
 #else
 	/* Windows: move cursor to normal position */
 	flush();
 	_settextposition(sc_height, 1);
+	cursor_is_hidden = FALSE;
 #endif
 }
 
