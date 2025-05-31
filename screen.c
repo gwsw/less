@@ -2150,6 +2150,21 @@ public void line_left(void)
 }
 
 /*
+ * Hide cursor by moving it off-screen.
+ */
+public void hide_cursor(void)
+{
+	assert_interactive();
+#if !MSDOS_COMPILER
+	if (sc_move != NULL && *sc_move != '\0')
+		ltputs(tgoto(sc_move, sc_width, sc_height), 1, putchr);
+#else
+	flush();
+	_settextposition(sc_height+1, sc_width+1);
+#endif
+}
+
+/*
  * Check if the console size has changed and reset internals 
  * (in lieu of SIGWINCH for WIN32).
  */

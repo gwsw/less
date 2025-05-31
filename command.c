@@ -27,7 +27,9 @@ extern int one_screen;
 extern int sc_width;
 extern int sc_height;
 extern char *kent;
+extern char *sc_move;
 extern int swindow;
+extern void hide_cursor(void);
 extern int jump_sline;
 extern lbool quitting;
 extern int wscroll;
@@ -961,6 +963,12 @@ static void prompt(void)
 		put_line(FALSE);
 	}
 	clear_eol();
+	
+	/* Hide cursor by moving it off-screen when hide_prompt is enabled */
+	if (hide_prompt)
+	{
+		hide_cursor();
+	}
 }
 
 /*
