@@ -123,6 +123,13 @@ string is parsed, just as if it were typed in to
 This feature can be used in certain cases to extend
 the functionality of a command.
 For example, see the "{" and ":t" commands in the example below.
+It can also be used to bind multiple actions to \fIstring\fP.
+For example:
+.sp
+.nf
+	v noaction g|$vim -\en
+.fi
+.sp
 The extra string has a special meaning for the "quit" action:
 when
 .B less
