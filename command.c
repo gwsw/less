@@ -30,6 +30,7 @@ extern char *kent;
 extern char *sc_move;
 extern int swindow;
 extern void hide_cursor(void);
+extern void show_cursor(void);
 extern int jump_sline;
 extern lbool quitting;
 extern int wscroll;
@@ -964,10 +965,14 @@ static void prompt(void)
 	}
 	clear_eol();
 	
-	/* Hide cursor by moving it off-screen when hide_prompt is enabled */
+	/* Control cursor visibility based on hide_prompt option */
 	if (hide_prompt)
 	{
 		hide_cursor();
+	}
+	else
+	{
+		show_cursor();
 	}
 }
 

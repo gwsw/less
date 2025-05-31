@@ -222,7 +222,9 @@ static constant char
 	*sc_s_bracketed_paste,  /* Start bracketed paste mode */
 	*sc_e_bracketed_paste,  /* End bracketed paste mode */
 	*sc_init,               /* Startup terminal initialization */
-	*sc_deinit;             /* Exit terminal de-initialization */
+	*sc_deinit,             /* Exit terminal de-initialization */
+	*sc_cursor_invis,       /* Make cursor invisible */
+	*sc_cursor_norm;        /* Make cursor normal/visible */
 
 static int attrcolor = -1;
 #endif
@@ -1338,6 +1340,14 @@ public void get_term(void)
 	if (sc_deinit == NULL)
 		sc_deinit = "";
 
+	sc_cursor_invis = ltgetstr("vi", &sp);
+	if (sc_cursor_invis == NULL)
+		sc_cursor_invis = "";
+
+	sc_cursor_norm = ltgetstr("ve", &sp);
+	if (sc_cursor_norm == NULL)
+		sc_cursor_norm = "";
+
 	sc_eol_clear = ltgetstr("ce", &sp);
 	if (sc_eol_clear == NULL || *sc_eol_clear == '\0')
 	{
@@ -2150,17 +2160,37 @@ public void line_left(void)
 }
 
 /*
- * Hide cursor by moving it off-screen.
+ * Hide cursor by making it invisible.
  */
 public void hide_cursor(void)
 {
 	assert_interactive();
 #if !MSDOS_COMPILER
-	if (sc_move != NULL && *sc_move != '\0')
+	if (sc_cursor_invis != NULL && *sc_cursor_invis != '\0')
+		ltputs(sc_cursor_invis, 1, putchr);
+	else if (sc_move != NULL && *sc_move != '\0')
+		/* Fallback: move cursor off-screen if no invisibility support */
 		ltputs(tgoto(sc_move, sc_width, sc_height), 1, putchr);
 #else
+	/* Windows: move cursor off-screen (no standard invisibility control) */
 	flush();
 	_settextposition(sc_height+1, sc_width+1);
+#endif
+}
+
+/*
+ * Show cursor by making it visible.
+ */
+public void show_cursor(void)
+{
+	assert_interactive();
+#if !MSDOS_COMPILER
+	if (sc_cursor_norm != NULL && *sc_cursor_norm != '\0')
+		ltputs(sc_cursor_norm, 1, putchr);
+#else
+	/* Windows: move cursor to normal position */
+	flush();
+	_settextposition(sc_height, 1);
 #endif
 }
 
