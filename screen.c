@@ -1830,6 +1830,9 @@ public void init(void)
 #endif
 }
 
+/* Forward declaration */
+public void show_cursor(void);
+
 /*
  * Deinitialize terminal
  */
@@ -1846,6 +1849,8 @@ public void deinit(void)
             deinit_bracketed_paste();
 		if (!no_keypad)
 			ltputs(sc_e_keypad, sc_height, putchr);
+		/* Restore cursor visibility before terminal deinitialization */
+		show_cursor();
 		if (!no_init)
 			ltputs(sc_deinit, sc_height, putchr);
 	}
@@ -1858,6 +1863,8 @@ public void deinit(void)
 	{
 		if (mousecap)
 			deinit_mouse();
+		/* Restore cursor visibility before terminal deinitialization */
+		show_cursor();
 		if (!no_init)
 			win32_deinit_term();
 	}
