@@ -1,7 +1,8 @@
 CC ?= gcc
 CFLAGS ?= -Wall -O2
 LDFLAGS ?=
-TERMLIB = -lncurses
+PKG_CONFIG ?= pkg-config
+TERMLIB ?= $(shell ${PKG_CONFIG} --libs ncurses)
 srcdir ?= .
 
 all: lesstest lt_screen 
