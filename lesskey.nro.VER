@@ -83,8 +83,10 @@ l l l.
 \er	RETURN	(0x0D)
 \et	TAB	(0x09)
 .TE
+.RE
 .sp
 \ek followed by a single character represents the char(s) produced when one of these keys is pressed:
+.RS 5m
 .TS
 l l.
 \ekb	BACKSPACE (the BACKSPACE key)
@@ -105,7 +107,7 @@ l l.
 \ekX	ctrl-DELETE
 \ek1	F1
 .TE
-
+.RE
 .PP
 A backslash followed by any other character indicates that character is
 to be taken literally.
@@ -121,6 +123,13 @@ string is parsed, just as if it were typed in to
 This feature can be used in certain cases to extend
 the functionality of a command.
 For example, see the "{" and ":t" commands in the example below.
+It can also be used to bind multiple actions to \fIstring\fP.
+For example:
+.sp
+.nf
+	v noaction g|$vim -\en
+.fi
+.sp
 The extra string has a special meaning for the "quit" action:
 when
 .B less
