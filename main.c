@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#if defined(MINGW) || defined(_MSC_VER)
+#if defined(__MINGW32__) || defined(_MSC_VER)
 #include <locale.h>
 #include <shellapi.h>
 #endif
@@ -78,7 +78,7 @@ extern int      redraw_on_quit;
 extern int      term_init_done;
 extern lbool    first_time;
 
-#if MSDOS_COMPILER==WIN32C && (defined(MINGW) || defined(_MSC_VER))
+#if MSDOS_COMPILER==WIN32C && (defined(__MINGW32__) || defined(_MSC_VER))
 /* malloc'ed 0-terminated utf8 of 0-terminated wide ws, or null on errors */
 static char *utf8_from_wide(constant wchar_t *ws)
 {
@@ -248,7 +248,7 @@ int main(int argc, constant char *argv[])
 	IFILE ifile;
 	constant char *s;
 
-#if MSDOS_COMPILER==WIN32C && (defined(MINGW) || defined(_MSC_VER))
+#if MSDOS_COMPILER==WIN32C && (defined(__MINGW32__) || defined(_MSC_VER))
 	if (GetACP() != CP_UTF8)  /* not using a UTF-8 manifest */
 		try_utf8_locale(&argc, &argv);
 #endif
