@@ -1049,6 +1049,7 @@ v677  4/27/25   Fix & filtering bug.
 v678  5/1/25    Don't change stty tab setting.
 v679  5/28/25   Fix lesskey parsing bug when env var is prefix of another;
                 fix unexpected exit when using -K.
+v680
 */
 
-char version[] = "679";
+char version[] = "680x";
