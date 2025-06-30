@@ -15,6 +15,8 @@
 
 * Fix hang if a search using ^S modifier matches empty string (github #634).
 
+* Fix bug using -g and -J (github #636).
+
 ======================================================================
 
 	Major changes between "less" versions 678 and 679
