@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 679 and 680
+	Major changes between "less" versions 679 and 681
 
 * Fix hang if a search using ^S modifier matches empty string (github #634).
 
