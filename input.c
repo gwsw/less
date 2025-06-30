@@ -104,7 +104,7 @@ get_forw_line:
 		return (NULL_POSITION);
 	}
 #if HILITE_SEARCH
-	if (hilite_search == OPT_ONPLUS || is_filtering() || status_col)
+	if (hilite_search == OPT_ONPLUS || is_filtering() || (status_col && hilite_search != OPT_ON))
 	{
 		/*
 		 * If we are ignoring EOI (command F), only prepare
@@ -426,7 +426,7 @@ get_back_line:
 	}
 
 #if HILITE_SEARCH
-	if (hilite_search == OPT_ONPLUS || is_filtering() || status_col)
+	if (hilite_search == OPT_ONPLUS || is_filtering() || (status_col && hilite_search != OPT_ON))
 		prep_hilite(base_pos, NULL_POSITION, 1);
 #endif
 
