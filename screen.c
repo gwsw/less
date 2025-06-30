@@ -222,7 +222,9 @@ static constant char
 	*sc_s_bracketed_paste,  /* Start bracketed paste mode */
 	*sc_e_bracketed_paste,  /* End bracketed paste mode */
 	*sc_init,               /* Startup terminal initialization */
-	*sc_deinit;             /* Exit terminal de-initialization */
+	*sc_deinit,             /* Exit terminal de-initialization */
+	*sc_cursor_invis,       /* Make cursor invisible */
+	*sc_cursor_norm;        /* Make cursor normal/visible */
 
 static int attrcolor = -1;
 #endif
@@ -1338,6 +1340,14 @@ public void get_term(void)
 	if (sc_deinit == NULL)
 		sc_deinit = "";
 
+	sc_cursor_invis = ltgetstr("vi", &sp);
+	if (sc_cursor_invis == NULL)
+		sc_cursor_invis = "";
+
+	sc_cursor_norm = ltgetstr("ve", &sp);
+	if (sc_cursor_norm == NULL)
+		sc_cursor_norm = "";
+
 	sc_eol_clear = ltgetstr("ce", &sp);
 	if (sc_eol_clear == NULL || *sc_eol_clear == '\0')
 	{
@@ -1820,6 +1830,9 @@ public void init(void)
 #endif
 }
 
+/* Forward declaration */
+public void show_cursor(void);
+
 /*
  * Deinitialize terminal
  */
@@ -1836,6 +1849,8 @@ public void deinit(void)
             deinit_bracketed_paste();
 		if (!no_keypad)
 			ltputs(sc_e_keypad, sc_height, putchr);
+		/* Restore cursor visibility before terminal deinitialization */
+		show_cursor();
 		if (!no_init)
 			ltputs(sc_deinit, sc_height, putchr);
 	}
@@ -1848,6 +1863,8 @@ public void deinit(void)
 	{
 		if (mousecap)
 			deinit_mouse();
+		/* Restore cursor visibility before terminal deinitialization */
+		show_cursor();
 		if (!no_init)
 			win32_deinit_term();
 	}
@@ -2146,6 +2163,54 @@ public void line_left(void)
 #endif
 		_settextposition(row, 1);
 	}
+#endif
+}
+
+static lbool cursor_is_hidden = FALSE;
+
+/*
+ * Hide cursor by making it invisible.
+ */
+public void hide_cursor(void)
+{
+	if (cursor_is_hidden)
+		return;
+	assert_interactive();
+#if !MSDOS_COMPILER
+	if (sc_cursor_invis != NULL && *sc_cursor_invis != '\0')
+	{
+		ltputs(sc_cursor_invis, 1, putchr);
+		cursor_is_hidden = TRUE;
+	}
+	/* Note: Removed off-screen cursor positioning fallback as it may be
+	 * unsafe on some terminals per terminfo documentation */
+#else
+	/* Windows: move cursor to bottom-right corner */
+	flush();
+	_settextposition(sc_height, sc_width);
+	cursor_is_hidden = TRUE;
+#endif
+}
+
+/*
+ * Show cursor by making it visible.
+ */
+public void show_cursor(void)
+{
+	if (!cursor_is_hidden)
+		return;
+	assert_interactive();
+#if !MSDOS_COMPILER
+	if (sc_cursor_norm != NULL && *sc_cursor_norm != '\0')
+	{
+		ltputs(sc_cursor_norm, 1, putchr);
+		cursor_is_hidden = FALSE;
+	}
+#else
+	/* Windows: move cursor to normal position */
+	flush();
+	_settextposition(sc_height, 1);
+	cursor_is_hidden = FALSE;
 #endif
 }
 
