@@ -17,6 +17,9 @@
 
 * Fix bug using -g and -J (github #636).
 
+* Fix bug when pasting a search pattern while --incsearch is active
+  (github #635).
+
 ======================================================================
 
 	Major changes between "less" versions 678 and 679

@@ -82,6 +82,7 @@ static lbool opening;
 public lbool waiting_for_data;
 public int consecutive_nulls = 0;
 public lbool getting_one_screen = FALSE;
+public lbool no_poll = FALSE;
 
 /* Milliseconds to wait for data before displaying "waiting for data" message. */
 static int waiting_for_data_delay = 4000;
@@ -269,7 +270,7 @@ start:
 	}
 #endif
 #if USE_POLL
-	if (is_tty && fd != tty && use_poll && !(quit_if_one_screen && one_screen))
+	if (is_tty && fd != tty && use_poll && !no_poll && !(quit_if_one_screen && one_screen))
 	{
 		int ret = check_poll(fd, tty);
 		if (ret != 0)
