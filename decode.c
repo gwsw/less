@@ -749,7 +749,8 @@ static int cmd_search(constant char *cmd, constant unsigned char *table, constan
 			if (match == cmdlen) /* (last chars of) cmd matches this table entry */
 			{
 				action = taction;
-				*extra = textra;
+				if (extra != NULL)
+					*extra = textra;
 			} else if (match > 0 && action == A_INVALID) /* cmd is a prefix of this table entry */
 			{
 				action = A_PREFIX;
