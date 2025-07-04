@@ -142,39 +142,48 @@ get_forw_line:
 	/*
 	 * Read forward again to the position we should start at.
 	 */
-	prewind();
-	plinestart(base_pos);
-	(void) ch_seek(base_pos);
-	new_pos = base_pos;
-	while (new_pos < curr_pos)
+	if (is_line_contig_pos(curr_pos))
 	{
-		c = ch_forw_get();
-		if (c == EOI)
+		prewind(TRUE);
+		plinestart(base_pos);
+		ch_seek(curr_pos);
+		new_pos = curr_pos;
+	} else
+	{
+		prewind(FALSE);
+		plinestart(base_pos);
+		ch_seek(base_pos);
+		new_pos = base_pos;
+		while (new_pos < curr_pos)
 		{
-			null_line();
-			return (NULL_POSITION);
-		}
-		backchars = pappend((char) c, new_pos);
-		new_pos++;
-		if (backchars > 0)
-		{
-			pshift_all();
-			if (wordwrap && (c == ' ' || c == '\t'))
+			c = ch_forw_get();
+			if (c == EOI)
 			{
-				do
-				{
-					new_pos++;
-					c = ch_forw_get(); /* {{ what if c == EOI? }} */
-				} while (c == ' ' || c == '\t');
-				backchars = 1;
+				null_line();
+				return (NULL_POSITION);
 			}
-			new_pos -= backchars;
-			while (--backchars >= 0)
-				(void) ch_back_get();
+			backchars = pappend((char) c, new_pos);
+			new_pos++;
+			if (backchars > 0)
+			{
+				pshift_all();
+				if (wordwrap && (c == ' ' || c == '\t'))
+				{
+					do
+					{
+						new_pos++;
+						c = ch_forw_get(); /* {{ what if c == EOI? }} */
+					} while (c == ' ' || c == '\t');
+					backchars = 1;
+				}
+				new_pos -= backchars;
+				while (--backchars >= 0)
+					(void) ch_back_get();
+			}
 		}
+		pshift_all();
 	}
 	(void) pflushmbc();
-	pshift_all();
 
 	/*
 	 * Read the first character to display.
@@ -329,6 +338,7 @@ get_forw_line:
 		*p_linepos = curr_pos;
 	if (p_newline != NULL)
 		*p_newline = endline;
+	set_line_contig_pos(new_pos);
 	return (new_pos);
 }
 
@@ -446,7 +456,7 @@ get_back_line:
 		return (NULL_POSITION);
 	}
 	endline = FALSE;
-	prewind();
+	prewind(FALSE);
 	plinestart(new_pos);
 	if (p_newline != NULL)
 		*p_newline = TRUE;

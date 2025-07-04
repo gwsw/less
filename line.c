@@ -28,6 +28,7 @@ static struct {
 	int *attr;    /* Parallel to buf, to hold attributes */
 	size_t print; /* Index in buf of first printable char */
 	size_t end;   /* Number of chars in buf */
+	size_t prev_end; /* Number of chars in buf for previous line */
 	char pfx[MAX_PFX_WIDTH]; /* Holds status column and line number */
 	int pfx_attr[MAX_PFX_WIDTH];
 	size_t pfx_end;  /* Number of chars in pfx */
@@ -63,6 +64,7 @@ public int ntabstops = 1;        /* Number of tabstops */
 public int tabdefault = 8;       /* Default repeated tabstops */
 public POSITION highest_hilite;  /* Pos of last hilite in file found so far */
 static POSITION line_pos;
+static POSITION line_contig_pos = NULL_POSITION; /* One after last byte processed */
 
 static int end_column;  /* Printable length, accounting for backspaces, etc. */
 static int right_curr;
@@ -255,12 +257,42 @@ public POSITION line_position(void)
 }
 
 /*
+ * Is this byte the next one after the previous byte processed?
+ */
+public lbool is_line_contig_pos(POSITION pos)
+{
+	return pos == line_contig_pos;
+}
+
+/*
+ * Set the position of the next byte to be processed.
+ */
+public void set_line_contig_pos(POSITION pos)
+{
+	line_contig_pos = pos;
+}
+
+/*
+ * Copy any ANSI sequences from line buffer to shifted_ansi.
+ */
+static void pshift(size_t end)
+{
+	size_t i;
+	for (i = linebuf.print;  i < end;  i++)
+		if (linebuf.attr[i] == AT_ANSI)
+			xbuf_add_char(&shifted_ansi, linebuf.buf[i]);
+}
+
+/*
  * Rewind the line buffer.
  */
-public void prewind(void)
+public void prewind(lbool contig)
 {
 	int ax;
 
+	xbuf_reset(&shifted_ansi);
+	if (contig && linebuf.prev_end != 0)
+		pshift(linebuf.prev_end);
 	linebuf.print = 6; /* big enough for longest UTF-8 sequence */
 	linebuf.pfx_end = 0;
 	for (linebuf.end = 0; linebuf.end < linebuf.print; linebuf.end++)
@@ -285,7 +317,6 @@ public void prewind(void)
 	clear_after_line = FALSE;
 	line_mark_attr = 0;
 	line_pos = NULL_POSITION;
-	xbuf_reset(&shifted_ansi);
 	xbuf_reset(&last_ansi);
 	for (ax = 0;  ax < NUM_LAST_ANSIS;  ax++)
 		xbuf_reset(&last_ansis[ax]);
@@ -431,10 +462,7 @@ public int line_pfx_width(void)
  */
 public void pshift_all(void)
 {
-	size_t i;
-	for (i = linebuf.print;  i < linebuf.end;  i++)
-		if (linebuf.attr[i] == AT_ANSI)
-			xbuf_add_char(&shifted_ansi, linebuf.buf[i]);
+	pshift(linebuf.end);
 	linebuf.end = linebuf.print;
 	end_column = (int) linebuf.pfx_end; /*{{type-issue}}*/
 	line_pos = NULL_POSITION;
@@ -1340,6 +1368,7 @@ static void add_attr_normal(void)
 public void pdone(lbool endline, lbool chopped, lbool forw)
 {
 	(void) pflushmbc();
+	linebuf.prev_end = (!endline && !chopped) ? linebuf.end : 0;
 
 	if (pendc && (pendc != '\r' || !endline))
 		/*
@@ -1804,11 +1833,14 @@ static int pappstr(constant char *str)
 public void load_line(constant char *str)
 {
 	int save_hshift = hshift;
-
 	hshift = 0;
+
+	/* We're overwriting the line buffer, so what's in it will no longer be contiguous. */
+	set_line_contig_pos(NULL_POSITION);
+
 	for (;;)
 	{
-		prewind();
+		prewind(FALSE);
 		if (pappstr(str) == 0)
 			break;
 		/*
@@ -1819,6 +1851,7 @@ public void load_line(constant char *str)
 		hshift += 1;
 	}
 	set_linebuf(linebuf.end, '\0', AT_NORMAL);
+	linebuf.prev_end = 0;
 
 	/* Color the prompt unless it has ansi sequences in it. */
 	if (!ansi_in_line)
