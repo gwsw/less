@@ -798,6 +798,7 @@ static void clear_buffers(void)
 #if HILITE_SEARCH
 	clr_hilite();
 #endif
+	set_line_contig_pos(NULL_POSITION);
 }
 
 public void screen_trashed_num(int trashed)
