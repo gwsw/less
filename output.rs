@@ -1,14 +1,7 @@
 use ::libc;
 extern "C" {
-    fn write(
-        __fd: std::ffi::c_int,
-        __buf: *const std::ffi::c_void,
-        __n: size_t,
-    ) -> ssize_t;
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn write(__fd: std::ffi::c_int, __buf: *const std::ffi::c_void, __n: size_t) -> ssize_t;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
     fn quit(status: std::ffi::c_int);
     fn interactive() -> std::ffi::c_int;
@@ -78,7 +71,8 @@ pub unsafe extern "C" fn put_line(mut forw_scroll: lbool) {
     if sigs
         & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
             | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-            | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+            | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+        != 0
     {
         screen_trashed();
         return;
@@ -101,9 +95,7 @@ pub unsafe extern "C" fn put_line(mut forw_scroll: lbool) {
         i;
     }
     at_exit();
-    if forw_scroll as std::ffi::c_uint != 0
-        && should_clear_after_line() as std::ffi::c_uint != 0
-    {
+    if forw_scroll as std::ffi::c_uint != 0 && should_clear_after_line() as std::ffi::c_uint != 0 {
         clear_eol();
     }
 }
@@ -132,12 +124,10 @@ pub unsafe extern "C" fn putchr(mut ch: std::ffi::c_int) -> std::ffi::c_int {
     let mut c: std::ffi::c_char = ch as std::ffi::c_char;
     clear_bot_if_needed();
     if ob
-        >= &mut *obuf
-            .as_mut_ptr()
-            .offset(
-                (::core::mem::size_of::<[std::ffi::c_char; 1024]>() as std::ffi::c_ulong)
-                    .wrapping_sub(1 as std::ffi::c_int as std::ffi::c_ulong) as isize,
-            ) as *mut std::ffi::c_char
+        >= &mut *obuf.as_mut_ptr().offset(
+            (::core::mem::size_of::<[std::ffi::c_char; 1024]>() as std::ffi::c_ulong)
+                .wrapping_sub(1 as std::ffi::c_int as std::ffi::c_ulong) as isize,
+        ) as *mut std::ffi::c_char
     {
         flush();
     }
@@ -169,15 +159,11 @@ pub unsafe extern "C" fn postoa(
     mut buf: *mut std::ffi::c_char,
     mut radix: std::ffi::c_int,
 ) {
-    let mut neg: std::ffi::c_int = (num < 0 as std::ffi::c_int as POSITION)
-        as std::ffi::c_int;
+    let mut neg: std::ffi::c_int = (num < 0 as std::ffi::c_int as POSITION) as std::ffi::c_int;
     let mut tbuf: [std::ffi::c_char; 23] = [0; 23];
     let mut s: *mut std::ffi::c_char = tbuf
         .as_mut_ptr()
-        .offset(
-            ::core::mem::size_of::<[std::ffi::c_char; 23]>() as std::ffi::c_ulong
-                as isize,
-        );
+        .offset(::core::mem::size_of::<[std::ffi::c_char; 23]>() as std::ffi::c_ulong as isize);
     if neg != 0 {
         num = -num;
     }
@@ -185,10 +171,8 @@ pub unsafe extern "C" fn postoa(
     *s = '\0' as i32 as std::ffi::c_char;
     loop {
         s = s.offset(-1);
-        *s = (*::core::mem::transmute::<
-            &[u8; 17],
-            &[std::ffi::c_char; 17],
-        >(b"0123456789ABCDEF\0"))[(num % radix as POSITION) as usize];
+        *s = (*::core::mem::transmute::<&[u8; 17], &[std::ffi::c_char; 17]>(b"0123456789ABCDEF\0"))
+            [(num % radix as POSITION) as usize];
         num /= radix as POSITION;
         if !(num != 0 as std::ffi::c_int as POSITION) {
             break;
@@ -206,15 +190,11 @@ pub unsafe extern "C" fn linenumtoa(
     mut buf: *mut std::ffi::c_char,
     mut radix: std::ffi::c_int,
 ) {
-    let mut neg: std::ffi::c_int = (num < 0 as std::ffi::c_int as LINENUM)
-        as std::ffi::c_int;
+    let mut neg: std::ffi::c_int = (num < 0 as std::ffi::c_int as LINENUM) as std::ffi::c_int;
     let mut tbuf: [std::ffi::c_char; 23] = [0; 23];
     let mut s: *mut std::ffi::c_char = tbuf
         .as_mut_ptr()
-        .offset(
-            ::core::mem::size_of::<[std::ffi::c_char; 23]>() as std::ffi::c_ulong
-                as isize,
-        );
+        .offset(::core::mem::size_of::<[std::ffi::c_char; 23]>() as std::ffi::c_ulong as isize);
     if neg != 0 {
         num = -num;
     }
@@ -222,10 +202,8 @@ pub unsafe extern "C" fn linenumtoa(
     *s = '\0' as i32 as std::ffi::c_char;
     loop {
         s = s.offset(-1);
-        *s = (*::core::mem::transmute::<
-            &[u8; 17],
-            &[std::ffi::c_char; 17],
-        >(b"0123456789ABCDEF\0"))[(num % radix as LINENUM) as usize];
+        *s = (*::core::mem::transmute::<&[u8; 17], &[std::ffi::c_char; 17]>(b"0123456789ABCDEF\0"))
+            [(num % radix as LINENUM) as usize];
         num /= radix as LINENUM;
         if !(num != 0 as std::ffi::c_int as LINENUM) {
             break;
@@ -247,10 +225,7 @@ pub unsafe extern "C" fn inttoa(
     let mut tbuf: [std::ffi::c_char; 13] = [0; 13];
     let mut s: *mut std::ffi::c_char = tbuf
         .as_mut_ptr()
-        .offset(
-            ::core::mem::size_of::<[std::ffi::c_char; 13]>() as std::ffi::c_ulong
-                as isize,
-        );
+        .offset(::core::mem::size_of::<[std::ffi::c_char; 13]>() as std::ffi::c_ulong as isize);
     if neg != 0 {
         num = -num;
     }
@@ -258,10 +233,8 @@ pub unsafe extern "C" fn inttoa(
     *s = '\0' as i32 as std::ffi::c_char;
     loop {
         s = s.offset(-1);
-        *s = (*::core::mem::transmute::<
-            &[u8; 17],
-            &[std::ffi::c_char; 17],
-        >(b"0123456789ABCDEF\0"))[(num % radix) as usize];
+        *s = (*::core::mem::transmute::<&[u8; 17], &[std::ffi::c_char; 17]>(b"0123456789ABCDEF\0"))
+            [(num % radix) as usize];
         num /= radix;
         if !(num != 0 as std::ffi::c_int) {
             break;
@@ -296,36 +269,29 @@ pub unsafe extern "C" fn lstrtoposc(
     let mut v: lbool = LFALSE;
     loop {
         let mut c: std::ffi::c_char = *buf;
-        let mut digit: std::ffi::c_int = if c as std::ffi::c_int >= '0' as i32
-            && c as std::ffi::c_int <= '9' as i32
-        {
-            c as std::ffi::c_int - '0' as i32
-        } else if c as std::ffi::c_int >= 'a' as i32
-            && c as std::ffi::c_int <= 'f' as i32
-        {
-            c as std::ffi::c_int - 'a' as i32 + 10 as std::ffi::c_int
-        } else if c as std::ffi::c_int >= 'A' as i32
-            && c as std::ffi::c_int <= 'F' as i32
-        {
-            c as std::ffi::c_int - 'A' as i32 + 10 as std::ffi::c_int
-        } else {
-            -(1 as std::ffi::c_int)
-        };
+        let mut digit: std::ffi::c_int =
+            if c as std::ffi::c_int >= '0' as i32 && c as std::ffi::c_int <= '9' as i32 {
+                c as std::ffi::c_int - '0' as i32
+            } else if c as std::ffi::c_int >= 'a' as i32 && c as std::ffi::c_int <= 'f' as i32 {
+                c as std::ffi::c_int - 'a' as i32 + 10 as std::ffi::c_int
+            } else if c as std::ffi::c_int >= 'A' as i32 && c as std::ffi::c_int <= 'F' as i32 {
+                c as std::ffi::c_int - 'A' as i32 + 10 as std::ffi::c_int
+            } else {
+                -(1 as std::ffi::c_int)
+            };
         if digit < 0 as std::ffi::c_int || digit >= radix {
             break;
         }
-        v = (v as std::ffi::c_uint != 0
-            || {
-                let (fresh2, fresh3) = val.overflowing_mul(radix);
-                *(&mut val as *mut POSITION) = fresh2;
-                fresh3 as std::ffi::c_int != 0
-            }) as std::ffi::c_int as lbool;
-        v = (v as std::ffi::c_uint != 0
-            || {
-                let (fresh4, fresh5) = val.overflowing_add(digit);
-                *(&mut val as *mut POSITION) = fresh4;
-                fresh5 as std::ffi::c_int != 0
-            }) as std::ffi::c_int as lbool;
+        v = (v as std::ffi::c_uint != 0 || {
+            let (fresh2, fresh3) = val.overflowing_mul(radix as i64);
+            *(&mut val as *mut POSITION) = fresh2;
+            fresh3 as std::ffi::c_int != 0
+        }) as std::ffi::c_int as lbool;
+        v = (v as std::ffi::c_uint != 0 || {
+            let (fresh4, fresh5) = val.overflowing_add(digit as i64);
+            *(&mut val as *mut POSITION) = fresh4;
+            fresh5 as std::ffi::c_int != 0
+        }) as std::ffi::c_int as lbool;
         buf = buf.offset(1);
         buf;
     }
@@ -361,43 +327,40 @@ pub unsafe extern "C" fn lstrtoic(
     let mut v: lbool = LFALSE;
     loop {
         let mut c: std::ffi::c_char = *buf;
-        let mut digit: std::ffi::c_int = if c as std::ffi::c_int >= '0' as i32
-            && c as std::ffi::c_int <= '9' as i32
-        {
-            c as std::ffi::c_int - '0' as i32
-        } else if c as std::ffi::c_int >= 'a' as i32
-            && c as std::ffi::c_int <= 'f' as i32
-        {
-            c as std::ffi::c_int - 'a' as i32 + 10 as std::ffi::c_int
-        } else if c as std::ffi::c_int >= 'A' as i32
-            && c as std::ffi::c_int <= 'F' as i32
-        {
-            c as std::ffi::c_int - 'A' as i32 + 10 as std::ffi::c_int
-        } else {
-            -(1 as std::ffi::c_int)
-        };
+        let mut digit: std::ffi::c_int =
+            if c as std::ffi::c_int >= '0' as i32 && c as std::ffi::c_int <= '9' as i32 {
+                c as std::ffi::c_int - '0' as i32
+            } else if c as std::ffi::c_int >= 'a' as i32 && c as std::ffi::c_int <= 'f' as i32 {
+                c as std::ffi::c_int - 'a' as i32 + 10 as std::ffi::c_int
+            } else if c as std::ffi::c_int >= 'A' as i32 && c as std::ffi::c_int <= 'F' as i32 {
+                c as std::ffi::c_int - 'A' as i32 + 10 as std::ffi::c_int
+            } else {
+                -(1 as std::ffi::c_int)
+            };
         if digit < 0 as std::ffi::c_int || digit >= radix {
             break;
         }
-        v = (v as std::ffi::c_uint != 0
-            || {
-                let (fresh6, fresh7) = val.overflowing_mul(radix);
-                *(&mut val as *mut std::ffi::c_int) = fresh6;
-                fresh7 as std::ffi::c_int != 0
-            }) as std::ffi::c_int as lbool;
-        v = (v as std::ffi::c_uint != 0
-            || {
-                let (fresh8, fresh9) = val.overflowing_add(digit);
-                *(&mut val as *mut std::ffi::c_int) = fresh8;
-                fresh9 as std::ffi::c_int != 0
-            }) as std::ffi::c_int as lbool;
+        v = (v as std::ffi::c_uint != 0 || {
+            let (fresh6, fresh7) = val.overflowing_mul(radix);
+            *(&mut val as *mut std::ffi::c_int) = fresh6;
+            fresh7 as std::ffi::c_int != 0
+        }) as std::ffi::c_int as lbool;
+        v = (v as std::ffi::c_uint != 0 || {
+            let (fresh8, fresh9) = val.overflowing_add(digit);
+            *(&mut val as *mut std::ffi::c_int) = fresh8;
+            fresh9 as std::ffi::c_int != 0
+        }) as std::ffi::c_int as lbool;
         buf = buf.offset(1);
         buf;
     }
     if !ebuf.is_null() {
         *ebuf = buf;
     }
-    return if v as std::ffi::c_uint != 0 { -(1 as std::ffi::c_int) } else { val };
+    return if v as std::ffi::c_uint != 0 {
+        -(1 as std::ffi::c_int)
+    } else {
+        val
+    };
 }
 #[no_mangle]
 pub unsafe extern "C" fn lstrtoul(
@@ -422,36 +385,29 @@ pub unsafe extern "C" fn lstrtoulc(
     let mut v: lbool = LFALSE;
     loop {
         let mut c: std::ffi::c_char = *buf;
-        let mut digit: std::ffi::c_int = if c as std::ffi::c_int >= '0' as i32
-            && c as std::ffi::c_int <= '9' as i32
-        {
-            c as std::ffi::c_int - '0' as i32
-        } else if c as std::ffi::c_int >= 'a' as i32
-            && c as std::ffi::c_int <= 'f' as i32
-        {
-            c as std::ffi::c_int - 'a' as i32 + 10 as std::ffi::c_int
-        } else if c as std::ffi::c_int >= 'A' as i32
-            && c as std::ffi::c_int <= 'F' as i32
-        {
-            c as std::ffi::c_int - 'A' as i32 + 10 as std::ffi::c_int
-        } else {
-            -(1 as std::ffi::c_int)
-        };
+        let mut digit: std::ffi::c_int =
+            if c as std::ffi::c_int >= '0' as i32 && c as std::ffi::c_int <= '9' as i32 {
+                c as std::ffi::c_int - '0' as i32
+            } else if c as std::ffi::c_int >= 'a' as i32 && c as std::ffi::c_int <= 'f' as i32 {
+                c as std::ffi::c_int - 'a' as i32 + 10 as std::ffi::c_int
+            } else if c as std::ffi::c_int >= 'A' as i32 && c as std::ffi::c_int <= 'F' as i32 {
+                c as std::ffi::c_int - 'A' as i32 + 10 as std::ffi::c_int
+            } else {
+                -(1 as std::ffi::c_int)
+            };
         if digit < 0 as std::ffi::c_int || digit >= radix {
             break;
         }
-        v = (v as std::ffi::c_uint != 0
-            || {
-                let (fresh10, fresh11) = val.overflowing_mul(radix);
-                *(&mut val as *mut std::ffi::c_ulong) = fresh10;
-                fresh11 as std::ffi::c_int != 0
-            }) as std::ffi::c_int as lbool;
-        v = (v as std::ffi::c_uint != 0
-            || {
-                let (fresh12, fresh13) = val.overflowing_add(digit);
-                *(&mut val as *mut std::ffi::c_ulong) = fresh12;
-                fresh13 as std::ffi::c_int != 0
-            }) as std::ffi::c_int as lbool;
+        v = (v as std::ffi::c_uint != 0 || {
+            let (fresh10, fresh11) = val.overflowing_mul(radix as u64);
+            *(&mut val as *mut std::ffi::c_ulong) = fresh10;
+            fresh11 as std::ffi::c_int != 0
+        }) as std::ffi::c_int as lbool;
+        v = (v as std::ffi::c_uint != 0 || {
+            let (fresh12, fresh13) = val.overflowing_add(digit as u64);
+            *(&mut val as *mut std::ffi::c_ulong) = fresh12;
+            fresh13 as std::ffi::c_int != 0
+        }) as std::ffi::c_int as lbool;
         buf = buf.offset(1);
         buf;
     }
@@ -510,11 +466,7 @@ pub unsafe extern "C" fn less_printf(
                     parg = parg.offset(1);
                     parg;
                     while *s as std::ffi::c_int != '\0' as i32 {
-                        let mut ch: LWCHAR = step_charc(
-                            &mut s,
-                            1 as std::ffi::c_int,
-                            es,
-                        );
+                        let mut ch: LWCHAR = step_charc(&mut s, 1 as std::ffi::c_int, es);
                         let mut ps: *const std::ffi::c_char = if utf_mode != 0 {
                             prutfchar(ch)
                         } else {
@@ -569,9 +521,7 @@ pub unsafe extern "C" fn less_printf(
 pub unsafe extern "C" fn get_return() {
     let mut c: std::ffi::c_int = 0;
     c = getchr();
-    if c != '\n' as i32 && c != '\r' as i32 && c != ' ' as i32
-        && c != -(2 as std::ffi::c_int)
-    {
+    if c != '\n' as i32 && c != '\r' as i32 && c != ' ' as i32 && c != -(2 as std::ffi::c_int) {
         ungetcc(c as std::ffi::c_char);
     }
 }
@@ -579,10 +529,7 @@ pub unsafe extern "C" fn get_return() {
 pub unsafe extern "C" fn error(mut fmt: *const std::ffi::c_char, mut parg: *mut PARG) {
     let mut col: std::ffi::c_int = 0 as std::ffi::c_int;
     static mut return_to_continue: [std::ffi::c_char; 17] = unsafe {
-        *::core::mem::transmute::<
-            &[u8; 17],
-            &mut [std::ffi::c_char; 17],
-        >(b"  (press RETURN)\0")
+        *::core::mem::transmute::<&[u8; 17], &mut [std::ffi::c_char; 17]>(b"  (press RETURN)\0")
     };
     errmsgs += 1;
     errmsgs;
@@ -604,9 +551,8 @@ pub unsafe extern "C" fn error(mut fmt: *const std::ffi::c_char, mut parg: *mut 
     col += less_printf(fmt, parg);
     putstr(return_to_continue.as_mut_ptr());
     at_exit();
-    col
-        += ::core::mem::size_of::<[std::ffi::c_char; 17]>() as std::ffi::c_ulong
-            as std::ffi::c_int + so_e_width;
+    col += ::core::mem::size_of::<[std::ffi::c_char; 17]>() as std::ffi::c_ulong as std::ffi::c_int
+        + so_e_width;
     get_return();
     lower_left();
     clear_eol();

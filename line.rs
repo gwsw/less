@@ -7,10 +7,7 @@ extern "C" {
         _: *const std::ffi::c_void,
         _: std::ffi::c_ulong,
     ) -> *mut std::ffi::c_void;
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strchr(_: *const std::ffi::c_char, _: std::ffi::c_int) -> *mut std::ffi::c_char;
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
     fn linenumtoa(_: LINENUM, _: *mut std::ffi::c_char, _: std::ffi::c_int);
@@ -61,11 +58,7 @@ extern "C" {
     fn is_combining_char(ch1: LWCHAR, ch2: LWCHAR) -> lbool;
     fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
-    fn forw_line(
-        curr_pos: POSITION,
-        p_linepos: *mut POSITION,
-        p_newline: *mut lbool,
-    ) -> POSITION;
+    fn forw_line(curr_pos: POSITION, p_linepos: *mut POSITION, p_newline: *mut lbool) -> POSITION;
     fn find_linenum(pos: POSITION) -> LINENUM;
     fn vlinenum(linenum: LINENUM) -> LINENUM;
     fn posmark(pos: POSITION) -> std::ffi::c_char;
@@ -371,8 +364,8 @@ static mut end_ansi_chars: *const std::ffi::c_char = 0 as *const std::ffi::c_cha
 static mut mid_ansi_chars: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
 static mut osc_ansi_chars: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
 static mut osc_ansi_allow_count: std::ffi::c_int = 0;
-static mut osc_ansi_allow: *mut std::ffi::c_long = 0 as *const std::ffi::c_long
-    as *mut std::ffi::c_long;
+static mut osc_ansi_allow: *mut std::ffi::c_long =
+    0 as *const std::ffi::c_long as *mut std::ffi::c_long;
 static mut in_hilite: lbool = LFALSE;
 static mut clear_after_line: lbool = LFALSE;
 static mut mbc_buf: [std::ffi::c_char; 6] = [0; 6];
@@ -386,195 +379,171 @@ static mut color_map: [color_map; 19] = unsafe {
         {
             let mut init = color_map {
                 attr: (1 as std::ffi::c_int) << 0 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"\0\0\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"\0\0\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (1 as std::ffi::c_int) << 1 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"\0\0\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"\0\0\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (1 as std::ffi::c_int) << 2 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"\0\0\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"\0\0\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (1 as std::ffi::c_int) << 3 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"\0\0\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"\0\0\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (1 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"Wm\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"Wm\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (2 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"kR\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"kR\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (3 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"kR\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"kR\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (4 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"kY\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"kY\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (5 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"c\0\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"c\0\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (6 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"Wb\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"Wb\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (7 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"kC\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"kC\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (8 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"kc\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"kc\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (9 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"\0\0\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"\0\0\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
                 attr: (10 as std::ffi::c_int) << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"kG\0\0\0\0\0\0\0\0\0\0"),
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"kG\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
-                attr: (10 as std::ffi::c_int + 1 as std::ffi::c_int)
-                    << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"ky\0\0\0\0\0\0\0\0\0\0"),
+                attr: (10 as std::ffi::c_int + 1 as std::ffi::c_int) << 8 as std::ffi::c_int,
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"ky\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
-                attr: (10 as std::ffi::c_int + 2 as std::ffi::c_int)
-                    << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"wb\0\0\0\0\0\0\0\0\0\0"),
+                attr: (10 as std::ffi::c_int + 2 as std::ffi::c_int) << 8 as std::ffi::c_int,
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"wb\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
-                attr: (10 as std::ffi::c_int + 3 as std::ffi::c_int)
-                    << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"YM\0\0\0\0\0\0\0\0\0\0"),
+                attr: (10 as std::ffi::c_int + 3 as std::ffi::c_int) << 8 as std::ffi::c_int,
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"YM\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
-                attr: (10 as std::ffi::c_int + 4 as std::ffi::c_int)
-                    << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"Yr\0\0\0\0\0\0\0\0\0\0"),
+                attr: (10 as std::ffi::c_int + 4 as std::ffi::c_int) << 8 as std::ffi::c_int,
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"Yr\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
         {
             let mut init = color_map {
-                attr: (10 as std::ffi::c_int + 5 as std::ffi::c_int)
-                    << 8 as std::ffi::c_int,
-                color: *::core::mem::transmute::<
-                    &[u8; 12],
-                    &mut [std::ffi::c_char; 12],
-                >(b"Wc\0\0\0\0\0\0\0\0\0\0"),
+                attr: (10 as std::ffi::c_int + 5 as std::ffi::c_int) << 8 as std::ffi::c_int,
+                color: *::core::mem::transmute::<&[u8; 12], &mut [std::ffi::c_char; 12]>(
+                    b"Wc\0\0\0\0\0\0\0\0\0\0",
+                ),
             };
             init
         },
@@ -584,22 +553,15 @@ static mut color_map: [color_map; 19] = unsafe {
 pub unsafe extern "C" fn init_line() {
     let mut ax: std::ffi::c_int = 0;
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    end_ansi_chars = lgetenv(
-        b"LESSANSIENDCHARS\0" as *const u8 as *const std::ffi::c_char,
-    );
+    end_ansi_chars = lgetenv(b"LESSANSIENDCHARS\0" as *const u8 as *const std::ffi::c_char);
     if isnullenv(end_ansi_chars) as u64 != 0 {
         end_ansi_chars = b"m\0" as *const u8 as *const std::ffi::c_char;
     }
-    mid_ansi_chars = lgetenv(
-        b"LESSANSIMIDCHARS\0" as *const u8 as *const std::ffi::c_char,
-    );
+    mid_ansi_chars = lgetenv(b"LESSANSIMIDCHARS\0" as *const u8 as *const std::ffi::c_char);
     if isnullenv(mid_ansi_chars) as u64 != 0 {
-        mid_ansi_chars = b"0123456789:;[?!\"'#%()*+ \0" as *const u8
-            as *const std::ffi::c_char;
+        mid_ansi_chars = b"0123456789:;[?!\"'#%()*+ \0" as *const u8 as *const std::ffi::c_char;
     }
-    osc_ansi_chars = lgetenv(
-        b"LESSANSIOSCCHARS\0" as *const u8 as *const std::ffi::c_char,
-    );
+    osc_ansi_chars = lgetenv(b"LESSANSIOSCCHARS\0" as *const u8 as *const std::ffi::c_char);
     if isnullenv(osc_ansi_chars) as u64 != 0 {
         osc_ansi_chars = b"\0" as *const u8 as *const std::ffi::c_char;
     }
@@ -636,13 +598,11 @@ pub unsafe extern "C" fn init_line() {
         }
         osc_ansi_allow = xbuf.data as *mut std::ffi::c_long;
     }
-    linebuf
-        .buf = ecalloc(
+    linebuf.buf = ecalloc(
         1024 as std::ffi::c_int as size_t,
         ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
     ) as *mut std::ffi::c_char;
-    linebuf
-        .attr = ecalloc(
+    linebuf.attr = ecalloc(
         1024 as std::ffi::c_int as size_t,
         ::core::mem::size_of::<std::ffi::c_int>() as std::ffi::c_ulong,
     ) as *mut std::ffi::c_int;
@@ -679,16 +639,12 @@ unsafe extern "C" fn expand_linebuf() -> std::ffi::c_int {
     memcpy(
         new_buf as *mut std::ffi::c_void,
         linebuf.buf as *const std::ffi::c_void,
-        size_linebuf
-            .wrapping_mul(
-                ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
-            ),
+        size_linebuf.wrapping_mul(::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong),
     );
     memcpy(
         new_attr as *mut std::ffi::c_void,
         linebuf.attr as *const std::ffi::c_void,
-        size_linebuf
-            .wrapping_mul(::core::mem::size_of::<std::ffi::c_int>() as std::ffi::c_ulong),
+        size_linebuf.wrapping_mul(::core::mem::size_of::<std::ffi::c_int>() as std::ffi::c_ulong),
     );
     free(linebuf.attr as *mut std::ffi::c_void);
     free(linebuf.buf as *mut std::ffi::c_void);
@@ -724,9 +680,7 @@ unsafe extern "C" fn pshift(mut end: size_t) {
     let mut i: size_t = 0;
     i = linebuf.print;
     while i < end {
-        if *(linebuf.attr).offset(i as isize)
-            == (1 as std::ffi::c_int) << 4 as std::ffi::c_int
-        {
+        if *(linebuf.attr).offset(i as isize) == (1 as std::ffi::c_int) << 4 as std::ffi::c_int {
             xbuf_add_char(&mut shifted_ansi, *(linebuf.buf).offset(i as isize));
         }
         i = i.wrapping_add(1);
@@ -737,9 +691,7 @@ unsafe extern "C" fn pshift(mut end: size_t) {
 pub unsafe extern "C" fn prewind(mut contig: lbool) {
     let mut ax: std::ffi::c_int = 0;
     xbuf_reset(&mut shifted_ansi);
-    if contig as std::ffi::c_uint != 0
-        && linebuf.prev_end != 0 as std::ffi::c_int as size_t
-    {
+    if contig as std::ffi::c_uint != 0 && linebuf.prev_end != 0 as std::ffi::c_int as size_t {
         pshift(linebuf.prev_end);
     }
     linebuf.print = 6 as std::ffi::c_int as size_t;
@@ -810,11 +762,7 @@ unsafe extern "C" fn addstr_linebuf(
         s;
     }
 }
-unsafe extern "C" fn set_pfx(
-    mut n: size_t,
-    mut ch: std::ffi::c_char,
-    mut attr: std::ffi::c_int,
-) {
+unsafe extern "C" fn set_pfx(mut n: size_t, mut ch: std::ffi::c_char, mut attr: std::ffi::c_int) {
     linebuf.pfx[n as usize] = ch;
     linebuf.pfx_attr[n as usize] = attr;
 }
@@ -835,7 +783,8 @@ pub unsafe extern "C" fn plinestart(mut pos: POSITION) {
             line_mark_attr = (1 as std::ffi::c_int) << 6 as std::ffi::c_int
                 | (6 as std::ffi::c_int) << 8 as std::ffi::c_int;
         } else if start_attnpos != -(1 as std::ffi::c_int) as POSITION
-            && pos >= start_attnpos && pos <= end_attnpos
+            && pos >= start_attnpos
+            && pos <= end_attnpos
         {
             line_mark_attr = (1 as std::ffi::c_int) << 6 as std::ffi::c_int
                 | (1 as std::ffi::c_int) << 8 as std::ffi::c_int;
@@ -948,7 +897,8 @@ pub unsafe extern "C" fn pwidth(
     if ch == '\u{8}' as i32 as LWCHAR {
         if prev_a
             & ((1 as std::ffi::c_int) << 4 as std::ffi::c_int
-                | (1 as std::ffi::c_int) << 5 as std::ffi::c_int) != 0
+                | (1 as std::ffi::c_int) << 5 as std::ffi::c_int)
+            != 0
         {
             return strlen(prchar('\u{8}' as i32 as LWCHAR)) as std::ffi::c_int;
         }
@@ -965,7 +915,7 @@ pub unsafe extern "C" fn pwidth(
     } else if is_composing_char(ch) as std::ffi::c_uint != 0
         || is_combining_char(prev_ch, ch) as std::ffi::c_uint != 0
     {
-        return 0 as std::ffi::c_int
+        return 0 as std::ffi::c_int;
     }
     w = 1 as std::ffi::c_int;
     if is_wide_char(ch) as u64 != 0 {
@@ -975,31 +925,24 @@ pub unsafe extern "C" fn pwidth(
     if linebuf.end > 0 as std::ffi::c_int as size_t
         && is_at_equiv(
             *(linebuf.attr)
-                .offset(
-                    (linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize,
-                ),
+                .offset((linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize),
             a,
-        ) as u64 == 0
+        ) as u64
+            == 0
     {
-        w
-            += attr_ewidth(
-                *(linebuf.attr)
-                    .offset(
-                        (linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t)
-                            as isize,
-                    ),
-            );
+        w += attr_ewidth(
+            *(linebuf.attr)
+                .offset((linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize),
+        );
     }
     if apply_at_specials(a) != 0 as std::ffi::c_int
         && (linebuf.end == 0 as std::ffi::c_int as size_t
             || is_at_equiv(
                 *(linebuf.attr)
-                    .offset(
-                        (linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t)
-                            as isize,
-                    ),
+                    .offset((linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize),
                 a,
-            ) as u64 == 0)
+            ) as u64
+                == 0)
     {
         w += attr_swidth(a);
     }
@@ -1023,9 +966,7 @@ unsafe extern "C" fn backc() -> std::ffi::c_int {
             *(linebuf.attr).offset(linebuf.end as isize),
             prev_ch,
             *(linebuf.attr)
-                .offset(
-                    (linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize,
-                ),
+                .offset((linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize),
         );
         end_column -= width;
         if width > 0 as std::ffi::c_int {
@@ -1051,8 +992,8 @@ pub unsafe extern "C" fn is_ansi_end(mut ch: LWCHAR) -> lbool {
         return LFALSE;
     }
     return (ch != 0 as std::ffi::c_int as LWCHAR
-        && !(strchr(end_ansi_chars, ch as std::ffi::c_char as std::ffi::c_int))
-            .is_null()) as std::ffi::c_int as lbool;
+        && !(strchr(end_ansi_chars, ch as std::ffi::c_char as std::ffi::c_int)).is_null())
+        as std::ffi::c_int as lbool;
 }
 #[no_mangle]
 pub unsafe extern "C" fn is_ansi_middle(mut ch: LWCHAR) -> lbool {
@@ -1063,8 +1004,8 @@ pub unsafe extern "C" fn is_ansi_middle(mut ch: LWCHAR) -> lbool {
         return LFALSE;
     }
     return (ch != 0 as std::ffi::c_int as LWCHAR
-        && !(strchr(mid_ansi_chars, ch as std::ffi::c_char as std::ffi::c_int))
-            .is_null()) as std::ffi::c_int as lbool;
+        && !(strchr(mid_ansi_chars, ch as std::ffi::c_char as std::ffi::c_int)).is_null())
+        as std::ffi::c_int as lbool;
 }
 #[no_mangle]
 pub unsafe extern "C" fn skip_ansi(
@@ -1082,7 +1023,7 @@ pub unsafe extern "C" fn skip_ansi(
         {
             break;
         }
-    };
+    }
 }
 #[no_mangle]
 pub unsafe extern "C" fn ansi_start(mut ch: LWCHAR) -> *mut ansi_state_0 {
@@ -1102,10 +1043,7 @@ pub unsafe extern "C" fn ansi_start(mut ch: LWCHAR) -> *mut ansi_state_0 {
     (*pansi).escs_in_seq = 0 as std::ffi::c_int as std::ffi::c_uint;
     return pansi;
 }
-unsafe extern "C" fn valid_osc_intro(
-    mut ch: std::ffi::c_char,
-    mut content: lbool,
-) -> lbool {
+unsafe extern "C" fn valid_osc_intro(mut ch: std::ffi::c_char, mut content: lbool) -> lbool {
     let mut p: *const std::ffi::c_char = strchr(osc_ansi_chars, ch as std::ffi::c_int);
     if p.is_null() {
         return LFALSE;
@@ -1114,10 +1052,7 @@ unsafe extern "C" fn valid_osc_intro(
         || *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int == '*' as i32)
         as std::ffi::c_int as lbool;
 }
-unsafe extern "C" fn valid_osc_type(
-    mut otype: std::ffi::c_int,
-    mut content: lbool,
-) -> lbool {
+unsafe extern "C" fn valid_osc_type(mut otype: std::ffi::c_int, mut content: lbool) -> lbool {
     let mut i: std::ffi::c_int = 0;
     if content as u64 == 0 {
         return LTRUE;
@@ -1164,8 +1099,7 @@ unsafe extern "C" fn ansi_step2(
                 return osc_return(pansi, OSC_TYPENUM, ANSI_MID);
             }
             if is_ascii_char(ch) as std::ffi::c_uint != 0
-                && valid_osc_intro(ch as std::ffi::c_char, content) as std::ffi::c_uint
-                    != 0
+                && valid_osc_intro(ch as std::ffi::c_char, content) as std::ffi::c_uint != 0
             {
                 return osc_return(pansi, OSC_STRING, ANSI_MID);
             }
@@ -1180,17 +1114,15 @@ unsafe extern "C" fn ansi_step2(
         }
         2 => {
             if ch >= '0' as i32 as LWCHAR && ch <= '9' as i32 as LWCHAR {
-                let (fresh2, fresh3) = ((*pansi).otype)
-                    .overflowing_mul(10 as std::ffi::c_int);
+                let (fresh2, fresh3) =
+                    ((*pansi).otype).overflowing_mul(10 as std::ffi::c_int as u32);
                 *(&mut (*pansi).otype as *mut std::ffi::c_uint) = fresh2;
-                if fresh3 as std::ffi::c_int != 0
-                    || {
-                        let (fresh4, fresh5) = ((*pansi).otype)
-                            .overflowing_add(ch.wrapping_sub('0' as i32 as LWCHAR));
-                        *(&mut (*pansi).otype as *mut std::ffi::c_uint) = fresh4;
-                        fresh5 as std::ffi::c_int != 0
-                    }
-                {
+                if fresh3 as std::ffi::c_int != 0 || {
+                    let (fresh4, fresh5) = ((*pansi).otype)
+                        .overflowing_add(ch.wrapping_sub('0' as i32 as LWCHAR) as u32);
+                    *(&mut (*pansi).otype as *mut std::ffi::c_uint) = fresh4;
+                    fresh5 as std::ffi::c_int != 0
+                } {
                     return osc_return(pansi, OSC_STRING, ANSI_MID);
                 }
                 return osc_return(pansi, OSC_TYPENUM, ANSI_MID);
@@ -1232,7 +1164,8 @@ unsafe extern "C" fn ansi_step2(
                     pansi,
                     OSC_END,
                     (if valid_osc_type((*pansi).otype as std::ffi::c_int, content)
-                        as std::ffi::c_uint != 0
+                        as std::ffi::c_uint
+                        != 0
                     {
                         ANSI_END as std::ffi::c_int
                     } else {
@@ -1255,7 +1188,8 @@ unsafe extern "C" fn ansi_step2(
                     pansi,
                     OSC_END,
                     (if valid_osc_type((*pansi).otype as std::ffi::c_int, content)
-                        as std::ffi::c_uint != 0
+                        as std::ffi::c_uint
+                        != 0
                     {
                         ANSI_END as std::ffi::c_int
                     } else {
@@ -1283,10 +1217,7 @@ unsafe extern "C" fn ansi_step2(
     return ANSI_ERR;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ansi_step(
-    mut pansi: *mut ansi_state_0,
-    mut ch: LWCHAR,
-) -> ansi_state {
+pub unsafe extern "C" fn ansi_step(mut pansi: *mut ansi_state_0, mut ch: LWCHAR) -> ansi_state {
     return ansi_step2(pansi, ch, LTRUE);
 }
 #[no_mangle]
@@ -1297,15 +1228,11 @@ pub unsafe extern "C" fn ansi_osc8_state(mut pansi: *mut ansi_state_0) -> osc8_s
 pub unsafe extern "C" fn ansi_done(mut pansi: *mut ansi_state_0) {
     free(pansi as *mut std::ffi::c_void);
 }
-unsafe extern "C" fn fits_on_screen(
-    mut w: std::ffi::c_int,
-    mut a: std::ffi::c_int,
-) -> lbool {
+unsafe extern "C" fn fits_on_screen(mut w: std::ffi::c_int, mut a: std::ffi::c_int) -> lbool {
     if ctldisp == 1 as std::ffi::c_int {
         return LTRUE;
     }
-    return (end_column - cshift + w + attr_ewidth(a) <= sc_width) as std::ffi::c_int
-        as lbool;
+    return (end_column - cshift + w + attr_ewidth(a) <= sc_width) as std::ffi::c_int as lbool;
 }
 unsafe extern "C" fn store_char(
     mut ch: LWCHAR,
@@ -1343,7 +1270,8 @@ unsafe extern "C" fn store_char(
     if hl_attr != 0 {
         a |= hl_attr;
         if highest_hilite != -(1 as std::ffi::c_int) as POSITION
-            && pos != -(1 as std::ffi::c_int) as POSITION && pos > highest_hilite
+            && pos != -(1 as std::ffi::c_int) as POSITION
+            && pos > highest_hilite
         {
             highest_hilite = pos;
         }
@@ -1380,19 +1308,16 @@ unsafe extern "C" fn store_char(
     if a == (1 as std::ffi::c_int) << 4 as std::ffi::c_int {
         w = 0 as std::ffi::c_int;
     } else {
-        let mut p: *mut std::ffi::c_char = &mut *(linebuf.buf)
-            .offset(linebuf.end as isize) as *mut std::ffi::c_char;
+        let mut p: *mut std::ffi::c_char =
+            &mut *(linebuf.buf).offset(linebuf.end as isize) as *mut std::ffi::c_char;
         let mut prev_ch: LWCHAR = if linebuf.end > 0 as std::ffi::c_int as size_t {
             step_char(&mut p, -(1 as std::ffi::c_int), linebuf.buf)
         } else {
             0 as std::ffi::c_int as LWCHAR
         };
-        let mut prev_a: std::ffi::c_int = if linebuf.end > 0 as std::ffi::c_int as size_t
-        {
+        let mut prev_a: std::ffi::c_int = if linebuf.end > 0 as std::ffi::c_int as size_t {
             *(linebuf.attr)
-                .offset(
-                    (linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize,
-                )
+                .offset((linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize)
         } else {
             0 as std::ffi::c_int
         };
@@ -1443,14 +1368,10 @@ unsafe extern "C" fn store_char(
             let mut i_0: size_t = 0;
             i_0 = 0 as std::ffi::c_int as size_t;
             while i_0 < linebuf.print {
-                *(linebuf.buf)
-                    .offset(
-                        i_0 as isize,
-                    ) = *(linebuf.buf).offset(i_0.wrapping_add(replen) as isize);
-                *(linebuf.attr)
-                    .offset(
-                        i_0 as isize,
-                    ) = *(linebuf.attr).offset(i_0.wrapping_add(replen) as isize);
+                *(linebuf.buf).offset(i_0 as isize) =
+                    *(linebuf.buf).offset(i_0.wrapping_add(replen) as isize);
+                *(linebuf.attr).offset(i_0 as isize) =
+                    *(linebuf.attr).offset(i_0.wrapping_add(replen) as isize);
                 i_0 = i_0.wrapping_add(1);
                 i_0;
             }
@@ -1492,8 +1413,7 @@ unsafe extern "C" fn tab_spaces(mut col: std::ffi::c_int) -> std::ffi::c_int {
         || to_tab >= tabstops[(ntabstops - 1 as std::ffi::c_int) as usize]
     {
         to_tab = tabdefault
-            - (to_tab - tabstops[(ntabstops - 1 as std::ffi::c_int) as usize])
-                % tabdefault;
+            - (to_tab - tabstops[(ntabstops - 1 as std::ffi::c_int) as usize]) % tabdefault;
     } else {
         let mut i: std::ffi::c_int = 0;
         i = ntabstops - 2 as std::ffi::c_int;
@@ -1508,10 +1428,7 @@ unsafe extern "C" fn tab_spaces(mut col: std::ffi::c_int) -> std::ffi::c_int {
     }
     return to_tab;
 }
-unsafe extern "C" fn store_tab(
-    mut attr: std::ffi::c_int,
-    mut pos: POSITION,
-) -> std::ffi::c_int {
+unsafe extern "C" fn store_tab(mut attr: std::ffi::c_int, mut pos: POSITION) -> std::ffi::c_int {
     let mut to_tab: std::ffi::c_int = tab_spaces(end_column);
     loop {
         if store_char(
@@ -1593,9 +1510,7 @@ pub unsafe extern "C" fn pappend_b(
         let mut current_block_41: u64;
         if mbc_buf_len == 0 as std::ffi::c_int {
             current_block_41 = 11600700225610697556;
-        } else if c as std::ffi::c_int & 0xc0 as std::ffi::c_int
-            == 0x80 as std::ffi::c_int
-        {
+        } else if c as std::ffi::c_int & 0xc0 as std::ffi::c_int == 0x80 as std::ffi::c_int {
             let fresh7 = mbc_buf_index;
             mbc_buf_index = mbc_buf_index + 1;
             mbc_buf[fresh7 as usize] = c;
@@ -1628,13 +1543,10 @@ pub unsafe extern "C" fn pappend_b(
             11600700225610697556 => {
                 mbc_buf_index = 1 as std::ffi::c_int;
                 *mbc_buf.as_mut_ptr() = c;
-                if c as std::ffi::c_int & 0x80 as std::ffi::c_int == 0 as std::ffi::c_int
-                {
+                if c as std::ffi::c_int & 0x80 as std::ffi::c_int == 0 as std::ffi::c_int {
                     r = do_append(ch, 0 as *const std::ffi::c_char, pos);
-                } else if c as std::ffi::c_int & 0xc0 as std::ffi::c_int
-                    == 0xc0 as std::ffi::c_int
-                    && !(c as std::ffi::c_int & 0xfe as std::ffi::c_int
-                        == 0xfe as std::ffi::c_int)
+                } else if c as std::ffi::c_int & 0xc0 as std::ffi::c_int == 0xc0 as std::ffi::c_int
+                    && !(c as std::ffi::c_int & 0xfe as std::ffi::c_int == 0xfe as std::ffi::c_int)
                 {
                     mbc_buf_len = utf_len(c);
                     mbc_pos = pos;
@@ -1647,18 +1559,19 @@ pub unsafe extern "C" fn pappend_b(
         }
     }
     if r != 0 {
-        r = if utf_mode == 0 { 1 as std::ffi::c_int } else { mbc_buf_index };
+        r = if utf_mode == 0 {
+            1 as std::ffi::c_int
+        } else {
+            mbc_buf_index
+        };
     }
     return r;
 }
 #[no_mangle]
-pub unsafe extern "C" fn pappend(
-    mut c: std::ffi::c_char,
-    mut pos: POSITION,
-) -> std::ffi::c_int {
+pub unsafe extern "C" fn pappend(mut c: std::ffi::c_char, mut pos: POSITION) -> std::ffi::c_int {
     if ff_starts_line < 0 as std::ffi::c_int {
-        ff_starts_line = (c as std::ffi::c_int == 'L' as i32 & 0o37 as std::ffi::c_int)
-            as std::ffi::c_int;
+        ff_starts_line =
+            (c as std::ffi::c_int == 'L' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_int;
     }
     return pappend_b(c, pos, LFALSE);
 }
@@ -1676,7 +1589,7 @@ unsafe extern "C" fn store_control_char(
             return 1 as std::ffi::c_int;
         }
     } else if store_prchar(ch, pos) != 0 {
-        return 1 as std::ffi::c_int
+        return 1 as std::ffi::c_int;
     }
     return 0 as std::ffi::c_int;
 }
@@ -1692,9 +1605,7 @@ unsafe extern "C" fn store_ansi(
     ) as std::ffi::c_uint
     {
         1 => {
-            if store_char(ch, (1 as std::ffi::c_int) << 4 as std::ffi::c_int, rep, pos)
-                != 0
-            {
+            if store_char(ch, (1 as std::ffi::c_int) << 4 as std::ffi::c_int, rep, pos) != 0 {
                 return 1 as std::ffi::c_int;
             }
             match ansi_osc8_state(line_ansi) as std::ffi::c_uint {
@@ -1706,9 +1617,7 @@ unsafe extern "C" fn store_ansi(
             xbuf_add_char(&mut last_ansi, ch as std::ffi::c_char);
         }
         3 => {
-            if store_char(ch, (1 as std::ffi::c_int) << 4 as std::ffi::c_int, rep, pos)
-                != 0
-            {
+            if store_char(ch, (1 as std::ffi::c_int) << 4 as std::ffi::c_int, rep, pos) != 0 {
                 return 1 as std::ffi::c_int;
             }
             ansi_done(line_ansi);
@@ -1719,8 +1628,7 @@ unsafe extern "C" fn store_ansi(
                 &mut last_ansi,
             );
             xbuf_reset(&mut last_ansi);
-            curr_last_ansi = (curr_last_ansi + 1 as std::ffi::c_int)
-                % 3 as std::ffi::c_int;
+            curr_last_ansi = (curr_last_ansi + 1 as std::ffi::c_int) % 3 as std::ffi::c_int;
         }
         2 => {
             let mut start: *const std::ffi::c_char = if cshift < hshift {
@@ -1743,8 +1651,7 @@ unsafe extern "C" fn store_ansi(
                             || bch == -101i32 as std::ffi::c_uchar as LWCHAR))
                         || {
                             let fresh8 = (*line_ansi).escs_in_seq;
-                            (*line_ansi)
-                                .escs_in_seq = ((*line_ansi).escs_in_seq).wrapping_sub(1);
+                            (*line_ansi).escs_in_seq = ((*line_ansi).escs_in_seq).wrapping_sub(1);
                             fresh8 > 0 as std::ffi::c_int as std::ffi::c_uint
                         }))
                 {
@@ -1773,17 +1680,15 @@ unsafe extern "C" fn store_bs(
     if linebuf.end > 0 as std::ffi::c_int as size_t
         && (linebuf.end <= linebuf.print
             && *(linebuf.buf)
-                .offset(
-                    (linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize,
-                ) as std::ffi::c_int == '\0' as i32
+                .offset((linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize)
+                as std::ffi::c_int
+                == '\0' as i32
             || linebuf.end > 0 as std::ffi::c_int as size_t
                 && *(linebuf.attr)
-                    .offset(
-                        (linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t)
-                            as isize,
-                    )
+                    .offset((linebuf.end).wrapping_sub(1 as std::ffi::c_int as size_t) as isize)
                     & ((1 as std::ffi::c_int) << 4 as std::ffi::c_int
-                        | (1 as std::ffi::c_int) << 5 as std::ffi::c_int) != 0)
+                        | (1 as std::ffi::c_int) << 5 as std::ffi::c_int)
+                    != 0)
     {
         if store_prchar('\u{8}' as i32 as LWCHAR, pos) != 0 {
             return 1 as std::ffi::c_int;
@@ -1831,20 +1736,17 @@ unsafe extern "C" fn do_append(
         if utf_mode != 0 {
             prev_ch = get_wchar(&mut *(linebuf.buf).offset(linebuf.end as isize));
         } else {
-            prev_ch = *(linebuf.buf).offset(linebuf.end as isize) as std::ffi::c_uchar
-                as LWCHAR;
+            prev_ch = *(linebuf.buf).offset(linebuf.end as isize) as std::ffi::c_uchar as LWCHAR;
         }
         a = *(linebuf.attr).offset(linebuf.end as isize);
         if ch == prev_ch {
             if ch == '_' as i32 as LWCHAR {
-                if a
-                    & ((1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                        | (1 as std::ffi::c_int) << 0 as std::ffi::c_int)
+                if a & ((1 as std::ffi::c_int) << 1 as std::ffi::c_int
+                    | (1 as std::ffi::c_int) << 0 as std::ffi::c_int)
                     != 0 as std::ffi::c_int
                 {
-                    a
-                        |= (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                            | (1 as std::ffi::c_int) << 0 as std::ffi::c_int;
+                    a |= (1 as std::ffi::c_int) << 1 as std::ffi::c_int
+                        | (1 as std::ffi::c_int) << 0 as std::ffi::c_int;
                 } else if last_overstrike != 0 as std::ffi::c_int {
                     a |= last_overstrike;
                 } else {
@@ -1856,8 +1758,7 @@ unsafe extern "C" fn do_append(
         } else if ch == '_' as i32 as LWCHAR {
             a |= (1 as std::ffi::c_int) << 0 as std::ffi::c_int;
             ch = prev_ch;
-            rep = &mut *(linebuf.buf).offset(linebuf.end as isize)
-                as *mut std::ffi::c_char;
+            rep = &mut *(linebuf.buf).offset(linebuf.end as isize) as *mut std::ffi::c_char;
         } else if prev_ch == '_' as i32 as LWCHAR {
             a |= (1 as std::ffi::c_int) << 0 as std::ffi::c_int;
         }
@@ -1866,7 +1767,8 @@ unsafe extern "C" fn do_append(
             || is_combining_char(
                 get_wchar(&mut *(linebuf.buf).offset(linebuf.end as isize)),
                 ch,
-            ) as std::ffi::c_uint != 0
+            ) as std::ffi::c_uint
+                != 0
         {
             a = last_overstrike;
         } else {
@@ -1887,8 +1789,9 @@ unsafe extern "C" fn do_append(
     if (utf_mode == 0 || is_ascii_char(ch) as std::ffi::c_uint != 0)
         && control_char(ch) as std::ffi::c_uint != 0
     {
-        return store_control_char(ch, rep, pos)
-    } else if utf_mode != 0 && ctldisp != 1 as std::ffi::c_int
+        return store_control_char(ch, rep, pos);
+    } else if utf_mode != 0
+        && ctldisp != 1 as std::ffi::c_int
         && is_ubin_char(ch) as std::ffi::c_uint != 0
     {
         if store_string(
@@ -1900,7 +1803,7 @@ unsafe extern "C" fn do_append(
             return 1 as std::ffi::c_int;
         }
     } else if store_char(ch, a, rep, pos) != 0 {
-        return 1 as std::ffi::c_int
+        return 1 as std::ffi::c_int;
     }
     return 0 as std::ffi::c_int;
 }
@@ -1947,8 +1850,7 @@ unsafe extern "C" fn add_attr_normal() {
 #[no_mangle]
 pub unsafe extern "C" fn pdone(mut endline: lbool, mut chopped: lbool, mut forw: lbool) {
     pflushmbc();
-    linebuf
-        .prev_end = if endline as u64 == 0 && chopped as u64 == 0 {
+    linebuf.prev_end = if endline as u64 == 0 && chopped as u64 == 0 {
         linebuf.end
     } else {
         0 as std::ffi::c_int as size_t
@@ -1973,7 +1875,11 @@ pub unsafe extern "C" fn pdone(mut endline: lbool, mut chopped: lbool, mut forw:
         }
         put_wchar(&mut up, rscroll_char);
         *up = '\0' as i32 as std::ffi::c_char;
-        addstr_linebuf(rscroll_utf8.as_mut_ptr(), rscroll_attr, 0 as std::ffi::c_int);
+        addstr_linebuf(
+            rscroll_utf8.as_mut_ptr(),
+            rscroll_attr,
+            0 as std::ffi::c_int,
+        );
         inc_end_column(1 as std::ffi::c_int);
     } else {
         add_attr_normal();
@@ -1987,7 +1893,8 @@ pub unsafe extern "C" fn pdone(mut endline: lbool, mut chopped: lbool, mut forw:
             );
         }
     }
-    if end_column < sc_width + cshift || auto_wrap == 0
+    if end_column < sc_width + cshift
+        || auto_wrap == 0
         || endline as std::ffi::c_uint != 0 && ignaw != 0
         || ctldisp == 1 as std::ffi::c_int
     {
@@ -1996,9 +1903,7 @@ pub unsafe extern "C" fn pdone(mut endline: lbool, mut chopped: lbool, mut forw:
             0 as std::ffi::c_int,
             0 as std::ffi::c_int,
         );
-    } else if ignaw != 0 && end_column >= sc_width + cshift
-        && forw as std::ffi::c_uint != 0
-    {
+    } else if ignaw != 0 && end_column >= sc_width + cshift && forw as std::ffi::c_uint != 0 {
         add_linebuf(
             ' ' as i32 as std::ffi::c_char,
             0 as std::ffi::c_int,
@@ -2013,7 +1918,11 @@ pub unsafe extern "C" fn pdone(mut endline: lbool, mut chopped: lbool, mut forw:
     if auto_wrap != 0 && ignaw == 0 && end_column >= sc_width + cshift {
         clear_after_line = LTRUE;
     }
-    set_linebuf(linebuf.end, '\0' as i32 as std::ffi::c_char, 0 as std::ffi::c_int);
+    set_linebuf(
+        linebuf.end,
+        '\0' as i32 as std::ffi::c_char,
+        0 as std::ffi::c_int,
+    );
 }
 unsafe extern "C" fn col_vs_pos(
     mut linepos: POSITION,
@@ -2031,13 +1940,11 @@ unsafe extern "C" fn col_vs_pos(
     let mut utf8_buf: [std::ffi::c_char; 6] = [0; 6];
     let mut utf8_len: std::ffi::c_int = 0 as std::ffi::c_int;
     let mut chpos: POSITION = 0;
-    if ch_seek(
-        if saved_pos != -(1 as std::ffi::c_int) as POSITION {
-            saved_pos
-        } else {
-            linepos
-        },
-    ) != 0
+    if ch_seek(if saved_pos != -(1 as std::ffi::c_int) as POSITION {
+        saved_pos
+    } else {
+        linepos
+    }) != 0
     {
         return;
     }
@@ -2058,17 +1965,14 @@ unsafe extern "C" fn col_vs_pos(
                 ansi_done(pansi);
                 pansi = 0 as *mut ansi_state_0;
             }
-        } else if ctldisp == 2 as std::ffi::c_int
-            && {
-                pansi = ansi_start(ch as LWCHAR);
-                !pansi.is_null()
-            }
-        {
+        } else if ctldisp == 2 as std::ffi::c_int && {
+            pansi = ansi_start(ch as LWCHAR);
+            !pansi.is_null()
+        } {
             ansi_step(pansi, ch as LWCHAR);
         } else if ch as std::ffi::c_int == '\u{8}' as i32 {
             if proc_backspace == 2 as std::ffi::c_int
-                || bs_mode == 2 as std::ffi::c_int
-                    && proc_backspace == 0 as std::ffi::c_int
+                || bs_mode == 2 as std::ffi::c_int && proc_backspace == 0 as std::ffi::c_int
             {
                 cw = strlen(prchar(ch as LWCHAR)) as std::ffi::c_int;
             } else {
@@ -2098,7 +2002,8 @@ unsafe extern "C" fn col_vs_pos(
                 let mut wch: LWCHAR = get_wchar(utf8_buf.as_mut_ptr());
                 let mut attr: std::ffi::c_int = 0 as std::ffi::c_int;
                 utf8_len = 0 as std::ffi::c_int;
-                if utf_mode != 0 && ctldisp != 1 as std::ffi::c_int
+                if utf_mode != 0
+                    && ctldisp != 1 as std::ffi::c_int
                     && is_ubin_char(wch) as std::ffi::c_uint != 0
                 {
                     cw = strlen(prutfchar(wch)) as std::ffi::c_int;
@@ -2113,9 +2018,7 @@ unsafe extern "C" fn col_vs_pos(
         if (*cp).pos != -(1 as std::ffi::c_int) as POSITION && chpos == (*cp).pos {
             break;
         }
-        if (*cp).col >= 0 as std::ffi::c_int && col >= (*cp).col
-            && cw > 0 as std::ffi::c_int
-        {
+        if (*cp).col >= 0 as std::ffi::c_int && col >= (*cp).col && cw > 0 as std::ffi::c_int {
             break;
         } else {
             col += cw;
@@ -2169,17 +2072,11 @@ pub unsafe extern "C" fn set_attr_line(mut a: std::ffi::c_int) {
     }
 }
 #[no_mangle]
-pub unsafe extern "C" fn set_status_col(
-    mut c: std::ffi::c_char,
-    mut attr: std::ffi::c_int,
-) {
+pub unsafe extern "C" fn set_status_col(mut c: std::ffi::c_char, mut attr: std::ffi::c_int) {
     set_pfx(0 as std::ffi::c_int as size_t, c, attr);
 }
 #[no_mangle]
-pub unsafe extern "C" fn gline(
-    mut i: size_t,
-    mut ap: *mut std::ffi::c_int,
-) -> std::ffi::c_int {
+pub unsafe extern "C" fn gline(mut i: size_t, mut ap: *mut std::ffi::c_int) -> std::ffi::c_int {
     if is_null_line as u64 != 0 {
         if twiddle != 0 {
             if i == 0 as std::ffi::c_int as size_t {
@@ -2198,8 +2095,7 @@ pub unsafe extern "C" fn gline(
     }
     i = i.wrapping_add((linebuf.print).wrapping_sub(linebuf.pfx_end));
     *ap = *(linebuf.attr).offset(i as isize);
-    return *(linebuf.buf).offset(i as isize) as std::ffi::c_int
-        & 0xff as std::ffi::c_int;
+    return *(linebuf.buf).offset(i as isize) as std::ffi::c_int & 0xff as std::ffi::c_int;
 }
 #[no_mangle]
 pub unsafe extern "C" fn should_clear_after_line() -> lbool {
@@ -2220,21 +2116,21 @@ pub unsafe extern "C" fn forw_raw_line_len(
     let mut n: size_t = 0;
     let mut c: std::ffi::c_int = 0;
     let mut new_pos: POSITION = 0;
-    if curr_pos == -(1 as std::ffi::c_int) as POSITION || ch_seek(curr_pos) != 0
-        || {
-            c = ch_forw_get();
-            c == -(1 as std::ffi::c_int)
-        }
-    {
+    if curr_pos == -(1 as std::ffi::c_int) as POSITION || ch_seek(curr_pos) != 0 || {
+        c = ch_forw_get();
+        c == -(1 as std::ffi::c_int)
+    } {
         return -(1 as std::ffi::c_int) as POSITION;
     }
     n = 0 as std::ffi::c_int as size_t;
     loop {
-        if c == '\n' as i32 || c == -(1 as std::ffi::c_int)
+        if c == '\n' as i32
+            || c == -(1 as std::ffi::c_int)
             || sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                != 0
         {
             new_pos = ch_tell();
             break;
@@ -2249,7 +2145,8 @@ pub unsafe extern "C" fn forw_raw_line_len(
             n = n.wrapping_add(1);
             *(linebuf.buf).offset(fresh10 as isize) = c as std::ffi::c_char;
             if read_len != -(1 as std::ffi::c_int) as size_t
-                && read_len > 0 as std::ffi::c_int as size_t && n >= read_len
+                && read_len > 0 as std::ffi::c_int as size_t
+                && n >= read_len
             {
                 new_pos = ch_tell();
                 break;
@@ -2304,7 +2201,8 @@ pub unsafe extern "C" fn back_raw_line(
             || sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                != 0
         {
             new_pos = ch_tell() + 1 as std::ffi::c_int as POSITION;
             break;
@@ -2368,12 +2266,8 @@ pub unsafe extern "C" fn skip_columns(
             ansi_done(pansi);
             pch = 0 as std::ffi::c_int as LWCHAR;
         } else {
-            let mut w: std::ffi::c_int = pwidth(
-                ch,
-                0 as std::ffi::c_int,
-                pch,
-                0 as std::ffi::c_int,
-            );
+            let mut w: std::ffi::c_int =
+                pwidth(ch, 0 as std::ffi::c_int, pch, 0 as std::ffi::c_int);
             cols -= w;
             pch = ch;
         }
@@ -2405,7 +2299,11 @@ pub unsafe extern "C" fn load_line(mut str: *const std::ffi::c_char) {
         }
         hshift += 1 as std::ffi::c_int;
     }
-    set_linebuf(linebuf.end, '\0' as i32 as std::ffi::c_char, 0 as std::ffi::c_int);
+    set_linebuf(
+        linebuf.end,
+        '\0' as i32 as std::ffi::c_char,
+        0 as std::ffi::c_int,
+    );
     linebuf.prev_end = 0 as std::ffi::c_int as size_t;
     if ansi_in_line as u64 == 0 {
         let mut i: size_t = 0;
@@ -2472,8 +2370,7 @@ unsafe extern "C" fn lookup_color_index(mut attr: std::ffi::c_int) -> std::ffi::
 }
 unsafe extern "C" fn color_index(mut attr: std::ffi::c_int) -> std::ffi::c_int {
     if use_color != 0
-        && attr & (16 as std::ffi::c_int - 1 as std::ffi::c_int) << 8 as std::ffi::c_int
-            != 0
+        && attr & (16 as std::ffi::c_int - 1 as std::ffi::c_int) << 8 as std::ffi::c_int != 0
     {
         return lookup_color_index(
             attr & (16 as std::ffi::c_int - 1 as std::ffi::c_int) << 8 as std::ffi::c_int,
@@ -2513,7 +2410,8 @@ pub unsafe extern "C" fn set_color_map(
             0 as *mut std::ffi::c_int,
             0 as *mut std::ffi::c_int,
             0 as *mut CHAR_ATTR,
-        ) as std::ffi::c_uint == CT_NULL as std::ffi::c_int as std::ffi::c_uint
+        ) as std::ffi::c_uint
+            == CT_NULL as std::ffi::c_int as std::ffi::c_uint
     {
         return -(1 as std::ffi::c_int);
     }
@@ -2521,9 +2419,7 @@ pub unsafe extern "C" fn set_color_map(
     return 0 as std::ffi::c_int;
 }
 #[no_mangle]
-pub unsafe extern "C" fn get_color_map(
-    mut attr: std::ffi::c_int,
-) -> *const std::ffi::c_char {
+pub unsafe extern "C" fn get_color_map(mut attr: std::ffi::c_int) -> *const std::ffi::c_char {
     let mut cx: std::ffi::c_int = color_index(attr);
     if cx < 0 as std::ffi::c_int {
         return 0 as *const std::ffi::c_char;
