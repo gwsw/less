@@ -33,14 +33,14 @@ exec_prefix = @exec_prefix@
 
 # Where the installed binary goes.
 bindir = @bindir@
-binprefix = 
+binprefix =
 
 sysconfdir = @sysconfdir@
 datarootdir = @datarootdir@
 
 mandir = @mandir@
 manext = 1
-manprefix = 
+manprefix =
 
 #### End of system configuration section. ####
 
@@ -52,22 +52,18 @@ SHELL = /bin/sh
 	${CC} -I. ${CFLAGS_COMPILE_ONLY} -DBINDIR=\"${bindir}\" -DSYSDIR=\"${sysconfdir}\" ${CPPFLAGS} ${CFLAGS} $<
 
 OBJ = \
-	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
-	command.${O} cvt.${O} decode.${O} edit.${O} evar.${O} filename.${O} forwback.${O} \
-	help.${O} ifile.${O} input.${O} jump.${O} \
-	line.${O} linenum.${O} \
-	lsystem.${O} mark.${O} optfunc.${O} option.${O} opttbl.${O} os.${O} \
-	output.${O} pattern.${O} position.${O} prompt.${O} search.${O} signal.${O} \
-	tags.${O} ttyin.${O} version.${O} xbuf.${O}  @REGEX_O@
+	cmdbuf.${O} line.${O} output.${O} search.${O} xbuf.${O} tags.${O}
 
 ifneq (@SECURE_COMPILE@,1)
 OBJ += lesskey_parse.${O}
 endif
 
+RUST_LIBS = ./rust/target/debug/libc2rust_out.a
+
 all: less$(EXEEXT) lesskey$(EXEEXT) lessecho$(EXEEXT)
 
 less$(EXEEXT): ${OBJ}
-	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
+	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS} ${RUST_LIBS}
 
 lesskey$(EXEEXT): lesskey.${O} lesskey_parse.${O} xbuf.${O} version.${O}
 	${CC} ${LDFLAGS} -o $@ lesskey.${O} lesskey_parse.${O} xbuf.${O} version.${O} ${LIBS}

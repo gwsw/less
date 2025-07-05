@@ -1,0 +1,192 @@
+[
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 main.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/main.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 screen.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/screen.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 brac.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/brac.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 ch.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/ch.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 charset.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/charset.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 cmdbuf.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/cmdbuf.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 command.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/command.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 cvt.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/cvt.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 decode.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/decode.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 edit.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/edit.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 evar.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/evar.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 filename.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/filename.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 forwback.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/forwback.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 help.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/help.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 ifile.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/ifile.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 input.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/input.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 jump.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/jump.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 line.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/line.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 linenum.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/linenum.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 lsystem.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/lsystem.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 mark.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/mark.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 optfunc.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/optfunc.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 option.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/option.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 opttbl.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/opttbl.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 os.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/os.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 output.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/output.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 pattern.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/pattern.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 position.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/position.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 prompt.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/prompt.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 search.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/search.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 signal.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/signal.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 tags.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/tags.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 ttyin.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/ttyin.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 version.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/version.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 xbuf.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/xbuf.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 lesskey_parse.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/lesskey_parse.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 lesskey.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/lesskey.c"
+    },
+    {
+        "command": "cc -c -I. -DBINDIR=\\\"/usr/local/bin\\\" -DSYSDIR=\\\"/usr/local/etc\\\" -g -O2 lessecho.c",
+        "directory": "/home/cristi/work/rust/less",
+        "file": "/home/cristi/work/rust/less/lessecho.c"
+    }
+]

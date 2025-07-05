@@ -1,0 +1,653 @@
+use ::libc;
+extern "C" {
+    fn snprintf(
+        _: *mut std::ffi::c_char,
+        _: std::ffi::c_ulong,
+        _: *const std::ffi::c_char,
+        _: ...
+    ) -> std::ffi::c_int;
+    fn isatty(__fd: std::ffi::c_int) -> std::ffi::c_int;
+    fn calloc(_: std::ffi::c_ulong, _: std::ffi::c_ulong) -> *mut std::ffi::c_void;
+    fn free(_: *mut std::ffi::c_void);
+    fn exit(_: std::ffi::c_int) -> !;
+    fn strncpy(
+        _: *mut std::ffi::c_char,
+        _: *const std::ffi::c_char,
+        _: std::ffi::c_ulong,
+    ) -> *mut std::ffi::c_char;
+    fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
+    fn strncmp(
+        _: *const std::ffi::c_char,
+        _: *const std::ffi::c_char,
+        _: std::ffi::c_ulong,
+    ) -> std::ffi::c_int;
+    fn strchr(_: *const std::ffi::c_char, _: std::ffi::c_int) -> *mut std::ffi::c_char;
+    fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
+    fn raw_mode(on: std::ffi::c_int);
+    fn get_term();
+    fn init();
+    fn deinit();
+    fn interactive() -> std::ffi::c_int;
+    fn clear_bot();
+    fn init_charset();
+    fn init_cmdhist();
+    fn save_cmdhist();
+    fn commands();
+    fn expand_cmd_tables();
+    fn init_cmds();
+    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
+    fn isnullenv(s: *const std::ffi::c_char) -> lbool;
+    fn check_altpipe_error();
+    fn edit(filename: *const std::ffi::c_char) -> std::ffi::c_int;
+    fn edit_first() -> std::ffi::c_int;
+    fn edit_next(n: std::ffi::c_int) -> std::ffi::c_int;
+    fn cat_file();
+    fn last_component(name: *const std::ffi::c_char) -> *const std::ffi::c_char;
+    fn get_one_screen() -> lbool;
+    fn prev_ifile(h: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
+    fn nifile() -> std::ffi::c_int;
+    fn get_ifile(
+        filename: *const std::ffi::c_char,
+        prev: *mut std::ffi::c_void,
+    ) -> *mut std::ffi::c_void;
+    fn repaint();
+    fn init_line();
+    fn init_mark();
+    fn opt_header(type_0: std::ffi::c_int, s: *const std::ffi::c_char);
+    fn scan_option(s: *const std::ffi::c_char, is_env: lbool);
+    fn isoptpending() -> lbool;
+    fn nopendopt();
+    fn init_unsupport();
+    fn init_option();
+    fn init_poll();
+    fn get_time() -> time_t;
+    fn flush();
+    fn set_output(fd: std::ffi::c_int);
+    fn putchr(ch: std::ffi::c_int) -> std::ffi::c_int;
+    fn less_printf(fmt: *const std::ffi::c_char, parg: *mut PARG) -> std::ffi::c_int;
+    fn get_return();
+    fn error(fmt: *const std::ffi::c_char, parg: *mut PARG);
+    fn init_prompt();
+    fn init_search();
+    fn init_signals(on: std::ffi::c_int);
+    fn findtag(tag: *const std::ffi::c_char);
+    fn tagsearch() -> POSITION;
+    fn edit_tagfile() -> std::ffi::c_int;
+    fn open_getchr();
+    fn close_getchr();
+    static mut tags: *mut std::ffi::c_char;
+    static mut tagoption: *mut std::ffi::c_char;
+    static mut jump_sline: std::ffi::c_int;
+    static mut less_is_more: std::ffi::c_int;
+    static mut missing_cap: lbool;
+    static mut know_dumb: std::ffi::c_int;
+    static mut quit_if_one_screen: std::ffi::c_int;
+    static mut no_init: std::ffi::c_int;
+    static mut errmsgs: std::ffi::c_int;
+    static mut redraw_on_quit: std::ffi::c_int;
+    static mut term_init_done: std::ffi::c_int;
+    static mut first_time: lbool;
+}
+pub type __off_t = std::ffi::c_long;
+pub type __time_t = std::ffi::c_long;
+pub type off_t = __off_t;
+pub type time_t = __time_t;
+pub type size_t = std::ffi::c_ulong;
+pub type lbool = std::ffi::c_uint;
+pub const LTRUE: lbool = 1;
+pub const LFALSE: lbool = 0;
+pub type less_off_t = off_t;
+pub type POSITION = less_off_t;
+pub type LINENUM = off_t;
+#[derive(Copy, Clone)]
+#[repr(C)]
+pub struct scrpos {
+    pub pos: POSITION,
+    pub ln: std::ffi::c_int,
+}
+#[derive(Copy, Clone)]
+#[repr(C)]
+pub union parg {
+    pub p_string: *const std::ffi::c_char,
+    pub p_int: std::ffi::c_int,
+    pub p_linenum: LINENUM,
+    pub p_char: std::ffi::c_char,
+}
+pub type PARG = parg;
+#[derive(Copy, Clone)]
+#[repr(C)]
+pub struct secure_feature {
+    pub name: *const std::ffi::c_char,
+    pub sf_value: std::ffi::c_int,
+}
+#[no_mangle]
+pub static mut every_first_cmd: *mut std::ffi::c_char =
+    0 as *const std::ffi::c_char as *mut std::ffi::c_char;
+#[no_mangle]
+pub static mut new_file: lbool = LFALSE;
+#[no_mangle]
+pub static mut is_tty: std::ffi::c_int = 0;
+#[no_mangle]
+pub static mut curr_ifile: *mut std::ffi::c_void =
+    0 as *const std::ffi::c_void as *mut std::ffi::c_void;
+#[no_mangle]
+pub static mut old_ifile: *mut std::ffi::c_void =
+    0 as *const std::ffi::c_void as *mut std::ffi::c_void;
+#[no_mangle]
+pub static mut initial_scrpos: scrpos = scrpos { pos: 0, ln: 0 };
+#[no_mangle]
+pub static mut start_attnpos: POSITION = -(1 as std::ffi::c_int) as POSITION;
+#[no_mangle]
+pub static mut end_attnpos: POSITION = -(1 as std::ffi::c_int) as POSITION;
+#[no_mangle]
+pub static mut wscroll: std::ffi::c_int = 0;
+#[no_mangle]
+pub static mut progname: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+#[no_mangle]
+pub static mut quitting: lbool = LFALSE;
+#[no_mangle]
+pub static mut dohelp: std::ffi::c_int = 0;
+#[no_mangle]
+pub static mut init_header: *mut std::ffi::c_char =
+    0 as *const std::ffi::c_char as *mut std::ffi::c_char;
+static mut secure_allow_features: std::ffi::c_int = 0;
+#[no_mangle]
+pub static mut logfile: std::ffi::c_int = -(1 as std::ffi::c_int);
+#[no_mangle]
+pub static mut force_logfile: lbool = LFALSE;
+#[no_mangle]
+pub static mut namelogfile: *mut std::ffi::c_char =
+    0 as *const std::ffi::c_char as *mut std::ffi::c_char;
+#[no_mangle]
+pub static mut editor: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+#[no_mangle]
+pub static mut editproto: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+#[no_mangle]
+pub static mut less_start_time: time_t = 0;
+#[no_mangle]
+pub static mut one_screen: std::ffi::c_int = 0;
+unsafe extern "C" fn security_feature_error(
+    mut type_0: *const std::ffi::c_char,
+    mut len: size_t,
+    mut name: *const std::ffi::c_char,
+) -> std::ffi::c_int {
+    let mut parg: PARG = parg {
+        p_string: 0 as *const std::ffi::c_char,
+    };
+    let mut msglen: size_t = len
+        .wrapping_add(strlen(type_0))
+        .wrapping_add(64 as std::ffi::c_int as std::ffi::c_ulong);
+    let mut msg: *mut std::ffi::c_char = ecalloc(
+        msglen,
+        ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
+    ) as *mut std::ffi::c_char;
+    snprintf(
+        msg,
+        msglen,
+        b"LESSSECURE_ALLOW: %s feature name \"%.*s\"\0" as *const u8 as *const std::ffi::c_char,
+        type_0,
+        len as std::ffi::c_int,
+        name,
+    );
+    parg.p_string = msg;
+    error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
+    free(msg as *mut std::ffi::c_void);
+    return 0 as std::ffi::c_int;
+}
+unsafe extern "C" fn security_feature(
+    mut name: *const std::ffi::c_char,
+    mut len: size_t,
+) -> std::ffi::c_int {
+    static mut features: [secure_feature; 12] = [
+        {
+            let mut init = secure_feature {
+                name: b"edit\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 1 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"examine\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 2 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"glob\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 3 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"history\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 4 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"lesskey\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 5 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"lessopen\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 6 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"logfile\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 7 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"osc8\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 12 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"pipe\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 8 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"shell\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 9 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"stop\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 10 as std::ffi::c_int,
+            };
+            init
+        },
+        {
+            let mut init = secure_feature {
+                name: b"tags\0" as *const u8 as *const std::ffi::c_char,
+                sf_value: (1 as std::ffi::c_int) << 11 as std::ffi::c_int,
+            };
+            init
+        },
+    ];
+    let mut i: std::ffi::c_int = 0;
+    let mut match_0: std::ffi::c_int = -(1 as std::ffi::c_int);
+    i = 0 as std::ffi::c_int;
+    while i
+        < (::core::mem::size_of::<[secure_feature; 12]>() as std::ffi::c_ulong)
+            .wrapping_div(::core::mem::size_of::<secure_feature>() as std::ffi::c_ulong)
+            as std::ffi::c_int
+    {
+        if strncmp(features[i as usize].name, name, len) == 0 as std::ffi::c_int {
+            if match_0 >= 0 as std::ffi::c_int {
+                return security_feature_error(
+                    b"ambiguous\0" as *const u8 as *const std::ffi::c_char,
+                    len,
+                    name,
+                );
+            }
+            match_0 = i;
+        }
+        i += 1;
+        i;
+    }
+    if match_0 < 0 as std::ffi::c_int {
+        return security_feature_error(
+            b"invalid\0" as *const u8 as *const std::ffi::c_char,
+            len,
+            name,
+        );
+    }
+    return features[match_0 as usize].sf_value;
+}
+unsafe extern "C" fn init_secure() {
+    let mut str: *const std::ffi::c_char =
+        lgetenv(b"LESSSECURE\0" as *const u8 as *const std::ffi::c_char);
+    if isnullenv(str) as u64 != 0 {
+        secure_allow_features = !(0 as std::ffi::c_int);
+    } else {
+        secure_allow_features = 0 as std::ffi::c_int;
+    }
+    str = lgetenv(b"LESSSECURE_ALLOW\0" as *const u8 as *const std::ffi::c_char);
+    if isnullenv(str) as u64 == 0 {
+        loop {
+            let mut estr: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+            while *str as std::ffi::c_int == ' ' as i32 || *str as std::ffi::c_int == ',' as i32 {
+                str = str.offset(1);
+                str;
+            }
+            if *str as std::ffi::c_int == '\0' as i32 {
+                break;
+            }
+            estr = strchr(str, ',' as i32);
+            if estr.is_null() {
+                estr = str.offset(strlen(str) as isize);
+            }
+            while estr > str
+                && *estr.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int == ' ' as i32
+            {
+                estr = estr.offset(-1);
+                estr;
+            }
+            secure_allow_features |=
+                security_feature(str, estr.offset_from(str) as std::ffi::c_long as size_t);
+            str = estr;
+        }
+    }
+}
+unsafe fn main_0(
+    mut argc: std::ffi::c_int,
+    mut argv: *mut *const std::ffi::c_char,
+) -> std::ffi::c_int {
+    let mut ifile: *mut std::ffi::c_void = 0 as *mut std::ffi::c_void;
+    let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+    let fresh0 = argv;
+    argv = argv.offset(1);
+    progname = *fresh0;
+    argc -= 1;
+    argc;
+    init_secure();
+    is_tty = isatty(1 as std::ffi::c_int);
+    init_mark();
+    init_cmds();
+    init_poll();
+    init_charset();
+    init_line();
+    init_cmdhist();
+    init_option();
+    init_search();
+    if strcmp(
+        last_component(progname),
+        b"more\0" as *const u8 as *const std::ffi::c_char,
+    ) == 0 as std::ffi::c_int
+        && isnullenv(lgetenv(
+            b"LESS_IS_MORE\0" as *const u8 as *const std::ffi::c_char,
+        )) as std::ffi::c_uint
+            != 0
+    {
+        less_is_more = 1 as std::ffi::c_int;
+    }
+    init_prompt();
+    init_unsupport();
+    s = lgetenv(if less_is_more != 0 {
+        b"MORE\0" as *const u8 as *const std::ffi::c_char
+    } else {
+        b"LESS\0" as *const u8 as *const std::ffi::c_char
+    });
+    if !s.is_null() {
+        scan_option(s, LTRUE);
+    }
+    while argc > 0 as std::ffi::c_int
+        && ((*(*argv).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '-' as i32
+            || *(*argv).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '+' as i32)
+            && *(*argv).offset(1 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32
+            || isoptpending() as std::ffi::c_uint != 0)
+    {
+        let fresh1 = argv;
+        argv = argv.offset(1);
+        s = *fresh1;
+        argc -= 1;
+        argc;
+        if strcmp(s, b"--\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int {
+            break;
+        }
+        scan_option(s, LFALSE);
+    }
+    if isoptpending() as u64 != 0 {
+        nopendopt();
+        quit(0 as std::ffi::c_int);
+    }
+    get_term();
+    expand_cmd_tables();
+    editor = lgetenv(b"VISUAL\0" as *const u8 as *const std::ffi::c_char);
+    if isnullenv(editor) as u64 != 0 {
+        editor = lgetenv(b"EDITOR\0" as *const u8 as *const std::ffi::c_char);
+        if isnullenv(editor) as u64 != 0 {
+            editor = b"vi\0" as *const u8 as *const std::ffi::c_char;
+        }
+    }
+    editproto = lgetenv(b"LESSEDIT\0" as *const u8 as *const std::ffi::c_char);
+    if isnullenv(editproto) as u64 != 0 {
+        editproto = b"%E ?lm+%lm. %g\0" as *const u8 as *const std::ffi::c_char;
+    }
+    ifile = 0 as *mut std::ffi::c_void;
+    if dohelp != 0 {
+        ifile = get_ifile(
+            b"@/\\less/\\help/\\file/\\@\0" as *const u8 as *const std::ffi::c_char,
+            ifile,
+        );
+    }
+    loop {
+        let fresh2 = argc;
+        argc = argc - 1;
+        if !(fresh2 > 0 as std::ffi::c_int) {
+            break;
+        }
+        let fresh3 = argv;
+        argv = argv.offset(1);
+        get_ifile(*fresh3, ifile);
+        ifile = prev_ifile(0 as *mut std::ffi::c_void);
+    }
+    if is_tty == 0 {
+        set_output(1 as std::ffi::c_int);
+        if edit_first() == 0 as std::ffi::c_int {
+            loop {
+                cat_file();
+                if !(edit_next(1 as std::ffi::c_int) == 0 as std::ffi::c_int) {
+                    break;
+                }
+            }
+        }
+        quit(0 as std::ffi::c_int);
+    }
+    if missing_cap as std::ffi::c_uint != 0 && know_dumb == 0 {
+        error(
+            b"WARNING: terminal is not fully functional\0" as *const u8 as *const std::ffi::c_char,
+            0 as *mut std::ffi::c_void as *mut PARG,
+        );
+    }
+    open_getchr();
+    raw_mode(1 as std::ffi::c_int);
+    init_signals(1 as std::ffi::c_int);
+    less_start_time = get_time();
+    if !tagoption.is_null()
+        || strcmp(tags, b"-\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int
+    {
+        if nifile() > 0 as std::ffi::c_int {
+            error(
+                b"No filenames allowed with -t option\0" as *const u8 as *const std::ffi::c_char,
+                0 as *mut std::ffi::c_void as *mut PARG,
+            );
+            quit(1 as std::ffi::c_int);
+        }
+        findtag(tagoption);
+        if edit_tagfile() != 0 {
+            quit(1 as std::ffi::c_int);
+        }
+        initial_scrpos.pos = tagsearch();
+        if initial_scrpos.pos == -(1 as std::ffi::c_int) as POSITION {
+            quit(1 as std::ffi::c_int);
+        }
+        initial_scrpos.ln = jump_sline;
+    } else {
+        if edit_first() != 0 {
+            quit(1 as std::ffi::c_int);
+        }
+        if quit_if_one_screen != 0 {
+            if nifile() > 1 as std::ffi::c_int {
+                quit_if_one_screen = LFALSE as std::ffi::c_int;
+            } else if no_init == 0 {
+                one_screen = get_one_screen() as std::ffi::c_int;
+            }
+        }
+    }
+    if !init_header.is_null() {
+        opt_header(2 as std::ffi::c_int, init_header);
+        free(init_header as *mut std::ffi::c_void);
+        init_header = 0 as *mut std::ffi::c_char;
+    }
+    if errmsgs > 0 as std::ffi::c_int {
+        less_printf(
+            b"Press RETURN to continue \0" as *const u8 as *const std::ffi::c_char,
+            0 as *mut std::ffi::c_void as *mut PARG,
+        );
+        get_return();
+        putchr('\n' as i32);
+    }
+    set_output(1 as std::ffi::c_int);
+    init();
+    commands();
+    quit(0 as std::ffi::c_int);
+    return 0 as std::ffi::c_int;
+}
+#[no_mangle]
+pub unsafe extern "C" fn saven(
+    mut s: *const std::ffi::c_char,
+    mut n: size_t,
+) -> *mut std::ffi::c_char {
+    let mut p: *mut std::ffi::c_char = ecalloc(
+        n.wrapping_add(1 as std::ffi::c_int as size_t),
+        ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
+    ) as *mut std::ffi::c_char;
+    strncpy(p, s, n);
+    *p.offset(n as isize) = '\0' as i32 as std::ffi::c_char;
+    return p;
+}
+#[no_mangle]
+pub unsafe extern "C" fn save(mut s: *const std::ffi::c_char) -> *mut std::ffi::c_char {
+    return saven(s, strlen(s));
+}
+#[no_mangle]
+pub unsafe extern "C" fn out_of_memory() {
+    error(
+        b"Cannot allocate memory\0" as *const u8 as *const std::ffi::c_char,
+        0 as *mut std::ffi::c_void as *mut PARG,
+    );
+    quit(1 as std::ffi::c_int);
+}
+#[no_mangle]
+pub unsafe extern "C" fn ecalloc(mut count: size_t, mut size: size_t) -> *mut std::ffi::c_void {
+    let mut p: *mut std::ffi::c_void = 0 as *mut std::ffi::c_void;
+    p = calloc(count, size);
+    if p.is_null() {
+        out_of_memory();
+    }
+    return p;
+}
+#[no_mangle]
+pub unsafe extern "C" fn skipsp(mut s: *mut std::ffi::c_char) -> *mut std::ffi::c_char {
+    while *s as std::ffi::c_int == ' ' as i32 || *s as std::ffi::c_int == '\t' as i32 {
+        s = s.offset(1);
+        s;
+    }
+    return s;
+}
+#[no_mangle]
+pub unsafe extern "C" fn skipspc(mut s: *const std::ffi::c_char) -> *const std::ffi::c_char {
+    while *s as std::ffi::c_int == ' ' as i32 || *s as std::ffi::c_int == '\t' as i32 {
+        s = s.offset(1);
+        s;
+    }
+    return s;
+}
+#[no_mangle]
+pub unsafe extern "C" fn sprefix(
+    mut ps: *const std::ffi::c_char,
+    mut s: *const std::ffi::c_char,
+    mut uppercase: std::ffi::c_int,
+) -> size_t {
+    let mut c: std::ffi::c_char = 0;
+    let mut sc: std::ffi::c_char = 0;
+    let mut len: size_t = 0 as std::ffi::c_int as size_t;
+    while *s as std::ffi::c_int != '\0' as i32 {
+        c = *ps;
+        if uppercase != 0 {
+            if len == 0 as std::ffi::c_int as size_t
+                && (c as std::ffi::c_int >= 'a' as i32 && c as std::ffi::c_int <= 'z' as i32)
+            {
+                return 0 as std::ffi::c_int as size_t;
+            }
+            if c as std::ffi::c_int >= 'A' as i32 && c as std::ffi::c_int <= 'Z' as i32 {
+                c = (c as std::ffi::c_int - 'A' as i32 + 'a' as i32) as std::ffi::c_char;
+            }
+        }
+        sc = *s;
+        if len > 0 as std::ffi::c_int as size_t
+            && (sc as std::ffi::c_int >= 'A' as i32 && sc as std::ffi::c_int <= 'Z' as i32)
+        {
+            sc = (sc as std::ffi::c_int - 'A' as i32 + 'a' as i32) as std::ffi::c_char;
+        }
+        if c as std::ffi::c_int != sc as std::ffi::c_int {
+            break;
+        }
+        len = len.wrapping_add(1);
+        len;
+        s = s.offset(1);
+        s;
+        ps = ps.offset(1);
+        ps;
+    }
+    return len;
+}
+#[no_mangle]
+pub unsafe extern "C" fn quit(mut status: std::ffi::c_int) {
+    static mut save_status: std::ffi::c_int = 0;
+    if status < 0 as std::ffi::c_int {
+        status = save_status;
+    } else {
+        save_status = status;
+    }
+    quitting = LTRUE;
+    check_altpipe_error();
+    if interactive() != 0 {
+        clear_bot();
+    }
+    deinit();
+    flush();
+    if redraw_on_quit != 0 && term_init_done != 0 {
+        first_time = LTRUE;
+        repaint();
+        flush();
+    }
+    edit(0 as *mut std::ffi::c_void as *mut std::ffi::c_char);
+    save_cmdhist();
+    raw_mode(0 as std::ffi::c_int);
+    close_getchr();
+    exit(status);
+}
+#[no_mangle]
+pub unsafe extern "C" fn secure_allow(mut features: std::ffi::c_int) -> std::ffi::c_int {
+    return (secure_allow_features & features == features) as std::ffi::c_int;
+}
+#[no_mangle]
+pub unsafe extern "C" fn main() {
+    let mut args: Vec<*mut std::ffi::c_char> = Vec::new();
+    for arg in ::std::env::args() {
+        args.push(
+            (::std::ffi::CString::new(arg))
+                .expect("Failed to convert argument into CString.")
+                .into_raw(),
+        );
+    }
+    args.push(::core::ptr::null_mut());
+    unsafe {
+        ::std::process::exit(main_0(
+            (args.len() - 1) as std::ffi::c_int,
+            args.as_mut_ptr() as *mut *const std::ffi::c_char,
+        ) as i32)
+    }
+}

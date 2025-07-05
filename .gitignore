@@ -29,4 +29,4 @@ lesstest/lt_screen
 
 # Added by cargo
 
-/target
+rust/target
