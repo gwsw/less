@@ -1,5 +1,5 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -16,14 +16,8 @@ extern "C" {
         _: *mut FILE,
     ) -> std::ffi::c_ulong;
     fn perror(__s: *const std::ffi::c_char);
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
-    fn strcat(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
+    fn strcat(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
     fn strncmp(
         _: *const std::ffi::c_char,
@@ -168,10 +162,7 @@ pub unsafe extern "C" fn out_of_memory() {
     exit(1 as std::ffi::c_int);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecalloc(
-    mut count: size_t,
-    mut size: size_t,
-) -> *mut std::ffi::c_void {
+pub unsafe extern "C" fn ecalloc(mut count: size_t, mut size: size_t) -> *mut std::ffi::c_void {
     let mut p: *mut std::ffi::c_void = 0 as *mut std::ffi::c_void;
     p = calloc(count, size);
     if p.is_null() {
@@ -196,9 +187,7 @@ unsafe extern "C" fn mkpathname(
     return pathname;
 }
 #[no_mangle]
-pub unsafe extern "C" fn homefile(
-    mut filename: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn homefile(mut filename: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut p: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut pathname: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     p = getenv(b"HOME\0" as *const u8 as *const std::ffi::c_char);
@@ -214,10 +203,7 @@ pub unsafe extern "C" fn homefile(
     }
     return pathname;
 }
-unsafe extern "C" fn parse_args(
-    mut argc: std::ffi::c_int,
-    mut argv: *mut *const std::ffi::c_char,
-) {
+unsafe extern "C" fn parse_args(mut argc: std::ffi::c_int, mut argv: *mut *const std::ffi::c_char) {
     let mut arg: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     outfile = 0 as *const std::ffi::c_char;
     loop {
@@ -230,15 +216,11 @@ unsafe extern "C" fn parse_args(
         if *arg.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int != '-' as i32 {
             break;
         } else {
-            if *arg.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                == '\0' as i32
-            {
+            if *arg.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32 {
                 break;
             }
-            if *arg.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                == '-' as i32
-                && *arg.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int
-                    == '\0' as i32
+            if *arg.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int == '-' as i32
+                && *arg.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32
             {
                 argc -= 1;
                 argc;
@@ -255,13 +237,13 @@ unsafe extern "C" fn parse_args(
                             8 as std::ffi::c_int as std::ffi::c_ulong,
                         ) == 0 as std::ffi::c_int
                         {
-                            if *arg.offset(8 as std::ffi::c_int as isize)
-                                as std::ffi::c_int == '\0' as i32
+                            if *arg.offset(8 as std::ffi::c_int as isize) as std::ffi::c_int
+                                == '\0' as i32
                             {
                                 outfile = &*arg.offset(8 as std::ffi::c_int as isize)
                                     as *const std::ffi::c_char;
-                            } else if *arg.offset(8 as std::ffi::c_int as isize)
-                                as std::ffi::c_int == '=' as i32
+                            } else if *arg.offset(8 as std::ffi::c_int as isize) as std::ffi::c_int
+                                == '=' as i32
                             {
                                 outfile = &*arg.offset(9 as std::ffi::c_int as isize)
                                     as *const std::ffi::c_char;
@@ -297,8 +279,7 @@ unsafe extern "C" fn parse_args(
                 match current_block_18 {
                     10137977975373869605 => {
                         printf(
-                            b"lesskey  version %s\n\0" as *const u8
-                                as *const std::ffi::c_char,
+                            b"lesskey  version %s\n\0" as *const u8 as *const std::ffi::c_char,
                             version.as_mut_ptr(),
                         );
                         exit(0 as std::ffi::c_int);
@@ -344,7 +325,7 @@ unsafe extern "C" fn fputbytes(
         );
         buf = buf.offset(1);
         buf;
-    };
+    }
 }
 unsafe extern "C" fn fputint(mut fd: *mut FILE, mut val: size_t) {
     let mut c1: std::ffi::c_char = 0;
@@ -352,8 +333,7 @@ unsafe extern "C" fn fputint(mut fd: *mut FILE, mut val: size_t) {
     if val >= (64 as std::ffi::c_int * 64 as std::ffi::c_int) as size_t {
         fprintf(
             stderr,
-            b"error: cannot write %ld, max %ld\n\0" as *const u8
-                as *const std::ffi::c_char,
+            b"error: cannot write %ld, max %ld\n\0" as *const u8 as *const std::ffi::c_char,
             val as std::ffi::c_long,
             (64 as std::ffi::c_int * 64 as std::ffi::c_int) as std::ffi::c_long,
         );
@@ -462,21 +442,33 @@ unsafe fn main_0(
         ::core::mem::size_of::<[std::ffi::c_char; 1]>() as std::ffi::c_ulong,
     );
     fputint(out, tables.cmdtable.buf.end);
-    fputbytes(out, xbuf_char_data(&mut tables.cmdtable.buf), tables.cmdtable.buf.end);
+    fputbytes(
+        out,
+        xbuf_char_data(&mut tables.cmdtable.buf),
+        tables.cmdtable.buf.end,
+    );
     fputbytes(
         out,
         editsection.as_ptr(),
         ::core::mem::size_of::<[std::ffi::c_char; 1]>() as std::ffi::c_ulong,
     );
     fputint(out, tables.edittable.buf.end);
-    fputbytes(out, xbuf_char_data(&mut tables.edittable.buf), tables.edittable.buf.end);
+    fputbytes(
+        out,
+        xbuf_char_data(&mut tables.edittable.buf),
+        tables.edittable.buf.end,
+    );
     fputbytes(
         out,
         varsection.as_ptr(),
         ::core::mem::size_of::<[std::ffi::c_char; 1]>() as std::ffi::c_ulong,
     );
     fputint(out, tables.vartable.buf.end);
-    fputbytes(out, xbuf_char_data(&mut tables.vartable.buf), tables.vartable.buf.end);
+    fputbytes(
+        out,
+        xbuf_char_data(&mut tables.vartable.buf),
+        tables.vartable.buf.end,
+    );
     fputbytes(
         out,
         endsection.as_ptr(),
@@ -491,7 +483,7 @@ unsafe fn main_0(
     return 0 as std::ffi::c_int;
 }
 pub fn main() {
-    let mut args: Vec::<*mut std::ffi::c_char> = Vec::new();
+    let mut args: Vec<*mut std::ffi::c_char> = Vec::new();
     for arg in ::std::env::args() {
         args.push(
             (::std::ffi::CString::new(arg))
@@ -501,11 +493,9 @@ pub fn main() {
     }
     args.push(::core::ptr::null_mut());
     unsafe {
-        ::std::process::exit(
-            main_0(
-                (args.len() - 1) as std::ffi::c_int,
-                args.as_mut_ptr() as *mut *const std::ffi::c_char,
-            ) as i32,
-        )
+        ::std::process::exit(main_0(
+            (args.len() - 1) as std::ffi::c_int,
+            args.as_mut_ptr() as *mut *const std::ffi::c_char,
+        ) as i32)
     }
 }

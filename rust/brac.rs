@@ -32,10 +32,12 @@ pub unsafe extern "C" fn match_brac(
     let mut c: std::ffi::c_int = 0;
     let mut nest: std::ffi::c_int = 0;
     let mut pos: POSITION = 0;
-    let mut chget: Option::<unsafe extern "C" fn() -> std::ffi::c_int> = None;
-    pos = position(
-        if forwdir != 0 { 0 as std::ffi::c_int } else { -(1 as std::ffi::c_int) },
-    );
+    let mut chget: Option<unsafe extern "C" fn() -> std::ffi::c_int> = None;
+    pos = position(if forwdir != 0 {
+        0 as std::ffi::c_int
+    } else {
+        -(1 as std::ffi::c_int)
+    });
     if pos == -(1 as std::ffi::c_int) as POSITION || ch_seek(pos) != 0 {
         if forwdir != 0 {
             error(
@@ -60,19 +62,16 @@ pub unsafe extern "C" fn match_brac(
                 );
             } else {
                 error(
-                    b"No bracket in bottom line\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"No bracket in bottom line\0" as *const u8 as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
             }
             return;
         }
-        if !(c != obrac as std::ffi::c_int
-            || {
-                n -= 1;
-                n > 0 as std::ffi::c_int
-            })
-        {
+        if !(c != obrac as std::ffi::c_int || {
+            n -= 1;
+            n > 0 as std::ffi::c_int
+        }) {
             break;
         }
     }
@@ -80,23 +79,17 @@ pub unsafe extern "C" fn match_brac(
         ch_back_get();
     }
     chget = ::core::mem::transmute::<
-        Option::<unsafe extern "C" fn() -> std::ffi::c_int>,
-        Option::<unsafe extern "C" fn() -> std::ffi::c_int>,
-    >(
-        if forwdir != 0 {
-            Some(ch_forw_get as unsafe extern "C" fn() -> std::ffi::c_int)
-        } else {
-            Some(ch_back_get as unsafe extern "C" fn() -> std::ffi::c_int)
-        },
-    );
+        Option<unsafe extern "C" fn() -> std::ffi::c_int>,
+        Option<unsafe extern "C" fn() -> std::ffi::c_int>,
+    >(if forwdir != 0 {
+        Some(ch_forw_get as unsafe extern "C" fn() -> std::ffi::c_int)
+    } else {
+        Some(ch_back_get as unsafe extern "C" fn() -> std::ffi::c_int)
+    });
     nest = 0 as std::ffi::c_int;
     loop {
-        c = ::core::mem::transmute::<
-            _,
-            fn() -> std::ffi::c_int,
-        >(
-            (Some(chget.expect("non-null function pointer")))
-                .expect("non-null function pointer"),
+        c = ::core::mem::transmute::<_, fn() -> std::ffi::c_int>(
+            (Some(chget.expect("non-null function pointer"))).expect("non-null function pointer"),
         )();
         if !(c != -(1 as std::ffi::c_int)) {
             break;
@@ -107,15 +100,17 @@ pub unsafe extern "C" fn match_brac(
             }
             nest += 1;
             nest;
-        } else if c == cbrac as std::ffi::c_int
-            && {
-                nest -= 1;
-                nest < 0 as std::ffi::c_int
-            }
-        {
+        } else if c == cbrac as std::ffi::c_int && {
+            nest -= 1;
+            nest < 0 as std::ffi::c_int
+        } {
             jump_line_loc(
                 ch_tell(),
-                if forwdir != 0 { -(1 as std::ffi::c_int) } else { 1 as std::ffi::c_int },
+                if forwdir != 0 {
+                    -(1 as std::ffi::c_int)
+                } else {
+                    1 as std::ffi::c_int
+                },
             );
             return;
         }
