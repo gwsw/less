@@ -1,5 +1,5 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -12,10 +12,7 @@ extern "C" {
     ) -> std::ffi::c_int;
     fn putc(__c: std::ffi::c_int, __stream: *mut FILE) -> std::ffi::c_int;
     fn pclose(__stream: *mut FILE) -> std::ffi::c_int;
-    fn popen(
-        __command: *const std::ffi::c_char,
-        __modes: *const std::ffi::c_char,
-    ) -> *mut FILE;
+    fn popen(__command: *const std::ffi::c_char, __modes: *const std::ffi::c_char) -> *mut FILE;
     fn close(__fd: std::ffi::c_int) -> std::ffi::c_int;
     fn dup(__fd: std::ffi::c_int) -> std::ffi::c_int;
     fn free(_: *mut std::ffi::c_void);
@@ -101,7 +98,7 @@ pub union parg {
     pub p_char: std::ffi::c_char,
 }
 pub type PARG = parg;
-pub type __sighandler_t = Option::<unsafe extern "C" fn(std::ffi::c_int) -> ()>;
+pub type __sighandler_t = Option<unsafe extern "C" fn(std::ffi::c_int) -> ()>;
 #[no_mangle]
 pub unsafe extern "C" fn lsystem(
     mut cmd: *const std::ffi::c_char,
@@ -113,7 +110,6 @@ pub unsafe extern "C" fn lsystem(
     let mut save_ifile: *mut std::ffi::c_void = 0 as *mut std::ffi::c_void;
     if *cmd.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '-' as i32 {
         cmd = cmd.offset(1);
-        cmd;
     } else {
         clear_bot();
         putstr(b"!\0" as *const u8 as *const std::ffi::c_char);
@@ -202,13 +198,13 @@ pub unsafe extern "C" fn pipe_mark(
     }
     bpos = position(-(1 as std::ffi::c_int));
     if c as std::ffi::c_int == '.' as i32 {
-        return pipe_data(cmd, tpos, bpos)
+        return pipe_data(cmd, tpos, bpos);
     } else if mpos <= tpos {
-        return pipe_data(cmd, mpos, bpos)
+        return pipe_data(cmd, mpos, bpos);
     } else if bpos == -(1 as std::ffi::c_int) as POSITION {
-        return pipe_data(cmd, tpos, bpos)
+        return pipe_data(cmd, tpos, bpos);
     } else {
-        return pipe_data(cmd, tpos, mpos)
+        return pipe_data(cmd, tpos, mpos);
     };
 }
 #[no_mangle]
@@ -244,19 +240,16 @@ pub unsafe extern "C" fn pipe_data(
     init_signals(0 as std::ffi::c_int);
     signal(
         13 as std::ffi::c_int,
-        ::core::mem::transmute::<
-            libc::intptr_t,
-            __sighandler_t,
-        >(1 as std::ffi::c_int as libc::intptr_t),
+        ::core::mem::transmute::<libc::intptr_t, __sighandler_t>(
+            1 as std::ffi::c_int as libc::intptr_t,
+        ),
     );
     c = -(1 as std::ffi::c_int);
-    while epos == -(1 as std::ffi::c_int) as POSITION
-        || {
-            let fresh0 = spos;
-            spos = spos + 1;
-            fresh0 <= epos
-        }
-    {
+    while epos == -(1 as std::ffi::c_int) as POSITION || {
+        let fresh0 = spos;
+        spos = spos + 1;
+        fresh0 <= epos
+    } {
         c = ch_forw_get();
         if c == -(1 as std::ffi::c_int) {
             break;

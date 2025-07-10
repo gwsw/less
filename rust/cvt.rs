@@ -25,10 +25,7 @@ pub const ANSI_ERR: ansi_state = 2;
 pub const ANSI_MID: ansi_state = 1;
 pub const ANSI_NULL: ansi_state = 0;
 #[no_mangle]
-pub unsafe extern "C" fn cvt_length(
-    mut len: size_t,
-    mut ops: std::ffi::c_int,
-) -> size_t {
+pub unsafe extern "C" fn cvt_length(mut len: size_t, mut ops: std::ffi::c_int) -> size_t {
     if utf_mode != 0 {
         len = len * 4 as std::ffi::c_int as size_t;
     }
@@ -45,7 +42,6 @@ pub unsafe extern "C" fn cvt_alloc_chpos(mut len: size_t) -> *mut std::ffi::c_in
     while i < len {
         *chpos.offset(i as isize) = -(1 as std::ffi::c_int);
         i = i.wrapping_add(1);
-        i;
     }
     return chpos;
 }
@@ -74,15 +70,12 @@ pub unsafe extern "C" fn cvt_text(
         let mut dst_pos: size_t = dst.offset_from(odst) as std::ffi::c_long as size_t;
         let mut pansi: *mut ansi_state_0 = 0 as *mut ansi_state_0;
         ch = step_charc(&mut src, 1 as std::ffi::c_int, src_end);
-        if ops & 0o2 as std::ffi::c_int != 0 && ch == '\u{8}' as i32 as LWCHAR
-            && dst > odst
-        {
+        if ops & 0o2 as std::ffi::c_int != 0 && ch == '\u{8}' as i32 as LWCHAR && dst > odst {
             loop {
                 dst = dst.offset(-1);
-                dst;
-                if !(dst > odst && utf_mode != 0
-                    && !(*dst as std::ffi::c_int & 0x80 as std::ffi::c_int
-                        == 0 as std::ffi::c_int)
+                if !(dst > odst
+                    && utf_mode != 0
+                    && !(*dst as std::ffi::c_int & 0x80 as std::ffi::c_int == 0 as std::ffi::c_int)
                     && !(*dst as std::ffi::c_int & 0xc0 as std::ffi::c_int
                         == 0xc0 as std::ffi::c_int
                         && !(*dst as std::ffi::c_int & 0xfe as std::ffi::c_int
@@ -91,12 +84,10 @@ pub unsafe extern "C" fn cvt_text(
                     break;
                 }
             }
-        } else if ops & 0o10 as std::ffi::c_int != 0
-            && {
-                pansi = ansi_start(ch);
-                !pansi.is_null()
-            }
-        {
+        } else if ops & 0o10 as std::ffi::c_int != 0 && {
+            pansi = ansi_start(ch);
+            !pansi.is_null()
+        } {
             while src < src_end {
                 if ansi_step(pansi, ch) as std::ffi::c_uint
                     != ANSI_MID as std::ffi::c_int as std::ffi::c_uint
@@ -131,12 +122,11 @@ pub unsafe extern "C" fn cvt_text(
             edst = dst;
         }
     }
-    if ops & 0o4 as std::ffi::c_int != 0 && edst > odst
-        && *edst.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int
-            == '\r' as i32
+    if ops & 0o4 as std::ffi::c_int != 0
+        && edst > odst
+        && *edst.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int == '\r' as i32
     {
         edst = edst.offset(-1);
-        edst;
     }
     *edst = '\0' as i32 as std::ffi::c_char;
     if !lenp.is_null() {

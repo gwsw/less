@@ -92,7 +92,6 @@ pub unsafe extern "C" fn put_line(mut forw_scroll: lbool) {
             putchr(c);
         }
         i = i.wrapping_add(1);
-        i;
     }
     at_exit();
     if forw_scroll as std::ffi::c_uint != 0 && should_clear_after_line() as std::ffi::c_uint != 0 {
@@ -293,7 +292,6 @@ pub unsafe extern "C" fn lstrtoposc(
             fresh5 as std::ffi::c_int != 0
         }) as std::ffi::c_int as lbool;
         buf = buf.offset(1);
-        buf;
     }
     if !ebuf.is_null() {
         *ebuf = buf;
@@ -351,7 +349,6 @@ pub unsafe extern "C" fn lstrtoic(
             fresh9 as std::ffi::c_int != 0
         }) as std::ffi::c_int as lbool;
         buf = buf.offset(1);
-        buf;
     }
     if !ebuf.is_null() {
         *ebuf = buf;
@@ -409,7 +406,6 @@ pub unsafe extern "C" fn lstrtoulc(
             fresh13 as std::ffi::c_int != 0
         }) as std::ffi::c_int as lbool;
         buf = buf.offset(1);
-        buf;
     }
     if !ebuf.is_null() {
         *ebuf = buf;
@@ -453,10 +449,8 @@ pub unsafe extern "C" fn less_printf(
             fmt = fmt.offset(1);
             putchr(*fresh14 as std::ffi::c_int);
             col += 1;
-            col;
         } else {
             fmt = fmt.offset(1);
-            fmt;
             let fresh15 = fmt;
             fmt = fmt.offset(1);
             match *fresh15 as std::ffi::c_int {
@@ -464,7 +458,6 @@ pub unsafe extern "C" fn less_printf(
                     s = (*parg).p_string;
                     es = s.offset(strlen(s) as isize);
                     parg = parg.offset(1);
-                    parg;
                     while *s as std::ffi::c_int != '\0' as i32 {
                         let mut ch: LWCHAR = step_charc(&mut s, 1 as std::ffi::c_int, es);
                         let mut ps: *const std::ffi::c_char = if utf_mode != 0 {
@@ -477,35 +470,29 @@ pub unsafe extern "C" fn less_printf(
                             ps = ps.offset(1);
                             putchr(*fresh16 as std::ffi::c_int);
                             col += 1;
-                            col;
                         }
                     }
                 }
                 100 => {
                     col += iprint_int((*parg).p_int, 10 as std::ffi::c_int);
                     parg = parg.offset(1);
-                    parg;
                 }
                 120 => {
                     col += iprint_int((*parg).p_int, 16 as std::ffi::c_int);
                     parg = parg.offset(1);
-                    parg;
                 }
                 110 => {
                     col += iprint_linenum((*parg).p_linenum, 10 as std::ffi::c_int);
                     parg = parg.offset(1);
-                    parg;
                 }
                 99 => {
                     s = prchar((*parg).p_char as LWCHAR);
                     parg = parg.offset(1);
-                    parg;
                     while *s as std::ffi::c_int != '\0' as i32 {
                         let fresh17 = s;
                         s = s.offset(1);
                         putchr(*fresh17 as std::ffi::c_int);
                         col += 1;
-                        col;
                     }
                 }
                 37 => {
@@ -532,7 +519,6 @@ pub unsafe extern "C" fn error(mut fmt: *const std::ffi::c_char, mut parg: *mut 
         *::core::mem::transmute::<&[u8; 17], &mut [std::ffi::c_char; 17]>(b"  (press RETURN)\0")
     };
     errmsgs += 1;
-    errmsgs;
     if interactive() == 0 {
         less_printf(fmt, parg);
         putchr('\n' as i32);

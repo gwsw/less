@@ -19,11 +19,7 @@ extern "C" {
         p_linepos: *mut POSITION,
         p_newline: *mut lbool,
     ) -> POSITION;
-    fn forw_line(
-        curr_pos: POSITION,
-        p_linepos: *mut POSITION,
-        p_newline: *mut lbool,
-    ) -> POSITION;
+    fn forw_line(curr_pos: POSITION, p_linepos: *mut POSITION, p_newline: *mut lbool) -> POSITION;
     fn back_line(curr_pos: POSITION, p_newline: *mut lbool) -> POSITION;
     fn repaint();
     fn after_header_pos(pos: POSITION) -> POSITION;
@@ -107,15 +103,13 @@ pub unsafe extern "C" fn eof_displayed(mut offset: lbool) -> lbool {
     if ch_length() == -(1 as std::ffi::c_int) as POSITION {
         return LFALSE;
     }
-    pos = position(
-        if offset as std::ffi::c_uint != 0 {
-            -(4 as std::ffi::c_int)
-        } else {
-            -(2 as std::ffi::c_int)
-        },
-    );
-    return (pos == -(1 as std::ffi::c_int) as POSITION || pos == ch_length()
-        || pos == soft_eof) as std::ffi::c_int as lbool;
+    pos = position(if offset as std::ffi::c_uint != 0 {
+        -(4 as std::ffi::c_int)
+    } else {
+        -(2 as std::ffi::c_int)
+    });
+    return (pos == -(1 as std::ffi::c_int) as POSITION || pos == ch_length() || pos == soft_eof)
+        as std::ffi::c_int as lbool;
 }
 #[no_mangle]
 pub unsafe extern "C" fn entire_file_displayed() -> lbool {
@@ -124,8 +118,8 @@ pub unsafe extern "C" fn entire_file_displayed() -> lbool {
         return LFALSE;
     }
     pos = position(0 as std::ffi::c_int);
-    return (pos == -(1 as std::ffi::c_int) as POSITION
-        || pos == 0 as std::ffi::c_int as POSITION) as std::ffi::c_int as lbool;
+    return (pos == -(1 as std::ffi::c_int) as POSITION || pos == 0 as std::ffi::c_int as POSITION)
+        as std::ffi::c_int as lbool;
 }
 #[no_mangle]
 pub unsafe extern "C" fn squish_check() {
@@ -181,7 +175,6 @@ pub unsafe extern "C" fn overlay_header() -> std::ffi::c_int {
             clear_eol();
             put_line(LFALSE);
             ln += 1;
-            ln;
         }
         moved = LTRUE;
     }
@@ -205,7 +198,6 @@ pub unsafe extern "C" fn overlay_header() -> std::ffi::c_int {
                 put_line(LFALSE);
             }
             ln += 1;
-            ln;
         }
         moved = LTRUE;
     }
@@ -231,13 +223,12 @@ pub unsafe extern "C" fn forw(
         pos = after_header_pos(pos);
     }
     squish_check();
-    do_repaint = (only_last as std::ffi::c_uint != 0
-        && n > sc_height - 1 as std::ffi::c_int
-        || forw_scroll >= 0 as std::ffi::c_int && n > forw_scroll
+    do_repaint = (only_last as std::ffi::c_uint != 0 && n > sc_height - 1 as std::ffi::c_int
+        || forw_scroll >= 0 as std::ffi::c_int
+            && n > forw_scroll
             && n != sc_height - 1 as std::ffi::c_int) as std::ffi::c_int as lbool;
     if do_repaint as u64 == 0 {
-        if top_scroll != 0 && n >= sc_height - 1 as std::ffi::c_int && pos != ch_length()
-        {
+        if top_scroll != 0 && n >= sc_height - 1 as std::ffi::c_int && pos != ch_length() {
             pos_clear();
             force = LTRUE;
             clear();
@@ -249,9 +240,7 @@ pub unsafe extern "C" fn forw(
             if top_scroll != 0 {
                 clear();
                 home();
-            } else if first_time as u64 == 0 && is_filtering() as u64 == 0
-                && full_screen != 0
-            {
+            } else if first_time as u64 == 0 && is_filtering() as u64 == 0 && full_screen != 0 {
                 putstr(b"...skipping...\n\0" as *const u8 as *const std::ffi::c_char);
             }
         }
@@ -272,7 +261,6 @@ pub unsafe extern "C" fn forw(
             pos = forw_line(pos, &mut linepos, &mut newline);
             if to_newline as std::ffi::c_uint != 0 && newline as u64 == 0 {
                 n += 1;
-                n;
             }
             if pos == -(1 as std::ffi::c_int) as POSITION {
                 soft_eof = opos;
@@ -280,16 +268,13 @@ pub unsafe extern "C" fn forw(
                 if sigs
                     & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                         | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                        | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                        | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                    != 0
                     || force as u64 == 0
-                        && position(0 as std::ffi::c_int)
-                            != -(1 as std::ffi::c_int) as POSITION
+                        && position(0 as std::ffi::c_int) != -(1 as std::ffi::c_int) as POSITION
                     || empty_lines(0 as std::ffi::c_int, 0 as std::ffi::c_int) == 0
                         && empty_lines(1 as std::ffi::c_int, 1 as std::ffi::c_int) == 0
-                        && empty_lines(
-                            2 as std::ffi::c_int,
-                            sc_height - 1 as std::ffi::c_int,
-                        ) != 0
+                        && empty_lines(2 as std::ffi::c_int, sc_height - 1 as std::ffi::c_int) != 0
                 {
                     pos = opos;
                     break;
@@ -299,20 +284,22 @@ pub unsafe extern "C" fn forw(
         add_forw_pos(linepos, first_line);
         first_line = LFALSE;
         nlines += 1;
-        nlines;
         if do_repaint as u64 != 0 {
             continue;
         }
         if first_time as std::ffi::c_uint != 0
-            && pos == -(1 as std::ffi::c_int) as POSITION && top_scroll == 0
+            && pos == -(1 as std::ffi::c_int) as POSITION
+            && top_scroll == 0
             && header_lines == 0 as std::ffi::c_int
-            && header_cols == 0 as std::ffi::c_int && tagoption.is_null()
+            && header_cols == 0 as std::ffi::c_int
+            && tagoption.is_null()
             && plusoption as u64 == 0
         {
             squished = LTRUE;
         } else {
             put_line(LTRUE);
-            if stop_on_form_feed != 0 && do_repaint as u64 == 0
+            if stop_on_form_feed != 0
+                && do_repaint as u64 == 0
                 && line_is_ff() as std::ffi::c_uint != 0
                 && position(0 as std::ffi::c_int) != -(1 as std::ffi::c_int) as POSITION
             {
@@ -357,7 +344,6 @@ pub unsafe extern "C" fn back(
         pos = back_line(pos, &mut newline);
         if to_newline as std::ffi::c_uint != 0 && newline as u64 == 0 {
             n += 1;
-            n;
         }
         if pos == -(1 as std::ffi::c_int) as POSITION {
             if force as u64 == 0 {
@@ -369,7 +355,6 @@ pub unsafe extern "C" fn back(
         }
         add_back_pos(pos);
         nlines += 1;
-        nlines;
         if !(do_repaint as u64 == 0) {
             continue;
         }
@@ -398,7 +383,8 @@ pub unsafe extern "C" fn forward(
     mut to_newline: lbool,
 ) {
     let mut pos: POSITION = 0;
-    if get_quit_at_eof() != 0 && eof_displayed(LFALSE) as std::ffi::c_uint != 0
+    if get_quit_at_eof() != 0
+        && eof_displayed(LFALSE) as std::ffi::c_uint != 0
         && ch_getflags() & 0o10 as std::ffi::c_int == 0
     {
         if edit_next(1 as std::ffi::c_int) != 0 {
@@ -428,7 +414,8 @@ pub unsafe extern "C" fn forward(
                         && sigs
                             & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                                 | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) == 0)
+                                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                            == 0)
                     {
                         break;
                     }
@@ -484,7 +471,8 @@ pub unsafe extern "C" fn get_one_screen() -> lbool {
         if sigs
             & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                 | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+            != 0
         {
             break;
         }
@@ -493,7 +481,6 @@ pub unsafe extern "C" fn get_one_screen() -> lbool {
             break;
         } else {
             nlines += 1;
-            nlines;
         }
     }
     getting_one_screen = LFALSE;

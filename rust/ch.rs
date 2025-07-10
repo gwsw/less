@@ -1,16 +1,8 @@
 use ::libc;
 extern "C" {
-    fn lseek(
-        __fd: std::ffi::c_int,
-        __offset: __off_t,
-        __whence: std::ffi::c_int,
-    ) -> __off_t;
+    fn lseek(__fd: std::ffi::c_int, __offset: __off_t, __whence: std::ffi::c_int) -> __off_t;
     fn close(__fd: std::ffi::c_int) -> std::ffi::c_int;
-    fn write(
-        __fd: std::ffi::c_int,
-        __buf: *const std::ffi::c_void,
-        __n: size_t,
-    ) -> ssize_t;
+    fn write(__fd: std::ffi::c_int, __buf: *const std::ffi::c_void, __n: size_t) -> ssize_t;
     fn calloc(_: std::ffi::c_ulong, _: std::ffi::c_ulong) -> *mut std::ffi::c_void;
     fn free(_: *mut std::ffi::c_void);
     fn ecalloc(count: size_t, size: size_t) -> *mut std::ffi::c_void;
@@ -118,15 +110,11 @@ unsafe extern "C" fn ch_get() -> std::ffi::c_int {
         }
     }
     waiting_for_data = LFALSE;
-    h = ((*thisfile).block
-        & (1024 as std::ffi::c_int - 1 as std::ffi::c_int) as BLOCKNUM)
+    h = ((*thisfile).block & (1024 as std::ffi::c_int - 1 as std::ffi::c_int) as BLOCKNUM)
         as std::ffi::c_int;
     bn = (*thisfile).hashtbl[h as usize].hnext;
     loop {
-        if !(bn
-            != &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize)
-                as *mut bufnode)
-        {
+        if !(bn != &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode) {
             current_block = 12800627514080957624;
             break;
         }
@@ -148,21 +136,18 @@ unsafe extern "C" fn ch_get() -> std::ffi::c_int {
             if sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                != 0
             {
                 return -(1 as std::ffi::c_int);
             }
-            if bn
-                == &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize)
-                    as *mut bufnode
-            {
+            if bn == &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode {
                 if (*thisfile).buflist.prev == &mut (*thisfile).buflist as *mut bufnode
                     || (*((*thisfile).buflist.prev as *mut buf)).block
                         != -(1 as std::ffi::c_int) as BLOCKNUM
                 {
                     if autobuf != 0 && (*thisfile).flags & 0o1 as std::ffi::c_int == 0
-                        || (maxbufs < 0 as std::ffi::c_int
-                            || (*thisfile).nbufs < maxbufs)
+                        || (maxbufs < 0 as std::ffi::c_int || (*thisfile).nbufs < maxbufs)
                     {
                         if ch_addbuf() != 0 {
                             autobuf = 0 as std::ffi::c_int;
@@ -176,9 +161,8 @@ unsafe extern "C" fn ch_get() -> std::ffi::c_int {
                 (*bp).block = (*thisfile).block;
                 (*bp).datasize = 0 as std::ffi::c_int as size_t;
                 (*bn).hnext = (*thisfile).hashtbl[h as usize].hnext;
-                (*bn)
-                    .hprev = &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize)
-                    as *mut bufnode;
+                (*bn).hprev =
+                    &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode;
                 (*(*thisfile).hashtbl[h as usize].hnext).hprev = bn;
                 (*thisfile).hashtbl[h as usize].hnext = bn;
             }
@@ -199,10 +183,8 @@ unsafe extern "C" fn ch_get() -> std::ffi::c_int {
                     (*(*bn).hnext).hprev = (*bn).hprev;
                     (*(*bn).hprev).hnext = (*bn).hnext;
                     (*bn).hnext = (*thisfile).hashtbl[h as usize].hnext;
-                    (*bn)
-                        .hprev = &mut *((*thisfile).hashtbl)
-                        .as_mut_ptr()
-                        .offset(h as isize) as *mut bufnode;
+                    (*bn).hprev =
+                        &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode;
                     (*(*thisfile).hashtbl[h as usize].hnext).hprev = bn;
                     (*thisfile).hashtbl[h as usize].hnext = bn;
                 }
@@ -222,8 +204,8 @@ unsafe extern "C" fn ch_get() -> std::ffi::c_int {
                     ch_resize();
                     len = ch_length();
                     if len != -(1 as std::ffi::c_int) as POSITION && pos >= len {
-                        if (*thisfile).flags
-                            & (0o1 as std::ffi::c_int | 0o10 as std::ffi::c_int) != 0
+                        if (*thisfile).flags & (0o1 as std::ffi::c_int | 0o10 as std::ffi::c_int)
+                            != 0
                         {
                             return -(1 as std::ffi::c_int);
                         }
@@ -251,10 +233,8 @@ unsafe extern "C" fn ch_get() -> std::ffi::c_int {
                     n = 1 as std::ffi::c_int as ssize_t;
                     ch_have_ungotchar = LFALSE;
                 } else if (*thisfile).flags & 0o10 as std::ffi::c_int != 0 {
-                    (*bp)
-                        .data[(*bp).datasize
-                        as usize] = *helpdata.as_ptr().offset((*thisfile).fpos as isize)
-                        as std::ffi::c_uchar;
+                    (*bp).data[(*bp).datasize as usize] =
+                        *helpdata.as_ptr().offset((*thisfile).fpos as isize) as std::ffi::c_uchar;
                     n = 1 as std::ffi::c_int as ssize_t;
                 } else {
                     n = iread(
@@ -283,14 +263,11 @@ unsafe extern "C" fn ch_get() -> std::ffi::c_int {
                     n = 0 as std::ffi::c_int as ssize_t;
                 }
                 if secure_allow((1 as std::ffi::c_int) << 7 as std::ffi::c_int) != 0 {
-                    if logfile >= 0 as std::ffi::c_int
-                        && n > 0 as std::ffi::c_int as ssize_t
-                    {
+                    if logfile >= 0 as std::ffi::c_int && n > 0 as std::ffi::c_int as ssize_t {
                         write(
                             logfile,
-                            &mut *((*bp).data)
-                                .as_mut_ptr()
-                                .offset((*bp).datasize as isize) as *mut std::ffi::c_uchar
+                            &mut *((*bp).data).as_mut_ptr().offset((*bp).datasize as isize)
+                                as *mut std::ffi::c_uchar
                                 as *const std::ffi::c_void,
                             n as size_t,
                         );
@@ -311,15 +288,13 @@ unsafe extern "C" fn ch_get() -> std::ffi::c_int {
                                 p_string: 0 as *const std::ffi::c_char,
                             };
                             parg.p_string = wait_message();
-                            ixerror(
-                                b"%s\0" as *const u8 as *const std::ffi::c_char,
-                                &mut parg,
-                            );
+                            ixerror(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
                             waiting_for_data = LTRUE;
                         }
                         sleep_ms(50 as std::ffi::c_int);
                     }
-                    if ignore_eoi != 0 && follow_mode == 1 as std::ffi::c_int
+                    if ignore_eoi != 0
+                        && follow_mode == 1 as std::ffi::c_int
                         && curr_ifile_changed() as std::ffi::c_uint != 0
                     {
                         screen_trashed_num(2 as std::ffi::c_int);
@@ -369,7 +344,8 @@ pub unsafe extern "C" fn end_logfile() {
             if sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                != 0
             {
                 break;
             }
@@ -394,17 +370,15 @@ pub unsafe extern "C" fn sync_logfile() {
         return;
     }
     nblocks = ((*thisfile).fpos + 8192 as std::ffi::c_int as POSITION
-        - 1 as std::ffi::c_int as POSITION) / 8192 as std::ffi::c_int as POSITION;
+        - 1 as std::ffi::c_int as POSITION)
+        / 8192 as std::ffi::c_int as POSITION;
     block = 0 as std::ffi::c_int as BLOCKNUM;
     while block < nblocks {
         let mut wrote: lbool = LFALSE;
         h = (block & (1024 as std::ffi::c_int - 1 as std::ffi::c_int) as BLOCKNUM)
             as std::ffi::c_int;
         bn = (*thisfile).hashtbl[h as usize].hnext;
-        while bn
-            != &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize)
-                as *mut bufnode
-        {
+        while bn != &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode {
             bp = bn as *mut buf;
             if (*bp).block == block {
                 write(
@@ -420,26 +394,21 @@ pub unsafe extern "C" fn sync_logfile() {
         }
         if wrote as u64 == 0 && warned as u64 == 0 {
             error(
-                b"Warning: log file is incomplete\0" as *const u8
-                    as *const std::ffi::c_char,
+                b"Warning: log file is incomplete\0" as *const u8 as *const std::ffi::c_char,
                 0 as *mut std::ffi::c_void as *mut PARG,
             );
             warned = LTRUE;
         }
         block += 1;
-        block;
     }
 }
 unsafe extern "C" fn buffered(mut block: BLOCKNUM) -> lbool {
     let mut bp: *mut buf = 0 as *mut buf;
     let mut bn: *mut bufnode = 0 as *mut bufnode;
     let mut h: std::ffi::c_int = 0;
-    h = (block & (1024 as std::ffi::c_int - 1 as std::ffi::c_int) as BLOCKNUM)
-        as std::ffi::c_int;
+    h = (block & (1024 as std::ffi::c_int - 1 as std::ffi::c_int) as BLOCKNUM) as std::ffi::c_int;
     bn = (*thisfile).hashtbl[h as usize].hnext;
-    while bn
-        != &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode
-    {
+    while bn != &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode {
         bp = bn as *mut buf;
         if (*bp).block == block {
             return LTRUE;
@@ -462,7 +431,8 @@ pub unsafe extern "C" fn ch_seek(mut pos: POSITION) -> std::ffi::c_int {
         return 1 as std::ffi::c_int;
     }
     new_block = pos / 8192 as std::ffi::c_int as POSITION;
-    if (*thisfile).flags & 0o1 as std::ffi::c_int == 0 && pos != (*thisfile).fpos
+    if (*thisfile).flags & 0o1 as std::ffi::c_int == 0
+        && pos != (*thisfile).fpos
         && buffered(new_block) as u64 == 0
     {
         if (*thisfile).fpos > pos {
@@ -475,7 +445,8 @@ pub unsafe extern "C" fn ch_seek(mut pos: POSITION) -> std::ffi::c_int {
             if sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                != 0
             {
                 return 1 as std::ffi::c_int;
             }
@@ -503,7 +474,8 @@ pub unsafe extern "C" fn ch_end_seek() -> std::ffi::c_int {
         if sigs
             & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                 | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+            != 0
         {
             return 1 as std::ffi::c_int;
         }
@@ -635,13 +607,11 @@ pub unsafe extern "C" fn ch_setbufspace(mut bufspace: ssize_t) {
     if bufspace < 0 as std::ffi::c_int as ssize_t {
         maxbufs = -(1 as std::ffi::c_int);
     } else {
-        let mut lbufk: size_t = (8192 as std::ffi::c_int / 1024 as std::ffi::c_int)
-            as size_t;
-        maxbufs = (bufspace as size_t / lbufk)
-            .wrapping_add(
-                (bufspace as size_t % lbufk != 0 as std::ffi::c_int as size_t)
-                    as std::ffi::c_int as size_t,
-            ) as std::ffi::c_int;
+        let mut lbufk: size_t = (8192 as std::ffi::c_int / 1024 as std::ffi::c_int) as size_t;
+        maxbufs = (bufspace as size_t / lbufk).wrapping_add(
+            (bufspace as size_t % lbufk != 0 as std::ffi::c_int as size_t) as std::ffi::c_int
+                as size_t,
+        ) as std::ffi::c_int;
         if maxbufs < 1 as std::ffi::c_int {
             maxbufs = 1 as std::ffi::c_int;
         }
@@ -669,15 +639,17 @@ pub unsafe extern "C" fn ch_flush() {
         (*thisfile).fsize = -(1 as std::ffi::c_int) as POSITION;
         (*thisfile).flags &= !(0o1 as std::ffi::c_int);
     } else {
-        (*thisfile)
-            .fsize = if (*thisfile).flags & 0o10 as std::ffi::c_int != 0 {
+        (*thisfile).fsize = if (*thisfile).flags & 0o10 as std::ffi::c_int != 0 {
             size_helpdata as POSITION
         } else {
             filesize((*thisfile).file)
         };
     }
-    if lseek((*thisfile).file, 0 as std::ffi::c_int as less_off_t, 0 as std::ffi::c_int)
-        == -(1 as std::ffi::c_int) as off_t
+    if lseek(
+        (*thisfile).file,
+        0 as std::ffi::c_int as less_off_t,
+        0 as std::ffi::c_int,
+    ) == -(1 as std::ffi::c_int) as off_t
     {
         error(
             b"seek error to 0\0" as *const u8 as *const std::ffi::c_char,
@@ -704,8 +676,7 @@ unsafe extern "C" fn ch_addbuf() -> std::ffi::c_int {
     (*(*thisfile).buflist.prev).next = bn;
     (*thisfile).buflist.prev = bn;
     (*bn).hnext = (*thisfile).hashtbl[0 as std::ffi::c_int as usize].hnext;
-    (*bn)
-        .hprev = &mut *((*thisfile).hashtbl)
+    (*bn).hprev = &mut *((*thisfile).hashtbl)
         .as_mut_ptr()
         .offset(0 as std::ffi::c_int as isize) as *mut bufnode;
     (*(*thisfile).hashtbl[0 as std::ffi::c_int as usize].hnext).hprev = bn;
@@ -716,16 +687,11 @@ unsafe extern "C" fn init_hashtbl() {
     let mut h: std::ffi::c_int = 0;
     h = 0 as std::ffi::c_int;
     while h < 1024 as std::ffi::c_int {
-        (*thisfile)
-            .hashtbl[h as usize]
-            .hnext = &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize)
-            as *mut bufnode;
-        (*thisfile)
-            .hashtbl[h as usize]
-            .hprev = &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize)
-            as *mut bufnode;
+        (*thisfile).hashtbl[h as usize].hnext =
+            &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode;
+        (*thisfile).hashtbl[h as usize].hprev =
+            &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode;
         h += 1;
-        h;
     }
 }
 unsafe extern "C" fn ch_delbufs() {
@@ -782,8 +748,7 @@ pub unsafe extern "C" fn ch_init(
     if (*thisfile).file == -(1 as std::ffi::c_int) {
         (*thisfile).file = f;
     }
-    (*thisfile)
-        .fsize = if flags & 0o10 as std::ffi::c_int != 0 {
+    (*thisfile).fsize = if flags & 0o10 as std::ffi::c_int != 0 {
         size_helpdata as POSITION
     } else {
         filesize((*thisfile).file)
@@ -803,7 +768,8 @@ pub unsafe extern "C" fn ch_close() {
     }
     if (*thisfile).flags
         & (0o1 as std::ffi::c_int | 0o4 as std::ffi::c_int | 0o10 as std::ffi::c_int)
-        != 0 && (*thisfile).flags & 0o2 as std::ffi::c_int == 0
+        != 0
+        && (*thisfile).flags & 0o2 as std::ffi::c_int == 0
     {
         ch_delbufs();
     } else {

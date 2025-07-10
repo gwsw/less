@@ -1,5 +1,5 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     pub type re_dfa_t;
     fn free(_: *mut std::ffi::c_void);
@@ -65,7 +65,8 @@ pub struct re_pattern_buffer {
     #[bitfield(name = "__not_bol", ty = "std::ffi::c_uint", bits = "5..=5")]
     #[bitfield(name = "__not_eol", ty = "std::ffi::c_uint", bits = "6..=6")]
     #[bitfield(name = "__newline_anchor", ty = "std::ffi::c_uint", bits = "7..=7")]
-    pub __can_be_null___regs_allocated___fastmap_accurate___no_sub___not_bol___not_eol___newline_anchor: [u8; 1],
+    pub __can_be_null___regs_allocated___fastmap_accurate___no_sub___not_bol___not_eol___newline_anchor:
+        [u8; 1],
     #[bitfield(padding)]
     pub c2rust_padding: [u8; 7],
 }
@@ -157,8 +158,7 @@ pub unsafe extern "C" fn uncompile_pattern(mut pattern: *mut *mut regex_t) {
 }
 #[no_mangle]
 pub unsafe extern "C" fn is_null_pattern(mut pattern: *mut regex_t) -> lbool {
-    return (pattern == 0 as *mut std::ffi::c_void as *mut regex_t) as std::ffi::c_int
-        as lbool;
+    return (pattern == 0 as *mut std::ffi::c_void as *mut regex_t) as std::ffi::c_int as lbool;
 }
 unsafe extern "C" fn match_0(
     mut pattern: *const std::ffi::c_char,
@@ -180,11 +180,9 @@ unsafe extern "C" fn match_0(
             let mut cp: std::ffi::c_char = *pp;
             let mut cl: std::ffi::c_char = *lp;
             if caseless == 2 as std::ffi::c_int
-                && (cp as std::ffi::c_int >= 'A' as i32
-                    && cp as std::ffi::c_int <= 'Z' as i32)
+                && (cp as std::ffi::c_int >= 'A' as i32 && cp as std::ffi::c_int <= 'Z' as i32)
             {
-                cp = (cp as std::ffi::c_int - 'A' as i32 + 'a' as i32)
-                    as std::ffi::c_char;
+                cp = (cp as std::ffi::c_int - 'A' as i32 + 'a' as i32) as std::ffi::c_char;
             }
             if cp as std::ffi::c_int != cl as std::ffi::c_int {
                 break;
@@ -193,9 +191,7 @@ unsafe extern "C" fn match_0(
                 break;
             }
             pp = pp.offset(1);
-            pp;
             lp = lp.offset(1);
-            lp;
         }
         if pp == pattern_end {
             let fresh0 = *sp;
@@ -207,7 +203,6 @@ unsafe extern "C" fn match_0(
             return 1 as std::ffi::c_int;
         }
         buf = buf.offset(1);
-        buf;
     }
     **ep = 0 as *const std::ffi::c_char;
     **sp = **ep;
@@ -261,13 +256,10 @@ unsafe extern "C" fn match_pattern1(
             ecount = 16 as std::ffi::c_int - 10 as std::ffi::c_int - 1 as std::ffi::c_int
                 + 2 as std::ffi::c_int;
             while ecount > 0 as std::ffi::c_int {
-                if rm[(ecount - 1 as std::ffi::c_int) as usize].rm_so
-                    >= 0 as std::ffi::c_int
-                {
+                if rm[(ecount - 1 as std::ffi::c_int) as usize].rm_so >= 0 as std::ffi::c_int {
                     break;
                 }
                 ecount -= 1;
-                ecount;
             }
             if ecount >= nsp {
                 ecount = nsp - 1 as std::ffi::c_int;
@@ -290,16 +282,14 @@ unsafe extern "C" fn match_pattern1(
                     *fresh5 = line.offset(rm[i as usize].rm_eo as isize);
                 }
                 i += 1;
-                i;
             }
         }
     }
     *ep = 0 as *const std::ffi::c_char;
     *sp = *ep;
-    matched = (search_type & (1 as std::ffi::c_int) << 8 as std::ffi::c_int == 0
-        && matched != 0
-        || search_type & (1 as std::ffi::c_int) << 8 as std::ffi::c_int != 0
-            && matched == 0) as std::ffi::c_int;
+    matched = (search_type & (1 as std::ffi::c_int) << 8 as std::ffi::c_int == 0 && matched != 0
+        || search_type & (1 as std::ffi::c_int) << 8 as std::ffi::c_int != 0 && matched == 0)
+        as std::ffi::c_int;
     return (matched != 0 as std::ffi::c_int) as std::ffi::c_int as lbool;
 }
 unsafe extern "C" fn subsearch_ok(
@@ -316,7 +306,6 @@ unsafe extern "C" fn subsearch_ok(
             return LFALSE;
         }
         i += 1;
-        i;
     }
     return LTRUE;
 }
@@ -347,20 +336,18 @@ pub unsafe extern "C" fn match_pattern(
             notbol,
             search_type,
         );
-        if matched as u64 == 0
-            || subsearch_ok(sp, ep, search_type) as std::ffi::c_uint != 0
-        {
+        if matched as u64 == 0 || subsearch_ok(sp, ep, search_type) as std::ffi::c_uint != 0 {
             return matched;
         }
-        mlen = (*ep.offset(0 as std::ffi::c_int as isize)).offset_from(line)
-            as std::ffi::c_long as size_t;
+        mlen = (*ep.offset(0 as std::ffi::c_int as isize)).offset_from(line) as std::ffi::c_long
+            as size_t;
         if mlen == 0 as std::ffi::c_int as size_t {
             return LFALSE;
         }
         line = line.offset(mlen as isize);
         line_len = line_len.wrapping_sub(mlen);
         notbol = 1 as std::ffi::c_int;
-    };
+    }
 }
 #[no_mangle]
 pub unsafe extern "C" fn pattern_lib_name() -> *const std::ffi::c_char {

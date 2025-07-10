@@ -1,15 +1,11 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
     pub type _IO_marker;
     pub type ansi_state;
-    fn sprintf(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-        _: ...
-    ) -> std::ffi::c_int;
+    fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
     fn snprintf(
         _: *mut std::ffi::c_char,
         _: std::ffi::c_ulong,
@@ -19,40 +15,19 @@ extern "C" {
     fn getc(__stream: *mut FILE) -> std::ffi::c_int;
     fn fileno(__stream: *mut FILE) -> std::ffi::c_int;
     fn pclose(__stream: *mut FILE) -> std::ffi::c_int;
-    fn popen(
-        __command: *const std::ffi::c_char,
-        __modes: *const std::ffi::c_char,
-    ) -> *mut FILE;
-    fn open(
-        __file: *const std::ffi::c_char,
-        __oflag: std::ffi::c_int,
-        _: ...
-    ) -> std::ffi::c_int;
-    fn lseek(
-        __fd: std::ffi::c_int,
-        __offset: __off_t,
-        __whence: std::ffi::c_int,
-    ) -> __off_t;
+    fn popen(__command: *const std::ffi::c_char, __modes: *const std::ffi::c_char) -> *mut FILE;
+    fn open(__file: *const std::ffi::c_char, __oflag: std::ffi::c_int, _: ...) -> std::ffi::c_int;
+    fn lseek(__fd: std::ffi::c_int, __offset: __off_t, __whence: std::ffi::c_int) -> __off_t;
     fn close(__fd: std::ffi::c_int) -> std::ffi::c_int;
-    fn read(
-        __fd: std::ffi::c_int,
-        __buf: *mut std::ffi::c_void,
-        __nbytes: size_t,
-    ) -> ssize_t;
+    fn read(__fd: std::ffi::c_int, __buf: *mut std::ffi::c_void, __nbytes: size_t) -> ssize_t;
     fn calloc(_: std::ffi::c_ulong, _: std::ffi::c_ulong) -> *mut std::ffi::c_void;
     fn free(_: *mut std::ffi::c_void);
     fn realpath(
         __name: *const std::ffi::c_char,
         __resolved: *mut std::ffi::c_char,
     ) -> *mut std::ffi::c_char;
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
-    fn strcat(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
+    fn strcat(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
     fn strncmp(
         _: *const std::ffi::c_char,
@@ -71,10 +46,7 @@ extern "C" {
     fn seekable(f: std::ffi::c_int) -> std::ffi::c_int;
     fn binary_char(c: LWCHAR) -> lbool;
     fn is_utf8_well_formed(ss: *const std::ffi::c_char, slen: std::ffi::c_int) -> lbool;
-    fn utf_skip_to_lead(
-        pp: *mut *const std::ffi::c_char,
-        limit: *const std::ffi::c_char,
-    );
+    fn utf_skip_to_lead(pp: *mut *const std::ffi::c_char, limit: *const std::ffi::c_char);
     fn step_charc(
         pp: *mut *const std::ffi::c_char,
         dir: std::ffi::c_int,
@@ -218,9 +190,7 @@ pub struct xcpy {
     pub copied: size_t,
 }
 #[no_mangle]
-pub unsafe extern "C" fn shell_unquote(
-    mut str: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn shell_unquote(mut str: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut name: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut p: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     p = ecalloc(
@@ -230,7 +200,6 @@ pub unsafe extern "C" fn shell_unquote(
     name = p;
     if *str as std::ffi::c_int == openquote as std::ffi::c_int {
         str = str.offset(1);
-        str;
         while *str as std::ffi::c_int != '\0' as i32 {
             if *str as std::ffi::c_int == closequote as std::ffi::c_int {
                 if *str.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
@@ -239,7 +208,6 @@ pub unsafe extern "C" fn shell_unquote(
                     break;
                 }
                 str = str.offset(1);
-                str;
             }
             let fresh0 = str;
             str = str.offset(1);
@@ -280,8 +248,7 @@ unsafe extern "C" fn metachars() -> *const std::ffi::c_char {
     if mchars.is_null() {
         mchars = lgetenv(b"LESSMETACHARS\0" as *const u8 as *const std::ffi::c_char);
         if mchars.is_null() {
-            mchars = b"; *?\t\n'\"()<>[]|&^`#\\$%=~{},\0" as *const u8
-                as *const std::ffi::c_char;
+            mchars = b"; *?\t\n'\"()<>[]|&^`#\\$%=~{},\0" as *const u8 as *const std::ffi::c_char;
         }
     }
     return mchars;
@@ -311,7 +278,6 @@ pub unsafe extern "C" fn shell_quoten(
     p = s;
     while p < s.offset(slen as isize) {
         len = len.wrapping_add(1);
-        len;
         if *p as std::ffi::c_int == openquote as std::ffi::c_int
             || *p as std::ffi::c_int == closequote as std::ffi::c_int
         {
@@ -327,7 +293,6 @@ pub unsafe extern "C" fn shell_quoten(
             }
         }
         p = p.offset(1);
-        p;
     }
     if use_quotes as u64 != 0 {
         if have_quotes as u64 != 0 {
@@ -335,8 +300,10 @@ pub unsafe extern "C" fn shell_quoten(
         }
         len = slen.wrapping_add(3 as std::ffi::c_int as size_t);
     }
-    np = ecalloc(len, ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong)
-        as *mut std::ffi::c_char;
+    np = ecalloc(
+        len,
+        ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
+    ) as *mut std::ffi::c_char;
     newstr = np;
     if use_quotes as u64 != 0 {
         snprintf(
@@ -384,9 +351,7 @@ pub unsafe extern "C" fn shell_quoten(
     return newstr;
 }
 #[no_mangle]
-pub unsafe extern "C" fn shell_quote(
-    mut s: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn shell_quote(mut s: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     return shell_quoten(s, strlen(s));
 }
 #[no_mangle]
@@ -431,9 +396,7 @@ pub unsafe extern "C" fn dirfile(
     return pathname;
 }
 #[no_mangle]
-pub unsafe extern "C" fn homefile(
-    mut filename: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn homefile(mut filename: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut pathname: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     pathname = dirfile(
         lgetenv(b"HOME\0" as *const u8 as *const std::ffi::c_char),
@@ -456,15 +419,14 @@ unsafe extern "C" fn xcpy_char(mut xp: *mut xcpy, mut ch: std::ffi::c_char) {
 }
 unsafe extern "C" fn xcpy_filename(mut xp: *mut xcpy, mut str: *const std::ffi::c_char) {
     let mut quote: lbool = (strchr(str, ' ' as i32)
-        != 0 as *mut std::ffi::c_void as *mut std::ffi::c_char) as std::ffi::c_int
-        as lbool;
+        != 0 as *mut std::ffi::c_void as *mut std::ffi::c_char)
+        as std::ffi::c_int as lbool;
     if quote as u64 != 0 {
         xcpy_char(xp, openquote);
     }
     while *str as std::ffi::c_int != '\0' as i32 {
         xcpy_char(xp, *str);
         str = str.offset(1);
-        str;
     }
     if quote as u64 != 0 {
         xcpy_char(xp, closequote);
@@ -495,9 +457,7 @@ unsafe extern "C" fn fexpand_copy(
             _ => {}
         }
         if expand as u64 != 0 {
-            let mut ifile: *mut std::ffi::c_void = if *fr as std::ffi::c_int
-                == '%' as i32
-            {
+            let mut ifile: *mut std::ffi::c_void = if *fr as std::ffi::c_int == '%' as i32 {
                 curr_ifile
             } else if *fr as std::ffi::c_int == '#' as i32 {
                 old_ifile
@@ -513,38 +473,41 @@ unsafe extern "C" fn fexpand_copy(
             xcpy_char(&mut xp, *fr);
         }
         fr = fr.offset(1);
-        fr;
     }
     xcpy_char(&mut xp, '\0' as i32 as std::ffi::c_char);
     return xp.copied;
 }
 #[no_mangle]
-pub unsafe extern "C" fn fexpand(
-    mut s: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn fexpand(mut s: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut n: size_t = 0;
     let mut e: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     n = fexpand_copy(s, 0 as *mut std::ffi::c_char);
-    e = ecalloc(n, ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong)
-        as *mut std::ffi::c_char;
+    e = ecalloc(
+        n,
+        ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
+    ) as *mut std::ffi::c_char;
     fexpand_copy(s, e);
     return e;
 }
 #[no_mangle]
-pub unsafe extern "C" fn fcomplete(
-    mut s: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn fcomplete(mut s: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut fpat: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut qs: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut uqs: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     if secure_allow((1 as std::ffi::c_int) << 3 as std::ffi::c_int) == 0 {
         return 0 as *mut std::ffi::c_char;
     }
-    let mut len: size_t = (strlen(s))
-        .wrapping_add(2 as std::ffi::c_int as std::ffi::c_ulong);
-    fpat = ecalloc(len, ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong)
-        as *mut std::ffi::c_char;
-    snprintf(fpat, len, b"%s*\0" as *const u8 as *const std::ffi::c_char, s);
+    let mut len: size_t = (strlen(s)).wrapping_add(2 as std::ffi::c_int as std::ffi::c_ulong);
+    fpat = ecalloc(
+        len,
+        ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
+    ) as *mut std::ffi::c_char;
+    snprintf(
+        fpat,
+        len,
+        b"%s*\0" as *const u8 as *const std::ffi::c_char,
+        s,
+    );
     qs = lglob(fpat);
     uqs = shell_unquote(qs);
     if strcmp(uqs, fpat) == 0 as std::ffi::c_int {
@@ -556,10 +519,7 @@ pub unsafe extern "C" fn fcomplete(
     return qs;
 }
 #[no_mangle]
-pub unsafe extern "C" fn bin_file(
-    mut f: std::ffi::c_int,
-    mut n: *mut ssize_t,
-) -> std::ffi::c_int {
+pub unsafe extern "C" fn bin_file(mut f: std::ffi::c_int, mut n: *mut ssize_t) -> std::ffi::c_int {
     let mut bin_count: std::ffi::c_int = 0 as std::ffi::c_int;
     let mut data: [std::ffi::c_char; 256] = [0; 256];
     let mut p: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
@@ -587,25 +547,22 @@ pub unsafe extern "C" fn bin_file(
             && is_utf8_well_formed(
                 p,
                 edata.offset_from(p) as std::ffi::c_long as size_t as std::ffi::c_int,
-            ) as u64 == 0
+            ) as u64
+                == 0
         {
             bin_count += 1;
-            bin_count;
             utf_skip_to_lead(&mut p, edata);
         } else {
             let mut c: LWCHAR = step_charc(&mut p, 1 as std::ffi::c_int, edata);
             let mut pansi: *mut ansi_state = 0 as *mut ansi_state;
-            if ctldisp == 2 as std::ffi::c_int
-                && {
-                    pansi = ansi_start(c);
-                    !pansi.is_null()
-                }
-            {
+            if ctldisp == 2 as std::ffi::c_int && {
+                pansi = ansi_start(c);
+                !pansi.is_null()
+            } {
                 skip_ansi(pansi, c, &mut p, edata);
                 ansi_done(pansi);
             } else if binary_char(c) as u64 != 0 {
                 bin_count += 1;
-                bin_count;
             }
         }
     }
@@ -675,9 +632,7 @@ unsafe extern "C" fn shellcmd(mut cmd: *const std::ffi::c_char) -> *mut FILE {
     return fd;
 }
 #[no_mangle]
-pub unsafe extern "C" fn lglob(
-    mut afilename: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn lglob(mut afilename: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut gfilename: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut filename: *mut std::ffi::c_char = fexpand(afilename);
     if secure_allow((1 as std::ffi::c_int) << 3 as std::ffi::c_int) == 0 {
@@ -704,12 +659,12 @@ pub unsafe extern "C" fn lglob(
     }
     len = (strlen(lessecho))
         .wrapping_add(strlen(filename))
-        .wrapping_add(
-            (7 as std::ffi::c_int as std::ffi::c_ulong).wrapping_mul(strlen(metachars())),
-        )
+        .wrapping_add((7 as std::ffi::c_int as std::ffi::c_ulong).wrapping_mul(strlen(metachars())))
         .wrapping_add(24 as std::ffi::c_int as std::ffi::c_ulong);
-    cmd = ecalloc(len, ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong)
-        as *mut std::ffi::c_char;
+    cmd = ecalloc(
+        len,
+        ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
+    ) as *mut std::ffi::c_char;
     snprintf(
         cmd,
         len,
@@ -728,7 +683,6 @@ pub unsafe extern "C" fn lglob(
             *s as std::ffi::c_uchar as std::ffi::c_int,
         );
         s = s.offset(1);
-        s;
     }
     sprintf(
         cmd.offset(strlen(cmd) as isize),
@@ -751,8 +705,7 @@ pub unsafe extern "C" fn lglob(
 }
 #[no_mangle]
 pub unsafe extern "C" fn is_fake_pathname(mut path: *const std::ffi::c_char) -> lbool {
-    return (strcmp(path, b"-\0" as *const u8 as *const std::ffi::c_char)
-        == 0 as std::ffi::c_int
+    return (strcmp(path, b"-\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int
         || strcmp(
             path,
             b"@/\\less/\\help/\\file/\\@\0" as *const u8 as *const std::ffi::c_char,
@@ -763,9 +716,7 @@ pub unsafe extern "C" fn is_fake_pathname(mut path: *const std::ffi::c_char) -> 
         ) == 0 as std::ffi::c_int) as std::ffi::c_int as lbool;
 }
 #[no_mangle]
-pub unsafe extern "C" fn lrealpath(
-    mut path: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn lrealpath(mut path: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     if is_fake_pathname(path) as u64 == 0 {
         let mut rpath: [std::ffi::c_char; 4096] = [0; 4096];
         if !(realpath(path, rpath.as_mut_ptr())).is_null() {
@@ -774,28 +725,21 @@ pub unsafe extern "C" fn lrealpath(
     }
     return save(path);
 }
-unsafe extern "C" fn num_pct_s(
-    mut lessopen: *const std::ffi::c_char,
-) -> std::ffi::c_int {
+unsafe extern "C" fn num_pct_s(mut lessopen: *const std::ffi::c_char) -> std::ffi::c_int {
     let mut num: std::ffi::c_int = 0 as std::ffi::c_int;
     while *lessopen as std::ffi::c_int != '\0' as i32 {
         if *lessopen as std::ffi::c_int == '%' as i32 {
-            if *lessopen.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                == '%' as i32
-            {
+            if *lessopen.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int == '%' as i32 {
                 lessopen = lessopen.offset(1);
-                lessopen;
             } else if *lessopen.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
                 == 's' as i32
             {
                 num += 1;
-                num;
             } else {
-                return 999 as std::ffi::c_int
+                return 999 as std::ffi::c_int;
             }
         }
         lessopen = lessopen.offset(1);
-        lessopen;
     }
     return num;
 }
@@ -824,17 +768,14 @@ pub unsafe extern "C" fn open_altfile(
     }
     while *lessopen as std::ffi::c_int == '|' as i32 {
         lessopen = lessopen.offset(1);
-        lessopen;
         returnfd += 1;
-        returnfd;
     }
     if *lessopen as std::ffi::c_int == '-' as i32 {
         lessopen = lessopen.offset(1);
-        lessopen;
     } else if strcmp(filename, b"-\0" as *const u8 as *const std::ffi::c_char)
         == 0 as std::ffi::c_int
     {
-        return 0 as *mut std::ffi::c_char
+        return 0 as *mut std::ffi::c_char;
     }
     if num_pct_s(lessopen) != 1 as std::ffi::c_int {
         error(
@@ -848,8 +789,10 @@ pub unsafe extern "C" fn open_altfile(
     len = (strlen(lessopen))
         .wrapping_add(strlen(qfilename))
         .wrapping_add(2 as std::ffi::c_int as std::ffi::c_ulong);
-    cmd = ecalloc(len, ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong)
-        as *mut std::ffi::c_char;
+    cmd = ecalloc(
+        len,
+        ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
+    ) as *mut std::ffi::c_char;
     snprintf(cmd, len, lessopen, qfilename);
     free(qfilename as *mut std::ffi::c_void);
     fd = shellcmd(cmd);
@@ -872,8 +815,7 @@ pub unsafe extern "C" fn open_altfile(
                 *pfd = 0 as *mut std::ffi::c_void;
                 *pf = -(1 as std::ffi::c_int);
                 return save(
-                    b"@/\\less/\\empty/\\file/\\@\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"@/\\less/\\empty/\\file/\\@\0" as *const u8 as *const std::ffi::c_char,
                 );
             }
             return 0 as *mut std::ffi::c_char;
@@ -923,8 +865,10 @@ pub unsafe extern "C" fn close_altfile(
         .wrapping_add(strlen(qfilename))
         .wrapping_add(strlen(qaltfilename))
         .wrapping_add(2 as std::ffi::c_int as std::ffi::c_ulong);
-    cmd = ecalloc(len, ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong)
-        as *mut std::ffi::c_char;
+    cmd = ecalloc(
+        len,
+        ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
+    ) as *mut std::ffi::c_char;
     snprintf(cmd, len, lessclose, qfilename, qaltfilename);
     free(qaltfilename as *mut std::ffi::c_void);
     free(qfilename as *mut std::ffi::c_void);
@@ -950,9 +894,18 @@ pub unsafe extern "C" fn is_dir(mut filename: *const std::ffi::c_char) -> lbool 
         st_size: 0,
         st_blksize: 0,
         st_blocks: 0,
-        st_atim: timespec { tv_sec: 0, tv_nsec: 0 },
-        st_mtim: timespec { tv_sec: 0, tv_nsec: 0 },
-        st_ctim: timespec { tv_sec: 0, tv_nsec: 0 },
+        st_atim: timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        },
+        st_mtim: timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        },
+        st_ctim: timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        },
         __glibc_reserved: [0; 3],
     };
     r = stat(filename, &mut statbuf);
@@ -962,24 +915,19 @@ pub unsafe extern "C" fn is_dir(mut filename: *const std::ffi::c_char) -> lbool 
     return isdir;
 }
 #[no_mangle]
-pub unsafe extern "C" fn bad_file(
-    mut filename: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn bad_file(mut filename: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut m: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     if force_open == 0 && is_dir(filename) as std::ffi::c_uint != 0 {
         static mut is_a_dir: [std::ffi::c_char; 16] = unsafe {
-            *::core::mem::transmute::<
-                &[u8; 16],
-                &mut [std::ffi::c_char; 16],
-            >(b" is a directory\0")
+            *::core::mem::transmute::<&[u8; 16], &mut [std::ffi::c_char; 16]>(b" is a directory\0")
         };
-        m = ecalloc(
-            (strlen(filename))
-                .wrapping_add(
-                    ::core::mem::size_of::<[std::ffi::c_char; 16]>() as std::ffi::c_ulong,
+        m =
+            ecalloc(
+                (strlen(filename)).wrapping_add(
+                    ::core::mem::size_of::<[std::ffi::c_char; 16]>() as std::ffi::c_ulong
                 ),
-            ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
-        ) as *mut std::ffi::c_char;
+                ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
+            ) as *mut std::ffi::c_char;
         strcpy(m, filename);
         strcat(m, is_a_dir.as_mut_ptr());
     } else {
@@ -996,9 +944,18 @@ pub unsafe extern "C" fn bad_file(
             st_size: 0,
             st_blksize: 0,
             st_blocks: 0,
-            st_atim: timespec { tv_sec: 0, tv_nsec: 0 },
-            st_mtim: timespec { tv_sec: 0, tv_nsec: 0 },
-            st_ctim: timespec { tv_sec: 0, tv_nsec: 0 },
+            st_atim: timespec {
+                tv_sec: 0,
+                tv_nsec: 0,
+            },
+            st_mtim: timespec {
+                tv_sec: 0,
+                tv_nsec: 0,
+            },
+            st_ctim: timespec {
+                tv_sec: 0,
+                tv_nsec: 0,
+            },
             __glibc_reserved: [0; 3],
         };
         r = stat(filename, &mut statbuf);
@@ -1010,17 +967,14 @@ pub unsafe extern "C" fn bad_file(
             == 0o100000 as std::ffi::c_int as __mode_t)
         {
             static mut not_reg: [std::ffi::c_char; 42] = unsafe {
-                *::core::mem::transmute::<
-                    &[u8; 42],
-                    &mut [std::ffi::c_char; 42],
-                >(b" is not a regular file (use -f to see it)\0")
+                *::core::mem::transmute::<&[u8; 42], &mut [std::ffi::c_char; 42]>(
+                    b" is not a regular file (use -f to see it)\0",
+                )
             };
             m = ecalloc(
-                (strlen(filename))
-                    .wrapping_add(
-                        ::core::mem::size_of::<[std::ffi::c_char; 42]>()
-                            as std::ffi::c_ulong,
-                    ),
+                (strlen(filename)).wrapping_add(
+                    ::core::mem::size_of::<[std::ffi::c_char; 42]>() as std::ffi::c_ulong
+                ),
                 ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
             ) as *mut std::ffi::c_char;
             strcpy(m, filename);
@@ -1043,9 +997,18 @@ pub unsafe extern "C" fn filesize(mut f: std::ffi::c_int) -> POSITION {
         st_size: 0,
         st_blksize: 0,
         st_blocks: 0,
-        st_atim: timespec { tv_sec: 0, tv_nsec: 0 },
-        st_mtim: timespec { tv_sec: 0, tv_nsec: 0 },
-        st_ctim: timespec { tv_sec: 0, tv_nsec: 0 },
+        st_atim: timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        },
+        st_mtim: timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        },
+        st_ctim: timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        },
         __glibc_reserved: [0; 3],
     };
     if fstat(f, &mut statbuf) >= 0 as std::ffi::c_int {
@@ -1067,15 +1030,25 @@ pub unsafe extern "C" fn curr_ifile_changed() -> lbool {
         st_size: 0,
         st_blksize: 0,
         st_blocks: 0,
-        st_atim: timespec { tv_sec: 0, tv_nsec: 0 },
-        st_mtim: timespec { tv_sec: 0, tv_nsec: 0 },
-        st_ctim: timespec { tv_sec: 0, tv_nsec: 0 },
+        st_atim: timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        },
+        st_mtim: timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        },
+        st_ctim: timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        },
         __glibc_reserved: [0; 3],
     };
     let mut curr_pos: POSITION = ch_tell();
     let mut r: std::ffi::c_int = stat(get_filename(curr_ifile), &mut st);
     if r == 0 as std::ffi::c_int
-        && (st.st_ino != curr_ino || st.st_dev != curr_dev
+        && (st.st_ino != curr_ino
+            || st.st_dev != curr_dev
             || curr_pos != -(1 as std::ffi::c_int) as POSITION && st.st_size < curr_pos)
     {
         return LTRUE;
@@ -1094,7 +1067,6 @@ pub unsafe extern "C" fn last_component(
     slash = name.offset(strlen(name) as isize);
     while slash > name {
         slash = slash.offset(-1);
-        slash;
         if *slash as std::ffi::c_int
             == *(b"/\0" as *const u8 as *const std::ffi::c_char) as std::ffi::c_int
             || *slash as std::ffi::c_int == '/' as i32

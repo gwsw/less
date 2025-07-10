@@ -99,7 +99,6 @@ pub unsafe extern "C" fn match_brac(
                 break;
             }
             nest += 1;
-            nest;
         } else if c == cbrac as std::ffi::c_int && {
             nest -= 1;
             nest < 0 as std::ffi::c_int

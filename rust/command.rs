@@ -134,10 +134,7 @@ extern "C" {
         pattern: *const std::ffi::c_char,
         n: std::ffi::c_int,
     ) -> std::ffi::c_int;
-    fn set_filter_pattern(
-        pattern: *const std::ffi::c_char,
-        search_type_0: std::ffi::c_int,
-    );
+    fn set_filter_pattern(pattern: *const std::ffi::c_char, search_type_0: std::ffi::c_int);
     fn is_filtering() -> lbool;
     fn psignals();
     fn cleantags();
@@ -225,9 +222,7 @@ pub struct loption {
     pub otype: std::ffi::c_int,
     pub odefault: std::ffi::c_int,
     pub ovar: *mut std::ffi::c_int,
-    pub ofunc: Option::<
-        unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
-    >,
+    pub ofunc: Option<unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> ()>,
     pub odesc: [*const std::ffi::c_char; 3],
 }
 #[derive(Copy, Clone)]
@@ -243,8 +238,7 @@ pub struct ungot {
     pub ug_char: std::ffi::c_char,
     pub ug_end_command: lbool,
 }
-static mut shellcmd: *mut std::ffi::c_char = 0 as *const std::ffi::c_char
-    as *mut std::ffi::c_char;
+static mut shellcmd: *mut std::ffi::c_char = 0 as *const std::ffi::c_char as *mut std::ffi::c_char;
 static mut mca: std::ffi::c_int = 0;
 static mut search_type: std::ffi::c_int = 0;
 static mut last_search_type: std::ffi::c_int = 0;
@@ -293,8 +287,7 @@ unsafe extern "C" fn start_mca(
 }
 #[no_mangle]
 pub unsafe extern "C" fn in_mca() -> std::ffi::c_int {
-    return (mca != 0 as std::ffi::c_int && mca != 105 as std::ffi::c_int)
-        as std::ffi::c_int;
+    return (mca != 0 as std::ffi::c_int && mca != 105 as std::ffi::c_int) as std::ffi::c_int;
 }
 unsafe extern "C" fn mca_search1() {
     let mut i: std::ffi::c_int = 0;
@@ -336,7 +329,6 @@ unsafe extern "C" fn mca_search1() {
             cmd_putstr(buf.as_mut_ptr());
         }
         i += 1;
-        i;
     }
     if literal_char as u64 != 0 {
         cmd_putstr(b"Lit \0" as *const u8 as *const std::ffi::c_char);
@@ -402,11 +394,8 @@ unsafe extern "C" fn exec_mca() {
             soft_eof = -(1 as std::ffi::c_int) as POSITION;
         }
         10 => {
-            while *cbuf as std::ffi::c_int == '+' as i32
-                || *cbuf as std::ffi::c_int == ' ' as i32
-            {
+            while *cbuf as std::ffi::c_int == '+' as i32 || *cbuf as std::ffi::c_int == ' ' as i32 {
                 cbuf = cbuf.offset(1);
-                cbuf;
             }
             if !every_first_cmd.is_null() {
                 free(every_first_cmd as *mut std::ffi::c_void);
@@ -447,16 +436,14 @@ unsafe extern "C" fn exec_mca() {
             }
         }
         27 => {
-            let mut done_msg: *const std::ffi::c_char = if *cbuf as std::ffi::c_int
-                == 'P' as i32 & 0o37 as std::ffi::c_int
-            {
-                0 as *const std::ffi::c_char
-            } else {
-                b"!done\0" as *const u8 as *const std::ffi::c_char
-            };
+            let mut done_msg: *const std::ffi::c_char =
+                if *cbuf as std::ffi::c_int == 'P' as i32 & 0o37 as std::ffi::c_int {
+                    0 as *const std::ffi::c_char
+                } else {
+                    b"!done\0" as *const u8 as *const std::ffi::c_char
+                };
             if done_msg.is_null() {
                 cbuf = cbuf.offset(1);
-                cbuf;
             }
             if *cbuf as std::ffi::c_int != '!' as i32 {
                 if !shellcmd.is_null() {
@@ -466,39 +453,35 @@ unsafe extern "C" fn exec_mca() {
             }
             if !(secure_allow((1 as std::ffi::c_int) << 9 as std::ffi::c_int) == 0) {
                 if shellcmd.is_null() {
-                    shellcmd = b"\0" as *const u8 as *const std::ffi::c_char
-                        as *mut std::ffi::c_char;
+                    shellcmd =
+                        b"\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char;
                 }
                 lsystem(shellcmd, done_msg);
             }
         }
         69 => {
-            let mut done_msg_0: *const std::ffi::c_char = if *cbuf as std::ffi::c_int
-                == 'P' as i32 & 0o37 as std::ffi::c_int
-            {
-                0 as *const std::ffi::c_char
-            } else {
-                b"#done\0" as *const u8 as *const std::ffi::c_char
-            };
+            let mut done_msg_0: *const std::ffi::c_char =
+                if *cbuf as std::ffi::c_int == 'P' as i32 & 0o37 as std::ffi::c_int {
+                    0 as *const std::ffi::c_char
+                } else {
+                    b"#done\0" as *const u8 as *const std::ffi::c_char
+                };
             if done_msg_0.is_null() {
                 cbuf = cbuf.offset(1);
-                cbuf;
             }
             if !(secure_allow((1 as std::ffi::c_int) << 9 as std::ffi::c_int) == 0) {
                 lsystem(pr_expand(cbuf), done_msg_0);
             }
         }
         37 => {
-            let mut done_msg_1: *const std::ffi::c_char = if *cbuf as std::ffi::c_int
-                == 'P' as i32 & 0o37 as std::ffi::c_int
-            {
-                0 as *const std::ffi::c_char
-            } else {
-                b"|done\0" as *const u8 as *const std::ffi::c_char
-            };
+            let mut done_msg_1: *const std::ffi::c_char =
+                if *cbuf as std::ffi::c_int == 'P' as i32 & 0o37 as std::ffi::c_int {
+                    0 as *const std::ffi::c_char
+                } else {
+                    b"|done\0" as *const u8 as *const std::ffi::c_char
+                };
             if done_msg_1.is_null() {
                 cbuf = cbuf.offset(1);
-                cbuf;
             }
             if !(secure_allow((1 as std::ffi::c_int) << 8 as std::ffi::c_int) == 0) {
                 pipe_mark(pipec, cbuf);
@@ -511,7 +494,8 @@ unsafe extern "C" fn exec_mca() {
     };
 }
 unsafe extern "C" fn is_erase_char(mut c: std::ffi::c_char) -> lbool {
-    return (c as std::ffi::c_int == erase_char || c as std::ffi::c_int == erase2_char
+    return (c as std::ffi::c_int == erase_char
+        || c as std::ffi::c_int == erase2_char
         || c as std::ffi::c_int == kill_char) as std::ffi::c_int as lbool;
 }
 unsafe extern "C" fn is_newline_char(mut c: std::ffi::c_char) -> lbool {
@@ -584,13 +568,10 @@ unsafe extern "C" fn mca_opt_nonfirst_char(mut c: std::ffi::c_char) -> std::ffi:
         return 1 as std::ffi::c_int;
     }
     p = get_cmdbuf();
-    if p.is_null()
-        || *p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32
-    {
+    if p.is_null() || *p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32 {
         return 2 as std::ffi::c_int;
     }
-    opt_lower = (*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-        >= 'a' as i32
+    opt_lower = (*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int >= 'a' as i32
         && *p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int <= 'z' as i32)
         as std::ffi::c_int as lbool;
     was_curropt = curropt;
@@ -649,11 +630,10 @@ unsafe extern "C" fn mca_opt_char(mut c: std::ffi::c_char) -> std::ffi::c_int {
             );
             return 1 as std::ffi::c_int;
         }
-        opt_lower = (c as std::ffi::c_int >= 'a' as i32
-            && c as std::ffi::c_int <= 'z' as i32) as std::ffi::c_int as lbool;
+        opt_lower = (c as std::ffi::c_int >= 'a' as i32 && c as std::ffi::c_int <= 'z' as i32)
+            as std::ffi::c_int as lbool;
     }
-    if optflag & !(0o100 as std::ffi::c_int) != 1 as std::ffi::c_int
-        || opt_has_param(curropt) == 0
+    if optflag & !(0o100 as std::ffi::c_int) != 1 as std::ffi::c_int || opt_has_param(curropt) == 0
     {
         toggle_option(
             curropt,
@@ -721,8 +701,7 @@ unsafe extern "C" fn mca_search_char(mut c: std::ffi::c_char) -> std::ffi::c_int
             if c as std::ffi::c_int >= '1' as i32
                 && c as std::ffi::c_int
                     <= '0' as i32
-                        + (16 as std::ffi::c_int - 10 as std::ffi::c_int
-                            - 1 as std::ffi::c_int)
+                        + (16 as std::ffi::c_int - 10 as std::ffi::c_int - 1 as std::ffi::c_int)
             {
                 flag = (1 as std::ffi::c_int)
                     << 17 as std::ffi::c_int + (c as std::ffi::c_int - '0' as i32);
@@ -767,8 +746,10 @@ unsafe extern "C" fn mca_char(mut c: std::ffi::c_char) -> std::ffi::c_int {
             {
                 match editchar(
                     c,
-                    0o1 as std::ffi::c_int | 0o2 as std::ffi::c_int
-                        | 0o4 as std::ffi::c_int | 0o10 as std::ffi::c_int,
+                    0o1 as std::ffi::c_int
+                        | 0o2 as std::ffi::c_int
+                        | 0o4 as std::ffi::c_int
+                        | 0o10 as std::ffi::c_int,
                 ) {
                     101 => return 2 as std::ffi::c_int,
                     100 => {
@@ -822,8 +803,7 @@ unsafe extern "C" fn mca_char(mut c: std::ffi::c_char) -> std::ffi::c_int {
                         | (1 as std::ffi::c_int) << 12 as std::ffi::c_int
                         | (1 as std::ffi::c_int) << 2 as std::ffi::c_int
                         | (1 as std::ffi::c_int) << 15 as std::ffi::c_int
-                        | ((1 as std::ffi::c_int)
-                            << 17 as std::ffi::c_int + 1 as std::ffi::c_int
+                        | ((1 as std::ffi::c_int) << 17 as std::ffi::c_int + 1 as std::ffi::c_int
                             | (1 as std::ffi::c_int)
                                 << 17 as std::ffi::c_int + 2 as std::ffi::c_int
                             | (1 as std::ffi::c_int)
@@ -925,7 +905,8 @@ unsafe extern "C" fn prompt() {
     {
         quit(0 as std::ffi::c_int);
     }
-    if quit_if_one_screen != 0 && entire_file_displayed() as std::ffi::c_uint != 0
+    if quit_if_one_screen != 0
+        && entire_file_displayed() as std::ffi::c_uint != 0
         && ch_getflags() & 0o10 as std::ffi::c_int == 0
         && next_ifile(curr_ifile) == 0 as *mut std::ffi::c_void
     {
@@ -944,14 +925,12 @@ unsafe extern "C" fn prompt() {
     if search_wrapped as u64 != 0 {
         if search_type & (1 as std::ffi::c_int) << 1 as std::ffi::c_int != 0 {
             error(
-                b"Search hit top; continuing at bottom\0" as *const u8
-                    as *const std::ffi::c_char,
+                b"Search hit top; continuing at bottom\0" as *const u8 as *const std::ffi::c_char,
                 0 as *mut std::ffi::c_void as *mut PARG,
             );
         } else {
             error(
-                b"Search hit bottom; continuing at top\0" as *const u8
-                    as *const std::ffi::c_char,
+                b"Search hit bottom; continuing at top\0" as *const u8 as *const std::ffi::c_char,
                 0 as *mut std::ffi::c_void as *mut PARG,
             );
         }
@@ -962,7 +941,10 @@ unsafe extern "C" fn prompt() {
             p_string: 0 as *const std::ffi::c_char,
         };
         parg.p_string = osc8_uri;
-        error(b"Link: %s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
+        error(
+            b"Link: %s\0" as *const u8 as *const std::ffi::c_char,
+            &mut parg,
+        );
         free(osc8_uri as *mut std::ffi::c_void);
         osc8_uri = 0 as *mut std::ffi::c_char;
     }
@@ -982,7 +964,10 @@ pub unsafe extern "C" fn dispversion() {
         p_string: 0 as *const std::ffi::c_char,
     };
     parg.p_string = version.as_mut_ptr();
-    error(b"less %s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
+    error(
+        b"less %s\0" as *const u8 as *const std::ffi::c_char,
+        &mut parg,
+    );
 }
 unsafe extern "C" fn getcc_end_command() -> std::ffi::c_char {
     let mut ch: std::ffi::c_int = 0;
@@ -1038,14 +1023,13 @@ unsafe extern "C" fn getccu() -> std::ffi::c_char {
 unsafe extern "C" fn getcc_repl(
     mut orig: *const std::ffi::c_char,
     mut repl: *const std::ffi::c_char,
-    mut gr_getc: Option::<unsafe extern "C" fn() -> std::ffi::c_char>,
-    mut gr_ungetc: Option::<unsafe extern "C" fn(std::ffi::c_char) -> ()>,
+    mut gr_getc: Option<unsafe extern "C" fn() -> std::ffi::c_char>,
+    mut gr_ungetc: Option<unsafe extern "C" fn(std::ffi::c_char) -> ()>,
 ) -> std::ffi::c_char {
     let mut c: std::ffi::c_char = 0;
     let mut keys: [std::ffi::c_char; 16] = [0; 16];
     let mut ki: size_t = 0 as std::ffi::c_int as size_t;
-    c = (Some(gr_getc.expect("non-null function pointer")))
-        .expect("non-null function pointer")();
+    c = (Some(gr_getc.expect("non-null function pointer"))).expect("non-null function pointer")();
     if orig.is_null()
         || *orig.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32
     {
@@ -1055,8 +1039,7 @@ unsafe extern "C" fn getcc_repl(
         keys[ki as usize] = c;
         if c as std::ffi::c_int != *orig.offset(ki as isize) as std::ffi::c_int
             || ki
-                >= (::core::mem::size_of::<[std::ffi::c_char; 16]>()
-                    as std::ffi::c_ulong)
+                >= (::core::mem::size_of::<[std::ffi::c_char; 16]>() as std::ffi::c_ulong)
                     .wrapping_sub(1 as std::ffi::c_int as std::ffi::c_ulong)
         {
             while ki > 0 as std::ffi::c_int as size_t {
@@ -1074,13 +1057,15 @@ unsafe extern "C" fn getcc_repl(
                 let fresh1 = ki;
                 ki = ki.wrapping_sub(1);
                 (Some(gr_ungetc.expect("non-null function pointer")))
-                    .expect("non-null function pointer")(*repl.offset(fresh1 as isize));
+                    .expect("non-null function pointer")(
+                    *repl.offset(fresh1 as isize)
+                );
             }
             return *repl.offset(0 as std::ffi::c_int as isize);
         }
-        c = (Some(gr_getc.expect("non-null function pointer")))
-            .expect("non-null function pointer")();
-    };
+        c = (Some(gr_getc.expect("non-null function pointer"))).expect("non-null function pointer")(
+        );
+    }
 }
 #[no_mangle]
 pub unsafe extern "C" fn getcc() -> std::ffi::c_char {
@@ -1154,7 +1139,8 @@ unsafe extern "C" fn multi_search(
     save_ifile = save_curr_ifile();
     if search_type
         & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
-            | (1 as std::ffi::c_int) << 1 as std::ffi::c_int) == 0 as std::ffi::c_int
+            | (1 as std::ffi::c_int) << 1 as std::ffi::c_int)
+        == 0 as std::ffi::c_int
     {
         search_type |= (1 as std::ffi::c_int) << 0 as std::ffi::c_int;
     }
@@ -1182,8 +1168,7 @@ unsafe extern "C" fn multi_search(
         if n < 0 as std::ffi::c_int {
             break;
         } else {
-            if search_type & (1 as std::ffi::c_int) << 9 as std::ffi::c_int
-                == 0 as std::ffi::c_int
+            if search_type & (1 as std::ffi::c_int) << 9 as std::ffi::c_int == 0 as std::ffi::c_int
             {
                 break;
             }
@@ -1239,7 +1224,8 @@ unsafe extern "C" fn forw_loop(mut until_hilite: std::ffi::c_int) -> std::ffi::c
         && sigs
             & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                 | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) == 0
+                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+            == 0
     {
         return if until_hilite != 0 {
             56 as std::ffi::c_int
@@ -1347,10 +1333,7 @@ pub unsafe extern "C" fn commands() {
                         action = fcmd_decode(cbuf, &mut extra);
                     }
                 } else {
-                    let tbuf: [std::ffi::c_char; 2] = [
-                        c,
-                        '\0' as i32 as std::ffi::c_char,
-                    ];
+                    let tbuf: [std::ffi::c_char; 2] = [c, '\0' as i32 as std::ffi::c_char];
                     action = fcmd_decode(tbuf.as_ptr(), &mut extra);
                 }
                 if !extra.is_null() {
@@ -1405,8 +1388,7 @@ pub unsafe extern "C" fn commands() {
                         number = 1 as std::ffi::c_int as LINENUM;
                     }
                     cmd_exec();
-                    if show_attn == 2 as std::ffi::c_int
-                        && number > 1 as std::ffi::c_int as LINENUM
+                    if show_attn == 2 as std::ffi::c_int && number > 1 as std::ffi::c_int as LINENUM
                     {
                         set_attnpos(bottompos);
                     }
@@ -1414,8 +1396,8 @@ pub unsafe extern "C" fn commands() {
                         number as std::ffi::c_int,
                         LFALSE,
                         LFALSE,
-                        (action == 60 as std::ffi::c_int && chopline == 0)
-                            as std::ffi::c_int as lbool,
+                        (action == 60 as std::ffi::c_int && chopline == 0) as std::ffi::c_int
+                            as lbool,
                     );
                     continue 's_39;
                 }
@@ -1428,8 +1410,8 @@ pub unsafe extern "C" fn commands() {
                         number as std::ffi::c_int,
                         LFALSE,
                         LFALSE,
-                        (action == 61 as std::ffi::c_int && chopline == 0)
-                            as std::ffi::c_int as lbool,
+                        (action == 61 as std::ffi::c_int && chopline == 0) as std::ffi::c_int
+                            as lbool,
                     );
                     continue 's_39;
                 }
@@ -1448,8 +1430,7 @@ pub unsafe extern "C" fn commands() {
                         number = 1 as std::ffi::c_int as LINENUM;
                     }
                     cmd_exec();
-                    if show_attn == 2 as std::ffi::c_int
-                        && number > 1 as std::ffi::c_int as LINENUM
+                    if show_attn == 2 as std::ffi::c_int && number > 1 as std::ffi::c_int as LINENUM
                     {
                         set_attnpos(bottompos);
                     }
@@ -1608,8 +1589,7 @@ pub unsafe extern "C" fn commands() {
                     }
                 }
                 15 => {
-                    search_type = (1 as std::ffi::c_int) << 0 as std::ffi::c_int
-                        | def_search_type;
+                    search_type = (1 as std::ffi::c_int) << 0 as std::ffi::c_int | def_search_type;
                     if number <= 0 as std::ffi::c_int as LINENUM {
                         number = 1 as std::ffi::c_int as LINENUM;
                     }
@@ -1618,8 +1598,7 @@ pub unsafe extern "C" fn commands() {
                     c = getcc();
                 }
                 5 => {
-                    search_type = (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                        | def_search_type;
+                    search_type = (1 as std::ffi::c_int) << 1 as std::ffi::c_int | def_search_type;
                     if number <= 0 as std::ffi::c_int as LINENUM {
                         number = 1 as std::ffi::c_int as LINENUM;
                     }
@@ -1652,8 +1631,7 @@ pub unsafe extern "C" fn commands() {
                     continue 's_39;
                 }
                 73 => {
-                    if secure_allow((1 as std::ffi::c_int) << 12 as std::ffi::c_int) != 0
-                    {
+                    if secure_allow((1 as std::ffi::c_int) << 12 as std::ffi::c_int) != 0 {
                         current_block = 6662862405959679103;
                         break;
                     } else {
@@ -1688,8 +1666,7 @@ pub unsafe extern "C" fn commands() {
                     continue 's_39;
                 }
                 44 => {
-                    search_type = last_search_type
-                        | (1 as std::ffi::c_int) << 9 as std::ffi::c_int;
+                    search_type = last_search_type | (1 as std::ffi::c_int) << 9 as std::ffi::c_int;
                     if number <= 0 as std::ffi::c_int as LINENUM {
                         number = 1 as std::ffi::c_int as LINENUM;
                     }
@@ -1705,15 +1682,14 @@ pub unsafe extern "C" fn commands() {
                 45 => {
                     search_type = last_search_type;
                     save_search_type = search_type;
-                    search_type = if search_type
-                        & (1 as std::ffi::c_int) << 0 as std::ffi::c_int != 0
-                    {
-                        search_type & !((1 as std::ffi::c_int) << 0 as std::ffi::c_int)
-                            | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    } else {
-                        search_type & !((1 as std::ffi::c_int) << 1 as std::ffi::c_int)
-                            | (1 as std::ffi::c_int) << 0 as std::ffi::c_int
-                    };
+                    search_type =
+                        if search_type & (1 as std::ffi::c_int) << 0 as std::ffi::c_int != 0 {
+                            search_type & !((1 as std::ffi::c_int) << 0 as std::ffi::c_int)
+                                | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
+                        } else {
+                            search_type & !((1 as std::ffi::c_int) << 1 as std::ffi::c_int)
+                                | (1 as std::ffi::c_int) << 0 as std::ffi::c_int
+                        };
                     if number <= 0 as std::ffi::c_int as LINENUM {
                         number = 1 as std::ffi::c_int as LINENUM;
                     }
@@ -1730,15 +1706,14 @@ pub unsafe extern "C" fn commands() {
                 46 => {
                     search_type = last_search_type;
                     save_search_type = search_type;
-                    search_type = (if search_type
-                        & (1 as std::ffi::c_int) << 0 as std::ffi::c_int != 0
-                    {
-                        search_type & !((1 as std::ffi::c_int) << 0 as std::ffi::c_int)
-                            | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    } else {
-                        search_type & !((1 as std::ffi::c_int) << 1 as std::ffi::c_int)
-                            | (1 as std::ffi::c_int) << 0 as std::ffi::c_int
-                    }) | (1 as std::ffi::c_int) << 9 as std::ffi::c_int;
+                    search_type =
+                        (if search_type & (1 as std::ffi::c_int) << 0 as std::ffi::c_int != 0 {
+                            search_type & !((1 as std::ffi::c_int) << 0 as std::ffi::c_int)
+                                | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
+                        } else {
+                            search_type & !((1 as std::ffi::c_int) << 1 as std::ffi::c_int)
+                                | (1 as std::ffi::c_int) << 0 as std::ffi::c_int
+                        }) | (1 as std::ffi::c_int) << 9 as std::ffi::c_int;
                     if number <= 0 as std::ffi::c_int as LINENUM {
                         number = 1 as std::ffi::c_int as LINENUM;
                     }
@@ -1753,9 +1728,7 @@ pub unsafe extern "C" fn commands() {
                     continue 's_39;
                 }
                 39 | 70 => {
-                    undo_search(
-                        (action == 70 as std::ffi::c_int) as std::ffi::c_int as lbool,
-                    );
+                    undo_search((action == 70 as std::ffi::c_int) as std::ffi::c_int as lbool);
                     continue 's_39;
                 }
                 19 => {
@@ -1769,15 +1742,11 @@ pub unsafe extern "C" fn commands() {
                     bs_mode = 0 as std::ffi::c_int;
                     save_proc_backspace = proc_backspace;
                     proc_backspace = 0 as std::ffi::c_int;
-                    edit(
-                        b"@/\\less/\\help/\\file/\\@\0" as *const u8
-                            as *const std::ffi::c_char,
-                    );
+                    edit(b"@/\\less/\\help/\\file/\\@\0" as *const u8 as *const std::ffi::c_char);
                     continue 's_39;
                 }
                 9 => {
-                    if secure_allow((1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
-                    {
+                    if secure_allow((1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0 {
                         start_mca(
                             9 as std::ffi::c_int,
                             b"Examine: \0" as *const u8 as *const std::ffi::c_char,
@@ -1787,16 +1756,14 @@ pub unsafe extern "C" fn commands() {
                         c = getcc();
                     } else {
                         error(
-                            b"Command not available\0" as *const u8
-                                as *const std::ffi::c_char,
+                            b"Command not available\0" as *const u8 as *const std::ffi::c_char,
                             0 as *mut std::ffi::c_void as *mut PARG,
                         );
                         continue 's_39;
                     }
                 }
                 32 => {
-                    if secure_allow((1 as std::ffi::c_int) << 1 as std::ffi::c_int) != 0
-                    {
+                    if secure_allow((1 as std::ffi::c_int) << 1 as std::ffi::c_int) != 0 {
                         current_block = 16718638665978159145;
                         break;
                     } else {
@@ -1904,8 +1871,7 @@ pub unsafe extern "C" fn commands() {
                     c = getcc();
                 }
                 27 | 69 => {
-                    if secure_allow((1 as std::ffi::c_int) << 9 as std::ffi::c_int) != 0
-                    {
+                    if secure_allow((1 as std::ffi::c_int) << 9 as std::ffi::c_int) != 0 {
                         start_mca(
                             action,
                             if action == 27 as std::ffi::c_int {
@@ -1919,8 +1885,7 @@ pub unsafe extern "C" fn commands() {
                         c = getcc();
                     } else {
                         error(
-                            b"Command not available\0" as *const u8
-                                as *const std::ffi::c_char,
+                            b"Command not available\0" as *const u8 as *const std::ffi::c_char,
                             0 as *mut std::ffi::c_void as *mut PARG,
                         );
                         continue 's_39;
@@ -1970,8 +1935,7 @@ pub unsafe extern "C" fn commands() {
                     continue 's_39;
                 }
                 37 => {
-                    if secure_allow((1 as std::ffi::c_int) << 8 as std::ffi::c_int) != 0
-                    {
+                    if secure_allow((1 as std::ffi::c_int) << 8 as std::ffi::c_int) != 0 {
                         start_mca(
                             37 as std::ffi::c_int,
                             b"|mark: \0" as *const u8 as *const std::ffi::c_char,
@@ -1998,8 +1962,7 @@ pub unsafe extern "C" fn commands() {
                         c = getcc();
                     } else {
                         error(
-                            b"Command not available\0" as *const u8
-                                as *const std::ffi::c_char,
+                            b"Command not available\0" as *const u8 as *const std::ffi::c_char,
                             0 as *mut std::ffi::c_void as *mut PARG,
                         );
                         continue 's_39;
@@ -2092,8 +2055,7 @@ pub unsafe extern "C" fn commands() {
                 ) == 0 as std::ffi::c_int
                 {
                     error(
-                        b"Cannot edit standard input\0" as *const u8
-                            as *const std::ffi::c_char,
+                        b"Cannot edit standard input\0" as *const u8 as *const std::ffi::c_char,
                         0 as *mut std::ffi::c_void as *mut PARG,
                     );
                     continue;
@@ -2162,8 +2124,7 @@ pub unsafe extern "C" fn commands() {
                     {
                         quit(0 as std::ffi::c_int);
                     }
-                    parg
-                        .p_string = if number > 1 as std::ffi::c_int as LINENUM {
+                    parg.p_string = if number > 1 as std::ffi::c_int as LINENUM {
                         b"(N-th) \0" as *const u8 as *const std::ffi::c_char
                     } else {
                         b"\0" as *const u8 as *const std::ffi::c_char
@@ -2205,8 +2166,7 @@ pub unsafe extern "C" fn commands() {
                 }
                 cmd_exec();
                 if edit_prev(number as std::ffi::c_int) != 0 {
-                    parg
-                        .p_string = if number > 1 as std::ffi::c_int as LINENUM {
+                    parg.p_string = if number > 1 as std::ffi::c_int as LINENUM {
                         b"(N-th) \0" as *const u8 as *const std::ffi::c_char
                     } else {
                         b"\0" as *const u8 as *const std::ffi::c_char
@@ -2309,5 +2269,5 @@ pub unsafe extern "C" fn commands() {
             quit(*extra as std::ffi::c_int);
         }
         quit(0 as std::ffi::c_int);
-    };
+    }
 }

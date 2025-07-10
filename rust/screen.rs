@@ -1,10 +1,6 @@
 use ::libc;
 extern "C" {
-    fn sprintf(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-        _: ...
-    ) -> std::ffi::c_int;
+    fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
     fn snprintf(
         _: *mut std::ffi::c_char,
         _: std::ffi::c_ulong,
@@ -22,16 +18,10 @@ extern "C" {
         _: *const std::ffi::c_void,
         _: std::ffi::c_ulong,
     ) -> *mut std::ffi::c_void;
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
     fn strchr(_: *const std::ffi::c_char, _: std::ffi::c_int) -> *mut std::ffi::c_char;
-    fn strstr(
-        _: *const std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strstr(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
     fn lstrtoic(
         _: *const std::ffi::c_char,
@@ -52,11 +42,7 @@ extern "C" {
     fn clear_bot_if_needed();
     fn putstr(s: *const std::ffi::c_char);
     fn pos_init();
-    fn ioctl(
-        __fd: std::ffi::c_int,
-        __request: std::ffi::c_ulong,
-        _: ...
-    ) -> std::ffi::c_int;
+    fn ioctl(__fd: std::ffi::c_int, __request: std::ffi::c_ulong, _: ...) -> std::ffi::c_int;
     fn cfgetospeed(__termios_p: *const termios) -> speed_t;
     fn tcgetattr(__fd: std::ffi::c_int, __termios_p: *mut termios) -> std::ffi::c_int;
     fn tcsetattr(
@@ -66,10 +52,7 @@ extern "C" {
     ) -> std::ffi::c_int;
     static mut PC: std::ffi::c_char;
     static mut ospeed: std::ffi::c_short;
-    fn tgetstr(
-        _: *const std::ffi::c_char,
-        _: *mut *mut std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn tgetstr(_: *const std::ffi::c_char, _: *mut *mut std::ffi::c_char) -> *mut std::ffi::c_char;
     fn tgoto(
         _: *const std::ffi::c_char,
         _: std::ffi::c_int,
@@ -81,7 +64,7 @@ extern "C" {
     fn tputs(
         _: *const std::ffi::c_char,
         _: std::ffi::c_int,
-        _: Option::<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
+        _: Option<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
     ) -> std::ffi::c_int;
     static mut binattr: std::ffi::c_int;
     static mut one_screen: std::ffi::c_int;
@@ -241,16 +224,18 @@ static mut attrmode: std::ffi::c_int = 0 as std::ffi::c_int;
 static mut termcap_debug: std::ffi::c_int = -(1 as std::ffi::c_int);
 static mut no_alt_screen: std::ffi::c_int = 0;
 unsafe extern "C" fn set_termio_flags(mut s: *mut termios) {
-    (*s).c_lflag
-        &= !(0 as std::ffi::c_int | 0o2 as std::ffi::c_int | 0o10 as std::ffi::c_int
-            | 0o20 as std::ffi::c_int | 0o40 as std::ffi::c_int
-            | 0o100 as std::ffi::c_int) as tcflag_t;
-    (*s).c_oflag
-        |= (0 as std::ffi::c_int | 0o1 as std::ffi::c_int | 0o4 as std::ffi::c_int)
-            as tcflag_t;
-    (*s).c_oflag
-        &= !(0 as std::ffi::c_int | 0o10 as std::ffi::c_int | 0o20 as std::ffi::c_int
-            | 0o40 as std::ffi::c_int) as tcflag_t;
+    (*s).c_lflag &= !(0 as std::ffi::c_int
+        | 0o2 as std::ffi::c_int
+        | 0o10 as std::ffi::c_int
+        | 0o20 as std::ffi::c_int
+        | 0o40 as std::ffi::c_int
+        | 0o100 as std::ffi::c_int) as tcflag_t;
+    (*s).c_oflag |=
+        (0 as std::ffi::c_int | 0o1 as std::ffi::c_int | 0o4 as std::ffi::c_int) as tcflag_t;
+    (*s).c_oflag &= !(0 as std::ffi::c_int
+        | 0o10 as std::ffi::c_int
+        | 0o20 as std::ffi::c_int
+        | 0o40 as std::ffi::c_int) as tcflag_t;
 }
 #[no_mangle]
 pub unsafe extern "C" fn raw_mode(mut on: std::ffi::c_int) {
@@ -366,9 +351,7 @@ pub unsafe extern "C" fn raw_mode(mut on: std::ffi::c_int) {
     curr_on = on;
 }
 static mut hardcopy: std::ffi::c_int = 0;
-unsafe extern "C" fn ltget_env(
-    mut capname: *const std::ffi::c_char,
-) -> *const std::ffi::c_char {
+unsafe extern "C" fn ltget_env(mut capname: *const std::ffi::c_char) -> *const std::ffi::c_char {
     let mut name: [std::ffi::c_char; 64] = [0; 64];
     if termcap_debug != 0 {
         static mut envs: *mut env = 0 as *const env as *mut env;
@@ -385,12 +368,15 @@ unsafe extern "C" fn ltget_env(
             ::core::mem::size_of::<env>() as std::ffi::c_ulong,
         ) as *mut env;
         (*p).name = save(capname);
-        (*p)
-            .value = ecalloc(
+        (*p).value = ecalloc(
             (strlen(capname)).wrapping_add(3 as std::ffi::c_int as std::ffi::c_ulong),
             ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
         ) as *mut std::ffi::c_char;
-        sprintf((*p).value, b"<%s>\0" as *const u8 as *const std::ffi::c_char, capname);
+        sprintf(
+            (*p).value,
+            b"<%s>\0" as *const u8 as *const std::ffi::c_char,
+            capname,
+        );
         (*p).next = envs;
         envs = p;
         return (*p).value;
@@ -407,8 +393,8 @@ unsafe extern "C" fn ltgetflag(mut capname: *const std::ffi::c_char) -> std::ffi
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     s = ltget_env(capname);
     if !s.is_null() {
-        return (*s as std::ffi::c_int != '\0' as i32
-            && *s as std::ffi::c_int != '0' as i32) as std::ffi::c_int;
+        return (*s as std::ffi::c_int != '\0' as i32 && *s as std::ffi::c_int != '0' as i32)
+            as std::ffi::c_int;
     }
     if hardcopy != 0 {
         return 0 as std::ffi::c_int;
@@ -508,7 +494,11 @@ unsafe extern "C" fn scrsize() {
     s = lgetenv(b"LESS_COLUMNS\0" as *const u8 as *const std::ffi::c_char);
     if !s.is_null() {
         let mut width: std::ffi::c_int = atoi(s);
-        sc_width = if width < 0 as std::ffi::c_int { sc_width + width } else { width };
+        sc_width = if width < 0 as std::ffi::c_int {
+            sc_width + width
+        } else {
+            width
+        };
     }
     if sc_width <= 0 as std::ffi::c_int {
         sc_width = 80 as std::ffi::c_int;
@@ -522,9 +512,7 @@ pub unsafe extern "C" fn screen_size_changed() {
     calc_match_shift();
 }
 #[no_mangle]
-pub unsafe extern "C" fn special_key_str(
-    mut key: std::ffi::c_int,
-) -> *const std::ffi::c_char {
+pub unsafe extern "C" fn special_key_str(mut key: std::ffi::c_int) -> *const std::ffi::c_char {
     static mut tbuf: [std::ffi::c_char; 40] = [0; 40];
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut sp: *mut std::ffi::c_char = tbuf.as_mut_ptr();
@@ -556,8 +544,7 @@ pub unsafe extern "C" fn special_key_str(
         9 => {
             s = ltgetstr(b"kD\0" as *const u8 as *const std::ffi::c_char, &mut sp);
             if s.is_null() {
-                tbuf[0 as std::ffi::c_int
-                    as usize] = '\u{7f}' as i32 as std::ffi::c_char;
+                tbuf[0 as std::ffi::c_int as usize] = '\u{7f}' as i32 as std::ffi::c_char;
                 tbuf[1 as std::ffi::c_int as usize] = '\0' as i32 as std::ffi::c_char;
                 s = tbuf.as_mut_ptr();
             }
@@ -571,8 +558,8 @@ pub unsafe extern "C" fn special_key_str(
             }
         }
         40 => {
-            tbuf[0 as std::ffi::c_int
-                as usize] = ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_char;
+            tbuf[0 as std::ffi::c_int as usize] =
+                ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_char;
             tbuf[1 as std::ffi::c_int as usize] = '\0' as i32 as std::ffi::c_char;
             s = tbuf.as_mut_ptr();
         }
@@ -582,9 +569,10 @@ pub unsafe extern "C" fn special_key_str(
 }
 #[no_mangle]
 pub unsafe extern "C" fn get_term() {
-    termcap_debug = (isnullenv(
-        lgetenv(b"LESS_TERMCAP_DEBUG\0" as *const u8 as *const std::ffi::c_char),
-    ) as u64 == 0) as std::ffi::c_int;
+    termcap_debug = (isnullenv(lgetenv(
+        b"LESS_TERMCAP_DEBUG\0" as *const u8 as *const std::ffi::c_char,
+    )) as u64
+        == 0) as std::ffi::c_int;
     let mut sp: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut t1: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut t2: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
@@ -643,16 +631,16 @@ pub unsafe extern "C" fn get_term() {
         &mut sp,
     );
     if sc_s_mousecap.is_null() {
-        sc_s_mousecap = b"\x1B[?1000h\x1B[?1002h\x1B[?1006h\0" as *const u8
-            as *const std::ffi::c_char;
+        sc_s_mousecap =
+            b"\x1B[?1000h\x1B[?1002h\x1B[?1006h\0" as *const u8 as *const std::ffi::c_char;
     }
     sc_e_mousecap = ltgetstr(
         b"MOUSE_END\0" as *const u8 as *const std::ffi::c_char,
         &mut sp,
     );
     if sc_e_mousecap.is_null() {
-        sc_e_mousecap = b"\x1B[?1006l\x1B[?1002l\x1B[?1000l\0" as *const u8
-            as *const std::ffi::c_char;
+        sc_e_mousecap =
+            b"\x1B[?1006l\x1B[?1002l\x1B[?1000l\0" as *const u8 as *const std::ffi::c_char;
     }
     sc_s_bracketed_paste = ltgetstr(
         b"BRACKETED_PASTE_START\0" as *const u8 as *const std::ffi::c_char,
@@ -682,8 +670,7 @@ pub unsafe extern "C" fn get_term() {
         sc_eol_clear = b"\0" as *const u8 as *const std::ffi::c_char;
     }
     sc_eos_clear = ltgetstr(b"cd\0" as *const u8 as *const std::ffi::c_char, &mut sp);
-    if below_mem != 0
-        && (sc_eos_clear.is_null() || *sc_eos_clear as std::ffi::c_int == '\0' as i32)
+    if below_mem != 0 && (sc_eos_clear.is_null() || *sc_eos_clear as std::ffi::c_int == '\0' as i32)
     {
         missing_cap = LTRUE;
         sc_eos_clear = b"\0" as *const u8 as *const std::ffi::c_char;
@@ -743,10 +730,7 @@ pub unsafe extern "C" fn get_term() {
     if ltgetflag(b"bs\0" as *const u8 as *const std::ffi::c_char) != 0 {
         sc_backspace = b"\x08\0" as *const u8 as *const std::ffi::c_char;
     } else {
-        sc_backspace = ltgetstr(
-            b"bc\0" as *const u8 as *const std::ffi::c_char,
-            &mut sp,
-        );
+        sc_backspace = ltgetstr(b"bc\0" as *const u8 as *const std::ffi::c_char, &mut sp);
         if sc_backspace.is_null() || *sc_backspace as std::ffi::c_int == '\0' as i32 {
             sc_backspace = b"\x08\0" as *const u8 as *const std::ffi::c_char;
         }
@@ -758,13 +742,13 @@ pub unsafe extern "C" fn get_term() {
     if *sc_move as std::ffi::c_int == '\0' as i32 {
         t2 = b"\0" as *const u8 as *const std::ffi::c_char;
     } else {
-        strcpy(sp, tgoto(sc_move, 0 as std::ffi::c_int, 0 as std::ffi::c_int));
+        strcpy(
+            sp,
+            tgoto(sc_move, 0 as std::ffi::c_int, 0 as std::ffi::c_int),
+        );
         t2 = sp;
         sp = sp
-            .offset(
-                (strlen(sp)).wrapping_add(1 as std::ffi::c_int as std::ffi::c_ulong)
-                    as isize,
-            );
+            .offset((strlen(sp)).wrapping_add(1 as std::ffi::c_int as std::ffi::c_ulong) as isize);
     }
     sc_home = cheaper(t1, t2, b"|\x08^\0" as *const u8 as *const std::ffi::c_char);
     t1 = ltgetstr(b"ll\0" as *const u8 as *const std::ffi::c_char, &mut sp);
@@ -776,14 +760,15 @@ pub unsafe extern "C" fn get_term() {
     } else {
         strcpy(
             sp,
-            tgoto(sc_move, 0 as std::ffi::c_int, sc_height - 1 as std::ffi::c_int),
+            tgoto(
+                sc_move,
+                0 as std::ffi::c_int,
+                sc_height - 1 as std::ffi::c_int,
+            ),
         );
         t2 = sp;
         sp = sp
-            .offset(
-                (strlen(sp)).wrapping_add(1 as std::ffi::c_int as std::ffi::c_ulong)
-                    as isize,
-            );
+            .offset((strlen(sp)).wrapping_add(1 as std::ffi::c_int as std::ffi::c_ulong) as isize);
     }
     sc_lower_left = cheaper(t1, t2, b"\r\0" as *const u8 as *const std::ffi::c_char);
     sc_return = ltgetstr(b"cr\0" as *const u8 as *const std::ffi::c_char, &mut sp);
@@ -808,9 +793,8 @@ pub unsafe extern "C" fn get_term() {
     if *sc_addline as std::ffi::c_int == '\0' as i32 {
         no_back_scroll = 1 as std::ffi::c_int;
     }
-    let mut env: *const std::ffi::c_char = lgetenv(
-        b"LESS_SHELL_LINES\0" as *const u8 as *const std::ffi::c_char,
-    );
+    let mut env: *const std::ffi::c_char =
+        lgetenv(b"LESS_SHELL_LINES\0" as *const u8 as *const std::ffi::c_char);
     shell_lines = if isnullenv(env) as std::ffi::c_uint != 0 {
         1 as std::ffi::c_int
     } else {
@@ -823,7 +807,6 @@ pub unsafe extern "C" fn get_term() {
 static mut costcount: std::ffi::c_int = 0;
 unsafe extern "C" fn inc_costcount(mut c: std::ffi::c_int) -> std::ffi::c_int {
     costcount += 1;
-    costcount;
     return c;
 }
 unsafe extern "C" fn cost(mut t: *const std::ffi::c_char) -> std::ffi::c_int {
@@ -881,26 +864,22 @@ unsafe extern "C" fn tmodes(
 unsafe extern "C" fn do_tputs(
     mut str: *const std::ffi::c_char,
     mut affcnt: std::ffi::c_int,
-    mut f_putc: Option::<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
+    mut f_putc: Option<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
 ) {
     tputs(str, affcnt, f_putc);
 }
 unsafe extern "C" fn ltputs(
     mut str: *const std::ffi::c_char,
     mut affcnt: std::ffi::c_int,
-    mut f_putc: Option::<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
+    mut f_putc: Option<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
 ) {
     while !str.is_null() && *str as std::ffi::c_int != '\0' as i32 {
-        let mut obrac: *const std::ffi::c_char = strstr(
-            str,
-            b"$<\0" as *const u8 as *const std::ffi::c_char,
-        );
+        let mut obrac: *const std::ffi::c_char =
+            strstr(str, b"$<\0" as *const u8 as *const std::ffi::c_char);
         if !obrac.is_null() {
             let mut str2: [std::ffi::c_char; 64] = [0; 64];
             let mut slen: size_t = obrac.offset_from(str) as std::ffi::c_long as size_t;
-            if slen
-                < ::core::mem::size_of::<[std::ffi::c_char; 64]>() as std::ffi::c_ulong
-            {
+            if slen < ::core::mem::size_of::<[std::ffi::c_char; 64]>() as std::ffi::c_ulong {
                 let mut delay: std::ffi::c_int = 0;
                 memcpy(
                     str2.as_mut_ptr() as *mut std::ffi::c_void,
@@ -909,8 +888,7 @@ unsafe extern "C" fn ltputs(
                 );
                 str2[slen as usize] = '\0' as i32 as std::ffi::c_char;
                 do_tputs(str2.as_mut_ptr(), affcnt, f_putc);
-                str = str
-                    .offset(slen.wrapping_add(2 as std::ffi::c_int as size_t) as isize);
+                str = str.offset(slen.wrapping_add(2 as std::ffi::c_int as size_t) as isize);
                 delay = lstrtoic(str, &mut str, 10 as std::ffi::c_int);
                 if *str as std::ffi::c_int == '*' as i32 {
                     let (fresh0, fresh1) = delay.overflowing_mul(affcnt);
@@ -924,7 +902,6 @@ unsafe extern "C" fn ltputs(
                 str = strstr(str, b">\0" as *const u8 as *const std::ffi::c_char);
                 if !str.is_null() {
                     str = str.offset(1);
-                    str;
                 }
                 continue;
             }
@@ -960,7 +937,8 @@ pub unsafe extern "C" fn init() {
                 Some(putchr as unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int),
             );
             if *sc_init as std::ffi::c_int != '\0' as i32
-                && *sc_deinit as std::ffi::c_int != '\0' as i32 && no_alt_screen == 0
+                && *sc_deinit as std::ffi::c_int != '\0' as i32
+                && no_alt_screen == 0
             {
                 lower_left();
             }
@@ -987,7 +965,6 @@ pub unsafe extern "C" fn init() {
         while i < sc_height {
             putchr('\n' as i32);
             i += 1;
-            i;
         }
     } else {
         line_left();
@@ -1178,39 +1155,42 @@ unsafe extern "C" fn parse_color4(mut ch: std::ffi::c_char) -> std::ffi::c_int {
         109 => return CV_RED as std::ffi::c_int | CV_BLUE as std::ffi::c_int,
         99 => return CV_GREEN as std::ffi::c_int | CV_BLUE as std::ffi::c_int,
         119 => {
-            return CV_RED as std::ffi::c_int | CV_GREEN as std::ffi::c_int
+            return CV_RED as std::ffi::c_int
+                | CV_GREEN as std::ffi::c_int
                 | CV_BLUE as std::ffi::c_int;
         }
         75 => return 0 as std::ffi::c_int | CV_BRIGHT as std::ffi::c_int,
         82 => return CV_RED as std::ffi::c_int | CV_BRIGHT as std::ffi::c_int,
         71 => return CV_GREEN as std::ffi::c_int | CV_BRIGHT as std::ffi::c_int,
         89 => {
-            return CV_RED as std::ffi::c_int | CV_GREEN as std::ffi::c_int
+            return CV_RED as std::ffi::c_int
+                | CV_GREEN as std::ffi::c_int
                 | CV_BRIGHT as std::ffi::c_int;
         }
         66 => return CV_BLUE as std::ffi::c_int | CV_BRIGHT as std::ffi::c_int,
         77 => {
-            return CV_RED as std::ffi::c_int | CV_BLUE as std::ffi::c_int
+            return CV_RED as std::ffi::c_int
+                | CV_BLUE as std::ffi::c_int
                 | CV_BRIGHT as std::ffi::c_int;
         }
         67 => {
-            return CV_GREEN as std::ffi::c_int | CV_BLUE as std::ffi::c_int
+            return CV_GREEN as std::ffi::c_int
+                | CV_BLUE as std::ffi::c_int
                 | CV_BRIGHT as std::ffi::c_int;
         }
         87 => {
-            return CV_RED as std::ffi::c_int | CV_GREEN as std::ffi::c_int
-                | CV_BLUE as std::ffi::c_int | CV_BRIGHT as std::ffi::c_int;
+            return CV_RED as std::ffi::c_int
+                | CV_GREEN as std::ffi::c_int
+                | CV_BLUE as std::ffi::c_int
+                | CV_BRIGHT as std::ffi::c_int;
         }
         45 => return CV_NOCHANGE as std::ffi::c_int,
         _ => return CV_ERROR as std::ffi::c_int,
     };
 }
-unsafe extern "C" fn parse_color6(
-    mut ps: *mut *const std::ffi::c_char,
-) -> std::ffi::c_int {
+unsafe extern "C" fn parse_color6(mut ps: *mut *const std::ffi::c_char) -> std::ffi::c_int {
     if **ps as std::ffi::c_int == '-' as i32 {
         *ps = (*ps).offset(1);
-        *ps;
         return CV_NOCHANGE as std::ffi::c_int;
     } else {
         let mut os: *const std::ffi::c_char = *ps;
@@ -1237,7 +1217,6 @@ pub unsafe extern "C" fn parse_color(
     }
     if *str as std::ffi::c_int == '+' as i32 {
         str = str.offset(1);
-        str;
     }
     fg = parse_color4(*str);
     if fg != CV_ERROR as std::ffi::c_int {
@@ -1246,11 +1225,10 @@ pub unsafe extern "C" fn parse_color(
                 b"*~_&dsul\0" as *const u8 as *const std::ffi::c_char,
                 *str.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int,
             ))
-                .is_null()
+            .is_null()
         {
             bg = CV_NOCHANGE as std::ffi::c_int;
             str = str.offset(1);
-            str;
         } else {
             bg = parse_color4(*str.offset(1 as std::ffi::c_int as isize));
             if bg != CV_ERROR as std::ffi::c_int {
@@ -1271,7 +1249,6 @@ pub unsafe extern "C" fn parse_color(
                 bg = CV_NOCHANGE as std::ffi::c_int;
             } else {
                 str = str.offset(1);
-                str;
                 bg = parse_color6(&mut str);
             }
         }
@@ -1281,52 +1258,32 @@ pub unsafe extern "C" fn parse_color(
     }
     if type_0 as std::ffi::c_uint != CT_NULL as std::ffi::c_int as std::ffi::c_uint {
         loop {
-            if *str as std::ffi::c_int == '*' as i32
-                || *str as std::ffi::c_int == 'd' as i32
-            {
-                cattr = ::core::mem::transmute::<
-                    std::ffi::c_uint,
-                    CHAR_ATTR,
-                >(
-                    cattr as std::ffi::c_uint
-                        | CATTR_BOLD as std::ffi::c_int as std::ffi::c_uint,
+            if *str as std::ffi::c_int == '*' as i32 || *str as std::ffi::c_int == 'd' as i32 {
+                cattr = ::core::mem::transmute::<std::ffi::c_uint, CHAR_ATTR>(
+                    cattr as std::ffi::c_uint | CATTR_BOLD as std::ffi::c_int as std::ffi::c_uint,
                 );
-            } else if *str as std::ffi::c_int == '~' as i32
-                || *str as std::ffi::c_int == 's' as i32
+            } else if *str as std::ffi::c_int == '~' as i32 || *str as std::ffi::c_int == 's' as i32
             {
-                cattr = ::core::mem::transmute::<
-                    std::ffi::c_uint,
-                    CHAR_ATTR,
-                >(
+                cattr = ::core::mem::transmute::<std::ffi::c_uint, CHAR_ATTR>(
                     cattr as std::ffi::c_uint
                         | CATTR_STANDOUT as std::ffi::c_int as std::ffi::c_uint,
                 );
-            } else if *str as std::ffi::c_int == '_' as i32
-                || *str as std::ffi::c_int == 'u' as i32
+            } else if *str as std::ffi::c_int == '_' as i32 || *str as std::ffi::c_int == 'u' as i32
             {
-                cattr = ::core::mem::transmute::<
-                    std::ffi::c_uint,
-                    CHAR_ATTR,
-                >(
+                cattr = ::core::mem::transmute::<std::ffi::c_uint, CHAR_ATTR>(
                     cattr as std::ffi::c_uint
                         | CATTR_UNDERLINE as std::ffi::c_int as std::ffi::c_uint,
                 );
             } else {
-                if !(*str as std::ffi::c_int == '&' as i32
-                    || *str as std::ffi::c_int == 'l' as i32)
+                if !(*str as std::ffi::c_int == '&' as i32 || *str as std::ffi::c_int == 'l' as i32)
                 {
                     break;
                 }
-                cattr = ::core::mem::transmute::<
-                    std::ffi::c_uint,
-                    CHAR_ATTR,
-                >(
-                    cattr as std::ffi::c_uint
-                        | CATTR_BLINK as std::ffi::c_int as std::ffi::c_uint,
+                cattr = ::core::mem::transmute::<std::ffi::c_uint, CHAR_ATTR>(
+                    cattr as std::ffi::c_uint | CATTR_BLINK as std::ffi::c_int as std::ffi::c_uint,
                 );
             }
             str = str.offset(1);
-            str;
         }
         if !p_fg.is_null() {
             *p_fg = fg;
@@ -1364,7 +1321,7 @@ unsafe extern "C" fn sgr_color(mut color: std::ffi::c_int) -> std::ffi::c_int {
 unsafe extern "C" fn tput_fmt(
     mut fmt: *const std::ffi::c_char,
     mut color: std::ffi::c_int,
-    mut f_putc: Option::<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
+    mut f_putc: Option<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
 ) {
     let mut buf: [std::ffi::c_char; 27] = [0; 27];
     if color == attrcolor {
@@ -1381,38 +1338,30 @@ unsafe extern "C" fn tput_fmt(
 }
 unsafe extern "C" fn tput_char_cattr(
     mut cattr: CHAR_ATTR,
-    mut f_putc: Option::<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
+    mut f_putc: Option<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
 ) {
-    if cattr as std::ffi::c_uint & CATTR_UNDERLINE as std::ffi::c_int as std::ffi::c_uint
-        != 0
-    {
+    if cattr as std::ffi::c_uint & CATTR_UNDERLINE as std::ffi::c_int as std::ffi::c_uint != 0 {
         ltputs(sc_u_in, 1 as std::ffi::c_int, f_putc);
     }
-    if cattr as std::ffi::c_uint & CATTR_BOLD as std::ffi::c_int as std::ffi::c_uint != 0
-    {
+    if cattr as std::ffi::c_uint & CATTR_BOLD as std::ffi::c_int as std::ffi::c_uint != 0 {
         ltputs(sc_b_in, 1 as std::ffi::c_int, f_putc);
     }
-    if cattr as std::ffi::c_uint & CATTR_BLINK as std::ffi::c_int as std::ffi::c_uint
-        != 0
-    {
+    if cattr as std::ffi::c_uint & CATTR_BLINK as std::ffi::c_int as std::ffi::c_uint != 0 {
         ltputs(sc_bl_in, 1 as std::ffi::c_int, f_putc);
     }
-    if cattr as std::ffi::c_uint & CATTR_STANDOUT as std::ffi::c_int as std::ffi::c_uint
-        != 0
-    {
+    if cattr as std::ffi::c_uint & CATTR_STANDOUT as std::ffi::c_int as std::ffi::c_uint != 0 {
         ltputs(sc_s_in, 1 as std::ffi::c_int, f_putc);
     }
 }
 unsafe extern "C" fn tput_color(
     mut str: *const std::ffi::c_char,
-    mut f_putc: Option::<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
+    mut f_putc: Option<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
 ) {
     let mut fg: std::ffi::c_int = 0;
     let mut bg: std::ffi::c_int = 0;
     let mut cattr: CHAR_ATTR = CATTR_NULL;
     if !str.is_null()
-        && strcmp(str, b"*\0" as *const u8 as *const std::ffi::c_char)
-            == 0 as std::ffi::c_int
+        && strcmp(str, b"*\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int
     {
         tput_fmt(
             b"\x1B[m\0" as *const u8 as *const std::ffi::c_char,
@@ -1463,24 +1412,23 @@ unsafe extern "C" fn tput_inmode(
     mut mode_str: *const std::ffi::c_char,
     mut attr: std::ffi::c_int,
     mut attr_bit: std::ffi::c_int,
-    mut f_putc: Option::<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
+    mut f_putc: Option<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
 ) {
     let mut color_str: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     if attr & attr_bit == 0 as std::ffi::c_int {
         return;
     }
     color_str = get_color_map(attr_bit);
-    if color_str.is_null() || *color_str as std::ffi::c_int == '\0' as i32
+    if color_str.is_null()
+        || *color_str as std::ffi::c_int == '\0' as i32
         || *color_str as std::ffi::c_int == '+' as i32
     {
         ltputs(mode_str, 1 as std::ffi::c_int, f_putc);
-        if color_str.is_null()
-            || {
-                let fresh2 = color_str;
-                color_str = color_str.offset(1);
-                *fresh2 as std::ffi::c_int != '+' as i32
-            }
-        {
+        if color_str.is_null() || {
+            let fresh2 = color_str;
+            color_str = color_str.offset(1);
+            *fresh2 as std::ffi::c_int != '+' as i32
+        } {
             return;
         }
     }
@@ -1489,7 +1437,7 @@ unsafe extern "C" fn tput_inmode(
 unsafe extern "C" fn tput_outmode(
     mut mode_str: *const std::ffi::c_char,
     mut attr_bit: std::ffi::c_int,
-    mut f_putc: Option::<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
+    mut f_putc: Option<unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int>,
 ) {
     if attrmode & attr_bit == 0 as std::ffi::c_int {
         return;
@@ -1518,8 +1466,7 @@ pub unsafe extern "C" fn at_enter(mut attr: std::ffi::c_int) {
         Some(putchr as unsafe extern "C" fn(std::ffi::c_int) -> std::ffi::c_int),
     );
     if use_color != 0
-        && attr & (16 as std::ffi::c_int - 1 as std::ffi::c_int) << 8 as std::ffi::c_int
-            != 0
+        && attr & (16 as std::ffi::c_int - 1 as std::ffi::c_int) << 8 as std::ffi::c_int != 0
     {
         tput_color(
             get_color_map(attr),
@@ -1566,8 +1513,7 @@ pub unsafe extern "C" fn at_exit() {
 #[no_mangle]
 pub unsafe extern "C" fn at_switch(mut attr: std::ffi::c_int) {
     let mut new_attrmode: std::ffi::c_int = apply_at_specials(attr);
-    let mut ignore_modes: std::ffi::c_int = (1 as std::ffi::c_int)
-        << 4 as std::ffi::c_int;
+    let mut ignore_modes: std::ffi::c_int = (1 as std::ffi::c_int) << 4 as std::ffi::c_int;
     if new_attrmode & !ignore_modes != attrmode & !ignore_modes {
         at_exit();
         at_enter(attr);
@@ -1583,18 +1529,15 @@ pub unsafe extern "C" fn is_at_equiv(
     return (attr1 == attr2) as std::ffi::c_int as lbool;
 }
 #[no_mangle]
-pub unsafe extern "C" fn apply_at_specials(
-    mut attr: std::ffi::c_int,
-) -> std::ffi::c_int {
+pub unsafe extern "C" fn apply_at_specials(mut attr: std::ffi::c_int) -> std::ffi::c_int {
     if attr & (1 as std::ffi::c_int) << 5 as std::ffi::c_int != 0 {
         attr |= binattr;
     }
     if attr & (1 as std::ffi::c_int) << 6 as std::ffi::c_int != 0 {
         attr |= (1 as std::ffi::c_int) << 3 as std::ffi::c_int;
     }
-    attr
-        &= !((1 as std::ffi::c_int) << 5 as std::ffi::c_int
-            | (1 as std::ffi::c_int) << 6 as std::ffi::c_int);
+    attr &= !((1 as std::ffi::c_int) << 5 as std::ffi::c_int
+        | (1 as std::ffi::c_int) << 6 as std::ffi::c_int);
     return attr;
 }
 #[no_mangle]

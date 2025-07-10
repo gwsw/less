@@ -355,7 +355,6 @@ pub unsafe extern "C" fn len_cmdbuf() -> std::ffi::c_int {
     while *s as std::ffi::c_int != '\0' as i32 {
         step_charc(&mut s, 1 as std::ffi::c_int, endline);
         len += 1;
-        len;
     }
     return len;
 }
@@ -610,7 +609,6 @@ unsafe extern "C" fn cmd_ichar(
     while s >= cp {
         *s.offset(clen as isize) = *s.offset(0 as std::ffi::c_int as isize);
         s = s.offset(-1);
-        s;
     }
     s = cp;
     while s < cp.offset(clen as isize) {
@@ -618,7 +616,6 @@ unsafe extern "C" fn cmd_ichar(
         cs = cs.offset(1);
         *s = *fresh3;
         s = s.offset(1);
-        s;
     }
     have_updown_match = LFALSE;
     cmd_repaint(cp);
@@ -641,7 +638,6 @@ unsafe extern "C" fn cmd_erase() -> std::ffi::c_int {
             break;
         }
         s = s.offset(1);
-        s;
     }
     have_updown_match = LFALSE;
     cmd_repaint(cp);
@@ -1029,7 +1025,6 @@ unsafe extern "C" fn delimit_word() -> *mut std::ffi::c_char {
             break;
         }
         word = word.offset(1);
-        word;
     }
     if word >= cp {
         return cp;
@@ -1054,7 +1049,6 @@ unsafe extern "C" fn delimit_word() -> *mut std::ffi::c_char {
             word = p.offset(1 as std::ffi::c_int as isize);
         }
         p = p.offset(1);
-        p;
     }
     return word;
 }
@@ -1285,7 +1279,6 @@ pub unsafe extern "C" fn cmd_int(mut frac: *mut std::ffi::c_long) -> LINENUM {
             return 0 as std::ffi::c_int as LINENUM;
         }
         p = p.offset(1);
-        p;
     }
     *frac = 0 as std::ffi::c_int as std::ffi::c_long;
     let fresh10 = p;
@@ -1314,7 +1307,6 @@ unsafe extern "C" fn mlist_size(mut ml: *mut mlist) -> std::ffi::c_int {
     ml = (*ml).next;
     while !((*ml).string).is_null() {
         size += 1;
-        size;
         ml = (*ml).next;
     }
     return size;
@@ -1447,7 +1439,6 @@ unsafe extern "C" fn read_cmdhist2(
                 break;
             } else {
                 p = p.offset(1);
-                p;
             }
         }
         if strcmp(

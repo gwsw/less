@@ -1,10 +1,7 @@
 use ::libc;
 extern "C" {
     fn free(_: *mut std::ffi::c_void);
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
     fn postoa(_: POSITION, _: *mut std::ffi::c_char, _: std::ffi::c_int);
@@ -60,16 +57,12 @@ pub type less_off_t = off_t;
 pub type POSITION = less_off_t;
 pub type LINENUM = off_t;
 static mut s_proto: [std::ffi::c_char; 52] = unsafe {
-    *::core::mem::transmute::<
-        &[u8; 52],
-        &[std::ffi::c_char; 52],
-    >(b"?n?f%f .?m(%T %i of %m) ..?e(END) ?x- Next\\: %x..%t\0")
+    *::core::mem::transmute::<&[u8; 52], &[std::ffi::c_char; 52]>(
+        b"?n?f%f .?m(%T %i of %m) ..?e(END) ?x- Next\\: %x..%t\0",
+    )
 };
 static mut m_proto: [std::ffi::c_char; 77] = unsafe {
-    *::core::mem::transmute::<
-        &[u8; 77],
-        &[std::ffi::c_char; 77],
-    >(
+    *::core::mem::transmute::<&[u8; 77], &[std::ffi::c_char; 77]>(
         b"?n?f%f .?m(%T %i of %m) ..?e(END) ?x- Next\\: %x.:?pB%pB\\%:byte %bB?s/%s...%t\0",
     )
 };
@@ -82,33 +75,25 @@ static mut M_proto: [std::ffi::c_char; 102] = unsafe {
     )
 };
 static mut e_proto: [std::ffi::c_char; 84] = unsafe {
-    *::core::mem::transmute::<
-        &[u8; 84],
-        &[std::ffi::c_char; 84],
-    >(
+    *::core::mem::transmute::<&[u8; 84], &[std::ffi::c_char; 84]>(
         b"?f%f .?m(%T %i of %m) .?ltlines %lt-%lb?L/%L. .byte %bB?s/%s. ?e(END) :?pB%pB\\%..%t\0",
     )
 };
 static mut h_proto: [std::ffi::c_char; 80] = unsafe {
-    *::core::mem::transmute::<
-        &[u8; 80],
-        &[std::ffi::c_char; 80],
-    >(
+    *::core::mem::transmute::<&[u8; 80], &[std::ffi::c_char; 80]>(
         b"HELP -- ?eEND -- Press g to see it again:Press RETURN for more., or q when done\0",
     )
 };
-static mut w_proto: [std::ffi::c_char; 17] = unsafe {
-    *::core::mem::transmute::<&[u8; 17], &[std::ffi::c_char; 17]>(b"Waiting for data\0")
-};
+static mut w_proto: [std::ffi::c_char; 17] =
+    unsafe { *::core::mem::transmute::<&[u8; 17], &[std::ffi::c_char; 17]>(b"Waiting for data\0") };
 static mut more_proto: [std::ffi::c_char; 59] = unsafe {
-    *::core::mem::transmute::<
-        &[u8; 59],
-        &[std::ffi::c_char; 59],
-    >(b"--More--(?eEND ?x- Next\\: %x.:?pB%pB\\%:byte %bB?s/%s...%t)\0")
+    *::core::mem::transmute::<&[u8; 59], &[std::ffi::c_char; 59]>(
+        b"--More--(?eEND ?x- Next\\: %x.:?pB%pB\\%:byte %bB?s/%s...%t)\0",
+    )
 };
 #[no_mangle]
-pub static mut prproto: [*mut std::ffi::c_char; 3] = [0 as *const std::ffi::c_char
-    as *mut std::ffi::c_char; 3];
+pub static mut prproto: [*mut std::ffi::c_char; 3] =
+    [0 as *const std::ffi::c_char as *mut std::ffi::c_char; 3];
 #[no_mangle]
 pub static mut eqproto: *const std::ffi::c_char = unsafe { e_proto.as_ptr() };
 #[no_mangle]
@@ -116,15 +101,15 @@ pub static mut hproto: *const std::ffi::c_char = unsafe { h_proto.as_ptr() };
 #[no_mangle]
 pub static mut wproto: *const std::ffi::c_char = unsafe { w_proto.as_ptr() };
 static mut message: [std::ffi::c_char; 2048] = [0; 2048];
-static mut mp: *mut std::ffi::c_char = 0 as *const std::ffi::c_char
-    as *mut std::ffi::c_char;
+static mut mp: *mut std::ffi::c_char = 0 as *const std::ffi::c_char as *mut std::ffi::c_char;
 #[no_mangle]
 pub unsafe extern "C" fn init_prompt() {
     prproto[0 as std::ffi::c_int as usize] = save(s_proto.as_ptr());
-    prproto[1 as std::ffi::c_int
-        as usize] = save(
-        if less_is_more != 0 { more_proto.as_ptr() } else { m_proto.as_ptr() },
-    );
+    prproto[1 as std::ffi::c_int as usize] = save(if less_is_more != 0 {
+        more_proto.as_ptr()
+    } else {
+        m_proto.as_ptr()
+    });
     prproto[2 as std::ffi::c_int as usize] = save(M_proto.as_ptr());
     eqproto = save(e_proto.as_ptr());
     hproto = save(h_proto.as_ptr());
@@ -138,7 +123,11 @@ unsafe extern "C" fn ap_estr(mut s: *const std::ffi::c_char, mut nprt: lbool) {
         let mut ubuf: [std::ffi::c_char; 7] = [0; 7];
         let mut plen: size_t = 0;
         if nprt as u64 != 0 {
-            ps = if utf_mode != 0 { prutfchar(ch) } else { prchar(ch) };
+            ps = if utf_mode != 0 {
+                prutfchar(ch)
+            } else {
+                prchar(ch)
+            };
         } else {
             let mut up: *mut std::ffi::c_char = ubuf.as_mut_ptr();
             put_wchar(&mut up, ch);
@@ -147,7 +136,9 @@ unsafe extern "C" fn ap_estr(mut s: *const std::ffi::c_char, mut nprt: lbool) {
         }
         plen = strlen(ps);
         if mp.offset(plen as isize)
-            >= message.as_mut_ptr().offset(2048 as std::ffi::c_int as isize)
+            >= message
+                .as_mut_ptr()
+                .offset(2048 as std::ffi::c_int as isize)
         {
             break;
         }
@@ -161,7 +152,9 @@ unsafe extern "C" fn ap_str(mut s: *const std::ffi::c_char) {
 }
 unsafe extern "C" fn ap_char(mut c: std::ffi::c_char) {
     if mp.offset(1 as std::ffi::c_int as isize)
-        >= message.as_mut_ptr().offset(2048 as std::ffi::c_int as isize)
+        >= message
+            .as_mut_ptr()
+            .offset(2048 as std::ffi::c_int as isize)
     {
         return;
     }
@@ -191,7 +184,8 @@ unsafe extern "C" fn ap_quest() {
 unsafe extern "C" fn curr_byte(mut where_0: std::ffi::c_int) -> POSITION {
     let mut pos: POSITION = 0;
     pos = position(where_0);
-    while pos == -(1 as std::ffi::c_int) as POSITION && where_0 >= 0 as std::ffi::c_int
+    while pos == -(1 as std::ffi::c_int) as POSITION
+        && where_0 >= 0 as std::ffi::c_int
         && where_0 < sc_height - 1 as std::ffi::c_int
     {
         where_0 += 1;
@@ -202,16 +196,13 @@ unsafe extern "C" fn curr_byte(mut where_0: std::ffi::c_int) -> POSITION {
     }
     return pos;
 }
-unsafe extern "C" fn cond(
-    mut c: std::ffi::c_char,
-    mut where_0: std::ffi::c_int,
-) -> lbool {
+unsafe extern "C" fn cond(mut c: std::ffi::c_char, mut where_0: std::ffi::c_int) -> lbool {
     let mut len: POSITION = 0;
     match c as std::ffi::c_int {
         97 => return (mp > message.as_mut_ptr()) as std::ffi::c_int as lbool,
         98 => {
-            return (curr_byte(where_0) != -(1 as std::ffi::c_int) as POSITION)
-                as std::ffi::c_int as lbool;
+            return (curr_byte(where_0) != -(1 as std::ffi::c_int) as POSITION) as std::ffi::c_int
+                as lbool;
         }
         99 => return (hshift != 0 as std::ffi::c_int) as std::ffi::c_int as lbool,
         101 => return eof_displayed(LFALSE),
@@ -225,8 +216,8 @@ unsafe extern "C" fn cond(
             if linenums == 0 {
                 return LFALSE;
             }
-            return (currline(where_0) != 0 as std::ffi::c_int as LINENUM)
-                as std::ffi::c_int as lbool;
+            return (currline(where_0) != 0 as std::ffi::c_int as LINENUM) as std::ffi::c_int
+                as lbool;
         }
         76 | 68 => {
             return (linenums != 0 && ch_length() != -(1 as std::ffi::c_int) as POSITION)
@@ -250,27 +241,28 @@ unsafe extern "C" fn cond(
         }
         112 => {
             return (curr_byte(where_0) != -(1 as std::ffi::c_int) as POSITION
-                && ch_length() > 0 as std::ffi::c_int as POSITION) as std::ffi::c_int
-                as lbool;
+                && ch_length() > 0 as std::ffi::c_int as POSITION)
+                as std::ffi::c_int as lbool;
         }
         80 => {
             return (currline(where_0) != 0 as std::ffi::c_int as LINENUM
                 && {
                     len = ch_length();
                     len > 0 as std::ffi::c_int as POSITION
-                } && find_linenum(len) != 0 as std::ffi::c_int as LINENUM)
+                }
+                && find_linenum(len) != 0 as std::ffi::c_int as LINENUM)
                 as std::ffi::c_int as lbool;
         }
         115 | 66 => {
-            return (ch_length() != -(1 as std::ffi::c_int) as POSITION)
-                as std::ffi::c_int as lbool;
+            return (ch_length() != -(1 as std::ffi::c_int) as POSITION) as std::ffi::c_int
+                as lbool;
         }
         120 => {
             if ntags() != 0 {
                 return LFALSE;
             }
-            return (next_ifile(curr_ifile) != 0 as *mut std::ffi::c_void)
-                as std::ffi::c_int as lbool;
+            return (next_ifile(curr_ifile) != 0 as *mut std::ffi::c_void) as std::ffi::c_int
+                as lbool;
         }
         _ => {}
     }
@@ -322,8 +314,8 @@ unsafe extern "C" fn protochar(mut c: std::ffi::c_char, mut where_0: std::ffi::c
                 } else {
                     ap_linenum(
                         (linenum - 1 as std::ffi::c_int as LINENUM)
-                            / (sc_height - header_lines - 1 as std::ffi::c_int)
-                                as LINENUM + 1 as std::ffi::c_int as LINENUM,
+                            / (sc_height - header_lines - 1 as std::ffi::c_int) as LINENUM
+                            + 1 as std::ffi::c_int as LINENUM,
                     );
                 }
             }
@@ -389,8 +381,7 @@ unsafe extern "C" fn protochar(mut c: std::ffi::c_char, mut where_0: std::ffi::c
         112 => {
             pos = curr_byte(where_0);
             len = ch_length();
-            if pos != -(1 as std::ffi::c_int) as POSITION
-                && len > 0 as std::ffi::c_int as POSITION
+            if pos != -(1 as std::ffi::c_int) as POSITION && len > 0 as std::ffi::c_int as POSITION
             {
                 ap_int(percentage(pos, len));
             } else {
@@ -403,7 +394,8 @@ unsafe extern "C" fn protochar(mut c: std::ffi::c_char, mut where_0: std::ffi::c
                 || {
                     len = ch_length();
                     len == -(1 as std::ffi::c_int) as POSITION
-                } || len == 0 as std::ffi::c_int as POSITION
+                }
+                || len == 0 as std::ffi::c_int as POSITION
                 || {
                     last_linenum = find_linenum(len);
                     last_linenum <= 0 as std::ffi::c_int as LINENUM
@@ -424,11 +416,9 @@ unsafe extern "C" fn protochar(mut c: std::ffi::c_char, mut where_0: std::ffi::c
         }
         116 => {
             while mp > message.as_mut_ptr()
-                && *mp.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int
-                    == ' ' as i32
+                && *mp.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int == ' ' as i32
             {
                 mp = mp.offset(-1);
-                mp;
             }
             *mp = '\0' as i32 as std::ffi::c_char;
         }
@@ -450,9 +440,7 @@ unsafe extern "C" fn protochar(mut c: std::ffi::c_char, mut where_0: std::ffi::c
         _ => {}
     };
 }
-unsafe extern "C" fn skipcond(
-    mut p: *const std::ffi::c_char,
-) -> *const std::ffi::c_char {
+unsafe extern "C" fn skipcond(mut p: *const std::ffi::c_char) -> *const std::ffi::c_char {
     let mut iflevel: std::ffi::c_int = 0;
     iflevel = 1 as std::ffi::c_int;
     loop {
@@ -460,7 +448,6 @@ unsafe extern "C" fn skipcond(
         match *p as std::ffi::c_int {
             63 => {
                 iflevel += 1;
-                iflevel;
             }
             58 => {
                 if iflevel == 1 as std::ffi::c_int {
@@ -474,17 +461,14 @@ unsafe extern "C" fn skipcond(
                 }
             }
             92 => {
-                if *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    != '\0' as i32
-                {
+                if *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32 {
                     p = p.offset(1);
-                    p;
                 }
             }
             0 => return p.offset(-(1 as std::ffi::c_int as isize)),
             _ => {}
         }
-    };
+    }
 }
 unsafe extern "C" fn wherechar(
     mut p: *const std::ffi::c_char,
@@ -512,7 +496,6 @@ unsafe extern "C" fn wherechar(
                 _ => {
                     *wp = 0 as std::ffi::c_int;
                     p = p.offset(-1);
-                    p;
                 }
             }
         }
@@ -521,9 +504,7 @@ unsafe extern "C" fn wherechar(
     return p;
 }
 #[no_mangle]
-pub unsafe extern "C" fn pr_expand(
-    mut proto: *const std::ffi::c_char,
-) -> *const std::ffi::c_char {
+pub unsafe extern "C" fn pr_expand(mut proto: *const std::ffi::c_char) -> *const std::ffi::c_char {
     let mut p: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut c: std::ffi::c_char = 0;
     let mut where_0: std::ffi::c_int = 0;
@@ -535,9 +516,7 @@ pub unsafe extern "C" fn pr_expand(
     while *p as std::ffi::c_int != '\0' as i32 {
         match *p as std::ffi::c_int {
             92 => {
-                if *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    != '\0' as i32
-                {
+                if *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32 {
                     p = p.offset(1);
                     ap_char(*p);
                 }
@@ -547,7 +526,6 @@ pub unsafe extern "C" fn pr_expand(
                 c = *p;
                 if c as std::ffi::c_int == '\0' as i32 {
                     p = p.offset(-1);
-                    p;
                 } else {
                     where_0 = 0 as std::ffi::c_int;
                     p = wherechar(p, &mut where_0);
@@ -565,7 +543,6 @@ pub unsafe extern "C" fn pr_expand(
                 c = *p;
                 if c as std::ffi::c_int == '\0' as i32 {
                     p = p.offset(-1);
-                    p;
                 } else {
                     where_0 = 0 as std::ffi::c_int;
                     p = wherechar(p, &mut where_0);
@@ -577,7 +554,6 @@ pub unsafe extern "C" fn pr_expand(
             }
         }
         p = p.offset(1);
-        p;
     }
     if mp == message.as_mut_ptr() {
         return b"\0" as *const u8 as *const std::ffi::c_char;
@@ -599,13 +575,11 @@ pub unsafe extern "C" fn pr_string() -> *const std::ffi::c_char {
     } else {
         1 as std::ffi::c_int
     };
-    prompt = pr_expand(
-        if ch_getflags() & 0o10 as std::ffi::c_int != 0 {
-            hproto
-        } else {
-            prproto[type_0 as usize] as *const std::ffi::c_char
-        },
-    );
+    prompt = pr_expand(if ch_getflags() & 0o10 as std::ffi::c_int != 0 {
+        hproto
+    } else {
+        prproto[type_0 as usize] as *const std::ffi::c_char
+    });
     new_file = LFALSE;
     return prompt;
 }

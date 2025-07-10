@@ -303,7 +303,6 @@ unsafe extern "C" fn security_feature(
             match_0 = i;
         }
         i += 1;
-        i;
     }
     if match_0 < 0 as std::ffi::c_int {
         return security_feature_error(
@@ -328,7 +327,6 @@ unsafe extern "C" fn init_secure() {
             let mut estr: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
             while *str as std::ffi::c_int == ' ' as i32 || *str as std::ffi::c_int == ',' as i32 {
                 str = str.offset(1);
-                str;
             }
             if *str as std::ffi::c_int == '\0' as i32 {
                 break;
@@ -341,7 +339,6 @@ unsafe extern "C" fn init_secure() {
                 && *estr.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int == ' ' as i32
             {
                 estr = estr.offset(-1);
-                estr;
             }
             secure_allow_features |=
                 security_feature(str, estr.offset_from(str) as std::ffi::c_long as size_t);
@@ -359,7 +356,6 @@ unsafe fn main_0(
     argv = argv.offset(1);
     progname = *fresh0;
     argc -= 1;
-    argc;
     init_secure();
     is_tty = isatty(1 as std::ffi::c_int);
     init_mark();
@@ -401,7 +397,6 @@ unsafe fn main_0(
         argv = argv.offset(1);
         s = *fresh1;
         argc -= 1;
-        argc;
         if strcmp(s, b"--\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int {
             break;
         }
@@ -552,7 +547,6 @@ pub unsafe extern "C" fn ecalloc(mut count: size_t, mut size: size_t) -> *mut st
 pub unsafe extern "C" fn skipsp(mut s: *mut std::ffi::c_char) -> *mut std::ffi::c_char {
     while *s as std::ffi::c_int == ' ' as i32 || *s as std::ffi::c_int == '\t' as i32 {
         s = s.offset(1);
-        s;
     }
     return s;
 }
@@ -560,7 +554,6 @@ pub unsafe extern "C" fn skipsp(mut s: *mut std::ffi::c_char) -> *mut std::ffi::
 pub unsafe extern "C" fn skipspc(mut s: *const std::ffi::c_char) -> *const std::ffi::c_char {
     while *s as std::ffi::c_int == ' ' as i32 || *s as std::ffi::c_int == '\t' as i32 {
         s = s.offset(1);
-        s;
     }
     return s;
 }
@@ -595,11 +588,8 @@ pub unsafe extern "C" fn sprefix(
             break;
         }
         len = len.wrapping_add(1);
-        len;
         s = s.offset(1);
-        s;
         ps = ps.offset(1);
-        ps;
     }
     return len;
 }

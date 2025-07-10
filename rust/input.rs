@@ -12,11 +12,7 @@ extern "C" {
     fn pshift_all();
     fn savec();
     fn loadc();
-    fn pappend_b(
-        c: std::ffi::c_char,
-        pos: POSITION,
-        before_pendc: lbool,
-    ) -> std::ffi::c_int;
+    fn pappend_b(c: std::ffi::c_char, pos: POSITION, before_pendc: lbool) -> std::ffi::c_int;
     fn pappend(c: std::ffi::c_char, pos: POSITION) -> std::ffi::c_int;
     fn pflushmbc() -> std::ffi::c_int;
     fn pdone(endline: lbool, chopped: lbool, forw: lbool);
@@ -55,30 +51,28 @@ unsafe extern "C" fn init_status_col(
     mut edisp_pos: POSITION,
     mut eol_pos: POSITION,
 ) {
-    let mut hl_before: std::ffi::c_int = if chop_line() != 0
-        && disp_pos != -(1 as std::ffi::c_int) as POSITION
-    {
-        is_hilited_attr(
-            base_pos,
-            disp_pos,
-            LTRUE as std::ffi::c_int,
-            0 as *mut std::ffi::c_int,
-        )
-    } else {
-        0 as std::ffi::c_int
-    };
-    let mut hl_after: std::ffi::c_int = if chop_line() != 0
-        && edisp_pos != -(1 as std::ffi::c_int) as POSITION
-    {
-        is_hilited_attr(
-            edisp_pos,
-            eol_pos,
-            LTRUE as std::ffi::c_int,
-            0 as *mut std::ffi::c_int,
-        )
-    } else {
-        0 as std::ffi::c_int
-    };
+    let mut hl_before: std::ffi::c_int =
+        if chop_line() != 0 && disp_pos != -(1 as std::ffi::c_int) as POSITION {
+            is_hilited_attr(
+                base_pos,
+                disp_pos,
+                LTRUE as std::ffi::c_int,
+                0 as *mut std::ffi::c_int,
+            )
+        } else {
+            0 as std::ffi::c_int
+        };
+    let mut hl_after: std::ffi::c_int =
+        if chop_line() != 0 && edisp_pos != -(1 as std::ffi::c_int) as POSITION {
+            is_hilited_attr(
+                edisp_pos,
+                eol_pos,
+                LTRUE as std::ffi::c_int,
+                0 as *mut std::ffi::c_int,
+            )
+        } else {
+            0 as std::ffi::c_int
+        };
     let mut attr: std::ffi::c_int = 0;
     let mut ch: std::ffi::c_char = 0;
     if hl_before != 0 && hl_after != 0 {
@@ -157,7 +151,6 @@ pub unsafe extern "C" fn forw_line_seg(
                 break;
             } else {
                 base_pos -= 1;
-                base_pos;
             }
         }
         if is_line_contig_pos(curr_pos) as u64 != 0 {
@@ -178,13 +171,11 @@ pub unsafe extern "C" fn forw_line_seg(
                 }
                 backchars = pappend(c as std::ffi::c_char, new_pos);
                 new_pos += 1;
-                new_pos;
                 if backchars > 0 as std::ffi::c_int {
                     pshift_all();
                     if wordwrap != 0 && (c == ' ' as i32 || c == '\t' as i32) {
                         loop {
                             new_pos += 1;
-                            new_pos;
                             c = ch_forw_get();
                             if !(c == ' ' as i32 || c == '\t' as i32) {
                                 break;
@@ -350,10 +341,7 @@ pub unsafe extern "C" fn forw_line(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn back_line(
-    mut curr_pos: POSITION,
-    mut p_newline: *mut lbool,
-) -> POSITION {
+pub unsafe extern "C" fn back_line(mut curr_pos: POSITION, mut p_newline: *mut lbool) -> POSITION {
     let mut base_pos: POSITION = 0;
     let mut new_pos: POSITION = 0;
     let mut edisp_pos: POSITION = 0;
@@ -441,14 +429,13 @@ pub unsafe extern "C" fn back_line(
                     return -(1 as std::ffi::c_int) as POSITION;
                 }
                 new_pos += 1;
-                new_pos;
                 if c == '\n' as i32 {
                     backchars = pflushmbc();
-                    if backchars > 0 as std::ffi::c_int && chop_line() == 0
+                    if backchars > 0 as std::ffi::c_int
+                        && chop_line() == 0
                         && hshift == 0 as std::ffi::c_int
                     {
                         backchars += 1;
-                        backchars;
                     } else {
                         endline = LTRUE;
                         edisp_pos = new_pos;
@@ -495,18 +482,15 @@ pub unsafe extern "C" fn back_line(
                         c = ch_forw_get();
                         if c == ' ' as i32 || c == '\t' as i32 {
                             new_pos += 1;
-                            new_pos;
                         } else {
                             if c == '\r' as i32 {
                                 c = ch_forw_get();
                                 if c == '\n' as i32 {
                                     new_pos += 1;
-                                    new_pos;
                                 }
                             }
                             if c == '\n' as i32 {
                                 new_pos += 1;
-                                new_pos;
                             }
                             edisp_pos = new_pos;
                             break;
@@ -558,7 +542,6 @@ pub unsafe extern "C" fn set_attnpos(mut pos: POSITION) {
                 break;
             } else {
                 pos += 1;
-                pos;
             }
         }
         end_attnpos = pos;
@@ -568,7 +551,6 @@ pub unsafe extern "C" fn set_attnpos(mut pos: POSITION) {
                 break;
             }
             pos -= 1;
-            pos;
         }
     }
     start_attnpos = pos;

@@ -21,28 +21,15 @@ extern "C" {
         to_newline: lbool,
         nblank: std::ffi::c_int,
     );
-    fn back(
-        n: std::ffi::c_int,
-        pos: POSITION,
-        force: lbool,
-        only_last: lbool,
-        to_newline: lbool,
-    );
-    fn forw_line(
-        curr_pos: POSITION,
-        p_linepos: *mut POSITION,
-        p_newline: *mut lbool,
-    ) -> POSITION;
+    fn back(n: std::ffi::c_int, pos: POSITION, force: lbool, only_last: lbool, to_newline: lbool);
+    fn forw_line(curr_pos: POSITION, p_linepos: *mut POSITION, p_newline: *mut lbool) -> POSITION;
     fn back_line(curr_pos: POSITION, p_newline: *mut lbool) -> POSITION;
     fn set_attnpos(pos: POSITION);
     fn find_pos(linenum: LINENUM) -> POSITION;
     fn lastmark();
     fn get_time() -> time_t;
-    fn percent_pos(
-        pos: POSITION,
-        percent: std::ffi::c_int,
-        fraction: std::ffi::c_long,
-    ) -> POSITION;
+    fn percent_pos(pos: POSITION, percent: std::ffi::c_int, fraction: std::ffi::c_long)
+        -> POSITION;
     fn error(fmt: *const std::ffi::c_char, parg: *mut PARG);
     fn ierror(fmt: *const std::ffi::c_char, parg: *mut PARG);
     fn position(sindex: std::ffi::c_int) -> POSITION;
@@ -105,7 +92,10 @@ pub unsafe extern "C" fn jump_forw() {
     pos_clear();
     pos = back_line(end_pos, 0 as *mut lbool);
     if pos == -(1 as std::ffi::c_int) as POSITION {
-        jump_loc(0 as std::ffi::c_int as POSITION, sc_height - 1 as std::ffi::c_int);
+        jump_loc(
+            0 as std::ffi::c_int as POSITION,
+            sc_height - 1 as std::ffi::c_int,
+        );
     } else {
         jump_loc(pos, sc_height - 1 as std::ffi::c_int);
         if position(sc_height - 1 as std::ffi::c_int) != end_pos {
@@ -124,9 +114,7 @@ pub unsafe extern "C" fn jump_forw_buffered() {
         return;
     }
     end = ch_tell();
-    if end != -(1 as std::ffi::c_int) as POSITION
-        && end > 0 as std::ffi::c_int as POSITION
-    {
+    if end != -(1 as std::ffi::c_int) as POSITION && end > 0 as std::ffi::c_int as POSITION {
         jump_line_loc(
             end - 1 as std::ffi::c_int as POSITION,
             sc_height - 1 as std::ffi::c_int,
@@ -140,19 +128,15 @@ pub unsafe extern "C" fn jump_back(mut linenum: LINENUM) {
         p_string: 0 as *const std::ffi::c_char,
     };
     pos = find_pos(linenum);
-    if pos != -(1 as std::ffi::c_int) as POSITION && ch_seek(pos) == 0 as std::ffi::c_int
-    {
+    if pos != -(1 as std::ffi::c_int) as POSITION && ch_seek(pos) == 0 as std::ffi::c_int {
         if show_attn != 0 {
             set_attnpos(pos);
         }
         jump_loc(pos, jump_sline);
-    } else if linenum <= 1 as std::ffi::c_int as LINENUM
-        && ch_beg_seek() == 0 as std::ffi::c_int
-    {
+    } else if linenum <= 1 as std::ffi::c_int as LINENUM && ch_beg_seek() == 0 as std::ffi::c_int {
         jump_loc(ch_tell(), jump_sline);
         error(
-            b"Cannot seek to beginning of file\0" as *const u8
-                as *const std::ffi::c_char,
+            b"Cannot seek to beginning of file\0" as *const u8 as *const std::ffi::c_char,
             0 as *mut std::ffi::c_void as *mut PARG,
         );
     } else {
@@ -234,8 +218,7 @@ unsafe extern "C" fn after_header_message() {
 }
 #[no_mangle]
 pub unsafe extern "C" fn after_header_pos(mut pos: POSITION) -> POSITION {
-    if header_start_pos != -(1 as std::ffi::c_int) as POSITION && pos < header_start_pos
-    {
+    if header_start_pos != -(1 as std::ffi::c_int) as POSITION && pos < header_start_pos {
         after_header_message();
         pos = header_start_pos;
     }
@@ -263,7 +246,13 @@ pub unsafe extern "C" fn jump_loc(mut pos: POSITION, mut sline: std::ffi::c_int)
                 0 as std::ffi::c_int,
             );
         } else {
-            back(-nline, position(0 as std::ffi::c_int), LTRUE, LFALSE, LFALSE);
+            back(
+                -nline,
+                position(0 as std::ffi::c_int),
+                LTRUE,
+                LFALSE,
+                LFALSE,
+            );
         }
         if show_attn != 0 {
             repaint_hilite(LTRUE);
@@ -272,8 +261,7 @@ pub unsafe extern "C" fn jump_loc(mut pos: POSITION, mut sline: std::ffi::c_int)
     }
     if ch_seek(pos) != 0 {
         error(
-            b"Cannot seek to that file position\0" as *const u8
-                as *const std::ffi::c_char,
+            b"Cannot seek to that file position\0" as *const u8 as *const std::ffi::c_char,
             0 as *mut std::ffi::c_void as *mut PARG,
         );
         return;
@@ -302,7 +290,6 @@ pub unsafe extern "C" fn jump_loc(mut pos: POSITION, mut sline: std::ffi::c_int)
                 break;
             }
             nline += 1;
-            nline;
         }
         lastmark();
         squished = LFALSE;
@@ -331,7 +318,6 @@ pub unsafe extern "C" fn jump_loc(mut pos: POSITION, mut sline: std::ffi::c_int)
                 return;
             }
             nline += 1;
-            nline;
         }
         lastmark();
         if top_scroll == 0 {

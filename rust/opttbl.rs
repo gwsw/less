@@ -58,9 +58,7 @@ pub struct loption {
     pub otype: std::ffi::c_int,
     pub odefault: std::ffi::c_int,
     pub ovar: *mut std::ffi::c_int,
-    pub ofunc: Option::<
-        unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
-    >,
+    pub ofunc: Option<unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> ()>,
     pub odesc: [*const std::ffi::c_char; 3],
 }
 #[derive(Copy, Clone)]
@@ -120,13 +118,11 @@ pub static mut swindow: std::ffi::c_int = 0;
 #[no_mangle]
 pub static mut jump_sline: std::ffi::c_int = 0;
 #[no_mangle]
-pub static mut jump_sline_fraction: std::ffi::c_long = -(1 as std::ffi::c_int)
-    as std::ffi::c_long;
+pub static mut jump_sline_fraction: std::ffi::c_long = -(1 as std::ffi::c_int) as std::ffi::c_long;
 #[no_mangle]
 pub static mut shift_count: std::ffi::c_int = 0;
 #[no_mangle]
-pub static mut shift_count_fraction: std::ffi::c_long = -(1 as std::ffi::c_int)
-    as std::ffi::c_long;
+pub static mut shift_count_fraction: std::ffi::c_long = -(1 as std::ffi::c_int) as std::ffi::c_long;
 #[no_mangle]
 pub static mut chopline: std::ffi::c_int = 0;
 #[no_mangle]
@@ -210,11 +206,11 @@ pub static mut no_edit_warn: std::ffi::c_int = 0;
 #[no_mangle]
 pub static mut stop_on_form_feed: std::ffi::c_int = 0;
 #[no_mangle]
-pub static mut match_shift_fraction: std::ffi::c_long = (1000000 as std::ffi::c_int
-    / 2 as std::ffi::c_int) as std::ffi::c_long;
+pub static mut match_shift_fraction: std::ffi::c_long =
+    (1000000 as std::ffi::c_int / 2 as std::ffi::c_int) as std::ffi::c_long;
 #[no_mangle]
-pub static mut intr_char: std::ffi::c_char = ('X' as i32 & 0o37 as std::ffi::c_int)
-    as std::ffi::c_char;
+pub static mut intr_char: std::ffi::c_char =
+    ('X' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_char;
 #[no_mangle]
 pub static mut hilite_search: std::ffi::c_int = 0;
 #[no_mangle]
@@ -787,10 +783,8 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &how_search as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Search includes displayed screen\0" as *const u8
-                        as *const std::ffi::c_char,
-                    b"Search skips displayed screen\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Search includes displayed screen\0" as *const u8 as *const std::ffi::c_char,
+                    b"Search skips displayed screen\0" as *const u8 as *const std::ffi::c_char,
                     b"Search includes all of displayed screen\0" as *const u8
                         as *const std::ffi::c_char,
                 ],
@@ -805,17 +799,11 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 64 as std::ffi::c_int,
                 ovar: &bufspace as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_b
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_b as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
-                    b"Max buffer space per file (K): \0" as *const u8
-                        as *const std::ffi::c_char,
-                    b"Max buffer space per file: %dK\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Max buffer space per file (K): \0" as *const u8 as *const std::ffi::c_char,
+                    b"Max buffer space per file: %dK\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -867,8 +855,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &know_dumb as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Assume intelligent terminal\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Assume intelligent terminal\0" as *const u8 as *const std::ffi::c_char,
                     b"Assume dumb terminal\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
@@ -879,16 +866,11 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: 'D' as i32 as std::ffi::c_char,
                 onames: &D__optname as *const optname as *mut optname,
-                otype: 0o10 as std::ffi::c_int | 0o40 as std::ffi::c_int
-                    | 0o400 as std::ffi::c_int,
+                otype: 0o10 as std::ffi::c_int | 0o40 as std::ffi::c_int | 0o400 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_D
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_D as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"color desc: \0" as *const u8 as *const std::ffi::c_char,
@@ -907,11 +889,9 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &quit_at_eof as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Don't quit at end-of-file\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't quit at end-of-file\0" as *const u8 as *const std::ffi::c_char,
                     b"Quit at end-of-file\0" as *const u8 as *const std::ffi::c_char,
-                    b"Quit immediately at end-of-file\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Quit immediately at end-of-file\0" as *const u8 as *const std::ffi::c_char,
                 ],
             };
             init
@@ -926,8 +906,7 @@ static mut option: [loption; 78] = unsafe {
                 ofunc: None,
                 odesc: [
                     b"Open only regular files\0" as *const u8 as *const std::ffi::c_char,
-                    b"Open even non-regular files\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Open even non-regular files\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -939,8 +918,7 @@ static mut option: [loption; 78] = unsafe {
                 onames: &F__optname as *const optname as *mut optname,
                 otype: 0o1 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
-                ovar: &quit_if_one_screen as *const std::ffi::c_int
-                    as *mut std::ffi::c_int,
+                ovar: &quit_if_one_screen as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
                     b"Don't quit if end-of-file on first screen\0" as *const u8
@@ -961,8 +939,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &hilite_search as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Don't highlight search matches\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't highlight search matches\0" as *const u8 as *const std::ffi::c_char,
                     b"Highlight matches for previous search only\0" as *const u8
                         as *const std::ffi::c_char,
                     b"Highlight all matches for previous search pattern\0" as *const u8
@@ -980,10 +957,8 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &back_scroll as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Backwards scroll limit: \0" as *const u8
-                        as *const std::ffi::c_char,
-                    b"Backwards scroll limit is %d lines\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Backwards scroll limit: \0" as *const u8 as *const std::ffi::c_char,
+                    b"Backwards scroll limit is %d lines\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -997,15 +972,10 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: &caseless as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_i
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_i as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
-                    b"Case is significant in searches\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Case is significant in searches\0" as *const u8 as *const std::ffi::c_char,
                     b"Ignore case in searches\0" as *const u8 as *const std::ffi::c_char,
                     b"Ignore case in searches and in patterns\0" as *const u8
                         as *const std::ffi::c_char,
@@ -1021,11 +991,7 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_j
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_j as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Target line: \0" as *const u8 as *const std::ffi::c_char,
@@ -1044,8 +1010,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &status_col as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Don't display a status column\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't display a status column\0" as *const u8 as *const std::ffi::c_char,
                     b"Display a status column\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
@@ -1056,16 +1021,13 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: 'k' as i32 as std::ffi::c_char,
                 onames: &k_optname as *const optname as *mut optname,
-                otype: 0o10 as std::ffi::c_int | 0o100 as std::ffi::c_int
+                otype: 0o10 as std::ffi::c_int
+                    | 0o100 as std::ffi::c_int
                     | 0o400 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_k
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_k as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     0 as *const std::ffi::c_char,
@@ -1079,16 +1041,13 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: '\u{1}' as i32 as std::ffi::c_char,
                 onames: &kc_optname as *const optname as *mut optname,
-                otype: 0o10 as std::ffi::c_int | 0o100 as std::ffi::c_int
+                otype: 0o10 as std::ffi::c_int
+                    | 0o100 as std::ffi::c_int
                     | 0o400 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_kc
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_kc as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     0 as *const std::ffi::c_char,
@@ -1102,16 +1061,13 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: '\u{1}' as i32 as std::ffi::c_char,
                 onames: &ks_optname as *const optname as *mut optname,
-                otype: 0o10 as std::ffi::c_int | 0o100 as std::ffi::c_int
+                otype: 0o10 as std::ffi::c_int
+                    | 0o100 as std::ffi::c_int
                     | 0o400 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_ks
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_ks as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     0 as *const std::ffi::c_char,
@@ -1132,8 +1088,7 @@ static mut option: [loption; 78] = unsafe {
                 odesc: [
                     b"Interrupt (ctrl-C) returns to prompt\0" as *const u8
                         as *const std::ffi::c_char,
-                    b"Interrupt (ctrl-C) exits less\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Interrupt (ctrl-C) exits less\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1148,8 +1103,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &use_lessopen as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Don't use the LESSOPEN filter\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't use the LESSOPEN filter\0" as *const u8 as *const std::ffi::c_char,
                     b"Use the LESSOPEN filter\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
@@ -1183,8 +1137,7 @@ static mut option: [loption; 78] = unsafe {
                 odesc: [
                     b"Don't use line numbers\0" as *const u8 as *const std::ffi::c_char,
                     b"Use line numbers\0" as *const u8 as *const std::ffi::c_char,
-                    b"Constantly display line numbers\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Constantly display line numbers\0" as *const u8 as *const std::ffi::c_char,
                 ],
             };
             init
@@ -1197,11 +1150,7 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_o
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_o as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"log file: \0" as *const u8 as *const std::ffi::c_char,
@@ -1219,11 +1168,7 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt__O
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt__O as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Log file: \0" as *const u8 as *const std::ffi::c_char,
@@ -1237,16 +1182,13 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: 'p' as i32 as std::ffi::c_char,
                 onames: &p_optname as *const optname as *mut optname,
-                otype: 0o10 as std::ffi::c_int | 0o100 as std::ffi::c_int
+                otype: 0o10 as std::ffi::c_int
+                    | 0o100 as std::ffi::c_int
                     | 0o400 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_p
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_p as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     0 as *const std::ffi::c_char,
@@ -1264,11 +1206,7 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt__P
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt__P as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"prompt: \0" as *const u8 as *const std::ffi::c_char,
@@ -1305,10 +1243,9 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &ctldisp as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Display control characters as ^X\0" as *const u8
+                    b"Display control characters as ^X\0" as *const u8 as *const std::ffi::c_char,
+                    b"Display control characters directly (not recommended)\0" as *const u8
                         as *const std::ffi::c_char,
-                    b"Display control characters directly (not recommended)\0"
-                        as *const u8 as *const std::ffi::c_char,
                     b"Display ANSI sequences directly, other control characters as ^X\0"
                         as *const u8 as *const std::ffi::c_char,
                 ],
@@ -1325,8 +1262,7 @@ static mut option: [loption; 78] = unsafe {
                 ofunc: None,
                 odesc: [
                     b"Display all blank lines\0" as *const u8 as *const std::ffi::c_char,
-                    b"Squeeze multiple blank lines\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Squeeze multiple blank lines\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1340,11 +1276,7 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: &chopline as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt__S
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt__S as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Fold long lines\0" as *const u8 as *const std::ffi::c_char,
@@ -1362,11 +1294,7 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_t
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_t as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"tag: \0" as *const u8 as *const std::ffi::c_char,
@@ -1384,11 +1312,7 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt__T
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt__T as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"tags file: \0" as *const u8 as *const std::ffi::c_char,
@@ -1402,16 +1326,14 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: 'u' as i32 as std::ffi::c_char,
                 onames: &u_optname as *const optname as *mut optname,
-                otype: 0o2 as std::ffi::c_int | 0o40 as std::ffi::c_int
-                    | 0o200 as std::ffi::c_int,
+                otype: 0o2 as std::ffi::c_int | 0o40 as std::ffi::c_int | 0o200 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: &bs_mode as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
                     b"Display underlined text in underline mode\0" as *const u8
                         as *const std::ffi::c_char,
-                    b"Backspaces cause overstrike\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Backspaces cause overstrike\0" as *const u8 as *const std::ffi::c_char,
                     b"Print backspace as ^H\0" as *const u8 as *const std::ffi::c_char,
                 ],
             };
@@ -1425,11 +1347,7 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt__V
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt__V as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     0 as *const std::ffi::c_char,
@@ -1448,12 +1366,11 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &show_attn as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Don't highlight first unread line\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't highlight first unread line\0" as *const u8 as *const std::ffi::c_char,
                     b"Highlight first unread line after forward-screen\0" as *const u8
                         as *const std::ffi::c_char,
-                    b"Highlight first unread line after any forward movement\0"
-                        as *const u8 as *const std::ffi::c_char,
+                    b"Highlight first unread line after any forward movement\0" as *const u8
+                        as *const std::ffi::c_char,
                 ],
             };
             init
@@ -1466,11 +1383,7 @@ static mut option: [loption; 78] = unsafe {
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
-                    opt_x
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                    opt_x as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Tab stops: \0" as *const u8 as *const std::ffi::c_char,
@@ -1491,8 +1404,7 @@ static mut option: [loption; 78] = unsafe {
                 odesc: [
                     b"Send init/deinit strings to terminal\0" as *const u8
                         as *const std::ffi::c_char,
-                    b"Don't use init/deinit strings\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't use init/deinit strings\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1508,8 +1420,7 @@ static mut option: [loption; 78] = unsafe {
                 ofunc: None,
                 odesc: [
                     b"Forward scroll limit: \0" as *const u8 as *const std::ffi::c_char,
-                    b"Forward scroll limit is %d lines\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Forward scroll limit is %d lines\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1525,8 +1436,7 @@ static mut option: [loption; 78] = unsafe {
                 ofunc: None,
                 odesc: [
                     b"Scroll window size: \0" as *const u8 as *const std::ffi::c_char,
-                    b"Scroll window size is %d lines\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Scroll window size is %d lines\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1541,10 +1451,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_quote
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"quotes: \0" as *const u8 as *const std::ffi::c_char,
@@ -1565,8 +1472,7 @@ static mut option: [loption; 78] = unsafe {
                 odesc: [
                     b"Don't show tildes after end of file\0" as *const u8
                         as *const std::ffi::c_char,
-                    b"Show tildes after end of file\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Show tildes after end of file\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1581,10 +1487,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_query
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     0 as *const std::ffi::c_char,
@@ -1603,10 +1506,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_shift
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Horizontal shift: \0" as *const u8 as *const std::ffi::c_char,
@@ -1641,10 +1541,8 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &oldbot as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Use new bottom of screen behavior\0" as *const u8
-                        as *const std::ffi::c_char,
-                    b"Use old bottom of screen behavior\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Use new bottom of screen behavior\0" as *const u8 as *const std::ffi::c_char,
+                    b"Use old bottom of screen behavior\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1659,10 +1557,8 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &follow_mode as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"F command follows file descriptor\0" as *const u8
-                        as *const std::ffi::c_char,
-                    b"F command follows file name\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"F command follows file descriptor\0" as *const u8 as *const std::ffi::c_char,
+                    b"F command follows file name\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1674,14 +1570,13 @@ static mut option: [loption; 78] = unsafe {
                 onames: &use_backslash_optname as *const optname as *mut optname,
                 otype: 0o1 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
-                ovar: &opt_use_backslash as *const std::ffi::c_int
-                    as *mut std::ffi::c_int,
+                ovar: &opt_use_backslash as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
                     b"Use backslash escaping in command line parameters\0" as *const u8
                         as *const std::ffi::c_char,
-                    b"Don't use backslash escaping in command line parameters\0"
-                        as *const u8 as *const std::ffi::c_char,
+                    b"Don't use backslash escaping in command line parameters\0" as *const u8
+                        as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1691,16 +1586,14 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: '\u{1}' as i32 as std::ffi::c_char,
                 onames: &rscroll_optname as *const optname as *mut optname,
-                otype: 0o10 as std::ffi::c_int | 0o40 as std::ffi::c_int
+                otype: 0o10 as std::ffi::c_int
+                    | 0o40 as std::ffi::c_int
                     | 0o1000 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_rscroll
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"rscroll character: \0" as *const u8 as *const std::ffi::c_char,
@@ -1719,8 +1612,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &no_hist_dups as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Allow duplicates in history list\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Allow duplicates in history list\0" as *const u8 as *const std::ffi::c_char,
                     b"Remove duplicates from history list\0" as *const u8
                         as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
@@ -1737,15 +1629,11 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &mousecap as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_mousecap
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Ignore mouse input\0" as *const u8 as *const std::ffi::c_char,
-                    b"Use the mouse for scrolling\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Use the mouse for scrolling\0" as *const u8 as *const std::ffi::c_char,
                     b"Use the mouse for scrolling (reverse)\0" as *const u8
                         as *const std::ffi::c_char,
                 ],
@@ -1761,16 +1649,11 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &wheel_lines as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_wheel_lines
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
-                    b"Lines to scroll on mouse wheel: \0" as *const u8
-                        as *const std::ffi::c_char,
-                    b"Scroll %d line(s) on mouse wheel\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Lines to scroll on mouse wheel: \0" as *const u8 as *const std::ffi::c_char,
+                    b"Scroll %d line(s) on mouse wheel\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1785,10 +1668,8 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &perma_marks as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Don't save marks in history file\0" as *const u8
-                        as *const std::ffi::c_char,
-                    b"Save marks in history file\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't save marks in history file\0" as *const u8 as *const std::ffi::c_char,
+                    b"Save marks in history file\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1803,15 +1684,11 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &linenum_width as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_linenum_width
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Line number width: \0" as *const u8 as *const std::ffi::c_char,
-                    b"Line number width is %d chars\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Line number width is %d chars\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1823,19 +1700,14 @@ static mut option: [loption; 78] = unsafe {
                 onames: &status_col_width_optname as *const optname as *mut optname,
                 otype: 0o4 as std::ffi::c_int | 0o40 as std::ffi::c_int,
                 odefault: 2 as std::ffi::c_int,
-                ovar: &status_col_width as *const std::ffi::c_int
-                    as *mut std::ffi::c_int,
+                ovar: &status_col_width as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_status_col_width
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Status column width: \0" as *const u8 as *const std::ffi::c_char,
-                    b"Status column width is %d chars\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Status column width is %d chars\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1850,10 +1722,8 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &incr_search as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Incremental search is off\0" as *const u8
-                        as *const std::ffi::c_char,
-                    b"Incremental search is on\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Incremental search is off\0" as *const u8 as *const std::ffi::c_char,
+                    b"Incremental search is on\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -1884,14 +1754,10 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &want_filesize as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_filesize
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
-                    b"Don't get size of each file\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't get size of each file\0" as *const u8 as *const std::ffi::c_char,
                     b"Get size of each file\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
@@ -1925,10 +1791,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_header
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Header lines: \0" as *const u8 as *const std::ffi::c_char,
@@ -1947,10 +1810,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &no_paste as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_no_paste
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Accept pasted input\0" as *const u8 as *const std::ffi::c_char,
@@ -1966,8 +1826,7 @@ static mut option: [loption; 78] = unsafe {
                 onames: &form_feed_optname as *const optname as *mut optname,
                 otype: 0o1 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
-                ovar: &stop_on_form_feed as *const std::ffi::c_int
-                    as *mut std::ffi::c_int,
+                ovar: &stop_on_form_feed as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
                     b"Don't stop on form feed\0" as *const u8 as *const std::ffi::c_char,
@@ -2005,8 +1864,7 @@ static mut option: [loption; 78] = unsafe {
                 ofunc: None,
                 odesc: [
                     b"Number header lines\0" as *const u8 as *const std::ffi::c_char,
-                    b"Don't number header lines\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't number header lines\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -2021,10 +1879,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_nosearch_headers
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     0 as *const std::ffi::c_char,
@@ -2043,10 +1898,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_nosearch_header_lines
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     0 as *const std::ffi::c_char,
@@ -2065,10 +1917,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_nosearch_header_cols
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     0 as *const std::ffi::c_char,
@@ -2087,10 +1936,8 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &redraw_on_quit as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Don't redraw screen when quitting\0" as *const u8
-                        as *const std::ffi::c_char,
-                    b"Redraw last screen when quitting\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't redraw screen when quitting\0" as *const u8 as *const std::ffi::c_char,
+                    b"Redraw last screen when quitting\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -2105,10 +1952,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_search_type
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Search options: \0" as *const u8 as *const std::ffi::c_char,
@@ -2129,8 +1973,7 @@ static mut option: [loption; 78] = unsafe {
                 odesc: [
                     b"Don't exit F command when input closes\0" as *const u8
                         as *const std::ffi::c_char,
-                    b"Exit F command when input closes\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Exit F command when input closes\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -2146,8 +1989,7 @@ static mut option: [loption; 78] = unsafe {
                 ofunc: None,
                 odesc: [
                     b"Display visual bell\0" as *const u8 as *const std::ffi::c_char,
-                    b"Don't display visual bell\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Don't display visual bell\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
             };
@@ -2180,10 +2022,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_intr
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"interrupt character: \0" as *const u8 as *const std::ffi::c_char,
@@ -2202,8 +2041,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: &wordwrap as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Wrap lines at any character\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Wrap lines at any character\0" as *const u8 as *const std::ffi::c_char,
                     b"Wrap lines at spaces\0" as *const u8 as *const std::ffi::c_char,
                     0 as *const std::ffi::c_char,
                 ],
@@ -2216,8 +2054,7 @@ static mut option: [loption; 78] = unsafe {
                 onames: &show_preproc_error_optname as *const optname as *mut optname,
                 otype: 0o1 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
-                ovar: &show_preproc_error as *const std::ffi::c_int
-                    as *mut std::ffi::c_int,
+                ovar: &show_preproc_error as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
                     b"Don't show error message if preprocessor fails\0" as *const u8
@@ -2233,8 +2070,7 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: '\u{1}' as i32 as std::ffi::c_char,
                 onames: &proc_backspace_optname as *const optname as *mut optname,
-                otype: 0o2 as std::ffi::c_int | 0o40 as std::ffi::c_int
-                    | 0o200 as std::ffi::c_int,
+                otype: 0o2 as std::ffi::c_int | 0o40 as std::ffi::c_int | 0o200 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: &proc_backspace as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
@@ -2252,8 +2088,7 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: '\u{1}' as i32 as std::ffi::c_char,
                 onames: &proc_tab_optname as *const optname as *mut optname,
-                otype: 0o2 as std::ffi::c_int | 0o40 as std::ffi::c_int
-                    | 0o200 as std::ffi::c_int,
+                otype: 0o2 as std::ffi::c_int | 0o40 as std::ffi::c_int | 0o200 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: &proc_tab as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
@@ -2270,18 +2105,16 @@ static mut option: [loption; 78] = unsafe {
             let mut init = loption {
                 oletter: '\u{1}' as i32 as std::ffi::c_char,
                 onames: &proc_return_optname as *const optname as *mut optname,
-                otype: 0o2 as std::ffi::c_int | 0o40 as std::ffi::c_int
-                    | 0o200 as std::ffi::c_int,
+                otype: 0o2 as std::ffi::c_int | 0o40 as std::ffi::c_int | 0o200 as std::ffi::c_int,
                 odefault: 0 as std::ffi::c_int,
                 ovar: &proc_return as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: None,
                 odesc: [
-                    b"Carriage return handling is specified by the -U option\0"
-                        as *const u8 as *const std::ffi::c_char,
+                    b"Carriage return handling is specified by the -U option\0" as *const u8
+                        as *const std::ffi::c_char,
                     b"Delete carriage return before newline\0" as *const u8
                         as *const std::ffi::c_char,
-                    b"Print carriage return as ^M\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Print carriage return as ^M\0" as *const u8 as *const std::ffi::c_char,
                 ],
             };
             init
@@ -2295,10 +2128,7 @@ static mut option: [loption; 78] = unsafe {
                 ovar: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 ofunc: Some(
                     opt_match_shift
-                        as unsafe extern "C" fn(
-                            std::ffi::c_int,
-                            *const std::ffi::c_char,
-                        ) -> (),
+                        as unsafe extern "C" fn(std::ffi::c_int, *const std::ffi::c_char) -> (),
                 ),
                 odesc: [
                     b"Search match shift: \0" as *const u8 as *const std::ffi::c_char,
@@ -2333,8 +2163,7 @@ pub unsafe extern "C" fn init_option() {
     p = lgetenv(b"LESS_IS_MORE\0" as *const u8 as *const std::ffi::c_char);
     if isnullenv(p) as u64 == 0
         && !(*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '0' as i32
-            && *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                == '\0' as i32)
+            && *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32)
     {
         less_is_more = 1 as std::ffi::c_int;
     }
@@ -2345,15 +2174,12 @@ pub unsafe extern "C" fn init_option() {
         }
         if (*o).otype & 0o1000 as std::ffi::c_int != 0 {
             (Some(((*o).ofunc).expect("non-null function pointer")))
-                .expect(
-                    "non-null function pointer",
-                )(
+                .expect("non-null function pointer")(
                 0 as std::ffi::c_int,
                 0 as *mut std::ffi::c_void as *mut std::ffi::c_char,
             );
         }
         o = o.offset(1);
-        o;
     }
 }
 #[no_mangle]
@@ -2370,7 +2196,6 @@ pub unsafe extern "C" fn findopt(mut c: std::ffi::c_int) -> *mut loption {
             return o;
         }
         o = o.offset(1);
-        o;
     }
     return 0 as *mut loption;
 }
@@ -2410,8 +2235,7 @@ pub unsafe extern "C" fn findopt_name(
             while uppercase <= 1 as std::ffi::c_int {
                 len = sprefix(optname, (*oname).oname, uppercase);
                 if !(len == 0 as std::ffi::c_int as size_t
-                    || is_optchar(*optname.offset(len as isize)) as std::ffi::c_uint
-                        != 0)
+                    || is_optchar(*optname.offset(len as isize)) as std::ffi::c_uint != 0)
                 {
                     if exact as u64 == 0 && len == maxlen {
                         ambig = LTRUE;
@@ -2420,20 +2244,17 @@ pub unsafe extern "C" fn findopt_name(
                         maxoname = oname;
                         maxlen = len;
                         ambig = LFALSE;
-                        exact = (len == strlen((*oname).oname)) as std::ffi::c_int
-                            as lbool;
+                        exact = (len == strlen((*oname).oname)) as std::ffi::c_int as lbool;
                     }
                     if (*o).otype & 0o2 as std::ffi::c_int == 0 {
                         break;
                     }
                 }
                 uppercase += 1;
-                uppercase;
             }
             oname = (*oname).onext;
         }
         o = o.offset(1);
-        o;
     }
     if !p_ambig.is_null() {
         *p_ambig = ambig;
@@ -2452,9 +2273,7 @@ pub unsafe extern "C" fn findopt_name(
     return maxo;
 }
 #[no_mangle]
-pub unsafe extern "C" fn findopts_name(
-    mut pfx: *const std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+pub unsafe extern "C" fn findopts_name(mut pfx: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut o: *const loption = 0 as *const loption;
     let mut oname: *const optname = 0 as *const optname;
     let mut xbuf: xbuffer = xbuffer {
@@ -2474,8 +2293,7 @@ pub unsafe extern "C" fn findopts_name(
                 while uppercase <= 1 as std::ffi::c_int {
                     let mut len: size_t = sprefix(pfx, (*oname).oname, uppercase);
                     if len >= strlen(pfx) {
-                        let mut np: *const std::ffi::c_char = 0
-                            as *const std::ffi::c_char;
+                        let mut np: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
                         np = (*oname).oname;
                         while *np as std::ffi::c_int != '\0' as i32 {
                             xbuf_add_char(
@@ -2490,7 +2308,6 @@ pub unsafe extern "C" fn findopts_name(
                                 }) as std::ffi::c_char,
                             );
                             np = np.offset(1);
-                            np;
                         }
                         xbuf_add_char(&mut xbuf, ' ' as i32 as std::ffi::c_char);
                     }
@@ -2498,13 +2315,11 @@ pub unsafe extern "C" fn findopts_name(
                         break;
                     }
                     uppercase += 1;
-                    uppercase;
                 }
                 oname = (*oname).onext;
             }
         }
         o = o.offset(1);
-        o;
     }
     xbuf_pop(&mut xbuf);
     xbuf_add_char(&mut xbuf, '\0' as i32 as std::ffi::c_char);

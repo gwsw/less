@@ -1,5 +1,5 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -7,11 +7,7 @@ extern "C" {
     static mut stdin: *mut FILE;
     fn fclose(__stream: *mut FILE) -> std::ffi::c_int;
     fn fopen(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> *mut FILE;
-    fn sprintf(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-        _: ...
-    ) -> std::ffi::c_int;
+    fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
     fn fgetc(__stream: *mut FILE) -> std::ffi::c_int;
     fn fgets(
         __s: *mut std::ffi::c_char,
@@ -19,15 +15,8 @@ extern "C" {
         __stream: *mut FILE,
     ) -> *mut std::ffi::c_char;
     fn pclose(__stream: *mut FILE) -> std::ffi::c_int;
-    fn popen(
-        __command: *const std::ffi::c_char,
-        __modes: *const std::ffi::c_char,
-    ) -> *mut FILE;
-    fn open(
-        __file: *const std::ffi::c_char,
-        __oflag: std::ffi::c_int,
-        _: ...
-    ) -> std::ffi::c_int;
+    fn popen(__command: *const std::ffi::c_char, __modes: *const std::ffi::c_char) -> *mut FILE;
+    fn open(__file: *const std::ffi::c_char, __oflag: std::ffi::c_int, _: ...) -> std::ffi::c_int;
     fn close(__fd: std::ffi::c_int) -> std::ffi::c_int;
     fn __ctype_b_loc() -> *mut *const std::ffi::c_ushort;
     fn strtol(
@@ -36,10 +25,7 @@ extern "C" {
         _: std::ffi::c_int,
     ) -> std::ffi::c_long;
     fn free(_: *mut std::ffi::c_void);
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
     fn strncmp(
         _: *const std::ffi::c_char,
@@ -189,9 +175,8 @@ unsafe extern "C" fn atoi(mut __nptr: *const std::ffi::c_char) -> std::ffi::c_in
     ) as std::ffi::c_int;
 }
 #[no_mangle]
-pub static mut ztags: [std::ffi::c_char; 5] = unsafe {
-    *::core::mem::transmute::<&[u8; 5], &[std::ffi::c_char; 5]>(b"tags\0")
-};
+pub static mut ztags: [std::ffi::c_char; 5] =
+    unsafe { *::core::mem::transmute::<&[u8; 5], &[std::ffi::c_char; 5]>(b"tags\0") };
 #[no_mangle]
 pub static mut tags: *const std::ffi::c_char = unsafe { ztags.as_ptr() };
 static mut total: std::ffi::c_int = 0;
@@ -235,8 +220,7 @@ unsafe extern "C" fn maketagent(
         ::core::mem::size_of::<tag>() as std::ffi::c_ulong,
         1 as std::ffi::c_int as size_t,
     ) as *mut tag;
-    (*tp)
-        .tag_file = ecalloc(
+    (*tp).tag_file = ecalloc(
         (strlen(file)).wrapping_add(1 as std::ffi::c_int as std::ffi::c_ulong),
         ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
     ) as *mut std::ffi::c_char;
@@ -246,8 +230,7 @@ unsafe extern "C" fn maketagent(
     if pattern.is_null() {
         (*tp).tag_pattern = 0 as *mut std::ffi::c_char;
     } else {
-        (*tp)
-            .tag_pattern = ecalloc(
+        (*tp).tag_pattern = ecalloc(
             (strlen(pattern)).wrapping_add(1 as std::ffi::c_int as std::ffi::c_ulong),
             ::core::mem::size_of::<std::ffi::c_char>() as std::ffi::c_ulong,
         ) as *mut std::ffi::c_char;
@@ -258,29 +241,19 @@ unsafe extern "C" fn maketagent(
 #[no_mangle]
 pub unsafe extern "C" fn gettagtype() -> std::ffi::c_int {
     let mut f: std::ffi::c_int = 0;
-    if strcmp(tags, b"GTAGS\0" as *const u8 as *const std::ffi::c_char)
-        == 0 as std::ffi::c_int
-    {
+    if strcmp(tags, b"GTAGS\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int {
         return T_GTAGS as std::ffi::c_int;
     }
-    if strcmp(tags, b"GRTAGS\0" as *const u8 as *const std::ffi::c_char)
-        == 0 as std::ffi::c_int
-    {
+    if strcmp(tags, b"GRTAGS\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int {
         return T_GRTAGS as std::ffi::c_int;
     }
-    if strcmp(tags, b"GSYMS\0" as *const u8 as *const std::ffi::c_char)
-        == 0 as std::ffi::c_int
-    {
+    if strcmp(tags, b"GSYMS\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int {
         return T_GSYMS as std::ffi::c_int;
     }
-    if strcmp(tags, b"GPATH\0" as *const u8 as *const std::ffi::c_char)
-        == 0 as std::ffi::c_int
-    {
+    if strcmp(tags, b"GPATH\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int {
         return T_GPATH as std::ffi::c_int;
     }
-    if strcmp(tags, b"-\0" as *const u8 as *const std::ffi::c_char)
-        == 0 as std::ffi::c_int
-    {
+    if strcmp(tags, b"-\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int {
         return T_CTAGS_X as std::ffi::c_int;
     }
     f = open(tags, 0 as std::ffi::c_int);
@@ -327,15 +300,14 @@ pub unsafe extern "C" fn tagsearch() -> POSITION {
         return -(1 as std::ffi::c_int) as POSITION;
     }
     if (*curtag).tag_linenum != 0 as std::ffi::c_int as LINENUM {
-        return gtagsearch()
+        return gtagsearch();
     } else {
-        return ctagsearch()
+        return ctagsearch();
     };
 }
 #[no_mangle]
 pub unsafe extern "C" fn nexttag(mut n: std::ffi::c_int) -> *const std::ffi::c_char {
-    let mut tagfile: *const std::ffi::c_char = 0 as *mut std::ffi::c_void
-        as *mut std::ffi::c_char;
+    let mut tagfile: *const std::ffi::c_char = 0 as *mut std::ffi::c_void as *mut std::ffi::c_char;
     loop {
         let fresh0 = n;
         n = n - 1;
@@ -348,8 +320,7 @@ pub unsafe extern "C" fn nexttag(mut n: std::ffi::c_int) -> *const std::ffi::c_c
 }
 #[no_mangle]
 pub unsafe extern "C" fn prevtag(mut n: std::ffi::c_int) -> *const std::ffi::c_char {
-    let mut tagfile: *const std::ffi::c_char = 0 as *mut std::ffi::c_void
-        as *mut std::ffi::c_char;
+    let mut tagfile: *const std::ffi::c_char = 0 as *mut std::ffi::c_void as *mut std::ffi::c_char;
     loop {
         let fresh1 = n;
         n = n - 1;
@@ -392,11 +363,10 @@ unsafe extern "C" fn findctag(mut tag: *const std::ffi::c_char) -> tag_result {
     taglen = strlen(tag);
     while !(fgets(
         tline.as_mut_ptr(),
-        ::core::mem::size_of::<[std::ffi::c_char; 1024]>() as std::ffi::c_ulong
-            as std::ffi::c_int,
+        ::core::mem::size_of::<[std::ffi::c_char; 1024]>() as std::ffi::c_ulong as std::ffi::c_int,
         f,
     ))
-        .is_null()
+    .is_null()
     {
         if !(tline[0 as std::ffi::c_int as usize] as std::ffi::c_int == '!' as i32) {
             if strncmp(tag, tline.as_mut_ptr(), taglen) != 0 as std::ffi::c_int
@@ -409,12 +379,10 @@ unsafe extern "C" fn findctag(mut tag: *const std::ffi::c_char) -> tag_result {
             p = skipsp(tline.as_mut_ptr().offset(taglen as isize));
             if !(*p as std::ffi::c_int == '\0' as i32) {
                 tagfile = p;
-                while !(*p as std::ffi::c_int == ' ' as i32
-                    || *p as std::ffi::c_int == '\t' as i32)
+                while !(*p as std::ffi::c_int == ' ' as i32 || *p as std::ffi::c_int == '\t' as i32)
                     && *p as std::ffi::c_int != '\0' as i32
                 {
                     p = p.offset(1);
-                    p;
                 }
                 let fresh2 = p;
                 p = p.offset(1);
@@ -422,8 +390,7 @@ unsafe extern "C" fn findctag(mut tag: *const std::ffi::c_char) -> tag_result {
                 p = skipsp(p);
                 if !(*p as std::ffi::c_int == '\0' as i32) {
                     tagendline = LFALSE;
-                    taglinenum = getnum(&mut p, 0 as *const std::ffi::c_char, &mut err)
-                        as LINENUM;
+                    taglinenum = getnum(&mut p, 0 as *const std::ffi::c_char, &mut err) as LINENUM;
                     if err as u64 != 0 {
                         taglinenum = 0 as std::ffi::c_int as LINENUM;
                         let fresh3 = p;
@@ -431,7 +398,6 @@ unsafe extern "C" fn findctag(mut tag: *const std::ffi::c_char) -> tag_result {
                         search_char = *fresh3 as std::ffi::c_int;
                         if *p as std::ffi::c_int == '^' as i32 {
                             p = p.offset(1);
-                            p;
                         }
                         q = p;
                         tagpattern = q;
@@ -440,7 +406,6 @@ unsafe extern "C" fn findctag(mut tag: *const std::ffi::c_char) -> tag_result {
                         {
                             if *p as std::ffi::c_int == '\\' as i32 {
                                 p = p.offset(1);
-                                p;
                             }
                             if q != p {
                                 let fresh4 = p;
@@ -450,17 +415,15 @@ unsafe extern "C" fn findctag(mut tag: *const std::ffi::c_char) -> tag_result {
                                 *fresh5 = *fresh4;
                             } else {
                                 q = q.offset(1);
-                                q;
                                 p = p.offset(1);
-                                p;
                             }
                         }
                         tagendline = (*q.offset(-(1 as std::ffi::c_int) as isize)
-                            as std::ffi::c_int == '$' as i32) as std::ffi::c_int
+                            as std::ffi::c_int
+                            == '$' as i32) as std::ffi::c_int
                             as lbool;
                         if tagendline as u64 != 0 {
                             q = q.offset(-1);
-                            q;
                         }
                         *q = '\0' as i32 as std::ffi::c_char;
                     }
@@ -470,7 +433,6 @@ unsafe extern "C" fn findctag(mut tag: *const std::ffi::c_char) -> tag_result {
                     (*taglist.tl_last).next = tp;
                     taglist.tl_last = tp;
                     total += 1;
-                    total;
                 }
             }
         }
@@ -519,7 +481,8 @@ unsafe extern "C" fn ctagsearch() -> POSITION {
         if sigs
             & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                 | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+            != 0
         {
             return -(1 as std::ffi::c_int) as POSITION;
         }
@@ -527,7 +490,6 @@ unsafe extern "C" fn ctagsearch() -> POSITION {
         pos = forw_raw_line(pos, &mut line, &mut line_len);
         if linenum != 0 as std::ffi::c_int as LINENUM {
             linenum += 1;
-            linenum;
         }
         if pos == -(1 as std::ffi::c_int) as POSITION {
             error(
@@ -547,10 +509,8 @@ unsafe extern "C" fn ctagsearch() -> POSITION {
             let mut cvt_ops: std::ffi::c_int = 0o10 as std::ffi::c_int;
             let mut cvt_len: size_t = cvt_length(line_len, cvt_ops);
             let mut chpos: *mut std::ffi::c_int = cvt_alloc_chpos(cvt_len);
-            let mut cline: *mut std::ffi::c_char = ecalloc(
-                1 as std::ffi::c_int as size_t,
-                cvt_len,
-            ) as *mut std::ffi::c_char;
+            let mut cline: *mut std::ffi::c_char =
+                ecalloc(1 as std::ffi::c_int as size_t, cvt_len) as *mut std::ffi::c_char;
             cvt_text(cline, line, chpos, &mut line_len, cvt_ops);
             if curtag_match(cline, linepos) != 0 {
                 found = 1 as std::ffi::c_int;
@@ -580,28 +540,23 @@ unsafe extern "C" fn findgtag(
         let mut command: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
         let mut flag: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
         let mut qtag: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
-        let mut cmd: *const std::ffi::c_char = lgetenv(
-            b"LESSGLOBALTAGS\0" as *const u8 as *const std::ffi::c_char,
-        );
+        let mut cmd: *const std::ffi::c_char =
+            lgetenv(b"LESSGLOBALTAGS\0" as *const u8 as *const std::ffi::c_char);
         if isnullenv(cmd) as u64 != 0 {
             return TAG_NOFILE;
         }
         match type_0 {
             2 => {
-                flag = b"\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char;
+                flag = b"\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char;
             }
             3 => {
-                flag = b"r\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char;
+                flag = b"r\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char;
             }
             4 => {
-                flag = b"s\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char;
+                flag = b"s\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char;
             }
             5 => {
-                flag = b"P\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char;
+                flag = b"P\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char;
             }
             _ => return TAG_NOTYPE,
         }
@@ -634,7 +589,7 @@ unsafe extern "C" fn findgtag(
                 as std::ffi::c_int,
             fp,
         ))
-            .is_null()
+        .is_null()
         {
             let mut name: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
             let mut file: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
@@ -648,11 +603,11 @@ unsafe extern "C" fn findgtag(
             }
             len = strlen(buf.as_mut_ptr());
             if len > 0 as std::ffi::c_int as size_t
-                && buf[len.wrapping_sub(1 as std::ffi::c_int as size_t) as usize]
-                    as std::ffi::c_int == '\n' as i32
+                && buf[len.wrapping_sub(1 as std::ffi::c_int as size_t) as usize] as std::ffi::c_int
+                    == '\n' as i32
             {
-                buf[len.wrapping_sub(1 as std::ffi::c_int as size_t)
-                    as usize] = '\0' as i32 as std::ffi::c_char;
+                buf[len.wrapping_sub(1 as std::ffi::c_int as size_t) as usize] =
+                    '\0' as i32 as std::ffi::c_char;
             } else {
                 let mut c: std::ffi::c_int = 0;
                 loop {
@@ -676,7 +631,6 @@ unsafe extern "C" fn findgtag(
             (*taglist.tl_last).next = tp;
             taglist.tl_last = tp;
             total += 1;
-            total;
         }
         if fp != stdin {
             if pclose(fp) != 0 {
@@ -711,7 +665,6 @@ unsafe extern "C" fn nextgtag() -> *const std::ffi::c_char {
     } else {
         curtag = tp;
         curseq += 1;
-        curseq;
     }
     return (*curtag).tag_file;
 }
@@ -730,7 +683,6 @@ unsafe extern "C" fn prevgtag() -> *const std::ffi::c_char {
     } else {
         curtag = tp;
         curseq -= 1;
-        curseq;
     }
     return (*curtag).tag_file;
 }
@@ -749,13 +701,12 @@ unsafe extern "C" fn getentry(
     let mut p: *mut std::ffi::c_char = buf;
     *tag = p;
     while *p as std::ffi::c_int != 0
-        && *(*__ctype_b_loc())
-            .offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
+        && *(*__ctype_b_loc()).offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
             as std::ffi::c_int
-            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int == 0
+            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
+            == 0
     {
         p = p.offset(1);
-        p;
     }
     if *p as std::ffi::c_int == 0 as std::ffi::c_int {
         return -(1 as std::ffi::c_int);
@@ -764,58 +715,54 @@ unsafe extern "C" fn getentry(
     p = p.offset(1);
     *fresh6 = 0 as std::ffi::c_int as std::ffi::c_char;
     while *p as std::ffi::c_int != 0
-        && *(*__ctype_b_loc())
-            .offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
+        && *(*__ctype_b_loc()).offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
             as std::ffi::c_int
-            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int != 0
+            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
+            != 0
     {
         p = p.offset(1);
-        p;
     }
     if *p as std::ffi::c_int == 0 as std::ffi::c_int {
         return -(1 as std::ffi::c_int);
     }
     if *(*__ctype_b_loc()).offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
         as std::ffi::c_int
-        & _ISdigit as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int == 0
+        & _ISdigit as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
+        == 0
     {
         while *p as std::ffi::c_int != 0
-            && *(*__ctype_b_loc())
-                .offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
+            && *(*__ctype_b_loc()).offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
                 as std::ffi::c_int
                 & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
                 == 0
         {
             p = p.offset(1);
-            p;
         }
         while *p as std::ffi::c_int != 0
-            && *(*__ctype_b_loc())
-                .offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
+            && *(*__ctype_b_loc()).offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
                 as std::ffi::c_int
                 & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
                 != 0
         {
             p = p.offset(1);
-            p;
         }
     }
     if *(*__ctype_b_loc()).offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
         as std::ffi::c_int
-        & _ISdigit as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int == 0
+        & _ISdigit as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
+        == 0
     {
         return -(1 as std::ffi::c_int);
     }
     *line = p;
     *line = p;
     while *p as std::ffi::c_int != 0
-        && *(*__ctype_b_loc())
-            .offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
+        && *(*__ctype_b_loc()).offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
             as std::ffi::c_int
-            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int == 0
+            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
+            == 0
     {
         p = p.offset(1);
-        p;
     }
     if *p as std::ffi::c_int == 0 as std::ffi::c_int {
         return -(1 as std::ffi::c_int);
@@ -824,13 +771,12 @@ unsafe extern "C" fn getentry(
     p = p.offset(1);
     *fresh7 = 0 as std::ffi::c_int as std::ffi::c_char;
     while *p as std::ffi::c_int != 0
-        && *(*__ctype_b_loc())
-            .offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
+        && *(*__ctype_b_loc()).offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
             as std::ffi::c_int
-            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int != 0
+            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
+            != 0
     {
         p = p.offset(1);
-        p;
     }
     if *p as std::ffi::c_int == 0 as std::ffi::c_int {
         return -(1 as std::ffi::c_int);
@@ -838,19 +784,20 @@ unsafe extern "C" fn getentry(
     *file = p;
     *file = p;
     while *p as std::ffi::c_int != 0
-        && *(*__ctype_b_loc())
-            .offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
+        && *(*__ctype_b_loc()).offset(*p as std::ffi::c_uchar as std::ffi::c_int as isize)
             as std::ffi::c_int
-            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int == 0
+            & _ISspace as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
+            == 0
     {
         p = p.offset(1);
-        p;
     }
     if *p as std::ffi::c_int == 0 as std::ffi::c_int {
         return -(1 as std::ffi::c_int);
     }
     *p = 0 as std::ffi::c_int as std::ffi::c_char;
-    if strlen(*tag) != 0 && strlen(*line) != 0 && strlen(*file) != 0
+    if strlen(*tag) != 0
+        && strlen(*line) != 0
+        && strlen(*file) != 0
         && atoi(*line) > 0 as std::ffi::c_int
     {
         return 0 as std::ffi::c_int;

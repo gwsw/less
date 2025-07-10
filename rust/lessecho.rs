@@ -1,5 +1,5 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -10,10 +10,7 @@ extern "C" {
     fn malloc(_: std::ffi::c_ulong) -> *mut std::ffi::c_void;
     fn free(_: *mut std::ffi::c_void);
     fn exit(_: std::ffi::c_int) -> !;
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
     fn strchr(_: *const std::ffi::c_char, _: std::ffi::c_int) -> *mut std::ffi::c_char;
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
@@ -58,16 +55,15 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-static mut version: *mut std::ffi::c_char = b"$Revision: 1.15 $\0" as *const u8
-    as *const std::ffi::c_char as *mut std::ffi::c_char;
+static mut version: *mut std::ffi::c_char =
+    b"$Revision: 1.15 $\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char;
 static mut quote_all: std::ffi::c_int = 0 as std::ffi::c_int;
 static mut openquote: std::ffi::c_char = '"' as i32 as std::ffi::c_char;
 static mut closequote: std::ffi::c_char = '"' as i32 as std::ffi::c_char;
-static mut meta_escape: *mut std::ffi::c_char = b"\\\0" as *const u8
-    as *const std::ffi::c_char as *mut std::ffi::c_char;
+static mut meta_escape: *mut std::ffi::c_char =
+    b"\\\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char;
 static mut meta_escape_buf: [std::ffi::c_char; 2] = [0; 2];
-static mut metachars: *mut std::ffi::c_char = 0 as *const std::ffi::c_char
-    as *mut std::ffi::c_char;
+static mut metachars: *mut std::ffi::c_char = 0 as *const std::ffi::c_char as *mut std::ffi::c_char;
 static mut num_metachars: std::ffi::c_int = 0 as std::ffi::c_int;
 static mut size_metachars: std::ffi::c_int = 0 as std::ffi::c_int;
 unsafe extern "C" fn pr_usage() {
@@ -87,21 +83,22 @@ unsafe extern "C" fn pr_version() {
             return;
         }
         p = p.offset(1);
-        p;
     }
     p = p.offset(1);
-    p;
-    while *p as std::ffi::c_int != '$' as i32 && *p as std::ffi::c_int != ' ' as i32
+    while *p as std::ffi::c_int != '$' as i32
+        && *p as std::ffi::c_int != ' ' as i32
         && *p as std::ffi::c_int != '\0' as i32
     {
         let fresh0 = pbuf;
         pbuf = pbuf.offset(1);
         *fresh0 = *p;
         p = p.offset(1);
-        p;
     }
     *pbuf = '\0' as i32 as std::ffi::c_char;
-    printf(b"%s\n\0" as *const u8 as *const std::ffi::c_char, buf.as_mut_ptr());
+    printf(
+        b"%s\n\0" as *const u8 as *const std::ffi::c_char,
+        buf.as_mut_ptr(),
+    );
 }
 unsafe extern "C" fn pr_error(mut s: *mut std::ffi::c_char) {
     fprintf(stderr, b"%s\n\0" as *const u8 as *const std::ffi::c_char, s);
@@ -117,15 +114,12 @@ unsafe extern "C" fn lstrtol(
     let mut n: std::ffi::c_long = 0 as std::ffi::c_int as std::ffi::c_long;
     while *s as std::ffi::c_int == ' ' as i32 || *s as std::ffi::c_int == '\t' as i32 {
         s = s.offset(1);
-        s;
     }
     if *s as std::ffi::c_int == '-' as i32 {
         neg = 1 as std::ffi::c_int;
         s = s.offset(1);
-        s;
     } else if *s as std::ffi::c_int == '+' as i32 {
         s = s.offset(1);
-        s;
     }
     if radix == 0 as std::ffi::c_int {
         radix = 10 as std::ffi::c_int;
@@ -135,7 +129,6 @@ unsafe extern "C" fn lstrtol(
                 120 => {
                     radix = 16 as std::ffi::c_int;
                     s = s.offset(1);
-                    s;
                 }
                 _ => {
                     radix = 8 as std::ffi::c_int;
@@ -146,14 +139,10 @@ unsafe extern "C" fn lstrtol(
     loop {
         if *s as std::ffi::c_int >= '0' as i32 && *s as std::ffi::c_int <= '9' as i32 {
             v = *s as std::ffi::c_int - '0' as i32;
-        } else if *s as std::ffi::c_int >= 'a' as i32
-            && *s as std::ffi::c_int <= 'f' as i32
-        {
+        } else if *s as std::ffi::c_int >= 'a' as i32 && *s as std::ffi::c_int <= 'f' as i32 {
             v = *s as std::ffi::c_int - 'a' as i32 + 10 as std::ffi::c_int;
         } else {
-            if !(*s as std::ffi::c_int >= 'A' as i32
-                && *s as std::ffi::c_int <= 'F' as i32)
-            {
+            if !(*s as std::ffi::c_int >= 'A' as i32 && *s as std::ffi::c_int <= 'F' as i32) {
                 break;
             }
             v = *s as std::ffi::c_int - 'A' as i32 + 10 as std::ffi::c_int;
@@ -163,13 +152,10 @@ unsafe extern "C" fn lstrtol(
         }
         n = n * radix as std::ffi::c_long + v as std::ffi::c_long;
         s = s.offset(1);
-        s;
     }
     if !pend.is_null() {
-        while *s as std::ffi::c_int == ' ' as i32 || *s as std::ffi::c_int == '\t' as i32
-        {
+        while *s as std::ffi::c_int == ' ' as i32 || *s as std::ffi::c_int == '\t' as i32 {
             s = s.offset(1);
-            s;
         }
         *pend = s;
     }
@@ -205,8 +191,7 @@ unsafe extern "C" fn add_metachar(mut ch: std::ffi::c_char) {
     *metachars.offset(num_metachars as isize) = '\0' as i32 as std::ffi::c_char;
 }
 unsafe extern "C" fn is_metachar(mut ch: std::ffi::c_int) -> std::ffi::c_int {
-    return (!metachars.is_null() && !(strchr(metachars, ch)).is_null())
-        as std::ffi::c_int;
+    return (!metachars.is_null() && !(strchr(metachars, ch)).is_null()) as std::ffi::c_int;
 }
 unsafe fn main_0(
     mut argc: std::ffi::c_int,
@@ -237,12 +222,11 @@ unsafe fn main_0(
             }
             100 => {
                 arg = arg.offset(1);
-                closequote = lstrtol(arg, &mut s, 0 as std::ffi::c_int)
-                    as std::ffi::c_char;
+                closequote = lstrtol(arg, &mut s, 0 as std::ffi::c_int) as std::ffi::c_char;
                 if s == arg {
                     pr_error(
-                        b"Missing number after -d\0" as *const u8
-                            as *const std::ffi::c_char as *mut std::ffi::c_char,
+                        b"Missing number after -d\0" as *const u8 as *const std::ffi::c_char
+                            as *mut std::ffi::c_char,
                     );
                 }
             }
@@ -251,24 +235,22 @@ unsafe fn main_0(
                 if strcmp(arg, b"-\0" as *const u8 as *const std::ffi::c_char)
                     == 0 as std::ffi::c_int
                 {
-                    meta_escape = b"\0" as *const u8 as *const std::ffi::c_char
-                        as *mut std::ffi::c_char;
+                    meta_escape =
+                        b"\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char;
                 } else {
                     meta_escape = arg;
                 }
             }
             102 => {
                 arg = arg.offset(1);
-                meta_escape_buf[0 as std::ffi::c_int
-                    as usize] = lstrtol(arg, &mut s, 0 as std::ffi::c_int)
-                    as std::ffi::c_char;
-                meta_escape_buf[1 as std::ffi::c_int
-                    as usize] = '\0' as i32 as std::ffi::c_char;
+                meta_escape_buf[0 as std::ffi::c_int as usize] =
+                    lstrtol(arg, &mut s, 0 as std::ffi::c_int) as std::ffi::c_char;
+                meta_escape_buf[1 as std::ffi::c_int as usize] = '\0' as i32 as std::ffi::c_char;
                 meta_escape = meta_escape_buf.as_mut_ptr();
                 if s == arg {
                     pr_error(
-                        b"Missing number after -f\0" as *const u8
-                            as *const std::ffi::c_char as *mut std::ffi::c_char,
+                        b"Missing number after -f\0" as *const u8 as *const std::ffi::c_char
+                            as *mut std::ffi::c_char,
                     );
                 }
             }
@@ -278,12 +260,11 @@ unsafe fn main_0(
             }
             112 => {
                 arg = arg.offset(1);
-                openquote = lstrtol(arg, &mut s, 0 as std::ffi::c_int)
-                    as std::ffi::c_char;
+                openquote = lstrtol(arg, &mut s, 0 as std::ffi::c_int) as std::ffi::c_char;
                 if s == arg {
                     pr_error(
-                        b"Missing number after -p\0" as *const u8
-                            as *const std::ffi::c_char as *mut std::ffi::c_char,
+                        b"Missing number after -p\0" as *const u8 as *const std::ffi::c_char
+                            as *mut std::ffi::c_char,
                     );
                 }
             }
@@ -293,13 +274,11 @@ unsafe fn main_0(
             }
             110 => {
                 arg = arg.offset(1);
-                add_metachar(
-                    lstrtol(arg, &mut s, 0 as std::ffi::c_int) as std::ffi::c_char,
-                );
+                add_metachar(lstrtol(arg, &mut s, 0 as std::ffi::c_int) as std::ffi::c_char);
                 if s == arg {
                     pr_error(
-                        b"Missing number after -n\0" as *const u8
-                            as *const std::ffi::c_char as *mut std::ffi::c_char,
+                        b"Missing number after -n\0" as *const u8 as *const std::ffi::c_char
+                            as *mut std::ffi::c_char,
                     );
                 }
             }
@@ -325,8 +304,8 @@ unsafe fn main_0(
                         return 0 as std::ffi::c_int;
                     }
                     pr_error(
-                        b"Invalid option after --\0" as *const u8
-                            as *const std::ffi::c_char as *mut std::ffi::c_char,
+                        b"Invalid option after --\0" as *const u8 as *const std::ffi::c_char
+                            as *mut std::ffi::c_char,
                     );
                     return 0 as std::ffi::c_int;
                 }
@@ -356,12 +335,10 @@ unsafe fn main_0(
                 break;
             } else {
                 s = s.offset(1);
-                s;
             }
         }
         if quote_all != 0
-            || has_meta != 0
-                && strlen(meta_escape) == 0 as std::ffi::c_int as std::ffi::c_ulong
+            || has_meta != 0 && strlen(meta_escape) == 0 as std::ffi::c_int as std::ffi::c_ulong
         {
             printf(
                 b"%c%s%c\0" as *const u8 as *const std::ffi::c_char,
@@ -380,7 +357,6 @@ unsafe fn main_0(
                     *s as std::ffi::c_int,
                 );
                 s = s.offset(1);
-                s;
             }
         }
         if argc > 0 as std::ffi::c_int {
@@ -392,7 +368,7 @@ unsafe fn main_0(
     return 0 as std::ffi::c_int;
 }
 pub fn main() {
-    let mut args: Vec::<*mut std::ffi::c_char> = Vec::new();
+    let mut args: Vec<*mut std::ffi::c_char> = Vec::new();
     for arg in ::std::env::args() {
         args.push(
             (::std::ffi::CString::new(arg))
@@ -402,11 +378,9 @@ pub fn main() {
     }
     args.push(::core::ptr::null_mut());
     unsafe {
-        ::std::process::exit(
-            main_0(
-                (args.len() - 1) as std::ffi::c_int,
-                args.as_mut_ptr() as *mut *mut std::ffi::c_char,
-            ) as i32,
-        )
+        ::std::process::exit(main_0(
+            (args.len() - 1) as std::ffi::c_int,
+            args.as_mut_ptr() as *mut *mut std::ffi::c_char,
+        ) as i32)
     }
 }

@@ -56,7 +56,7 @@ pub struct linenum_info {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct delayed_msg {
-    pub message: Option::<unsafe extern "C" fn() -> ()>,
+    pub message: Option<unsafe extern "C" fn() -> ()>,
     pub loopcount: std::ffi::c_int,
     pub startime: time_t,
 }
@@ -82,18 +82,15 @@ pub static mut scanning_eof: lbool = LFALSE;
 pub unsafe extern "C" fn clr_linenum() {
     let mut p: *mut linenum_info = 0 as *mut linenum_info;
     p = pool.as_mut_ptr();
-    while p
-        < &mut *pool
-            .as_mut_ptr()
-            .offset((1024 as std::ffi::c_int - 2 as std::ffi::c_int) as isize)
-            as *mut linenum_info
+    while p < &mut *pool
+        .as_mut_ptr()
+        .offset((1024 as std::ffi::c_int - 2 as std::ffi::c_int) as isize)
+        as *mut linenum_info
     {
         (*p).next = p.offset(1 as std::ffi::c_int as isize);
         p = p.offset(1);
-        p;
     }
-    pool[(1024 as std::ffi::c_int - 2 as std::ffi::c_int) as usize]
-        .next = 0 as *mut linenum_info;
+    pool[(1024 as std::ffi::c_int - 2 as std::ffi::c_int) as usize].next = 0 as *mut linenum_info;
     freelist = pool.as_mut_ptr();
     spare = &mut *pool
         .as_mut_ptr()
@@ -106,9 +103,7 @@ pub unsafe extern "C" fn clr_linenum() {
     anchor.line = 1 as std::ffi::c_int as LINENUM;
 }
 unsafe extern "C" fn calcgap(mut p: *mut linenum_info) {
-    if p == &mut anchor as *mut linenum_info
-        || (*p).next == &mut anchor as *mut linenum_info
-    {
+    if p == &mut anchor as *mut linenum_info || (*p).next == &mut anchor as *mut linenum_info {
         return;
     }
     (*p).gap = (*(*p).next).pos - (*(*p).prev).pos;
@@ -167,19 +162,17 @@ unsafe extern "C" fn longloopmessage() {
 }
 unsafe extern "C" fn start_delayed_msg(
     mut dmsg: *mut delayed_msg,
-    mut message: Option::<unsafe extern "C" fn() -> ()>,
+    mut message: Option<unsafe extern "C" fn() -> ()>,
 ) {
     (*dmsg).loopcount = 0 as std::ffi::c_int;
     (*dmsg).message = message;
     (*dmsg).startime = get_time();
 }
 unsafe extern "C" fn delayed_msg(mut dmsg: *mut delayed_msg) {
-    if (*dmsg).loopcount >= 0 as std::ffi::c_int
-        && {
-            (*dmsg).loopcount += 1;
-            (*dmsg).loopcount > 100 as std::ffi::c_int
-        }
-    {
+    if (*dmsg).loopcount >= 0 as std::ffi::c_int && {
+        (*dmsg).loopcount += 1;
+        (*dmsg).loopcount > 100 as std::ffi::c_int
+    } {
         (*dmsg).loopcount = 0 as std::ffi::c_int;
         if get_time() >= (*dmsg).startime + 2 as std::ffi::c_int as time_t {
             ((*dmsg).message).expect("non-null function pointer")();
@@ -226,7 +219,10 @@ pub unsafe extern "C" fn find_linenum(mut pos: POSITION) -> LINENUM {
     if (*p).pos == pos {
         return (*p).line;
     }
-    start_delayed_msg(&mut dmsg, Some(longloopmessage as unsafe extern "C" fn() -> ()));
+    start_delayed_msg(
+        &mut dmsg,
+        Some(longloopmessage as unsafe extern "C" fn() -> ()),
+    );
     if p == &mut anchor as *mut linenum_info || pos - (*(*p).prev).pos < (*p).pos - pos {
         p = (*p).prev;
         if ch_seek((*p).pos) != 0 {
@@ -235,15 +231,12 @@ pub unsafe extern "C" fn find_linenum(mut pos: POSITION) -> LINENUM {
         linenum = (*p).line;
         cpos = (*p).pos;
         while cpos < pos {
-            cpos = forw_raw_line(
-                cpos,
-                0 as *mut *const std::ffi::c_char,
-                0 as *mut size_t,
-            );
+            cpos = forw_raw_line(cpos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
             if sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                != 0
             {
                 abort_delayed_msg(&mut dmsg);
                 return 0 as std::ffi::c_int as LINENUM;
@@ -253,12 +246,10 @@ pub unsafe extern "C" fn find_linenum(mut pos: POSITION) -> LINENUM {
             }
             delayed_msg(&mut dmsg);
             linenum += 1;
-            linenum;
         }
         add_lnum(linenum, cpos);
         if cpos > pos {
             linenum -= 1;
-            linenum;
         }
     } else {
         if ch_seek((*p).pos) != 0 {
@@ -267,15 +258,12 @@ pub unsafe extern "C" fn find_linenum(mut pos: POSITION) -> LINENUM {
         linenum = (*p).line;
         cpos = (*p).pos;
         while cpos > pos {
-            cpos = back_raw_line(
-                cpos,
-                0 as *mut *const std::ffi::c_char,
-                0 as *mut size_t,
-            );
+            cpos = back_raw_line(cpos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
             if sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                != 0
             {
                 abort_delayed_msg(&mut dmsg);
                 return 0 as std::ffi::c_int as LINENUM;
@@ -285,7 +273,6 @@ pub unsafe extern "C" fn find_linenum(mut pos: POSITION) -> LINENUM {
             }
             delayed_msg(&mut dmsg);
             linenum -= 1;
-            linenum;
         }
         add_lnum(linenum, cpos);
     }
@@ -306,9 +293,7 @@ pub unsafe extern "C" fn find_pos(mut linenum: LINENUM) -> POSITION {
     if (*p).line == linenum {
         return (*p).pos;
     }
-    if p == &mut anchor as *mut linenum_info
-        || linenum - (*(*p).prev).line < (*p).line - linenum
-    {
+    if p == &mut anchor as *mut linenum_info || linenum - (*(*p).prev).line < (*p).line - linenum {
         p = (*p).prev;
         if ch_seek((*p).pos) != 0 {
             return -(1 as std::ffi::c_int) as POSITION;
@@ -316,15 +301,12 @@ pub unsafe extern "C" fn find_pos(mut linenum: LINENUM) -> POSITION {
         clinenum = (*p).line;
         cpos = (*p).pos;
         while clinenum < linenum {
-            cpos = forw_raw_line(
-                cpos,
-                0 as *mut *const std::ffi::c_char,
-                0 as *mut size_t,
-            );
+            cpos = forw_raw_line(cpos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
             if sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                != 0
             {
                 return -(1 as std::ffi::c_int) as POSITION;
             }
@@ -332,7 +314,6 @@ pub unsafe extern "C" fn find_pos(mut linenum: LINENUM) -> POSITION {
                 return -(1 as std::ffi::c_int) as POSITION;
             }
             clinenum += 1;
-            clinenum;
         }
     } else {
         if ch_seek((*p).pos) != 0 {
@@ -341,15 +322,12 @@ pub unsafe extern "C" fn find_pos(mut linenum: LINENUM) -> POSITION {
         clinenum = (*p).line;
         cpos = (*p).pos;
         while clinenum > linenum {
-            cpos = back_raw_line(
-                cpos,
-                0 as *mut *const std::ffi::c_char,
-                0 as *mut size_t,
-            );
+            cpos = back_raw_line(cpos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
             if sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+                != 0
             {
                 return -(1 as std::ffi::c_int) as POSITION;
             }
@@ -357,7 +335,6 @@ pub unsafe extern "C" fn find_pos(mut linenum: LINENUM) -> POSITION {
                 return -(1 as std::ffi::c_int) as POSITION;
             }
             clinenum -= 1;
-            clinenum;
         }
     }
     add_lnum(clinenum, cpos);
@@ -370,7 +347,8 @@ pub unsafe extern "C" fn currline(mut where_0: std::ffi::c_int) -> LINENUM {
     let mut linenum: LINENUM = 0;
     pos = position(where_0);
     len = ch_length();
-    while pos == -(1 as std::ffi::c_int) as POSITION && where_0 >= 0 as std::ffi::c_int
+    while pos == -(1 as std::ffi::c_int) as POSITION
+        && where_0 >= 0 as std::ffi::c_int
         && where_0 < sc_height
     {
         where_0 += 1;
@@ -382,7 +360,6 @@ pub unsafe extern "C" fn currline(mut where_0: std::ffi::c_int) -> LINENUM {
     linenum = find_linenum(pos);
     if pos == len {
         linenum -= 1;
-        linenum;
     }
     return linenum;
 }
@@ -404,20 +381,23 @@ pub unsafe extern "C" fn scan_eof() {
     if ch_seek(0 as std::ffi::c_int as POSITION) != 0 {
         return;
     }
-    start_delayed_msg(&mut dmsg, Some(detlenmessage as unsafe extern "C" fn() -> ()));
+    start_delayed_msg(
+        &mut dmsg,
+        Some(detlenmessage as unsafe extern "C" fn() -> ()),
+    );
     scanning_eof = LTRUE;
     while pos != -(1 as std::ffi::c_int) as POSITION {
         let fresh0 = linenum;
         linenum = linenum + 1;
-        if fresh0 % 256 as std::ffi::c_int as LINENUM == 0 as std::ffi::c_int as LINENUM
-        {
+        if fresh0 % 256 as std::ffi::c_int as LINENUM == 0 as std::ffi::c_int as LINENUM {
             add_lnum(linenum, pos);
         }
         pos = forw_raw_line(pos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
         if sigs
             & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                 | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+            != 0
         {
             abort_delayed_msg(&mut dmsg);
             break;
@@ -432,8 +412,7 @@ pub unsafe extern "C" fn vlinenum(mut linenum: LINENUM) -> LINENUM {
     if nonum_headers != 0 && header_lines > 0 as std::ffi::c_int {
         let mut header_start_line: LINENUM = find_linenum(header_start_pos);
         if header_start_line != 0 as std::ffi::c_int as LINENUM {
-            let mut header_end_line: LINENUM = header_start_line
-                + header_lines as LINENUM;
+            let mut header_end_line: LINENUM = header_start_line + header_lines as LINENUM;
             linenum = if linenum < header_end_line {
                 0 as std::ffi::c_int as LINENUM
             } else {

@@ -78,14 +78,12 @@ unsafe extern "C" fn link_ifile(mut p: *mut ifile, mut prev: *mut ifile) {
     (*p).h_index = (*prev).h_index + 1 as std::ffi::c_int;
     incr_index((*p).h_next, 1 as std::ffi::c_int);
     ifiles += 1;
-    ifiles;
 }
 unsafe extern "C" fn unlink_ifile(mut p: *mut ifile) {
     (*(*p).h_next).h_prev = (*p).h_prev;
     (*(*p).h_prev).h_next = (*p).h_next;
     incr_index((*p).h_next, -(1 as std::ffi::c_int));
     ifiles -= 1;
-    ifiles;
 }
 unsafe extern "C" fn new_ifile(
     mut filename: *const std::ffi::c_char,
@@ -125,31 +123,33 @@ pub unsafe extern "C" fn del_ifile(mut h: *mut std::ffi::c_void) {
     free(p as *mut std::ffi::c_void);
 }
 #[no_mangle]
-pub unsafe extern "C" fn next_ifile(
-    mut h: *mut std::ffi::c_void,
-) -> *mut std::ffi::c_void {
+pub unsafe extern "C" fn next_ifile(mut h: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
     let mut p: *mut ifile = 0 as *mut ifile;
-    p = if h == 0 as *mut std::ffi::c_void { &mut anchor } else { h as *mut ifile };
+    p = if h == 0 as *mut std::ffi::c_void {
+        &mut anchor
+    } else {
+        h as *mut ifile
+    };
     if (*p).h_next == &mut anchor as *mut ifile {
         return 0 as *mut std::ffi::c_void;
     }
     return (*p).h_next as *mut std::ffi::c_void;
 }
 #[no_mangle]
-pub unsafe extern "C" fn prev_ifile(
-    mut h: *mut std::ffi::c_void,
-) -> *mut std::ffi::c_void {
+pub unsafe extern "C" fn prev_ifile(mut h: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
     let mut p: *mut ifile = 0 as *mut ifile;
-    p = if h == 0 as *mut std::ffi::c_void { &mut anchor } else { h as *mut ifile };
+    p = if h == 0 as *mut std::ffi::c_void {
+        &mut anchor
+    } else {
+        h as *mut ifile
+    };
     if (*p).h_prev == &mut anchor as *mut ifile {
         return 0 as *mut std::ffi::c_void;
     }
     return (*p).h_prev as *mut std::ffi::c_void;
 }
 #[no_mangle]
-pub unsafe extern "C" fn getoff_ifile(
-    mut ifile: *mut std::ffi::c_void,
-) -> *mut std::ffi::c_void {
+pub unsafe extern "C" fn getoff_ifile(mut ifile: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
     let mut newifile: *mut std::ffi::c_void = 0 as *mut std::ffi::c_void;
     newifile = prev_ifile(ifile);
     if newifile != 0 as *mut std::ffi::c_void {
@@ -199,9 +199,7 @@ pub unsafe extern "C" fn get_ifile(
     return p as *mut std::ffi::c_void;
 }
 #[no_mangle]
-pub unsafe extern "C" fn get_filename(
-    mut ifile: *mut std::ffi::c_void,
-) -> *const std::ffi::c_char {
+pub unsafe extern "C" fn get_filename(mut ifile: *mut std::ffi::c_void) -> *const std::ffi::c_char {
     if ifile.is_null() {
         return 0 as *const std::ffi::c_char;
     }
@@ -221,17 +219,11 @@ pub unsafe extern "C" fn get_index(mut ifile: *mut std::ffi::c_void) -> std::ffi
     return (*(ifile as *mut ifile)).h_index;
 }
 #[no_mangle]
-pub unsafe extern "C" fn store_pos(
-    mut ifile: *mut std::ffi::c_void,
-    mut scrpos: *mut scrpos,
-) {
+pub unsafe extern "C" fn store_pos(mut ifile: *mut std::ffi::c_void, mut scrpos: *mut scrpos) {
     (*(ifile as *mut ifile)).h_scrpos = *scrpos;
 }
 #[no_mangle]
-pub unsafe extern "C" fn get_pos(
-    mut ifile: *mut std::ffi::c_void,
-    mut scrpos: *mut scrpos,
-) {
+pub unsafe extern "C" fn get_pos(mut ifile: *mut std::ffi::c_void, mut scrpos: *mut scrpos) {
     *scrpos = (*(ifile as *mut ifile)).h_scrpos;
 }
 #[no_mangle]
@@ -243,22 +235,15 @@ pub unsafe extern "C" fn opened(mut ifile: *mut std::ffi::c_void) -> std::ffi::c
     return (*(ifile as *mut ifile)).h_opened as std::ffi::c_int;
 }
 #[no_mangle]
-pub unsafe extern "C" fn hold_ifile(
-    mut ifile: *mut std::ffi::c_void,
-    mut incr: std::ffi::c_int,
-) {
+pub unsafe extern "C" fn hold_ifile(mut ifile: *mut std::ffi::c_void, mut incr: std::ffi::c_int) {
     (*(ifile as *mut ifile)).h_hold += incr;
 }
 #[no_mangle]
-pub unsafe extern "C" fn held_ifile(
-    mut ifile: *mut std::ffi::c_void,
-) -> std::ffi::c_int {
+pub unsafe extern "C" fn held_ifile(mut ifile: *mut std::ffi::c_void) -> std::ffi::c_int {
     return (*(ifile as *mut ifile)).h_hold;
 }
 #[no_mangle]
-pub unsafe extern "C" fn get_filestate(
-    mut ifile: *mut std::ffi::c_void,
-) -> *mut std::ffi::c_void {
+pub unsafe extern "C" fn get_filestate(mut ifile: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
     return (*(ifile as *mut ifile)).h_filestate;
 }
 #[no_mangle]
@@ -278,9 +263,7 @@ pub unsafe extern "C" fn set_altpipe(
     *fresh1 = p;
 }
 #[no_mangle]
-pub unsafe extern "C" fn get_altpipe(
-    mut ifile: *mut std::ffi::c_void,
-) -> *mut std::ffi::c_void {
+pub unsafe extern "C" fn get_altpipe(mut ifile: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
     return (*(ifile as *mut ifile)).h_altpipe;
 }
 #[no_mangle]

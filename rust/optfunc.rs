@@ -1,10 +1,6 @@
 use ::libc;
 extern "C" {
-    fn sprintf(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-        _: ...
-    ) -> std::ffi::c_int;
+    fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
     fn snprintf(
         _: *mut std::ffi::c_char,
         _: std::ffi::c_ulong,
@@ -12,14 +8,8 @@ extern "C" {
         _: ...
     ) -> std::ffi::c_int;
     fn free(_: *mut std::ffi::c_void);
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
-    fn strcat(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
+    fn strcat(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
     fn save(s: *const std::ffi::c_char) -> *mut std::ffi::c_char;
@@ -53,10 +43,7 @@ extern "C" {
     fn ungetsc(s: *const std::ffi::c_char);
     fn lesskey(filename: *const std::ffi::c_char, sysvar: lbool) -> std::ffi::c_int;
     fn lesskey_src(filename: *const std::ffi::c_char, sysvar: lbool) -> std::ffi::c_int;
-    fn lesskey_content(
-        content: *const std::ffi::c_char,
-        sysvar: lbool,
-    ) -> std::ffi::c_int;
+    fn lesskey_content(content: *const std::ffi::c_char, sysvar: lbool) -> std::ffi::c_int;
     fn save_curr_ifile() -> *mut std::ffi::c_void;
     fn unsave_ifile(save_ifile: *mut std::ffi::c_void);
     fn reedit_ifile(save_ifile: *mut std::ffi::c_void);
@@ -70,10 +57,7 @@ extern "C" {
         prev_ch: LWCHAR,
         prev_a: std::ffi::c_int,
     ) -> std::ffi::c_int;
-    fn set_color_map(
-        attr: std::ffi::c_int,
-        colorstr: *const std::ffi::c_char,
-    ) -> std::ffi::c_int;
+    fn set_color_map(attr: std::ffi::c_int, colorstr: *const std::ffi::c_char) -> std::ffi::c_int;
     fn find_linenum(pos: POSITION) -> LINENUM;
     fn find_pos(linenum: LINENUM) -> POSITION;
     fn scan_eof();
@@ -175,21 +159,17 @@ pub union parg {
 }
 pub type PARG = parg;
 #[no_mangle]
-pub static mut tagoption: *mut std::ffi::c_char = 0 as *const std::ffi::c_char
-    as *mut std::ffi::c_char;
+pub static mut tagoption: *mut std::ffi::c_char =
+    0 as *const std::ffi::c_char as *mut std::ffi::c_char;
 #[no_mangle]
-pub unsafe extern "C" fn opt_o(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_o(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut parg: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
     };
     let mut filename: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     if secure_allow((1 as std::ffi::c_int) << 7 as std::ffi::c_int) == 0 {
         error(
-            b"log file support is not available\0" as *const u8
-                as *const std::ffi::c_char,
+            b"log file support is not available\0" as *const u8 as *const std::ffi::c_char,
             0 as *mut std::ffi::c_void as *mut PARG,
         );
         return;
@@ -208,8 +188,7 @@ pub unsafe extern "C" fn opt_o(
             }
             if logfile >= 0 as std::ffi::c_int {
                 error(
-                    b"Log file is already in use\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Log file is already in use\0" as *const u8 as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
                 return;
@@ -242,10 +221,7 @@ pub unsafe extern "C" fn opt_o(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt__O(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt__O(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     force_logfile = LTRUE;
     opt_o(type_0, s);
 }
@@ -254,16 +230,14 @@ unsafe extern "C" fn toggle_fraction(
     mut frac: *mut std::ffi::c_long,
     mut s: *const std::ffi::c_char,
     mut printopt: *const std::ffi::c_char,
-    mut calc: Option::<unsafe extern "C" fn() -> ()>,
+    mut calc: Option<unsafe extern "C" fn() -> ()>,
 ) -> std::ffi::c_int {
     let mut err: lbool = LFALSE;
     if s.is_null() {
-        (Some(calc.expect("non-null function pointer")))
-            .expect("non-null function pointer")();
+        (Some(calc.expect("non-null function pointer"))).expect("non-null function pointer")();
     } else if *s as std::ffi::c_int == '.' as i32 {
         let mut tfrac: std::ffi::c_long = 0;
         s = s.offset(1);
-        s;
         tfrac = getfraction(&mut s, printopt, &mut err);
         if err as u64 != 0 {
             error(
@@ -273,8 +247,7 @@ unsafe extern "C" fn toggle_fraction(
             return -(1 as std::ffi::c_int);
         }
         *frac = tfrac;
-        (Some(calc.expect("non-null function pointer")))
-            .expect("non-null function pointer")();
+        (Some(calc.expect("non-null function pointer"))).expect("non-null function pointer")();
     } else {
         let mut tnum: std::ffi::c_int = getnumc(&mut s, printopt, &mut err);
         if err as u64 != 0 {
@@ -312,11 +285,10 @@ unsafe extern "C" fn query_fraction(
         );
         len = strlen(buf.as_mut_ptr());
         while len > 2 as std::ffi::c_int as size_t
-            && buf[len.wrapping_sub(1 as std::ffi::c_int as size_t) as usize]
-                as std::ffi::c_int == '0' as i32
+            && buf[len.wrapping_sub(1 as std::ffi::c_int as size_t) as usize] as std::ffi::c_int
+                == '0' as i32
         {
             len = len.wrapping_sub(1);
-            len;
         }
         buf[len as usize] = '\0' as i32 as std::ffi::c_char;
         parg.p_string = buf.as_mut_ptr();
@@ -324,10 +296,7 @@ unsafe extern "C" fn query_fraction(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_j(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_j(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         0 | 2 => {
             toggle_fraction(
@@ -342,10 +311,8 @@ pub unsafe extern "C" fn opt_j(
             query_fraction(
                 jump_sline,
                 jump_sline_fraction,
-                b"Position target at screen line %d\0" as *const u8
-                    as *const std::ffi::c_char,
-                b"Position target at screen position %s\0" as *const u8
-                    as *const std::ffi::c_char,
+                b"Position target at screen line %d\0" as *const u8 as *const std::ffi::c_char,
+                b"Position target at screen position %s\0" as *const u8 as *const std::ffi::c_char,
             );
         }
         _ => {}
@@ -365,10 +332,7 @@ pub unsafe extern "C" fn calc_jump_sline() {
     }
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_shift(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_shift(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         0 | 2 => {
             toggle_fraction(
@@ -384,8 +348,7 @@ pub unsafe extern "C" fn opt_shift(
                 shift_count,
                 shift_count_fraction,
                 b"Horizontal shift %d columns\0" as *const u8 as *const std::ffi::c_char,
-                b"Horizontal shift %s of screen width\0" as *const u8
-                    as *const std::ffi::c_char,
+                b"Horizontal shift %s of screen width\0" as *const u8 as *const std::ffi::c_char,
             );
         }
         _ => {}
@@ -403,10 +366,7 @@ pub unsafe extern "C" fn calc_shift_count() {
     ) as std::ffi::c_int;
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_k(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_k(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut parg: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
     };
@@ -415,8 +375,7 @@ pub unsafe extern "C" fn opt_k(
             if lesskey(s, LFALSE) != 0 {
                 parg.p_string = s;
                 error(
-                    b"Cannot use lesskey file \"%s\"\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Cannot use lesskey file \"%s\"\0" as *const u8 as *const std::ffi::c_char,
                     &mut parg,
                 );
             }
@@ -425,10 +384,7 @@ pub unsafe extern "C" fn opt_k(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_ks(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_ks(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut parg: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
     };
@@ -447,16 +403,12 @@ pub unsafe extern "C" fn opt_ks(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_kc(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_kc(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         0 => {
             if lesskey_content(s, LFALSE) != 0 {
                 error(
-                    b"Error in lesskey content\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Error in lesskey content\0" as *const u8 as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
             }
@@ -465,10 +417,7 @@ pub unsafe extern "C" fn opt_kc(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt__S(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt__S(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         2 => {
             pos_rehead();
@@ -477,10 +426,7 @@ pub unsafe extern "C" fn opt__S(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_t(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_t(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut save_ifile: *mut std::ffi::c_void = 0 as *mut std::ffi::c_void;
     let mut pos: POSITION = 0;
     match type_0 {
@@ -490,19 +436,16 @@ pub unsafe extern "C" fn opt_t(
         2 => {
             if secure_allow((1 as std::ffi::c_int) << 11 as std::ffi::c_int) == 0 {
                 error(
-                    b"tags support is not available\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"tags support is not available\0" as *const u8 as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
             } else {
                 findtag(skipspc(s));
                 save_ifile = save_curr_ifile();
-                if edit_tagfile() != 0
-                    || {
-                        pos = tagsearch();
-                        pos == -(1 as std::ffi::c_int) as POSITION
-                    }
-                {
+                if edit_tagfile() != 0 || {
+                    pos = tagsearch();
+                    pos == -(1 as std::ffi::c_int) as POSITION
+                } {
                     reedit_ifile(save_ifile);
                 } else {
                     unsave_ifile(save_ifile);
@@ -514,10 +457,7 @@ pub unsafe extern "C" fn opt_t(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt__T(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt__T(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut parg: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
     };
@@ -546,10 +486,7 @@ pub unsafe extern "C" fn opt__T(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_p(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_p(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         0 => {
             if less_is_more != 0 {
@@ -565,10 +502,7 @@ pub unsafe extern "C" fn opt_p(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt__P(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt__P(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut proto: *mut *mut std::ffi::c_char = 0 as *mut *mut std::ffi::c_char;
     let mut parg: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
@@ -577,48 +511,34 @@ pub unsafe extern "C" fn opt__P(
         0 | 2 => {
             match *s as std::ffi::c_int {
                 115 => {
-                    proto = &mut *prproto
-                        .as_mut_ptr()
-                        .offset(0 as std::ffi::c_int as isize)
+                    proto = &mut *prproto.as_mut_ptr().offset(0 as std::ffi::c_int as isize)
                         as *mut *mut std::ffi::c_char;
                     s = s.offset(1);
-                    s;
                 }
                 109 => {
-                    proto = &mut *prproto
-                        .as_mut_ptr()
-                        .offset(1 as std::ffi::c_int as isize)
+                    proto = &mut *prproto.as_mut_ptr().offset(1 as std::ffi::c_int as isize)
                         as *mut *mut std::ffi::c_char;
                     s = s.offset(1);
-                    s;
                 }
                 77 => {
-                    proto = &mut *prproto
-                        .as_mut_ptr()
-                        .offset(2 as std::ffi::c_int as isize)
+                    proto = &mut *prproto.as_mut_ptr().offset(2 as std::ffi::c_int as isize)
                         as *mut *mut std::ffi::c_char;
                     s = s.offset(1);
-                    s;
                 }
                 61 => {
                     proto = &mut eqproto;
                     s = s.offset(1);
-                    s;
                 }
                 104 => {
                     proto = &mut hproto;
                     s = s.offset(1);
-                    s;
                 }
                 119 => {
                     proto = &mut wproto;
                     s = s.offset(1);
-                    s;
                 }
                 _ => {
-                    proto = &mut *prproto
-                        .as_mut_ptr()
-                        .offset(0 as std::ffi::c_int as isize)
+                    proto = &mut *prproto.as_mut_ptr().offset(0 as std::ffi::c_int as isize)
                         as *mut *mut std::ffi::c_char;
                 }
             }
@@ -633,10 +553,7 @@ pub unsafe extern "C" fn opt__P(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_b(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_b(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         0 | 2 => {
             ch_setbufspace(bufspace as ssize_t);
@@ -645,10 +562,7 @@ pub unsafe extern "C" fn opt_b(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_i(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_i(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         2 => {
             chg_caseless();
@@ -657,10 +571,7 @@ pub unsafe extern "C" fn opt_i(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt__V(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt__V(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         2 | 1 => {
             dispversion();
@@ -672,32 +583,33 @@ pub unsafe extern "C" fn opt__V(
             putstr(b" (\0" as *const u8 as *const std::ffi::c_char);
             putstr(pattern_lib_name());
             putstr(b" regular expressions)\n\0" as *const u8 as *const std::ffi::c_char);
-            let mut copyright: *const std::ffi::c_char = b"Copyright (C) 1984-2025  Mark Nudelman\n\n\0"
-                as *const u8 as *const std::ffi::c_char;
+            let mut copyright: *const std::ffi::c_char =
+                b"Copyright (C) 1984-2025  Mark Nudelman\n\n\0" as *const u8
+                    as *const std::ffi::c_char;
             putstr(copyright);
-            if *version
-                .as_mut_ptr()
-                .offset(
-                    (strlen(version.as_mut_ptr()))
-                        .wrapping_sub(1 as std::ffi::c_int as std::ffi::c_ulong) as isize,
-                ) as std::ffi::c_int == 'x' as i32
+            if *version.as_mut_ptr().offset(
+                (strlen(version.as_mut_ptr()))
+                    .wrapping_sub(1 as std::ffi::c_int as std::ffi::c_ulong)
+                    as isize,
+            ) as std::ffi::c_int
+                == 'x' as i32
             {
                 putstr(
-                    b"** This is an EXPERIMENTAL build of the 'less' software,\n\0"
-                        as *const u8 as *const std::ffi::c_char,
+                    b"** This is an EXPERIMENTAL build of the 'less' software,\n\0" as *const u8
+                        as *const std::ffi::c_char,
                 );
                 putstr(
                     b"** and may not function correctly.\n\0" as *const u8
                         as *const std::ffi::c_char,
                 );
                 putstr(
-                    b"** Obtain release builds from the web page below.\n\n\0"
-                        as *const u8 as *const std::ffi::c_char,
+                    b"** Obtain release builds from the web page below.\n\n\0" as *const u8
+                        as *const std::ffi::c_char,
                 );
             }
             putstr(
-                b"less comes with NO WARRANTY, to the extent permitted by law.\n\0"
-                    as *const u8 as *const std::ffi::c_char,
+                b"less comes with NO WARRANTY, to the extent permitted by law.\n\0" as *const u8
+                    as *const std::ffi::c_char,
             );
             putstr(
                 b"For information about the terms of redistribution,\n\0" as *const u8
@@ -716,9 +628,7 @@ pub unsafe extern "C" fn opt__V(
         _ => {}
     };
 }
-unsafe extern "C" fn color_from_namechar(
-    mut namechar: std::ffi::c_char,
-) -> std::ffi::c_int {
+unsafe extern "C" fn color_from_namechar(mut namechar: std::ffi::c_char) -> std::ffi::c_int {
     match namechar as std::ffi::c_int {
         66 => return (2 as std::ffi::c_int) << 8 as std::ffi::c_int,
         67 => return (3 as std::ffi::c_int) << 8 as std::ffi::c_int,
@@ -739,8 +649,7 @@ unsafe extern "C" fn color_from_namechar(
             if namechar as std::ffi::c_int >= '1' as i32
                 && namechar as std::ffi::c_int
                     <= '0' as i32
-                        + (16 as std::ffi::c_int - 10 as std::ffi::c_int
-                            - 1 as std::ffi::c_int)
+                        + (16 as std::ffi::c_int - 10 as std::ffi::c_int - 1 as std::ffi::c_int)
             {
                 return 10 as std::ffi::c_int + (namechar as std::ffi::c_int - '0' as i32)
                     << 8 as std::ffi::c_int;
@@ -750,10 +659,7 @@ unsafe extern "C" fn color_from_namechar(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_D(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_D(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut p: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
     };
@@ -764,16 +670,14 @@ pub unsafe extern "C" fn opt_D(
             if attr < 0 as std::ffi::c_int {
                 p.p_char = *s.offset(0 as std::ffi::c_int as isize);
                 error(
-                    b"Invalid color specifier '%c'\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Invalid color specifier '%c'\0" as *const u8 as *const std::ffi::c_char,
                     &mut p,
                 );
                 return;
             }
             if use_color == 0
-                && attr
-                    & (16 as std::ffi::c_int - 1 as std::ffi::c_int)
-                        << 8 as std::ffi::c_int != 0
+                && attr & (16 as std::ffi::c_int - 1 as std::ffi::c_int) << 8 as std::ffi::c_int
+                    != 0
             {
                 error(
                     b"Set --use-color before changing colors\0" as *const u8
@@ -783,12 +687,10 @@ pub unsafe extern "C" fn opt_D(
                 return;
             }
             s = s.offset(1);
-            s;
             if set_color_map(attr, s) < 0 as std::ffi::c_int {
                 p.p_string = s;
                 error(
-                    b"Invalid color string \"%s\"\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Invalid color string \"%s\"\0" as *const u8 as *const std::ffi::c_char,
                     &mut p,
                 );
                 return;
@@ -807,29 +709,24 @@ pub unsafe extern "C" fn set_tabs(mut s: *const std::ffi::c_char, mut len: size_
         let mut v: lbool = LFALSE;
         while s < es && *s as std::ffi::c_int == ' ' as i32 {
             s = s.offset(1);
-            s;
         }
-        while s < es && *s as std::ffi::c_int >= '0' as i32
-            && *s as std::ffi::c_int <= '9' as i32
-        {
-            v = (v as std::ffi::c_uint != 0
-                || {
-                    let (fresh0, fresh1) = n.overflowing_mul(10 as std::ffi::c_int);
-                    *(&mut n as *mut std::ffi::c_int) = fresh0;
-                    fresh1 as std::ffi::c_int != 0
-                }) as std::ffi::c_int as lbool;
-            v = (v as std::ffi::c_uint != 0
-                || {
-                    let (fresh2, fresh3) = n
-                        .overflowing_add(*s as std::ffi::c_int - '0' as i32);
-                    *(&mut n as *mut std::ffi::c_int) = fresh2;
-                    fresh3 as std::ffi::c_int != 0
-                }) as std::ffi::c_int as lbool;
+        while s < es && *s as std::ffi::c_int >= '0' as i32 && *s as std::ffi::c_int <= '9' as i32 {
+            v = (v as std::ffi::c_uint != 0 || {
+                let (fresh0, fresh1) = n.overflowing_mul(10 as std::ffi::c_int);
+                *(&mut n as *mut std::ffi::c_int) = fresh0;
+                fresh1 as std::ffi::c_int != 0
+            }) as std::ffi::c_int as lbool;
+            v = (v as std::ffi::c_uint != 0 || {
+                let (fresh2, fresh3) = n.overflowing_add(*s as std::ffi::c_int - '0' as i32);
+                *(&mut n as *mut std::ffi::c_int) = fresh2;
+                fresh3 as std::ffi::c_int != 0
+            }) as std::ffi::c_int as lbool;
             s = s.offset(1);
-            s;
         }
         if v as u64 == 0
-            && n > *tabstops.as_mut_ptr().offset((i - 1 as std::ffi::c_int) as isize)
+            && n > *tabstops
+                .as_mut_ptr()
+                .offset((i - 1 as std::ffi::c_int) as isize)
         {
             let fresh4 = i;
             i = i + 1;
@@ -837,15 +734,12 @@ pub unsafe extern "C" fn set_tabs(mut s: *const std::ffi::c_char, mut len: size_
         }
         while s < es && *s as std::ffi::c_int == ' ' as i32 {
             s = s.offset(1);
-            s;
         }
-        if s == es
-            || {
-                let fresh5 = s;
-                s = s.offset(1);
-                *fresh5 as std::ffi::c_int != ',' as i32
-            }
-        {
+        if s == es || {
+            let fresh5 = s;
+            s = s.offset(1);
+            *fresh5 as std::ffi::c_int != ',' as i32
+        } {
             break;
         }
     }
@@ -856,13 +750,12 @@ pub unsafe extern "C" fn set_tabs(mut s: *const std::ffi::c_char, mut len: size_
     tabdefault = *tabstops
         .as_mut_ptr()
         .offset((ntabstops - 1 as std::ffi::c_int) as isize)
-        - *tabstops.as_mut_ptr().offset((ntabstops - 2 as std::ffi::c_int) as isize);
+        - *tabstops
+            .as_mut_ptr()
+            .offset((ntabstops - 2 as std::ffi::c_int) as isize);
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_x(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_x(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut msg: [std::ffi::c_char; 1596] = [0; 1596];
     let mut i: std::ffi::c_int = 0;
     let mut p: PARG = parg {
@@ -892,7 +785,6 @@ pub unsafe extern "C" fn opt_x(
                         *tabstops.as_mut_ptr().offset(i as isize),
                     );
                     i += 1;
-                    i;
                 }
                 sprintf(
                     msg.as_mut_ptr().offset(strlen(msg.as_mut_ptr()) as isize),
@@ -911,25 +803,19 @@ pub unsafe extern "C" fn opt_x(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_quote(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_quote(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut buf: [std::ffi::c_char; 3] = [0; 3];
     let mut parg: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
     };
     match type_0 {
         0 | 2 => {
-            if *s.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32
-            {
+            if *s.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32 {
                 closequote = '\0' as i32 as std::ffi::c_char;
                 openquote = closequote;
             } else {
-                if *s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    != '\0' as i32
-                    && *s.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int
-                        != '\0' as i32
+                if *s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32
+                    && *s.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32
                 {
                     error(
                         b"-\" must be followed by 1 or 2 chars\0" as *const u8
@@ -939,9 +825,7 @@ pub unsafe extern "C" fn opt_quote(
                     return;
                 }
                 openquote = *s.offset(0 as std::ffi::c_int as isize);
-                if *s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    == '\0' as i32
-                {
+                if *s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32 {
                     closequote = openquote;
                 } else {
                     closequote = *s.offset(1 as std::ffi::c_int as isize);
@@ -953,24 +837,23 @@ pub unsafe extern "C" fn opt_quote(
             buf[1 as std::ffi::c_int as usize] = closequote;
             buf[2 as std::ffi::c_int as usize] = '\0' as i32 as std::ffi::c_char;
             parg.p_string = buf.as_mut_ptr();
-            error(b"quotes %s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
+            error(
+                b"quotes %s\0" as *const u8 as *const std::ffi::c_char,
+                &mut parg,
+            );
         }
         _ => {}
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_rscroll(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_rscroll(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut p: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
     };
     match type_0 {
         0 | 2 => {
             let mut fmt: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-            let mut attr: std::ffi::c_int = (1 as std::ffi::c_int)
-                << 3 as std::ffi::c_int;
+            let mut attr: std::ffi::c_int = (1 as std::ffi::c_int) << 3 as std::ffi::c_int;
             setfmt(
                 s,
                 &mut fmt,
@@ -978,9 +861,7 @@ pub unsafe extern "C" fn opt_rscroll(
                 b"*s>\0" as *const u8 as *const std::ffi::c_char,
                 LFALSE,
             );
-            if strcmp(fmt, b"-\0" as *const u8 as *const std::ffi::c_char)
-                == 0 as std::ffi::c_int
-            {
+            if strcmp(fmt, b"-\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int {
                 rscroll_char = 0 as std::ffi::c_int as LWCHAR;
             } else {
                 rscroll_attr = attr | (8 as std::ffi::c_int) << 8 as std::ffi::c_int;
@@ -1011,8 +892,7 @@ pub unsafe extern "C" fn opt_rscroll(
             }
         }
         1 => {
-            p
-                .p_string = if rscroll_char != 0 {
+            p.p_string = if rscroll_char != 0 {
                 prchar(rscroll_char)
             } else {
                 b"-\0" as *const u8 as *const std::ffi::c_char
@@ -1026,10 +906,7 @@ pub unsafe extern "C" fn opt_rscroll(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_query(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_query(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         1 | 2 => {
             error(
@@ -1082,10 +959,7 @@ pub unsafe extern "C" fn calc_match_shift() {
     ) as std::ffi::c_int;
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_mousecap(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_mousecap(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         2 => {
             if mousecap == 0 as std::ffi::c_int {
@@ -1158,13 +1032,11 @@ pub unsafe extern "C" fn opt_status_col_width(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_filesize(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_filesize(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         0 | 2 => {
-            if want_filesize != 0 && !curr_ifile.is_null()
+            if want_filesize != 0
+                && !curr_ifile.is_null()
                 && ch_length() == -(1 as std::ffi::c_int) as POSITION
             {
                 scan_eof();
@@ -1174,10 +1046,7 @@ pub unsafe extern "C" fn opt_filesize(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_intr(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_intr(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     let mut p: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
     };
@@ -1185,8 +1054,7 @@ pub unsafe extern "C" fn opt_intr(
         0 | 2 => {
             intr_char = *s;
             if intr_char as std::ffi::c_int == '^' as i32
-                && *s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    != '\0' as i32
+                && *s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32
             {
                 intr_char = (*s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
                     & 0o37 as std::ffi::c_int) as std::ffi::c_char;
@@ -1216,7 +1084,6 @@ pub unsafe extern "C" fn next_cnum(
     }
     if **sp as std::ffi::c_int == ',' as i32 {
         *sp = (*sp).offset(1);
-        *sp;
         return -(1 as std::ffi::c_int);
     }
     n = getnumc(sp, printopt, errp);
@@ -1225,12 +1092,14 @@ pub unsafe extern "C" fn next_cnum(
             p_string: 0 as *const std::ffi::c_char,
         };
         parg.p_string = errmsg;
-        error(b"invalid %s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
+        error(
+            b"invalid %s\0" as *const u8 as *const std::ffi::c_char,
+            &mut parg,
+        );
         return -(1 as std::ffi::c_int);
     }
     if **sp as std::ffi::c_int == ',' as i32 {
         *sp = (*sp).offset(1);
-        *sp;
     }
     return n;
 }
@@ -1288,10 +1157,7 @@ unsafe extern "C" fn parse_header(
     return LTRUE;
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_header(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_header(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         0 => {
             init_header = save(s);
@@ -1380,13 +1246,12 @@ pub unsafe extern "C" fn opt_search_type(
                         if *s as std::ffi::c_int >= '1' as i32
                             && *s as std::ffi::c_int
                                 <= '0' as i32
-                                    + (16 as std::ffi::c_int - 10 as std::ffi::c_int
+                                    + (16 as std::ffi::c_int
+                                        - 10 as std::ffi::c_int
                                         - 1 as std::ffi::c_int)
                         {
-                            st
-                                |= (1 as std::ffi::c_int)
-                                    << 17 as std::ffi::c_int
-                                        + (*s as std::ffi::c_int - '0' as i32);
+                            st |= (1 as std::ffi::c_int)
+                                << 17 as std::ffi::c_int + (*s as std::ffi::c_int - '0' as i32);
                         } else {
                             parg.p_char = *s;
                             error(
@@ -1399,7 +1264,6 @@ pub unsafe extern "C" fn opt_search_type(
                     }
                 }
                 s = s.offset(1);
-                s;
             }
             def_search_type = norm_search_type(st);
         }
@@ -1436,18 +1300,13 @@ pub unsafe extern "C" fn opt_search_type(
                 *fresh11 = 'W' as i32 as std::ffi::c_char;
             }
             i = 1 as std::ffi::c_int;
-            while i
-                <= 16 as std::ffi::c_int - 10 as std::ffi::c_int - 1 as std::ffi::c_int
-            {
-                if def_search_type & (1 as std::ffi::c_int) << 17 as std::ffi::c_int + i
-                    != 0
-                {
+            while i <= 16 as std::ffi::c_int - 10 as std::ffi::c_int - 1 as std::ffi::c_int {
+                if def_search_type & (1 as std::ffi::c_int) << 17 as std::ffi::c_int + i != 0 {
                     let fresh12 = bp;
                     bp = bp.offset(1);
                     *fresh12 = ('0' as i32 + i) as std::ffi::c_char;
                 }
                 i += 1;
-                i;
             }
             if bp == buf.as_mut_ptr() {
                 let fresh13 = bp;
@@ -1540,10 +1399,7 @@ pub unsafe extern "C" fn opt_nosearch_header_cols(
     do_nosearch_headers(type_0, 0 as std::ffi::c_int, 1 as std::ffi::c_int);
 }
 #[no_mangle]
-pub unsafe extern "C" fn opt_no_paste(
-    mut type_0: std::ffi::c_int,
-    mut s: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn opt_no_paste(mut type_0: std::ffi::c_int, mut s: *const std::ffi::c_char) {
     match type_0 {
         2 => {
             if no_paste != 0 {
@@ -1557,7 +1413,8 @@ pub unsafe extern "C" fn opt_no_paste(
 }
 #[no_mangle]
 pub unsafe extern "C" fn chop_line() -> std::ffi::c_int {
-    return (chopline != 0 || header_cols > 0 as std::ffi::c_int
+    return (chopline != 0
+        || header_cols > 0 as std::ffi::c_int
         || header_lines > 0 as std::ffi::c_int) as std::ffi::c_int;
 }
 #[no_mangle]

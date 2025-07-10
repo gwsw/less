@@ -41,16 +41,14 @@ pub unsafe extern "C" fn xbuf_reset(mut xbuf: *mut xbuffer) {
     (*xbuf).end = 0 as std::ffi::c_int as size_t;
 }
 #[no_mangle]
-pub unsafe extern "C" fn xbuf_add_byte(
-    mut xbuf: *mut xbuffer,
-    mut b: std::ffi::c_uchar,
-) {
+pub unsafe extern "C" fn xbuf_add_byte(mut xbuf: *mut xbuffer, mut b: std::ffi::c_uchar) {
     if (*xbuf).end >= (*xbuf).size {
         let mut data: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
-        let (fresh0, fresh1) = ((*xbuf).size)
-            .overflowing_add(
-                if (*xbuf).size != 0 { (*xbuf).size } else { (*xbuf).init_size },
-            );
+        let (fresh0, fresh1) = ((*xbuf).size).overflowing_add(if (*xbuf).size != 0 {
+            (*xbuf).size
+        } else {
+            (*xbuf).init_size
+        });
         *(&mut (*xbuf).size as *mut size_t) = fresh0;
         if fresh1 {
             out_of_memory();
@@ -88,7 +86,6 @@ pub unsafe extern "C" fn xbuf_add_data(
     while i < len {
         xbuf_add_byte(xbuf, *data.offset(i as isize));
         i = i.wrapping_add(1);
-        i;
     }
 }
 #[no_mangle]
@@ -105,8 +102,6 @@ pub unsafe extern "C" fn xbuf_set(mut dst: *mut xbuffer, mut src: *mut xbuffer) 
     xbuf_add_data(dst, (*src).data, (*src).end);
 }
 #[no_mangle]
-pub unsafe extern "C" fn xbuf_char_data(
-    mut xbuf: *const xbuffer,
-) -> *const std::ffi::c_char {
+pub unsafe extern "C" fn xbuf_char_data(mut xbuf: *const xbuffer) -> *const std::ffi::c_char {
     return (*xbuf).data as *const std::ffi::c_char;
 }

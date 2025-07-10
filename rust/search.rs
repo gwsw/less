@@ -1,5 +1,5 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -13,17 +13,11 @@ extern "C" {
         _: ...
     ) -> std::ffi::c_int;
     fn pclose(__stream: *mut FILE) -> std::ffi::c_int;
-    fn popen(
-        __command: *const std::ffi::c_char,
-        __modes: *const std::ffi::c_char,
-    ) -> *mut FILE;
+    fn popen(__command: *const std::ffi::c_char, __modes: *const std::ffi::c_char) -> *mut FILE;
     fn iswupper(__wc: wint_t) -> std::ffi::c_int;
     fn free(_: *mut std::ffi::c_void);
     fn abs(_: std::ffi::c_int) -> std::ffi::c_int;
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strncpy(
         _: *mut std::ffi::c_char,
         _: *const std::ffi::c_char,
@@ -68,11 +62,7 @@ extern "C" {
     fn edit(filename: *const std::ffi::c_char) -> std::ffi::c_int;
     fn readfd(fd: *mut FILE) -> *mut std::ffi::c_char;
     fn overlay_header() -> std::ffi::c_int;
-    fn forw_line(
-        curr_pos: POSITION,
-        p_linepos: *mut POSITION,
-        p_newline: *mut lbool,
-    ) -> POSITION;
+    fn forw_line(curr_pos: POSITION, p_linepos: *mut POSITION, p_newline: *mut lbool) -> POSITION;
     fn repaint();
     fn jump_loc(pos: POSITION, sline: std::ffi::c_int);
     fn line_pfx_width() -> std::ffi::c_int;
@@ -299,7 +289,8 @@ pub struct re_pattern_buffer {
     #[bitfield(name = "__not_bol", ty = "std::ffi::c_uint", bits = "5..=5")]
     #[bitfield(name = "__not_eol", ty = "std::ffi::c_uint", bits = "6..=6")]
     #[bitfield(name = "__newline_anchor", ty = "std::ffi::c_uint", bits = "7..=7")]
-    pub __can_be_null___regs_allocated___fastmap_accurate___no_sub___not_bol___not_eol___newline_anchor: [u8; 1],
+    pub __can_be_null___regs_allocated___fastmap_accurate___no_sub___not_bol___not_eol___newline_anchor:
+        [u8; 1],
     #[bitfield(padding)]
     pub c2rust_padding: [u8; 7],
 }
@@ -354,11 +345,11 @@ pub static mut osc8_text_start: POSITION = -(1 as std::ffi::c_int) as POSITION;
 #[no_mangle]
 pub static mut osc8_text_end: POSITION = -(1 as std::ffi::c_int) as POSITION;
 #[no_mangle]
-pub static mut osc8_path: *mut std::ffi::c_char = 0 as *const std::ffi::c_char
-    as *mut std::ffi::c_char;
+pub static mut osc8_path: *mut std::ffi::c_char =
+    0 as *const std::ffi::c_char as *mut std::ffi::c_char;
 #[no_mangle]
-pub static mut osc8_uri: *mut std::ffi::c_char = 0 as *const std::ffi::c_char
-    as *mut std::ffi::c_char;
+pub static mut osc8_uri: *mut std::ffi::c_char =
+    0 as *const std::ffi::c_char as *mut std::ffi::c_char;
 #[no_mangle]
 pub static mut osc8_search_param: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
 static mut hilite_anchor: hilite_tree = {
@@ -379,8 +370,7 @@ static mut filter_anchor: hilite_tree = {
     };
     init
 };
-static mut filter_infos: *mut pattern_info = 0 as *const pattern_info
-    as *mut pattern_info;
+static mut filter_infos: *mut pattern_info = 0 as *const pattern_info as *mut pattern_info;
 static mut search_info: pattern_info = pattern_info {
     compiled: 0 as *const regex_t as *mut regex_t,
     text: 0 as *const std::ffi::c_char as *mut std::ffi::c_char,
@@ -414,33 +404,30 @@ unsafe extern "C" fn set_pattern(
     mut search_type: std::ffi::c_int,
     mut show_error: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    (*info)
-        .is_ucase_pattern = (if pattern.is_null() {
+    (*info).is_ucase_pattern = (if pattern.is_null() {
         LFALSE as std::ffi::c_int as std::ffi::c_uint
     } else {
         is_ucase(pattern) as std::ffi::c_uint
     }) as lbool;
-    is_caseless = if (*info).is_ucase_pattern as std::ffi::c_uint != 0
-        && caseless != 2 as std::ffi::c_int
-    {
-        0 as std::ffi::c_int
-    } else {
-        caseless
-    };
+    is_caseless =
+        if (*info).is_ucase_pattern as std::ffi::c_uint != 0 && caseless != 2 as std::ffi::c_int {
+            0 as std::ffi::c_int
+        } else {
+            caseless
+        };
     if pattern.is_null() {
         (*info).compiled = 0 as *mut regex_t;
     } else if compile_pattern(pattern, search_type, show_error, &mut (*info).compiled)
         < 0 as std::ffi::c_int
     {
-        return -(1 as std::ffi::c_int)
+        return -(1 as std::ffi::c_int);
     }
     if !((*info).text).is_null() {
         free((*info).text as *mut std::ffi::c_void);
     }
     (*info).text = 0 as *mut std::ffi::c_char;
     if !pattern.is_null() {
-        (*info)
-            .text = ecalloc(
+        (*info).text = ecalloc(
             1 as std::ffi::c_int as size_t,
             (strlen(pattern)).wrapping_add(1 as std::ffi::c_int as std::ffi::c_ulong),
         ) as *mut std::ffi::c_char;
@@ -460,9 +447,7 @@ pub unsafe extern "C" fn init_search() {
     init_pattern(&mut search_info);
 }
 #[no_mangle]
-pub unsafe extern "C" fn get_cvt_ops(
-    mut search_type: std::ffi::c_int,
-) -> std::ffi::c_int {
+pub unsafe extern "C" fn get_cvt_ops(mut search_type: std::ffi::c_int) -> std::ffi::c_int {
     let mut ops: std::ffi::c_int = 0 as std::ffi::c_int;
     if is_caseless != 0
         && (LTRUE as std::ffi::c_int == 0
@@ -486,14 +471,12 @@ pub unsafe extern "C" fn get_cvt_ops(
     return ops;
 }
 unsafe extern "C" fn prev_pattern(mut info: *mut pattern_info) -> lbool {
-    if (*info).search_type & (1 as std::ffi::c_int) << 12 as std::ffi::c_int
-        == 0 as std::ffi::c_int
+    if (*info).search_type & (1 as std::ffi::c_int) << 12 as std::ffi::c_int == 0 as std::ffi::c_int
     {
-        return (is_null_pattern((*info).compiled) as u64 == 0) as std::ffi::c_int
-            as lbool;
+        return (is_null_pattern((*info).compiled) as u64 == 0) as std::ffi::c_int as lbool;
     }
-    return ((*info).text != 0 as *mut std::ffi::c_void as *mut std::ffi::c_char)
-        as std::ffi::c_int as lbool;
+    return ((*info).text != 0 as *mut std::ffi::c_void as *mut std::ffi::c_char) as std::ffi::c_int
+        as lbool;
 }
 #[no_mangle]
 pub unsafe extern "C" fn repaint_hilite(mut on: lbool) {
@@ -525,7 +508,6 @@ pub unsafe extern "C" fn repaint_hilite(mut on: lbool) {
             put_line(LFALSE);
         }
         sindex += 1;
-        sindex;
     }
     overlay_header();
     lower_left();
@@ -559,8 +541,7 @@ pub unsafe extern "C" fn clear_attn() {
         if !(pos == -(1 as std::ffi::c_int) as POSITION) {
             epos = position(sindex + 1 as std::ffi::c_int);
             if pos <= old_end_attnpos
-                && (epos == -(1 as std::ffi::c_int) as POSITION
-                    || epos > old_start_attnpos)
+                && (epos == -(1 as std::ffi::c_int) as POSITION || epos > old_start_attnpos)
             {
                 forw_line(pos, 0 as *mut POSITION, 0 as *mut lbool);
                 goto_line(sindex);
@@ -570,7 +551,6 @@ pub unsafe extern "C" fn clear_attn() {
             }
         }
         sindex += 1;
-        sindex;
     }
     if overlay_header() != 0 {
         moved = 1 as std::ffi::c_int;
@@ -588,8 +568,7 @@ pub unsafe extern "C" fn undo_search(mut clear: lbool) {
     } else {
         if (hilite_anchor.first).is_null() {
             error(
-                b"No previous regular expression\0" as *const u8
-                    as *const std::ffi::c_char,
+                b"No previous regular expression\0" as *const u8 as *const std::ffi::c_char,
                 0 as *mut std::ffi::c_void as *mut PARG,
             );
             return;
@@ -653,7 +632,6 @@ unsafe extern "C" fn hlist_find(
                 break;
             }
             steps += 1;
-            steps;
             if pos < (*n).r.hl_endpos {
                 n = (*n).prev;
                 (*anchor).lookaside = n;
@@ -699,10 +677,7 @@ unsafe extern "C" fn hlist_find(
     }
     return n;
 }
-unsafe extern "C" fn hilited_range_attr(
-    mut pos: POSITION,
-    mut epos: POSITION,
-) -> std::ffi::c_int {
+unsafe extern "C" fn hilited_range_attr(mut pos: POSITION, mut epos: POSITION) -> std::ffi::c_int {
     let mut n: *mut hilite_node = hlist_find(&mut hilite_anchor, pos);
     if n.is_null() {
         return 0 as std::ffi::c_int;
@@ -723,23 +698,19 @@ pub unsafe extern "C" fn set_header(mut pos: POSITION) {
         let mut ln: std::ffi::c_int = 0;
         ln = 0 as std::ffi::c_int;
         while ln < header_lines {
-            pos = forw_raw_line(
-                pos,
-                0 as *mut *const std::ffi::c_char,
-                0 as *mut size_t,
-            );
+            pos = forw_raw_line(pos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
             if pos == -(1 as std::ffi::c_int) as POSITION {
                 break;
             }
             ln += 1;
-            ln;
         }
         header_end_pos = pos;
     }
 }
 unsafe extern "C" fn pos_in_header(mut pos: POSITION) -> lbool {
     return (header_start_pos != -(1 as std::ffi::c_int) as POSITION
-        && pos >= header_start_pos && pos < header_end_pos) as std::ffi::c_int as lbool;
+        && pos >= header_start_pos
+        && pos < header_end_pos) as std::ffi::c_int as lbool;
 }
 #[no_mangle]
 pub unsafe extern "C" fn is_filtered(mut pos: POSITION) -> lbool {
@@ -763,7 +734,11 @@ pub unsafe extern "C" fn next_unfiltered(mut pos: POSITION) -> POSITION {
     }
     flush();
     while pos != -(1 as std::ffi::c_int) as POSITION {
-        prep_hilite(pos, -(1 as std::ffi::c_int) as POSITION, 1 as std::ffi::c_int);
+        prep_hilite(
+            pos,
+            -(1 as std::ffi::c_int) as POSITION,
+            1 as std::ffi::c_int,
+        );
         if is_filtered(pos) as u64 == 0 {
             break;
         }
@@ -776,8 +751,7 @@ unsafe extern "C" fn shift_visible(
     mut start_off: size_t,
     mut end_off: size_t,
 ) {
-    let mut start_pos: POSITION = (line_pos as size_t).wrapping_add(start_off)
-        as POSITION;
+    let mut start_pos: POSITION = (line_pos as size_t).wrapping_add(start_off) as POSITION;
     let mut end_pos: POSITION = (line_pos as size_t).wrapping_add(end_off) as POSITION;
     let mut start_col: std::ffi::c_int = col_from_pos(
         line_pos,
@@ -785,14 +759,14 @@ unsafe extern "C" fn shift_visible(
         -(1 as std::ffi::c_int) as POSITION,
         -(1 as std::ffi::c_int),
     );
-    let mut end_col: std::ffi::c_int = col_from_pos(
-        line_pos,
-        end_pos,
-        start_pos,
-        start_col,
-    );
-    let mut swidth: std::ffi::c_int = sc_width - line_pfx_width()
-        - (if rscroll_char != 0 { 1 as std::ffi::c_int } else { 0 as std::ffi::c_int });
+    let mut end_col: std::ffi::c_int = col_from_pos(line_pos, end_pos, start_pos, start_col);
+    let mut swidth: std::ffi::c_int = sc_width
+        - line_pfx_width()
+        - (if rscroll_char != 0 {
+            1 as std::ffi::c_int
+        } else {
+            0 as std::ffi::c_int
+        });
     let mut new_hshift: std::ffi::c_int = 0;
     if start_col < 0 as std::ffi::c_int || end_col < 0 as std::ffi::c_int {
         return;
@@ -834,14 +808,16 @@ pub unsafe extern "C" fn is_hilited_attr(
     if !p_matches.is_null() {
         *p_matches = 0 as std::ffi::c_int;
     }
-    if status_col == 0 && start_attnpos != -(1 as std::ffi::c_int) as POSITION
+    if status_col == 0
+        && start_attnpos != -(1 as std::ffi::c_int) as POSITION
         && pos <= end_attnpos
         && (epos == -(1 as std::ffi::c_int) as POSITION || epos > start_attnpos)
     {
         return (1 as std::ffi::c_int) << 6 as std::ffi::c_int
             | (1 as std::ffi::c_int) << 8 as std::ffi::c_int;
     }
-    if osc8_linepos != -(1 as std::ffi::c_int) as POSITION && pos < osc8_text_end
+    if osc8_linepos != -(1 as std::ffi::c_int) as POSITION
+        && pos < osc8_text_end
         && (epos == -(1 as std::ffi::c_int) as POSITION || epos > osc8_text_start)
     {
         return (1 as std::ffi::c_int) << 6 as std::ffi::c_int
@@ -863,9 +839,7 @@ pub unsafe extern "C" fn is_hilited_attr(
     }
     return attr;
 }
-unsafe extern "C" fn hlist_getstorage(
-    mut anchor: *mut hilite_tree,
-) -> *mut hilite_storage {
+unsafe extern "C" fn hlist_getstorage(mut anchor: *mut hilite_tree) -> *mut hilite_storage {
     let mut capacity: size_t = 1 as std::ffi::c_int as size_t;
     let mut s: *mut hilite_storage = 0 as *mut hilite_storage;
     if !((*anchor).current).is_null() {
@@ -878,8 +852,7 @@ unsafe extern "C" fn hlist_getstorage(
         1 as std::ffi::c_int as size_t,
         ::core::mem::size_of::<hilite_storage>() as std::ffi::c_ulong,
     ) as *mut hilite_storage;
-    (*s)
-        .nodes = ecalloc(
+    (*s).nodes = ecalloc(
         capacity,
         ::core::mem::size_of::<hilite_node>() as std::ffi::c_ulong,
     ) as *mut hilite_node;
@@ -900,10 +873,7 @@ unsafe extern "C" fn hlist_getnode(mut anchor: *mut hilite_tree) -> *mut hilite_
     (*s).used = ((*s).used).wrapping_add(1);
     return &mut *((*s).nodes).offset(fresh0 as isize) as *mut hilite_node;
 }
-unsafe extern "C" fn hlist_rotate_left(
-    mut anchor: *mut hilite_tree,
-    mut n: *mut hilite_node,
-) {
+unsafe extern "C" fn hlist_rotate_left(mut anchor: *mut hilite_tree, mut n: *mut hilite_node) {
     let mut np: *mut hilite_node = (*n).parent;
     let mut nr: *mut hilite_node = (*n).right;
     let mut nrl: *mut hilite_node = (*(*n).right).left;
@@ -924,10 +894,7 @@ unsafe extern "C" fn hlist_rotate_left(
         (*nrl).parent = n;
     }
 }
-unsafe extern "C" fn hlist_rotate_right(
-    mut anchor: *mut hilite_tree,
-    mut n: *mut hilite_node,
-) {
+unsafe extern "C" fn hlist_rotate_right(mut anchor: *mut hilite_tree, mut n: *mut hilite_node) {
     let mut np: *mut hilite_node = (*n).parent;
     let mut nl: *mut hilite_node = (*n).left;
     let mut nlr: *mut hilite_node = (*(*n).left).right;
@@ -1045,13 +1012,10 @@ unsafe extern "C" fn add_hilite(mut anchor: *mut hilite_tree, mut hl: *mut hilit
                 n = (*(*n).parent).parent;
                 (*n).red = 1 as std::ffi::c_int;
             } else {
-                if n == (*(*n).parent).right
-                    && (*n).parent == (*(*(*n).parent).parent).left
-                {
+                if n == (*(*n).parent).right && (*n).parent == (*(*(*n).parent).parent).left {
                     hlist_rotate_left(anchor, (*n).parent);
                     n = (*n).left;
-                } else if n == (*(*n).parent).left
-                    && (*n).parent == (*(*(*n).parent).parent).right
+                } else if n == (*(*n).parent).left && (*n).parent == (*(*(*n).parent).parent).right
                 {
                     hlist_rotate_right(anchor, (*n).parent);
                     n = (*n).right;
@@ -1066,7 +1030,7 @@ unsafe extern "C" fn add_hilite(mut anchor: *mut hilite_tree, mut hl: *mut hilit
                 break;
             }
         }
-    };
+    }
 }
 unsafe extern "C" fn create_hilites(
     mut linepos: POSITION,
@@ -1090,19 +1054,19 @@ unsafe extern "C" fn create_hilites(
     while i <= end_index {
         if *chpos.offset(i as isize)
             != *chpos.offset(i.wrapping_sub(1 as std::ffi::c_int as size_t) as isize)
-                + 1 as std::ffi::c_int || i == end_index
+                + 1 as std::ffi::c_int
+            || i == end_index
         {
-            hl
-                .hl_endpos = linepos
+            hl.hl_endpos = linepos
                 + *chpos.offset(i.wrapping_sub(1 as std::ffi::c_int as size_t) as isize)
-                    as POSITION + 1 as std::ffi::c_int as POSITION;
+                    as POSITION
+                + 1 as std::ffi::c_int as POSITION;
             add_hilite(&mut hilite_anchor, &mut hl);
             if i < end_index {
                 hl.hl_startpos = linepos + *chpos.offset(i as isize) as POSITION;
             }
         }
         i = i.wrapping_add(1);
-        i;
     }
 }
 unsafe extern "C" fn hilite_line(
@@ -1150,7 +1114,6 @@ unsafe extern "C" fn hilite_line(
                 lep = *ep.offset(i as isize);
             }
             i += 1;
-            i;
         }
         create_hilites(
             linepos,
@@ -1171,7 +1134,6 @@ unsafe extern "C" fn hilite_line(
                 break;
             }
             line_off = line_off.wrapping_add(1);
-            line_off;
         }
         if !(match_pattern(
             search_info.compiled,
@@ -1184,11 +1146,12 @@ unsafe extern "C" fn hilite_line(
             nsp,
             1 as std::ffi::c_int,
             search_info.search_type,
-        ) as u64 != 0)
+        ) as u64
+            != 0)
         {
             break;
         }
-    };
+    }
 }
 unsafe extern "C" fn hilite_screen() {
     let mut scrpos: scrpos = scrpos { pos: 0, ln: 0 };
@@ -1196,7 +1159,11 @@ unsafe extern "C" fn hilite_screen() {
     if scrpos.pos == -(1 as std::ffi::c_int) as POSITION {
         return;
     }
-    prep_hilite(scrpos.pos, position(-(2 as std::ffi::c_int)), -(1 as std::ffi::c_int));
+    prep_hilite(
+        scrpos.pos,
+        position(-(2 as std::ffi::c_int)),
+        -(1 as std::ffi::c_int),
+    );
     repaint_hilite(LTRUE);
 }
 #[no_mangle]
@@ -1245,11 +1212,7 @@ unsafe extern "C" fn search_pos(mut search_type: std::ffi::c_int) -> POSITION {
         }
         pos = position(sindex);
         if add_one as u64 != 0 {
-            pos = forw_raw_line(
-                pos,
-                0 as *mut *const std::ffi::c_char,
-                0 as *mut size_t,
-            );
+            pos = forw_raw_line(pos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
         }
     }
     if search_type & (1 as std::ffi::c_int) << 0 as std::ffi::c_int != 0 {
@@ -1331,8 +1294,7 @@ unsafe extern "C" fn get_lastlinepos(
         }
         pos = npos;
         nlines += 1;
-        nlines;
-    };
+    }
 }
 unsafe extern "C" fn osc8_parse(
     mut line: *const std::ffi::c_char,
@@ -1358,8 +1320,7 @@ unsafe extern "C" fn osc8_parse(
     loop {
         let mut astate: ansi_state = ansi_step(pansi, ch);
         let mut ostate: osc8_state = ansi_osc8_state(pansi);
-        if ostate as std::ffi::c_uint == OSC8_NOT as std::ffi::c_int as std::ffi::c_uint
-        {
+        if ostate as std::ffi::c_uint == OSC8_NOT as std::ffi::c_int as std::ffi::c_uint {
             break;
         }
         match ostate as std::ffi::c_uint {
@@ -1442,11 +1403,9 @@ unsafe extern "C" fn osc8_param_match(
         }
         while p < (*op1).params_end && *p as std::ffi::c_int != ':' as i32 {
             p = p.offset(1);
-            p;
         }
         while p < (*op1).params_end && *p as std::ffi::c_int == ':' as i32 {
             p = p.offset(1);
-            p;
         }
     }
     return LFALSE;
@@ -1454,8 +1413,8 @@ unsafe extern "C" fn osc8_param_match(
 unsafe extern "C" fn osc8_empty_uri(mut op: *const osc8_parse_info) -> lbool {
     return ((*op).uri_end == (*op).uri_start
         || (*op).uri_end == ((*op).uri_start).offset(1 as std::ffi::c_int as isize)
-            && *((*op).uri_start).offset(0 as std::ffi::c_int as isize)
-                as std::ffi::c_int == '#' as i32) as std::ffi::c_int as lbool;
+            && *((*op).uri_start).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
+                == '#' as i32) as std::ffi::c_int as lbool;
 }
 unsafe extern "C" fn osc8_search_line1(
     mut search_type: std::ffi::c_int,
@@ -1466,8 +1425,8 @@ unsafe extern "C" fn osc8_search_line1(
     mut param: *const std::ffi::c_char,
     mut clickpos: POSITION,
 ) -> osc8_match {
-    let mut line_end: *const std::ffi::c_char = &*line.offset(line_len as isize)
-        as *const std::ffi::c_char;
+    let mut line_end: *const std::ffi::c_char =
+        &*line.offset(line_len as isize) as *const std::ffi::c_char;
     let mut op1: osc8_parse_info = osc8_parse_info {
         osc8_start: 0 as *const std::ffi::c_char,
         osc8_end: 0 as *const std::ffi::c_char,
@@ -1502,27 +1461,20 @@ unsafe extern "C" fn osc8_search_line1(
                         break;
                     }
                     linep2 = linep2.offset(1);
-                    linep2;
                 }
                 if linep2 == line_end {
                     op2.osc8_start = line_end;
                     op2.osc8_end = op2.osc8_start;
                 }
                 if (op2.osc8_start > op1.osc8_end || !param.is_null())
-                    && osc8_param_match(
-                        linepos,
-                        line,
-                        &mut op1,
-                        &mut op2,
-                        param,
-                        clickpos,
-                    ) as std::ffi::c_uint != 0
+                    && osc8_param_match(linepos, line, &mut op1, &mut op2, param, clickpos)
+                        as std::ffi::c_uint
+                        != 0
                 {
                     break;
                 }
             }
             linep = linep.offset(1);
-            linep;
         }
     } else {
         op2.osc8_start = line_end;
@@ -1535,21 +1487,15 @@ unsafe extern "C" fn osc8_search_line1(
             if osc8_parse(linep, line_end, &mut op1) as u64 != 0 {
                 if (osc8_empty_uri(&mut op1) as u64 == 0 && op2.osc8_start > op1.osc8_end
                     || !param.is_null())
-                    && osc8_param_match(
-                        linepos,
-                        line,
-                        &mut op1,
-                        &mut op2,
-                        param,
-                        clickpos,
-                    ) as std::ffi::c_uint != 0
+                    && osc8_param_match(linepos, line, &mut op1, &mut op2, param, clickpos)
+                        as std::ffi::c_uint
+                        != 0
                 {
                     break;
                 }
                 op2 = op1;
             }
             linep = linep.offset(-1);
-            linep;
         }
     }
     if !param.is_null() {
@@ -1558,9 +1504,7 @@ unsafe extern "C" fn osc8_search_line1(
     if osc8_linepos == linepos
         && osc8_match_start as size_t
             == (spos as size_t)
-                .wrapping_add(
-                    (op1.osc8_start).offset_from(line) as std::ffi::c_long as size_t,
-                )
+                .wrapping_add((op1.osc8_start).offset_from(line) as std::ffi::c_long as size_t)
     {
         return OSC8_ALREADY;
     }
@@ -1628,8 +1572,7 @@ unsafe extern "C" fn osc8_search_line(
             param,
             clickpos,
         );
-        if r as std::ffi::c_uint == OSC8_NO_MATCH as std::ffi::c_int as std::ffi::c_uint
-        {
+        if r as std::ffi::c_uint == OSC8_NO_MATCH as std::ffi::c_int as std::ffi::c_uint {
             break;
         }
         *matches -= 1;
@@ -1690,16 +1633,17 @@ unsafe extern "C" fn search_range(
         if sigs
             & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                 | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+                | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+            != 0
         {
             return -(1 as std::ffi::c_int);
         }
         if endpos != -(1 as std::ffi::c_int) as POSITION
             && search_type & (1 as std::ffi::c_int) << 15 as std::ffi::c_int == 0
-            && (search_type & (1 as std::ffi::c_int) << 0 as std::ffi::c_int != 0
-                && pos >= endpos
+            && (search_type & (1 as std::ffi::c_int) << 0 as std::ffi::c_int != 0 && pos >= endpos
                 || search_type & (1 as std::ffi::c_int) << 1 as std::ffi::c_int != 0
-                    && pos <= endpos) || maxlines == 0 as std::ffi::c_int
+                    && pos <= endpos)
+            || maxlines == 0 as std::ffi::c_int
         {
             if !pendpos.is_null() {
                 *pendpos = pos;
@@ -1708,21 +1652,18 @@ unsafe extern "C" fn search_range(
         }
         if maxlines > 0 as std::ffi::c_int {
             maxlines -= 1;
-            maxlines;
         }
         if search_type & (1 as std::ffi::c_int) << 0 as std::ffi::c_int != 0 {
             linepos = pos;
             pos = forw_raw_line(pos, &mut line, &mut line_len);
             if linenum != 0 as std::ffi::c_int as LINENUM {
                 linenum += 1;
-                linenum;
             }
         } else {
             pos = back_raw_line(pos, &mut line, &mut line_len);
             linepos = pos;
             if linenum != 0 as std::ffi::c_int as LINENUM {
                 linenum -= 1;
-                linenum;
             }
         }
         if pos == -(1 as std::ffi::c_int) as POSITION {
@@ -1748,9 +1689,7 @@ unsafe extern "C" fn search_range(
             }
             return matches;
         } else {
-            if linenums != 0
-                && abs((pos - oldpos) as std::ffi::c_int) > 2048 as std::ffi::c_int
-            {
+            if linenums != 0 && abs((pos - oldpos) as std::ffi::c_int) > 2048 as std::ffi::c_int {
                 add_lnum(linenum, pos);
             }
             oldpos = pos;
@@ -1781,14 +1720,14 @@ unsafe extern "C" fn search_range(
             } else {
                 cvt_ops = get_cvt_ops(search_type);
                 cvt_len = cvt_length(line_len, cvt_ops);
-                cline = ecalloc(1 as std::ffi::c_int as size_t, cvt_len)
-                    as *mut std::ffi::c_char;
+                cline = ecalloc(1 as std::ffi::c_int as size_t, cvt_len) as *mut std::ffi::c_char;
                 chpos = cvt_alloc_chpos(cvt_len);
                 cvt_text(cline, line, chpos, &mut line_len, cvt_ops);
                 if !filter_infos.is_null()
                     && (search_type & (1 as std::ffi::c_int) << 4 as std::ffi::c_int != 0
                         || prep_startpos == -(1 as std::ffi::c_int) as POSITION
-                        || linepos < prep_startpos || linepos >= prep_endpos)
+                        || linepos < prep_startpos
+                        || linepos >= prep_endpos)
                 {
                     if matches_filters(
                         pos,
@@ -1798,9 +1737,10 @@ unsafe extern "C" fn search_range(
                         linepos,
                         sp.as_mut_ptr(),
                         ep.as_mut_ptr(),
-                        16 as std::ffi::c_int - 10 as std::ffi::c_int
-                            - 1 as std::ffi::c_int + 2 as std::ffi::c_int,
-                    ) as u64 != 0
+                        16 as std::ffi::c_int - 10 as std::ffi::c_int - 1 as std::ffi::c_int
+                            + 2 as std::ffi::c_int,
+                    ) as u64
+                        != 0
                     {
                         continue;
                     }
@@ -1814,15 +1754,13 @@ unsafe extern "C" fn search_range(
                         0 as std::ffi::c_int as size_t,
                         sp.as_mut_ptr(),
                         ep.as_mut_ptr(),
-                        16 as std::ffi::c_int - 10 as std::ffi::c_int
-                            - 1 as std::ffi::c_int + 2 as std::ffi::c_int,
+                        16 as std::ffi::c_int - 10 as std::ffi::c_int - 1 as std::ffi::c_int
+                            + 2 as std::ffi::c_int,
                         0 as std::ffi::c_int,
                         search_type,
                     );
                     if line_match as u64 != 0 {
-                        if search_type & (1 as std::ffi::c_int) << 4 as std::ffi::c_int
-                            != 0
-                        {
+                        if search_type & (1 as std::ffi::c_int) << 4 as std::ffi::c_int != 0 {
                             hilite_line(
                                 linepos + skip_bytes as POSITION,
                                 cline,
@@ -1830,8 +1768,10 @@ unsafe extern "C" fn search_range(
                                 chpos,
                                 sp.as_mut_ptr(),
                                 ep.as_mut_ptr(),
-                                16 as std::ffi::c_int - 10 as std::ffi::c_int
-                                    - 1 as std::ffi::c_int + 2 as std::ffi::c_int,
+                                16 as std::ffi::c_int
+                                    - 10 as std::ffi::c_int
+                                    - 1 as std::ffi::c_int
+                                    + 2 as std::ffi::c_int,
                             );
                         } else {
                             matches -= 1;
@@ -1845,20 +1785,24 @@ unsafe extern "C" fn search_range(
                                         chpos,
                                         sp.as_mut_ptr(),
                                         ep.as_mut_ptr(),
-                                        16 as std::ffi::c_int - 10 as std::ffi::c_int
-                                            - 1 as std::ffi::c_int + 2 as std::ffi::c_int,
+                                        16 as std::ffi::c_int
+                                            - 10 as std::ffi::c_int
+                                            - 1 as std::ffi::c_int
+                                            + 2 as std::ffi::c_int,
                                     );
                                 }
                                 if chop_line() != 0 {
                                     if !(sp[0 as std::ffi::c_int as usize]).is_null()
                                         && !(ep[0 as std::ffi::c_int as usize]).is_null()
                                     {
-                                        let mut start_off: size_t = (sp[0 as std::ffi::c_int
-                                            as usize])
-                                            .offset_from(cline) as std::ffi::c_long as size_t;
-                                        let mut end_off: size_t = (ep[0 as std::ffi::c_int
-                                            as usize])
-                                            .offset_from(cline) as std::ffi::c_long as size_t;
+                                        let mut start_off: size_t =
+                                            (sp[0 as std::ffi::c_int as usize]).offset_from(cline)
+                                                as std::ffi::c_long
+                                                as size_t;
+                                        let mut end_off: size_t =
+                                            (ep[0 as std::ffi::c_int as usize]).offset_from(cline)
+                                                as std::ffi::c_long
+                                                as size_t;
                                         shift_visible(
                                             linepos,
                                             *chpos.offset(start_off as isize) as size_t,
@@ -1867,15 +1811,17 @@ unsafe extern "C" fn search_range(
                                     }
                                 } else if !plastlinepos.is_null() {
                                     if !(ep[0 as std::ffi::c_int as usize]).is_null() {
-                                        let mut end_off_0: size_t = (ep[0 as std::ffi::c_int
-                                            as usize])
-                                            .offset_from(cline) as std::ffi::c_long as size_t;
+                                        let mut end_off_0: size_t =
+                                            (ep[0 as std::ffi::c_int as usize]).offset_from(cline)
+                                                as std::ffi::c_long
+                                                as size_t;
                                         if end_off_0
                                             >= swidth * sheight / 4 as std::ffi::c_int as size_t
                                         {
                                             *plastlinepos = get_lastlinepos(
                                                 linepos,
-                                                linepos + *chpos.offset(end_off_0 as isize) as POSITION,
+                                                linepos
+                                                    + *chpos.offset(end_off_0 as isize) as POSITION,
                                                 sheight as std::ffi::c_int,
                                             );
                                         }
@@ -1895,7 +1841,7 @@ unsafe extern "C" fn search_range(
                 free(chpos as *mut std::ffi::c_void);
             }
         }
-    };
+    }
 }
 #[no_mangle]
 pub unsafe extern "C" fn osc8_search(
@@ -1906,12 +1852,10 @@ pub unsafe extern "C" fn osc8_search(
     let mut pos: POSITION = 0;
     let mut match_0: std::ffi::c_int = 0;
     let mut curr_sindex: std::ffi::c_int = -(1 as std::ffi::c_int);
-    if osc8_linepos != -(1 as std::ffi::c_int) as POSITION
-        && {
-            curr_sindex = onscreen(osc8_linepos);
-            curr_sindex >= 0 as std::ffi::c_int
-        }
-    {
+    if osc8_linepos != -(1 as std::ffi::c_int) as POSITION && {
+        curr_sindex = onscreen(osc8_linepos);
+        curr_sindex >= 0 as std::ffi::c_int
+    } {
         let mut line: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
         let mut line_len: size_t = 0;
         pos = forw_raw_line(osc8_linepos, &mut line, &mut line_len);
@@ -1924,7 +1868,8 @@ pub unsafe extern "C" fn osc8_search(
                 param,
                 -(1 as std::ffi::c_int) as POSITION,
                 &mut matches,
-            ) as std::ffi::c_uint != OSC8_NO_MATCH as std::ffi::c_int as std::ffi::c_uint
+            ) as std::ffi::c_uint
+                != OSC8_NO_MATCH as std::ffi::c_int as std::ffi::c_uint
             {
                 osc8_shift_visible();
                 repaint_hilite(LTRUE);
@@ -1992,9 +1937,7 @@ pub unsafe extern "C" fn osc8_click(
     if clickpos == -(1 as std::ffi::c_int) as POSITION {
         return LFALSE;
     }
-    if forw_raw_line(linepos, &mut line, &mut line_len)
-        == -(1 as std::ffi::c_int) as POSITION
-    {
+    if forw_raw_line(linepos, &mut line, &mut line_len) == -(1 as std::ffi::c_int) as POSITION {
         return LFALSE;
     }
     r = osc8_search_line(
@@ -2027,14 +1970,10 @@ unsafe extern "C" fn scheme_length(
             return plen;
         }
         plen = plen.wrapping_add(1);
-        plen;
     }
     return 0 as std::ffi::c_int as size_t;
 }
-unsafe extern "C" fn bad_uri(
-    mut uri: *const std::ffi::c_char,
-    mut uri_len: size_t,
-) -> lbool {
+unsafe extern "C" fn bad_uri(mut uri: *const std::ffi::c_char, mut uri_len: size_t) -> lbool {
     let mut i: size_t = 0;
     i = 0 as std::ffi::c_int as size_t;
     while i < uri_len {
@@ -2042,12 +1981,11 @@ unsafe extern "C" fn bad_uri(
             b"'\"\0" as *const u8 as *const std::ffi::c_char,
             *uri.offset(i as isize) as std::ffi::c_int,
         ))
-            .is_null()
+        .is_null()
         {
             return LTRUE;
         }
         i = i.wrapping_add(1);
-        i;
     }
     return LFALSE;
 }
@@ -2059,24 +1997,18 @@ unsafe extern "C" fn osc8_read_selected(mut op: *mut osc8_parse_info) -> lbool {
     if pos == -(1 as std::ffi::c_int) as POSITION {
         return LFALSE;
     }
-    (*op)
-        .osc8_start = &*line.offset((osc8_match_start - osc8_linepos) as isize)
-        as *const std::ffi::c_char;
-    (*op)
-        .osc8_end = &*line.offset((osc8_match_end - osc8_linepos) as isize)
-        as *const std::ffi::c_char;
-    (*op)
-        .params_start = &*line.offset((osc8_params_start - osc8_linepos) as isize)
-        as *const std::ffi::c_char;
-    (*op)
-        .params_end = &*line.offset((osc8_params_end - osc8_linepos) as isize)
-        as *const std::ffi::c_char;
-    (*op)
-        .uri_start = &*line.offset((osc8_uri_start - osc8_linepos) as isize)
-        as *const std::ffi::c_char;
-    (*op)
-        .uri_end = &*line.offset((osc8_uri_end - osc8_linepos) as isize)
-        as *const std::ffi::c_char;
+    (*op).osc8_start =
+        &*line.offset((osc8_match_start - osc8_linepos) as isize) as *const std::ffi::c_char;
+    (*op).osc8_end =
+        &*line.offset((osc8_match_end - osc8_linepos) as isize) as *const std::ffi::c_char;
+    (*op).params_start =
+        &*line.offset((osc8_params_start - osc8_linepos) as isize) as *const std::ffi::c_char;
+    (*op).params_end =
+        &*line.offset((osc8_params_end - osc8_linepos) as isize) as *const std::ffi::c_char;
+    (*op).uri_start =
+        &*line.offset((osc8_uri_start - osc8_linepos) as isize) as *const std::ffi::c_char;
+    (*op).uri_end =
+        &*line.offset((osc8_uri_end - osc8_linepos) as isize) as *const std::ffi::c_char;
     return LTRUE;
 }
 #[no_mangle]
@@ -2095,8 +2027,8 @@ pub unsafe extern "C" fn osc8_open() {
     let mut open_cmd: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut uri_len: size_t = 0;
     let mut hf: *mut FILE = 0 as *mut FILE;
-    static mut env_name_pfx: *const std::ffi::c_char = b"LESS_OSC8_\0" as *const u8
-        as *const std::ffi::c_char;
+    static mut env_name_pfx: *const std::ffi::c_char =
+        b"LESS_OSC8_\0" as *const u8 as *const std::ffi::c_char;
     if osc8_linepos == -(1 as std::ffi::c_int) as POSITION {
         error(
             b"No OSC8 link selected\0" as *const u8 as *const std::ffi::c_char,
@@ -2114,8 +2046,7 @@ pub unsafe extern "C" fn osc8_open() {
     uri_len = (op.uri_end).offset_from(op.uri_start) as std::ffi::c_long as size_t;
     scheme_len = scheme_length(op.uri_start, uri_len);
     if scheme_len == 0 as std::ffi::c_int as size_t
-        && *(op.uri_start).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-            == '#' as i32
+        && *(op.uri_start).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '#' as i32
     {
         let mut param: *mut std::ffi::c_char = ecalloc(
             uri_len.wrapping_add(3 as std::ffi::c_int as size_t),
@@ -2127,10 +2058,8 @@ pub unsafe extern "C" fn osc8_open() {
             (op.uri_start).offset(1 as std::ffi::c_int as isize),
             uri_len.wrapping_sub(1 as std::ffi::c_int as size_t),
         );
-        *param
-            .offset(
-                uri_len.wrapping_add(2 as std::ffi::c_int as size_t) as isize,
-            ) = '\0' as i32 as std::ffi::c_char;
+        *param.offset(uri_len.wrapping_add(2 as std::ffi::c_int as size_t) as isize) =
+            '\0' as i32 as std::ffi::c_char;
         osc8_search(
             (1 as std::ffi::c_int) << 0 as std::ffi::c_int
                 | (1 as std::ffi::c_int) << 15 as std::ffi::c_int,
@@ -2158,8 +2087,7 @@ pub unsafe extern "C" fn osc8_open() {
     );
     handler = lgetenv(env_name.as_mut_ptr());
     if isnullenv(handler) as std::ffi::c_uint != 0
-        || strcmp(handler, b"-\0" as *const u8 as *const std::ffi::c_char)
-            == 0 as std::ffi::c_int
+        || strcmp(handler, b"-\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int
     {
         handler = lgetenv(b"LESS_OSC8_ANY\0" as *const u8 as *const std::ffi::c_char);
     }
@@ -2175,7 +2103,10 @@ pub unsafe extern "C" fn osc8_open() {
         return;
     }
     osc8_path = saven(op.uri_start, uri_len);
-    hf = popen(pr_expand(handler), b"r\0" as *const u8 as *const std::ffi::c_char);
+    hf = popen(
+        pr_expand(handler),
+        b"r\0" as *const u8 as *const std::ffi::c_char,
+    );
     free(osc8_path as *mut std::ffi::c_void);
     osc8_path = 0 as *mut std::ffi::c_char;
     if hf.is_null() {
@@ -2184,8 +2115,7 @@ pub unsafe extern "C" fn osc8_open() {
         };
         parg_0.p_string = env_name.as_mut_ptr();
         error(
-            b"Cannot execute protocol handler in %s\0" as *const u8
-                as *const std::ffi::c_char,
+            b"Cannot execute protocol handler in %s\0" as *const u8 as *const std::ffi::c_char,
             &mut parg_0,
         );
         return;
@@ -2200,7 +2130,10 @@ pub unsafe extern "C" fn osc8_open() {
     {
         edit(skipsp(&mut *open_cmd.offset(2 as std::ffi::c_int as isize)));
     } else {
-        lsystem(open_cmd, b"link done\0" as *const u8 as *const std::ffi::c_char);
+        lsystem(
+            open_cmd,
+            b"link done\0" as *const u8 as *const std::ffi::c_char,
+        );
     }
     free(open_cmd as *mut std::ffi::c_void);
 }
@@ -2258,8 +2191,7 @@ pub unsafe extern "C" fn search(
             let mut r: std::ffi::c_int = hist_pattern(search_type);
             if r == 0 as std::ffi::c_int {
                 error(
-                    b"No previous regular expression\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"No previous regular expression\0" as *const u8 as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
             }
@@ -2271,8 +2203,7 @@ pub unsafe extern "C" fn search(
             != search_info.search_type & (1 as std::ffi::c_int) << 12 as std::ffi::c_int
         {
             error(
-                b"Please re-enter search pattern\0" as *const u8
-                    as *const std::ffi::c_char,
+                b"Please re-enter search pattern\0" as *const u8 as *const std::ffi::c_char,
                 0 as *mut std::ffi::c_void as *mut PARG,
             );
             return -(1 as std::ffi::c_int);
@@ -2280,18 +2211,15 @@ pub unsafe extern "C" fn search(
         if hilite_search == 1 as std::ffi::c_int || status_col != 0 {
             repaint_hilite(LFALSE);
         }
-        if hilite_search == 2 as std::ffi::c_int && hide_hilite as std::ffi::c_uint != 0
-        {
+        if hilite_search == 2 as std::ffi::c_int && hide_hilite as std::ffi::c_uint != 0 {
             hide_hilite = LFALSE;
             hilite_screen();
         }
         hide_hilite = LFALSE;
     } else {
-        let mut show_error: std::ffi::c_int = (search_type
-            & (1 as std::ffi::c_int) << 3 as std::ffi::c_int == 0) as std::ffi::c_int;
-        if set_pattern(&mut search_info, pattern, search_type, show_error)
-            < 0 as std::ffi::c_int
-        {
+        let mut show_error: std::ffi::c_int =
+            (search_type & (1 as std::ffi::c_int) << 3 as std::ffi::c_int == 0) as std::ffi::c_int;
+        if set_pattern(&mut search_info, pattern, search_type, show_error) < 0 as std::ffi::c_int {
             return -(1 as std::ffi::c_int);
         }
         if hilite_search != 0 || status_col != 0 {
@@ -2331,14 +2259,13 @@ pub unsafe extern "C" fn search(
     if sigs
         & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
             | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-            | (1 as std::ffi::c_int) << 2 as std::ffi::c_int) != 0
+            | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
+        != 0
     {
         return -(1 as std::ffi::c_int);
     }
     if n != 0 as std::ffi::c_int {
-        if (hilite_search == 1 as std::ffi::c_int || status_col != 0)
-            && n > 0 as std::ffi::c_int
-        {
+        if (hilite_search == 1 as std::ffi::c_int || status_col != 0) && n > 0 as std::ffi::c_int {
             repaint_hilite(LTRUE);
         }
         return n;
@@ -2387,7 +2314,6 @@ pub unsafe extern "C" fn prep_hilite(
                 0 as *mut size_t,
             );
             i += 1;
-            i;
         }
     }
     if epos == -(1 as std::ffi::c_int) as POSITION
@@ -2413,10 +2339,9 @@ pub unsafe extern "C" fn prep_hilite(
         }
     }
     if epos == -(1 as std::ffi::c_int) as POSITION || epos > spos {
-        let mut search_type: std::ffi::c_int = (1 as std::ffi::c_int)
-            << 0 as std::ffi::c_int | (1 as std::ffi::c_int) << 4 as std::ffi::c_int;
-        search_type
-            |= search_info.search_type & (1 as std::ffi::c_int) << 12 as std::ffi::c_int;
+        let mut search_type: std::ffi::c_int = (1 as std::ffi::c_int) << 0 as std::ffi::c_int
+            | (1 as std::ffi::c_int) << 4 as std::ffi::c_int;
+        search_type |= search_info.search_type & (1 as std::ffi::c_int) << 12 as std::ffi::c_int;
         loop {
             result = search_range(
                 spos,
@@ -2431,17 +2356,13 @@ pub unsafe extern "C" fn prep_hilite(
             if result < 0 as std::ffi::c_int {
                 return;
             }
-            if prep_endpos == -(1 as std::ffi::c_int) as POSITION
-                || new_epos > prep_endpos
-            {
+            if prep_endpos == -(1 as std::ffi::c_int) as POSITION || new_epos > prep_endpos {
                 nprep_endpos = new_epos;
             }
-            if prep_endpos == -(1 as std::ffi::c_int) as POSITION
-                || nprep_endpos > prep_endpos
-            {
+            if prep_endpos == -(1 as std::ffi::c_int) as POSITION || nprep_endpos > prep_endpos {
                 if new_epos >= nprep_endpos
-                    && is_filtered(new_epos - 1 as std::ffi::c_int as POSITION)
-                        as std::ffi::c_uint != 0
+                    && is_filtered(new_epos - 1 as std::ffi::c_int as POSITION) as std::ffi::c_uint
+                        != 0
                 {
                     spos = nprep_endpos;
                     epos = forw_raw_line(
@@ -2504,9 +2425,7 @@ pub unsafe extern "C" fn set_filter_pattern(
             ::core::mem::size_of::<pattern_info>() as std::ffi::c_ulong,
         ) as *mut pattern_info;
         init_pattern(filter);
-        if set_pattern(filter, pattern, search_type, 1 as std::ffi::c_int)
-            < 0 as std::ffi::c_int
-        {
+        if set_pattern(filter, pattern, search_type, 1 as std::ffi::c_int) < 0 as std::ffi::c_int {
             free(filter as *mut std::ffi::c_void);
             return;
         }
@@ -2520,6 +2439,6 @@ pub unsafe extern "C" fn is_filtering() -> lbool {
     if ch_getflags() & 0o10 as std::ffi::c_int != 0 {
         return LFALSE;
     }
-    return (filter_infos != 0 as *mut std::ffi::c_void as *mut pattern_info)
-        as std::ffi::c_int as lbool;
+    return (filter_infos != 0 as *mut std::ffi::c_void as *mut pattern_info) as std::ffi::c_int
+        as lbool;
 }

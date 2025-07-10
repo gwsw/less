@@ -1,5 +1,5 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -112,8 +112,8 @@ pub struct lesskey_tables {
 static mut linenum: std::ffi::c_int = 0;
 static mut errors: std::ffi::c_int = 0;
 static mut less_version: std::ffi::c_int = 0 as std::ffi::c_int;
-static mut lesskey_file: *mut std::ffi::c_char = 0 as *const std::ffi::c_char
-    as *mut std::ffi::c_char;
+static mut lesskey_file: *mut std::ffi::c_char =
+    0 as *const std::ffi::c_char as *mut std::ffi::c_char;
 static mut cmdnames: [lesskey_cmdname; 74] = [
     {
         let mut init = lesskey_cmdname {
@@ -811,8 +811,7 @@ unsafe extern "C" fn parse_error(
     );
     if n >= 0 as std::ffi::c_int {
         let mut len: size_t = n as size_t;
-        if len < ::core::mem::size_of::<[std::ffi::c_char; 1024]>() as std::ffi::c_ulong
-        {
+        if len < ::core::mem::size_of::<[std::ffi::c_char; 1024]>() as std::ffi::c_ulong {
             snprintf(
                 buf.as_mut_ptr().offset(len as isize),
                 (::core::mem::size_of::<[std::ffi::c_char; 1024]>() as std::ffi::c_ulong)
@@ -823,7 +822,6 @@ unsafe extern "C" fn parse_error(
         }
     }
     errors += 1;
-    errors;
     lesskey_parse_error(buf.as_mut_ptr());
 }
 unsafe extern "C" fn init_tables(mut tables: *mut lesskey_tables) {
@@ -859,9 +857,7 @@ unsafe extern "C" fn char_string(
     }
     return buf;
 }
-unsafe extern "C" fn increment_pointer(
-    mut p: *mut std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+unsafe extern "C" fn increment_pointer(mut p: *mut std::ffi::c_char) -> *mut std::ffi::c_char {
     if *p as std::ffi::c_int == '\0' as i32 {
         return p;
     }
@@ -888,14 +884,14 @@ unsafe extern "C" fn tstr(
     match *p as std::ffi::c_int {
         92 => {
             p = p.offset(1);
-            p;
             match *p as std::ffi::c_int {
                 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 => {
                     ch = 0 as std::ffi::c_int as std::ffi::c_char;
                     i = 0 as std::ffi::c_int;
                     loop {
                         ch = (8 as std::ffi::c_int * ch as std::ffi::c_int
-                            + (*p as std::ffi::c_int - '0' as i32)) as std::ffi::c_char;
+                            + (*p as std::ffi::c_int - '0' as i32))
+                            as std::ffi::c_char;
                         p = p.offset(1);
                         if !(*p as std::ffi::c_int >= '0' as i32
                             && *p as std::ffi::c_int <= '7' as i32
@@ -908,9 +904,7 @@ unsafe extern "C" fn tstr(
                         }
                     }
                     *pp = p;
-                    if xlate != 0
-                        && ch as std::ffi::c_int == 'K' as i32 & 0o37 as std::ffi::c_int
-                    {
+                    if xlate != 0 && ch as std::ffi::c_int == 'K' as i32 & 0o37 as std::ffi::c_int {
                         return tstr_control_k.as_mut_ptr();
                     }
                     return char_string(buf.as_mut_ptr(), ch, 1 as std::ffi::c_int);
@@ -1005,20 +999,18 @@ unsafe extern "C" fn tstr(
                             }
                         }
                         *pp = p.offset(1 as std::ffi::c_int as isize);
-                        buf[0 as std::ffi::c_int
-                            as usize] = ('K' as i32 & 0o37 as std::ffi::c_int)
-                            as std::ffi::c_char;
+                        buf[0 as std::ffi::c_int as usize] =
+                            ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_char;
                         buf[1 as std::ffi::c_int as usize] = ch;
-                        buf[2 as std::ffi::c_int
-                            as usize] = 6 as std::ffi::c_int as std::ffi::c_char;
-                        buf[3 as std::ffi::c_int
-                            as usize] = 1 as std::ffi::c_int as std::ffi::c_char;
-                        buf[4 as std::ffi::c_int
-                            as usize] = 1 as std::ffi::c_int as std::ffi::c_char;
-                        buf[5 as std::ffi::c_int
-                            as usize] = 1 as std::ffi::c_int as std::ffi::c_char;
-                        buf[6 as std::ffi::c_int
-                            as usize] = '\0' as i32 as std::ffi::c_char;
+                        buf[2 as std::ffi::c_int as usize] =
+                            6 as std::ffi::c_int as std::ffi::c_char;
+                        buf[3 as std::ffi::c_int as usize] =
+                            1 as std::ffi::c_int as std::ffi::c_char;
+                        buf[4 as std::ffi::c_int as usize] =
+                            1 as std::ffi::c_int as std::ffi::c_char;
+                        buf[5 as std::ffi::c_int as usize] =
+                            1 as std::ffi::c_int as std::ffi::c_char;
+                        buf[6 as std::ffi::c_int as usize] = '\0' as i32 as std::ffi::c_char;
                         return buf.as_mut_ptr();
                     }
                 }
@@ -1069,14 +1061,12 @@ unsafe extern "C" fn issp(mut ch: std::ffi::c_char) -> std::ffi::c_int {
 unsafe extern "C" fn skipsp(mut s: *mut std::ffi::c_char) -> *mut std::ffi::c_char {
     while issp(*s) != 0 {
         s = s.offset(1);
-        s;
     }
     return s;
 }
 unsafe extern "C" fn skipnsp(mut s: *mut std::ffi::c_char) -> *mut std::ffi::c_char {
     while *s as std::ffi::c_int != '\0' as i32 && issp(*s) == 0 {
         s = s.offset(1);
-        s;
     }
     return s;
 }
@@ -1090,34 +1080,25 @@ unsafe extern "C" fn clean_line(mut s: *mut std::ffi::c_char) -> *mut std::ffi::
     {
         if *s.offset(i as isize) as std::ffi::c_int == '#' as i32
             && (i == 0 as std::ffi::c_int
-                || *s.offset((i - 1 as std::ffi::c_int) as isize) as std::ffi::c_int
-                    != '\\' as i32)
+                || *s.offset((i - 1 as std::ffi::c_int) as isize) as std::ffi::c_int != '\\' as i32)
         {
             break;
         }
         i += 1;
-        i;
     }
     *s.offset(i as isize) = '\0' as i32 as std::ffi::c_char;
     return s;
 }
-unsafe extern "C" fn add_cmd_char(
-    mut c: std::ffi::c_uchar,
-    mut tables: *mut lesskey_tables,
-) {
+unsafe extern "C" fn add_cmd_char(mut c: std::ffi::c_uchar, mut tables: *mut lesskey_tables) {
     xbuf_add_byte(&mut (*(*tables).currtable).buf, c);
 }
 unsafe extern "C" fn erase_cmd_char(mut tables: *mut lesskey_tables) {
     xbuf_pop(&mut (*(*tables).currtable).buf);
 }
-unsafe extern "C" fn add_cmd_str(
-    mut s: *const std::ffi::c_char,
-    mut tables: *mut lesskey_tables,
-) {
+unsafe extern "C" fn add_cmd_str(mut s: *const std::ffi::c_char, mut tables: *mut lesskey_tables) {
     while *s as std::ffi::c_int != '\0' as i32 {
         add_cmd_char(*s as std::ffi::c_uchar, tables);
         s = s.offset(1);
-        s;
     }
 }
 unsafe extern "C" fn match_version(
@@ -1134,9 +1115,7 @@ unsafe extern "C" fn match_version(
         _ => return 0 as std::ffi::c_int,
     };
 }
-unsafe extern "C" fn version_line(
-    mut s: *mut std::ffi::c_char,
-) -> *mut std::ffi::c_char {
+unsafe extern "C" fn version_line(mut s: *mut std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut op: std::ffi::c_char = 0;
     let mut ver: std::ffi::c_int = 0;
     let mut e: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
@@ -1150,33 +1129,28 @@ unsafe extern "C" fn version_line(
         60 => {
             if *s as std::ffi::c_int == '=' as i32 {
                 s = s.offset(1);
-                s;
                 op = '-' as i32 as std::ffi::c_char;
             }
         }
         62 => {
             if *s as std::ffi::c_int == '=' as i32 {
                 s = s.offset(1);
-                s;
                 op = '+' as i32 as std::ffi::c_char;
             }
         }
         61 => {
             if *s as std::ffi::c_int == '=' as i32 {
                 s = s.offset(1);
-                s;
             }
         }
         33 => {
             if *s as std::ffi::c_int == '=' as i32 {
                 s = s.offset(1);
-                s;
             }
         }
         _ => {
             parse_error(
-                b"invalid operator '%s' in #version line\0" as *const u8
-                    as *const std::ffi::c_char,
+                b"invalid operator '%s' in #version line\0" as *const u8 as *const std::ffi::c_char,
                 char_string(buf.as_mut_ptr(), op, 0 as std::ffi::c_int),
             );
             return 0 as *mut std::ffi::c_char;
@@ -1255,13 +1229,14 @@ unsafe extern "C" fn findaction(
     let mut i: std::ffi::c_int = 0;
     i = 0 as std::ffi::c_int;
     while !((*((*(*tables).currtable).names).offset(i as isize)).cn_name).is_null() {
-        if strcmp((*((*(*tables).currtable).names).offset(i as isize)).cn_name, actname)
-            == 0 as std::ffi::c_int
+        if strcmp(
+            (*((*(*tables).currtable).names).offset(i as isize)).cn_name,
+            actname,
+        ) == 0 as std::ffi::c_int
         {
             return (*((*(*tables).currtable).names).offset(i as isize)).cn_action;
         }
         i += 1;
-        i;
     }
     parse_error(
         b"unknown action: \"%s\"\0" as *const u8 as *const std::ffi::c_char,
@@ -1269,10 +1244,7 @@ unsafe extern "C" fn findaction(
     );
     return 100 as std::ffi::c_int;
 }
-unsafe extern "C" fn parse_cmdline(
-    mut p: *mut std::ffi::c_char,
-    mut tables: *mut lesskey_tables,
-) {
+unsafe extern "C" fn parse_cmdline(mut p: *mut std::ffi::c_char, mut tables: *mut lesskey_tables) {
     let mut actname: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut action: std::ffi::c_int = 0;
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
@@ -1303,7 +1275,10 @@ unsafe extern "C" fn parse_cmdline(
     if *p as std::ffi::c_int == '\0' as i32 {
         add_cmd_char(action as std::ffi::c_uchar, tables);
     } else {
-        add_cmd_char((action | 0o200 as std::ffi::c_int) as std::ffi::c_uchar, tables);
+        add_cmd_char(
+            (action | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
+            tables,
+        );
         while *p as std::ffi::c_int != '\0' as i32 {
             add_cmd_str(tstr(&mut p, 0 as std::ffi::c_int), tables);
         }
@@ -1318,7 +1293,8 @@ unsafe extern "C" fn parse_varline(
     let mut p: *mut std::ffi::c_char = line;
     let mut eq: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     eq = strchr(line, '=' as i32);
-    if !eq.is_null() && eq > line
+    if !eq.is_null()
+        && eq > line
         && *eq.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int == '+' as i32
     {
         erase_cmd_char(tables);
@@ -1327,7 +1303,8 @@ unsafe extern "C" fn parse_varline(
         loop {
             s = tstr(&mut p, 0 as std::ffi::c_int);
             add_cmd_str(s, tables);
-            if !(*p as std::ffi::c_int != '\0' as i32 && issp(*p) == 0
+            if !(*p as std::ffi::c_int != '\0' as i32
+                && issp(*p) == 0
                 && *p as std::ffi::c_int != '=' as i32)
             {
                 break;
@@ -1339,8 +1316,7 @@ unsafe extern "C" fn parse_varline(
         p = p.offset(1);
         if *fresh1 as std::ffi::c_int != '=' as i32 {
             parse_error(
-                b"missing = in variable definition\0" as *const u8
-                    as *const std::ffi::c_char,
+                b"missing = in variable definition\0" as *const u8 as *const std::ffi::c_char,
                 b"\0" as *const u8 as *const std::ffi::c_char,
             );
             return;
@@ -1357,10 +1333,7 @@ unsafe extern "C" fn parse_varline(
     }
     add_cmd_char('\0' as i32 as std::ffi::c_uchar, tables);
 }
-unsafe extern "C" fn parse_line(
-    mut line: *mut std::ffi::c_char,
-    mut tables: *mut lesskey_tables,
-) {
+unsafe extern "C" fn parse_line(mut line: *mut std::ffi::c_char, mut tables: *mut lesskey_tables) {
     let mut p: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     p = control_line(line, tables);
     if p.is_null() {
@@ -1386,10 +1359,7 @@ pub unsafe extern "C" fn parse_lesskey(
     lesskey_file = if !infile.is_null() {
         strdup(infile)
     } else {
-        homefile(
-            b".lesskey\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-        )
+        homefile(b".lesskey\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char)
     };
     if lesskey_file.is_null() {
         return -(1 as std::ffi::c_int);
@@ -1404,8 +1374,7 @@ pub unsafe extern "C" fn parse_lesskey(
             10 as std::ffi::c_int,
         );
     }
-    if strcmp(lesskey_file, b"-\0" as *const u8 as *const std::ffi::c_char)
-        == 0 as std::ffi::c_int
+    if strcmp(lesskey_file, b"-\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int
     {
         desc = stdin;
     } else {
@@ -1421,10 +1390,9 @@ pub unsafe extern "C" fn parse_lesskey(
                 as std::ffi::c_int,
             desc,
         ))
-            .is_null()
+        .is_null()
         {
             linenum += 1;
-            linenum;
             parse_line(line.as_mut_ptr(), tables);
         }
         if desc != stdin {
@@ -1441,8 +1409,8 @@ pub unsafe extern "C" fn parse_lesskey_content(
     mut tables: *mut lesskey_tables,
 ) -> std::ffi::c_int {
     let mut cx: size_t = 0 as std::ffi::c_int as size_t;
-    lesskey_file = b"lesskey-content\0" as *const u8 as *const std::ffi::c_char
-        as *mut std::ffi::c_char;
+    lesskey_file =
+        b"lesskey-content\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char;
     init_tables(tables);
     errors = 0 as std::ffi::c_int;
     linenum = 0 as std::ffi::c_int;
@@ -1461,19 +1429,17 @@ pub unsafe extern "C" fn parse_lesskey_content(
             && *content.offset(cx as isize) as std::ffi::c_int != ';' as i32
         {
             if lx
-                >= (::core::mem::size_of::<[std::ffi::c_char; 1024]>()
-                    as std::ffi::c_ulong)
+                >= (::core::mem::size_of::<[std::ffi::c_char; 1024]>() as std::ffi::c_ulong)
                     .wrapping_sub(1 as std::ffi::c_int as std::ffi::c_ulong)
             {
                 break;
             }
             if *content.offset(cx as isize) as std::ffi::c_int == '\\' as i32
-                && *content
-                    .offset(cx.wrapping_add(1 as std::ffi::c_int as size_t) as isize)
-                    as std::ffi::c_int == ';' as i32
+                && *content.offset(cx.wrapping_add(1 as std::ffi::c_int as size_t) as isize)
+                    as std::ffi::c_int
+                    == ';' as i32
             {
                 cx = cx.wrapping_add(1);
-                cx;
             }
             let fresh2 = cx;
             cx = cx.wrapping_add(1);
@@ -1483,11 +1449,9 @@ pub unsafe extern "C" fn parse_lesskey_content(
         }
         line[lx as usize] = '\0' as i32 as std::ffi::c_char;
         linenum += 1;
-        linenum;
         parse_line(line.as_mut_ptr(), tables);
         if *content.offset(cx as isize) as std::ffi::c_int != '\0' as i32 {
             cx = cx.wrapping_add(1);
-            cx;
         }
     }
     lesskey_file = 0 as *mut std::ffi::c_char;

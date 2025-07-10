@@ -1,5 +1,5 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -156,7 +156,6 @@ pub unsafe extern "C" fn init_mark() {
             -(1 as std::ffi::c_int),
         );
         i += 1;
-        i;
     }
 }
 unsafe extern "C" fn mark_set_ifile(mut m: *mut mark, mut ifile: *mut std::ffi::c_void) {
@@ -189,20 +188,16 @@ unsafe extern "C" fn getumark(mut c: std::ffi::c_char) -> *mut mark {
             as *mut mark;
     }
     if c as std::ffi::c_int == '\'' as i32 {
-        return &mut *marks
-            .as_mut_ptr()
-            .offset(
-                (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int
-                    - 1 as std::ffi::c_int) as isize,
-            ) as *mut mark;
+        return &mut *marks.as_mut_ptr().offset(
+            (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int
+                - 1 as std::ffi::c_int) as isize,
+        ) as *mut mark;
     }
     if c as std::ffi::c_int == '#' as i32 {
-        return &mut *marks
-            .as_mut_ptr()
-            .offset(
-                (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int
-                    - 2 as std::ffi::c_int) as isize,
-            ) as *mut mark;
+        return &mut *marks.as_mut_ptr().offset(
+            (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int
+                - 2 as std::ffi::c_int) as isize,
+        ) as *mut mark;
     }
     parg.p_char = c;
     error(
@@ -222,13 +217,17 @@ unsafe extern "C" fn getmark(mut c: std::ffi::c_char) -> *mut mark {
     match c as std::ffi::c_int {
         94 => {
             m = &mut sm;
-            cmark(m, curr_ifile, 0 as std::ffi::c_int as POSITION, 0 as std::ffi::c_int);
+            cmark(
+                m,
+                curr_ifile,
+                0 as std::ffi::c_int as POSITION,
+                0 as std::ffi::c_int,
+            );
         }
         36 => {
             if ch_end_seek() != 0 {
                 error(
-                    b"Cannot seek to end of file\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"Cannot seek to end of file\0" as *const u8 as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
                 return 0 as *mut mark;
@@ -242,12 +241,10 @@ unsafe extern "C" fn getmark(mut c: std::ffi::c_char) -> *mut mark {
             cmark(m, curr_ifile, (*m).m_scrpos.pos, (*m).m_scrpos.ln);
         }
         39 => {
-            m = &mut *marks
-                .as_mut_ptr()
-                .offset(
-                    (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int
-                        - 1 as std::ffi::c_int) as isize,
-                ) as *mut mark;
+            m = &mut *marks.as_mut_ptr().offset(
+                (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int
+                    - 1 as std::ffi::c_int) as isize,
+            ) as *mut mark;
         }
         _ => {
             m = getumark(c);
@@ -309,12 +306,10 @@ pub unsafe extern "C" fn lastmark() {
         return;
     }
     cmark(
-        &mut *marks
-            .as_mut_ptr()
-            .offset(
-                (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int
-                    - 1 as std::ffi::c_int) as isize,
-            ),
+        &mut *marks.as_mut_ptr().offset(
+            (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int
+                - 1 as std::ffi::c_int) as isize,
+        ),
         curr_ifile,
         scrpos.pos,
         scrpos.ln,
@@ -329,13 +324,11 @@ pub unsafe extern "C" fn gomark(mut c: std::ffi::c_char) {
     if m.is_null() {
         return;
     }
-    if m
-        == &mut *marks
-            .as_mut_ptr()
-            .offset(
-                (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int
-                    - 1 as std::ffi::c_int) as isize,
-            ) as *mut mark && (*m).m_scrpos.pos == -(1 as std::ffi::c_int) as POSITION
+    if m == &mut *marks.as_mut_ptr().offset(
+        (2 as std::ffi::c_int * 26 as std::ffi::c_int + 2 as std::ffi::c_int - 1 as std::ffi::c_int)
+            as isize,
+    ) as *mut mark
+        && (*m).m_scrpos.pos == -(1 as std::ffi::c_int) as POSITION
     {
         cmark(m, curr_ifile, 0 as std::ffi::c_int as POSITION, jump_sline);
     }
@@ -371,9 +364,7 @@ pub unsafe extern "C" fn posmark(mut pos: POSITION) -> std::ffi::c_char {
     while (i as std::ffi::c_int)
         < 2 as std::ffi::c_int * 26 as std::ffi::c_int + 1 as std::ffi::c_int
     {
-        if marks[i as usize].m_ifile == curr_ifile
-            && marks[i as usize].m_scrpos.pos == pos
-        {
+        if marks[i as usize].m_ifile == curr_ifile && marks[i as usize].m_scrpos.pos == pos {
             if (i as std::ffi::c_int) < 26 as std::ffi::c_int {
                 return ('a' as i32 + i as std::ffi::c_int) as std::ffi::c_char;
             }
@@ -384,7 +375,6 @@ pub unsafe extern "C" fn posmark(mut pos: POSITION) -> std::ffi::c_char {
             return '#' as i32 as std::ffi::c_char;
         }
         i = i.wrapping_add(1);
-        i;
     }
     return 0 as std::ffi::c_int as std::ffi::c_char;
 }
@@ -397,7 +387,6 @@ pub unsafe extern "C" fn unmark(mut ifile: *mut std::ffi::c_void) {
             marks[i as usize].m_scrpos.pos = -(1 as std::ffi::c_int) as POSITION;
         }
         i += 1;
-        i;
     }
 }
 #[no_mangle]
@@ -416,14 +405,10 @@ pub unsafe extern "C" fn mark_check_ifile(mut ifile: *mut std::ffi::c_void) {
             free(mark_filename as *mut std::ffi::c_void);
         }
         i += 1;
-        i;
     }
 }
 #[no_mangle]
-pub unsafe extern "C" fn save_marks(
-    mut fout: *mut FILE,
-    mut hdr: *const std::ffi::c_char,
-) {
+pub unsafe extern "C" fn save_marks(mut fout: *mut FILE, mut hdr: *const std::ffi::c_char) {
     let mut i: std::ffi::c_int = 0;
     if perma_marks == 0 {
         return;
@@ -435,7 +420,11 @@ pub unsafe extern "C" fn save_marks(
         let mut m: *mut mark = &mut *marks.as_mut_ptr().offset(i as isize) as *mut mark;
         let mut pos_str: [std::ffi::c_char; 23] = [0; 23];
         if !((*m).m_scrpos.pos == -(1 as std::ffi::c_int) as POSITION) {
-            postoa((*m).m_scrpos.pos, pos_str.as_mut_ptr(), 10 as std::ffi::c_int);
+            postoa(
+                (*m).m_scrpos.pos,
+                pos_str.as_mut_ptr(),
+                10 as std::ffi::c_int,
+            );
             filename = (*m).m_filename;
             if filename.is_null() {
                 filename = get_real_filename((*m).m_ifile);
@@ -454,7 +443,6 @@ pub unsafe extern "C" fn save_marks(
             }
         }
         i += 1;
-        i;
     }
 }
 #[no_mangle]
@@ -469,7 +457,6 @@ pub unsafe extern "C" fn restore_mark(mut line: *const std::ffi::c_char) {
     }
     while *line as std::ffi::c_int == ' ' as i32 {
         line = line.offset(1);
-        line;
     }
     let fresh1 = line;
     line = line.offset(1);
@@ -479,7 +466,6 @@ pub unsafe extern "C" fn restore_mark(mut line: *const std::ffi::c_char) {
     }
     while *line as std::ffi::c_int == ' ' as i32 {
         line = line.offset(1);
-        line;
     }
     ln = lstrtoic(line, &mut line, 10 as std::ffi::c_int);
     if ln < 0 as std::ffi::c_int {
@@ -493,7 +479,6 @@ pub unsafe extern "C" fn restore_mark(mut line: *const std::ffi::c_char) {
     }
     while *line as std::ffi::c_int == ' ' as i32 {
         line = line.offset(1);
-        line;
     }
     pos = lstrtoposc(line, &mut line, 10 as std::ffi::c_int);
     if pos < 0 as std::ffi::c_int as POSITION {
@@ -501,7 +486,6 @@ pub unsafe extern "C" fn restore_mark(mut line: *const std::ffi::c_char) {
     }
     while *line as std::ffi::c_int == ' ' as i32 {
         line = line.offset(1);
-        line;
     }
     cmark(m, 0 as *mut std::ffi::c_void, pos, ln);
     (*m).m_filename = save(line);

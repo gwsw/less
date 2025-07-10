@@ -7,16 +7,10 @@ extern "C" {
         _: ...
     ) -> std::ffi::c_int;
     fn __ctype_b_loc() -> *mut *const std::ffi::c_ushort;
-    fn strcpy(
-        _: *mut std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
     fn strchr(_: *const std::ffi::c_char, _: std::ffi::c_int) -> *mut std::ffi::c_char;
-    fn strstr(
-        _: *const std::ffi::c_char,
-        _: *const std::ffi::c_char,
-    ) -> *mut std::ffi::c_char;
+    fn strstr(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn lstrtoulc(
         _: *const std::ffi::c_char,
         _: *mut *const std::ffi::c_char,
@@ -490,8 +484,7 @@ pub static mut charsets: [charset; 21] = unsafe {
     [
         {
             let mut init = charset {
-                name: b"ascii\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"ascii\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc18b95.b\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
@@ -500,8 +493,7 @@ pub static mut charsets: [charset; 21] = unsafe {
         },
         {
             let mut init = charset {
-                name: b"utf-8\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"utf-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: &utf_mode as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc18b95.b126.bb\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
@@ -510,8 +502,7 @@ pub static mut charsets: [charset; 21] = unsafe {
         },
         {
             let mut init = charset {
-                name: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc18b95.33b.\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
@@ -520,8 +511,7 @@ pub static mut charsets: [charset; 21] = unsafe {
         },
         {
             let mut init = charset {
-                name: b"latin3\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"latin3\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc18b95.33b5.b8.b15.b4.b12.b18.b12.b.\0" as *const u8
                     as *const std::ffi::c_char as *mut std::ffi::c_char,
@@ -530,8 +520,7 @@ pub static mut charsets: [charset; 21] = unsafe {
         },
         {
             let mut init = charset {
-                name: b"arabic\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"arabic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc18b95.33b.3b.7b2.13b.3b.b26.5b19.b\0" as *const u8
                     as *const std::ffi::c_char as *mut std::ffi::c_char,
@@ -540,8 +529,7 @@ pub static mut charsets: [charset; 21] = unsafe {
         },
         {
             let mut init = charset {
-                name: b"greek\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"greek\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc18b95.33b4.2b4.b3.b35.b44.b\0" as *const u8
                     as *const std::ffi::c_char as *mut std::ffi::c_char,
@@ -553,25 +541,23 @@ pub static mut charsets: [charset; 21] = unsafe {
                 name: b"greek2005\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.33b14.b35.b44.b\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
+                desc: b"8bcccbcc18b95.33b14.b35.b44.b\0" as *const u8 as *const std::ffi::c_char
+                    as *mut std::ffi::c_char,
             };
             init
         },
         {
             let mut init = charset {
-                name: b"hebrew\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"hebrew\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.33b.b29.32b28.2b2.b\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
+                desc: b"8bcccbcc18b95.33b.b29.32b28.2b2.b\0" as *const u8 as *const std::ffi::c_char
+                    as *mut std::ffi::c_char,
             };
             init
         },
         {
             let mut init = charset {
-                name: b"koi8-r\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"koi8-r\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc18b95.b.\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
@@ -580,8 +566,7 @@ pub static mut charsets: [charset; 21] = unsafe {
         },
         {
             let mut init = charset {
-                name: b"KOI8-T\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"KOI8-T\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc18b95.b8.b6.b8.b.b.5b7.3b4.b4.b3.b.b.3b.\0" as *const u8
                     as *const std::ffi::c_char as *mut std::ffi::c_char,
@@ -593,35 +578,32 @@ pub static mut charsets: [charset; 21] = unsafe {
                 name: b"georgianps\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.3b11.4b12.2b.\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
+                desc: b"8bcccbcc18b95.3b11.4b12.2b.\0" as *const u8 as *const std::ffi::c_char
+                    as *mut std::ffi::c_char,
             };
             init
         },
         {
             let mut init = charset {
-                name: b"tcvn\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"tcvn\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"b..b...bcccbccbbb7.8b95.b48.5b.\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
+                desc: b"b..b...bcccbccbbb7.8b95.b48.5b.\0" as *const u8 as *const std::ffi::c_char
+                    as *mut std::ffi::c_char,
             };
             init
         },
         {
             let mut init = charset {
-                name: b"TIS-620\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"TIS-620\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.b.4b.11b7.8b.\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
+                desc: b"8bcccbcc18b95.b.4b.11b7.8b.\0" as *const u8 as *const std::ffi::c_char
+                    as *mut std::ffi::c_char,
             };
             init
         },
         {
             let mut init = charset {
-                name: b"next\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"next\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc18b95.bb125.bb\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
@@ -630,8 +612,7 @@ pub static mut charsets: [charset; 21] = unsafe {
         },
         {
             let mut init = charset {
-                name: b"dos\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"dos\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
                 desc: b"8bcccbcc12bc5b95.b.\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
@@ -643,8 +624,8 @@ pub static mut charsets: [charset; 21] = unsafe {
                 name: b"windows-1251\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc12bc5b95.b24.b.\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
+                desc: b"8bcccbcc12bc5b95.b24.b.\0" as *const u8 as *const std::ffi::c_char
+                    as *mut std::ffi::c_char,
             };
             init
         },
@@ -653,8 +634,8 @@ pub static mut charsets: [charset; 21] = unsafe {
                 name: b"windows-1252\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc12bc5b95.b.b11.b.2b12.b.\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
+                desc: b"8bcccbcc12bc5b95.b.b11.b.2b12.b.\0" as *const u8 as *const std::ffi::c_char
+                    as *mut std::ffi::c_char,
             };
             init
         },
@@ -663,18 +644,19 @@ pub static mut charsets: [charset; 21] = unsafe {
                 name: b"windows-1255\0" as *const u8 as *const std::ffi::c_char
                     as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc12bc5b95.b.b8.b.5b9.b.4b.\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
+                desc: b"8bcccbcc12bc5b95.b.b8.b.5b9.b.4b.\0" as *const u8 as *const std::ffi::c_char
+                    as *mut std::ffi::c_char,
             };
             init
         },
         {
             let mut init = charset {
-                name: b"ebcdic\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
+                name: b"ebcdic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
                 p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b.\0"
-                    as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+                desc:
+                    b"5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b.\0"
+                        as *const u8 as *const std::ffi::c_char
+                        as *mut std::ffi::c_char,
             };
             init
         },
@@ -702,28 +684,22 @@ pub static mut charsets: [charset; 21] = unsafe {
 pub static mut cs_aliases: [cs_alias; 43] = [
     {
         let mut init = cs_alias {
-            name: b"UTF-8\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"utf-8\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"UTF-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"utf-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"utf8\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"utf-8\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"utf8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"utf-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"UTF8\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"utf-8\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"UTF8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"utf-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
@@ -731,321 +707,251 @@ pub static mut cs_aliases: [cs_alias; 43] = [
         let mut init = cs_alias {
             name: b"ANSI_X3.4-1968\0" as *const u8 as *const std::ffi::c_char
                 as *mut std::ffi::c_char,
-            oname: b"ascii\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            oname: b"ascii\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"US-ASCII\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"ascii\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"US-ASCII\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"ascii\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"latin1\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"latin1\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-1\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-1\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"latin9\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"latin9\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-15\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-15\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"latin2\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"latin2\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-2\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-2\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-3\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"latin3\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-3\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"latin3\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"latin4\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"latin4\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-4\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-4\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"cyrillic\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"cyrillic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-5\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-5\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-6\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"arabic\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-6\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"arabic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-7\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"greek\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-7\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"greek\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"IBM9005\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"greek2005\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"IBM9005\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"greek2005\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-8\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"hebrew\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"hebrew\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"latin5\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"latin5\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-9\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-9\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"latin6\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"latin6\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-10\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-10\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"latin7\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"latin7\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-13\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-13\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"latin8\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"latin8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-14\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-14\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"latin10\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"latin10\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"ISO-8859-16\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"ISO-8859-16\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"IBM437\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"dos\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"IBM437\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"dos\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"EBCDIC-US\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"ebcdic\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"EBCDIC-US\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"ebcdic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"IBM1047\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"IBM-1047\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"IBM1047\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"IBM-1047\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"KOI8-R\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"koi8-r\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"KOI8-R\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"koi8-r\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"KOI8-U\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"koi8-r\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"KOI8-U\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"koi8-r\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"GEORGIAN-PS\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"georgianps\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"GEORGIAN-PS\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"georgianps\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"TCVN5712-1\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"tcvn\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"TCVN5712-1\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"tcvn\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"NEXTSTEP\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"next\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"NEXTSTEP\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
+            oname: b"next\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
         };
         init
     },
     {
         let mut init = cs_alias {
-            name: b"windows\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"windows\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
             oname: b"windows-1252\0" as *const u8 as *const std::ffi::c_char
                 as *mut std::ffi::c_char,
         };
@@ -1053,8 +959,7 @@ pub static mut cs_aliases: [cs_alias; 43] = [
     },
     {
         let mut init = cs_alias {
-            name: b"CP1251\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"CP1251\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
             oname: b"windows-1251\0" as *const u8 as *const std::ffi::c_char
                 as *mut std::ffi::c_char,
         };
@@ -1062,8 +967,7 @@ pub static mut cs_aliases: [cs_alias; 43] = [
     },
     {
         let mut init = cs_alias {
-            name: b"CP1252\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"CP1252\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
             oname: b"windows-1252\0" as *const u8 as *const std::ffi::c_char
                 as *mut std::ffi::c_char,
         };
@@ -1071,8 +975,7 @@ pub static mut cs_aliases: [cs_alias; 43] = [
     },
     {
         let mut init = cs_alias {
-            name: b"CP1255\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
+            name: b"CP1255\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
             oname: b"windows-1255\0" as *const u8 as *const std::ffi::c_char
                 as *mut std::ffi::c_char,
         };
@@ -1090,8 +993,8 @@ static mut chardef: [std::ffi::c_char; 256] = [0; 256];
 static mut binfmt: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
 static mut utfbinfmt: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
 #[no_mangle]
-pub static mut binattr: std::ffi::c_int = (1 as std::ffi::c_int) << 3 as std::ffi::c_int
-    | (2 as std::ffi::c_int) << 8 as std::ffi::c_int;
+pub static mut binattr: std::ffi::c_int =
+    (1 as std::ffi::c_int) << 3 as std::ffi::c_int | (2 as std::ffi::c_int) << 8 as std::ffi::c_int;
 static mut user_wide_array: xbuffer = xbuffer {
     data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
     end: 0,
@@ -1132,24 +1035,17 @@ static mut user_prt_table: wchar_range_table = wchar_range_table {
     table: 0 as *const wchar_range as *mut wchar_range,
     count: 0,
 };
-unsafe extern "C" fn wchar_range_table_set(
-    mut tbl: *mut wchar_range_table,
-    mut arr: *mut xbuffer,
-) {
+unsafe extern "C" fn wchar_range_table_set(mut tbl: *mut wchar_range_table, mut arr: *mut xbuffer) {
     (*tbl).table = (*arr).data as *mut wchar_range;
-    (*tbl)
-        .count = ((*arr).end)
+    (*tbl).count = ((*arr).end)
         .wrapping_div(::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong)
         as std::ffi::c_uint;
 }
-unsafe extern "C" fn skip_uprefix(
-    mut s: *const std::ffi::c_char,
-) -> *const std::ffi::c_char {
+unsafe extern "C" fn skip_uprefix(mut s: *const std::ffi::c_char) -> *const std::ffi::c_char {
     if *s as std::ffi::c_int == 'U' as i32 || *s as std::ffi::c_int == 'u' as i32 {
         s = s.offset(1);
         if *s as std::ffi::c_int == '+' as i32 {
             s = s.offset(1);
-            s;
         }
     }
     return s;
@@ -1174,8 +1070,7 @@ unsafe extern "C" fn ichardef_utf(mut s: *const std::ffi::c_char) {
     xbuf_init(&mut user_compose_array);
     xbuf_init(&mut user_prt_array);
     if !s.is_null() {
-        while *s.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32
-        {
+        while *s.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32 {
             let mut range: wchar_range = wchar_range { first: 0, last: 0 };
             wchar_range_get(&mut s, &mut range);
             if range.last == 0 as std::ffi::c_int as LWCHAR {
@@ -1190,8 +1085,7 @@ unsafe extern "C" fn ichardef_utf(mut s: *const std::ffi::c_char) {
             s = s.offset(1);
             if *fresh0 as std::ffi::c_int != ':' as i32 {
                 error(
-                    b"missing colon in LESSUTFCHARDEF\0" as *const u8
-                        as *const std::ffi::c_char,
+                    b"missing colon in LESSUTFCHARDEF\0" as *const u8 as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
                 quit(1 as std::ffi::c_int);
@@ -1234,14 +1128,11 @@ unsafe extern "C" fn ichardef_utf(mut s: *const std::ffi::c_char) {
                 }
                 0 => {
                     s = s.offset(-1);
-                    s;
                 }
                 _ => {}
             }
-            if *s.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == ',' as i32
-            {
+            if *s.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == ',' as i32 {
                 s = s.offset(1);
-                s;
             }
         }
     }
@@ -1271,24 +1162,19 @@ unsafe extern "C" fn ichardef(mut s: *const std::ffi::c_char) {
                 current_block_15 = 7149356873433890176;
             }
             98 => {
-                v = (0o1 as std::ffi::c_int | 0o2 as std::ffi::c_int)
-                    as std::ffi::c_char;
+                v = (0o1 as std::ffi::c_int | 0o2 as std::ffi::c_int) as std::ffi::c_char;
                 current_block_15 = 7149356873433890176;
             }
             48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 => {
                 let (fresh3, fresh4) = n.overflowing_mul(10 as std::ffi::c_int);
                 *(&mut n as *mut std::ffi::c_int) = fresh3;
-                if !(fresh4 as std::ffi::c_int != 0
-                    || {
-                        let (fresh5, fresh6) = n
-                            .overflowing_add(
-                                *s.offset(-(1 as std::ffi::c_int) as isize)
-                                    as std::ffi::c_int - '0' as i32,
-                            );
-                        *(&mut n as *mut std::ffi::c_int) = fresh5;
-                        fresh6 as std::ffi::c_int != 0
-                    })
-                {
+                if !(fresh4 as std::ffi::c_int != 0 || {
+                    let (fresh5, fresh6) = n.overflowing_add(
+                        *s.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int - '0' as i32,
+                    );
+                    *(&mut n as *mut std::ffi::c_int) = fresh5;
+                    fresh6 as std::ffi::c_int != 0
+                }) {
                     continue;
                 }
                 current_block_15 = 5866350808638245930;
@@ -1309,12 +1195,9 @@ unsafe extern "C" fn ichardef(mut s: *const std::ffi::c_char) {
         }
         loop {
             if cp
-                >= chardef
-                    .as_mut_ptr()
-                    .offset(
-                        ::core::mem::size_of::<[std::ffi::c_char; 256]>()
-                            as std::ffi::c_ulong as isize,
-                    )
+                >= chardef.as_mut_ptr().offset(
+                    ::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong as isize
+                )
             {
                 error(
                     b"chardef longer than 256\0" as *const u8 as *const std::ffi::c_char,
@@ -1335,10 +1218,7 @@ unsafe extern "C" fn ichardef(mut s: *const std::ffi::c_char) {
     while cp
         < chardef
             .as_mut_ptr()
-            .offset(
-                ::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong
-                    as isize,
-            )
+            .offset(::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong as isize)
     {
         let fresh8 = cp;
         cp = cp.offset(1);
@@ -1361,7 +1241,6 @@ unsafe extern "C" fn icharset(
             break;
         } else {
             a = a.offset(1);
-            a;
         }
     }
     p = charsets.as_mut_ptr();
@@ -1374,7 +1253,6 @@ unsafe extern "C" fn icharset(
             return 1 as std::ffi::c_int;
         }
         p = p.offset(1);
-        p;
     }
     if no_error == 0 {
         error(
@@ -1388,25 +1266,24 @@ unsafe extern "C" fn icharset(
 unsafe extern "C" fn ilocale() {
     let mut c: std::ffi::c_int = 0;
     c = 0 as std::ffi::c_int;
-    while c
-        < ::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong
-            as std::ffi::c_int
+    while c < ::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong
+        as std::ffi::c_int
     {
         if *(*__ctype_b_loc()).offset(c as isize) as std::ffi::c_int
-            & _ISprint as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int != 0
+            & _ISprint as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
+            != 0
         {
             chardef[c as usize] = 0 as std::ffi::c_int as std::ffi::c_char;
         } else if *(*__ctype_b_loc()).offset(c as isize) as std::ffi::c_int
-            & _IScntrl as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int != 0
+            & _IScntrl as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
+            != 0
         {
             chardef[c as usize] = 0o2 as std::ffi::c_int as std::ffi::c_char;
         } else {
-            chardef[c
-                as usize] = (0o1 as std::ffi::c_int | 0o2 as std::ffi::c_int)
-                as std::ffi::c_char;
+            chardef[c as usize] =
+                (0o1 as std::ffi::c_int | 0o2 as std::ffi::c_int) as std::ffi::c_char;
         }
         c += 1;
-        c;
     }
 }
 #[no_mangle]
@@ -1421,12 +1298,9 @@ pub unsafe extern "C" fn setfmt(
         s = default_fmt;
     } else if for_printf as std::ffi::c_uint != 0
         && (*s as std::ffi::c_int == '*' as i32
-            && (*s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                == '\0' as i32
-                || *s.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int
-                    == '\0' as i32
-                || !(strchr(s.offset(2 as std::ffi::c_int as isize), 'n' as i32))
-                    .is_null())
+            && (*s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32
+                || *s.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32
+                || !(strchr(s.offset(2 as std::ffi::c_int as isize), 'n' as i32)).is_null())
             || *s as std::ffi::c_int != '*' as i32 && !(strchr(s, 'n' as i32)).is_null())
     {
         s = default_fmt;
@@ -1457,7 +1331,9 @@ pub unsafe extern "C" fn setfmt(
 }
 unsafe extern "C" fn set_charset() {
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    ichardef_utf(lgetenv(b"LESSUTFCHARDEF\0" as *const u8 as *const std::ffi::c_char));
+    ichardef_utf(lgetenv(
+        b"LESSUTFCHARDEF\0" as *const u8 as *const std::ffi::c_char,
+    ));
     s = lgetenv(b"LESSCHARSET\0" as *const u8 as *const std::ffi::c_char);
     if icharset(s, 0 as std::ffi::c_int) != 0 {
         return;
@@ -1501,7 +1377,10 @@ unsafe extern "C" fn set_charset() {
 #[no_mangle]
 pub unsafe extern "C" fn init_charset() {
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    setlocale(6 as std::ffi::c_int, b"\0" as *const u8 as *const std::ffi::c_char);
+    setlocale(
+        6 as std::ffi::c_int,
+        b"\0" as *const u8 as *const std::ffi::c_char,
+    );
     set_charset();
     s = lgetenv(b"LESSBINFMT\0" as *const u8 as *const std::ffi::c_char);
     setfmt(
@@ -1528,8 +1407,8 @@ pub unsafe extern "C" fn binary_char(mut c: LWCHAR) -> lbool {
     if c >= ::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong {
         return LTRUE;
     }
-    return (chardef[c as usize] as std::ffi::c_int & 0o1 as std::ffi::c_int
-        != 0 as std::ffi::c_int) as std::ffi::c_int as lbool;
+    return (chardef[c as usize] as std::ffi::c_int & 0o1 as std::ffi::c_int != 0 as std::ffi::c_int)
+        as std::ffi::c_int as lbool;
 }
 #[no_mangle]
 pub unsafe extern "C" fn control_char(mut c: LWCHAR) -> lbool {
@@ -1542,9 +1421,7 @@ pub unsafe extern "C" fn control_char(mut c: LWCHAR) -> lbool {
 pub unsafe extern "C" fn prchar(mut c: LWCHAR) -> *const std::ffi::c_char {
     static mut buf: [std::ffi::c_char; 32] = [0; 32];
     c &= 0o377 as std::ffi::c_int as LWCHAR;
-    if (c < 128 as std::ffi::c_int as LWCHAR || utf_mode == 0)
-        && control_char(c) as u64 == 0
-    {
+    if (c < 128 as std::ffi::c_int as LWCHAR || utf_mode == 0) && control_char(c) as u64 == 0 {
         snprintf(
             buf.as_mut_ptr(),
             ::core::mem::size_of::<[std::ffi::c_char; 32]>() as std::ffi::c_ulong,
@@ -1552,7 +1429,10 @@ pub unsafe extern "C" fn prchar(mut c: LWCHAR) -> *const std::ffi::c_char {
             c as std::ffi::c_int,
         );
     } else if c == ('[' as i32 & 0o37 as std::ffi::c_int) as LWCHAR {
-        strcpy(buf.as_mut_ptr(), b"ESC\0" as *const u8 as *const std::ffi::c_char);
+        strcpy(
+            buf.as_mut_ptr(),
+            b"ESC\0" as *const u8 as *const std::ffi::c_char,
+        );
     } else if c < 128 as std::ffi::c_int as LWCHAR
         && control_char(c ^ 0o100 as std::ffi::c_int as LWCHAR) as u64 == 0
     {
@@ -1576,10 +1456,11 @@ pub unsafe extern "C" fn prchar(mut c: LWCHAR) -> *const std::ffi::c_char {
 pub unsafe extern "C" fn prutfchar(mut ch: LWCHAR) -> *const std::ffi::c_char {
     static mut buf: [std::ffi::c_char; 32] = [0; 32];
     if ch == ('[' as i32 & 0o37 as std::ffi::c_int) as LWCHAR {
-        strcpy(buf.as_mut_ptr(), b"ESC\0" as *const u8 as *const std::ffi::c_char);
-    } else if ch < 128 as std::ffi::c_int as LWCHAR
-        && control_char(ch) as std::ffi::c_uint != 0
-    {
+        strcpy(
+            buf.as_mut_ptr(),
+            b"ESC\0" as *const u8 as *const std::ffi::c_char,
+        );
+    } else if ch < 128 as std::ffi::c_int as LWCHAR && control_char(ch) as std::ffi::c_uint != 0 {
         if control_char(ch ^ 0o100 as std::ffi::c_int as LWCHAR) as u64 == 0 {
             snprintf(
                 buf.as_mut_ptr(),
@@ -1635,8 +1516,7 @@ pub unsafe extern "C" fn is_utf8_well_formed(
 ) -> lbool {
     let mut i: std::ffi::c_int = 0;
     let mut len: std::ffi::c_int = 0;
-    let mut s0: std::ffi::c_uchar = *ss.offset(0 as std::ffi::c_int as isize)
-        as std::ffi::c_uchar;
+    let mut s0: std::ffi::c_uchar = *ss.offset(0 as std::ffi::c_int as isize) as std::ffi::c_uchar;
     if s0 as std::ffi::c_int & 0xfe as std::ffi::c_int == 0xfe as std::ffi::c_int {
         return LFALSE;
     }
@@ -1652,11 +1532,12 @@ pub unsafe extern "C" fn is_utf8_well_formed(
             return LFALSE;
         }
     } else {
-        let mut mask: std::ffi::c_uchar = !(((1 as std::ffi::c_int)
-            << 8 as std::ffi::c_int - len) - 1 as std::ffi::c_int) as std::ffi::c_uchar;
+        let mut mask: std::ffi::c_uchar = !(((1 as std::ffi::c_int) << 8 as std::ffi::c_int - len)
+            - 1 as std::ffi::c_int) as std::ffi::c_uchar;
         if s0 as std::ffi::c_int == mask as std::ffi::c_int
             && *ss.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                & mask as std::ffi::c_int == 0x80 as std::ffi::c_int
+                & mask as std::ffi::c_int
+                == 0x80 as std::ffi::c_int
         {
             return LFALSE;
         }
@@ -1669,7 +1550,6 @@ pub unsafe extern "C" fn is_utf8_well_formed(
             return LFALSE;
         }
         i += 1;
-        i;
     }
     return LTRUE;
 }
@@ -1680,20 +1560,22 @@ pub unsafe extern "C" fn utf_skip_to_lead(
 ) {
     loop {
         *pp = (*pp).offset(1);
-        *pp;
         if !(*pp < limit
             && !(*(*pp).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0o377 as std::ffi::c_int & 0xc0 as std::ffi::c_int
+                & 0o377 as std::ffi::c_int
+                & 0xc0 as std::ffi::c_int
                 == 0xc0 as std::ffi::c_int
                 && !(*(*pp).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0o377 as std::ffi::c_int & 0xfe as std::ffi::c_int
+                    & 0o377 as std::ffi::c_int
+                    & 0xfe as std::ffi::c_int
                     == 0xfe as std::ffi::c_int))
             && !(*(*pp).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0x80 as std::ffi::c_int == 0 as std::ffi::c_int))
+                & 0x80 as std::ffi::c_int
+                == 0 as std::ffi::c_int))
         {
             break;
         }
-    };
+    }
 }
 #[no_mangle]
 pub unsafe extern "C" fn get_wchar(mut sp: *const std::ffi::c_char) -> LWCHAR {
@@ -1701,25 +1583,31 @@ pub unsafe extern "C" fn get_wchar(mut sp: *const std::ffi::c_char) -> LWCHAR {
     match utf_len(*sp.offset(0 as std::ffi::c_int as isize)) {
         2 => {
             return ((*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0x1f as std::ffi::c_int) << 6 as std::ffi::c_int
+                & 0x1f as std::ffi::c_int)
+                << 6 as std::ffi::c_int
                 | *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
                     & 0x3f as std::ffi::c_int) as LWCHAR;
         }
         3 => {
             return ((*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0xf as std::ffi::c_int) << 12 as std::ffi::c_int
+                & 0xf as std::ffi::c_int)
+                << 12 as std::ffi::c_int
                 | (*p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0x3f as std::ffi::c_int) << 6 as std::ffi::c_int
+                    & 0x3f as std::ffi::c_int)
+                    << 6 as std::ffi::c_int
                 | *p.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int
                     & 0x3f as std::ffi::c_int) as LWCHAR;
         }
         4 => {
             return ((*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0x7 as std::ffi::c_int) << 18 as std::ffi::c_int
+                & 0x7 as std::ffi::c_int)
+                << 18 as std::ffi::c_int
                 | (*p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0x3f as std::ffi::c_int) << 12 as std::ffi::c_int
+                    & 0x3f as std::ffi::c_int)
+                    << 12 as std::ffi::c_int
                 | (*p.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0x3f as std::ffi::c_int) << 6 as std::ffi::c_int
+                    & 0x3f as std::ffi::c_int)
+                    << 6 as std::ffi::c_int
                 | *p.offset(3 as std::ffi::c_int as isize) as std::ffi::c_int
                     & 0x3f as std::ffi::c_int) as LWCHAR;
         }
@@ -1743,8 +1631,8 @@ pub unsafe extern "C" fn put_wchar(mut pp: *mut *mut std::ffi::c_char, mut ch: L
             as std::ffi::c_char;
         let fresh11 = *pp;
         *pp = (*pp).offset(1);
-        *fresh11 = (0x80 as std::ffi::c_int as LWCHAR
-            | ch & 0x3f as std::ffi::c_int as LWCHAR) as std::ffi::c_char;
+        *fresh11 = (0x80 as std::ffi::c_int as LWCHAR | ch & 0x3f as std::ffi::c_int as LWCHAR)
+            as std::ffi::c_char;
     } else if ch < 0x10000 as std::ffi::c_int as LWCHAR {
         let fresh12 = *pp;
         *pp = (*pp).offset(1);
@@ -1758,8 +1646,8 @@ pub unsafe extern "C" fn put_wchar(mut pp: *mut *mut std::ffi::c_char, mut ch: L
             as std::ffi::c_char;
         let fresh14 = *pp;
         *pp = (*pp).offset(1);
-        *fresh14 = (0x80 as std::ffi::c_int as LWCHAR
-            | ch & 0x3f as std::ffi::c_int as LWCHAR) as std::ffi::c_char;
+        *fresh14 = (0x80 as std::ffi::c_int as LWCHAR | ch & 0x3f as std::ffi::c_int as LWCHAR)
+            as std::ffi::c_char;
     } else if ch < 0x200000 as std::ffi::c_int as LWCHAR {
         let fresh15 = *pp;
         *pp = (*pp).offset(1);
@@ -1778,8 +1666,8 @@ pub unsafe extern "C" fn put_wchar(mut pp: *mut *mut std::ffi::c_char, mut ch: L
             as std::ffi::c_char;
         let fresh18 = *pp;
         *pp = (*pp).offset(1);
-        *fresh18 = (0x80 as std::ffi::c_int as LWCHAR
-            | ch & 0x3f as std::ffi::c_int as LWCHAR) as std::ffi::c_char;
+        *fresh18 = (0x80 as std::ffi::c_int as LWCHAR | ch & 0x3f as std::ffi::c_int as LWCHAR)
+            as std::ffi::c_char;
     }
 }
 #[no_mangle]
@@ -1813,8 +1701,7 @@ pub unsafe extern "C" fn step_charc(
             ch = 0 as std::ffi::c_int as LWCHAR;
         } else {
             len = utf_len(*p);
-            if p.offset(len as isize) > limit || is_utf8_well_formed(p, len) as u64 == 0
-            {
+            if p.offset(len as isize) > limit || is_utf8_well_formed(p, len) as u64 == 0 {
                 let fresh20 = p;
                 p = p.offset(1);
                 ch = *fresh20 as std::ffi::c_uchar as LWCHAR;
@@ -1826,10 +1713,10 @@ pub unsafe extern "C" fn step_charc(
     } else {
         while p > limit
             && *p.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int
-                & 0xc0 as std::ffi::c_int == 0x80 as std::ffi::c_int
+                & 0xc0 as std::ffi::c_int
+                == 0x80 as std::ffi::c_int
         {
             p = p.offset(-1);
-            p;
         }
         if p <= limit {
             ch = 0 as std::ffi::c_int as LWCHAR;
@@ -5556,10 +5443,7 @@ static mut comb_table: [wchar_range; 4] = [
         init
     },
 ];
-unsafe extern "C" fn is_in_table(
-    mut ch: LWCHAR,
-    mut table: *mut wchar_range_table,
-) -> lbool {
+unsafe extern "C" fn is_in_table(mut ch: LWCHAR, mut table: *mut wchar_range_table) -> lbool {
     let mut hi: std::ffi::c_uint = 0;
     let mut lo: std::ffi::c_uint = 0;
     if ((*table).table).is_null()
@@ -5579,7 +5463,7 @@ unsafe extern "C" fn is_in_table(
         } else if ch < (*((*table).table).offset(mid as isize)).first {
             hi = mid.wrapping_sub(1 as std::ffi::c_int as std::ffi::c_uint);
         } else {
-            return LTRUE
+            return LTRUE;
         }
     }
     return LFALSE;
@@ -5625,7 +5509,6 @@ pub unsafe extern "C" fn is_combining_char(mut ch1: LWCHAR, mut ch2: LWCHAR) -> 
             return LTRUE;
         }
         i += 1;
-        i;
     }
     return LFALSE;
 }

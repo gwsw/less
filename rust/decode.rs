@@ -1,21 +1,9 @@
 use ::libc;
 extern "C" {
-    fn open(
-        __file: *const std::ffi::c_char,
-        __oflag: std::ffi::c_int,
-        _: ...
-    ) -> std::ffi::c_int;
-    fn lseek(
-        __fd: std::ffi::c_int,
-        __offset: __off_t,
-        __whence: std::ffi::c_int,
-    ) -> __off_t;
+    fn open(__file: *const std::ffi::c_char, __oflag: std::ffi::c_int, _: ...) -> std::ffi::c_int;
+    fn lseek(__fd: std::ffi::c_int, __offset: __off_t, __whence: std::ffi::c_int) -> __off_t;
     fn close(__fd: std::ffi::c_int) -> std::ffi::c_int;
-    fn read(
-        __fd: std::ffi::c_int,
-        __buf: *mut std::ffi::c_void,
-        __nbytes: size_t,
-    ) -> ssize_t;
+    fn read(__fd: std::ffi::c_int, __buf: *mut std::ffi::c_void, __nbytes: size_t) -> ssize_t;
     fn calloc(_: std::ffi::c_ulong, _: std::ffi::c_ulong) -> *mut std::ffi::c_void;
     fn free(_: *mut std::ffi::c_void);
     fn getenv(__name: *const std::ffi::c_char) -> *mut std::ffi::c_char;
@@ -1377,10 +1365,7 @@ static mut list_fcmd_tables: *mut tablelist = 0 as *const tablelist as *mut tabl
 static mut list_ecmd_tables: *mut tablelist = 0 as *const tablelist as *mut tablelist;
 static mut list_var_tables: *mut tablelist = 0 as *const tablelist as *mut tablelist;
 static mut list_sysvar_tables: *mut tablelist = 0 as *const tablelist as *mut tablelist;
-unsafe extern "C" fn expand_special_keys(
-    mut table: *mut std::ffi::c_uchar,
-    mut len: size_t,
-) {
+unsafe extern "C" fn expand_special_keys(mut table: *mut std::ffi::c_uchar, mut len: size_t) {
     let mut fm: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
     let mut to: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
     let mut a: std::ffi::c_int = 0;
@@ -1397,9 +1382,8 @@ unsafe extern "C" fn expand_special_keys(
                 to = to.offset(1);
                 *fresh1 = *fresh0;
             } else {
-                repl = special_key_str(
-                    *fm.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int,
-                );
+                repl =
+                    special_key_str(*fm.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int);
                 klen = (*fm.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int
                     & 0o377 as std::ffi::c_int) as size_t;
                 fm = fm.offset(klen as isize);
@@ -1424,7 +1408,6 @@ unsafe extern "C" fn expand_special_keys(
             *fresh5 = 127 as std::ffi::c_int as std::ffi::c_uchar;
         }
         fm = fm.offset(1);
-        fm;
         let fresh6 = fm;
         fm = fm.offset(1);
         a = *fresh6 as std::ffi::c_int & 0o377 as std::ffi::c_int;
@@ -1472,24 +1455,14 @@ pub unsafe extern "C" fn init_cmds() {
         ::core::mem::size_of::<[std::ffi::c_uchar; 460]>() as std::ffi::c_ulong,
     );
     add_hometable(
-        Some(
-            lesskey
-                as unsafe extern "C" fn(
-                    *const std::ffi::c_char,
-                    lbool,
-                ) -> std::ffi::c_int,
-        ),
+        Some(lesskey as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int),
         0 as *const std::ffi::c_char,
         b"/usr/local/bin/.sysless\0" as *const u8 as *const std::ffi::c_char,
         LTRUE,
     );
     if add_hometable(
         Some(
-            lesskey_src
-                as unsafe extern "C" fn(
-                    *const std::ffi::c_char,
-                    lbool,
-                ) -> std::ffi::c_int,
+            lesskey_src as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
         ),
         b"LESSKEYIN_SYSTEM\0" as *const u8 as *const std::ffi::c_char,
         b"/usr/local/etc/syslesskey\0" as *const u8 as *const std::ffi::c_char,
@@ -1498,11 +1471,7 @@ pub unsafe extern "C" fn init_cmds() {
     {
         add_hometable(
             Some(
-                lesskey
-                    as unsafe extern "C" fn(
-                        *const std::ffi::c_char,
-                        lbool,
-                    ) -> std::ffi::c_int,
+                lesskey as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
             ),
             b"LESSKEY_SYSTEM\0" as *const u8 as *const std::ffi::c_char,
             b"/usr/local/etc/sysless\0" as *const u8 as *const std::ffi::c_char,
@@ -1511,11 +1480,7 @@ pub unsafe extern "C" fn init_cmds() {
     }
     if add_hometable(
         Some(
-            lesskey_src
-                as unsafe extern "C" fn(
-                    *const std::ffi::c_char,
-                    lbool,
-                ) -> std::ffi::c_int,
+            lesskey_src as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
         ),
         b"LESSKEYIN\0" as *const u8 as *const std::ffi::c_char,
         b".lesskey\0" as *const u8 as *const std::ffi::c_char,
@@ -1524,11 +1489,7 @@ pub unsafe extern "C" fn init_cmds() {
     {
         add_hometable(
             Some(
-                lesskey
-                    as unsafe extern "C" fn(
-                        *const std::ffi::c_char,
-                        lbool,
-                    ) -> std::ffi::c_int,
+                lesskey as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
             ),
             b"LESSKEY\0" as *const u8 as *const std::ffi::c_char,
             b".less\0" as *const u8 as *const std::ffi::c_char,
@@ -1538,10 +1499,7 @@ pub unsafe extern "C" fn init_cmds() {
     add_content_table(
         Some(
             lesskey_content
-                as unsafe extern "C" fn(
-                    *const std::ffi::c_char,
-                    lbool,
-                ) -> std::ffi::c_int,
+                as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
         ),
         b"LESSKEY_CONTENT_SYSTEM\0" as *const u8 as *const std::ffi::c_char,
         LTRUE,
@@ -1549,10 +1507,7 @@ pub unsafe extern "C" fn init_cmds() {
     add_content_table(
         Some(
             lesskey_content
-                as unsafe extern "C" fn(
-                    *const std::ffi::c_char,
-                    lbool,
-                ) -> std::ffi::c_int,
+                as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
         ),
         b"LESSKEY_CONTENT\0" as *const u8 as *const std::ffi::c_char,
         LFALSE,
@@ -1609,10 +1564,7 @@ unsafe extern "C" fn pop_cmd_table(mut tlist: *mut *mut tablelist) {
     free(t as *mut std::ffi::c_void);
 }
 #[no_mangle]
-pub unsafe extern "C" fn add_fcmd_table(
-    mut buf: *mut std::ffi::c_uchar,
-    mut len: size_t,
-) {
+pub unsafe extern "C" fn add_fcmd_table(mut buf: *mut std::ffi::c_uchar, mut len: size_t) {
     if add_cmd_table(&mut list_fcmd_tables, buf, len) < 0 as std::ffi::c_int {
         error(
             b"Warning: some commands disabled\0" as *const u8 as *const std::ffi::c_char,
@@ -1621,14 +1573,10 @@ pub unsafe extern "C" fn add_fcmd_table(
     }
 }
 #[no_mangle]
-pub unsafe extern "C" fn add_ecmd_table(
-    mut buf: *mut std::ffi::c_uchar,
-    mut len: size_t,
-) {
+pub unsafe extern "C" fn add_ecmd_table(mut buf: *mut std::ffi::c_uchar, mut len: size_t) {
     if add_cmd_table(&mut list_ecmd_tables, buf, len) < 0 as std::ffi::c_int {
         error(
-            b"Warning: some edit commands disabled\0" as *const u8
-                as *const std::ffi::c_char,
+            b"Warning: some edit commands disabled\0" as *const u8 as *const std::ffi::c_char,
             0 as *mut std::ffi::c_void as *mut PARG,
         );
     }
@@ -1648,24 +1596,18 @@ unsafe extern "C" fn add_var_table(
     expand_evars(buf as *mut std::ffi::c_char, len, &mut xbuf);
     if add_cmd_table(tlist, xbuf.data, xbuf.end) < 0 as std::ffi::c_int {
         error(
-            b"Warning: environment variables from lesskey file unavailable\0"
-                as *const u8 as *const std::ffi::c_char,
+            b"Warning: environment variables from lesskey file unavailable\0" as *const u8
+                as *const std::ffi::c_char,
             0 as *mut std::ffi::c_void as *mut PARG,
         );
     }
 }
 #[no_mangle]
-pub unsafe extern "C" fn add_uvar_table(
-    mut buf: *mut std::ffi::c_uchar,
-    mut len: size_t,
-) {
+pub unsafe extern "C" fn add_uvar_table(mut buf: *mut std::ffi::c_uchar, mut len: size_t) {
     add_var_table(&mut list_var_tables, buf, len);
 }
 #[no_mangle]
-pub unsafe extern "C" fn add_sysvar_table(
-    mut buf: *mut std::ffi::c_uchar,
-    mut len: size_t,
-) {
+pub unsafe extern "C" fn add_sysvar_table(mut buf: *mut std::ffi::c_uchar, mut len: size_t) {
     add_var_table(&mut list_sysvar_tables, buf, len);
 }
 unsafe extern "C" fn mouse_wheel_down() -> std::ffi::c_int {
@@ -1694,7 +1636,8 @@ unsafe extern "C" fn mouse_button_left(
         last_click_y = y;
         last_drag_y = last_click_y;
     }
-    if allow_drag as std::ffi::c_uint != 0 && drag as std::ffi::c_uint != 0
+    if allow_drag as std::ffi::c_uint != 0
+        && drag as std::ffi::c_uint != 0
         && last_drag_y >= 0 as std::ffi::c_int
     {
         if y > last_drag_y {
@@ -1745,19 +1688,15 @@ unsafe extern "C" fn getcc_int(mut pterm: *mut std::ffi::c_char) -> std::ffi::c_
         }
         let (fresh8, fresh9) = num.overflowing_mul(10 as std::ffi::c_int);
         *(&mut num as *mut std::ffi::c_int) = fresh8;
-        if fresh9 as std::ffi::c_int != 0
-            || {
-                let (fresh10, fresh11) = num
-                    .overflowing_add(ch as std::ffi::c_int - '0' as i32);
-                *(&mut num as *mut std::ffi::c_int) = fresh10;
-                fresh11 as std::ffi::c_int != 0
-            }
-        {
+        if fresh9 as std::ffi::c_int != 0 || {
+            let (fresh10, fresh11) = num.overflowing_add(ch as std::ffi::c_int - '0' as i32);
+            *(&mut num as *mut std::ffi::c_int) = fresh10;
+            fresh11 as std::ffi::c_int != 0
+        } {
             return -(1 as std::ffi::c_int);
         }
         digits += 1;
-        digits;
-    };
+    }
 }
 unsafe extern "C" fn x11mouse_button(
     mut btn: std::ffi::c_int,
@@ -1778,8 +1717,8 @@ unsafe extern "C" fn x11mouse_action(mut skip: lbool) -> std::ffi::c_int {
     let mut x: std::ffi::c_int = 0;
     let mut y: std::ffi::c_int = 0;
     let mut b: std::ffi::c_int = getcc() as std::ffi::c_int - 0x20 as std::ffi::c_int;
-    let mut drag: lbool = (b & 0x20 as std::ffi::c_int != 0 as std::ffi::c_int)
-        as std::ffi::c_int as lbool;
+    let mut drag: lbool =
+        (b & 0x20 as std::ffi::c_int != 0 as std::ffi::c_int) as std::ffi::c_int as lbool;
     b &= !(0x20 as std::ffi::c_int);
     x = getcc() as std::ffi::c_int - 0x20 as std::ffi::c_int - 1 as std::ffi::c_int;
     y = getcc() as std::ffi::c_int - 0x20 as std::ffi::c_int - 1 as std::ffi::c_int;
@@ -1803,8 +1742,8 @@ unsafe extern "C" fn x116mouse_action(mut skip: lbool) -> std::ffi::c_int {
     let mut x: std::ffi::c_int = 0;
     let mut y: std::ffi::c_int = 0;
     let mut b: std::ffi::c_int = getcc_int(&mut ch);
-    let mut drag: lbool = (b & 0x20 as std::ffi::c_int != 0 as std::ffi::c_int)
-        as std::ffi::c_int as lbool;
+    let mut drag: lbool =
+        (b & 0x20 as std::ffi::c_int != 0 as std::ffi::c_int) as std::ffi::c_int as lbool;
     b &= !(0x20 as std::ffi::c_int);
     if b < 0 as std::ffi::c_int || ch as std::ffi::c_int != ';' as i32 {
         return 101 as std::ffi::c_int;
@@ -1824,10 +1763,8 @@ unsafe extern "C" fn x116mouse_action(mut skip: lbool) -> std::ffi::c_int {
         65 => return mouse_wheel_down(),
         64 => return mouse_wheel_up(),
         0 | 1 | 2 => {
-            let mut down: lbool = (ch as std::ffi::c_int == 'M' as i32)
-                as std::ffi::c_int as lbool;
-            let mut up: lbool = (ch as std::ffi::c_int == 'm' as i32) as std::ffi::c_int
-                as lbool;
+            let mut down: lbool = (ch as std::ffi::c_int == 'M' as i32) as std::ffi::c_int as lbool;
+            let mut up: lbool = (ch as std::ffi::c_int == 'm' as i32) as std::ffi::c_int as lbool;
             if up as std::ffi::c_uint != 0 || down as std::ffi::c_uint != 0 {
                 return x11mouse_button(b, x, y, down, drag);
             }
@@ -1850,7 +1787,6 @@ unsafe extern "C" fn cmd_match(
             break;
         }
         len = len.wrapping_sub(1);
-        len;
     }
     return len;
 }
@@ -1864,7 +1800,6 @@ unsafe extern "C" fn cmd_next_entry(
     let mut oentry: *const std::ffi::c_uchar = entry;
     while *entry as std::ffi::c_int != '\0' as i32 {
         entry = entry.offset(1);
-        entry;
     }
     if !cmdlen.is_null() {
         *cmdlen = entry.offset_from(oentry) as std::ffi::c_long as size_t;
@@ -1877,7 +1812,6 @@ unsafe extern "C" fn cmd_next_entry(
         }
     }
     entry = entry.offset(1);
-    entry;
     if !extra.is_null() {
         *extra = if a & 0o200 as std::ffi::c_int != 0 {
             entry
@@ -1927,9 +1861,7 @@ unsafe extern "C" fn cmd_search(
                 if !extra.is_null() {
                     *extra = textra;
                 }
-            } else if match_0 > 0 as std::ffi::c_int as size_t
-                && action == 100 as std::ffi::c_int
-            {
+            } else if match_0 > 0 as std::ffi::c_int as size_t && action == 100 as std::ffi::c_int {
                 action = 105 as std::ffi::c_int;
             }
             match_len = match_0;
@@ -1953,13 +1885,8 @@ unsafe extern "C" fn cmd_decode(
     while !t.is_null() {
         let mut tsp: *const std::ffi::c_uchar = 0 as *const std::ffi::c_uchar;
         let mut mlen: size_t = 0;
-        let mut taction: std::ffi::c_int = cmd_search(
-            cmd,
-            (*t).t_start,
-            (*t).t_end,
-            &mut tsp,
-            &mut mlen,
-        );
+        let mut taction: std::ffi::c_int =
+            cmd_search(cmd, (*t).t_start, (*t).t_end, &mut tsp, &mut mlen);
         if mlen >= match_len {
             match_len = mlen;
             if taction == 102 as std::ffi::c_int {
@@ -1999,9 +1926,7 @@ pub unsafe extern "C" fn ecmd_decode(
     return cmd_decode(list_ecmd_tables, cmd, sp);
 }
 #[no_mangle]
-pub unsafe extern "C" fn lgetenv(
-    mut var: *const std::ffi::c_char,
-) -> *const std::ffi::c_char {
+pub unsafe extern "C" fn lgetenv(mut var: *const std::ffi::c_char) -> *const std::ffi::c_char {
     let mut a: std::ffi::c_int = 0;
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     a = cmd_decode(list_var_tables, var, &mut s);
@@ -2034,25 +1959,21 @@ pub unsafe extern "C" fn lgetenv_ext(
                 break;
             }
             e = e.wrapping_add(1);
-            e;
         }
         if e >= env_buf_len {
             break;
         }
         e = e.wrapping_add(1);
-        if *env_buf.offset(e as isize) as std::ffi::c_int & 0o200 as std::ffi::c_int != 0
-        {
+        if *env_buf.offset(e as isize) as std::ffi::c_int & 0o200 as std::ffi::c_int != 0 {
             e = e.wrapping_add(1 as std::ffi::c_int as size_t);
             while e < env_buf_len {
                 if *env_buf.offset(e as isize) as std::ffi::c_int == '\0' as i32 {
                     break;
                 }
                 e = e.wrapping_add(1);
-                e;
             }
         }
         e = e.wrapping_add(1);
-        e;
         if e >= env_buf_len {
             break;
         }
@@ -2065,8 +1986,7 @@ pub unsafe extern "C" fn lgetenv_ext(
 }
 #[no_mangle]
 pub unsafe extern "C" fn isnullenv(mut s: *const std::ffi::c_char) -> lbool {
-    return (s.is_null() || *s as std::ffi::c_int == '\0' as i32) as std::ffi::c_int
-        as lbool;
+    return (s.is_null() || *s as std::ffi::c_int == '\0' as i32) as std::ffi::c_int as lbool;
 }
 unsafe extern "C" fn gint(mut sp: *mut *mut std::ffi::c_uchar) -> size_t {
     let mut n: size_t = 0;
@@ -2082,10 +2002,10 @@ unsafe extern "C" fn old_lesskey(
     mut buf: *mut std::ffi::c_uchar,
     mut len: size_t,
 ) -> std::ffi::c_int {
-    if *buf.offset(len.wrapping_sub(1 as std::ffi::c_int as size_t) as isize)
-        as std::ffi::c_int != '\0' as i32
-        && *buf.offset(len.wrapping_sub(2 as std::ffi::c_int as size_t) as isize)
-            as std::ffi::c_int != '\0' as i32
+    if *buf.offset(len.wrapping_sub(1 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
+        != '\0' as i32
+        && *buf.offset(len.wrapping_sub(2 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
+            != '\0' as i32
     {
         return -(1 as std::ffi::c_int);
     }
@@ -2101,12 +2021,12 @@ unsafe extern "C" fn new_lesskey(
     let mut end: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
     let mut c: std::ffi::c_int = 0;
     let mut n: size_t = 0;
-    if *buf.offset(len.wrapping_sub(3 as std::ffi::c_int as size_t) as isize)
-        as std::ffi::c_int != 'E' as i32
-        || *buf.offset(len.wrapping_sub(2 as std::ffi::c_int as size_t) as isize)
-            as std::ffi::c_int != 'n' as i32
-        || *buf.offset(len.wrapping_sub(1 as std::ffi::c_int as size_t) as isize)
-            as std::ffi::c_int != 'd' as i32
+    if *buf.offset(len.wrapping_sub(3 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
+        != 'E' as i32
+        || *buf.offset(len.wrapping_sub(2 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
+            != 'n' as i32
+        || *buf.offset(len.wrapping_sub(1 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
+            != 'd' as i32
     {
         return -(1 as std::ffi::c_int);
     }
@@ -2148,7 +2068,7 @@ unsafe extern "C" fn new_lesskey(
             120 => return 0 as std::ffi::c_int,
             _ => return -(1 as std::ffi::c_int),
         }
-    };
+    }
 }
 #[no_mangle]
 pub unsafe extern "C" fn lesskey(
@@ -2167,9 +2087,7 @@ pub unsafe extern "C" fn lesskey(
         return 1 as std::ffi::c_int;
     }
     len = filesize(f);
-    if len == -(1 as std::ffi::c_int) as POSITION
-        || len < 3 as std::ffi::c_int as POSITION
-    {
+    if len == -(1 as std::ffi::c_int) as POSITION || len < 3 as std::ffi::c_int as POSITION {
         close(f);
         return -(1 as std::ffi::c_int);
     }
@@ -2286,7 +2204,7 @@ pub unsafe extern "C" fn lesskey_parse_error(mut s: *mut std::ffi::c_char) {
     error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
 }
 unsafe extern "C" fn add_hometable(
-    mut call_lesskey: Option::<
+    mut call_lesskey: Option<
         unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
     >,
     mut envname: *const std::ffi::c_char,
@@ -2296,19 +2214,16 @@ unsafe extern "C" fn add_hometable(
     let mut filename: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut efilename: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut r: std::ffi::c_int = 0;
-    if !envname.is_null()
-        && {
-            efilename = lgetenv(envname);
-            !efilename.is_null()
-        }
-    {
+    if !envname.is_null() && {
+        efilename = lgetenv(envname);
+        !efilename.is_null()
+    } {
         filename = save(efilename);
     } else if sysvar as u64 != 0 {
         filename = save(def_filename);
     } else {
-        let mut xdg: *const std::ffi::c_char = lgetenv(
-            b"XDG_CONFIG_HOME\0" as *const u8 as *const std::ffi::c_char,
-        );
+        let mut xdg: *const std::ffi::c_char =
+            lgetenv(b"XDG_CONFIG_HOME\0" as *const u8 as *const std::ffi::c_char);
         if isnullenv(xdg) as u64 == 0 {
             filename = dirfile(
                 xdg,
@@ -2317,9 +2232,8 @@ unsafe extern "C" fn add_hometable(
             );
         }
         if filename.is_null() {
-            let mut home: *const std::ffi::c_char = lgetenv(
-                b"HOME\0" as *const u8 as *const std::ffi::c_char,
-            );
+            let mut home: *const std::ffi::c_char =
+                lgetenv(b"HOME\0" as *const u8 as *const std::ffi::c_char);
             if isnullenv(home) as u64 == 0 {
                 let mut cfg_dir: *mut std::ffi::c_char = dirfile(
                     home,
@@ -2347,7 +2261,7 @@ unsafe extern "C" fn add_hometable(
     return r;
 }
 unsafe extern "C" fn add_content_table(
-    mut call_lesskey: Option::<
+    mut call_lesskey: Option<
         unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
     >,
     mut envname: *const std::ffi::c_char,
@@ -2383,7 +2297,6 @@ pub unsafe extern "C" fn editchar(
         usercmd[nch as usize] = c;
         usercmd[(nch + 1 as std::ffi::c_int) as usize] = '\0' as i32 as std::ffi::c_char;
         nch += 1;
-        nch;
         action = ecmd_decode(usercmd.as_mut_ptr(), &mut s);
         if !(action == 105 as std::ffi::c_int && nch < 16 as std::ffi::c_int) {
             break;

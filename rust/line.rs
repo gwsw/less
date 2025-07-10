@@ -585,7 +585,6 @@ pub unsafe extern "C" fn init_line() {
             s = skipspc(s);
             if *s as std::ffi::c_int == ',' as i32 {
                 s = s.offset(1);
-                s;
             }
             xbuf_add_data(
                 &mut xbuf,
@@ -594,7 +593,6 @@ pub unsafe extern "C" fn init_line() {
                 ::core::mem::size_of::<std::ffi::c_long>() as std::ffi::c_ulong,
             );
             osc_ansi_allow_count += 1;
-            osc_ansi_allow_count;
         }
         osc_ansi_allow = xbuf.data as *mut std::ffi::c_long;
     }
@@ -613,7 +611,6 @@ pub unsafe extern "C" fn init_line() {
     while ax < 3 as std::ffi::c_int {
         xbuf_init(&mut *last_ansis.as_mut_ptr().offset(ax as isize));
         ax += 1;
-        ax;
     }
     curr_last_ansi = 0 as std::ffi::c_int;
 }
@@ -684,7 +681,6 @@ unsafe extern "C" fn pshift(mut end: size_t) {
             xbuf_add_char(&mut shifted_ansi, *(linebuf.buf).offset(i as isize));
         }
         i = i.wrapping_add(1);
-        i;
     }
 }
 #[no_mangle]
@@ -724,7 +720,6 @@ pub unsafe extern "C" fn prewind(mut contig: lbool) {
     while ax < 3 as std::ffi::c_int {
         xbuf_reset(&mut *last_ansis.as_mut_ptr().offset(ax as isize));
         ax += 1;
-        ax;
     }
     curr_last_ansi = 0 as std::ffi::c_int;
 }
@@ -759,7 +754,6 @@ unsafe extern "C" fn addstr_linebuf(
     while *s as std::ffi::c_int != '\0' as i32 {
         add_linebuf(*s, attr, cw);
         s = s.offset(1);
-        s;
     }
 }
 unsafe extern "C" fn set_pfx(mut n: size_t, mut ch: std::ffi::c_char, mut attr: std::ffi::c_int) {
@@ -818,7 +812,6 @@ pub unsafe extern "C" fn plinestart(mut pos: POSITION) {
         while i.wrapping_add(len) < linenum_width as size_t {
             add_pfx(' ' as i32 as std::ffi::c_char, 0 as std::ffi::c_int);
             i = i.wrapping_add(1);
-            i;
         }
         i = 0 as std::ffi::c_int as size_t;
         while i < len {
@@ -828,7 +821,6 @@ pub unsafe extern "C" fn plinestart(mut pos: POSITION) {
                     | (5 as std::ffi::c_int) << 8 as std::ffi::c_int,
             );
             i = i.wrapping_add(1);
-            i;
         }
         add_pfx(' ' as i32 as std::ffi::c_char, 0 as std::ffi::c_int);
     }
@@ -920,7 +912,6 @@ pub unsafe extern "C" fn pwidth(
     w = 1 as std::ffi::c_int;
     if is_wide_char(ch) as u64 != 0 {
         w += 1;
-        w;
     }
     if linebuf.end > 0 as std::ffi::c_int as size_t
         && is_at_equiv(
@@ -1066,7 +1057,6 @@ unsafe extern "C" fn valid_osc_type(mut otype: std::ffi::c_int, mut content: lbo
             return LTRUE;
         }
         i += 1;
-        i;
     }
     return LFALSE;
 }
@@ -1299,10 +1289,8 @@ unsafe extern "C" fn store_char(
                     return 1 as std::ffi::c_int;
                 }
                 i = i.wrapping_add(1);
-                i;
             }
             ai += 1;
-            ai;
         }
     }
     if a == (1 as std::ffi::c_int) << 4 as std::ffi::c_int {
@@ -1346,7 +1334,6 @@ unsafe extern "C" fn store_char(
                     0 as std::ffi::c_int,
                 );
                 i = i.wrapping_add(1);
-                i;
             }
             xbuf_reset(&mut shifted_ansi);
         }
@@ -1358,7 +1345,6 @@ unsafe extern "C" fn store_char(
         rep = rep.offset(1);
         add_linebuf(*fresh6, a, 0 as std::ffi::c_int);
         i = i.wrapping_add(1);
-        i;
     }
     if cshift < hshift {
         if a == (1 as std::ffi::c_int) << 4 as std::ffi::c_int {
@@ -1373,7 +1359,6 @@ unsafe extern "C" fn store_char(
                 *(linebuf.attr).offset(i_0 as isize) =
                     *(linebuf.attr).offset(i_0.wrapping_add(replen) as isize);
                 i_0 = i_0.wrapping_add(1);
-                i_0;
             }
             linebuf.end = (linebuf.end).wrapping_sub(replen);
             cshift += w;
@@ -1384,7 +1369,6 @@ unsafe extern "C" fn store_char(
                     0 as std::ffi::c_int,
                 );
                 cshift -= 1;
-                cshift;
             }
         }
     }
@@ -1403,7 +1387,6 @@ unsafe extern "C" fn store_string(
             return 1 as std::ffi::c_int;
         }
         s = s.offset(1);
-        s;
     }
     return 0 as std::ffi::c_int;
 }
@@ -1422,7 +1405,6 @@ unsafe extern "C" fn tab_spaces(mut col: std::ffi::c_int) -> std::ffi::c_int {
                 break;
             }
             i -= 1;
-            i;
         }
         to_tab = tabstops[(i + 1 as std::ffi::c_int) as usize] - to_tab;
     }
@@ -1467,7 +1449,6 @@ unsafe extern "C" fn flush_mbc_buf(mut pos: POSITION) -> std::ffi::c_int {
             return mbc_buf_index - i;
         }
         i += 1;
-        i;
     }
     return 0 as std::ffi::c_int;
 }
@@ -2068,7 +2049,6 @@ pub unsafe extern "C" fn set_attr_line(mut a: std::ffi::c_int) {
             *(linebuf.attr).offset(i as isize) |= a;
         }
         i = i.wrapping_add(1);
-        i;
     }
 }
 #[no_mangle]
@@ -2084,7 +2064,6 @@ pub unsafe extern "C" fn gline(mut i: size_t, mut ap: *mut std::ffi::c_int) -> s
                 return '~' as i32;
             }
             i = i.wrapping_sub(1);
-            i;
         }
         *ap = 0 as std::ffi::c_int;
         return if i != 0 { '\0' as i32 } else { '\n' as i32 };
@@ -2227,9 +2206,7 @@ pub unsafe extern "C" fn back_raw_line(
                     while fm >= linebuf.buf {
                         *to = *fm;
                         fm = fm.offset(-1);
-                        fm;
                         to = to.offset(-1);
-                        to;
                     }
                     n = size_linebuf.wrapping_sub(old_size_linebuf);
                 }
@@ -2316,7 +2293,6 @@ pub unsafe extern "C" fn load_line(mut str: *const std::ffi::c_char) {
                     | (7 as std::ffi::c_int) << 8 as std::ffi::c_int,
             );
             i = i.wrapping_add(1);
-            i;
         }
     }
     hshift = save_hshift;
@@ -2336,7 +2312,6 @@ pub unsafe extern "C" fn rrshift() -> std::ffi::c_int {
             break;
         }
         sline += 1;
-        sline;
     }
     while sline < sc_height && pos != -(1 as std::ffi::c_int) as POSITION {
         pos = forw_line(pos, 0 as *mut POSITION, 0 as *mut lbool);
@@ -2344,7 +2319,6 @@ pub unsafe extern "C" fn rrshift() -> std::ffi::c_int {
             longest = end_column;
         }
         sline += 1;
-        sline;
     }
     sc_width = save_width;
     if longest < sc_width {
@@ -2364,7 +2338,6 @@ unsafe extern "C" fn lookup_color_index(mut attr: std::ffi::c_int) -> std::ffi::
             return cx;
         }
         cx += 1;
-        cx;
     }
     return -(1 as std::ffi::c_int);
 }

@@ -67,10 +67,8 @@ pub unsafe extern "C" fn add_forw_pos(mut pos: POSITION, mut no_scroll: lbool) {
     if no_scroll as u64 == 0 {
         i = 1 as std::ffi::c_int;
         while i < sc_height {
-            *table
-                .offset((i - 1 as std::ffi::c_int) as isize) = *table.offset(i as isize);
+            *table.offset((i - 1 as std::ffi::c_int) as isize) = *table.offset(i as isize);
             i += 1;
-            i;
         }
     }
     *table.offset((sc_height - 1 as std::ffi::c_int) as isize) = pos;
@@ -82,7 +80,6 @@ pub unsafe extern "C" fn add_back_pos(mut pos: POSITION) {
     while i > 0 as std::ffi::c_int {
         *table.offset(i as isize) = *table.offset((i - 1 as std::ffi::c_int) as isize);
         i -= 1;
-        i;
     }
     *table.offset(0 as std::ffi::c_int as isize) = pos;
 }
@@ -93,7 +90,6 @@ pub unsafe extern "C" fn pos_clear() {
     while i < sc_height {
         *table.offset(i as isize) = -(1 as std::ffi::c_int) as POSITION;
         i += 1;
-        i;
     }
 }
 #[no_mangle]
@@ -130,7 +126,6 @@ pub unsafe extern "C" fn onscreen(mut pos: POSITION) -> std::ffi::c_int {
             return i - 1 as std::ffi::c_int;
         }
         i += 1;
-        i;
     }
     return -(1 as std::ffi::c_int);
 }
@@ -152,15 +147,11 @@ pub unsafe extern "C" fn empty_lines(
             return 0 as std::ffi::c_int;
         }
         i += 1;
-        i;
     }
     return 1 as std::ffi::c_int;
 }
 #[no_mangle]
-pub unsafe extern "C" fn get_scrpos(
-    mut scrpos: *mut scrpos,
-    mut where_0: std::ffi::c_int,
-) {
+pub unsafe extern "C" fn get_scrpos(mut scrpos: *mut scrpos, mut where_0: std::ffi::c_int) {
     let mut i: std::ffi::c_int = 0;
     let mut dir: std::ffi::c_int = 0;
     let mut last: std::ffi::c_int = 0;
@@ -197,9 +188,7 @@ pub unsafe extern "C" fn get_scrpos(
     (*scrpos).pos = -(1 as std::ffi::c_int) as POSITION;
 }
 #[no_mangle]
-pub unsafe extern "C" fn sindex_from_sline(
-    mut sline: std::ffi::c_int,
-) -> std::ffi::c_int {
+pub unsafe extern "C" fn sindex_from_sline(mut sline: std::ffi::c_int) -> std::ffi::c_int {
     if sline < 0 as std::ffi::c_int {
         sline += sc_height;
     }
@@ -211,10 +200,7 @@ pub unsafe extern "C" fn sindex_from_sline(
     }
     return sline - 1 as std::ffi::c_int;
 }
-unsafe extern "C" fn pos_shift(
-    mut linepos: POSITION,
-    mut choff: size_t,
-) -> std::ffi::c_int {
+unsafe extern "C" fn pos_shift(mut linepos: POSITION, mut choff: size_t) -> std::ffi::c_int {
     let mut line: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut line_len: size_t = 0;
     let mut pos: POSITION = 0;
@@ -225,9 +211,17 @@ unsafe extern "C" fn pos_shift(
         return -(1 as std::ffi::c_int);
     }
     cvt_ops = get_cvt_ops(0 as std::ffi::c_int);
-    cline = ecalloc(1 as std::ffi::c_int as size_t, cvt_length(line_len, cvt_ops))
-        as *mut std::ffi::c_char;
-    cvt_text(cline, line, 0 as *mut std::ffi::c_int, &mut line_len, cvt_ops);
+    cline = ecalloc(
+        1 as std::ffi::c_int as size_t,
+        cvt_length(line_len, cvt_ops),
+    ) as *mut std::ffi::c_char;
+    cvt_text(
+        cline,
+        line,
+        0 as *mut std::ffi::c_int,
+        &mut line_len,
+        cvt_ops,
+    );
     free(cline as *mut std::ffi::c_void);
     return line_len as std::ffi::c_int;
 }

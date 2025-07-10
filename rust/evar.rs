@@ -34,7 +34,8 @@ unsafe extern "C" fn skipsl(
     mut e: size_t,
 ) -> size_t {
     let mut esc: lbool = LFALSE;
-    while e < len && *buf.offset(e as isize) as std::ffi::c_int != '\0' as i32
+    while e < len
+        && *buf.offset(e as isize) as std::ffi::c_int != '\0' as i32
         && (esc as std::ffi::c_uint != 0
             || *buf.offset(e as isize) as std::ffi::c_int != '/' as i32
                 && *buf.offset(e as isize) as std::ffi::c_int != '}' as i32)
@@ -42,9 +43,9 @@ unsafe extern "C" fn skipsl(
         esc = (esc as u64 == 0
             && *buf.offset(e as isize) as std::ffi::c_int == '\\' as i32
             && *buf.offset(e.wrapping_add(1 as std::ffi::c_int as size_t) as isize)
-                as std::ffi::c_int != '\0' as i32) as std::ffi::c_int as lbool;
+                as std::ffi::c_int
+                != '\0' as i32) as std::ffi::c_int as lbool;
         e = e.wrapping_add(1);
-        e;
     }
     return e;
 }
@@ -119,7 +120,6 @@ unsafe extern "C" fn evar_match(
     while *pat as std::ffi::c_int != '\0' as i32 {
         if *pat as std::ffi::c_int == '\\' as i32 {
             pat = pat.offset(1);
-            pat;
         }
         let fresh3 = str;
         str = str.offset(1);
@@ -129,7 +129,6 @@ unsafe extern "C" fn evar_match(
             return 0 as std::ffi::c_int as size_t;
         }
         len = len.wrapping_add(1);
-        len;
     }
     return len;
 }
@@ -170,16 +169,14 @@ unsafe extern "C" fn add_evar(
             r = 0 as std::ffi::c_int as size_t;
             while *repl.offset(r as isize) as std::ffi::c_int != '\0' as i32 {
                 if *repl.offset(r as isize) as std::ffi::c_int == '\\' as i32
-                    && *repl
-                        .offset(r.wrapping_add(1 as std::ffi::c_int as size_t) as isize)
-                        as std::ffi::c_int != '\0' as i32
+                    && *repl.offset(r.wrapping_add(1 as std::ffi::c_int as size_t) as isize)
+                        as std::ffi::c_int
+                        != '\0' as i32
                 {
                     r = r.wrapping_add(1);
-                    r;
                 }
                 xbuf_add_char(xbuf, *repl.offset(r as isize));
                 r = r.wrapping_add(1);
-                r;
             }
         }
     }
@@ -198,7 +195,8 @@ pub unsafe extern "C" fn expand_evars(
         if i.wrapping_add(1 as std::ffi::c_int as size_t) < len
             && *buf.offset(i as isize) as std::ffi::c_int == '$' as i32
             && *buf.offset(i.wrapping_add(1 as std::ffi::c_int as size_t) as isize)
-                as std::ffi::c_int == '{' as i32
+                as std::ffi::c_int
+                == '{' as i32
         {
             let mut evar: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
             let mut term: std::ffi::c_char = 0;
@@ -213,7 +211,6 @@ pub unsafe extern "C" fn expand_evars(
                     break;
                 }
                 e = e.wrapping_add(1);
-                e;
             }
             if e >= len || *buf.offset(e as isize) as std::ffi::c_int == '\0' as i32 {
                 break;
