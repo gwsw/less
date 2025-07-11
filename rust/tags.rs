@@ -1,3 +1,4 @@
+use crate::decode::lgetenv;
 use ::c2rust_bitfields;
 use ::libc;
 extern "C" {
@@ -45,7 +46,6 @@ extern "C" {
         lenp: *mut size_t,
         ops: std::ffi::c_int,
     );
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn edit(filename: *const std::ffi::c_char) -> std::ffi::c_int;
     fn shell_unquote(str: *const std::ffi::c_char) -> *mut std::ffi::c_char;
@@ -540,9 +540,10 @@ unsafe extern "C" fn findgtag(
         let mut command: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
         let mut flag: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
         let mut qtag: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
-        let mut cmd: *const std::ffi::c_char =
-            lgetenv(b"LESSGLOBALTAGS\0" as *const u8 as *const std::ffi::c_char);
-        if isnullenv(cmd) as u64 != 0 {
+        let cmd;
+        if let Ok(c) = lgetenv("LESSGLOBALTAGS") {
+            cmd = c;
+        } else {
             return TAG_NOFILE;
         }
         match type_0 {

@@ -1,3 +1,4 @@
+use crate::decode::{lgetenv, lgetenv_ext};
 use ::c2rust_bitfields;
 use ::libc;
 extern "C" {
@@ -52,7 +53,6 @@ extern "C" {
         dir: std::ffi::c_int,
         limit: *const std::ffi::c_char,
     ) -> LWCHAR;
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn get_filename(ifile: *mut std::ffi::c_void) -> *const std::ffi::c_char;
     fn skip_ansi(
@@ -237,16 +237,18 @@ pub unsafe extern "C" fn shell_unquote(mut str: *const std::ffi::c_char) -> *mut
 #[no_mangle]
 pub unsafe extern "C" fn get_meta_escape() -> *const std::ffi::c_char {
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    s = lgetenv(b"LESSMETAESCAPE\0" as *const u8 as *const std::ffi::c_char);
-    if s.is_null() {
+    let ss = lgetenv("LESSMETAESCAPE");
+    if ss.is_err() {
         s = b"\\\0" as *const u8 as *const std::ffi::c_char;
+    } else {
+        s = ss.unwrap();
     }
     return s;
 }
 unsafe extern "C" fn metachars() -> *const std::ffi::c_char {
     static mut mchars: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     if mchars.is_null() {
-        mchars = lgetenv(b"LESSMETACHARS\0" as *const u8 as *const std::ffi::c_char);
+        mchars = lgetenv("LESSMETACHARS").unwrap_or(0 as *const std::ffi::c_char);
         if mchars.is_null() {
             mchars = b"; *?\t\n'\"()<>[]|&^`#\\$%=~{},\0" as *const u8 as *const std::ffi::c_char;
         }
@@ -398,11 +400,7 @@ pub unsafe extern "C" fn dirfile(
 #[no_mangle]
 pub unsafe extern "C" fn homefile(mut filename: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut pathname: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
-    pathname = dirfile(
-        lgetenv(b"HOME\0" as *const u8 as *const std::ffi::c_char),
-        filename,
-        1 as std::ffi::c_int,
-    );
+    pathname = dirfile(lgetenv("HOME").unwrap(), filename, 1 as std::ffi::c_int);
     if !pathname.is_null() {
         return pathname;
     }
@@ -598,9 +596,7 @@ pub unsafe extern "C" fn readfd(mut fd: *mut FILE) -> *mut std::ffi::c_char {
 }
 unsafe extern "C" fn shellcmd(mut cmd: *const std::ffi::c_char) -> *mut FILE {
     let mut fd: *mut FILE = 0 as *mut FILE;
-    let mut shell: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    shell = lgetenv(b"SHELL\0" as *const u8 as *const std::ffi::c_char);
-    if isnullenv(shell) as u64 == 0 {
+    if let Ok(shell) = lgetenv("SHELL") {
         let mut scmd: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
         let mut esccmd: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
         esccmd = shell_quote(cmd);
@@ -653,9 +649,11 @@ pub unsafe extern "C" fn lglob(mut afilename: *const std::ffi::c_char) -> *mut s
     if qesc.is_null() {
         return filename;
     }
-    lessecho = lgetenv(b"LESSECHO\0" as *const u8 as *const std::ffi::c_char);
-    if isnullenv(lessecho) as u64 != 0 {
+    let lessecho_ = lgetenv("LESSECHO");
+    if lessecho_.is_err() {
         lessecho = b"lessecho\0" as *const u8 as *const std::ffi::c_char;
+    } else {
+        lessecho = lessecho_.unwrap();
     }
     len = (strlen(lessecho))
         .wrapping_add(strlen(filename))
@@ -762,9 +760,11 @@ pub unsafe extern "C" fn open_altfile(
         return 0 as *mut std::ffi::c_char;
     }
     ch_ungetchar(-(1 as std::ffi::c_int));
-    lessopen = lgetenv(b"LESSOPEN\0" as *const u8 as *const std::ffi::c_char);
-    if lessopen.is_null() {
+    let lessopen_ = lgetenv("LESSOPEN");
+    if lessopen_.is_err() {
         return 0 as *mut std::ffi::c_char;
+    } else {
+        lessopen = lessopen_.unwrap();
     }
     while *lessopen as std::ffi::c_int == '|' as i32 {
         lessopen = lessopen.offset(1);
@@ -847,9 +847,11 @@ pub unsafe extern "C" fn close_altfile(
     if secure_allow((1 as std::ffi::c_int) << 6 as std::ffi::c_int) == 0 {
         return;
     }
-    lessclose = lgetenv(b"LESSCLOSE\0" as *const u8 as *const std::ffi::c_char);
-    if lessclose.is_null() {
+    let lessclose_ = lgetenv("LESSCLOSE");
+    if lessclose_.is_err() {
         return;
+    } else {
+        lessclose = lessclose_.unwrap();
     }
     if num_pct_s(lessclose) > 2 as std::ffi::c_int {
         error(

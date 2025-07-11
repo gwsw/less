@@ -1,3 +1,4 @@
+use crate::decode::lgetenv;
 use ::c2rust_bitfields;
 use ::libc;
 extern "C" {
@@ -27,7 +28,6 @@ extern "C" {
     fn ch_seek(pos: POSITION) -> std::ffi::c_int;
     fn ch_forw_get() -> std::ffi::c_int;
     fn screen_trashed();
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn edit_ifile(ifile: *mut std::ffi::c_void) -> std::ffi::c_int;
     fn save_curr_ifile() -> *mut std::ffi::c_void;
     fn reedit_ifile(save_ifile: *mut std::ffi::c_void);
@@ -128,8 +128,7 @@ pub unsafe extern "C" fn lsystem(
         dup(inp);
     }
     p = 0 as *mut std::ffi::c_char;
-    shell = lgetenv(b"SHELL\0" as *const u8 as *const std::ffi::c_char);
-    if !shell.is_null() && *shell as std::ffi::c_int != '\0' as i32 {
+    if let Ok(shell) = lgetenv("SHELL") {
         if *cmd as std::ffi::c_int == '\0' as i32 {
             p = save(shell);
         } else {

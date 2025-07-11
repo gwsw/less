@@ -1,4 +1,6 @@
+use crate::decode::lgetenv;
 use ::libc;
+use std::ffi::CStr;
 extern "C" {
     fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
     fn snprintf(
@@ -30,7 +32,6 @@ extern "C" {
     ) -> std::ffi::c_int;
     fn save(s: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn ecalloc(count: size_t, size: size_t) -> *mut std::ffi::c_void;
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn get_color_map(attr: std::ffi::c_int) -> *const std::ffi::c_char;
     fn calc_jump_sline();
@@ -221,7 +222,7 @@ pub static mut term_init_done: lbool = LFALSE;
 #[no_mangle]
 pub static mut full_screen: lbool = LTRUE;
 static mut attrmode: std::ffi::c_int = 0 as std::ffi::c_int;
-static mut termcap_debug: std::ffi::c_int = -(1 as std::ffi::c_int);
+static mut termcap_debug: bool = false;
 static mut no_alt_screen: std::ffi::c_int = 0;
 unsafe extern "C" fn set_termio_flags(mut s: *mut termios) {
     (*s).c_lflag &= !(0 as std::ffi::c_int
@@ -353,7 +354,7 @@ pub unsafe extern "C" fn raw_mode(mut on: std::ffi::c_int) {
 static mut hardcopy: std::ffi::c_int = 0;
 unsafe extern "C" fn ltget_env(mut capname: *const std::ffi::c_char) -> *const std::ffi::c_char {
     let mut name: [std::ffi::c_char; 64] = [0; 64];
-    if termcap_debug != 0 {
+    if termcap_debug {
         static mut envs: *mut env = 0 as *const env as *mut env;
         let mut p: *mut env = 0 as *mut env;
         p = envs;
@@ -387,7 +388,7 @@ unsafe extern "C" fn ltget_env(mut capname: *const std::ffi::c_char) -> *const s
         b"LESS_TERMCAP_%s\0" as *const u8 as *const std::ffi::c_char,
         capname,
     );
-    return lgetenv(name.as_mut_ptr());
+    return lgetenv(CStr::from_ptr(name.as_mut_ptr()).to_str().unwrap()).unwrap();
 }
 unsafe extern "C" fn ltgetflag(mut capname: *const std::ffi::c_char) -> std::ffi::c_int {
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
@@ -455,8 +456,7 @@ unsafe extern "C" fn scrsize() {
     if sys_height > 0 as std::ffi::c_int {
         sc_height = sys_height;
     } else {
-        s = lgetenv(b"LINES\0" as *const u8 as *const std::ffi::c_char);
-        if !s.is_null() {
+        if let Ok(s) = lgetenv("LINES") {
             sc_height = atoi(s);
         } else {
             n = ltgetnum(b"li\0" as *const u8 as *const std::ffi::c_char);
@@ -465,8 +465,7 @@ unsafe extern "C" fn scrsize() {
             }
         }
     }
-    s = lgetenv(b"LESS_LINES\0" as *const u8 as *const std::ffi::c_char);
-    if !s.is_null() {
+    if let Ok(s) = lgetenv("LESS_LINES") {
         let mut height: std::ffi::c_int = atoi(s);
         sc_height = if height < 0 as std::ffi::c_int {
             sc_height + height
@@ -481,8 +480,7 @@ unsafe extern "C" fn scrsize() {
     if sys_width > 0 as std::ffi::c_int {
         sc_width = sys_width;
     } else {
-        s = lgetenv(b"COLUMNS\0" as *const u8 as *const std::ffi::c_char);
-        if !s.is_null() {
+        if let Ok(s) = lgetenv("COLUMNS") {
             sc_width = atoi(s);
         } else {
             n = ltgetnum(b"co\0" as *const u8 as *const std::ffi::c_char);
@@ -491,8 +489,7 @@ unsafe extern "C" fn scrsize() {
             }
         }
     }
-    s = lgetenv(b"LESS_COLUMNS\0" as *const u8 as *const std::ffi::c_char);
-    if !s.is_null() {
+    if let Ok(s) = lgetenv("LESS_COLUMNS") {
         let mut width: std::ffi::c_int = atoi(s);
         sc_width = if width < 0 as std::ffi::c_int {
             sc_width + width
@@ -567,21 +564,24 @@ pub unsafe extern "C" fn special_key_str(mut key: std::ffi::c_int) -> *const std
     }
     return s;
 }
+
+/*
+ * Get terminal capabilities via termcap.
+ */
 #[no_mangle]
 pub unsafe extern "C" fn get_term() {
-    termcap_debug = (isnullenv(lgetenv(
-        b"LESS_TERMCAP_DEBUG\0" as *const u8 as *const std::ffi::c_char,
-    )) as u64
-        == 0) as std::ffi::c_int;
+    termcap_debug = lgetenv("LESS_TERMCAP_DEBUG").is_err();
     let mut sp: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut t1: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut t2: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut term: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     static mut termbuf: [std::ffi::c_char; 2048] = [0; 2048];
     static mut sbuf: [std::ffi::c_char; 1024] = [0; 1024];
-    term = lgetenv(b"TERM\0" as *const u8 as *const std::ffi::c_char);
-    if term.is_null() {
+    let t = lgetenv("TERM");
+    if !t.is_ok() {
         term = b"unknown\0" as *const u8 as *const std::ffi::c_char;
+    } else {
+        term = t.unwrap();
     }
     hardcopy = 0 as std::ffi::c_int;
     if tgetent(termbuf.as_mut_ptr(), term) != 1 as std::ffi::c_int {
@@ -793,12 +793,10 @@ pub unsafe extern "C" fn get_term() {
     if *sc_addline as std::ffi::c_int == '\0' as i32 {
         no_back_scroll = 1 as std::ffi::c_int;
     }
-    let mut env: *const std::ffi::c_char =
-        lgetenv(b"LESS_SHELL_LINES\0" as *const u8 as *const std::ffi::c_char);
-    shell_lines = if isnullenv(env) as std::ffi::c_uint != 0 {
-        1 as std::ffi::c_int
+    shell_lines = if let Ok(en) = lgetenv("LESS_SHELL_LINES") {
+        atoi(en)
     } else {
-        atoi(env)
+        1 as std::ffi::c_int
     };
     if shell_lines >= sc_height {
         shell_lines = sc_height - 1 as std::ffi::c_int;
@@ -1542,7 +1540,7 @@ pub unsafe extern "C" fn apply_at_specials(mut attr: std::ffi::c_int) -> std::ff
 }
 #[no_mangle]
 pub unsafe extern "C" fn putbs() {
-    if termcap_debug != 0 {
+    if termcap_debug {
         putstr(b"<bs>\0" as *const u8 as *const std::ffi::c_char);
     } else {
         ltputs(

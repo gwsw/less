@@ -1,3 +1,4 @@
+use crate::decode::lgetenv;
 use ::libc;
 extern "C" {
     fn snprintf(
@@ -19,7 +20,6 @@ extern "C" {
     fn xbuf_init(xbuf: *mut xbuffer);
     fn xbuf_add_data(xbuf: *mut xbuffer, data: *const std::ffi::c_uchar, len: size_t);
     fn quit(status: std::ffi::c_int);
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn error(fmt: *const std::ffi::c_char, parg: *mut PARG);
     fn setlocale(
@@ -1331,15 +1331,15 @@ pub unsafe extern "C" fn setfmt(
 }
 unsafe extern "C" fn set_charset() {
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    ichardef_utf(lgetenv(
-        b"LESSUTFCHARDEF\0" as *const u8 as *const std::ffi::c_char,
-    ));
-    s = lgetenv(b"LESSCHARSET\0" as *const u8 as *const std::ffi::c_char);
-    if icharset(s, 0 as std::ffi::c_int) != 0 {
+    ichardef_utf(lgetenv("LESSUTFCHARDEF").unwrap_or(0 as *const std::ffi::c_char));
+    if icharset(
+        lgetenv("LESSCHARSET").unwrap_or(0 as *const std::ffi::c_char),
+        0 as std::ffi::c_int,
+    ) != 0
+    {
         return;
     }
-    s = lgetenv(b"LESSCHARDEF\0" as *const u8 as *const std::ffi::c_char);
-    if isnullenv(s) as u64 == 0 {
+    if let Ok(s) = lgetenv("LESSCHARDEF") {
         ichardef(s);
         return;
     }
@@ -1347,14 +1347,14 @@ unsafe extern "C" fn set_charset() {
     if icharset(s, 1 as std::ffi::c_int) != 0 {
         return;
     }
-    s = lgetenv(b"LC_ALL\0" as *const u8 as *const std::ffi::c_char);
+    s = lgetenv("LC_ALL").unwrap();
     if !s.is_null()
         || {
-            s = lgetenv(b"LC_CTYPE\0" as *const u8 as *const std::ffi::c_char);
+            s = lgetenv("LC_CTYPE").unwrap();
             !s.is_null()
         }
         || {
-            s = lgetenv(b"LANG\0" as *const u8 as *const std::ffi::c_char);
+            s = lgetenv("LANG").unwrap();
             !s.is_null()
         }
     {
@@ -1382,7 +1382,7 @@ pub unsafe extern "C" fn init_charset() {
         b"\0" as *const u8 as *const std::ffi::c_char,
     );
     set_charset();
-    s = lgetenv(b"LESSBINFMT\0" as *const u8 as *const std::ffi::c_char);
+    s = lgetenv("LESSBINFMT").unwrap_or(0 as *const std::ffi::c_char);
     setfmt(
         s,
         &mut binfmt,
@@ -1390,7 +1390,7 @@ pub unsafe extern "C" fn init_charset() {
         b"*s<%02X>\0" as *const u8 as *const std::ffi::c_char,
         LTRUE,
     );
-    s = lgetenv(b"LESSUTFBINFMT\0" as *const u8 as *const std::ffi::c_char);
+    s = lgetenv("LESSUTFBINFMT").unwrap_or(0 as *const std::ffi::c_char);
     setfmt(
         s,
         &mut utfbinfmt,

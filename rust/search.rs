@@ -1,5 +1,7 @@
+use crate::decode::lgetenv;
 use ::c2rust_bitfields;
 use ::libc;
+use std::ffi::CStr;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -57,7 +59,6 @@ extern "C" {
         lenp: *mut size_t,
         ops: std::ffi::c_int,
     );
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn edit(filename: *const std::ffi::c_char) -> std::ffi::c_int;
     fn readfd(fd: *mut FILE) -> *mut std::ffi::c_char;
@@ -2085,11 +2086,14 @@ pub unsafe extern "C" fn osc8_open() {
         scheme_len as std::ffi::c_int,
         op.uri_start,
     );
-    handler = lgetenv(env_name.as_mut_ptr());
-    if isnullenv(handler) as std::ffi::c_uint != 0
-        || strcmp(handler, b"-\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int
+    let handler_ = lgetenv(CStr::from_ptr(env_name.as_mut_ptr()).to_str().unwrap());
+    if handler_.as_ref().is_err()
+        || strcmp(
+            handler_.unwrap(),
+            b"-\0" as *const u8 as *const std::ffi::c_char,
+        ) == 0 as std::ffi::c_int
     {
-        handler = lgetenv(b"LESS_OSC8_ANY\0" as *const u8 as *const std::ffi::c_char);
+        handler = lgetenv("LESS_OSC8_ANY").unwrap();
     }
     if isnullenv(handler) as u64 != 0 {
         let mut parg: PARG = parg {

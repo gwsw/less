@@ -1,3 +1,4 @@
+use crate::decode::lgetenv;
 use ::libc;
 extern "C" {
     fn calloc(_: std::ffi::c_ulong, _: std::ffi::c_ulong) -> *mut std::ffi::c_void;
@@ -56,7 +57,6 @@ extern "C" {
     fn is_ubin_char(ch: LWCHAR) -> lbool;
     fn is_wide_char(ch: LWCHAR) -> lbool;
     fn is_combining_char(ch1: LWCHAR, ch2: LWCHAR) -> lbool;
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn forw_line(curr_pos: POSITION, p_linepos: *mut POSITION, p_newline: *mut lbool) -> POSITION;
     fn find_linenum(pos: POSITION) -> LINENUM;
@@ -552,22 +552,26 @@ static mut color_map: [color_map; 19] = unsafe {
 #[no_mangle]
 pub unsafe extern "C" fn init_line() {
     let mut ax: std::ffi::c_int = 0;
-    let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    end_ansi_chars = lgetenv(b"LESSANSIENDCHARS\0" as *const u8 as *const std::ffi::c_char);
-    if isnullenv(end_ansi_chars) as u64 != 0 {
+    let end_ansi_chars_ = lgetenv("LESSANSIENDCHARS");
+    if end_ansi_chars_.is_err() {
         end_ansi_chars = b"m\0" as *const u8 as *const std::ffi::c_char;
+    } else {
+        end_ansi_chars = end_ansi_chars_.unwrap();
     }
-    mid_ansi_chars = lgetenv(b"LESSANSIMIDCHARS\0" as *const u8 as *const std::ffi::c_char);
-    if isnullenv(mid_ansi_chars) as u64 != 0 {
+    let mid_ansi_chars_ = lgetenv("LESSANSIMIDCHARS");
+    if mid_ansi_chars_.is_err() {
         mid_ansi_chars = b"0123456789:;[?!\"'#%()*+ \0" as *const u8 as *const std::ffi::c_char;
+    } else {
+        mid_ansi_chars = mid_ansi_chars_.unwrap();
     }
-    osc_ansi_chars = lgetenv(b"LESSANSIOSCCHARS\0" as *const u8 as *const std::ffi::c_char);
-    if isnullenv(osc_ansi_chars) as u64 != 0 {
+    let osc_ansi_chars_ = lgetenv("LESSANSIOSCCHARS");
+    if osc_ansi_chars_.is_err() {
         osc_ansi_chars = b"\0" as *const u8 as *const std::ffi::c_char;
+    } else {
+        osc_ansi_chars = osc_ansi_chars_.unwrap();
     }
     osc_ansi_allow_count = 0 as std::ffi::c_int;
-    s = lgetenv(b"LESSANSIOSCALLOW\0" as *const u8 as *const std::ffi::c_char);
-    if isnullenv(s) as u64 == 0 {
+    if let Ok(mut s) = lgetenv("LESSANSIOSCALLOW") {
         let mut xbuf: xbuffer = xbuffer {
             data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
             end: 0,

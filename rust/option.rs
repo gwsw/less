@@ -1,3 +1,4 @@
+use crate::decode::lgetenv;
 use ::libc;
 extern "C" {
     fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
@@ -22,7 +23,6 @@ extern "C" {
     fn screen_trashed();
     fn ungetcc_end_command();
     fn ungetsc(s: *const std::ffi::c_char);
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn findopt(c: std::ffi::c_int) -> *mut loption;
     fn findopt_name(
@@ -773,10 +773,12 @@ pub unsafe extern "C" fn getfraction(
 }
 #[no_mangle]
 pub unsafe extern "C" fn init_unsupport() {
-    let mut s: *const std::ffi::c_char =
-        lgetenv(b"LESS_UNSUPPORT\0" as *const u8 as *const std::ffi::c_char);
-    if isnullenv(s) as u64 != 0 {
+    let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+    let mut ss = lgetenv("LESS_UNSUPPORT");
+    if ss.is_err() {
         return;
+    } else {
+        s = ss.unwrap();
     }
     loop {
         let mut opt: *mut loption = 0 as *mut loption;

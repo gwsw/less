@@ -1,4 +1,7 @@
 use ::libc;
+use std::env;
+use std::env::VarError;
+use std::ffi::CString;
 extern "C" {
     fn open(__file: *const std::ffi::c_char, __oflag: std::ffi::c_int, _: ...) -> std::ffi::c_int;
     fn lseek(__fd: std::ffi::c_int, __offset: __off_t, __whence: std::ffi::c_int) -> __off_t;
@@ -1456,7 +1459,7 @@ pub unsafe extern "C" fn init_cmds() {
     );
     add_hometable(
         Some(lesskey as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int),
-        0 as *const std::ffi::c_char,
+        None,
         b"/usr/local/bin/.sysless\0" as *const u8 as *const std::ffi::c_char,
         LTRUE,
     );
@@ -1464,7 +1467,7 @@ pub unsafe extern "C" fn init_cmds() {
         Some(
             lesskey_src as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
         ),
-        b"LESSKEYIN_SYSTEM\0" as *const u8 as *const std::ffi::c_char,
+        Some("LESSKEYIN_SYSTEM"),
         b"/usr/local/etc/syslesskey\0" as *const u8 as *const std::ffi::c_char,
         LTRUE,
     ) != 0 as std::ffi::c_int
@@ -1473,7 +1476,7 @@ pub unsafe extern "C" fn init_cmds() {
             Some(
                 lesskey as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
             ),
-            b"LESSKEY_SYSTEM\0" as *const u8 as *const std::ffi::c_char,
+            Some("LESSKEY_SYSTEM"),
             b"/usr/local/etc/sysless\0" as *const u8 as *const std::ffi::c_char,
             LTRUE,
         );
@@ -1482,7 +1485,7 @@ pub unsafe extern "C" fn init_cmds() {
         Some(
             lesskey_src as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
         ),
-        b"LESSKEYIN\0" as *const u8 as *const std::ffi::c_char,
+        Some("LESSKEYIN"),
         b".lesskey\0" as *const u8 as *const std::ffi::c_char,
         LFALSE,
     ) != 0 as std::ffi::c_int
@@ -1491,7 +1494,7 @@ pub unsafe extern "C" fn init_cmds() {
             Some(
                 lesskey as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
             ),
-            b"LESSKEY\0" as *const u8 as *const std::ffi::c_char,
+            Some("LESSKEY"),
             b".less\0" as *const u8 as *const std::ffi::c_char,
             LFALSE,
         );
@@ -1501,7 +1504,7 @@ pub unsafe extern "C" fn init_cmds() {
             lesskey_content
                 as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
         ),
-        b"LESSKEY_CONTENT_SYSTEM\0" as *const u8 as *const std::ffi::c_char,
+        "LESSKEY_CONTENT_SYSTEM",
         LTRUE,
     );
     add_content_table(
@@ -1509,7 +1512,7 @@ pub unsafe extern "C" fn init_cmds() {
             lesskey_content
                 as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
         ),
-        b"LESSKEY_CONTENT\0" as *const u8 as *const std::ffi::c_char,
+        "LESSKEY_CONTENT",
         LFALSE,
     );
 }
@@ -1925,27 +1928,38 @@ pub unsafe extern "C" fn ecmd_decode(
 ) -> std::ffi::c_int {
     return cmd_decode(list_ecmd_tables, cmd, sp);
 }
+
+/*
+ * Get the value of an environment variable.
+ * Looks first in the lesskey file, then in the real environment.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn lgetenv(mut var: *const std::ffi::c_char) -> *const std::ffi::c_char {
-    let mut a: std::ffi::c_int = 0;
+pub fn lgetenv(key: &str) -> Result<*const std::ffi::c_char, VarError> {
+    // FIXME add the lesskey file lookup
+    /*
+    let mut a: i32;
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     a = cmd_decode(list_var_tables, var, &mut s);
     if a == 0o1 as std::ffi::c_int {
         return s;
     }
-    s = getenv(var);
-    if !s.is_null() && *s as std::ffi::c_int != '\0' as i32 {
-        return s;
-    }
+    */
+    let s = env::var(key);
+    let ret = match s {
+        Ok(val) => Ok(CString::new(val.as_str()).unwrap().as_ptr()),
+        Err(e) => Err(e),
+    };
+    /*
     a = cmd_decode(list_sysvar_tables, var, &mut s);
     if a == 0o1 as std::ffi::c_int {
         return s;
     }
-    return 0 as *const std::ffi::c_char;
+    */
+    ret
 }
 #[no_mangle]
 pub unsafe extern "C" fn lgetenv_ext(
-    mut var: *const std::ffi::c_char,
+    var: &str,
     mut env_buf: *mut std::ffi::c_uchar,
     mut env_buf_len: size_t,
 ) -> *const std::ffi::c_char {
@@ -1980,7 +1994,7 @@ pub unsafe extern "C" fn lgetenv_ext(
         env_end = e;
     }
     add_uvar_table(env_buf, env_end);
-    r = lgetenv(var);
+    r = lgetenv(var).unwrap();
     pop_cmd_table(&mut list_var_tables);
     return r;
 }
@@ -2207,24 +2221,21 @@ unsafe extern "C" fn add_hometable(
     mut call_lesskey: Option<
         unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
     >,
-    mut envname: *const std::ffi::c_char,
+    envname: Option<&str>,
     mut def_filename: *const std::ffi::c_char,
     mut sysvar: lbool,
 ) -> std::ffi::c_int {
     let mut filename: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut efilename: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut r: std::ffi::c_int = 0;
-    if !envname.is_null() && {
-        efilename = lgetenv(envname);
-        !efilename.is_null()
-    } {
-        filename = save(efilename);
+    if let Some(name) = envname {
+        if let Ok(efilename) = lgetenv(name) {
+            filename = save(efilename);
+        }
     } else if sysvar as u64 != 0 {
         filename = save(def_filename);
     } else {
-        let mut xdg: *const std::ffi::c_char =
-            lgetenv(b"XDG_CONFIG_HOME\0" as *const u8 as *const std::ffi::c_char);
-        if isnullenv(xdg) as u64 == 0 {
+        if let Ok(xdg) = lgetenv("XDG_CONFIG_HOME") {
             filename = dirfile(
                 xdg,
                 &*def_filename.offset(1 as std::ffi::c_int as isize),
@@ -2232,9 +2243,7 @@ unsafe extern "C" fn add_hometable(
             );
         }
         if filename.is_null() {
-            let mut home: *const std::ffi::c_char =
-                lgetenv(b"HOME\0" as *const u8 as *const std::ffi::c_char);
-            if isnullenv(home) as u64 == 0 {
+            if let Ok(home) = lgetenv("HOME") {
                 let mut cfg_dir: *mut std::ffi::c_char = dirfile(
                     home,
                     b".config\0" as *const u8 as *const std::ffi::c_char,
@@ -2264,16 +2273,14 @@ unsafe extern "C" fn add_content_table(
     mut call_lesskey: Option<
         unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
     >,
-    mut envname: *const std::ffi::c_char,
+    envname: &str,
     mut sysvar: lbool,
 ) {
-    let mut content: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    content = lgetenv(envname);
-    if isnullenv(content) as u64 != 0 {
-        return;
+    if let Ok(content) = lgetenv(envname) {
+        lesskey_content(content, sysvar);
     }
-    lesskey_content(content, sysvar);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn editchar(
     mut c: std::ffi::c_char,

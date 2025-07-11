@@ -1,3 +1,4 @@
+use crate::decode::lgetenv;
 use ::libc;
 extern "C" {
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
@@ -9,7 +10,6 @@ extern "C" {
         s: *const std::ffi::c_char,
         uppercase: std::ffi::c_int,
     ) -> size_t;
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn opt_o(type_0: std::ffi::c_int, s: *const std::ffi::c_char);
     fn opt__O(type_0: std::ffi::c_int, s: *const std::ffi::c_char);
@@ -2159,12 +2159,8 @@ static mut option: [loption; 78] = unsafe {
 #[no_mangle]
 pub unsafe extern "C" fn init_option() {
     let mut o: *mut loption = 0 as *mut loption;
-    let mut p: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    p = lgetenv(b"LESS_IS_MORE\0" as *const u8 as *const std::ffi::c_char);
-    if isnullenv(p) as u64 == 0
-        && !(*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '0' as i32
-            && *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32)
-    {
+    let mut p = lgetenv("LESS_IS_MORE");
+    if p.as_ref().is_ok() {
         less_is_more = 1 as std::ffi::c_int;
     }
     o = option.as_mut_ptr();

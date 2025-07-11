@@ -1,3 +1,4 @@
+use crate::decode::lgetenv;
 use ::libc;
 extern "C" {
     fn getpid() -> __pid_t;
@@ -12,14 +13,10 @@ extern "C" {
     fn clear_bot();
     fn screen_trashed();
     fn ungetsc(s: *const std::ffi::c_char);
-    fn lgetenv(var: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn intio();
     fn flush();
-    fn set_filter_pattern(
-        pattern: *const std::ffi::c_char,
-        search_type: std::ffi::c_int,
-    );
+    fn set_filter_pattern(pattern: *const std::ffi::c_char, search_type: std::ffi::c_int);
     fn signal(__sig: std::ffi::c_int, __handler: __sighandler_t) -> __sighandler_t;
     fn kill(__pid: __pid_t, __sig: std::ffi::c_int) -> std::ffi::c_int;
     static mut sc_width: std::ffi::c_int;
@@ -31,7 +28,7 @@ pub type __pid_t = std::ffi::c_int;
 pub type lbool = std::ffi::c_uint;
 pub const LTRUE: lbool = 1;
 pub const LFALSE: lbool = 0;
-pub type __sighandler_t = Option::<unsafe extern "C" fn(std::ffi::c_int) -> ()>;
+pub type __sighandler_t = Option<unsafe extern "C" fn(std::ffi::c_int) -> ()>;
 #[no_mangle]
 pub static mut sigs: std::ffi::c_int = 0;
 unsafe extern "C" fn u_interrupt(mut type_0: std::ffi::c_int) {
@@ -64,20 +61,20 @@ pub unsafe extern "C" fn winch(mut type_0: std::ffi::c_int) {
 unsafe extern "C" fn terminate(mut type_0: std::ffi::c_int) {
     quit(15 as std::ffi::c_int);
 }
-unsafe extern "C" fn sigusr(mut var: *const std::ffi::c_char) {
-    let mut cmd: *const std::ffi::c_char = lgetenv(var);
-    if isnullenv(cmd) as u64 != 0 {
-        return;
+
+unsafe extern "C" fn sigusr(var: &str) {
+    if let Ok(cmd) = lgetenv(var) {
+        ungetsc(cmd);
+        intio();
     }
-    ungetsc(cmd);
-    intio();
 }
+
 unsafe extern "C" fn sigusr1(mut type_0: std::ffi::c_int) {
     signal(
         10 as std::ffi::c_int,
         Some(sigusr1 as unsafe extern "C" fn(std::ffi::c_int) -> ()),
     );
-    sigusr(b"LESS_SIGUSR1\0" as *const u8 as *const std::ffi::c_char);
+    sigusr("LESS_SIGUSR1");
 }
 #[no_mangle]
 pub unsafe extern "C" fn init_signals(mut on: std::ffi::c_int) {
@@ -89,10 +86,9 @@ pub unsafe extern "C" fn init_signals(mut on: std::ffi::c_int) {
         signal(
             20 as std::ffi::c_int,
             if secure_allow((1 as std::ffi::c_int) << 10 as std::ffi::c_int) == 0 {
-                ::core::mem::transmute::<
-                    libc::intptr_t,
-                    __sighandler_t,
-                >(1 as std::ffi::c_int as libc::intptr_t)
+                ::core::mem::transmute::<libc::intptr_t, __sighandler_t>(
+                    1 as std::ffi::c_int as libc::intptr_t,
+                )
             } else {
                 Some(stop as unsafe extern "C" fn(std::ffi::c_int) -> ())
             },
@@ -103,10 +99,9 @@ pub unsafe extern "C" fn init_signals(mut on: std::ffi::c_int) {
         );
         signal(
             3 as std::ffi::c_int,
-            ::core::mem::transmute::<
-                libc::intptr_t,
-                __sighandler_t,
-            >(1 as std::ffi::c_int as libc::intptr_t),
+            ::core::mem::transmute::<libc::intptr_t, __sighandler_t>(
+                1 as std::ffi::c_int as libc::intptr_t,
+            ),
         );
         signal(
             15 as std::ffi::c_int,
@@ -121,10 +116,9 @@ pub unsafe extern "C" fn init_signals(mut on: std::ffi::c_int) {
         signal(20 as std::ffi::c_int, None);
         signal(
             28 as std::ffi::c_int,
-            ::core::mem::transmute::<
-                libc::intptr_t,
-                __sighandler_t,
-            >(1 as std::ffi::c_int as libc::intptr_t),
+            ::core::mem::transmute::<libc::intptr_t, __sighandler_t>(
+                1 as std::ffi::c_int as libc::intptr_t,
+            ),
         );
         signal(3 as std::ffi::c_int, None);
         signal(15 as std::ffi::c_int, None);
@@ -142,10 +136,9 @@ pub unsafe extern "C" fn psignals() {
     if tsignals & (1 as std::ffi::c_int) << 2 as std::ffi::c_int != 0 {
         signal(
             22 as std::ffi::c_int,
-            ::core::mem::transmute::<
-                libc::intptr_t,
-                __sighandler_t,
-            >(1 as std::ffi::c_int as libc::intptr_t),
+            ::core::mem::transmute::<libc::intptr_t, __sighandler_t>(
+                1 as std::ffi::c_int as libc::intptr_t,
+            ),
         );
         clear_bot();
         deinit();

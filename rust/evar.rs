@@ -1,13 +1,9 @@
-use ::libc;
+use crate::decode::lgetenv_ext;
+use std::ffi::CStr;
 extern "C" {
     fn free(_: *mut std::ffi::c_void);
     fn xbuf_add_char(xbuf: *mut xbuffer, c: std::ffi::c_char);
     fn ecalloc(count: size_t, size: size_t) -> *mut std::ffi::c_void;
-    fn lgetenv_ext(
-        var: *const std::ffi::c_char,
-        env_buf: *mut std::ffi::c_uchar,
-        env_buf_len: size_t,
-    ) -> *const std::ffi::c_char;
 }
 pub type size_t = std::ffi::c_ulong;
 pub type lbool = std::ffi::c_uint;
@@ -219,7 +215,13 @@ pub unsafe extern "C" fn expand_evars(
             let fresh6 = e;
             e = e.wrapping_add(1);
             *buf.offset(fresh6 as isize) = '\0' as i32 as std::ffi::c_char;
-            evar = lgetenv_ext(&mut *buf.offset(i as isize), (*xbuf).data, (*xbuf).end);
+            evar = lgetenv_ext(
+                CStr::from_ptr(&mut *buf.offset(i as isize))
+                    .to_str()
+                    .unwrap(),
+                (*xbuf).data,
+                (*xbuf).end,
+            );
             if evar.is_null() {
                 evar = b"\0" as *const u8 as *const std::ffi::c_char;
             }
