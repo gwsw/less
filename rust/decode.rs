@@ -1999,8 +1999,8 @@ pub unsafe extern "C" fn lgetenv_ext(
     return r;
 }
 #[no_mangle]
-pub unsafe extern "C" fn isnullenv(mut s: *const std::ffi::c_char) -> lbool {
-    return (s.is_null() || *s as std::ffi::c_int == '\0' as i32) as std::ffi::c_int as lbool;
+pub unsafe extern "C" fn isnullenv(mut s: *const std::ffi::c_char) -> bool {
+    return s.is_null() || *s as std::ffi::c_int == '\0' as i32;
 }
 unsafe extern "C" fn gint(mut sp: *mut *mut std::ffi::c_uchar) -> size_t {
     let mut n: size_t = 0;

@@ -1,4 +1,5 @@
-use crate::decode::lgetenv;
+use crate::decode::{isnullenv, lgetenv};
+use crate::util::ptr_to_str;
 use ::libc;
 extern "C" {
     fn snprintf(
@@ -36,7 +37,6 @@ extern "C" {
     fn commands();
     fn expand_cmd_tables();
     fn init_cmds();
-    fn isnullenv(s: *const std::ffi::c_char) -> lbool;
     fn check_altpipe_error();
     fn edit(filename: *const std::ffi::c_char) -> std::ffi::c_int;
     fn edit_first() -> std::ffi::c_int;
@@ -150,7 +150,7 @@ pub static mut dohelp: std::ffi::c_int = 0;
 #[no_mangle]
 pub static mut init_header: *mut std::ffi::c_char =
     0 as *const std::ffi::c_char as *mut std::ffi::c_char;
-static mut secure_allow_features: std::ffi::c_int = 0;
+static mut secure_allow_features: i32 = 0;
 #[no_mangle]
 pub static mut logfile: std::ffi::c_int = -(1 as std::ffi::c_int);
 #[no_mangle]
@@ -313,13 +313,21 @@ unsafe extern "C" fn security_feature(
     }
     return features[match_0 as usize].sf_value;
 }
+
+/*
+ * Set the secure_allow_features bitmask, which controls
+ * whether certain secure features are allowed.
+ */
 unsafe extern "C" fn init_secure() {
-    if let Ok(_) = lgetenv("LESSSECURE") {
-        secure_allow_features = 0 as std::ffi::c_int;
+    if isnullenv(lgetenv("LESSSECURE").unwrap_or(0 as *const std::ffi::c_char)) {
+        secure_allow_features = 0;
     } else {
-        secure_allow_features = !(0 as std::ffi::c_int);
+        secure_allow_features = !0;
     }
-    if let Ok(mut string) = lgetenv("LESSSECURE_ALLOW") {
+
+    let mut string = lgetenv("LESSSECURE_ALLOW").unwrap_or(0 as *const std::ffi::c_char);
+    if !isnullenv(string) {
+        let s = ptr_to_str(string);
         loop {
             let mut estr: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
             while *string as std::ffi::c_int == ' ' as i32
@@ -358,6 +366,10 @@ unsafe fn main_0(
     progname = *fresh0;
     argc -= 1;
     init_secure();
+    /*
+     * Process command line arguments and LESS environment arguments.
+     * Command line arguments override environment arguments.
+     */
     is_tty = isatty(1 as std::ffi::c_int);
     init_mark();
     init_cmds();

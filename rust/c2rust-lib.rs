@@ -84,6 +84,8 @@ pub mod signal;
 pub mod tags;
 #[path = "ttyin.rs"]
 pub mod ttyin;
+#[path = "util.rs"]
+pub mod util;
 #[path = "version.rs"]
 pub mod version;
 #[path = "xbuf.rs"]
