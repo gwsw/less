@@ -19,12 +19,12 @@ extern int perma_marks;
 /*
  * A mark is an ifile (input file) plus a position within the file.
  */
-struct mark 
+struct mark
 {
 	/*
 	 * Normally m_ifile != IFILE_NULL and m_filename == NULL.
 	 * For restored marks we set m_filename instead of m_ifile
-	 * because we don't want to create an ifile until the 
+	 * because we don't want to create an ifile until the
 	 * user explicitly requests the file (by name or mark).
 	 */
 	char m_letter;           /* Associated character */
@@ -259,7 +259,7 @@ public void gomark(char c)
 		return;
 
 	/*
-	 * If we're trying to go to the lastmark and 
+	 * If we're trying to go to the lastmark and
 	 * it has not been set to anything yet,
 	 * set it to the beginning of the current file.
 	 * {{ Couldn't we instead set marks[LASTMARK] in edit()? }}
@@ -286,7 +286,7 @@ public void gomark(char c)
 /*
  * Return the position associated with a given mark letter.
  *
- * We don't return which screen line the position 
+ * We don't return which screen line the position
  * is associated with, but this doesn't matter much,
  * because it's always the first non-blank line on the screen.
  */
