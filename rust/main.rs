@@ -1,4 +1,5 @@
 use crate::decode::{isnullenv, lgetenv};
+use crate::mark::Marks;
 use crate::util::ptr_to_str;
 use ::libc;
 extern "C" {
@@ -52,7 +53,6 @@ extern "C" {
     ) -> *mut std::ffi::c_void;
     fn repaint();
     fn init_line();
-    fn init_mark();
     fn opt_header(type_0: std::ffi::c_int, s: *const std::ffi::c_char);
     fn scan_option(s: *const std::ffi::c_char, is_env: lbool);
     fn isoptpending() -> lbool;
@@ -166,6 +166,17 @@ pub static mut editproto: *const std::ffi::c_char = 0 as *const std::ffi::c_char
 pub static mut less_start_time: time_t = 0;
 #[no_mangle]
 pub static mut one_screen: std::ffi::c_int = 0;
+
+pub struct Less {
+    marks: Marks,
+}
+
+impl Less {
+    fn new(marks: Marks) -> Self {
+        Less { marks }
+    }
+}
+
 unsafe extern "C" fn security_feature_error(
     mut type_0: *const std::ffi::c_char,
     mut len: size_t,
@@ -371,7 +382,9 @@ unsafe fn main_0(
      * Command line arguments override environment arguments.
      */
     is_tty = isatty(1 as std::ffi::c_int);
-    init_mark();
+    let mut marks = Marks::new();
+    let mut less = Less::new(marks);
+    less.marks.init();
     init_cmds();
     init_poll();
     init_charset();
