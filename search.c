@@ -2241,7 +2241,7 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 		 */
 		clr_hilite();
 		clr_filter();
-		nprep_startpos = spos;
+		nprep_startpos = nprep_endpos = spos;
 	} else
 	{
 		/*
@@ -2282,7 +2282,7 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 			result = search_range(spos, epos, search_type, 0, maxlines, (POSITION*)NULL, &new_epos, (POSITION*)NULL);
 			if (result < 0)
 				return;
-			if (prep_endpos == NULL_POSITION || new_epos > prep_endpos)
+			if (nprep_endpos == NULL_POSITION || new_epos > nprep_endpos)
 				nprep_endpos = new_epos;
 
 			/*
@@ -2300,6 +2300,7 @@ public void prep_hilite(POSITION spos, POSITION epos, int maxlines)
 					if (epos == NULL_POSITION)
 						break;
 					maxlines = 1;
+					nprep_endpos = epos;
 					continue;
 				}
 			}

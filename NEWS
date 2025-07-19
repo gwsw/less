@@ -20,6 +20,8 @@
 * Fix bug when pasting a search pattern while --incsearch is active
   (github #635).
 
+* Fix performance issue in & filtering (github #638).
+
 ======================================================================
 
 	Major changes between "less" versions 678 and 679
