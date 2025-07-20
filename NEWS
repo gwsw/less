@@ -20,7 +20,8 @@
 * Fix bug when pasting a search pattern while --incsearch is active
   (github #635).
 
-* Fix performance issue in & filtering (github #638).
+* Fix performance issue in & filtering (github #638). Problem was introduced
+  in da2a9ecdf16beb642d0c030e35f0351c5f2e5a12 and released in less-673.
 
 ======================================================================
 
