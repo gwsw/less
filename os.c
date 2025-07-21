@@ -164,7 +164,8 @@ static int check_poll(int fd, int tty)
 				/* Break out of "waiting for data". */
 				return (READ_INTR);
 			ungetcc_back((char) ch);
-			return (READ_INTR);
+			if (!no_poll)
+				return (READ_INTR);
 		}
 	}
 	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
@@ -270,7 +271,7 @@ start:
 	}
 #endif
 #if USE_POLL
-	if (is_tty && fd != tty && use_poll && !no_poll && !(quit_if_one_screen && one_screen))
+	if (is_tty && fd != tty && use_poll && !(quit_if_one_screen && one_screen))
 	{
 		int ret = check_poll(fd, tty);
 		if (ret != 0)
@@ -283,7 +284,7 @@ start:
 	}
 #else
 #if MSDOS_COMPILER==WIN32C
-	if (!no_poll && !(quit_if_one_screen && one_screen) && win32_kbhit2(TRUE))
+	if (!(quit_if_one_screen && one_screen) && win32_kbhit2(TRUE))
 	{
 		int c;
 
@@ -292,7 +293,8 @@ start:
 		reading = FALSE;
 		if (c != CONTROL('C') && c != intr_char)
 			WIN32ungetch((char) c);
-		return (READ_INTR);
+		if (!no_poll)
+			return (READ_INTR);
 	}
 #endif
 #endif
