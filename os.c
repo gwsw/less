@@ -283,7 +283,7 @@ start:
 	}
 #else
 #if MSDOS_COMPILER==WIN32C
-	if (win32_kbhit2(TRUE))
+	if (!no_poll && !(quit_if_one_screen && one_screen) && win32_kbhit2(TRUE))
 	{
 		int c;
 
