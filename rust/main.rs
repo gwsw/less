@@ -1,7 +1,7 @@
 use crate::decode::{isnullenv, lgetenv};
+use crate::ifile::get_ifile;
 use crate::mark::Marks;
 use crate::util::ptr_to_str;
-use ::libc;
 extern "C" {
     fn snprintf(
         _: *mut std::ffi::c_char,
@@ -47,10 +47,6 @@ extern "C" {
     fn get_one_screen() -> lbool;
     fn prev_ifile(h: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn nifile() -> std::ffi::c_int;
-    fn get_ifile(
-        filename: *const std::ffi::c_char,
-        prev: *mut std::ffi::c_void,
-    ) -> *mut std::ffi::c_void;
     fn repaint();
     fn init_line();
     fn opt_header(type_0: std::ffi::c_int, s: *const std::ffi::c_char);
@@ -172,8 +168,16 @@ pub struct Less {
 }
 
 impl Less {
-    fn new(marks: Marks) -> Self {
+    pub fn new(marks: Marks) -> Self {
         Less { marks }
+    }
+
+    pub fn marks_ref(&self) -> &Marks {
+        &self.marks
+    }
+
+    pub fn marks_ref_mut(&mut self) -> &mut Marks {
+        &mut self.marks
     }
 }
 
@@ -382,8 +386,8 @@ unsafe fn main_0(
      * Command line arguments override environment arguments.
      */
     is_tty = isatty(1 as std::ffi::c_int);
-    let mut marks = Marks::new();
-    let mut less = Less::new(marks);
+    let mut less = Less::new(Marks::new());
+    let marks = less.marks_ref_mut();
     less.marks.init();
     init_cmds();
     init_poll();

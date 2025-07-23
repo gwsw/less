@@ -1,3 +1,4 @@
+use crate::ifile::get_ifile;
 use crate::util::ptr_to_str;
 use ::c2rust_bitfields;
 use ::libc;
@@ -28,10 +29,6 @@ extern "C" {
     fn edit_ifile(ifile: *mut std::ffi::c_void) -> std::ffi::c_int;
     fn lrealpath(path: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn prev_ifile(h: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
-    fn get_ifile(
-        filename: *const std::ffi::c_char,
-        prev: *mut std::ffi::c_void,
-    ) -> *mut std::ffi::c_void;
     fn get_real_filename(ifile: *mut std::ffi::c_void) -> *const std::ffi::c_char;
     fn jump_loc(pos: POSITION, sline: std::ffi::c_int);
     fn error(fmt: *const std::ffi::c_char, parg: *mut PARG);
@@ -134,6 +131,19 @@ impl Mark {
     }
 
     /*
+     * Populate the m_ifile member of a Mark struct from m_filename.
+     */
+    unsafe extern "C" fn mark_get_ifile(&mut self) {
+        if self.m_ifile != 0 as *mut std::ffi::c_void {
+            return;
+        }
+        self.mark_set_ifile(get_ifile(
+            self.m_filename,
+            prev_ifile(0 as *mut std::ffi::c_void),
+        ));
+    }
+
+    /*
      * Initialize a Mark struct.
      */
     #[no_mangle]
@@ -150,19 +160,6 @@ impl Mark {
             free(self.m_filename as *mut std::ffi::c_void);
         }
         self.m_filename = 0 as *mut std::ffi::c_char;
-    }
-
-    /*
-     * Populate the m_ifile member of a Mark struct from m_filename.
-     */
-    unsafe extern "C" fn mark_get_ifile(&mut self) {
-        if self.m_ifile != 0 as *mut std::ffi::c_void {
-            return;
-        }
-        self.mark_set_ifile(get_ifile(
-            self.m_filename,
-            prev_ifile(0 as *mut std::ffi::c_void),
-        ));
     }
 }
 
@@ -219,7 +216,7 @@ impl Marks {
             b'A'..=b'Z' => return Some(&mut self.marks[(c - b'A' + 26) as usize]),
             b'\'' => return Some(&mut self.marks[LASTMARK as usize]),
             b'#' => return Some(&mut self.marks[MOUSEMARK as usize]),
-            _ => {}
+            _ => return None,
         }
         parg.p_char = c;
         error(
@@ -248,11 +245,7 @@ impl Marks {
                  * Beginning of the current file.
                  */
                 m = &mut sm;
-                m.cmark(
-                    curr_ifile,
-                    0 as std::ffi::c_int as POSITION,
-                    0 as std::ffi::c_int,
-                );
+                m.cmark(curr_ifile, 0, 0);
             }
             b'$' => {
                 /*
@@ -273,7 +266,7 @@ impl Marks {
                  * Current position in the current file.
                  */
                 m = &mut sm;
-                get_scrpos(&mut m.m_scrpos, 0 as std::ffi::c_int);
+                get_scrpos(&mut m.m_scrpos, 0);
                 m.cmark(curr_ifile, m.m_scrpos.pos, m.m_scrpos.ln);
             }
             b'\'' => {
@@ -349,7 +342,7 @@ impl Marks {
         if ch_getflags() & CH_HELPFILE != 0 {
             return;
         }
-        get_scrpos(&mut scrpos, 0 as std::ffi::c_int);
+        get_scrpos(&mut scrpos, 0);
         if scrpos.pos == -1 {
             return;
         }

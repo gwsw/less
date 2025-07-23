@@ -1,3 +1,5 @@
+use crate::main::Less;
+use crate::mark::Marks;
 use ::libc;
 extern "C" {
     fn free(_: *mut std::ffi::c_void);
@@ -7,9 +9,19 @@ extern "C" {
     fn ecalloc(count: size_t, size: size_t) -> *mut std::ffi::c_void;
     fn lrealpath(path: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn unmark(ifile: *mut std::ffi::c_void);
-    fn mark_check_ifile(ifile: *mut std::ffi::c_void);
     static mut curr_ifile: *mut std::ffi::c_void;
 }
+
+/*
+ * An IFILE represents an input file.
+ *
+ * It is actually a pointer to an ifile structure,
+ * but is opaque outside this module.
+ * Ifile structures are kept in a linked list in the order they
+ * appear on the command line.
+ * Any new file which does not already appear in the list is
+ * inserted after the current file.
+ */
 pub type __off_t = std::ffi::c_long;
 pub type off_t = __off_t;
 pub type size_t = std::ffi::c_ulong;
@@ -36,6 +48,10 @@ pub struct ifile {
     pub h_altpipe: *mut std::ffi::c_void,
     pub h_altfilename: *mut std::ffi::c_char,
 }
+
+/*
+ * Anchor for linked list.
+ */
 static mut anchor: ifile = unsafe {
     {
         let mut init = ifile {
@@ -60,6 +76,7 @@ static mut anchor: ifile = unsafe {
         init
     }
 };
+
 static mut ifiles: std::ffi::c_int = 0 as std::ffi::c_int;
 unsafe extern "C" fn incr_index(mut p: *mut ifile, mut incr: std::ffi::c_int) {
     while p != &mut anchor as *mut ifile {
@@ -67,6 +84,7 @@ unsafe extern "C" fn incr_index(mut p: *mut ifile, mut incr: std::ffi::c_int) {
         p = (*p).h_next;
     }
 }
+
 unsafe extern "C" fn link_ifile(mut p: *mut ifile, mut prev: *mut ifile) {
     if prev.is_null() {
         prev = &mut anchor;
@@ -103,7 +121,8 @@ unsafe extern "C" fn new_ifile(
     (*p).h_altfilename = 0 as *mut std::ffi::c_char;
     (*p).h_altpipe = 0 as *mut std::ffi::c_void;
     link_ifile(p, prev);
-    mark_check_ifile(p as *mut std::ffi::c_void);
+    // FIXME find a way to call mark_check_ifile
+    //mark_check_ifile(p as *mut std::ffi::c_void);
     return p;
 }
 #[no_mangle]
