@@ -53,6 +53,7 @@ extern int no_paste;
 extern lbool pasting;
 extern int no_edit_warn;
 extern POSITION soft_eof;
+extern POSITION search_incr_start;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
@@ -90,6 +91,7 @@ static int save_proc_backspace;
 static int screen_trashed_value = 0;
 static lbool literal_char = FALSE;
 static lbool ignoring_input = FALSE;
+static struct scrpos search_incr_pos = { NULL_POSITION, 0 };
 #if HAVE_TIME
 static time_type ignoring_input_time;
 #endif
@@ -209,6 +211,12 @@ static void mca_search1(void)
 
 static void mca_search(void)
 {
+	if (incr_search)
+	{
+		/* Remember where the incremental search started. */
+		get_scrpos(&search_incr_pos, TOP);
+		search_incr_start = search_pos(search_type);
+	}
 	mca_search1();
 	set_mlist(ml_search, 0);
 }
@@ -754,6 +762,7 @@ static int mca_char(char c)
 			{
 				/* User has backspaced to an empty pattern. */
 				undo_search(1);
+				jump_loc(search_incr_pos.pos, search_incr_pos.ln);
 			} else
 			{
 				/*
@@ -763,8 +772,11 @@ static int mca_char(char c)
 				 */
 				no_poll = TRUE;
 				if (search(st | SRCH_INCR, pattern, 1) != 0)
+				{
 					/* No match, invalid pattern, etc. */
 					undo_search(1);
+					jump_loc(search_incr_pos.pos, search_incr_pos.ln);
+				}
 				no_poll = FALSE;
 			}
 			/* Redraw the search prompt and search string. */

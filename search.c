@@ -52,6 +52,7 @@ static POSITION prep_endpos;
 public POSITION header_start_pos = NULL_POSITION;
 static POSITION header_end_pos;
 public lbool search_wrapped = FALSE;
+public POSITION search_incr_start = NULL_POSITION;
 #if OSC8_LINK
 public POSITION osc8_linepos = NULL_POSITION;
 public POSITION osc8_match_start = NULL_POSITION;
@@ -1083,7 +1084,7 @@ public void chg_hilite(void)
 /*
  * Figure out where to start a search.
  */
-static POSITION search_pos(int search_type)
+public POSITION search_pos(int search_type)
 {
 	POSITION pos;
 	int sindex;
@@ -2118,7 +2119,8 @@ public int search(int search_type, constant char *pattern, int n)
 	/*
 	 * Figure out where to start the search.
 	 */
-	pos = search_pos(search_type);
+	pos = ((search_type & SRCH_INCR) && search_incr_start != NULL_POSITION) ?
+		search_incr_start : search_pos(search_type);
 	opos = position(sindex_from_sline(jump_sline));
 	if (pos == NULL_POSITION)
 	{
