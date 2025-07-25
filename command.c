@@ -28,6 +28,8 @@ extern int sc_width;
 extern int sc_height;
 extern char *kent;
 extern int swindow;
+extern void hide_cursor(void);
+extern void show_cursor(void);
 extern int jump_sline;
 extern lbool quitting;
 extern int wscroll;
@@ -67,6 +69,7 @@ extern int shift_count;
 extern int forw_prompt;
 extern int incr_search;
 extern int full_screen;
+extern int hide_prompt;
 #if MSDOS_COMPILER==WIN32C
 extern int utf_mode;
 extern unsigned less_acp;
@@ -129,6 +132,8 @@ static void set_mca(int action)
 	mca = action;
 	clear_bot();
 	clear_cmd();
+	/* Show cursor during command input, even with -H option */
+	show_cursor();
 }
 
 /*
@@ -139,6 +144,11 @@ static void clear_mca(void)
 	if (mca == 0)
 		return;
 	mca = 0;
+	/* Restore cursor visibility based on hide_prompt option */
+	if (hide_prompt)
+		hide_cursor();
+	else
+		show_cursor();
 }
 
 /*
@@ -961,9 +971,12 @@ static void prompt(void)
 #endif
 	if (p == NULL || *p == '\0')
 	{
-		at_enter(AT_NORMAL|AT_COLOR_PROMPT);
-		putchr(':');
-		at_exit();
+		if (!hide_prompt)
+		{
+			at_enter(AT_NORMAL|AT_COLOR_PROMPT);
+			putchr(':');
+			at_exit();
+		}
 	} else
 	{
 #if MSDOS_COMPILER==WIN32C
@@ -978,6 +991,16 @@ static void prompt(void)
 		put_line(FALSE);
 	}
 	clear_eol();
+	
+	/* Control cursor visibility based on hide_prompt option */
+	if (hide_prompt)
+	{
+		hide_cursor();
+	}
+	else
+	{
+		show_cursor();
+	}
 }
 
 /*
