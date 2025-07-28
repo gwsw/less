@@ -1,7 +1,33 @@
-use ::libc;
+use crate::evar::expand_evars;
+use crate::screen::special_key_str;
+use crate::util::ptr_to_str;
+use crate::xbuf::XBuffer;
 use std::env;
 use std::env::VarError;
+use std::ffi::CStr;
 use std::ffi::CString;
+use std::sync::LazyLock;
+
+/*
+ * Routines to decode user commands.
+ *
+ * This is all table driven.
+ * A command table is a sequence of command descriptors.
+ * Each command descriptor is a sequence of bytes with the following format:
+ *     <c1><c2>...<cN><0><action>
+ * The characters c1,c2,...,cN are the command string; that is,
+ * the characters which the user must type.
+ * It is terminated by a null <0> byte.
+ * The byte after the null byte is the action code associated
+ * with the command string.
+ * If an action byte is OR-ed with A_EXTRA, this indicates
+ * that the option byte is followed by an extra string.
+ *
+ * There may be many command tables.
+ * The first (default) table is built-in.
+ * Other tables are read in from "lesskey" files.
+ * All the tables are linked together and are searched in order.
+ */
 extern "C" {
     fn open(__file: *const std::ffi::c_char, __oflag: std::ffi::c_int, _: ...) -> std::ffi::c_int;
     fn lseek(__fd: std::ffi::c_int, __offset: __off_t, __whence: std::ffi::c_int) -> __off_t;
@@ -16,16 +42,13 @@ extern "C" {
         _: std::ffi::c_ulong,
     ) -> std::ffi::c_int;
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
-    fn xbuf_init(xbuf: *mut xbuffer);
     fn save(s: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn secure_allow(features: std::ffi::c_int) -> std::ffi::c_int;
-    fn special_key_str(key: std::ffi::c_int) -> *const std::ffi::c_char;
     fn cmd_exec();
     fn screen_trashed();
     fn getcc() -> std::ffi::c_char;
     fn ungetcc(c: std::ffi::c_char);
     fn ungetsc(s: *const std::ffi::c_char);
-    fn expand_evars(buf: *mut std::ffi::c_char, len: size_t, xbuf: *mut xbuffer);
     fn dirfile(
         dirname: *const std::ffi::c_char,
         filename: *const std::ffi::c_char,
@@ -50,7 +73,7 @@ extern "C" {
     static mut erase_char: std::ffi::c_int;
     static mut erase2_char: std::ffi::c_int;
     static mut kill_char: std::ffi::c_int;
-    static mut mousecap: std::ffi::c_int;
+    static mut mousecap: i32;
     static mut sc_height: std::ffi::c_int;
 }
 pub type __off_t = std::ffi::c_long;
@@ -75,24 +98,16 @@ pub union parg {
 pub type PARG = parg;
 #[derive(Copy, Clone)]
 #[repr(C)]
-pub struct xbuffer {
-    pub data: *mut std::ffi::c_uchar,
-    pub end: size_t,
-    pub size: size_t,
-    pub init_size: size_t,
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
 pub struct tablelist {
     pub t_next: *mut tablelist,
     pub t_start: *mut std::ffi::c_uchar,
     pub t_end: *mut std::ffi::c_uchar,
 }
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 #[repr(C)]
 pub struct lesskey_table {
     pub names: *const lesskey_cmdname,
-    pub buf: xbuffer,
+    pub buf: XBuffer,
     pub is_var: std::ffi::c_int,
 }
 #[derive(Copy, Clone)]
@@ -101,7 +116,7 @@ pub struct lesskey_cmdname {
     pub cn_name: *const std::ffi::c_char,
     pub cn_action: std::ffi::c_int,
 }
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 #[repr(C)]
 pub struct lesskey_tables {
     pub currtable: *mut lesskey_table,
@@ -109,1540 +124,684 @@ pub struct lesskey_tables {
     pub edittable: lesskey_table,
     pub vartable: lesskey_table,
 }
-static mut allow_drag: lbool = LTRUE;
-static mut cmdtable: [std::ffi::c_uchar; 556] = [
-    '\r' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    '\n' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    'j' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    4 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    ('E' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    ('N' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    'k' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    2 as std::ffi::c_int as std::ffi::c_uchar,
-    'y' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    2 as std::ffi::c_int as std::ffi::c_uchar,
-    ('Y' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    2 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    40 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    2 as std::ffi::c_int as std::ffi::c_uchar,
-    ('P' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    2 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    3 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    2 as std::ffi::c_int as std::ffi::c_uchar,
-    'J' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    29 as std::ffi::c_int as std::ffi::c_uchar,
-    'K' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    30 as std::ffi::c_int as std::ffi::c_uchar,
-    'Y' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    30 as std::ffi::c_int as std::ffi::c_uchar,
-    'd' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    14 as std::ffi::c_int as std::ffi::c_uchar,
-    ('D' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    14 as std::ffi::c_int as std::ffi::c_uchar,
-    'u' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    4 as std::ffi::c_int as std::ffi::c_uchar,
-    ('U' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    4 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    'M' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    64 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    '<' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    68 as std::ffi::c_int as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    13 as std::ffi::c_int as std::ffi::c_uchar,
-    'f' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    13 as std::ffi::c_int as std::ffi::c_uchar,
-    ('F' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    13 as std::ffi::c_int as std::ffi::c_uchar,
-    ('V' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    13 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    13 as std::ffi::c_int as std::ffi::c_uchar,
-    'b' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    3 as std::ffi::c_int as std::ffi::c_uchar,
-    ('B' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    3 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'v' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    3 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    5 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    3 as std::ffi::c_int as std::ffi::c_uchar,
-    'z' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    33 as std::ffi::c_int as std::ffi::c_uchar,
-    'w' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    34 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    40 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'b' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    22 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'j' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    60 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'k' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    61 as std::ffi::c_int as std::ffi::c_uchar,
-    'F' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    50 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'F' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    56 as std::ffi::c_int as std::ffi::c_uchar,
-    'R' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    11 as std::ffi::c_int as std::ffi::c_uchar,
-    'r' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    25 as std::ffi::c_int as std::ffi::c_uchar,
-    ('R' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    25 as std::ffi::c_int as std::ffi::c_uchar,
-    ('L' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    25 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'u' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    39 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'U' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    70 as std::ffi::c_int as std::ffi::c_uchar,
-    'g' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    17 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    7 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    17 as std::ffi::c_int as std::ffi::c_uchar,
-    '<' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    17 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '<' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    17 as std::ffi::c_int as std::ffi::c_uchar,
-    'p' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    21 as std::ffi::c_int as std::ffi::c_uchar,
-    '%' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    21 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    41 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ')' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    42 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '{' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    58 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '}' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    59 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    42 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    2 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    41 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    59 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    11 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    58 as std::ffi::c_int as std::ffi::c_uchar,
-    '{' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (35 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    '{' as i32 as std::ffi::c_uchar,
-    '}' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    '}' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (36 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    '{' as i32 as std::ffi::c_uchar,
-    '}' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (35 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    ')' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    ')' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (36 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    ')' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (35 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    ']' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    ']' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (36 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    ']' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('F' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    35 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('B' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    36 as std::ffi::c_int as std::ffi::c_uchar,
-    'G' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    16 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'G' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    57 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '>' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    16 as std::ffi::c_int as std::ffi::c_uchar,
-    '>' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    16 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    8 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    16 as std::ffi::c_int as std::ffi::c_uchar,
-    'P' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    51 as std::ffi::c_int as std::ffi::c_uchar,
-    '0' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '1' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '2' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '3' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '4' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '5' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '6' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '7' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '8' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '9' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '.' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    '=' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    28 as std::ffi::c_int as std::ffi::c_uchar,
-    ('G' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    28 as std::ffi::c_int as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    'f' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    28 as std::ffi::c_int as std::ffi::c_uchar,
-    '/' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    15 as std::ffi::c_int as std::ffi::c_uchar,
-    '?' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    5 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '/' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (15 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '?' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (5 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    43 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    44 as std::ffi::c_int as std::ffi::c_uchar,
-    'N' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    45 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'N' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    46 as std::ffi::c_int as std::ffi::c_uchar,
-    '&' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    55 as std::ffi::c_int as std::ffi::c_uchar,
-    'm' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    26 as std::ffi::c_int as std::ffi::c_uchar,
-    'M' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    63 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'm' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    62 as std::ffi::c_int as std::ffi::c_uchar,
-    '\'' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    18 as std::ffi::c_int as std::ffi::c_uchar,
-    ('X' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('X' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    18 as std::ffi::c_int as std::ffi::c_uchar,
-    'E' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    9 as std::ffi::c_int as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    9 as std::ffi::c_int as std::ffi::c_uchar,
-    ('X' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('V' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    9 as std::ffi::c_int as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    20 as std::ffi::c_int as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    'p' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    23 as std::ffi::c_int as std::ffi::c_uchar,
-    ('O' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('N' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    71 as std::ffi::c_int as std::ffi::c_uchar,
-    ('O' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    71 as std::ffi::c_int as std::ffi::c_uchar,
-    ('O' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('P' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    72 as std::ffi::c_int as std::ffi::c_uchar,
-    ('O' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'p' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    72 as std::ffi::c_int as std::ffi::c_uchar,
-    ('O' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('O' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    73 as std::ffi::c_int as std::ffi::c_uchar,
-    ('O' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    73 as std::ffi::c_int as std::ffi::c_uchar,
-    ('O' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('L' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    74 as std::ffi::c_int as std::ffi::c_uchar,
-    ('O' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    74 as std::ffi::c_int as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    53 as std::ffi::c_int as std::ffi::c_uchar,
-    'T' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    54 as std::ffi::c_int as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    'x' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    38 as std::ffi::c_int as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    'd' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    52 as std::ffi::c_int as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    47 as std::ffi::c_int as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (47 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    's' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (47 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    7 as std::ffi::c_int as std::ffi::c_uchar,
-    '|' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    37 as std::ffi::c_int as std::ffi::c_uchar,
-    'v' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    32 as std::ffi::c_int as std::ffi::c_uchar,
-    '!' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    27 as std::ffi::c_int as std::ffi::c_uchar,
-    '#' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    69 as std::ffi::c_int as std::ffi::c_uchar,
-    '+' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    10 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    '2' as i32 as std::ffi::c_uchar,
-    '0' as i32 as std::ffi::c_uchar,
-    '0' as i32 as std::ffi::c_uchar,
-    '~' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    75 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    '2' as i32 as std::ffi::c_uchar,
-    '0' as i32 as std::ffi::c_uchar,
-    '1' as i32 as std::ffi::c_uchar,
-    '~' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    76 as std::ffi::c_int as std::ffi::c_uchar,
-    'H' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    19 as std::ffi::c_int as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    19 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    14 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    19 as std::ffi::c_int as std::ffi::c_uchar,
-    'V' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    31 as std::ffi::c_int as std::ffi::c_uchar,
-    'q' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    24 as std::ffi::c_int as std::ffi::c_uchar,
-    'Q' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    24 as std::ffi::c_int as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    'q' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    24 as std::ffi::c_int as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    'Q' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    24 as std::ffi::c_int as std::ffi::c_uchar,
-    'Z' as i32 as std::ffi::c_uchar,
-    'Z' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    24 as std::ffi::c_int as std::ffi::c_uchar,
-];
-static mut edittable: [std::ffi::c_uchar; 232] = [
-    '\t' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    17 as std::ffi::c_int as std::ffi::c_uchar,
-    '\u{f}' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    18 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    15 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    18 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '\t' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    18 as std::ffi::c_int as std::ffi::c_uchar,
-    ('L' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    15 as std::ffi::c_int as std::ffi::c_uchar,
-    ('V' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    19 as std::ffi::c_int as std::ffi::c_uchar,
-    ('A' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    19 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    3 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    3 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    4 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    2 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    4 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'b' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    5 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    2 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    5 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    11 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    5 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'w' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    7 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    10 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    7 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'x' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    8 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    9 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    8 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'X' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    9 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    13 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    12 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    16 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    11 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    17 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    11 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '0' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    9 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    7 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    9 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '$' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    10 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    8 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    10 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'k' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    13 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    3 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    13 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    'j' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    14 as std::ffi::c_int as std::ffi::c_uchar,
-    ('K' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    4 as std::ffi::c_int as std::ffi::c_uchar,
-    6 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    1 as std::ffi::c_int as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    14 as std::ffi::c_int as std::ffi::c_uchar,
-    ('G' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    20 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    'M' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    21 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    '<' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    22 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    '2' as i32 as std::ffi::c_uchar,
-    '0' as i32 as std::ffi::c_uchar,
-    '0' as i32 as std::ffi::c_uchar,
-    '~' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    75 as std::ffi::c_int as std::ffi::c_uchar,
-    ('[' as i32 & 0o37 as std::ffi::c_int) as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    '2' as i32 as std::ffi::c_uchar,
-    '0' as i32 as std::ffi::c_uchar,
-    '1' as i32 as std::ffi::c_uchar,
-    '~' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    76 as std::ffi::c_int as std::ffi::c_uchar,
-];
-static mut dflt_vartable: [std::ffi::c_uchar; 460] = [
-    'L' as i32 as std::ffi::c_uchar,
-    'E' as i32 as std::ffi::c_uchar,
-    'S' as i32 as std::ffi::c_uchar,
-    'S' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'O' as i32 as std::ffi::c_uchar,
-    'S' as i32 as std::ffi::c_uchar,
-    'C' as i32 as std::ffi::c_uchar,
-    '8' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'm' as i32 as std::ffi::c_uchar,
-    'a' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (0o1 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'c' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '\'' as i32 as std::ffi::c_uchar,
-    '%' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    '\'' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '|' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    's' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'd' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    's' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '^' as i32 as std::ffi::c_uchar,
-    'm' as i32 as std::ffi::c_uchar,
-    'a' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    '^' as i32 as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    ']' as i32 as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    ')' as i32 as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    '^' as i32 as std::ffi::c_uchar,
-    ')' as i32 as std::ffi::c_uchar,
-    ']' as i32 as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    ')' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '.' as i32 as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'm' as i32 as std::ffi::c_uchar,
-    'a' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '\'' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '2' as i32 as std::ffi::c_uchar,
-    '\'' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '\'' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '1' as i32 as std::ffi::c_uchar,
-    '\'' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'X' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    's' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '.' as i32 as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'c' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'I' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    'v' as i32 as std::ffi::c_uchar,
-    'a' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'd' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'm' as i32 as std::ffi::c_uchar,
-    'a' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    'k' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'X' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    'L' as i32 as std::ffi::c_uchar,
-    'E' as i32 as std::ffi::c_uchar,
-    'S' as i32 as std::ffi::c_uchar,
-    'S' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'O' as i32 as std::ffi::c_uchar,
-    'S' as i32 as std::ffi::c_uchar,
-    'C' as i32 as std::ffi::c_uchar,
-    '8' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'f' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-    (0o1 as std::ffi::c_int | 0o200 as std::ffi::c_int) as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'v' as i32 as std::ffi::c_uchar,
-    'a' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '`' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'c' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '\'' as i32 as std::ffi::c_uchar,
-    '%' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    '\'' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '|' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    's' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'd' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    's' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '^' as i32 as std::ffi::c_uchar,
-    'f' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    '/' as i32 as std::ffi::c_uchar,
-    '/' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    '^' as i32 as std::ffi::c_uchar,
-    '/' as i32 as std::ffi::c_uchar,
-    ']' as i32 as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    ')' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '(' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '.' as i32 as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    ')' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'H' as i32 as std::ffi::c_uchar,
-    '=' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '1' as i32 as std::ffi::c_uchar,
-    ';' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'P' as i32 as std::ffi::c_uchar,
-    '=' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '2' as i32 as std::ffi::c_uchar,
-    ';' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'E' as i32 as std::ffi::c_uchar,
-    '=' as i32 as std::ffi::c_uchar,
-    '0' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'X' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    's' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    '.' as i32 as std::ffi::c_uchar,
-    '*' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'E' as i32 as std::ffi::c_uchar,
-    '=' as i32 as std::ffi::c_uchar,
-    '1' as i32 as std::ffi::c_uchar,
-    ',' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'X' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    '`' as i32 as std::ffi::c_uchar,
-    ';' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'f' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    '$' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'E' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '=' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '1' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    ']' as i32 as std::ffi::c_uchar,
-    ';' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'c' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'c' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'I' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    'v' as i32 as std::ffi::c_uchar,
-    'a' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'd' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'f' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    'k' as i32 as std::ffi::c_uchar,
-    ';' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'f' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '[' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'z' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    '$' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'H' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    '$' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'H' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '=' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    'c' as i32 as std::ffi::c_uchar,
-    'a' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    's' as i32 as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    '$' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'H' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '=' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '$' as i32 as std::ffi::c_uchar,
-    'H' as i32 as std::ffi::c_uchar,
-    'O' as i32 as std::ffi::c_uchar,
-    'S' as i32 as std::ffi::c_uchar,
-    'T' as i32 as std::ffi::c_uchar,
-    'N' as i32 as std::ffi::c_uchar,
-    'A' as i32 as std::ffi::c_uchar,
-    'M' as i32 as std::ffi::c_uchar,
-    'E' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    ']' as i32 as std::ffi::c_uchar,
-    ';' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'c' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    '\\' as i32 as std::ffi::c_uchar,
-    ':' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '$' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'P' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ';' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    's' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'c' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '-' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'c' as i32 as std::ffi::c_uchar,
-    'h' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'C' as i32 as std::ffi::c_uchar,
-    'a' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    'p' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'r' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    'm' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    't' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'f' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    'l' as i32 as std::ffi::c_uchar,
-    'e' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'o' as i32 as std::ffi::c_uchar,
-    'n' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    '$' as i32 as std::ffi::c_uchar,
-    '_' as i32 as std::ffi::c_uchar,
-    'H' as i32 as std::ffi::c_uchar,
-    '"' as i32 as std::ffi::c_uchar,
-    ';' as i32 as std::ffi::c_uchar,
-    ' ' as i32 as std::ffi::c_uchar,
-    'f' as i32 as std::ffi::c_uchar,
-    'i' as i32 as std::ffi::c_uchar,
-    0 as std::ffi::c_int as std::ffi::c_uchar,
-];
-static mut list_fcmd_tables: *mut tablelist = 0 as *const tablelist as *mut tablelist;
-static mut list_ecmd_tables: *mut tablelist = 0 as *const tablelist as *mut tablelist;
-static mut list_var_tables: *mut tablelist = 0 as *const tablelist as *mut tablelist;
-static mut list_sysvar_tables: *mut tablelist = 0 as *const tablelist as *mut tablelist;
-unsafe extern "C" fn expand_special_keys(mut table: *mut std::ffi::c_uchar, mut len: size_t) {
-    let mut fm: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
-    let mut to: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
-    let mut a: std::ffi::c_int = 0;
-    let mut repl: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    let mut klen: size_t = 0;
-    fm = table;
-    while fm < table.offset(len as isize) {
-        to = fm;
-        while *fm as std::ffi::c_int != '\0' as i32 {
-            if *fm as std::ffi::c_int != 'K' as i32 & 0o37 as std::ffi::c_int {
-                let fresh0 = fm;
-                fm = fm.offset(1);
-                let fresh1 = to;
-                to = to.offset(1);
-                *fresh1 = *fresh0;
-            } else {
-                repl =
-                    special_key_str(*fm.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int);
-                klen = (*fm.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0o377 as std::ffi::c_int) as size_t;
-                fm = fm.offset(klen as isize);
-                if repl.is_null() || strlen(repl) > klen {
-                    repl = b"\xFF\0" as *const u8 as *const std::ffi::c_char;
-                }
-                while *repl as std::ffi::c_int != '\0' as i32 {
-                    let fresh2 = repl;
-                    repl = repl.offset(1);
-                    let fresh3 = to;
-                    to = to.offset(1);
-                    *fresh3 = *fresh2 as std::ffi::c_uchar;
+static mut allow_drag: bool = true;
+
+/* Special keys (keys which output different strings on different terminals) */
+const MAX_USERCMD: u32 = 1000;
+const MAX_CMDLEN: usize = 16;
+
+const A_B_LINE: u8 = 2;
+const A_B_SCREEN: u8 = 3;
+const A_B_SCROLL: u8 = 4;
+const A_B_SEARCH: u8 = 5;
+const A_DIGIT: u8 = 6;
+const A_DISP_OPTION: u8 = 7;
+const A_DEBUG: u8 = 8;
+const A_EXAMINE: u8 = 9;
+const A_FIRSTCMD: u8 = 10;
+const A_FREPAINT: u8 = 11;
+const A_F_LINE: u8 = 12;
+const A_F_SCREEN: u8 = 13;
+const A_F_SCROLL: u8 = 14;
+const A_F_SEARCH: u8 = 15;
+const A_GOEND: u8 = 16;
+const A_GOLINE: u8 = 17;
+const A_GOMARK: u8 = 18;
+const A_HELP: u8 = 19;
+const A_NEXT_FILE: u8 = 20;
+const A_PERCENT: u8 = 21;
+const A_BF_SCREEN: u8 = 22;
+const A_PREV_FILE: u8 = 23;
+const A_QUIT: u8 = 24;
+const A_REPAINT: u8 = 25;
+const A_SETMARK: u8 = 26;
+const A_SHELL: u8 = 27;
+const A_STAT: u8 = 28;
+const A_FF_LINE: u8 = 29;
+const A_BF_LINE: u8 = 30;
+const A_VERSION: u8 = 31;
+const A_VISUAL: u8 = 32;
+const A_F_WINDOW: u8 = 33;
+const A_B_WINDOW: u8 = 34;
+const A_F_BRACKET: u8 = 35;
+const A_B_BRACKET: u8 = 36;
+const A_PIPE: u8 = 37;
+const A_INDEX_FILE: u8 = 38;
+const A_UNDO_SEARCH: u8 = 39;
+const A_FF_SCREEN: u8 = 40;
+const A_LSHIFT: u8 = 41;
+const A_RSHIFT: u8 = 42;
+const A_AGAIN_SEARCH: u8 = 43;
+const A_T_AGAIN_SEARCH: u8 = 44;
+const A_REVERSE_SEARCH: u8 = 45;
+const A_T_REVERSE_SEARCH: u8 = 46;
+const A_OPT_TOGGLE: u8 = 47;
+const A_OPT_SET: u8 = 48;
+const A_OPT_UNSET: u8 = 49;
+const A_F_FOREVER: u8 = 50;
+const A_GOPOS: u8 = 51;
+const A_REMOVE_FILE: u8 = 52;
+const A_NEXT_TAG: u8 = 53;
+const A_PREV_TAG: u8 = 54;
+const A_FILTER: u8 = 55;
+const A_F_UNTIL_HILITE: u8 = 56;
+const A_GOEND_BUF: u8 = 57;
+const A_LLSHIFT: u8 = 58;
+const A_RRSHIFT: u8 = 59;
+const A_F_NEWLINE: u8 = 60;
+const A_B_NEWLINE: u8 = 61;
+const A_CLRMARK: u8 = 62;
+const A_SETMARKBOT: u8 = 63;
+const A_X11MOUSE_IN: u8 = 64;
+const A_F_MOUSE: u8 = 66;
+const A_B_MOUSE: u8 = 67;
+/* Note "X116" refers to extended (1006) X11 mouse reporting. */
+const A_X116MOUSE_IN: u8 = 68;
+const A_PSHELL: u8 = 69;
+const A_CLR_SEARCH: u8 = 70;
+const A_OSC8_F_SEARCH: u8 = 71;
+const A_OSC8_B_SEARCH: u8 = 72;
+const A_OSC8_OPEN: u8 = 73;
+const A_OSC8_JUMP: u8 = 74;
+const A_START_PASTE: u8 = 75; /* must not overlap EC_* */
+const A_END_PASTE: u8 = 76; /* must not overlap EC_* */
+
+/* These values must not conflict with any A_* or EC_* value. */
+const A_INVALID: u8 = 100;
+const A_NOACTION: u8 = 101;
+const A_UINVALID: u8 = 102;
+const A_END_LIST: u8 = 103;
+const A_SPECIAL_KEY: u8 = 104;
+const A_PREFIX: u8 = 105;
+const A_SKIP: u8 = 127;
+
+const A_EXTRA: u8 = 0o200;
+
+/* Special keys (keys which output different strings on different terminals) */
+const SK_RIGHT_ARROW: u8 = 1;
+const SK_LEFT_ARROW: u8 = 2;
+const SK_UP_ARROW: u8 = 3;
+const SK_DOWN_ARROW: u8 = 4;
+const SK_PAGE_UP: u8 = 5;
+const SK_PAGE_DOWN: u8 = 6;
+const SK_HOME: u8 = 7;
+const SK_END: u8 = 8;
+const SK_DELETE: u8 = 9;
+const SK_INSERT: u8 = 10;
+const SK_CTL_LEFT_ARROW: u8 = 11;
+const SK_CTL_RIGHT_ARROW: u8 = 12;
+const SK_CTL_DELETE: u8 = 13;
+const SK_F1: u8 = 14;
+const SK_BACKTAB: u8 = 15;
+const SK_CTL_BACKSPACE: u8 = 16;
+const SK_BACKSPACE: u8 = 17;
+const SK_CONTROL_K: u8 = 40;
+const SK_SPECIAL_KEY: u8 = b'K' & 0o37;
+
+/* Line editing characters */
+const EC_BACKSPACE: u8 = 1;
+const EC_LINEKILL: u8 = 2;
+const EC_RIGHT: u8 = 3;
+const EC_LEFT: u8 = 4;
+const EC_W_LEFT: u8 = 5;
+const EC_W_RIGHT: u8 = 6;
+const EC_INSERT: u8 = 7;
+const EC_DELETE: u8 = 8;
+const EC_HOME: u8 = 9;
+const EC_END: u8 = 10;
+const EC_W_BACKSPACE: u8 = 11;
+const EC_W_DELETE: u8 = 12;
+const EC_UP: u8 = 13;
+const EC_DOWN: u8 = 14;
+const EC_EXPAND: u8 = 15;
+const EC_F_COMPLETE: u8 = 17;
+const EC_B_COMPLETE: u8 = 18;
+const EC_LITERAL: u8 = 19;
+const EC_ABORT: u8 = 20;
+const EC_X11MOUSE: u8 = 21;
+const EC_X116MOUSE: u8 = 22;
+const EC_START_PASTE: u8 = A_START_PASTE;
+const EC_END_PASTE: u8 = A_END_PASTE;
+
+const EC_UINVALID: u8 = 102;
+
+/* Environment variable stuff */
+const EV_OK: u8 = 0o01;
+
+const ESC: u8 = b'[' & 0o37;
+const SK: u8 = b'K' & 0o37;
+
+const OPT_OFF: u8 = 0;
+const OPT_ON: u8 = 1;
+const OPT_ONPLUS: u8 = 2;
+
+/* X11 mouse reporting definitions */
+const X11MOUSE_BUTTON1: u8 = 0; /* Left button press */
+const X11MOUSE_BUTTON2: u8 = 1; /* Middle button press */
+const X11MOUSE_BUTTON3: u8 = 2; /* Right button press */
+const X11MOUSE_BUTTON_REL: u8 = 3; /* Button release */
+const X11MOUSE_DRAG: u8 = 0x20; /* Drag with button down */
+const X11MOUSE_WHEEL_UP: u8 = 0x40; /* Wheel scroll up */
+const X11MOUSE_WHEEL_DOWN: u8 = 0x41; /* Wheel scroll down */
+const X11MOUSE_OFFSET: u8 = 0x20; /* Added to button & pos bytes to create a char */
+
+/* Flags for editchar() */
+const ECF_PEEK: u8 = 0o1;
+const ECF_NOHISTORY: u8 = 0o2;
+const ECF_NOCOMPLETE: u8 = 0o4;
+const ECF_NORIGHTLEFT: u8 = 0o10;
+
+/* Security features. */
+const SF_EDIT: i32 = 1 << 1; /* Edit file (v) */
+const SF_EXAMINE: i32 = 1 << 2; /* Examine file (:e) */
+const SF_GLOB: i32 = 1 << 3; /* Expand file pattern */
+const SF_HISTORY: i32 = 1 << 4; /* History file */
+const SF_LESSKEY: i32 = 1 << 5; /* Lesskey files */
+const SF_LESSOPEN: i32 = 1 << 6; /* LESSOPEN */
+const SF_LOGFILE: i32 = 1 << 7; /* Log file (s, -o) */
+const SF_PIPE: i32 = 1 << 8; /* Pipe (|) */
+const SF_SHELL: i32 = 1 << 9; /* Shell command (!) */
+const SF_STOP: i32 = 1 << 10; /* Stop signal */
+const SF_TAGS: i32 = 1 << 11; /* Tags */
+const SF_OSC8_OPEN: i32 = 1 << 12; /* OSC8 open */
+
+const BAD_LSEEK: i64 = -1;
+const SEEK_SET: i32 = 0;
+const SEEK_END: i32 = 2;
+
+/*
+ * Format of a lesskey file:
+ *
+ *      LESSKEY_MAGIC (4 bytes)
+ *       sections...
+ *      END_LESSKEY_MAGIC (4 bytes)
+ *
+ * Each section is:
+ *
+ *      section_MAGIC (1 byte)
+ *      section_length (2 bytes)
+ *      key table (section_length bytes)
+ */
+const C0_LESSKEY_MAGIC: u8 = b'\0';
+const C1_LESSKEY_MAGIC: u8 = b'M';
+const C2_LESSKEY_MAGIC: u8 = b'+';
+const C3_LESSKEY_MAGIC: u8 = b'G';
+
+const CMD_SECTION: u8 = b'c';
+const EDIT_SECTION: u8 = b'e';
+const VAR_SECTION: u8 = b'v';
+const END_SECTION: u8 = b'x';
+
+const C0_END_LESSKEY_MAGIC: u8 = b'E';
+const C1_END_LESSKEY_MAGIC: u8 = b'n';
+const C2_END_LESSKEY_MAGIC: u8 = b'd';
+
+const NULL_POSITION: i32 = -1;
+const KRADIX: u32 = 64;
+
+struct Table {
+    table: Vec<u8>,
+}
+
+impl Table {
+    fn from(buf: &[u8]) -> Table {
+        Table { table: buf.into() }
+    }
+}
+
+pub struct Tables {
+    pub fcmd_tables: Vec<Table>,
+    pub ecmd_tables: Vec<Table>,
+    pub var_tables: Vec<Table>,
+    pub sysvar_tables: Vec<Table>,
+}
+
+fn table_from_xbuf(xbuf: XBuffer) -> Table {
+    Table {
+        table: xbuf.data.into(),
+    }
+}
+
+/*
+ * Command table is ordered roughly according to expected
+ * frequency of use, so the common commands are near the beginning.
+ */
+#[rustfmt::skip]
+static mut cmdtable: LazyLock<Vec<u8>> = LazyLock::new(|| {
+    vec![
+    b'\r',0,                         A_F_LINE,
+    b'\n',0,                         A_F_LINE,
+    b'e',0,                          A_F_LINE,
+    b'j',0,                          A_F_LINE,
+    SK, SK_DOWN_ARROW, 6, 1, 1, 1, 0, A_F_LINE,
+    b'E' & 0o37, 0,                 A_F_LINE,
+    b'N' & 0o37, 0,                 A_F_LINE,
+    b'k',0,                         A_B_LINE,
+    b'y',0,                         A_B_LINE,
+    b'Y' & 0o37, 0,                  A_B_LINE,
+    SK, SK_CONTROL_K, 6, 1, 1, 1, 0, A_F_LINE,
+    b'P' & 0o37, 0,                 A_B_LINE,
+    SK, SK_UP_ARROW, 6, 1, 1, 1, 0, A_F_LINE,
+    b'J',0,                         A_FF_LINE,
+    b'K',0,                         A_BF_LINE,
+    b'Y',0,                         A_BF_LINE,
+    b'd',0,                         A_F_SCROLL,
+    b'D' & 0o37, 0,                 A_F_SCROLL,
+    b'u',0,                         A_B_SCROLL,
+    b'U' & 0o37 , 0,                A_B_SCROLL,
+    ESC,b'[',b'M',0,                A_X11MOUSE_IN,
+    b'[' & 0o37,b'[',b'<',0,        A_X116MOUSE_IN,
+    b' ',0,                         A_F_SCREEN,
+    b'f',0,                         A_F_SCREEN,
+    b'F' & 0o37,0,                  A_F_SCREEN,
+    b'V' & 0o37,0,                  A_F_SCREEN,
+    SK, SK_PAGE_DOWN, 6, 1, 1, 1, 0, A_F_SCREEN,
+    b'b',0,                         A_B_SCREEN,
+    b'B' & 0o37,0,                  A_B_SCREEN,
+    ESC,b'v',0,                     A_B_SCREEN,
+    SK, SK_PAGE_UP, 6, 1, 1, 1, 0,  A_B_SCREEN,
+    b'z',0,                         A_F_WINDOW,
+    b'w',0,                         A_B_WINDOW,
+    ESC,b' ',0,                     A_FF_SCREEN,
+    ESC,b'b',0,                     A_BF_SCREEN,
+    ESC,b'j',0,                     A_F_NEWLINE,
+    ESC,b'k',0,                     A_B_NEWLINE,
+    b'F',0,                         A_F_FOREVER,
+    ESC,b'F',0,                     A_F_UNTIL_HILITE,
+    b'R',0,                         A_FREPAINT,
+    b'r',0,                         A_REPAINT,
+    b'R' & 0o37,0,                  A_REPAINT,
+    b'L' & 0o37,0,                  A_REPAINT,
+    ESC,b'u',0,                     A_UNDO_SEARCH,
+    ESC,b'U',0,                     A_CLR_SEARCH,
+    b'g',0,                         A_GOLINE,
+    SK, SK_HOME, 6, 1, 1, 1, 0,     A_GOLINE,
+    b'<',0,                         A_GOLINE,
+    ESC,b'<',0,                     A_GOLINE,
+    b'p',0,                         A_PERCENT,
+    b'%',0,                         A_PERCENT,
+    ESC,b'(',0,                     A_LSHIFT,
+    ESC,b')',0,                     A_RSHIFT,
+    ESC,b'{',0,                     A_LLSHIFT,
+    ESC,b'}',0,                     A_RRSHIFT,
+    SK, SK_RIGHT_ARROW, 6, 1, 1, 1, 0, A_RSHIFT,
+    SK, SK_LEFT_ARROW, 6, 1, 1, 1, 0, A_LSHIFT,
+    SK, SK_CTL_RIGHT_ARROW, 6, 1, 1, 1, 0, A_RRSHIFT,
+    SK, SK_CTL_LEFT_ARROW, 6, 1, 1, 1, 0, A_LLSHIFT,
+    b'{',0,                         A_F_BRACKET|A_EXTRA,        b'{',b'}',0,
+    b'}',0,                         A_B_BRACKET|A_EXTRA,        b'{',b'}',0,
+    b'(',0,                         A_F_BRACKET|A_EXTRA,        b'(',b')',0,
+    b')',0,                         A_B_BRACKET|A_EXTRA,        b'(',b')',0,
+    b'[',0,                         A_F_BRACKET|A_EXTRA,        b'[',b']',0,
+    b']',0,                         A_B_BRACKET|A_EXTRA,        b'[',b']',0,
+    ESC,b'F' & 0o37,0,              A_F_BRACKET,
+    ESC,b'B' & 0o37,0,              A_B_BRACKET,
+    b'G',0,                         A_GOEND,
+    ESC,b'G',0,                     A_GOEND_BUF,
+    ESC,b'>',0,                     A_GOEND,
+    b'>',0,                         A_GOEND,
+    SK, SK_END, 6, 1, 1, 1, 0,      A_GOEND,
+    b'P',0,                         A_GOPOS,
+
+    b'0',0,                         A_DIGIT,
+    b'1',0,                         A_DIGIT,
+    b'2',0,                         A_DIGIT,
+    b'3',0,                         A_DIGIT,
+    b'4',0,                         A_DIGIT,
+    b'5',0,                         A_DIGIT,
+    b'6',0,                         A_DIGIT,
+    b'7',0,                         A_DIGIT,
+    b'8',0,                         A_DIGIT,
+    b'9',0,                         A_DIGIT,
+    b'.',0,                         A_DIGIT,
+
+    b'=',0,                         A_STAT,
+    b'G' & 0o37,0,                  A_STAT,
+    b':', b'f',0,                   A_STAT,
+    b'/',0,                         A_F_SEARCH,
+    b'?',0,                         A_B_SEARCH,
+    ESC,b'/',0,                     A_F_SEARCH|A_EXTRA,        b'*',0,
+    ESC,b'?',0,                     A_B_SEARCH|A_EXTRA,        b'*',0,
+    b'n',0,                         A_AGAIN_SEARCH,
+    ESC,b'n',0,                     A_T_AGAIN_SEARCH,
+    b'N',0,                         A_REVERSE_SEARCH,
+    ESC,b'N',0,                     A_T_REVERSE_SEARCH,
+    b'&',0,                         A_FILTER,
+    b'm',0,                         A_SETMARK,
+    b'M',0,                         A_SETMARKBOT,
+    ESC,b'm',0,                     A_CLRMARK,
+    b'\'',0,                        A_GOMARK,
+    b'X' & 0o37,b'X' & 0o37,0,      A_GOMARK,
+    b'E',0,                         A_EXAMINE,
+    b':',b'e',0,                    A_EXAMINE,
+    b'X' & 0o37, b'V' & 0o37,0,     A_EXAMINE,
+    b':',b'n',0,                    A_NEXT_FILE,
+    b':',b'p',0,                    A_PREV_FILE,
+    b'O' & 0o37,b'N' & 0o37,0,      A_OSC8_F_SEARCH,
+    b'O' & 0o37,b'n',0,             A_OSC8_F_SEARCH,
+    b'O' & 0o37,b'P'& 0o37,0,       A_OSC8_B_SEARCH,
+    b'O' & 0o37,b'p',0,             A_OSC8_B_SEARCH,
+    b'O' & 0o37,b'O' & 0o37,0,      A_OSC8_OPEN,
+    b'O' & 0o37,b'o',0,             A_OSC8_OPEN,
+    b'O' & 0o37,b'L' & 0o37,0,      A_OSC8_JUMP,
+    b'O' & 0o37,b'l',0,             A_OSC8_JUMP,
+    b't',0,                         A_NEXT_TAG,
+    b'T',0,                         A_PREV_TAG,
+    b':',b'x',0,                    A_INDEX_FILE,
+    b':',b'd',0,                    A_REMOVE_FILE,
+    b'-',0,                         A_OPT_TOGGLE,
+    b':',b't',0,                    A_OPT_TOGGLE|A_EXTRA,        b't',0,
+    b's',0,                         A_OPT_TOGGLE|A_EXTRA,        b'o',0,
+    b'_',0,                         A_DISP_OPTION,
+    b'|',0,                         A_PIPE,
+    b'v',0,                         A_VISUAL,
+    b'!',0,                         A_SHELL,
+    b'#',0,                         A_PSHELL,
+    b'+',0,                         A_FIRSTCMD,
+    ESC,b'[',b'2',b'0',b'0',b'~',0,      A_START_PASTE,
+    ESC,b'[',b'2',b'0',b'1',b'~',0,      A_END_PASTE,
+
+    b'H',0,                         A_HELP,
+    b'h',0,                         A_HELP,
+    SK, SK_F1, 6, 1, 1, 1, 0,       A_HELP,
+    b'V',0,                         A_VERSION,
+    b'q',0,                         A_QUIT,
+    b'Q',0,                         A_QUIT,
+    b':',b'q',0,                    A_QUIT,
+    b':',b'Q',0,                    A_QUIT,
+    b'Z',b'Z',0,                    A_QUIT,
+]
+});
+
+#[rustfmt::skip]
+static mut edittable: LazyLock<Vec<u8>> = LazyLock::new(|| {
+    vec![
+    b'\t',0,                        EC_F_COMPLETE,  /* TAB */
+    0o17,0,                         EC_B_COMPLETE,  /* BACKTAB */
+    SK, SK_BACKTAB, 6, 1, 1, 1, 0,  EC_B_COMPLETE,  /* BACKTAB */
+    ESC,b'\t',0,                    EC_B_COMPLETE,  /* ESC TAB */
+    b'L' & 0o37,0,                  EC_EXPAND,      /* CTRL-L */
+    b'V' & 0o37,0,                  EC_LITERAL,     /* BACKSLASH */
+    b'A' & 0o37,0,                  EC_LITERAL,     /* BACKSLASH */
+    ESC, b'l',0,                    EC_RIGHT,       /* ESC l */
+    SK, SK_RIGHT_ARROW, 6, 1, 1, 1, 0, EC_RIGHT, /* RIGHTARROW */
+    ESC,b'h',0,                     EC_LEFT,        /* ESC h */
+    SK, SK_LEFT_ARROW, 6, 1, 1, 1, 0, EC_LEFT, /* LEFTARROW */
+    ESC,b'b',0,                     EC_W_LEFT,      /* ESC b */
+    ESC,SK, SK_LEFT_ARROW, 6, 1, 1, 1, 0, EC_W_LEFT, /* ESC LEFTARROW */
+    SK, SK_CTL_LEFT_ARROW, 6, 1, 1, 1, 0, EC_W_LEFT, /* CTRL-LEFTARROW */
+    ESC,b'w',0,                     EC_W_RIGHT,     /* ESC w */
+    ESC,SK, SK_RIGHT_ARROW, 6, 1, 1, 1, 0, EC_W_RIGHT, /* ESC RIGHTARROW */
+    SK, SK_CTL_RIGHT_ARROW, 6, 1, 1, 1, 0, EC_W_RIGHT, /* CTRL-RIGHTARROW */
+    ESC,b'i',0,                     EC_INSERT,        /* ESC i */
+    SK, SK_INSERT, 6, 1, 1, 1, 0,   EC_INSERT,        /* INSERT */
+    ESC,b'x',0,                     EC_DELETE,        /* ESC x */
+    SK, SK_DELETE, 6, 1, 1, 1, 0,   EC_DELETE,        /* DELETE */
+    ESC,b'X',0,                     EC_W_DELETE,      /* ESC X */
+    ESC,SK, SK_DELETE, 6, 1, 1, 1, 0, EC_W_DELETE, /* ESC DELETE */
+    SK, SK_CTL_DELETE, 6, 1, 1, 1, 0, EC_W_DELETE, /* CTRL-DELETE */
+    SK, SK_CTL_BACKSPACE, 6, 1, 1, 1, 0, EC_W_BACKSPACE, /* CTRL-BACKSPACE */
+    ESC,SK, SK_BACKSPACE, 6, 1, 1, 1, 0, EC_W_BACKSPACE, /* ESC BACKSPACE */
+    ESC,b'0',0,                     EC_HOME,        /* ESC 0 */
+    SK, SK_HOME, 6, 1, 1, 1, 0,     EC_HOME,        /* HOME */
+    ESC,b'$',0,                     EC_END,         /* ESC $ */
+    SK, SK_END, 6, 1, 1, 1, 0,      EC_END,         /* END */
+    ESC,b'k',0,                     EC_UP,          /* ESC k */
+    SK, SK_UP_ARROW, 6, 1, 1, 1, 0, EC_UP, /* UPARROW */
+    ESC,b'j',0,                     EC_DOWN,        /* ESC j */
+    SK, SK_DOWN_ARROW, 6, 1, 1, 1, 0, EC_DOWN, /* DOWNARROW */
+    b'G' & 0o37,0,                  EC_ABORT,       /* CTRL-G */
+    ESC,b'[',b'M',0,                EC_X11MOUSE,    /* X11 mouse report */
+    ESC,b'[',b'<',0,                EC_X116MOUSE,   /* X11 1006 mouse report */
+    ESC,b'[',b'2',b'0',b'0',b'~',0, A_START_PASTE,  /* open paste bracket */
+    ESC,b'[',b'2',b'0',b'1',b'~',0, A_END_PASTE,    /* close paste bracket */
+]
+});
+
+#[rustfmt::skip]
+static mut dflt_vartable: LazyLock<Vec<u8>> = LazyLock::new(|| {
+    vec![
+        b'L',b'E',b'S',b'S',b'_',b'O',b'S',b'C',b'8',b'_',b'm',b'a',b'n', 0, EV_OK|A_EXTRA,
+            /* echo '%o' | sed -e "s,^man\:\\([^(]*\\)( *\\([^)]*\\)\.*,-man '\\2' '\\1'," -e"t X" -e"s,\.*,-echo Invalid man link," -e"\: X" */
+            b'e',b'c',b'h',b'o',b' ',b'\'',b'%',b'o',b'\'',b' ',b'|',b' ',b's',b'e',b'd',b' ',b'-',b'e',b' ',b'"',b's',b',',b'^',b'm',b'a',b'n',b'\\',b':',b'\\',b'\\',b'(',b'[',b'^',b'(',b']',b'*',b'\\',b'\\',b')',b'(',b' ',b'*',b'\\',b'\\',b'(',b'[',b'^',b')',b']',b'*',b'\\',b'\\',b')',b'\\',b'.',b'*',b',',b'-',b'm',b'a',b'n',b' ',b'\'',b'\\',b'\\',b'2',b'\'',b' ',b'\'',b'\\',b'\\',b'1',b'\'',b',',b'"',b' ',b'-',b'e',b'"',b't',b' ',b'X',b'"',b' ',b'-',b'e',b'"',b's',b',',b'\\',b'.',b'*',b',',b'-',b'e',b'c',b'h',b'o',b' ',b'I',b'n',b'v',b'a',b'l',b'i',b'd',b' ',b'm',b'a',b'n',b' ',b'l',b'i',b'n',b'k',b',',b'"',b' ',b'-',b'e',b'"',b'\\',b':',b' ',b'X',b'"',
+            0,
+
+        b'L',b'E',b'S',b'S',b'_',b'O',b'S',b'C',b'8',b'_',b'f',b'i',b'l',b'e', 0, EV_OK|A_EXTRA,
+            /* eval `echo '%o' | sed -e "s,^file://\\([^/]*\\)\\(.*\\),_H=\\1;_P=\\2;_E=0," -e"t X" -e"s,.*,_E=1," -e": X"`; if [ "$_E" = 1 ]; then echo -echo Invalid file link; elif [ -z "$_H" -o "$_H" = localhost -o "$_H" = $HOSTNAME ]; then echo ":e $_P"; else echo -echo Cannot open remote file on "$_H"; fi */
+            b'e',b'v',b'a',b'l',b' ',b'`',b'e',b'c',b'h',b'o',b' ',b'\'',b'%',b'o',b'\'',b' ',b'|',b' ',b's',b'e',b'd',b' ',b'-',b'e',b' ',b'"',b's',b',',b'^',b'f',b'i',b'l',b'e',b'\\',b':',b'/',b'/',b'\\',b'\\',b'(',b'[',b'^',b'/',b']',b'*',b'\\',b'\\',b')',b'\\',b'\\',b'(',b'\\',b'.',b'*',b'\\',b'\\',b')',b',',b'_',b'H',b'=',b'\\',b'\\',b'1',b';',b'_',b'P',b'=',b'\\',b'\\',b'2',b';',b'_',b'E',b'=',b'0',b',',b'"',b' ',b'-',b'e',b'"',b't',b' ',b'X',b'"',b' ',b'-',b'e',b'"',b's',b',',b'\\',b'.',b'*',b',',b'_',b'E',b'=',b'1',b',',b'"',b' ',b'-',b'e',b'"',b'\\',b':',b' ',b'X',b'"',b'`',b';',b' ',b'i',b'f',b' ',b'[',b' ',b'"',b'$',b'_',b'E',b'"',b' ',b'=',b' ',b'1',b' ',b']',b';',b' ',b't',b'h',b'e',b'n',b' ',b'e',b'c',b'h',b'o',b' ',b'-',b'e',b'c',b'h',b'o',b' ',b'I',b'n',b'v',b'a',b'l',b'i',b'd',b' ',b'f',b'i',b'l',b'e',b' ',b'l',b'i',b'n',b'k',b';',b' ',b'e',b'l',b'i',b'f',b' ',b'[',b' ',b'-',b'z',b' ',b'"',b'$',b'_',b'H',b'"',b' ',b'-',b'o',b' ',b'"',b'$',b'_',b'H',b'"',b' ',b'=',b' ',b'l',b'o',b'c',b'a',b'l',b'h',b'o',b's',b't',b' ',b'-',b'o',b' ',b'"',b'$',b'_',b'H',b'"',b' ',b'=',b' ',b'$',b'H',b'O',b'S',b'T',b'N',b'A',b'M',b'E',b' ',b']',b';',b' ',b't',b'h',b'e',b'n',b' ',b'e',b'c',b'h',b'o',b' ',b'"',b'\\',b':',b'e',b' ',b'$',b'_',b'P',b'"',b';',b' ',b'e',b'l',b's',b'e',b' ',b'e',b'c',b'h',b'o',b' ',b'-',b'e',b'c',b'h',b'o',b' ',b'C',b'a',b'n',b'n',b'o',b't',b' ',b'o',b'p',b'e',b'n',b' ',b'r',b'e',b'm',b'o',b't',b'e',b' ',b'f',b'i',b'l',b'e',b' ',b'o',b'n',b' ',b'"',b'$',b'_',b'H',b'"',b';',b' ',b'f',b'i',
+            0,
+    ]
+}
+);
+
+/*
+ * Expand special key abbreviations in a command table.
+ */
+unsafe extern "C" fn expand_special_keys(table: &mut Table) {
+    let mut fm = 0;
+    let mut to = fm;
+    while fm < table.table.len() {
+        while table.table[fm] != 0 {
+            if table.table[fm] != SK_SPECIAL_KEY {
+                table.table[to] = table.table[fm];
+                to += 1;
+                fm += 1;
+                continue;
+            }
+
+            if fm + 2 > table.table.len() {
+                break; // not enough data
+            }
+
+            /*
+             * After SK_SPECIAL_KEY, next byte is the type
+             * of special key (one of the SK_* constants),
+             * and the byte after that is the number of bytes,
+             * N, reserved by the abbreviation (including the
+             * SK_SPECIAL_KEY and key type bytes).
+             * Replace all N bytes with the actual bytes
+             * output by the special key on this terminal.
+             */
+
+            let key_type = table.table[fm + 1];
+            let klen = table.table[fm + 2] as usize;
+            let repl = special_key_str(key_type);
+            fm += klen;
+            let replacement = match repl {
+                Some(r) if r.len() <= klen => r.as_bytes(),
+                _ => &[0xFF], // fallback
+            };
+            for &b in replacement {
+                if to < table.table.len() {
+                    table.table[to] = b;
+                    to += 1;
                 }
             }
         }
-        let fresh4 = to;
-        to = to.offset(1);
-        *fresh4 = '\0' as i32 as std::ffi::c_uchar;
-        while to <= fm {
-            let fresh5 = to;
-            to = to.offset(1);
-            *fresh5 = 127 as std::ffi::c_int as std::ffi::c_uchar;
+
+        // write null terminator
+        if to < table.table.len() {
+            table.table[to] = 0;
+            to += 1;
         }
-        fm = fm.offset(1);
-        let fresh6 = fm;
-        fm = fm.offset(1);
-        a = *fresh6 as std::ffi::c_int & 0o377 as std::ffi::c_int;
-        if a & 0o200 as std::ffi::c_int != 0 {
-            loop {
-                let fresh7 = fm;
-                fm = fm.offset(1);
-                if !(*fresh7 as std::ffi::c_int != '\0' as i32) {
-                    break;
-                }
+
+        /*
+         * Fill any unused bytes between end of command and
+         * the action byte with A_SKIP.
+         */
+        while to <= fm && to < table.table.len() {
+            table.table[to] = A_SKIP;
+            to += 1;
+        }
+
+        fm += 1;
+        if fm >= table.table.len() {
+            break;
+        }
+
+        let a = table.table[fm] & 0xFF;
+        if a & A_EXTRA != 0 {
+            // skip over extra data (null-terminated string)
+            while fm < table.table.len() && table.table[fm] != 0 {
+                fm += 1;
             }
+            fm += 1; // skip the null terminator
         }
     }
 }
-unsafe extern "C" fn expand_cmd_table(mut tlist: *mut tablelist) {
-    let mut t: *mut tablelist = 0 as *mut tablelist;
-    t = tlist;
-    while !t.is_null() {
-        expand_special_keys(
-            (*t).t_start,
-            ((*t).t_end).offset_from((*t).t_start) as std::ffi::c_long as size_t,
-        );
-        t = (*t).t_next;
+
+/*
+ * Expand special key abbreviations in a list of command tables.
+ */
+unsafe extern "C" fn expand_cmd_table(t_list: &mut [Table]) {
+    for t in t_list {
+        expand_special_keys(t);
     }
 }
+
+/*
+ * Expand special key abbreviations in all command tables.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn expand_cmd_tables() {
-    expand_cmd_table(list_fcmd_tables);
-    expand_cmd_table(list_ecmd_tables);
-    expand_cmd_table(list_var_tables);
-    expand_cmd_table(list_sysvar_tables);
+pub unsafe extern "C" fn expand_cmd_tables(tables: &mut Tables) {
+    expand_cmd_table(&mut tables.fcmd_tables);
+    expand_cmd_table(&mut tables.ecmd_tables);
+    expand_cmd_table(&mut tables.var_tables);
+    expand_cmd_table(&mut tables.sysvar_tables);
 }
+
+/*
+ * Initialize the command lists.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn init_cmds() {
-    add_fcmd_table(
-        cmdtable.as_mut_ptr(),
-        ::core::mem::size_of::<[std::ffi::c_uchar; 556]>() as std::ffi::c_ulong,
-    );
-    add_ecmd_table(
-        edittable.as_mut_ptr(),
-        ::core::mem::size_of::<[std::ffi::c_uchar; 232]>() as std::ffi::c_ulong,
-    );
-    add_sysvar_table(
-        dflt_vartable.as_mut_ptr(),
-        ::core::mem::size_of::<[std::ffi::c_uchar; 460]>() as std::ffi::c_ulong,
-    );
+pub unsafe extern "C" fn init_cmds(tables: &mut Tables) {
+    add_fcmd_table(tables, Table::from(&cmdtable));
+    add_ecmd_table(tables, Table::from(&edittable));
+    add_sysvar_table(tables, &mut dflt_vartable, dflt_vartable.len());
     add_hometable(
-        Some(lesskey as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int),
+        tables,
+        Some(lesskey as unsafe extern "C" fn(&mut Tables, &[u8], bool) -> i32),
         None,
         b"/usr/local/bin/.sysless\0" as *const u8 as *const std::ffi::c_char,
-        LTRUE,
+        true,
     );
     if add_hometable(
-        Some(
-            lesskey_src as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
-        ),
+        tables,
+        Some(lesskey_src as unsafe extern "C" fn(&mut Tables, &[u8], bool) -> i32),
         Some("LESSKEYIN_SYSTEM"),
         b"/usr/local/etc/syslesskey\0" as *const u8 as *const std::ffi::c_char,
-        LTRUE,
+        true,
     ) != 0 as std::ffi::c_int
     {
         add_hometable(
-            Some(
-                lesskey as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
-            ),
+            tables,
+            Some(lesskey as unsafe extern "C" fn(&mut Tables, &[u8], bool) -> i32),
             Some("LESSKEY_SYSTEM"),
             b"/usr/local/etc/sysless\0" as *const u8 as *const std::ffi::c_char,
-            LTRUE,
+            true,
         );
     }
     if add_hometable(
-        Some(
-            lesskey_src as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
-        ),
+        tables,
+        Some(lesskey_src as unsafe extern "C" fn(&mut Tables, &[u8], bool) -> i32),
         Some("LESSKEYIN"),
         b".lesskey\0" as *const u8 as *const std::ffi::c_char,
-        LFALSE,
+        false,
     ) != 0 as std::ffi::c_int
     {
         add_hometable(
-            Some(
-                lesskey as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
-            ),
+            tables,
+            Some(lesskey as unsafe extern "C" fn(&mut Tables, &[u8], bool) -> i32),
             Some("LESSKEY"),
             b".less\0" as *const u8 as *const std::ffi::c_char,
-            LFALSE,
+            false,
         );
     }
     add_content_table(
-        Some(
-            lesskey_content
-                as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
-        ),
+        tables,
+        Some(lesskey_content as unsafe extern "C" fn(&mut Tables, &[u8], bool) -> i32),
         "LESSKEY_CONTENT_SYSTEM",
-        LTRUE,
+        true,
     );
     add_content_table(
-        Some(
-            lesskey_content
-                as unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
-        ),
+        tables,
+        Some(lesskey_content as unsafe extern "C" fn(&mut Tables, &[u8], bool) -> i32),
         "LESSKEY_CONTENT",
-        LFALSE,
+        false,
     );
 }
-unsafe extern "C" fn add_cmd_table(
-    mut tlist: *mut *mut tablelist,
-    mut buf: *mut std::ffi::c_uchar,
-    mut len: size_t,
-) -> std::ffi::c_int {
-    let mut t: *mut tablelist = 0 as *mut tablelist;
-    if len == 0 as std::ffi::c_int as size_t {
-        return 0 as std::ffi::c_int;
-    }
-    t = calloc(
-        1 as std::ffi::c_int as std::ffi::c_ulong,
-        ::core::mem::size_of::<tablelist>() as std::ffi::c_ulong,
-    ) as *mut tablelist;
-    if t.is_null() {
-        return -(1 as std::ffi::c_int);
-    }
-    (*t).t_start = buf;
-    (*t).t_end = buf.offset(len as isize);
-    (*t).t_next = 0 as *mut tablelist;
-    if (*tlist).is_null() {
-        *tlist = t;
+unsafe extern "C" fn add_cmd_table(tables: &mut Vec<Table>, table: Table) {
+    tables.push(table);
+}
+
+unsafe extern "C" fn pop_cmd_table(table: &mut Vec<Table>) {
+    table.pop().unwrap();
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn add_fcmd_table(tables: &mut Tables, table: Table) {
+    add_cmd_table(&mut tables.fcmd_tables, table);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn add_ecmd_table(tables: &mut Tables, table: Table) {
+    add_cmd_table(&mut tables.fcmd_tables, table);
+}
+
+/*
+ * Add an environment variable table.
+ */
+unsafe extern "C" fn add_var_table(tables: &mut Tables, buf: &mut [u8], len: usize) {
+    // TODO review hardcoded value
+    let mut xbuf = XBuffer::new(16);
+    expand_evars(tables, buf, len, &mut xbuf);
+    add_cmd_table(&mut tables.var_tables, table_from_xbuf(xbuf));
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn add_uvar_table(tables: &mut Tables, buf: &mut [u8], len: usize) {
+    add_var_table(tables, buf, len);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn add_sysvar_table(tables: &mut Tables, buf: &mut [u8], len: usize) {
+    add_var_table(tables, buf, len);
+}
+
+/*
+ * Return action for a mouse wheel down event.
+ */
+unsafe extern "C" fn mouse_wheel_down() -> i32 {
+    return if mousecap == OPT_ONPLUS as i32 {
+        A_F_MOUSE as i32
     } else {
-        let mut e: *mut tablelist = 0 as *mut tablelist;
-        e = *tlist;
-        while !((*e).t_next).is_null() {
-            e = (*e).t_next;
-        }
-        (*e).t_next = t;
-    }
-    return 0 as std::ffi::c_int;
-}
-unsafe extern "C" fn pop_cmd_table(mut tlist: *mut *mut tablelist) {
-    let mut t: *mut tablelist = 0 as *mut tablelist;
-    if (*tlist).is_null() {
-        return;
-    }
-    if ((**tlist).t_next).is_null() {
-        t = *tlist;
-        *tlist = 0 as *mut tablelist;
-    } else {
-        let mut e: *mut tablelist = 0 as *mut tablelist;
-        e = *tlist;
-        while !((*(*e).t_next).t_next).is_null() {
-            e = (*e).t_next;
-        }
-        t = (*e).t_next;
-        (*e).t_next = 0 as *mut tablelist;
-    }
-    free(t as *mut std::ffi::c_void);
-}
-#[no_mangle]
-pub unsafe extern "C" fn add_fcmd_table(mut buf: *mut std::ffi::c_uchar, mut len: size_t) {
-    if add_cmd_table(&mut list_fcmd_tables, buf, len) < 0 as std::ffi::c_int {
-        error(
-            b"Warning: some commands disabled\0" as *const u8 as *const std::ffi::c_char,
-            0 as *mut std::ffi::c_void as *mut PARG,
-        );
-    }
-}
-#[no_mangle]
-pub unsafe extern "C" fn add_ecmd_table(mut buf: *mut std::ffi::c_uchar, mut len: size_t) {
-    if add_cmd_table(&mut list_ecmd_tables, buf, len) < 0 as std::ffi::c_int {
-        error(
-            b"Warning: some edit commands disabled\0" as *const u8 as *const std::ffi::c_char,
-            0 as *mut std::ffi::c_void as *mut PARG,
-        );
-    }
-}
-unsafe extern "C" fn add_var_table(
-    mut tlist: *mut *mut tablelist,
-    mut buf: *mut std::ffi::c_uchar,
-    mut len: size_t,
-) {
-    let mut xbuf: xbuffer = xbuffer {
-        data: 0 as *mut std::ffi::c_uchar,
-        end: 0,
-        size: 0,
-        init_size: 0,
-    };
-    xbuf_init(&mut xbuf);
-    expand_evars(buf as *mut std::ffi::c_char, len, &mut xbuf);
-    if add_cmd_table(tlist, xbuf.data, xbuf.end) < 0 as std::ffi::c_int {
-        error(
-            b"Warning: environment variables from lesskey file unavailable\0" as *const u8
-                as *const std::ffi::c_char,
-            0 as *mut std::ffi::c_void as *mut PARG,
-        );
-    }
-}
-#[no_mangle]
-pub unsafe extern "C" fn add_uvar_table(mut buf: *mut std::ffi::c_uchar, mut len: size_t) {
-    add_var_table(&mut list_var_tables, buf, len);
-}
-#[no_mangle]
-pub unsafe extern "C" fn add_sysvar_table(mut buf: *mut std::ffi::c_uchar, mut len: size_t) {
-    add_var_table(&mut list_sysvar_tables, buf, len);
-}
-unsafe extern "C" fn mouse_wheel_down() -> std::ffi::c_int {
-    return if mousecap == 2 as std::ffi::c_int {
-        67 as std::ffi::c_int
-    } else {
-        66 as std::ffi::c_int
+        A_B_MOUSE as i32
     };
 }
-unsafe extern "C" fn mouse_wheel_up() -> std::ffi::c_int {
-    return if mousecap == 2 as std::ffi::c_int {
-        66 as std::ffi::c_int
+
+/*
+ * Return action for a mouse wheel up event.
+ */
+unsafe extern "C" fn mouse_wheel_up() -> i32 {
+    return if mousecap == OPT_ONPLUS as i32 {
+        A_F_MOUSE as i32
     } else {
-        67 as std::ffi::c_int
+        A_B_MOUSE as i32
     };
 }
-unsafe extern "C" fn mouse_button_left(
-    mut x: std::ffi::c_int,
-    mut y: std::ffi::c_int,
-    mut down: lbool,
-    mut drag: lbool,
-) -> std::ffi::c_int {
-    static mut last_drag_y: std::ffi::c_int = -(1 as std::ffi::c_int);
-    static mut last_click_y: std::ffi::c_int = -(1 as std::ffi::c_int);
-    if down as std::ffi::c_uint != 0 && drag as u64 == 0 {
+
+/*
+ * Return action for the left mouse button trigger.
+ */
+unsafe extern "C" fn mouse_button_left(x: i32, y: i32, down: bool, drag: bool) -> i32 {
+    static mut last_drag_y: i32 = -1;
+    static mut last_click_y: i32 = -1;
+    if down && !drag {
         last_click_y = y;
         last_drag_y = last_click_y;
     }
-    if allow_drag as std::ffi::c_uint != 0
-        && drag as std::ffi::c_uint != 0
-        && last_drag_y >= 0 as std::ffi::c_int
-    {
+    if allow_drag && drag && last_drag_y >= 0 {
+        /* Drag text up/down */
         if y > last_drag_y {
             cmd_exec();
             backward(y - last_drag_y, LFALSE, LFALSE, LFALSE);
@@ -1652,252 +811,304 @@ unsafe extern "C" fn mouse_button_left(
             forward(last_drag_y - y, LFALSE, LFALSE, LFALSE);
             last_drag_y = y;
         }
-    } else if down as u64 == 0 {
+    } else if !down {
         if osc8_click(y, x) as u64 != 0 {
-            return 101 as std::ffi::c_int;
+            return A_NOACTION as i32;
         }
-        if y < sc_height - 1 as std::ffi::c_int && y == last_click_y {
+        if y < sc_height - 1 && y == last_click_y {
             setmark('#' as i32 as std::ffi::c_char, y);
             screen_trashed();
         }
     }
-    return 101 as std::ffi::c_int;
+    A_NOACTION as i32
 }
-unsafe extern "C" fn mouse_button_right(
-    mut x: std::ffi::c_int,
-    mut y: std::ffi::c_int,
-    mut down: lbool,
-    mut drag: lbool,
-) -> std::ffi::c_int {
-    if down as u64 == 0 && y < sc_height - 1 as std::ffi::c_int {
+
+/*
+ * Return action for the right mouse button trigger.
+ */
+unsafe extern "C" fn mouse_button_right(x: i32, y: i32, down: bool, drag: bool) -> i32 {
+    /*
+     * {{ unlike mouse_button_left, we could return an action,
+     *    but keep it near mouse_button_left for readability. }}
+     */
+    if !down && y < sc_height - 1 {
         gomark('#' as i32 as std::ffi::c_char);
         screen_trashed();
     }
-    return 101 as std::ffi::c_int;
+    A_NOACTION as i32
 }
-unsafe extern "C" fn getcc_int(mut pterm: *mut std::ffi::c_char) -> std::ffi::c_int {
-    let mut num: std::ffi::c_int = 0 as std::ffi::c_int;
-    let mut digits: std::ffi::c_int = 0 as std::ffi::c_int;
+
+/*
+ * Read a decimal integer. Return the integer and set *pterm to the terminating char.
+ */
+unsafe extern "C" fn getcc_int(pterm: &mut Option<u8>) -> Result<i32, ()> {
+    let mut num = 0;
+    let mut digits = 0;
     loop {
-        let mut ch: std::ffi::c_char = getcc();
-        if (ch as std::ffi::c_int) < '0' as i32 || ch as std::ffi::c_int > '9' as i32 {
-            if !pterm.is_null() {
-                *pterm = ch;
+        let mut ch = getcc() as u8;
+        if ch < b'0' || ch > b'9' {
+            if !pterm.is_none() {
+                *pterm = Some(ch);
             }
-            if digits == 0 as std::ffi::c_int {
-                return -(1 as std::ffi::c_int);
+            if digits == 0 {
+                return Ok(-1);
             }
-            return num;
+            return Ok(num);
         }
-        let (fresh8, fresh9) = num.overflowing_mul(10 as std::ffi::c_int);
-        *(&mut num as *mut std::ffi::c_int) = fresh8;
-        if fresh9 as std::ffi::c_int != 0 || {
-            let (fresh10, fresh11) = num.overflowing_add(ch as std::ffi::c_int - '0' as i32);
-            *(&mut num as *mut std::ffi::c_int) = fresh10;
-            fresh11 as std::ffi::c_int != 0
-        } {
-            return -(1 as std::ffi::c_int);
-        }
+        let digit = (ch - b'0') as i32;
+
+        // check for overflow
+        num = num
+            .checked_mul(10)
+            .and_then(|n| n.checked_add(digit))
+            .ok_or(())?;
         digits += 1;
     }
 }
-unsafe extern "C" fn x11mouse_button(
-    mut btn: std::ffi::c_int,
-    mut x: std::ffi::c_int,
-    mut y: std::ffi::c_int,
-    mut down: lbool,
-    mut drag: lbool,
-) -> std::ffi::c_int {
-    match btn {
-        0 => return mouse_button_left(x, y, down, drag),
-        1 | 2 => return mouse_button_right(x, y, down, drag),
+
+unsafe extern "C" fn x11mouse_button(btn: i32, x: i32, y: i32, down: bool, drag: bool) -> i32 {
+    match btn as u8 {
+        X11MOUSE_BUTTON1 => return mouse_button_left(x, y, down, drag),
+        X11MOUSE_BUTTON2 | X11MOUSE_BUTTON3 => return mouse_button_right(x, y, down, drag),
         _ => {}
     }
-    return 101 as std::ffi::c_int;
+    A_NOACTION as i32
 }
-unsafe extern "C" fn x11mouse_action(mut skip: lbool) -> std::ffi::c_int {
-    static mut prev_b: std::ffi::c_int = 3 as std::ffi::c_int;
-    let mut x: std::ffi::c_int = 0;
-    let mut y: std::ffi::c_int = 0;
-    let mut b: std::ffi::c_int = getcc() as std::ffi::c_int - 0x20 as std::ffi::c_int;
-    let mut drag: lbool =
-        (b & 0x20 as std::ffi::c_int != 0 as std::ffi::c_int) as std::ffi::c_int as lbool;
-    b &= !(0x20 as std::ffi::c_int);
-    x = getcc() as std::ffi::c_int - 0x20 as std::ffi::c_int - 1 as std::ffi::c_int;
-    y = getcc() as std::ffi::c_int - 0x20 as std::ffi::c_int - 1 as std::ffi::c_int;
-    if skip as u64 != 0 {
-        return 101 as std::ffi::c_int;
+
+/*
+ * Read suffix of mouse input and return the action to take.
+ * The prefix ("\e[M") has already been read.
+ */
+unsafe extern "C" fn x11mouse_action(skip: bool) -> i32 {
+    static mut prev_b: i32 = X11MOUSE_BUTTON_REL as i32;
+    let mut x = 0;
+    let mut y = 0;
+    let mut b = getcc() as i32 - 0x20;
+    let drag = (b & (X11MOUSE_DRAG as i32)) != 0;
+
+    b &= !(X11MOUSE_DRAG as i32);
+    x = getcc() as i32 - (X11MOUSE_OFFSET as i32) - 1;
+    y = getcc() as i32 - (X11MOUSE_OFFSET as i32) - 1;
+    if skip {
+        return A_NOACTION as i32;
     }
-    match b {
-        65 => return mouse_wheel_down(),
-        64 => return mouse_wheel_up(),
-        0 | 1 | 2 => {
+    match b as u8 {
+        X11MOUSE_WHEEL_DOWN => return mouse_wheel_down(),
+        X11MOUSE_WHEEL_UP => return mouse_wheel_up(),
+        X11MOUSE_BUTTON1 | X11MOUSE_BUTTON2 | X11MOUSE_BUTTON3 => {
             prev_b = b;
-            return x11mouse_button(b, x, y, LTRUE, drag);
+            return x11mouse_button(b, x, y, true, drag);
         }
-        3 => return x11mouse_button(prev_b, x, y, LFALSE, drag),
+        X11MOUSE_BUTTON_REL => return x11mouse_button(prev_b, x, y, false, drag),
         _ => {}
     }
-    return 101 as std::ffi::c_int;
+    A_NOACTION as i32
 }
-unsafe extern "C" fn x116mouse_action(mut skip: lbool) -> std::ffi::c_int {
-    let mut ch: std::ffi::c_char = 0;
-    let mut x: std::ffi::c_int = 0;
-    let mut y: std::ffi::c_int = 0;
-    let mut b: std::ffi::c_int = getcc_int(&mut ch);
-    let mut drag: lbool =
-        (b & 0x20 as std::ffi::c_int != 0 as std::ffi::c_int) as std::ffi::c_int as lbool;
-    b &= !(0x20 as std::ffi::c_int);
-    if b < 0 as std::ffi::c_int || ch as std::ffi::c_int != ';' as i32 {
-        return 101 as std::ffi::c_int;
+
+/*
+ * Read suffix of mouse input and return the action to take.
+ * The prefix ("\e[<") has already been read.
+ */
+unsafe extern "C" fn x116mouse_action(skip: bool) -> i32 {
+    let mut ch: u8 = 0;
+    let mut x = 0;
+    let mut y = 0;
+    let mut b = getcc_int(&mut Some(ch)).unwrap();
+    let mut drag = ((b as u8) & X11MOUSE_DRAG) != 0;
+    b &= !(X11MOUSE_DRAG as i32);
+    if b < 0 || ch != b';' {
+        return A_NOACTION as i32;
     }
-    x = getcc_int(&mut ch) - 1 as std::ffi::c_int;
-    if x < 0 as std::ffi::c_int || ch as std::ffi::c_int != ';' as i32 {
-        return 101 as std::ffi::c_int;
+    x = getcc_int(&mut Some(ch)).unwrap() - 1;
+    if x < 0 || ch != b';' {
+        return A_NOACTION as i32;
     }
-    y = getcc_int(&mut ch) - 1 as std::ffi::c_int;
-    if y < 0 as std::ffi::c_int {
-        return 101 as std::ffi::c_int;
+    y = getcc_int(&mut Some(ch)).unwrap() - 1;
+    if y < 0 {
+        return A_NOACTION as i32;
     }
-    if skip as u64 != 0 {
-        return 101 as std::ffi::c_int;
+    if skip {
+        return A_NOACTION as i32;
     }
-    match b {
-        65 => return mouse_wheel_down(),
-        64 => return mouse_wheel_up(),
-        0 | 1 | 2 => {
-            let mut down: lbool = (ch as std::ffi::c_int == 'M' as i32) as std::ffi::c_int as lbool;
-            let mut up: lbool = (ch as std::ffi::c_int == 'm' as i32) as std::ffi::c_int as lbool;
-            if up as std::ffi::c_uint != 0 || down as std::ffi::c_uint != 0 {
+    match b as u8 {
+        X11MOUSE_WHEEL_DOWN => return mouse_wheel_down(),
+        X11MOUSE_WHEEL_UP => return mouse_wheel_up(),
+        X11MOUSE_BUTTON1 | X11MOUSE_BUTTON2 | X11MOUSE_BUTTON3 => {
+            let mut down = ch == b'M';
+            let mut up = ch == b'm';
+            if up || down {
                 return x11mouse_button(b, x, y, down, drag);
             }
         }
         _ => {}
     }
-    return 101 as std::ffi::c_int;
+    A_NOACTION as i32
 }
-unsafe extern "C" fn cmd_match(
-    mut goal: *const std::ffi::c_char,
-    mut str: *const std::ffi::c_char,
-) -> size_t {
-    let mut slen: size_t = strlen(str);
-    let mut len: size_t = 0;
-    len = slen;
-    while len > 0 as std::ffi::c_int as size_t {
-        if strncmp(str.offset(slen as isize).offset(-(len as isize)), goal, len)
-            == 0 as std::ffi::c_int
-        {
-            break;
-        }
-        len = len.wrapping_sub(1);
-    }
-    return len;
-}
-unsafe extern "C" fn cmd_next_entry(
-    mut entry: *const std::ffi::c_uchar,
-    mut action: *mut std::ffi::c_int,
-    mut extra: *mut *const std::ffi::c_uchar,
-    mut cmdlen: *mut size_t,
-) -> *const std::ffi::c_uchar {
-    let mut a: std::ffi::c_int = 0;
-    let mut oentry: *const std::ffi::c_uchar = entry;
-    while *entry as std::ffi::c_int != '\0' as i32 {
-        entry = entry.offset(1);
-    }
-    if !cmdlen.is_null() {
-        *cmdlen = entry.offset_from(oentry) as std::ffi::c_long as size_t;
-    }
+
+fn strncmp_u8(s1: &[u8], s2: &[u8], n: usize) -> i32 {
+    let mut i = 0;
+    let mut c1 = 0;
+    let mut c2 = 0;
     loop {
-        entry = entry.offset(1);
-        a = *entry as std::ffi::c_int;
-        if !(a == 127 as std::ffi::c_int) {
+        c1 = s1[i] as i32;
+        c2 = s2[i] as i32;
+        if c1 == 0 || c1 != c2 {
+            return c1 - c2;
+        }
+        i += 1;
+        if i >= n {
             break;
         }
     }
-    entry = entry.offset(1);
-    if !extra.is_null() {
-        *extra = if a & 0o200 as std::ffi::c_int != 0 {
-            entry
-        } else {
-            0 as *const std::ffi::c_uchar
-        };
-    }
-    if a & 0o200 as std::ffi::c_int != 0 {
-        loop {
-            let fresh12 = entry;
-            entry = entry.offset(1);
-            if !(*fresh12 as std::ffi::c_int != '\0' as i32) {
-                break;
-            }
-        }
-        a &= !(0o200 as std::ffi::c_int);
-    }
-    if !action.is_null() {
-        *action = a;
-    }
-    return entry;
+    c1 - c2
 }
-unsafe extern "C" fn cmd_search(
-    mut cmd: *const std::ffi::c_char,
-    mut table: *const std::ffi::c_uchar,
-    mut endtable: *const std::ffi::c_uchar,
-    mut extra: *mut *const std::ffi::c_uchar,
-    mut mlen: *mut size_t,
-) -> std::ffi::c_int {
-    let mut action: std::ffi::c_int = 100 as std::ffi::c_int;
-    let mut match_len: size_t = 0 as std::ffi::c_int as size_t;
-    if !extra.is_null() {
-        *extra = 0 as *const std::ffi::c_uchar;
+
+/*
+ * Return the largest N such that the first N chars of goal
+ * are equal to the last N chars of s.
+ */
+unsafe extern "C" fn cmd_match(goal: &[u8], s: &[u8]) -> usize {
+    let slen = s.len();
+    let mut len = slen;
+    while len > 0 {
+        if strncmp_u8(&s[slen - len..], goal, len) == 0 {
+            break;
+        }
+        len -= 1;
     }
-    while table < endtable {
-        let mut taction: std::ffi::c_int = 0;
-        let mut textra: *const std::ffi::c_uchar = 0 as *const std::ffi::c_uchar;
-        let mut cmdlen: size_t = 0;
-        let mut match_0: size_t = cmd_match(table as *const std::ffi::c_char, cmd);
-        table = cmd_next_entry(table, &mut taction, &mut textra, &mut cmdlen);
-        if taction == 103 as std::ffi::c_int {
+    len
+}
+
+/*
+ * Return pointer to next command table entry.
+ * Also return the action and the extra string from the entry.
+ */
+unsafe extern "C" fn cmd_next_entry(
+    mut entry: &[u8],
+    action: &mut Option<u8>,
+    extra: &mut Option<usize>,
+    cmdlen: &mut Option<usize>,
+) -> usize {
+    let mut i = 0;
+
+    // 1. Find end of command (null-terminated)
+    while i < entry.len() && entry[i] != 0 {
+        i += 1;
+    }
+
+    if !cmdlen.is_none() {
+        *cmdlen = Some(i);
+    }
+    i += 1; // skip the null byte
+
+    // 2. Skip A_SKIP bytes to find action
+    while i < entry.len() && entry[i] == A_SKIP {
+        i += 1;
+    }
+
+    let mut a = entry[i];
+
+    // 3. Handle extra data if A_EXTRA is set
+    if !extra.is_none() {
+        *extra = Some(i);
+    }
+    if (a & A_EXTRA) != 0 {
+        // Find end of extra (null-terminated)
+        while i < entry.len() && entry[i] != 0 {
+            i += 1;
+        }
+
+        i += 1; // skip the null byte
+        a &= !A_EXTRA;
+    }
+    if !action.is_none() {
+        *action = Some(a);
+    }
+    i
+}
+
+/*
+ * Search a single command table for the command string in cmd.
+ */
+unsafe extern "C" fn cmd_search(
+    cmd: &[u8],
+    table: &Table,
+    mut extra: &mut Option<usize>,
+    mut mlen: &mut Option<usize>,
+) -> i32 {
+    let mut action = A_INVALID as i32;
+    let mut match_len = 0;
+    if !extra.is_none() {
+        *extra = Some(0);
+    }
+    let i = 0;
+    while i < table.table.len() {
+        let mut taction: i32 = 0;
+        let mut textra: usize = 0;
+        let mut cmdlen = 0;
+        let mut m = cmd_match(&table.table, cmd);
+        let i = cmd_next_entry(
+            &table.table[i..],
+            &mut Some(taction as u8),
+            &mut Some(textra),
+            &mut Some(cmdlen),
+        );
+        if taction == A_END_LIST as i32 {
             return -action;
         }
-        if match_0 >= match_len {
-            if match_0 == cmdlen {
+        if m >= match_len {
+            if m == cmdlen {
+                /* (last chars of) cmd matches this table entry */
                 action = taction;
-                if !extra.is_null() {
-                    *extra = textra;
+                if !extra.is_none() {
+                    *extra = Some(textra);
                 }
-            } else if match_0 > 0 as std::ffi::c_int as size_t && action == 100 as std::ffi::c_int {
-                action = 105 as std::ffi::c_int;
+            } else if m > 0 && action == A_INVALID as i32 {
+                /* cmd is a prefix of this table entry */
+                action = A_PREFIX as i32;
             }
-            match_len = match_0;
+            match_len = m;
         }
     }
-    if !mlen.is_null() {
-        *mlen = match_len;
+    if !mlen.is_none() {
+        *mlen = Some(match_len as usize);
     }
-    return action;
+    action
 }
+
+/*
+ * Decode a command character and return the associated action.
+ * If "extra" string exists it's index and the the table index
+ * where it is found will be returned
+ */
 unsafe extern "C" fn cmd_decode(
-    mut tlist: *mut tablelist,
-    mut cmd: *const std::ffi::c_char,
-    mut sp: *mut *const std::ffi::c_char,
-) -> std::ffi::c_int {
-    let mut t: *mut tablelist = 0 as *mut tablelist;
-    let mut action: std::ffi::c_int = 100 as std::ffi::c_int;
-    let mut match_len: size_t = 0 as std::ffi::c_int as size_t;
-    *sp = 0 as *const std::ffi::c_char;
-    t = tlist;
-    while !t.is_null() {
-        let mut tsp: *const std::ffi::c_uchar = 0 as *const std::ffi::c_uchar;
-        let mut mlen: size_t = 0;
-        let mut taction: std::ffi::c_int =
-            cmd_search(cmd, (*t).t_start, (*t).t_end, &mut tsp, &mut mlen);
+    tlist: &[Table],
+    cmd: &[u8],
+    mut extra_idx: &mut Option<(usize, usize)>,
+) -> i32 {
+    let mut action = A_INVALID as i32;
+    let mut match_len = 0;
+
+    /*
+     * Search for the cmd thru all the command tables.
+     * If we find it more than once, take the last one.
+     */
+    let mut spi = 0;
+    *extra_idx = None;
+    let mut t_idx = 0;
+    for t in tlist {
+        let mut tsp = 0;
+        let mut mlen = 0;
+        let mut taction = cmd_search(cmd, t, &mut Some(tsp), &mut Some(mlen));
         if mlen >= match_len {
             match_len = mlen;
-            if taction == 102 as std::ffi::c_int {
-                taction = 100 as std::ffi::c_int;
+            if taction == A_UINVALID as i32 {
+                taction = A_INVALID as i32;
             }
-            if taction != 100 as std::ffi::c_int {
-                *sp = tsp as *const std::ffi::c_char;
-                if taction < 0 as std::ffi::c_int {
+            if taction != A_INVALID as i32 {
+                spi = tsp;
+                *extra_idx = Some((spi, t_idx));
+                if taction < 0 {
                     action = -taction;
                     break;
                 } else {
@@ -1905,28 +1116,38 @@ unsafe extern "C" fn cmd_decode(
                 }
             }
         }
-        t = (*t).t_next;
+        t_idx += 1;
     }
-    if action == 64 as std::ffi::c_int {
-        action = x11mouse_action(LFALSE);
-    } else if action == 68 as std::ffi::c_int {
-        action = x116mouse_action(LFALSE);
+    if action == A_X11MOUSE_IN as i32 {
+        action = x11mouse_action(false);
+    } else if action == A_X116MOUSE_IN as i32 {
+        action = x116mouse_action(false);
     }
-    return action;
+    return action as i32;
 }
+
+/*
+ * Decode a command from the cmdtables list.
+ */
 #[no_mangle]
 pub unsafe extern "C" fn fcmd_decode(
-    mut cmd: *const std::ffi::c_char,
-    mut sp: *mut *const std::ffi::c_char,
-) -> std::ffi::c_int {
-    return cmd_decode(list_fcmd_tables, cmd, sp);
+    tables: &Tables,
+    cmd: &[u8],
+    mut sp: &mut Option<(usize, usize)>,
+) -> i32 {
+    return cmd_decode(&tables.fcmd_tables, cmd, sp);
 }
+
+/*
+ * Decode a command from the edittables list.
+ */
 #[no_mangle]
 pub unsafe extern "C" fn ecmd_decode(
-    mut cmd: *const std::ffi::c_char,
-    mut sp: *mut *const std::ffi::c_char,
-) -> std::ffi::c_int {
-    return cmd_decode(list_ecmd_tables, cmd, sp);
+    tables: &Tables,
+    cmd: &[u8],
+    sp: &mut Option<(usize, usize)>,
+) -> i32 {
+    return cmd_decode(&tables.ecmd_tables, cmd, sp);
 }
 
 /*
@@ -1957,8 +1178,13 @@ pub fn lgetenv(key: &str) -> Result<*const std::ffi::c_char, VarError> {
     */
     ret
 }
+
+/*
+ * Like lgetenv, but also uses a buffer partially filled with an env table.
+ */
 #[no_mangle]
 pub unsafe extern "C" fn lgetenv_ext(
+    tables: &mut Tables,
     var: &str,
     mut env_buf: *mut std::ffi::c_uchar,
     mut env_buf_len: size_t,
@@ -1993,117 +1219,147 @@ pub unsafe extern "C" fn lgetenv_ext(
         }
         env_end = e;
     }
-    add_uvar_table(env_buf, env_end);
+    add_uvar_table(
+        tables,
+        CStr::from_ptr(env_buf as *const i8)
+            .to_str()
+            .unwrap()
+            .to_owned()
+            .as_bytes_mut(),
+        env_end as usize,
+    );
     r = lgetenv(var).unwrap();
-    pop_cmd_table(&mut list_var_tables);
+    pop_cmd_table(&mut tables.var_tables);
     return r;
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn isnullenv(mut s: *const std::ffi::c_char) -> bool {
     return s.is_null() || *s as std::ffi::c_int == '\0' as i32;
 }
-unsafe extern "C" fn gint(mut sp: *mut *mut std::ffi::c_uchar) -> size_t {
-    let mut n: size_t = 0;
-    let fresh13 = *sp;
-    *sp = (*sp).offset(1);
-    n = *fresh13 as size_t;
-    let fresh14 = *sp;
-    *sp = (*sp).offset(1);
-    n = n.wrapping_add((*fresh14 as std::ffi::c_int * 64 as std::ffi::c_int) as size_t);
+
+unsafe extern "C" fn gint(buf: &[u8]) -> usize {
+    let mut n = 0;
+    n = buf[0] as usize;
+    n += (buf[1] as usize) * KRADIX as usize;
     return n;
 }
-unsafe extern "C" fn old_lesskey(
-    mut buf: *mut std::ffi::c_uchar,
-    mut len: size_t,
-) -> std::ffi::c_int {
-    if *buf.offset(len.wrapping_sub(1 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
-        != '\0' as i32
-        && *buf.offset(len.wrapping_sub(2 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
-            != '\0' as i32
-    {
-        return -(1 as std::ffi::c_int);
+
+/*
+ * Process an old (pre-v241) lesskey file.
+ */
+unsafe extern "C" fn old_lesskey(tables: &mut Tables, mut buf: &[u8], mut len: usize) -> i32 {
+    /*
+     * Old-style lesskey file.
+     * The file must end with either
+     *     ...,cmd,0,action
+     * or  ...,cmd,0,action|A_EXTRA,string,0
+     * So the last byte or the second to last byte must be zero.
+     */
+    if buf[len - 1] != b'\0' && buf[len - 2] != b'\0' {
+        return -1;
     }
-    add_fcmd_table(buf, len);
-    return 0 as std::ffi::c_int;
+    add_fcmd_table(tables, Table::from(buf));
+    return 0;
 }
-unsafe extern "C" fn new_lesskey(
-    mut buf: *mut std::ffi::c_uchar,
-    mut len: size_t,
-    mut sysvar: lbool,
-) -> std::ffi::c_int {
-    let mut p: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
-    let mut end: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
-    let mut c: std::ffi::c_int = 0;
-    let mut n: size_t = 0;
-    if *buf.offset(len.wrapping_sub(3 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
-        != 'E' as i32
-        || *buf.offset(len.wrapping_sub(2 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
-            != 'n' as i32
-        || *buf.offset(len.wrapping_sub(1 as std::ffi::c_int as size_t) as isize) as std::ffi::c_int
-            != 'd' as i32
+
+/*
+ * Process a new (post-v241) lesskey file.
+ */
+unsafe extern "C" fn new_lesskey(tables: &mut Tables, buf: &mut [u8], sysvar: bool) -> i32 {
+    let mut p: usize = 0;
+    let mut end = 0;
+    let mut c = 0;
+    let mut n: usize = 0;
+
+    let len = buf.len();
+    if buf[len - 3] != C0_END_LESSKEY_MAGIC
+        || buf[len - 2] != C1_END_LESSKEY_MAGIC
+        || buf[len - 1] != C2_END_LESSKEY_MAGIC
     {
-        return -(1 as std::ffi::c_int);
+        return -1;
     }
-    p = buf.offset(4 as std::ffi::c_int as isize);
-    end = buf.offset(len as isize);
+    p += 4;
+    end = len;
     loop {
-        let fresh15 = p;
-        p = p.offset(1);
-        c = *fresh15 as std::ffi::c_int;
+        c = buf[p];
+        p += 1;
         match c {
-            99 => {
-                n = gint(&mut p);
-                if p.offset(n as isize) >= end {
-                    return -(1 as std::ffi::c_int);
+            CMD_SECTION => {
+                n = gint(&mut buf[p..]);
+                if p + n >= end {
+                    return -1;
                 }
-                add_fcmd_table(p, n);
-                p = p.offset(n as isize);
+                add_fcmd_table(tables, Table::from(&buf[p..]));
+                p += n;
             }
-            101 => {
-                n = gint(&mut p);
-                if p.offset(n as isize) >= end {
-                    return -(1 as std::ffi::c_int);
+            EDIT_SECTION => {
+                n = gint(&mut buf[p..]);
+                if p + n >= end {
+                    return -1;
                 }
-                add_ecmd_table(p, n);
-                p = p.offset(n as isize);
+                add_ecmd_table(tables, Table::from(&buf[p..]));
+                p += n;
             }
-            118 => {
-                n = gint(&mut p);
-                if p.offset(n as isize) >= end {
-                    return -(1 as std::ffi::c_int);
+            VAR_SECTION => {
+                n = gint(&mut &buf[p..]);
+                if p + n >= end {
+                    return -1;
                 }
-                if sysvar as u64 != 0 {
-                    add_sysvar_table(p, n);
+                if sysvar {
+                    add_sysvar_table(tables, &mut buf[p..], n as usize);
                 } else {
-                    add_uvar_table(p, n);
+                    add_uvar_table(tables, &mut buf[p..], n as usize);
                 }
-                p = p.offset(n as isize);
+                p += n;
             }
-            120 => return 0 as std::ffi::c_int,
-            _ => return -(1 as std::ffi::c_int),
+            END_SECTION => return 0,
+            _ => {
+                /*
+                 * Unrecognized section type.
+                 */
+                return -1;
+            }
         }
     }
 }
+
+/*
+ * Set up a user command table, based on a "lesskey" file.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn lesskey(
-    mut filename: *const std::ffi::c_char,
-    mut sysvar: lbool,
-) -> std::ffi::c_int {
+pub unsafe extern "C" fn lesskey(tables: &mut Tables, filename: &[u8], sysvar: bool) -> i32 {
     let mut buf: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
     let mut len: POSITION = 0;
-    let mut n: ssize_t = 0;
+    let mut n = 0;
     let mut f: std::ffi::c_int = 0;
-    if secure_allow((1 as std::ffi::c_int) << 5 as std::ffi::c_int) == 0 {
-        return 1 as std::ffi::c_int;
+
+    if secure_allow(SF_LESSKEY) != 0 {
+        return 1;
     }
-    f = open(filename, 0 as std::ffi::c_int);
-    if f < 0 as std::ffi::c_int {
-        return 1 as std::ffi::c_int;
+    /*
+     * Try to open the lesskey file.
+     */
+    f = open(filename.as_ptr() as *const std::ffi::c_char, 0);
+    if f < 0 {
+        return 1;
     }
+
+    /*
+     * Read the file into a buffer.
+     * We first figure out the size of the file and allocate space for it.
+     * {{ Minimal error checking is done here.
+     *    A garbage .less file will produce strange results.
+     *    To avoid a large amount of error checking code here, we
+     *    rely on the lesskey program to generate a good .less file. }}
+     */
     len = filesize(f);
-    if len == -(1 as std::ffi::c_int) as POSITION || len < 3 as std::ffi::c_int as POSITION {
+    if len == (NULL_POSITION as i64) || len < 3 {
+        /*
+         * Bad file (valid file must have at least 3 chars).
+         */
         close(f);
-        return -(1 as std::ffi::c_int);
+        return -1;
     }
     buf = calloc(
         len as size_t,
@@ -2111,104 +1367,100 @@ pub unsafe extern "C" fn lesskey(
     ) as *mut std::ffi::c_uchar;
     if buf.is_null() {
         close(f);
-        return -(1 as std::ffi::c_int);
+        return -1;
     }
-    if lseek(f, 0 as std::ffi::c_int as less_off_t, 0 as std::ffi::c_int)
-        == -(1 as std::ffi::c_int) as off_t
-    {
+    if lseek(f, 0, SEEK_SET) == BAD_LSEEK {
         free(buf as *mut std::ffi::c_void);
         close(f);
-        return -(1 as std::ffi::c_int);
+        return -1;
     }
+
     n = read(f, buf as *mut std::ffi::c_void, len as size_t);
     close(f);
     if n != len {
         free(buf as *mut std::ffi::c_void);
-        return -(1 as std::ffi::c_int);
+        return -1;
     }
-    if len < 4 as std::ffi::c_int as POSITION
-        || *buf.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32
-        || *buf.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int != 'M' as i32
-        || *buf.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int != '+' as i32
-        || *buf.offset(3 as std::ffi::c_int as isize) as std::ffi::c_int != 'G' as i32
+    let rbuf = std::slice::from_raw_parts_mut(buf, len as usize);
+    /*
+     * Figure out if this is an old-style (before version 241)
+     * or new-style lesskey file format.
+     */
+    if len < 4
+        || rbuf[0] != C0_LESSKEY_MAGIC
+        || rbuf[1] != C1_LESSKEY_MAGIC
+        || rbuf[2] != C2_LESSKEY_MAGIC
+        || rbuf[3] != C3_LESSKEY_MAGIC
     {
-        return old_lesskey(buf, len as size_t);
+        return old_lesskey(tables, rbuf, len as usize);
     }
-    return new_lesskey(buf, len as size_t, sysvar);
+    return new_lesskey(tables, rbuf, sysvar);
 }
+
 unsafe extern "C" fn lesskey_text(
-    mut filename: *const std::ffi::c_char,
-    mut sysvar: lbool,
-    mut content: lbool,
-) -> std::ffi::c_int {
-    let mut r: std::ffi::c_int = 0;
-    static mut tables: lesskey_tables = lesskey_tables {
+    ttables: &mut Tables,
+    filename: &[u8],
+    sysvar: bool,
+    content: bool,
+) -> i32 {
+    let mut r = 0;
+    static mut tables: LazyLock<lesskey_tables> = LazyLock::new(|| lesskey_tables {
         currtable: 0 as *const lesskey_table as *mut lesskey_table,
         cmdtable: lesskey_table {
             names: 0 as *const lesskey_cmdname,
-            buf: xbuffer {
-                data: 0 as *mut std::ffi::c_uchar,
-                end: 0,
-                size: 0,
-                init_size: 0,
-            },
+            buf: XBuffer::new(16),
             is_var: 0,
         },
         edittable: lesskey_table {
             names: 0 as *const lesskey_cmdname,
-            buf: xbuffer {
-                data: 0 as *mut std::ffi::c_uchar,
-                end: 0,
-                size: 0,
-                init_size: 0,
-            },
+            buf: XBuffer::new(16),
             is_var: 0,
         },
         vartable: lesskey_table {
             names: 0 as *const lesskey_cmdname,
-            buf: xbuffer {
-                data: 0 as *mut std::ffi::c_uchar,
-                end: 0,
-                size: 0,
-                init_size: 0,
-            },
+            buf: XBuffer::new(16),
             is_var: 0,
         },
-    };
-    if secure_allow((1 as std::ffi::c_int) << 5 as std::ffi::c_int) == 0 {
-        return 1 as std::ffi::c_int;
+    });
+    if !secure_allow(SF_LESSKEY) == 0 {
+        return 1;
     }
-    r = if content as std::ffi::c_uint != 0 {
-        parse_lesskey_content(filename, &mut tables)
+    r = if content {
+        parse_lesskey_content(filename.as_ptr() as *const std::ffi::c_char, &mut *tables)
     } else {
-        parse_lesskey(filename, &mut tables)
+        parse_lesskey(filename.as_ptr() as *const std::ffi::c_char, &mut *tables)
     };
-    if r != 0 as std::ffi::c_int {
+    if r != 0 {
         return r;
     }
-    add_fcmd_table(tables.cmdtable.buf.data, tables.cmdtable.buf.end);
-    add_ecmd_table(tables.edittable.buf.data, tables.edittable.buf.end);
-    if sysvar as u64 != 0 {
-        add_sysvar_table(tables.vartable.buf.data, tables.vartable.buf.end);
+    add_fcmd_table(ttables, Table::from(&tables.cmdtable.buf.data));
+    add_ecmd_table(ttables, Table::from(&tables.edittable.buf.data));
+    if sysvar {
+        add_sysvar_table(
+            ttables,
+            &mut tables.vartable.buf.data,
+            tables.vartable.buf.data.len(),
+        );
     } else {
-        add_uvar_table(tables.vartable.buf.data, tables.vartable.buf.end);
+        add_uvar_table(
+            ttables,
+            &mut tables.vartable.buf.data,
+            tables.vartable.buf.data.len(),
+        );
     }
-    return 0 as std::ffi::c_int;
+    return 0;
 }
+
 #[no_mangle]
-pub unsafe extern "C" fn lesskey_src(
-    mut filename: *const std::ffi::c_char,
-    mut sysvar: lbool,
-) -> std::ffi::c_int {
-    return lesskey_text(filename, sysvar, LFALSE);
+pub unsafe extern "C" fn lesskey_src(tables: &mut Tables, filename: &[u8], sysvar: bool) -> i32 {
+    return lesskey_text(tables, filename, sysvar, false);
 }
+
 #[no_mangle]
-pub unsafe extern "C" fn lesskey_content(
-    mut content: *const std::ffi::c_char,
-    mut sysvar: lbool,
-) -> std::ffi::c_int {
-    return lesskey_text(content, sysvar, LTRUE);
+pub unsafe extern "C" fn lesskey_content(tables: &mut Tables, content: &[u8], sysvar: bool) -> i32 {
+    return lesskey_text(tables, content, sysvar, true);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn lesskey_parse_error(mut s: *mut std::ffi::c_char) {
     let mut parg: PARG = parg {
@@ -2217,13 +1469,16 @@ pub unsafe extern "C" fn lesskey_parse_error(mut s: *mut std::ffi::c_char) {
     parg.p_string = s;
     error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
 }
+
+/*
+ * Add a lesskey file.
+ */
 unsafe extern "C" fn add_hometable(
-    mut call_lesskey: Option<
-        unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
-    >,
+    tables: &mut Tables,
+    mut call_lesskey: Option<unsafe extern "C" fn(&mut Tables, &[u8], bool) -> i32>,
     envname: Option<&str>,
     mut def_filename: *const std::ffi::c_char,
-    mut sysvar: lbool,
+    mut sysvar: bool,
 ) -> std::ffi::c_int {
     let mut filename: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut efilename: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
@@ -2232,7 +1487,7 @@ unsafe extern "C" fn add_hometable(
         if let Ok(efilename) = lgetenv(name) {
             filename = save(efilename);
         }
-    } else if sysvar as u64 != 0 {
+    } else if sysvar {
         filename = save(def_filename);
     } else {
         if let Ok(xdg) = lgetenv("XDG_CONFIG_HOME") {
@@ -2265,87 +1520,109 @@ unsafe extern "C" fn add_hometable(
         return -(1 as std::ffi::c_int);
     }
     r = (Some(call_lesskey.expect("non-null function pointer")))
-        .expect("non-null function pointer")(filename, sysvar);
+        .expect("non-null function pointer")(
+        tables,
+        ptr_to_str(filename).unwrap().as_bytes(),
+        sysvar,
+    );
     free(filename as *mut std::ffi::c_void);
     return r;
 }
+
+/*
+ * Add the content of a lesskey source file.
+ */
 unsafe extern "C" fn add_content_table(
-    mut call_lesskey: Option<
-        unsafe extern "C" fn(*const std::ffi::c_char, lbool) -> std::ffi::c_int,
-    >,
+    tables: &mut Tables,
+    call_lesskey: Option<unsafe extern "C" fn(&mut Tables, &[u8], bool) -> i32>,
     envname: &str,
-    mut sysvar: lbool,
+    sysvar: bool,
 ) {
     if let Ok(content) = lgetenv(envname) {
-        lesskey_content(content, sysvar);
+        lesskey_content(tables, ptr_to_str(content).unwrap().as_bytes(), sysvar);
     }
 }
 
+/*
+ * See if a char is a special line-editing command.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn editchar(
-    mut c: std::ffi::c_char,
-    mut flags: std::ffi::c_int,
-) -> std::ffi::c_int {
-    let mut action: std::ffi::c_int = 0;
-    let mut nch: std::ffi::c_int = 0;
-    let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    let mut usercmd: [std::ffi::c_char; 17] = [0; 17];
-    if c as std::ffi::c_int == erase_char || c as std::ffi::c_int == erase2_char {
-        return 1 as std::ffi::c_int;
+pub unsafe extern "C" fn editchar(tables: &Tables, c: u8, flags: i32) -> i32 {
+    let mut action = 0;
+    let mut nch = 0;
+    let mut sidx: Option<(usize, usize)> = Some((0, 0));
+    let mut usercmd: [u8; MAX_CMDLEN + 1] = [0; MAX_CMDLEN + 1];
+
+    /*
+     * An editing character could actually be a sequence of characters;
+     * for example, an escape sequence sent by pressing the uparrow key.
+     * To match the editing string, we use the command decoder
+     * but give it the edit-commands command table
+     * This table is constructed to match the user's keyboard.
+     */
+    if c == (erase_char as u8) || c == (erase2_char as u8) {
+        return EC_BACKSPACE as i32;
     }
-    if c as std::ffi::c_int == kill_char {
-        return 2 as std::ffi::c_int;
+    if c == kill_char as u8 {
+        return EC_LINEKILL as i32;
     }
-    nch = 0 as std::ffi::c_int;
     loop {
-        if nch > 0 as std::ffi::c_int {
-            c = getcc();
-        }
-        usercmd[nch as usize] = c;
-        usercmd[(nch + 1 as std::ffi::c_int) as usize] = '\0' as i32 as std::ffi::c_char;
+        let ch = if nch > 0 { getcc() as u8 } else { c };
+        usercmd[nch] = ch;
+        usercmd[nch + 1] = b'\0';
         nch += 1;
-        action = ecmd_decode(usercmd.as_mut_ptr(), &mut s);
-        if !(action == 105 as std::ffi::c_int && nch < 16 as std::ffi::c_int) {
+        action = ecmd_decode(tables, &usercmd, &mut sidx);
+        if !(action == A_PREFIX as i32 && nch < MAX_CMDLEN) {
             break;
         }
     }
-    if action == 21 as std::ffi::c_int {
-        return x11mouse_action(LTRUE);
+    if action == EC_X11MOUSE as i32 {
+        return x11mouse_action(true);
     }
-    if action == 22 as std::ffi::c_int {
-        return x116mouse_action(LTRUE);
+    if action == EC_X116MOUSE as i32 {
+        return x116mouse_action(true);
     }
-    if flags & 0o10 as std::ffi::c_int != 0 {
-        match action {
-            3 | 4 => {
-                action = 100 as std::ffi::c_int;
+    if flags & (ECF_NORIGHTLEFT as i32) != 0 {
+        match action as u8 {
+            EC_RIGHT | EC_LEFT => {
+                action = A_INVALID as i32;
             }
             _ => {}
         }
     }
-    if flags & 0o2 as std::ffi::c_int != 0 {
-        match action {
-            13 | 14 => {
-                action = 100 as std::ffi::c_int;
+    if flags & (ECF_NOHISTORY as i32) != 0 {
+        /*
+         * The caller says there is no history list.
+         * Reject any history-manipulation action.
+         */
+        match action as u8 {
+            EC_UP | EC_DOWN => {
+                action = A_INVALID as i32;
             }
             _ => {}
         }
     }
-    if flags & 0o4 as std::ffi::c_int != 0 {
-        match action {
-            17 | 18 | 15 => {
-                action = 100 as std::ffi::c_int;
+    if flags & (ECF_NOCOMPLETE as i32) != 0 {
+        match action as u8 {
+            EC_F_COMPLETE | EC_B_COMPLETE | EC_EXPAND => {
+                action = A_INVALID as i32;
             }
             _ => {}
         }
     }
-    if flags & 0o1 as std::ffi::c_int != 0 || action == 100 as std::ffi::c_int {
-        while nch > 1 as std::ffi::c_int {
+    if (flags & (ECF_PEEK as i32) != 0) || (action == A_INVALID as i32) {
+        /*
+         * We're just peeking, or we didn't understand the command.
+         * Unget all the characters we read in the loop above.
+         * This does NOT include the original character that was
+         * passed in as a parameter.
+         */
+        while nch > 1 {
             nch -= 1;
-            ungetcc(usercmd[nch as usize]);
+            ungetcc(usercmd[nch as usize] as i8);
         }
-    } else if !s.is_null() {
-        ungetsc(s);
+    } else if !sidx.is_none() {
+        ungetsc(tables.ecmd_tables[sidx.unwrap().1].table[sidx.unwrap().0..].as_ptr() as *const i8);
     }
     return action;
 }

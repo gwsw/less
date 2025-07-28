@@ -1,5 +1,5 @@
 use crate::decode::lgetenv;
-use ::libc;
+use crate::util::ptr_to_str;
 use std::ffi::CStr;
 extern "C" {
     fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
@@ -509,12 +509,12 @@ pub unsafe extern "C" fn screen_size_changed() {
     calc_match_shift();
 }
 #[no_mangle]
-pub unsafe extern "C" fn special_key_str(mut key: std::ffi::c_int) -> *const std::ffi::c_char {
+pub unsafe extern "C" fn special_key_str(key: u8) -> Option<&'static str> {
     static mut tbuf: [std::ffi::c_char; 40] = [0; 40];
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut sp: *mut std::ffi::c_char = tbuf.as_mut_ptr();
     match key {
-        1 => {
+        SK_RIGHT_ARROW => {
             s = ltgetstr(b"kr\0" as *const u8 as *const std::ffi::c_char, &mut sp);
         }
         2 => {
@@ -560,9 +560,11 @@ pub unsafe extern "C" fn special_key_str(mut key: std::ffi::c_int) -> *const std
             tbuf[1 as std::ffi::c_int as usize] = '\0' as i32 as std::ffi::c_char;
             s = tbuf.as_mut_ptr();
         }
-        _ => return 0 as *const std::ffi::c_char,
+        _ => {
+            return None;
+        }
     }
-    return s;
+    Some(ptr_to_str(s).unwrap())
 }
 
 /*
