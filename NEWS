@@ -13,12 +13,20 @@
 
 	Major changes between "less" versions 679 and 681
 
+* Change --incsearch so that after typing each character of the pattern,
+  the search begins at the position where the search command was invoked,
+  not the current position (github #640).
+
+* Treat U+00AD and U+200D as binary characters (github #637).
+
 * Fix hang if a search using ^S modifier matches empty string (github #634).
 
 * Fix bug using -g and -J (github #636).
 
 * Fix bug when pasting a search pattern while --incsearch is active
   (github #635).
+
+* Fix bug in Windows build when autorepeating a search pattern (github #639).
 
 * Fix performance issue in & filtering (github #638). Problem was introduced
   in da2a9ecdf16beb642d0c030e35f0351c5f2e5a12 and released in less-673.

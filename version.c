@@ -1052,7 +1052,8 @@ v679  5/28/25   Fix lesskey parsing bug when env var is prefix of another;
 v680  6/25/25   Fix hang if a search using ^S modifier matches empty string.
 v681            Fix bug using -g with -J; fix bug when pasting input 
                 with --incsearch; improve performance with long lines;
-                fix performance with & filtering.
+                fix performance with & filtering; change search position when
+                using --incsearch; treat some composing chars as binary.
 */
 
 char version[] = "681x";
