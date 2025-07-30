@@ -287,14 +287,18 @@ start:
 	if (!(quit_if_one_screen && one_screen) && win32_kbhit2(TRUE))
 	{
 		int c;
+		lbool intr;
 
 		c = WIN32getch();
-		sigs |= S_SWINTERRUPT;
-		reading = FALSE;
-		if (c != CONTROL('C') && c != intr_char)
+		intr = (c == CONTROL('C') || c == intr_char);
+		if (!intr)
 			WIN32ungetch((char) c);
-		if (!no_poll)
+		if (intr || !no_poll)
+		{
+			sigs |= S_SWINTERRUPT;
+			reading = FALSE;
 			return (READ_INTR);
+		}
 	}
 #endif
 #endif
