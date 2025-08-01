@@ -185,25 +185,25 @@ static int check_poll(int fd, int tty)
 public lbool ttyin_ready(void)
 {
 #if MSDOS_COMPILER==WIN32C
-    return win32_kbhit();
+	return win32_kbhit();
 #else
 #if MSDOS_COMPILER
-    return kbhit();
+	return kbhit();
 #else
 #if USE_POLL
 #if LESSTEST
 	if (is_lesstest())
-        return FALSE;
+		return FALSE;
 #endif /*LESSTEST*/
-    if (!use_poll)
-        return FALSE;
-    {
-        struct pollfd poller[1] = { { tty, POLLIN, 0 } };
-        poll(poller, 1, 0);
-        return ((poller[0].revents & POLLIN) != 0);
-    }
+	if (!use_poll)
+		return FALSE;
+	{
+		struct pollfd poller[1] = { { tty, POLLIN, 0 } };
+		poll(poller, 1, 0);
+		return ((poller[0].revents & POLLIN) != 0);
+	}
 #else
-    return FALSE;
+	return FALSE;
 #endif
 #endif
 #endif

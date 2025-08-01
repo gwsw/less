@@ -751,8 +751,8 @@ static int mca_char(char c)
 			constant char *pattern = get_cmdbuf();
 			if (pattern == NULL)
 				return (MCA_MORE);
-            /* Defer searching if more chars of the pattern are available. */
-            if (ttyin_ready())
+			/* Defer searching if more chars of the pattern are available. */
+			if (ttyin_ready())
 				return (MCA_MORE);
 			/*
 			 * Must save updown_match because mca_search
