@@ -1050,10 +1050,10 @@ v678  5/1/25    Don't change stty tab setting.
 v679  5/28/25   Fix lesskey parsing bug when env var is prefix of another;
                 fix unexpected exit when using -K.
 v680  6/25/25   Fix hang if a search using ^S modifier matches empty string.
-v681            Fix bug using -g with -J; fix bug when pasting input 
+v681  8/2/25    Fix bug using -g with -J; fix bug when pasting input 
                 with --incsearch; improve performance with long lines;
                 fix performance with & filtering; change search position when
                 using --incsearch; treat some composing chars as binary.
 */
 
-char version[] = "681x";
+char version[] = "681";
