@@ -1054,6 +1054,7 @@ v681  8/2/25    Fix bug using -g with -J; fix bug when pasting input
                 with --incsearch; improve performance with long lines;
                 fix performance with & filtering; change search position when
                 using --incsearch; treat some composing chars as binary.
+v682
 */
 
-char version[] = "681";
+char version[] = "682x";

@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 679 and 681
+	Major changes between "less" versions 679 and 682
 
 * Change --incsearch so that after typing each character of the pattern,
   the search begins at the position where the search command was invoked,
