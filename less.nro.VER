@@ -2407,8 +2407,8 @@ end character in an ANSI color escape sequence
 (default "0123456789:;[?!"\(aq#%()*+\ ").
 .IP LESSANSIOSCALLOW
 A comma-separated list of OSC types which are output directly to the
-terminal when \-R is in effect.
-By default, only OSC 8 sequences are output directly.
+terminal when \-R is in effect
+(default "8"; that is, only OSC 8 sequences are output directly).
 .IP LESSANSIOSCCHARS
 Characters which may follow an ESC character to mark the start
 of an "OS Command" sequence. 
@@ -2480,9 +2480,7 @@ file. (Not used if "$LESSKEYIN_SYSTEM" exists.)
 List of characters which are considered "metacharacters" by the shell.
 .IP LESSMETAESCAPE
 Prefix which less will add before each metacharacter in a
-command sent to the shell.
-If LESSMETAESCAPE is an empty string, commands containing
-metacharacters will not be passed to the shell.
+command sent to the shell (default "\\").
 .IP LESSOPEN
 Command line to invoke the (optional) input-preprocessor.
 .IP LESSSECURE
@@ -2492,7 +2490,8 @@ See discussion under SECURITY.
 Enables individual features which are normally disabled by LESSSECURE.
 See discussion under SECURITY.
 .IP LESSSEPARATOR
-String to be appended to a directory name in filename completion.
+String to be appended to a directory name in filename completion
+(default "\\" on MS-DOS, Windows, and OS/2; otherwise "/").
 .IP LESSUTFBINFMT
 Format for displaying non-printable Unicode code points.
 .IP LESSUTFCHARDEF 
