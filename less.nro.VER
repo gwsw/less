@@ -1328,6 +1328,16 @@ of the screen, starting with a decimal point: \&.5 is half of the
 screen width, \&.3 is three tenths of the screen width, and so on.
 If the number is specified as a fraction, the actual number of
 scroll positions is recalculated if the terminal window is resized.
+.IP "\-\-cmd=\fIcommands\fP
+The specified string is taken to be an initial command to
+.BR less .
+This is similar to specifying "+\fIcommands\fP", except that
+commands specified by \-\-cmd are not executed if
+.B less
+exits immediately due to the use of the \-E or \-F option, while
+commands specified by the \fB+\fP option are executed even if
+.B less
+exits immediately.
 .IP "\-\-exit-follow-on-close"
 When using the "F" command on a pipe,
 .B less
@@ -1613,6 +1623,7 @@ If the option starts with ++, the initial command applies to
 every file being viewed, not just the first one.
 The + command described previously
 may also be used to set (or change) an initial command for every file.
+Also see the \-\-cmd option.
 .
 .SH "LINE EDITING"
 When entering a command line at the bottom of the screen

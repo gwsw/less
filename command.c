@@ -54,6 +54,7 @@ extern lbool pasting;
 extern int no_edit_warn;
 extern POSITION soft_eof;
 extern POSITION search_incr_start;
+extern char *first_cmd_at_prompt;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
@@ -908,6 +909,12 @@ static void prompt(void)
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
 	quit_if_one_screen = FALSE; /* only get one chance at this */
+	if (first_cmd_at_prompt != NULL)
+	{
+		ungetsc(first_cmd_at_prompt);
+		first_cmd_at_prompt = NULL;
+		return;
+	}
 
 #if MSDOS_COMPILER==WIN32C
 	/* 

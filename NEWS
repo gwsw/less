@@ -13,6 +13,8 @@
 
 	Major changes between "less" versions 679 and 682
 
+* Add --cmd option (github #624).
+
 * Change --incsearch so that after typing each character of the pattern,
   the search begins at the position where the search command was invoked,
   not the current position (github #640).
