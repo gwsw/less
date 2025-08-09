@@ -30,6 +30,10 @@
 
 * Fix bug in Windows build when autorepeating a search pattern (github #639).
 
+* Fix lesskey bug using #stop directive.
+
+* Fix lesskey bug using "invalid" action (github #643).
+
 * Fix performance issue in & filtering (github #638). Problem was introduced
   in da2a9ecdf16beb642d0c030e35f0351c5f2e5a12 and released in less-673.
 
