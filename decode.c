@@ -786,8 +786,6 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 		if (mlen >= match_len)
 		{
 			match_len = mlen;
-			if (taction == A_UINVALID)
-				taction = A_INVALID;
 			if (taction != A_INVALID)
 			{
 				*sp = (constant char *) tsp;
