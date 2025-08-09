@@ -781,7 +781,7 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, constant char
 	for (t = tlist;  t != NULL;  t = t->t_next)
 	{
 		constant unsigned char *tsp;
-		size_t mlen;
+		size_t mlen = match_len;
 		int taction = cmd_search(cmd, t->t_start, t->t_end, &tsp, &mlen);
 		if (mlen >= match_len)
 		{
