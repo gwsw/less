@@ -483,12 +483,12 @@ public void add_ecmd_table(unsigned char *buf, size_t len)
 /*
  * Add an environment variable table.
  */
-static void add_var_table(struct tablelist **tlist, unsigned char *buf, size_t len)
+static void add_var_table(struct tablelist **tlist, mutable unsigned char *buf, size_t len)
 {
 	struct xbuffer xbuf;
 
 	xbuf_init(&xbuf);
-	expand_evars((char*)buf, len, &xbuf); /*{{unsigned-issue}}*/
+	expand_evars((mutable char*)buf, len, &xbuf); /*{{unsigned-issue}}*/
 	/* {{ We leak the table in buf. expand_evars scribbled in it so it's useless anyway. }} */
 	if (add_cmd_table(tlist, xbuf.data, xbuf.end) < 0)
 		error("Warning: environment variables from lesskey file unavailable", NULL_PARG);
