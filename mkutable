@@ -22,9 +22,20 @@ my %force_space = (
     0x0d => 1, # carriage return
 );
 
+# Override Unicode tables for certain modifier chars which act differently
+# on different terminals. Treat them as binary.
 my %force_binary = (
-    0xad => 1, # soft hyphen
-    0x200d => 1, # zero width joiner
+    0xad => 1, # SOFT HYPHEN
+    0x200d => 1, # ZERO WIDTH JOINER
+    0x1f3fb => 1, # EMOJI MODIFIER FITZPATRICK TYPE-1-2
+    0x1f3fc => 1, # EMOJI MODIFIER FITZPATRICK TYPE-3
+    0x1f3fd => 1, # EMOJI MODIFIER FITZPATRICK TYPE-4
+    0x1f3fe => 1, # EMOJI MODIFIER FITZPATRICK TYPE-5
+    0x1f3ff => 1, # EMOJI MODIFIER FITZPATRICK TYPE-6
+    0x1f9b0 => 1, # EMOJI COMPONENT RED HAIR
+    0x1f9b1 => 1, # EMOJI COMPONENT CURLY HAIR
+    0x1f9b2 => 1, # EMOJI COMPONENT BALD
+    0x1f9b3 => 1, # EMOJI COMPONENT WHITE HAIR
 );
 
 # Hangul Jamo medial vowels and final consonants should be zero width.
