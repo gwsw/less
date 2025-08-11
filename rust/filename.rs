@@ -1,6 +1,7 @@
 use crate::decode::{lgetenv, lgetenv_ext};
+use crate::xbuf::XBuffer;
 use ::c2rust_bitfields;
-use ::libc;
+
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -37,8 +38,6 @@ extern "C" {
     ) -> std::ffi::c_int;
     fn strchr(_: *const std::ffi::c_char, _: std::ffi::c_int) -> *mut std::ffi::c_char;
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
-    fn xbuf_init(xbuf: *mut xbuffer);
-    fn xbuf_add_char(xbuf: *mut xbuffer, c: std::ffi::c_char);
     fn save(s: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn ecalloc(count: size_t, size: size_t) -> *mut std::ffi::c_void;
     fn secure_allow(features: std::ffi::c_int) -> std::ffi::c_int;
@@ -175,14 +174,6 @@ pub union parg {
     pub p_char: std::ffi::c_char,
 }
 pub type PARG = parg;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct xbuffer {
-    pub data: *mut std::ffi::c_uchar,
-    pub end: size_t,
-    pub size: size_t,
-    pub init_size: size_t,
-}
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct xcpy {
@@ -576,23 +567,17 @@ unsafe extern "C" fn seek_filesize(mut f: std::ffi::c_int) -> POSITION {
 }
 #[no_mangle]
 pub unsafe extern "C" fn readfd(mut fd: *mut FILE) -> *mut std::ffi::c_char {
-    let mut xbuf: xbuffer = xbuffer {
-        data: 0 as *mut std::ffi::c_uchar,
-        end: 0,
-        size: 0,
-        init_size: 0,
-    };
-    xbuf_init(&mut xbuf);
+    let mut xbuf = XBuffer::new(16);
     loop {
         let mut ch: std::ffi::c_int = 0;
         ch = getc(fd);
         if ch == '\n' as i32 || ch == -(1 as std::ffi::c_int) {
             break;
         }
-        xbuf_add_char(&mut xbuf, ch as std::ffi::c_char);
+        xbuf.xbuf_add_char(ch as std::ffi::c_char);
     }
-    xbuf_add_char(&mut xbuf, '\0' as i32 as std::ffi::c_char);
-    return xbuf.data as *mut std::ffi::c_char;
+    xbuf.xbuf_add_char(b'\0' as i8);
+    return std::ptr::from_ref(xbuf.char_data().first().unwrap()) as *mut i8;
 }
 unsafe extern "C" fn shellcmd(mut cmd: *const std::ffi::c_char) -> *mut FILE {
     let mut fd: *mut FILE = 0 as *mut FILE;
