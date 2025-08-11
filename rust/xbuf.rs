@@ -25,9 +25,17 @@ impl XBuffer {
         self.add_byte(ch as u8);
     }
 
-    pub fn add_data(&mut self, data: &[u8]) {
+    pub fn add_data(&mut self, data: &[u8], len: usize) {
+        let mut rem = len;
+        if rem == 0 {
+            return;
+        }
         for b in data {
             self.data.push(*b);
+            rem -= 1;
+            if rem == 0 {
+                return;
+            }
         }
     }
 
@@ -37,6 +45,10 @@ impl XBuffer {
 
     pub fn set(&mut self, src: &XBuffer) {
         self.reset();
-        self.add_data(&src.data);
+        self.add_data(&src.data, src.data.len());
+    }
+
+    pub fn char_data(&self) -> &[i8] {
+        unsafe { std::slice::from_raw_parts(self.data.as_ptr() as *const i8, self.data.len()) }
     }
 }

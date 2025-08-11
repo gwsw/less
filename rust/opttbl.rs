@@ -1,10 +1,8 @@
 use crate::decode::lgetenv;
+use crate::xbuf::XBuffer;
 use ::libc;
 extern "C" {
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
-    fn xbuf_init(xbuf: *mut xbuffer);
-    fn xbuf_add_char(xbuf: *mut xbuffer, c: std::ffi::c_char);
-    fn xbuf_pop(xbuf: *mut xbuffer) -> std::ffi::c_int;
     fn sprefix(
         ps: *const std::ffi::c_char,
         s: *const std::ffi::c_char,
@@ -66,14 +64,6 @@ pub struct loption {
 pub struct optname {
     pub oname: *const std::ffi::c_char,
     pub onext: *mut optname,
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct xbuffer {
-    pub data: *mut std::ffi::c_uchar,
-    pub end: size_t,
-    pub size: size_t,
-    pub init_size: size_t,
 }
 #[no_mangle]
 pub static mut quiet: std::ffi::c_int = 0;
@@ -2272,14 +2262,8 @@ pub unsafe extern "C" fn findopt_name(
 pub unsafe extern "C" fn findopts_name(mut pfx: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut o: *const loption = 0 as *const loption;
     let mut oname: *const optname = 0 as *const optname;
-    let mut xbuf: xbuffer = xbuffer {
-        data: 0 as *mut std::ffi::c_uchar,
-        end: 0,
-        size: 0,
-        init_size: 0,
-    };
+    let mut xbuf = XBuffer::new(16);
     let mut uppercase: std::ffi::c_int = 0;
-    xbuf_init(&mut xbuf);
     o = option.as_mut_ptr();
     while (*o).oletter as std::ffi::c_int != '\0' as i32 {
         if !((*o).otype & 0o100 as std::ffi::c_int != 0) {
@@ -2292,8 +2276,7 @@ pub unsafe extern "C" fn findopts_name(mut pfx: *const std::ffi::c_char) -> *mut
                         let mut np: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
                         np = (*oname).oname;
                         while *np as std::ffi::c_int != '\0' as i32 {
-                            xbuf_add_char(
-                                &mut xbuf,
+                            xbuf.xbuf_add_char(
                                 (if uppercase != 0
                                     && (*np as std::ffi::c_int >= 'a' as i32
                                         && *np as std::ffi::c_int <= 'z' as i32)
@@ -2305,7 +2288,7 @@ pub unsafe extern "C" fn findopts_name(mut pfx: *const std::ffi::c_char) -> *mut
                             );
                             np = np.offset(1);
                         }
-                        xbuf_add_char(&mut xbuf, ' ' as i32 as std::ffi::c_char);
+                        xbuf.xbuf_add_char(b' ' as i8);
                     }
                     if (*o).otype & 0o2 as std::ffi::c_int == 0 {
                         break;
@@ -2317,7 +2300,7 @@ pub unsafe extern "C" fn findopts_name(mut pfx: *const std::ffi::c_char) -> *mut
         }
         o = o.offset(1);
     }
-    xbuf_pop(&mut xbuf);
-    xbuf_add_char(&mut xbuf, '\0' as i32 as std::ffi::c_char);
-    return xbuf.data as *mut std::ffi::c_char;
+    xbuf.pop();
+    xbuf.xbuf_add_char(b'\0' as i8);
+    return xbuf.data.as_ptr() as *mut std::ffi::c_char;
 }

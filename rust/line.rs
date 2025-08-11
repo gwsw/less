@@ -1,5 +1,6 @@
 use crate::decode::lgetenv;
-use ::libc;
+use crate::xbuf::XBuffer;
+use std::sync::LazyLock;
 extern "C" {
     fn calloc(_: std::ffi::c_ulong, _: std::ffi::c_ulong) -> *mut std::ffi::c_void;
     fn free(_: *mut std::ffi::c_void);
@@ -17,11 +18,6 @@ extern "C" {
         _: *mut *const std::ffi::c_char,
         _: std::ffi::c_int,
     ) -> std::ffi::c_ulong;
-    fn xbuf_init(xbuf: *mut xbuffer);
-    fn xbuf_reset(xbuf: *mut xbuffer);
-    fn xbuf_add_char(xbuf: *mut xbuffer, c: std::ffi::c_char);
-    fn xbuf_add_data(xbuf: *mut xbuffer, data: *const std::ffi::c_uchar, len: size_t);
-    fn xbuf_char_data(xbuf: *const xbuffer) -> *const std::ffi::c_char;
     fn ecalloc(count: size_t, size: size_t) -> *mut std::ffi::c_void;
     fn skipspc(s: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn parse_color(
@@ -69,7 +65,6 @@ extern "C" {
         nohide: std::ffi::c_int,
         p_matches: *mut std::ffi::c_int,
     ) -> std::ffi::c_int;
-    fn xbuf_set(dst: *mut xbuffer, src: *mut xbuffer);
     static mut sigs: std::ffi::c_int;
     static mut bs_mode: std::ffi::c_int;
     static mut proc_backspace: std::ffi::c_int;
@@ -145,14 +140,6 @@ pub struct ansi_state_0 {
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
-pub struct xbuffer {
-    pub data: *mut std::ffi::c_uchar,
-    pub end: size_t,
-    pub size: size_t,
-    pub init_size: size_t,
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
 pub struct C2RustUnnamed {
     pub buf: *mut std::ffi::c_char,
     pub attr: *mut std::ffi::c_int,
@@ -185,24 +172,22 @@ static mut linebuf: C2RustUnnamed = C2RustUnnamed {
     pfx_attr: [0; 21],
     pfx_end: 0,
 };
-static mut shifted_ansi: xbuffer = xbuffer {
-    data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
-    end: 0,
-    size: 0,
-    init_size: 0,
-};
-static mut last_ansi: xbuffer = xbuffer {
-    data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
-    end: 0,
-    size: 0,
-    init_size: 0,
-};
-static mut last_ansis: [xbuffer; 3] = [xbuffer {
-    data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
-    end: 0,
-    size: 0,
-    init_size: 0,
-}; 3];
+const NUM_LAST_ANSIS: usize = 3;
+/*
+ * Buffer of ansi sequences which have been shifted off the left edge
+ * of the screen.
+ */
+static mut shifted_ansi: LazyLock<XBuffer> = LazyLock::new(|| XBuffer::new(16));
+/*
+ * Ring buffer of last ansi sequences sent.
+ * While sending a line, these will be resent at the end
+ * of any highlighted string, to restore text modes.
+ * {{ Not ideal, since we don't really know how many to resend. }}
+ */
+static mut last_ansi: LazyLock<XBuffer> = LazyLock::new(|| XBuffer::new(16));
+static mut last_ansis: LazyLock<[XBuffer; NUM_LAST_ANSIS]> =
+    LazyLock::new(|| core::array::from_fn(|_| XBuffer::new(16)));
+
 static mut curr_last_ansi: std::ffi::c_int = 0;
 static mut size_linebuf: size_t = 0 as std::ffi::c_int as size_t;
 static mut line_ansi: *mut ansi_state_0 = 0 as *const ansi_state_0 as *mut ansi_state_0;
@@ -572,13 +557,7 @@ pub unsafe extern "C" fn init_line() {
     }
     osc_ansi_allow_count = 0 as std::ffi::c_int;
     if let Ok(mut s) = lgetenv("LESSANSIOSCALLOW") {
-        let mut xbuf: xbuffer = xbuffer {
-            data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
-            end: 0,
-            size: 0,
-            init_size: 0,
-        };
-        xbuf_init(&mut xbuf);
+        let mut xbuf = XBuffer::new(16);
         loop {
             let mut num: std::ffi::c_long = 0;
             s = skipspc(s);
@@ -590,15 +569,17 @@ pub unsafe extern "C" fn init_line() {
             if *s as std::ffi::c_int == ',' as i32 {
                 s = s.offset(1);
             }
-            xbuf_add_data(
-                &mut xbuf,
-                &mut num as *mut std::ffi::c_long as *const std::ffi::c_void
-                    as *const std::ffi::c_uchar,
-                ::core::mem::size_of::<std::ffi::c_long>() as std::ffi::c_ulong,
+            xbuf.add_data(
+                std::slice::from_raw_parts(
+                    &mut num as *mut std::ffi::c_long as *const std::ffi::c_void
+                        as *const std::ffi::c_uchar,
+                    ::core::mem::size_of::<std::ffi::c_long>() as usize,
+                ),
+                ::core::mem::size_of::<std::ffi::c_long>() as usize,
             );
             osc_ansi_allow_count += 1;
         }
-        osc_ansi_allow = xbuf.data as *mut std::ffi::c_long;
+        osc_ansi_allow = xbuf.data.as_ptr() as *mut std::ffi::c_long;
     }
     linebuf.buf = ecalloc(
         1024 as std::ffi::c_int as size_t,
@@ -609,13 +590,7 @@ pub unsafe extern "C" fn init_line() {
         ::core::mem::size_of::<std::ffi::c_int>() as std::ffi::c_ulong,
     ) as *mut std::ffi::c_int;
     size_linebuf = 1024 as std::ffi::c_int as size_t;
-    xbuf_init(&mut shifted_ansi);
-    xbuf_init(&mut last_ansi);
     ax = 0 as std::ffi::c_int;
-    while ax < 3 as std::ffi::c_int {
-        xbuf_init(&mut *last_ansis.as_mut_ptr().offset(ax as isize));
-        ax += 1;
-    }
     curr_last_ansi = 0 as std::ffi::c_int;
 }
 unsafe extern "C" fn expand_linebuf() -> std::ffi::c_int {
@@ -682,7 +657,7 @@ unsafe extern "C" fn pshift(mut end: size_t) {
     i = linebuf.print;
     while i < end {
         if *(linebuf.attr).offset(i as isize) == (1 as std::ffi::c_int) << 4 as std::ffi::c_int {
-            xbuf_add_char(&mut shifted_ansi, *(linebuf.buf).offset(i as isize));
+            shifted_ansi.xbuf_add_char(*(linebuf.buf).offset(i as isize));
         }
         i = i.wrapping_add(1);
     }
@@ -690,7 +665,7 @@ unsafe extern "C" fn pshift(mut end: size_t) {
 #[no_mangle]
 pub unsafe extern "C" fn prewind(mut contig: lbool) {
     let mut ax: std::ffi::c_int = 0;
-    xbuf_reset(&mut shifted_ansi);
+    shifted_ansi.reset();
     if contig as std::ffi::c_uint != 0 && linebuf.prev_end != 0 as std::ffi::c_int as size_t {
         pshift(linebuf.prev_end);
     }
@@ -719,10 +694,10 @@ pub unsafe extern "C" fn prewind(mut contig: lbool) {
     clear_after_line = LFALSE;
     line_mark_attr = 0 as std::ffi::c_int;
     line_pos = -(1 as std::ffi::c_int) as POSITION;
-    xbuf_reset(&mut last_ansi);
+    last_ansi.reset();
     ax = 0 as std::ffi::c_int;
     while ax < 3 as std::ffi::c_int {
-        xbuf_reset(&mut *last_ansis.as_mut_ptr().offset(ax as isize));
+        last_ansis[ax as usize].reset();
         ax += 1;
     }
     curr_last_ansi = 0 as std::ffi::c_int;
@@ -1282,9 +1257,9 @@ unsafe extern "C" fn store_char(
         while ai < 3 as std::ffi::c_int {
             let mut ax: std::ffi::c_int = (curr_last_ansi + ai) % 3 as std::ffi::c_int;
             i = 0 as std::ffi::c_int as size_t;
-            while i < last_ansis[ax as usize].end {
+            while i < last_ansis[ax as usize].data.len() as u64 {
                 if store_char(
-                    *(last_ansis[ax as usize].data).offset(i as isize) as LWCHAR,
+                    ((&*last_ansis)[ax as usize].data)[i as usize] as LWCHAR,
                     (1 as std::ffi::c_int) << 4 as std::ffi::c_int,
                     0 as *const std::ffi::c_char,
                     pos,
@@ -1329,17 +1304,17 @@ unsafe extern "C" fn store_char(
         if line_pos == -(1 as std::ffi::c_int) as POSITION {
             line_pos = pos;
         }
-        if shifted_ansi.end > 0 as std::ffi::c_int as size_t {
+        if shifted_ansi.data.len() > 0 {
             i = 0 as std::ffi::c_int as size_t;
-            while i < shifted_ansi.end {
+            while i < shifted_ansi.data.len() as u64 {
                 add_linebuf(
-                    *(shifted_ansi.data).offset(i as isize) as std::ffi::c_char,
+                    ((&*shifted_ansi).data)[i as usize] as std::ffi::c_char,
                     (1 as std::ffi::c_int) << 4 as std::ffi::c_int,
                     0 as std::ffi::c_int,
                 );
                 i = i.wrapping_add(1);
             }
-            xbuf_reset(&mut shifted_ansi);
+            shifted_ansi.reset();
         }
     }
     inc_end_column(w);
@@ -1352,7 +1327,7 @@ unsafe extern "C" fn store_char(
     }
     if cshift < hshift {
         if a == (1 as std::ffi::c_int) << 4 as std::ffi::c_int {
-            xbuf_add_char(&mut shifted_ansi, ch as std::ffi::c_char);
+            shifted_ansi.xbuf_add_char(ch as std::ffi::c_char);
         }
         if linebuf.end > linebuf.print {
             let mut i_0: size_t = 0;
@@ -1599,7 +1574,7 @@ unsafe extern "C" fn store_ansi(
                 }
                 _ => {}
             }
-            xbuf_add_char(&mut last_ansi, ch as std::ffi::c_char);
+            last_ansi.xbuf_add_char(ch as std::ffi::c_char);
         }
         3 => {
             if store_char(ch, (1 as std::ffi::c_int) << 4 as std::ffi::c_int, rep, pos) != 0 {
@@ -1607,22 +1582,19 @@ unsafe extern "C" fn store_ansi(
             }
             ansi_done(line_ansi);
             line_ansi = 0 as *mut ansi_state_0;
-            xbuf_add_char(&mut last_ansi, ch as std::ffi::c_char);
-            xbuf_set(
-                &mut *last_ansis.as_mut_ptr().offset(curr_last_ansi as isize),
-                &mut last_ansi,
-            );
-            xbuf_reset(&mut last_ansi);
+            last_ansi.xbuf_add_char(ch as std::ffi::c_char);
+            last_ansis[curr_last_ansi as usize].set(&mut last_ansi);
+            last_ansi.reset();
             curr_last_ansi = (curr_last_ansi + 1 as std::ffi::c_int) % 3 as std::ffi::c_int;
         }
         2 => {
             let mut start: *const std::ffi::c_char = if cshift < hshift {
-                xbuf_char_data(&mut shifted_ansi)
+                std::ptr::from_ref((&*shifted_ansi).char_data().first().unwrap())
             } else {
                 linebuf.buf as *const std::ffi::c_char
             };
             let mut end: *mut size_t = if cshift < hshift {
-                &mut shifted_ansi.end
+                std::ptr::from_mut(&mut (shifted_ansi.data.len() as u64))
             } else {
                 &mut linebuf.end
             };
@@ -1644,7 +1616,7 @@ unsafe extern "C" fn store_ansi(
                 }
             }
             *end = p.offset_from(start) as std::ffi::c_long as size_t;
-            xbuf_reset(&mut last_ansi);
+            last_ansi.reset();
             ansi_done(line_ansi);
             line_ansi = 0 as *mut ansi_state_0;
         }
