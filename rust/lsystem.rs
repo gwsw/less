@@ -1,6 +1,7 @@
 use crate::decode::lgetenv;
 use ::c2rust_bitfields;
 use ::libc;
+use std::ffi::CString;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -130,11 +131,11 @@ pub unsafe extern "C" fn lsystem(
     p = 0 as *mut std::ffi::c_char;
     if let Ok(shell) = lgetenv("SHELL") {
         if *cmd as std::ffi::c_int == '\0' as i32 {
-            p = save(shell);
+            p = save(CString::new(shell).unwrap().as_ptr());
         } else {
             let mut esccmd: *mut std::ffi::c_char = shell_quote(cmd);
             if !esccmd.is_null() {
-                let mut len: size_t = (strlen(shell))
+                let mut len: size_t = (shell.len() as u64)
                     .wrapping_add(strlen(esccmd))
                     .wrapping_add(5 as std::ffi::c_int as std::ffi::c_ulong);
                 p = ecalloc(

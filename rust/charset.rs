@@ -1,5 +1,16 @@
+use crate::compose_uni::compose_table;
 use crate::decode::lgetenv;
-use ::libc;
+use crate::fmt_uni::fmt_table;
+use crate::ubin_uni::ubin_table;
+use crate::wide_uni::wide_table;
+use crate::xbuf::XBuffer;
+use std::ffi::CStr;
+use std::ffi::CString;
+use std::fmt::Arguments;
+use std::sync::LazyLock;
+
+type wchar_range_table = Vec<wchar_range>;
+
 extern "C" {
     fn snprintf(
         _: *mut std::ffi::c_char,
@@ -62,15 +73,20 @@ pub type PARG = parg;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct wchar_range {
-    pub first: LWCHAR,
-    pub last: LWCHAR,
+    pub first: char,
+    pub last: char,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct wchar_range_table {
-    pub table: *mut wchar_range,
-    pub count: std::ffi::c_uint,
+
+impl wchar_range {
+    fn as_bytes(&self) -> Vec<u8> {
+        [
+            u32::to_ne_bytes(self.first as u32),
+            u32::to_ne_bytes(self.last as u32),
+        ]
+        .concat()
+    }
 }
+
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct xbuffer {
@@ -82,15 +98,15 @@ pub struct xbuffer {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct charset {
-    pub name: *mut std::ffi::c_char,
-    pub p_flag: *mut std::ffi::c_int,
-    pub desc: *mut std::ffi::c_char,
+    pub name: &'static str,
+    pub p_flag: Option<bool>,
+    pub desc: &'static str,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct cs_alias {
-    pub name: *mut std::ffi::c_char,
-    pub oname: *mut std::ffi::c_char,
+    pub name: &'static str,
+    pub oname: &'static str,
 }
 pub const CODESET: C2RustUnnamed_0 = 14;
 pub type nl_item = std::ffi::c_int;
@@ -477,782 +493,389 @@ pub const ABDAY_4: C2RustUnnamed_0 = 131075;
 pub const ABDAY_3: C2RustUnnamed_0 = 131074;
 pub const ABDAY_2: C2RustUnnamed_0 = 131073;
 pub const ABDAY_1: C2RustUnnamed_0 = 131072;
+
+const ESC: u32 = '[' as u32 & 0o37;
+const BS_CONTROL: i32 = 2; /* \b treated as control char; prints as ^H */
+
+const IS_BINARY_CHAR: i32 = 1;
+const IS_CONTROL_CHAR: i32 = 2;
+
+/* Special char bit-flags used to tell put_line() to do something special */
+const AT_NORMAL: i32 = 0;
+const AT_UNDERLINE: i32 = 1 << 0;
+const AT_BOLD: i32 = 1 << 1;
+const AT_BLINK: i32 = 1 << 2;
+const AT_STANDOUT: i32 = 1 << 3;
+const AT_ANSI: i32 = 1 << 4; /* Content-supplied "ANSI" escape sequence */
+const AT_BINARY: i32 = 1 << 5; /* LESS*BINFMT representation */
+const AT_HILITE: i32 = 1 << 6; /* Internal highlights (e.g., for search) */
+
+const AT_COLOR_SHIFT: i32 = 8;
+const AT_NUM_COLORS: i32 = 16;
+const AT_COLOR: i32 = (AT_NUM_COLORS - 1) << AT_COLOR_SHIFT;
+const AT_COLOR_ATTN: i32 = 1 << AT_COLOR_SHIFT;
+const AT_COLOR_BIN: i32 = 2 << AT_COLOR_SHIFT;
+const AT_COLOR_CTRL: i32 = 3 << AT_COLOR_SHIFT;
+const AT_COLOR_ERROR: i32 = 4 << AT_COLOR_SHIFT;
+const AT_COLOR_LINENUM: i32 = 5 << AT_COLOR_SHIFT;
+const AT_COLOR_MARK: i32 = 6 << AT_COLOR_SHIFT;
+const AT_COLOR_PROMPT: i32 = 7 << AT_COLOR_SHIFT;
+const AT_COLOR_RSCROLL: i32 = 8 << AT_COLOR_SHIFT;
+const AT_COLOR_HEADER: i32 = 9 << AT_COLOR_SHIFT;
+const AT_COLOR_SEARCH: i32 = 10 << AT_COLOR_SHIFT;
+
 #[no_mangle]
-pub static mut utf_mode: std::ffi::c_int = 0 as std::ffi::c_int;
+pub static mut utf_mode: bool = false;
+
 #[no_mangle]
-pub static mut charsets: [charset; 21] = unsafe {
+
+#[rustfmt::skip]
+pub static charsets: [charset; 20] = unsafe {
     [
-        {
-            let mut init = charset {
-                name: b"ascii\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.b\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"utf-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: &utf_mode as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.b126.bb\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.33b.\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"latin3\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.33b5.b8.b15.b4.b12.b18.b12.b.\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"arabic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.33b.3b.7b2.13b.3b.b26.5b19.b\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"greek\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.33b4.2b4.b3.b35.b44.b\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"greek2005\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.33b14.b35.b44.b\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"hebrew\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.33b.b29.32b28.2b2.b\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"koi8-r\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.b.\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"KOI8-T\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.b8.b6.b8.b.b.5b7.3b4.b4.b3.b.b.3b.\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"georgianps\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.3b11.4b12.2b.\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"tcvn\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"b..b...bcccbccbbb7.8b95.b48.5b.\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"TIS-620\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.b.4b.11b7.8b.\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"next\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc18b95.bb125.bb\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"dos\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc12bc5b95.b.\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"windows-1251\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc12bc5b95.b24.b.\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"windows-1252\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc12bc5b95.b.b11.b.2b12.b.\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"windows-1255\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"8bcccbcc12bc5b95.b.b8.b.5b9.b.4b.\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"ebcdic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc:
-                    b"5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b.\0"
-                        as *const u8 as *const std::ffi::c_char
-                        as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: b"IBM-1047\0" as *const u8 as *const std::ffi::c_char
-                    as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: b"4cbcbc3b9cbccbccbb4c6bcc5b3cbbc4bc4bccbc191.b\0" as *const u8
-                    as *const std::ffi::c_char as *mut std::ffi::c_char,
-            };
-            init
-        },
-        {
-            let mut init = charset {
-                name: 0 as *const std::ffi::c_char as *mut std::ffi::c_char,
-                p_flag: 0 as *const std::ffi::c_int as *mut std::ffi::c_int,
-                desc: 0 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            };
-            init
-        },
-    ]
+        charset { name: "ascii",             p_flag: None,       desc: "8bcccbcc18b95.b" },
+        charset { name: "utf-8",             p_flag: Some(utf_mode),  desc: "8bcccbcc18b95.b126.bb" },
+        charset { name: "iso8859",           p_flag: None,       desc: "8bcccbcc18b95.33b." },
+        charset { name: "latin3",            p_flag: None,       desc: "8bcccbcc18b95.33b5.b8.b15.b4.b12.b18.b12.b." },
+        charset { name: "arabic",            p_flag: None,       desc: "8bcccbcc18b95.33b.3b.7b2.13b.3b.b26.5b19.b" },
+        charset { name: "greek",             p_flag: None,       desc: "8bcccbcc18b95.33b4.2b4.b3.b35.b44.b" },
+        charset { name: "greek2005",         p_flag: None,       desc: "8bcccbcc18b95.33b14.b35.b44.b" },
+        charset { name: "hebrew",            p_flag: None,       desc: "8bcccbcc18b95.33b.b29.32b28.2b2.b" },
+        charset { name: "koi8-r",            p_flag: None,       desc: "8bcccbcc18b95.b." },
+        charset { name: "KOI8-T",            p_flag: None,       desc: "8bcccbcc18b95.b8.b6.b8.b.b.5b7.3b4.b4.b3.b.b.3b." },
+        charset { name: "georgianps",        p_flag: None,       desc: "8bcccbcc18b95.3b11.4b12.2b." },
+        charset { name: "tcvn",              p_flag: None,       desc: "b..b...bcccbccbbb7.8b95.b48.5b." },
+        charset { name: "TIS-620",           p_flag: None,       desc: "8bcccbcc18b95.b.4b.11b7.8b." },
+        charset { name: "next",              p_flag: None,       desc: "8bcccbcc18b95.bb125.bb" },
+        charset { name: "dos",               p_flag: None,       desc: "8bcccbcc12bc5b95.b." },
+        charset { name: "windows-1251",      p_flag: None,       desc: "8bcccbcc12bc5b95.b24.b." },
+        charset { name: "windows-1252",      p_flag: None,       desc: "8bcccbcc12bc5b95.b.b11.b.2b12.b." },
+        charset { name: "windows-1255",      p_flag: None,       desc: "8bcccbcc12bc5b95.b.b8.b.5b9.b.4b." },
+        charset { name: "ebcdic",            p_flag: None,       desc: "5bc6bcc7bcc41b.9b7.9b5.b..8b6.10b6.b9.7b9.8b8.17b3.3b9.7b9.8b8.6b10.b.b.b." },
+        charset { name: "IBM-1047",          p_flag: None,       desc: "4cbcbc3b9cbccbccbb4c6bcc5b3cbbc4bc4bccbc191.b" },
+        ]
 };
+
 #[no_mangle]
-pub static mut cs_aliases: [cs_alias; 43] = [
-    {
-        let mut init = cs_alias {
-            name: b"UTF-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"utf-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"utf8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"utf-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"UTF8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"utf-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ANSI_X3.4-1968\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-            oname: b"ascii\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"US-ASCII\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"ascii\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"latin1\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-1\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"latin9\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-15\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"latin2\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-2\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-3\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"latin3\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"latin4\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-4\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"cyrillic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-5\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-6\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"arabic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-7\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"greek\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"IBM9005\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"greek2005\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"hebrew\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"latin5\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-9\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"latin6\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-10\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"latin7\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-13\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"latin8\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-14\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"latin10\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"ISO-8859-16\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"iso8859\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"IBM437\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"dos\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"EBCDIC-US\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"ebcdic\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"IBM1047\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"IBM-1047\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"KOI8-R\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"koi8-r\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"KOI8-U\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"koi8-r\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"GEORGIAN-PS\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"georgianps\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"TCVN5712-1\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"tcvn\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"NEXTSTEP\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"next\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"windows\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"windows-1252\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"CP1251\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"windows-1251\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"CP1252\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"windows-1252\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: b"CP1255\0" as *const u8 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: b"windows-1255\0" as *const u8 as *const std::ffi::c_char
-                as *mut std::ffi::c_char,
-        };
-        init
-    },
-    {
-        let mut init = cs_alias {
-            name: 0 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            oname: 0 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    },
-];
-static mut chardef: [std::ffi::c_char; 256] = [0; 256];
-static mut binfmt: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-static mut utfbinfmt: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+#[rustfmt::skip]
+pub static cs_aliases: [cs_alias; 42] =
+    [
+	cs_alias { name: "UTF-8",              oname: "utf-8" },
+	cs_alias { name: "utf8",               oname: "utf-8" },
+	cs_alias { name: "UTF8",               oname: "utf-8" },
+	cs_alias { name: "ANSI_X3.4-1968",     oname: "ascii" },
+	cs_alias { name: "US-ASCII",           oname: "ascii" },
+	cs_alias { name: "latin1",             oname: "iso8859" },
+	cs_alias { name: "ISO-8859-1",         oname: "iso8859" },
+	cs_alias { name: "latin9",             oname: "iso8859" },
+	cs_alias { name: "ISO-8859-15",        oname: "iso8859" },
+	cs_alias { name: "latin2",             oname: "iso8859" },
+	cs_alias { name: "ISO-8859-2",         oname: "iso8859" },
+	cs_alias { name: "ISO-8859-3",         oname: "latin3" },
+	cs_alias { name: "latin4",             oname: "iso8859" },
+	cs_alias { name: "ISO-8859-4",         oname: "iso8859" },
+	cs_alias { name: "cyrillic",           oname: "iso8859" },
+	cs_alias { name: "ISO-8859-5",         oname: "iso8859" },
+	cs_alias { name: "ISO-8859-6",         oname: "arabic" },
+	cs_alias { name: "ISO-8859-7",         oname: "greek" },
+	cs_alias { name: "IBM9005",            oname: "greek2005" },
+	cs_alias { name: "ISO-8859-8",         oname: "hebrew" },
+	cs_alias { name: "latin5",             oname: "iso8859" },
+	cs_alias { name: "ISO-8859-9",         oname: "iso8859" },
+	cs_alias { name: "latin6",             oname: "iso8859" },
+	cs_alias { name: "ISO-8859-10",        oname: "iso8859" },
+	cs_alias { name: "latin7",             oname: "iso8859" },
+	cs_alias { name: "ISO-8859-13",        oname: "iso8859" },
+	cs_alias { name: "latin8",             oname: "iso8859" },
+	cs_alias { name: "ISO-8859-14",        oname: "iso8859" },
+	cs_alias { name: "latin10",            oname: "iso8859" },
+	cs_alias { name: "ISO-8859-16",        oname: "iso8859" },
+	cs_alias { name: "IBM437",             oname: "dos" },
+	cs_alias { name: "EBCDIC-US",          oname: "ebcdic" },
+	cs_alias { name: "IBM1047",            oname: "IBM-1047" },
+	cs_alias { name: "KOI8-R",             oname: "koi8-r" },
+	cs_alias { name: "KOI8-U",             oname: "koi8-r" },
+	cs_alias { name: "GEORGIAN-PS",        oname: "georgianps" },
+	cs_alias { name: "TCVN5712-1",         oname: "tcvn" },
+	cs_alias { name: "NEXTSTEP",           oname: "next" },
+	cs_alias { name: "windows",            oname: "windows-1252" }, /* backward compatibility */
+	cs_alias { name: "CP1251",             oname: "windows-1251" },
+	cs_alias { name: "CP1252",             oname: "windows-1252" },
+	cs_alias { name: "CP1255",             oname: "windows-1255" },
+    ];
+
+static mut chardef: [u8; 256] = [0; 256];
+static mut binfmt: String = String::new();
+static mut utfbinfmt: String = String::new();
+
 #[no_mangle]
-pub static mut binattr: std::ffi::c_int =
-    (1 as std::ffi::c_int) << 3 as std::ffi::c_int | (2 as std::ffi::c_int) << 8 as std::ffi::c_int;
-static mut user_wide_array: xbuffer = xbuffer {
-    data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
-    end: 0,
-    size: 0,
-    init_size: 0,
-};
-static mut user_ubin_array: xbuffer = xbuffer {
-    data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
-    end: 0,
-    size: 0,
-    init_size: 0,
-};
-static mut user_compose_array: xbuffer = xbuffer {
-    data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
-    end: 0,
-    size: 0,
-    init_size: 0,
-};
-static mut user_prt_array: xbuffer = xbuffer {
-    data: 0 as *const std::ffi::c_uchar as *mut std::ffi::c_uchar,
-    end: 0,
-    size: 0,
-    init_size: 0,
-};
-static mut user_wide_table: wchar_range_table = wchar_range_table {
-    table: 0 as *const wchar_range as *mut wchar_range,
-    count: 0,
-};
-static mut user_ubin_table: wchar_range_table = wchar_range_table {
-    table: 0 as *const wchar_range as *mut wchar_range,
-    count: 0,
-};
-static mut user_compose_table: wchar_range_table = wchar_range_table {
-    table: 0 as *const wchar_range as *mut wchar_range,
-    count: 0,
-};
-static mut user_prt_table: wchar_range_table = wchar_range_table {
-    table: 0 as *const wchar_range as *mut wchar_range,
-    count: 0,
-};
-unsafe extern "C" fn wchar_range_table_set(mut tbl: *mut wchar_range_table, mut arr: *mut xbuffer) {
-    (*tbl).table = (*arr).data as *mut wchar_range;
-    (*tbl).count = ((*arr).end)
-        .wrapping_div(::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong)
-        as std::ffi::c_uint;
+pub static mut binattr: i32 = AT_STANDOUT | AT_COLOR_BIN;
+
+static mut user_wide_array: LazyLock<XBuffer> = LazyLock::new(|| XBuffer::new(16));
+static mut user_ubin_array: LazyLock<XBuffer> = LazyLock::new(|| XBuffer::new(16));
+static mut user_compose_array: LazyLock<XBuffer> = LazyLock::new(|| XBuffer::new(16));
+static mut user_prt_array: LazyLock<XBuffer> = LazyLock::new(|| XBuffer::new(16));
+
+static mut user_wide_table: wchar_range_table = Vec::new();
+static mut user_ubin_table: wchar_range_table = Vec::new();
+static mut user_compose_table: wchar_range_table = Vec::new();
+static mut user_prt_table: wchar_range_table = Vec::new();
+
+/*
+ * Set a wchar_range_table to the table in an xbuffer.
+ */
+unsafe extern "C" fn wchar_range_table_set(arr: &mut XBuffer) -> wchar_range_table {
+    arr.data
+        .chunks_exact(4)
+        .map(|chunk| char::from_u32(u32::from_le_bytes(chunk.try_into().unwrap())).unwrap())
+        .collect::<Vec<char>>()
+        .chunks_exact(2)
+        .map(|chunk| wchar_range {
+            first: chunk[0],
+            last: chunk[1],
+        })
+        .collect()
 }
-unsafe extern "C" fn skip_uprefix(mut s: *const std::ffi::c_char) -> *const std::ffi::c_char {
-    if *s as std::ffi::c_int == 'U' as i32 || *s as std::ffi::c_int == 'u' as i32 {
-        s = s.offset(1);
-        if *s as std::ffi::c_int == '+' as i32 {
-            s = s.offset(1);
+
+/*
+ * Skip over a "U" or "U+" prefix before a hex codepoint.
+ */
+unsafe extern "C" fn skip_uprefix(s: &[u8]) -> usize {
+    let mut idx = 0;
+    if s[0] == b'U' || s[0] == b'u' {
+        if s[1] == b'+' {
+            idx += 2;
         }
     }
-    return s;
+    idx
 }
-unsafe extern "C" fn wchar_range_get(
-    mut ss: *mut *const std::ffi::c_char,
-    mut range: *mut wchar_range,
-) {
-    let mut s: *const std::ffi::c_char = skip_uprefix(*ss);
-    (*range).first = lstrtoulc(s, &mut s, 16 as std::ffi::c_int);
-    if *s.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '-' as i32 {
-        s = skip_uprefix(&*s.offset(1 as std::ffi::c_int as isize));
-        (*range).last = lstrtoulc(s, &mut s, 16 as std::ffi::c_int);
-    } else {
-        (*range).last = (*range).first;
+
+fn parse_hex_prefix(input: &[u8]) -> Option<(char, usize)> {
+    let mut end = 0;
+
+    while end < input.len() && input[end].is_ascii_hexdigit() {
+        end += 1;
     }
-    *ss = s;
+
+    if end == 0 {
+        return None;
+    }
+
+    let number = u64::from_str_radix(std::str::from_utf8(&input[..end]).ok()?, 16).ok()?;
+
+    if let Some(ch) = char::from_u32(number as u32) {
+        return Some((ch, end));
+    }
+    None
 }
-unsafe extern "C" fn ichardef_utf(mut s: *const std::ffi::c_char) {
-    xbuf_init(&mut user_wide_array);
-    xbuf_init(&mut user_ubin_array);
-    xbuf_init(&mut user_compose_array);
-    xbuf_init(&mut user_prt_array);
-    if !s.is_null() {
-        while *s.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32 {
-            let mut range: wchar_range = wchar_range { first: 0, last: 0 };
-            wchar_range_get(&mut s, &mut range);
-            if range.last == 0 as std::ffi::c_int as LWCHAR {
+
+/*
+ * Parse a dash-separated range of hex values.
+ */
+unsafe extern "C" fn wchar_range_get(s: &[u8]) -> (wchar_range, usize) {
+    let mut idx = skip_uprefix(s);
+    let mut s = &s[idx..];
+    let mut range = wchar_range {
+        first: '\0',
+        last: '\0',
+    };
+    if let Some((ch, i)) = parse_hex_prefix(&s) {
+        range.first = ch;
+        if s[i] == b'-' {
+            idx = skip_uprefix(&s[i + 1..]);
+            (range.last, idx) = parse_hex_prefix(&s[idx..]).unwrap();
+        } else {
+            range.last = range.first;
+        }
+    }
+    (range, idx)
+}
+
+/*
+ * Parse the LESSUTFCHARDEF variable.
+ */
+unsafe extern "C" fn ichardef_utf(r: Option<String>) {
+    let mut idx = 0;
+    if !r.is_none() {
+        let s = r.unwrap();
+        let s = s.as_str().as_bytes();
+        while s[0] != b'\0' {
+            let (mut range, mut idx) = wchar_range_get(s);
+            if range.last as i32 == 0 {
                 error(
                     b"invalid hex number(s) in LESSUTFCHARDEF\0" as *const u8
                         as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
-                quit(1 as std::ffi::c_int);
+                quit(1);
             }
-            let fresh0 = s;
-            s = s.offset(1);
-            if *fresh0 as std::ffi::c_int != ':' as i32 {
+            if s[idx] == b':' {
+                idx += 1;
                 error(
                     b"missing colon in LESSUTFCHARDEF\0" as *const u8 as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
-                quit(1 as std::ffi::c_int);
+                quit(1);
             }
-            let fresh1 = s;
-            s = s.offset(1);
-            match *fresh1 as std::ffi::c_int {
-                98 => {
-                    xbuf_add_data(
-                        &mut user_ubin_array,
-                        &mut range as *mut wchar_range as *mut std::ffi::c_uchar,
-                        ::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong,
-                    );
+            let range = range.as_bytes();
+            match s[idx] {
+                b'b' => {
+                    user_ubin_array.add_data(&range, range.len());
                 }
-                99 => {
-                    xbuf_add_data(
-                        &mut user_compose_array,
-                        &mut range as *mut wchar_range as *mut std::ffi::c_uchar,
-                        ::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong,
-                    );
+                b'c' => {
+                    user_compose_array.add_data(&range, range.len());
                 }
-                119 => {
-                    xbuf_add_data(
-                        &mut user_wide_array,
-                        &mut range as *mut wchar_range as *mut std::ffi::c_uchar,
-                        ::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong,
-                    );
-                    xbuf_add_data(
-                        &mut user_prt_array,
-                        &mut range as *mut wchar_range as *mut std::ffi::c_uchar,
-                        ::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong,
-                    );
+                b'w' => {
+                    user_wide_array.add_data(&range, range.len());
+                    user_prt_array.add_data(&range, range.len());
                 }
-                112 | 46 => {
-                    xbuf_add_data(
-                        &mut user_prt_array,
-                        &mut range as *mut wchar_range as *mut std::ffi::c_uchar,
-                        ::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong,
-                    );
+                b'p' | b'.' => {
+                    user_prt_array.add_data(&range, range.len());
                 }
-                0 => {
-                    s = s.offset(-1);
+                b'\0' => {
+                    idx -= 1;
                 }
-                _ => {}
+                _ => { /* Ignore unknown character attribute. */ }
             }
-            if *s.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == ',' as i32 {
-                s = s.offset(1);
+            idx += 1;
+            if s[idx] == b',' {
+                idx += 1;
             }
         }
     }
-    wchar_range_table_set(&mut user_wide_table, &mut user_wide_array);
-    wchar_range_table_set(&mut user_ubin_table, &mut user_ubin_array);
-    wchar_range_table_set(&mut user_compose_table, &mut user_compose_array);
-    wchar_range_table_set(&mut user_prt_table, &mut user_prt_array);
+    user_wide_table = wchar_range_table_set(&mut user_wide_array);
+    user_ubin_table = wchar_range_table_set(&mut user_ubin_array);
+    user_compose_table = wchar_range_table_set(&mut user_compose_array);
+    user_prt_table = wchar_range_table_set(&mut user_prt_array);
 }
-unsafe extern "C" fn ichardef(mut s: *const std::ffi::c_char) {
-    let mut cp: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
-    let mut n: std::ffi::c_int = 0;
-    let mut v: std::ffi::c_char = 0;
-    n = 0 as std::ffi::c_int;
-    v = 0 as std::ffi::c_int as std::ffi::c_char;
-    cp = chardef.as_mut_ptr();
-    let mut current_block_15: u64;
-    while *s as std::ffi::c_int != '\0' as i32 {
-        let fresh2 = s;
-        s = s.offset(1);
-        match *fresh2 as std::ffi::c_int {
-            46 => {
-                v = 0 as std::ffi::c_int as std::ffi::c_char;
-                current_block_15 = 7149356873433890176;
+
+/*
+ * Define a charset, given a description string.
+ * The string consists of 256 letters,
+ * one for each character in the charset.
+ * If the string is shorter than 256 letters, missing letters
+ * are taken to be identical to the last one.
+ * A decimal number followed by a letter is taken to be a
+ * repetition of the letter.
+ *
+ * Each letter is one of:
+ *      . normal character
+ *      b binary character
+ *      c control character
+ */
+
+pub unsafe fn ichardef(s: &str) {
+    let mut cp = 0; // index into chardef
+    let mut v: u8 = 0;
+    let mut n: usize = 0;
+
+    let mut chars = s.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        match c {
+            '.' => {
+                v = 0;
             }
-            99 => {
-                v = 0o2 as std::ffi::c_int as std::ffi::c_char;
-                current_block_15 = 7149356873433890176;
+            'c' => {
+                v = IS_CONTROL_CHAR as u8;
             }
-            98 => {
-                v = (0o1 as std::ffi::c_int | 0o2 as std::ffi::c_int) as std::ffi::c_char;
-                current_block_15 = 7149356873433890176;
+            'b' => {
+                v = (IS_BINARY_CHAR | IS_CONTROL_CHAR) as u8;
             }
-            48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 => {
-                let (fresh3, fresh4) = n.overflowing_mul(10 as std::ffi::c_int);
-                *(&mut n as *mut std::ffi::c_int) = fresh3;
-                if !(fresh4 as std::ffi::c_int != 0 || {
-                    let (fresh5, fresh6) = n.overflowing_add(
-                        *s.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int - '0' as i32,
-                    );
-                    *(&mut n as *mut std::ffi::c_int) = fresh5;
-                    fresh6 as std::ffi::c_int != 0
-                }) {
-                    continue;
+            '0'..='9' => {
+                // build number safely
+                let digit = (c as u8 - b'0') as usize;
+                n = n
+                    .checked_mul(10)
+                    .and_then(|x| x.checked_add(digit))
+                    .ok_or("overflow in chardef number")
+                    .unwrap();
+
+                // keep reading digits
+                while let Some(&next) = chars.peek() {
+                    if next.is_ascii_digit() {
+                        let d = (chars.next().unwrap() as u8 - b'0') as usize;
+                        n = n
+                            .checked_mul(10)
+                            .and_then(|x| x.checked_add(d))
+                            .ok_or("overflow in chardef number")
+                            .unwrap();
+                    } else {
+                        break;
+                    }
                 }
-                current_block_15 = 5866350808638245930;
+                continue;
             }
             _ => {
-                current_block_15 = 5866350808638245930;
-            }
-        }
-        match current_block_15 {
-            5866350808638245930 => {
                 error(
-                    b"invalid chardef\0" as *const u8 as *const std::ffi::c_char,
+                    b"invalid chardef" as *const u8 as *const std::ffi::c_char,
                     0 as *mut std::ffi::c_void as *mut PARG,
                 );
                 quit(1 as std::ffi::c_int);
             }
-            _ => {}
         }
-        loop {
-            if cp
-                >= chardef.as_mut_ptr().offset(
-                    ::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong as isize
-                )
-            {
-                error(
-                    b"chardef longer than 256\0" as *const u8 as *const std::ffi::c_char,
-                    0 as *mut std::ffi::c_void as *mut PARG,
-                );
-                quit(1 as std::ffi::c_int);
-            }
-            let fresh7 = cp;
-            cp = cp.offset(1);
-            *fresh7 = v;
-            n -= 1;
-            if !(n > 0 as std::ffi::c_int) {
-                break;
-            }
+
+        // write v into chardef n times (at least once)
+        let count = if n == 0 { 1 } else { n };
+        if cp + count > chardef.len() {
+            error(
+                b"chardef longer than 256" as *const u8 as *const std::ffi::c_char,
+                0 as *mut std::ffi::c_void as *mut PARG,
+            );
+            quit(1 as std::ffi::c_int);
         }
-        n = 0 as std::ffi::c_int;
+        for i in 0..count {
+            chardef[cp + i] = v;
+        }
+        cp += count;
+        n = 0;
     }
-    while cp
-        < chardef
-            .as_mut_ptr()
-            .offset(::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong as isize)
-    {
-        let fresh8 = cp;
-        cp = cp.offset(1);
-        *fresh8 = v;
+
+    // fill the rest with last v
+    while cp < chardef.len() {
+        chardef[cp] = v;
+        cp += 1;
     }
 }
-unsafe extern "C" fn icharset(
-    mut name: *const std::ffi::c_char,
-    mut no_error: std::ffi::c_int,
-) -> std::ffi::c_int {
-    let mut p: *mut charset = 0 as *mut charset;
-    let mut a: *mut cs_alias = 0 as *mut cs_alias;
-    if name.is_null() || *name as std::ffi::c_int == '\0' as i32 {
-        return 0 as std::ffi::c_int;
+
+/*
+ * Define a charset, given a charset name.
+ * The valid charset names are listed in the "charsets" array.
+ */
+unsafe extern "C" fn icharset(name: Option<String>, no_error: i32) -> i32 {
+    let mut p = charset {
+        name: "",
+        p_flag: None,
+        desc: "",
+    };
+    let mut a = cs_alias {
+        name: "",
+        oname: "",
+    };
+
+    if name.is_none() {
+        return 0;
     }
-    a = cs_aliases.as_mut_ptr();
-    while !((*a).name).is_null() {
-        if strcmp(name, (*a).name) == 0 as std::ffi::c_int {
-            name = (*a).oname;
-            break;
-        } else {
-            a = a.offset(1);
+    let name = name.unwrap();
+    let mut name = name.as_str();
+    if name.len() == 0 {
+        return 0;
+    }
+
+    /* First see if the name is an alias. */
+    for a in cs_aliases {
+        if name == a.name {
+            name = a.oname;
         }
     }
-    p = charsets.as_mut_ptr();
-    while !((*p).name).is_null() {
-        if strcmp(name, (*p).name) == 0 as std::ffi::c_int {
-            ichardef((*p).desc);
-            if !((*p).p_flag).is_null() {
-                *(*p).p_flag = 1 as std::ffi::c_int;
+
+    for mut p in charsets {
+        if name == p.name {
+            ichardef(p.desc);
+            if !p.p_flag.is_none() {
+                p.p_flag = Some(true);
             }
-            return 1 as std::ffi::c_int;
+            return 1;
         }
-        p = p.offset(1);
     }
     if no_error == 0 {
         error(
@@ -1261,297 +884,286 @@ unsafe extern "C" fn icharset(
         );
         quit(1 as std::ffi::c_int);
     }
-    return 0 as std::ffi::c_int;
+    0
 }
+
+/*
+ * Define a charset, given a locale name.
+ */
 unsafe extern "C" fn ilocale() {
-    let mut c: std::ffi::c_int = 0;
-    c = 0 as std::ffi::c_int;
-    while c < ::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong
-        as std::ffi::c_int
-    {
-        if *(*__ctype_b_loc()).offset(c as isize) as std::ffi::c_int
-            & _ISprint as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
-            != 0
-        {
-            chardef[c as usize] = 0 as std::ffi::c_int as std::ffi::c_char;
-        } else if *(*__ctype_b_loc()).offset(c as isize) as std::ffi::c_int
-            & _IScntrl as std::ffi::c_int as std::ffi::c_ushort as std::ffi::c_int
-            != 0
-        {
-            chardef[c as usize] = 0o2 as std::ffi::c_int as std::ffi::c_char;
+    for c in 0..255 {
+        if (c as u8).is_ascii_graphic() || (c as u8).is_ascii_whitespace() {
+            chardef[c] = 0;
+        } else if (c as u8 as char).is_control() {
+            chardef[c] = IS_CONTROL_CHAR as u8;
         } else {
-            chardef[c as usize] =
-                (0o1 as std::ffi::c_int | 0o2 as std::ffi::c_int) as std::ffi::c_char;
+            chardef[c] = (IS_BINARY_CHAR | IS_CONTROL_CHAR) as u8;
         }
-        c += 1;
     }
 }
-#[no_mangle]
-pub unsafe extern "C" fn setfmt(
-    mut s: *const std::ffi::c_char,
-    mut fmtvarptr: *mut *const std::ffi::c_char,
-    mut attrptr: *mut std::ffi::c_int,
-    mut default_fmt: *const std::ffi::c_char,
-    mut for_printf: lbool,
-) {
-    if s.is_null() || *s as std::ffi::c_int == '\0' as i32 {
-        s = default_fmt;
-    } else if for_printf as std::ffi::c_uint != 0
-        && (*s as std::ffi::c_int == '*' as i32
-            && (*s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32
-                || *s.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int == '\0' as i32
-                || !(strchr(s.offset(2 as std::ffi::c_int as isize), 'n' as i32)).is_null())
-            || *s as std::ffi::c_int != '*' as i32 && !(strchr(s, 'n' as i32)).is_null())
-    {
-        s = default_fmt;
-    }
-    if *s as std::ffi::c_int == '*' as i32
-        && *s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32
-    {
-        match *s.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int {
-            100 => {
-                *attrptr = (1 as std::ffi::c_int) << 1 as std::ffi::c_int;
+
+/*
+ * Define the printing format for control (or binary utf) chars.
+ */
+pub fn setfmt<'a>(s: Option<String>, default_fmt: &'a str, for_printf: bool) -> (String, i32) {
+    println!("set fmt");
+    println!("def: {}", default_fmt);
+    let mut attr = AT_NORMAL;
+    let mut s = match &s {
+        None => default_fmt,
+        Some(st) if st == "" => default_fmt,
+        Some(s) => {
+            if for_printf {
+                let bytes = s.as_bytes();
+                if bytes.get(0) == Some(&b'*')
+                    && (bytes.get(1) == None || bytes.get(2) == None && s[2..].contains('n'))
+                {
+                    default_fmt
+                } else {
+                    s
+                }
+            } else {
+                s
             }
-            107 => {
-                *attrptr = (1 as std::ffi::c_int) << 2 as std::ffi::c_int;
+        }
+    };
+
+    /*
+     * Select the attributes if it starts with "*".
+     */
+    if let Some(rest) = s.strip_prefix('*') {
+        let mut chars = rest.chars();
+        match chars.next() {
+            Some('d') => {
+                attr = AT_BOLD;
             }
-            115 => {
-                *attrptr = (1 as std::ffi::c_int) << 3 as std::ffi::c_int;
+            Some('k') => {
+                attr = AT_BLINK;
             }
-            117 => {
-                *attrptr = (1 as std::ffi::c_int) << 0 as std::ffi::c_int;
+            Some('s') => {
+                attr = AT_STANDOUT;
+            }
+            Some('u') => {
+                attr = AT_UNDERLINE;
             }
             _ => {
-                *attrptr = 0 as std::ffi::c_int;
+                attr = AT_NORMAL;
             }
         }
-        s = s.offset(2 as std::ffi::c_int as isize);
+        s = &rest[1..];
     }
-    *fmtvarptr = s;
+    println!("s: {}", s);
+    (s.to_string(), attr)
 }
+
 unsafe extern "C" fn set_charset() {
-    let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    ichardef_utf(lgetenv("LESSUTFCHARDEF").unwrap_or(0 as *const std::ffi::c_char));
-    if icharset(
-        lgetenv("LESSCHARSET").unwrap_or(0 as *const std::ffi::c_char),
-        0 as std::ffi::c_int,
-    ) != 0
-    {
+    ichardef_utf(lgetenv("LESSUTFCHARDEF").ok());
+
+    /*
+     * See if environment variable LESSCHARSET is defined.
+     */
+    let mut s = lgetenv("LESSCHARSET");
+    if icharset(s.ok(), 0 as std::ffi::c_int) != 0 {
         return;
     }
     if let Ok(s) = lgetenv("LESSCHARDEF") {
-        ichardef(s);
+        ichardef(&s);
         return;
     }
-    s = nl_langinfo(CODESET as std::ffi::c_int);
-    if icharset(s, 1 as std::ffi::c_int) != 0 {
+    s = Ok(CStr::from_ptr(nl_langinfo(CODESET as std::ffi::c_int))
+        .to_str()
+        .expect("invalid utf-8")
+        .to_owned());
+    if icharset(s.ok(), 1 as std::ffi::c_int) != 0 {
         return;
     }
-    s = lgetenv("LC_ALL").unwrap();
-    if !s.is_null()
+    s = lgetenv("LC_ALL");
+    if !s.is_err()
         || {
-            s = lgetenv("LC_CTYPE").unwrap();
-            !s.is_null()
+            s = lgetenv("LC_CTYPE");
+            !s.is_err()
         }
         || {
-            s = lgetenv("LANG").unwrap();
-            !s.is_null()
+            s = lgetenv("LANG");
+            !s.is_err()
         }
     {
-        if !(strstr(s, b"UTF-8\0" as *const u8 as *const std::ffi::c_char)).is_null()
-            || !(strstr(s, b"utf-8\0" as *const u8 as *const std::ffi::c_char)).is_null()
-            || !(strstr(s, b"UTF8\0" as *const u8 as *const std::ffi::c_char)).is_null()
-            || !(strstr(s, b"utf8\0" as *const u8 as *const std::ffi::c_char)).is_null()
+        let s = s.unwrap();
+        if s.find("UTF-8").is_some()
+            || s.find("utf-8").is_some()
+            || s.find("UTF8").is_some()
+            || s.find("utf8").is_some()
         {
-            if icharset(
-                b"utf-8\0" as *const u8 as *const std::ffi::c_char,
-                1 as std::ffi::c_int,
-            ) != 0
-            {
+            if icharset(Some("utf-8\0".into()), 1) != 0 {
                 return;
             }
         }
     }
     ilocale();
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn init_charset() {
-    let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+    let mut s;
+    // FIXME dfine LC_ALL (first param == 6 below) or use something else
     setlocale(
         6 as std::ffi::c_int,
         b"\0" as *const u8 as *const std::ffi::c_char,
     );
     set_charset();
-    s = lgetenv("LESSBINFMT").unwrap_or(0 as *const std::ffi::c_char);
-    setfmt(
-        s,
-        &mut binfmt,
-        &mut binattr,
-        b"*s<%02X>\0" as *const u8 as *const std::ffi::c_char,
-        LTRUE,
-    );
-    s = lgetenv("LESSUTFBINFMT").unwrap_or(0 as *const std::ffi::c_char);
-    setfmt(
-        s,
-        &mut utfbinfmt,
-        &mut binattr,
-        b"<U+%04lX>\0" as *const u8 as *const std::ffi::c_char,
-        LTRUE,
-    );
+    s = lgetenv("LESSBINFMT");
+    (binfmt, binattr) = setfmt(s.ok(), "*s<%02X>\0", true);
+    s = lgetenv("LESSUTFBINFMT");
+    (utfbinfmt, binattr) = setfmt(s.ok(), "<U+%04lX>\0", true);
 }
+
+/*
+ * Is a given character a "binary" character?
+ */
 #[no_mangle]
-pub unsafe extern "C" fn binary_char(mut c: LWCHAR) -> lbool {
-    if utf_mode != 0 {
+pub unsafe extern "C" fn binary_char(c: char) -> bool {
+    if utf_mode {
         return is_ubin_char(c);
     }
-    if c >= ::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong {
-        return LTRUE;
+    if c as usize >= chardef.len() {
+        return true;
     }
-    return (chardef[c as usize] as std::ffi::c_int & 0o1 as std::ffi::c_int != 0 as std::ffi::c_int)
-        as std::ffi::c_int as lbool;
+    chardef[c as usize] as i32 & IS_BINARY_CHAR != 0
 }
+
+/*
+ * Is a given character a "control" character?
+ */
 #[no_mangle]
-pub unsafe extern "C" fn control_char(mut c: LWCHAR) -> lbool {
-    if c >= ::core::mem::size_of::<[std::ffi::c_char; 256]>() as std::ffi::c_ulong {
-        return LTRUE;
+pub unsafe extern "C" fn control_char(c: char) -> bool {
+    if c as usize >= chardef.len() {
+        return true;
     }
-    return (chardef[c as usize] as std::ffi::c_int & 0o2 as std::ffi::c_int) as lbool;
+    (chardef[c as usize] as i32 & IS_CONTROL_CHAR) != 0
 }
+
+/*
+ * Return the printable form of a character.
+ * For example, in the "ascii" charset '\3' is printed as "^C".
+ */
 #[no_mangle]
-pub unsafe extern "C" fn prchar(mut c: LWCHAR) -> *const std::ffi::c_char {
-    static mut buf: [std::ffi::c_char; 32] = [0; 32];
-    c &= 0o377 as std::ffi::c_int as LWCHAR;
-    if (c < 128 as std::ffi::c_int as LWCHAR || utf_mode == 0) && control_char(c) as u64 == 0 {
-        snprintf(
-            buf.as_mut_ptr(),
-            ::core::mem::size_of::<[std::ffi::c_char; 32]>() as std::ffi::c_ulong,
-            b"%c\0" as *const u8 as *const std::ffi::c_char,
-            c as std::ffi::c_int,
-        );
-    } else if c == ('[' as i32 & 0o37 as std::ffi::c_int) as LWCHAR {
-        strcpy(
-            buf.as_mut_ptr(),
-            b"ESC\0" as *const u8 as *const std::ffi::c_char,
-        );
-    } else if c < 128 as std::ffi::c_int as LWCHAR
-        && control_char(c ^ 0o100 as std::ffi::c_int as LWCHAR) as u64 == 0
-    {
-        snprintf(
-            buf.as_mut_ptr(),
-            ::core::mem::size_of::<[std::ffi::c_char; 32]>() as std::ffi::c_ulong,
-            b"^%c\0" as *const u8 as *const std::ffi::c_char,
-            (c ^ 0o100 as std::ffi::c_int as LWCHAR) as std::ffi::c_int,
-        );
+pub unsafe extern "C" fn prchar<'a>(c: char) -> String {
+    let c = char::from_u32(c as u32 & 0o377).unwrap();
+    let mut s = String::new();
+    if (c < 128 as char || !utf_mode) && !c.is_control() {
+        s = format!("^{}", c);
+    } else if c as u32 == ESC {
+        s = "ESC\0".into();
+    } else if c < 128 as char && !char::from_u32((c as u32) ^ 0o100).unwrap().is_control() {
+        s = format!("^{}", (c as u32) ^ 0o100);
     } else {
-        snprintf(
-            buf.as_mut_ptr(),
-            ::core::mem::size_of::<[std::ffi::c_char; 32]>() as std::ffi::c_ulong,
-            binfmt,
-            c,
-        );
+        // FIXME find a solution here
+        //s = &format_args!(binfmt, c);
     }
-    return buf.as_mut_ptr();
+    s
 }
+
+/*
+ * Return the printable form of a UTF-8 character.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn prutfchar(mut ch: LWCHAR) -> *const std::ffi::c_char {
-    static mut buf: [std::ffi::c_char; 32] = [0; 32];
-    if ch == ('[' as i32 & 0o37 as std::ffi::c_int) as LWCHAR {
+pub unsafe extern "C" fn prutfchar(ch: char) -> &'static [u8] {
+    static mut buf: [u8; 32] = [0; 32];
+    let mut ch = ch;
+    if ch as u32 == ESC {
         strcpy(
-            buf.as_mut_ptr(),
+            CString::new(buf).unwrap().into_raw(),
             b"ESC\0" as *const u8 as *const std::ffi::c_char,
         );
-    } else if ch < 128 as std::ffi::c_int as LWCHAR && control_char(ch) as std::ffi::c_uint != 0 {
-        if control_char(ch ^ 0o100 as std::ffi::c_int as LWCHAR) as u64 == 0 {
+    } else if ch < 128 as char && ch.is_control() {
+        if !char::from_u32(ch as u32 ^ 0o100).unwrap().is_control() {
             snprintf(
-                buf.as_mut_ptr(),
+                CString::new(buf).unwrap().into_raw(),
                 ::core::mem::size_of::<[std::ffi::c_char; 32]>() as std::ffi::c_ulong,
                 b"^%c\0" as *const u8 as *const std::ffi::c_char,
                 ch as std::ffi::c_char as std::ffi::c_int ^ 0o100 as std::ffi::c_int,
             );
         } else {
             snprintf(
-                buf.as_mut_ptr(),
+                CString::new(buf).unwrap().into_raw(),
                 ::core::mem::size_of::<[std::ffi::c_char; 32]>() as std::ffi::c_ulong,
-                binfmt,
+                binfmt.as_ptr() as *const i8,
                 ch as std::ffi::c_char as std::ffi::c_int,
             );
         }
-    } else if is_ubin_char(ch) as u64 != 0 {
+    } else if is_ubin_char(ch) {
         snprintf(
-            buf.as_mut_ptr(),
+            CString::new(buf).unwrap().into_raw(),
             ::core::mem::size_of::<[std::ffi::c_char; 32]>() as std::ffi::c_ulong,
-            utfbinfmt,
+            utfbinfmt.as_ptr() as *const i8,
             ch,
         );
     } else {
-        let mut p: *mut std::ffi::c_char = buf.as_mut_ptr();
-        if ch >= 0x80000000 as std::ffi::c_uint as LWCHAR {
-            ch = 0xfffd as std::ffi::c_int as LWCHAR;
+        if ch as i64 >= 0x80000000 {
+            ch = char::from_u32(0xfffd).unwrap();
         }
-        put_wchar(&mut p, ch);
-        *p = '\0' as i32 as std::ffi::c_char;
+        let idx = put_wchar(&mut buf, ch);
+        buf[idx] = b'\0';
     }
-    return buf.as_mut_ptr();
+    &buf
 }
+
 #[no_mangle]
-pub unsafe extern "C" fn utf_len(mut ch: std::ffi::c_char) -> std::ffi::c_int {
-    if ch as std::ffi::c_int & 0x80 as std::ffi::c_int == 0 as std::ffi::c_int {
-        return 1 as std::ffi::c_int;
+pub unsafe extern "C" fn utf_len(ch: u8) -> usize {
+    if ch & 0x80 == 0 {
+        return 1;
     }
-    if ch as std::ffi::c_int & 0xe0 as std::ffi::c_int == 0xc0 as std::ffi::c_int {
-        return 2 as std::ffi::c_int;
+    if ch & 0xE0 == 0xC0 {
+        return 2;
     }
-    if ch as std::ffi::c_int & 0xf0 as std::ffi::c_int == 0xe0 as std::ffi::c_int {
-        return 3 as std::ffi::c_int;
+    if ch & 0xF0 == 0xE0 {
+        return 3;
     }
-    if ch as std::ffi::c_int & 0xf8 as std::ffi::c_int == 0xf0 as std::ffi::c_int {
-        return 4 as std::ffi::c_int;
+    if ch & 0xF8 == 0xF0 {
+        return 4;
     }
-    return 1 as std::ffi::c_int;
+    1
 }
+
+fn is_utf8_invalid(c: char) -> bool {
+    c as i32 & 0xFE == 0xFE
+}
+
+/*
+ * Does the parameter point to the lead byte of a well-formed UTF-8 character?
+ */
 #[no_mangle]
-pub unsafe extern "C" fn is_utf8_well_formed(
-    mut ss: *const std::ffi::c_char,
-    mut slen: std::ffi::c_int,
-) -> lbool {
-    let mut i: std::ffi::c_int = 0;
-    let mut len: std::ffi::c_int = 0;
-    let mut s0: std::ffi::c_uchar = *ss.offset(0 as std::ffi::c_int as isize) as std::ffi::c_uchar;
-    if s0 as std::ffi::c_int & 0xfe as std::ffi::c_int == 0xfe as std::ffi::c_int {
-        return LFALSE;
+pub unsafe extern "C" fn is_utf8_well_formed(ss: &[u8], slen: usize) -> bool {
+    let mut i = 0;
+    let mut len = 0;
+    let mut s0 = ss[0];
+
+    if is_utf8_invalid(s0 as char) {
+        return false;
     }
-    len = utf_len(*ss.offset(0 as std::ffi::c_int as isize));
+    len = utf_len(ss[0]);
     if len > slen {
-        return LFALSE;
+        return false;
     }
-    if len == 1 as std::ffi::c_int {
-        return LTRUE;
+    if len == 1 {
+        return true;
     }
-    if len == 2 as std::ffi::c_int {
-        if (s0 as std::ffi::c_int) < 0xc2 as std::ffi::c_int {
-            return LFALSE;
+    if len == 2 {
+        if s0 < 0xc2 {
+            return false;
         }
     } else {
-        let mut mask: std::ffi::c_uchar = !(((1 as std::ffi::c_int) << 8 as std::ffi::c_int - len)
-            - 1 as std::ffi::c_int) as std::ffi::c_uchar;
-        if s0 as std::ffi::c_int == mask as std::ffi::c_int
-            && *ss.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                & mask as std::ffi::c_int
-                == 0x80 as std::ffi::c_int
-        {
-            return LFALSE;
+        let mut mask = !(1 << (8 - len) - 1) as u8;
+        if s0 == mask && ss[1] & mask == 0x80 {
+            return false;
         }
     }
-    i = 1 as std::ffi::c_int;
-    while i < len {
-        if !(*ss.offset(i as isize) as std::ffi::c_int & 0xc0 as std::ffi::c_int
-            == 0x80 as std::ffi::c_int)
-        {
-            return LFALSE;
+    for i in 1..len {
+        if !is_utf8_trail(ss[i]) {
+            return false;
         }
-        i += 1;
     }
-    return LTRUE;
+    true
 }
 #[no_mangle]
 pub unsafe extern "C" fn utf_skip_to_lead(
@@ -1577,3981 +1189,251 @@ pub unsafe extern "C" fn utf_skip_to_lead(
         }
     }
 }
+
+/*
+ * Get the value of a UTF-8 character.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn get_wchar(mut sp: *const std::ffi::c_char) -> LWCHAR {
-    let mut p: *const std::ffi::c_uchar = sp as *const std::ffi::c_uchar;
-    match utf_len(*sp.offset(0 as std::ffi::c_int as isize)) {
+pub unsafe extern "C" fn get_wchar(sp: &[u8]) -> char {
+    let mut idx = 0;
+
+    match utf_len(sp[0]) {
         2 => {
-            return ((*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0x1f as std::ffi::c_int)
-                << 6 as std::ffi::c_int
-                | *p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0x3f as std::ffi::c_int) as LWCHAR;
+            /* 110xxxxx 10xxxxxx */
+            return char::from_u32((((sp[0] as u32) & 0x1F) << 6) | (sp[1] as u32 & 0x3F)).unwrap();
         }
         3 => {
-            return ((*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0xf as std::ffi::c_int)
-                << 12 as std::ffi::c_int
-                | (*p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0x3f as std::ffi::c_int)
-                    << 6 as std::ffi::c_int
-                | *p.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0x3f as std::ffi::c_int) as LWCHAR;
+            /* 1110xxxx 10xxxxxx 10xxxxxx */
+            return char::from_u32(
+                ((sp[0] as u32 & 0x0F) << 12)
+                    | ((sp[1] as u32 & 0x3F) << 6)
+                    | (sp[2] as u32 & 0x3F),
+            )
+            .unwrap();
         }
         4 => {
-            return ((*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0x7 as std::ffi::c_int)
-                << 18 as std::ffi::c_int
-                | (*p.offset(1 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0x3f as std::ffi::c_int)
-                    << 12 as std::ffi::c_int
-                | (*p.offset(2 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0x3f as std::ffi::c_int)
-                    << 6 as std::ffi::c_int
-                | *p.offset(3 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0x3f as std::ffi::c_int) as LWCHAR;
+            /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
+            return char::from_u32(
+                ((sp[0] as u32 & 0x07) << 18)
+                    | ((sp[1] as u32 & 0x3F) << 12)
+                    | ((sp[2] as u32 & 0x3F) << 6)
+                    | (sp[3] as u32 & 0x3F),
+            )
+            .unwrap();
         }
         1 | _ => {
-            return (*p.offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0xff as std::ffi::c_int) as LWCHAR;
+            /* 0xxxxxxx */
+            return (sp[0] & 0xFF) as char;
         }
     };
 }
+
+/*
+ * Store a character into a UTF-8 string.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn put_wchar(mut pp: *mut *mut std::ffi::c_char, mut ch: LWCHAR) {
-    if utf_mode == 0 || ch < 0x80 as std::ffi::c_int as LWCHAR {
-        let fresh9 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh9 = ch as std::ffi::c_char;
-    } else if ch < 0x800 as std::ffi::c_int as LWCHAR {
-        let fresh10 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh10 = (0xc0 as std::ffi::c_int as LWCHAR
-            | ch >> 6 as std::ffi::c_int & 0x1f as std::ffi::c_int as LWCHAR)
-            as std::ffi::c_char;
-        let fresh11 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh11 = (0x80 as std::ffi::c_int as LWCHAR | ch & 0x3f as std::ffi::c_int as LWCHAR)
-            as std::ffi::c_char;
-    } else if ch < 0x10000 as std::ffi::c_int as LWCHAR {
-        let fresh12 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh12 = (0xe0 as std::ffi::c_int as LWCHAR
-            | ch >> 12 as std::ffi::c_int & 0xf as std::ffi::c_int as LWCHAR)
-            as std::ffi::c_char;
-        let fresh13 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh13 = (0x80 as std::ffi::c_int as LWCHAR
-            | ch >> 6 as std::ffi::c_int & 0x3f as std::ffi::c_int as LWCHAR)
-            as std::ffi::c_char;
-        let fresh14 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh14 = (0x80 as std::ffi::c_int as LWCHAR | ch & 0x3f as std::ffi::c_int as LWCHAR)
-            as std::ffi::c_char;
-    } else if ch < 0x200000 as std::ffi::c_int as LWCHAR {
-        let fresh15 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh15 = (0xf0 as std::ffi::c_int as LWCHAR
-            | ch >> 18 as std::ffi::c_int & 0x7 as std::ffi::c_int as LWCHAR)
-            as std::ffi::c_char;
-        let fresh16 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh16 = (0x80 as std::ffi::c_int as LWCHAR
-            | ch >> 12 as std::ffi::c_int & 0x3f as std::ffi::c_int as LWCHAR)
-            as std::ffi::c_char;
-        let fresh17 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh17 = (0x80 as std::ffi::c_int as LWCHAR
-            | ch >> 6 as std::ffi::c_int & 0x3f as std::ffi::c_int as LWCHAR)
-            as std::ffi::c_char;
-        let fresh18 = *pp;
-        *pp = (*pp).offset(1);
-        *fresh18 = (0x80 as std::ffi::c_int as LWCHAR | ch & 0x3f as std::ffi::c_int as LWCHAR)
-            as std::ffi::c_char;
+pub unsafe extern "C" fn put_wchar(mut pp: &mut [u8], ch: char) -> usize {
+    let mut idx = 0;
+    if !utf_mode || (ch as i32) < 0x80 {
+        /* 0xxxxxxx */
+        pp[idx] = ch as u8;
+        idx += 1;
+    } else if (ch as i32) < 0x800 {
+        /* 110xxxxx 10xxxxxx */
+        pp[idx] = (0xC0 | ((ch as i32 >> 6) & 0x1F)) as u8;
+        idx += 1;
+        pp[idx] = (0x80 | (ch as i32 & 0x3F)) as u8;
+        idx += 1;
+    } else if (ch as i32) < 0x10000 {
+        /* 1110xxxx 10xxxxxx 10xxxxxx */
+        pp[idx] = (0xE0 | ((ch as i32 >> 12) & 0x0F)) as u8;
+        idx += 1;
+        pp[idx] = (0x80 | ((ch as i32 >> 6) & 0x3F)) as u8;
+        idx += 1;
+        pp[idx] = (0x80 | (ch as i32 & 0x3F)) as u8;
+        idx += 1;
+    } else if (ch as i32) < 0x200000 {
+        /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
+        pp[idx] = (0xF0 | ((ch as i32 >> 18) & 0x07)) as u8;
+        idx += 1;
+        pp[idx] = (0x80 | ((ch as i32 >> 12) & 0x3F)) as u8;
+        idx += 1;
+        pp[idx] = (0x80 | ((ch as i32 >> 6) & 0x3F)) as u8;
+        idx += 1;
+        pp[idx] = (0x80 | (ch as i32 & 0x3F)) as u8;
+        idx += 1;
     }
+    idx
 }
+
+fn is_utf8_trail(c: u8) -> bool {
+    c & 0xC0 == 0x80
+}
+
+/*
+ * Step forward or backward one character in a string.
+ *
+ * retruns the idenified wide char and the updated position
+ */
 #[no_mangle]
 pub unsafe extern "C" fn step_charc(
-    mut pp: *mut *const std::ffi::c_char,
-    mut dir: std::ffi::c_int,
-    mut limit: *const std::ffi::c_char,
-) -> LWCHAR {
-    let mut ch: LWCHAR = 0;
-    let mut len: std::ffi::c_int = 0;
-    let mut p: *const std::ffi::c_char = *pp;
-    if utf_mode == 0 {
-        if dir > 0 as std::ffi::c_int {
-            ch = (if p < limit {
-                let fresh19 = p;
-                p = p.offset(1);
-                *fresh19 as std::ffi::c_int
+    s: &[u8],
+    dir: i32,
+    start: usize,
+    limit: usize,
+) -> (char, usize) {
+    let mut ch = '\0';
+    let mut len = 0;
+    let mut s_idx = start;
+
+    if !utf_mode {
+        /* It's easy if chars are one byte. */
+        if dir > 0 {
+            ch = if s_idx < limit {
+                s[s_idx] as char
             } else {
-                0 as std::ffi::c_int
-            }) as std::ffi::c_uchar as LWCHAR;
+                '\0'
+            };
+            s_idx += 1;
         } else {
-            ch = (if p > limit {
-                p = p.offset(-1);
-                *p as std::ffi::c_int
+            ch = if s_idx > limit {
+                s_idx -= 1;
+                s[s_idx] as char
             } else {
-                0 as std::ffi::c_int
-            }) as std::ffi::c_uchar as LWCHAR;
+                '\0'
+            }
         }
-    } else if dir > 0 as std::ffi::c_int {
-        if p >= limit {
-            ch = 0 as std::ffi::c_int as LWCHAR;
+    } else if dir > 0 {
+        if s_idx >= limit {
+            ch = '\0';
         } else {
-            len = utf_len(*p);
-            if p.offset(len as isize) > limit || is_utf8_well_formed(p, len) as u64 == 0 {
-                let fresh20 = p;
-                p = p.offset(1);
-                ch = *fresh20 as std::ffi::c_uchar as LWCHAR;
+            len = utf_len(s[s_idx]);
+            if len as usize > limit || is_utf8_well_formed(s, len) as u64 == 0 {
+                ch = s[s_idx] as char;
+                s_idx += 1;
             } else {
-                ch = get_wchar(p);
-                p = p.offset(len as isize);
+                ch = get_wchar(&s);
+                s_idx += len as usize;
             }
         }
     } else {
-        while p > limit
-            && *p.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int
-                & 0xc0 as std::ffi::c_int
-                == 0x80 as std::ffi::c_int
-        {
-            p = p.offset(-1);
+        while s_idx > limit && is_utf8_trail(s[s_idx - 1]) {
+            s_idx -= 1;
         }
-        if p <= limit {
-            ch = 0 as std::ffi::c_int as LWCHAR;
+        if s_idx <= limit {
+            ch = '\0';
         } else {
-            p = p.offset(-1);
-            len = utf_len(*p);
-            if p.offset(len as isize) != *pp || is_utf8_well_formed(p, len) as u64 == 0 {
-                p = (*pp).offset(-(1 as std::ffi::c_int as isize));
-                ch = *p as std::ffi::c_uchar as LWCHAR;
+            s_idx -= 1;
+            len = utf_len(s[s_idx]);
+            if s_idx + len != start || !is_utf8_well_formed(&s[s_idx..], len) {
+                s_idx = start - 1;
+                ch = s[s_idx] as char;
             } else {
-                ch = get_wchar(p);
+                ch = get_wchar(&s[s_idx..]);
             }
         }
     }
-    *pp = p;
-    return ch;
+    return (ch, s_idx);
 }
 #[no_mangle]
 pub unsafe extern "C" fn step_char(
-    mut pp: *mut *mut std::ffi::c_char,
-    mut dir: std::ffi::c_int,
-    mut limit: *const std::ffi::c_char,
-) -> LWCHAR {
-    let mut p: *const std::ffi::c_char = *pp as *const std::ffi::c_char;
-    let mut ch: LWCHAR = step_charc(&mut p, dir, limit);
-    *pp = p as *mut std::ffi::c_char;
-    return ch;
+    p: &[u8],
+    dir: i32,
+    start: usize,
+    limit: usize,
+) -> (char, usize) {
+    step_charc(p, dir, start, limit)
 }
-static mut compose_array: [wchar_range; 365] = [
-    {
-        let mut init = wchar_range {
-            first: 0x300 as std::ffi::c_int as LWCHAR,
-            last: 0x36f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x483 as std::ffi::c_int as LWCHAR,
-            last: 0x487 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x488 as std::ffi::c_int as LWCHAR,
-            last: 0x489 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x591 as std::ffi::c_int as LWCHAR,
-            last: 0x5bd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x5bf as std::ffi::c_int as LWCHAR,
-            last: 0x5bf as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x5c1 as std::ffi::c_int as LWCHAR,
-            last: 0x5c2 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x5c4 as std::ffi::c_int as LWCHAR,
-            last: 0x5c5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x5c7 as std::ffi::c_int as LWCHAR,
-            last: 0x5c7 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x610 as std::ffi::c_int as LWCHAR,
-            last: 0x61a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x64b as std::ffi::c_int as LWCHAR,
-            last: 0x65f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x670 as std::ffi::c_int as LWCHAR,
-            last: 0x670 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x6d6 as std::ffi::c_int as LWCHAR,
-            last: 0x6dc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x6df as std::ffi::c_int as LWCHAR,
-            last: 0x6e4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x6e7 as std::ffi::c_int as LWCHAR,
-            last: 0x6e8 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x6ea as std::ffi::c_int as LWCHAR,
-            last: 0x6ed as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x711 as std::ffi::c_int as LWCHAR,
-            last: 0x711 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x730 as std::ffi::c_int as LWCHAR,
-            last: 0x74a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x7a6 as std::ffi::c_int as LWCHAR,
-            last: 0x7b0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x7eb as std::ffi::c_int as LWCHAR,
-            last: 0x7f3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x7fd as std::ffi::c_int as LWCHAR,
-            last: 0x7fd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x816 as std::ffi::c_int as LWCHAR,
-            last: 0x819 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x81b as std::ffi::c_int as LWCHAR,
-            last: 0x823 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x825 as std::ffi::c_int as LWCHAR,
-            last: 0x827 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x829 as std::ffi::c_int as LWCHAR,
-            last: 0x82d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x859 as std::ffi::c_int as LWCHAR,
-            last: 0x85b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x897 as std::ffi::c_int as LWCHAR,
-            last: 0x89f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x8ca as std::ffi::c_int as LWCHAR,
-            last: 0x8e1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x8e3 as std::ffi::c_int as LWCHAR,
-            last: 0x902 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x93a as std::ffi::c_int as LWCHAR,
-            last: 0x93a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x93c as std::ffi::c_int as LWCHAR,
-            last: 0x93c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x941 as std::ffi::c_int as LWCHAR,
-            last: 0x948 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x94d as std::ffi::c_int as LWCHAR,
-            last: 0x94d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x951 as std::ffi::c_int as LWCHAR,
-            last: 0x957 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x962 as std::ffi::c_int as LWCHAR,
-            last: 0x963 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x981 as std::ffi::c_int as LWCHAR,
-            last: 0x981 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x9bc as std::ffi::c_int as LWCHAR,
-            last: 0x9bc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x9c1 as std::ffi::c_int as LWCHAR,
-            last: 0x9c4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x9cd as std::ffi::c_int as LWCHAR,
-            last: 0x9cd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x9e2 as std::ffi::c_int as LWCHAR,
-            last: 0x9e3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x9fe as std::ffi::c_int as LWCHAR,
-            last: 0x9fe as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa01 as std::ffi::c_int as LWCHAR,
-            last: 0xa02 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa3c as std::ffi::c_int as LWCHAR,
-            last: 0xa3c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa41 as std::ffi::c_int as LWCHAR,
-            last: 0xa42 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa47 as std::ffi::c_int as LWCHAR,
-            last: 0xa48 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa4b as std::ffi::c_int as LWCHAR,
-            last: 0xa4d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa51 as std::ffi::c_int as LWCHAR,
-            last: 0xa51 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa70 as std::ffi::c_int as LWCHAR,
-            last: 0xa71 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa75 as std::ffi::c_int as LWCHAR,
-            last: 0xa75 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa81 as std::ffi::c_int as LWCHAR,
-            last: 0xa82 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xabc as std::ffi::c_int as LWCHAR,
-            last: 0xabc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xac1 as std::ffi::c_int as LWCHAR,
-            last: 0xac5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xac7 as std::ffi::c_int as LWCHAR,
-            last: 0xac8 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xacd as std::ffi::c_int as LWCHAR,
-            last: 0xacd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xae2 as std::ffi::c_int as LWCHAR,
-            last: 0xae3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xafa as std::ffi::c_int as LWCHAR,
-            last: 0xaff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xb01 as std::ffi::c_int as LWCHAR,
-            last: 0xb01 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xb3c as std::ffi::c_int as LWCHAR,
-            last: 0xb3c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xb3f as std::ffi::c_int as LWCHAR,
-            last: 0xb3f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xb41 as std::ffi::c_int as LWCHAR,
-            last: 0xb44 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xb4d as std::ffi::c_int as LWCHAR,
-            last: 0xb4d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xb55 as std::ffi::c_int as LWCHAR,
-            last: 0xb56 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xb62 as std::ffi::c_int as LWCHAR,
-            last: 0xb63 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xb82 as std::ffi::c_int as LWCHAR,
-            last: 0xb82 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xbc0 as std::ffi::c_int as LWCHAR,
-            last: 0xbc0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xbcd as std::ffi::c_int as LWCHAR,
-            last: 0xbcd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xc00 as std::ffi::c_int as LWCHAR,
-            last: 0xc00 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xc04 as std::ffi::c_int as LWCHAR,
-            last: 0xc04 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xc3c as std::ffi::c_int as LWCHAR,
-            last: 0xc3c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xc3e as std::ffi::c_int as LWCHAR,
-            last: 0xc40 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xc46 as std::ffi::c_int as LWCHAR,
-            last: 0xc48 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xc4a as std::ffi::c_int as LWCHAR,
-            last: 0xc4d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xc55 as std::ffi::c_int as LWCHAR,
-            last: 0xc56 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xc62 as std::ffi::c_int as LWCHAR,
-            last: 0xc63 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xc81 as std::ffi::c_int as LWCHAR,
-            last: 0xc81 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xcbc as std::ffi::c_int as LWCHAR,
-            last: 0xcbc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xcbf as std::ffi::c_int as LWCHAR,
-            last: 0xcbf as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xcc6 as std::ffi::c_int as LWCHAR,
-            last: 0xcc6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xccc as std::ffi::c_int as LWCHAR,
-            last: 0xccd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xce2 as std::ffi::c_int as LWCHAR,
-            last: 0xce3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xd00 as std::ffi::c_int as LWCHAR,
-            last: 0xd01 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xd3b as std::ffi::c_int as LWCHAR,
-            last: 0xd3c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xd41 as std::ffi::c_int as LWCHAR,
-            last: 0xd44 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xd4d as std::ffi::c_int as LWCHAR,
-            last: 0xd4d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xd62 as std::ffi::c_int as LWCHAR,
-            last: 0xd63 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xd81 as std::ffi::c_int as LWCHAR,
-            last: 0xd81 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xdca as std::ffi::c_int as LWCHAR,
-            last: 0xdca as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xdd2 as std::ffi::c_int as LWCHAR,
-            last: 0xdd4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xdd6 as std::ffi::c_int as LWCHAR,
-            last: 0xdd6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xe31 as std::ffi::c_int as LWCHAR,
-            last: 0xe31 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xe34 as std::ffi::c_int as LWCHAR,
-            last: 0xe3a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xe47 as std::ffi::c_int as LWCHAR,
-            last: 0xe4e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xeb1 as std::ffi::c_int as LWCHAR,
-            last: 0xeb1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xeb4 as std::ffi::c_int as LWCHAR,
-            last: 0xebc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xec8 as std::ffi::c_int as LWCHAR,
-            last: 0xece as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf18 as std::ffi::c_int as LWCHAR,
-            last: 0xf19 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf35 as std::ffi::c_int as LWCHAR,
-            last: 0xf35 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf37 as std::ffi::c_int as LWCHAR,
-            last: 0xf37 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf39 as std::ffi::c_int as LWCHAR,
-            last: 0xf39 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf71 as std::ffi::c_int as LWCHAR,
-            last: 0xf7e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf80 as std::ffi::c_int as LWCHAR,
-            last: 0xf84 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf86 as std::ffi::c_int as LWCHAR,
-            last: 0xf87 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf8d as std::ffi::c_int as LWCHAR,
-            last: 0xf97 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf99 as std::ffi::c_int as LWCHAR,
-            last: 0xfbc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfc6 as std::ffi::c_int as LWCHAR,
-            last: 0xfc6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x102d as std::ffi::c_int as LWCHAR,
-            last: 0x1030 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1032 as std::ffi::c_int as LWCHAR,
-            last: 0x1037 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1039 as std::ffi::c_int as LWCHAR,
-            last: 0x103a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x103d as std::ffi::c_int as LWCHAR,
-            last: 0x103e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1058 as std::ffi::c_int as LWCHAR,
-            last: 0x1059 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x105e as std::ffi::c_int as LWCHAR,
-            last: 0x1060 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1071 as std::ffi::c_int as LWCHAR,
-            last: 0x1074 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1082 as std::ffi::c_int as LWCHAR,
-            last: 0x1082 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1085 as std::ffi::c_int as LWCHAR,
-            last: 0x1086 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x108d as std::ffi::c_int as LWCHAR,
-            last: 0x108d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x109d as std::ffi::c_int as LWCHAR,
-            last: 0x109d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1160 as std::ffi::c_int as LWCHAR,
-            last: 0x11ff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x135d as std::ffi::c_int as LWCHAR,
-            last: 0x135f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1712 as std::ffi::c_int as LWCHAR,
-            last: 0x1714 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1732 as std::ffi::c_int as LWCHAR,
-            last: 0x1733 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1752 as std::ffi::c_int as LWCHAR,
-            last: 0x1753 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1772 as std::ffi::c_int as LWCHAR,
-            last: 0x1773 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x17b4 as std::ffi::c_int as LWCHAR,
-            last: 0x17b5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x17b7 as std::ffi::c_int as LWCHAR,
-            last: 0x17bd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x17c6 as std::ffi::c_int as LWCHAR,
-            last: 0x17c6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x17c9 as std::ffi::c_int as LWCHAR,
-            last: 0x17d3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x17dd as std::ffi::c_int as LWCHAR,
-            last: 0x17dd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x180b as std::ffi::c_int as LWCHAR,
-            last: 0x180d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x180f as std::ffi::c_int as LWCHAR,
-            last: 0x180f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1885 as std::ffi::c_int as LWCHAR,
-            last: 0x1886 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x18a9 as std::ffi::c_int as LWCHAR,
-            last: 0x18a9 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1920 as std::ffi::c_int as LWCHAR,
-            last: 0x1922 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1927 as std::ffi::c_int as LWCHAR,
-            last: 0x1928 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1932 as std::ffi::c_int as LWCHAR,
-            last: 0x1932 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1939 as std::ffi::c_int as LWCHAR,
-            last: 0x193b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1a17 as std::ffi::c_int as LWCHAR,
-            last: 0x1a18 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1a1b as std::ffi::c_int as LWCHAR,
-            last: 0x1a1b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1a56 as std::ffi::c_int as LWCHAR,
-            last: 0x1a56 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1a58 as std::ffi::c_int as LWCHAR,
-            last: 0x1a5e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1a60 as std::ffi::c_int as LWCHAR,
-            last: 0x1a60 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1a62 as std::ffi::c_int as LWCHAR,
-            last: 0x1a62 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1a65 as std::ffi::c_int as LWCHAR,
-            last: 0x1a6c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1a73 as std::ffi::c_int as LWCHAR,
-            last: 0x1a7c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1a7f as std::ffi::c_int as LWCHAR,
-            last: 0x1a7f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1ab0 as std::ffi::c_int as LWCHAR,
-            last: 0x1abd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1abe as std::ffi::c_int as LWCHAR,
-            last: 0x1abe as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1abf as std::ffi::c_int as LWCHAR,
-            last: 0x1ace as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b00 as std::ffi::c_int as LWCHAR,
-            last: 0x1b03 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b34 as std::ffi::c_int as LWCHAR,
-            last: 0x1b34 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b36 as std::ffi::c_int as LWCHAR,
-            last: 0x1b3a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b3c as std::ffi::c_int as LWCHAR,
-            last: 0x1b3c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b42 as std::ffi::c_int as LWCHAR,
-            last: 0x1b42 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b6b as std::ffi::c_int as LWCHAR,
-            last: 0x1b73 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b80 as std::ffi::c_int as LWCHAR,
-            last: 0x1b81 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1ba2 as std::ffi::c_int as LWCHAR,
-            last: 0x1ba5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1ba8 as std::ffi::c_int as LWCHAR,
-            last: 0x1ba9 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1bab as std::ffi::c_int as LWCHAR,
-            last: 0x1bad as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1be6 as std::ffi::c_int as LWCHAR,
-            last: 0x1be6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1be8 as std::ffi::c_int as LWCHAR,
-            last: 0x1be9 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1bed as std::ffi::c_int as LWCHAR,
-            last: 0x1bed as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1bef as std::ffi::c_int as LWCHAR,
-            last: 0x1bf1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1c2c as std::ffi::c_int as LWCHAR,
-            last: 0x1c33 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1c36 as std::ffi::c_int as LWCHAR,
-            last: 0x1c37 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1cd0 as std::ffi::c_int as LWCHAR,
-            last: 0x1cd2 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1cd4 as std::ffi::c_int as LWCHAR,
-            last: 0x1ce0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1ce2 as std::ffi::c_int as LWCHAR,
-            last: 0x1ce8 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1ced as std::ffi::c_int as LWCHAR,
-            last: 0x1ced as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1cf4 as std::ffi::c_int as LWCHAR,
-            last: 0x1cf4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1cf8 as std::ffi::c_int as LWCHAR,
-            last: 0x1cf9 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1dc0 as std::ffi::c_int as LWCHAR,
-            last: 0x1dff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x20d0 as std::ffi::c_int as LWCHAR,
-            last: 0x20dc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x20dd as std::ffi::c_int as LWCHAR,
-            last: 0x20e0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x20e1 as std::ffi::c_int as LWCHAR,
-            last: 0x20e1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x20e2 as std::ffi::c_int as LWCHAR,
-            last: 0x20e4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x20e5 as std::ffi::c_int as LWCHAR,
-            last: 0x20f0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2cef as std::ffi::c_int as LWCHAR,
-            last: 0x2cf1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2d7f as std::ffi::c_int as LWCHAR,
-            last: 0x2d7f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2de0 as std::ffi::c_int as LWCHAR,
-            last: 0x2dff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x302a as std::ffi::c_int as LWCHAR,
-            last: 0x302d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3099 as std::ffi::c_int as LWCHAR,
-            last: 0x309a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa66f as std::ffi::c_int as LWCHAR,
-            last: 0xa66f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa670 as std::ffi::c_int as LWCHAR,
-            last: 0xa672 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa674 as std::ffi::c_int as LWCHAR,
-            last: 0xa67d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa69e as std::ffi::c_int as LWCHAR,
-            last: 0xa69f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa6f0 as std::ffi::c_int as LWCHAR,
-            last: 0xa6f1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa802 as std::ffi::c_int as LWCHAR,
-            last: 0xa802 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa806 as std::ffi::c_int as LWCHAR,
-            last: 0xa806 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa80b as std::ffi::c_int as LWCHAR,
-            last: 0xa80b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa825 as std::ffi::c_int as LWCHAR,
-            last: 0xa826 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa82c as std::ffi::c_int as LWCHAR,
-            last: 0xa82c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa8c4 as std::ffi::c_int as LWCHAR,
-            last: 0xa8c5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa8e0 as std::ffi::c_int as LWCHAR,
-            last: 0xa8f1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa8ff as std::ffi::c_int as LWCHAR,
-            last: 0xa8ff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa926 as std::ffi::c_int as LWCHAR,
-            last: 0xa92d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa947 as std::ffi::c_int as LWCHAR,
-            last: 0xa951 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa980 as std::ffi::c_int as LWCHAR,
-            last: 0xa982 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa9b3 as std::ffi::c_int as LWCHAR,
-            last: 0xa9b3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa9b6 as std::ffi::c_int as LWCHAR,
-            last: 0xa9b9 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa9bc as std::ffi::c_int as LWCHAR,
-            last: 0xa9bd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa9e5 as std::ffi::c_int as LWCHAR,
-            last: 0xa9e5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaa29 as std::ffi::c_int as LWCHAR,
-            last: 0xaa2e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaa31 as std::ffi::c_int as LWCHAR,
-            last: 0xaa32 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaa35 as std::ffi::c_int as LWCHAR,
-            last: 0xaa36 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaa43 as std::ffi::c_int as LWCHAR,
-            last: 0xaa43 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaa4c as std::ffi::c_int as LWCHAR,
-            last: 0xaa4c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaa7c as std::ffi::c_int as LWCHAR,
-            last: 0xaa7c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaab0 as std::ffi::c_int as LWCHAR,
-            last: 0xaab0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaab2 as std::ffi::c_int as LWCHAR,
-            last: 0xaab4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaab7 as std::ffi::c_int as LWCHAR,
-            last: 0xaab8 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaabe as std::ffi::c_int as LWCHAR,
-            last: 0xaabf as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaac1 as std::ffi::c_int as LWCHAR,
-            last: 0xaac1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaaec as std::ffi::c_int as LWCHAR,
-            last: 0xaaed as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xaaf6 as std::ffi::c_int as LWCHAR,
-            last: 0xaaf6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xabe5 as std::ffi::c_int as LWCHAR,
-            last: 0xabe5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xabe8 as std::ffi::c_int as LWCHAR,
-            last: 0xabe8 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xabed as std::ffi::c_int as LWCHAR,
-            last: 0xabed as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xd7b0 as std::ffi::c_int as LWCHAR,
-            last: 0xd7c6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xd7cb as std::ffi::c_int as LWCHAR,
-            last: 0xd7fb as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfb1e as std::ffi::c_int as LWCHAR,
-            last: 0xfb1e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfe00 as std::ffi::c_int as LWCHAR,
-            last: 0xfe0f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfe20 as std::ffi::c_int as LWCHAR,
-            last: 0xfe2f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x101fd as std::ffi::c_int as LWCHAR,
-            last: 0x101fd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x102e0 as std::ffi::c_int as LWCHAR,
-            last: 0x102e0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10376 as std::ffi::c_int as LWCHAR,
-            last: 0x1037a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10a01 as std::ffi::c_int as LWCHAR,
-            last: 0x10a03 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10a05 as std::ffi::c_int as LWCHAR,
-            last: 0x10a06 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10a0c as std::ffi::c_int as LWCHAR,
-            last: 0x10a0f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10a38 as std::ffi::c_int as LWCHAR,
-            last: 0x10a3a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10a3f as std::ffi::c_int as LWCHAR,
-            last: 0x10a3f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10ae5 as std::ffi::c_int as LWCHAR,
-            last: 0x10ae6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10d24 as std::ffi::c_int as LWCHAR,
-            last: 0x10d27 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10d69 as std::ffi::c_int as LWCHAR,
-            last: 0x10d6d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10eab as std::ffi::c_int as LWCHAR,
-            last: 0x10eac as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10efc as std::ffi::c_int as LWCHAR,
-            last: 0x10eff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10f46 as std::ffi::c_int as LWCHAR,
-            last: 0x10f50 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x10f82 as std::ffi::c_int as LWCHAR,
-            last: 0x10f85 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11001 as std::ffi::c_int as LWCHAR,
-            last: 0x11001 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11038 as std::ffi::c_int as LWCHAR,
-            last: 0x11046 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11070 as std::ffi::c_int as LWCHAR,
-            last: 0x11070 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11073 as std::ffi::c_int as LWCHAR,
-            last: 0x11074 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1107f as std::ffi::c_int as LWCHAR,
-            last: 0x11081 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x110b3 as std::ffi::c_int as LWCHAR,
-            last: 0x110b6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x110b9 as std::ffi::c_int as LWCHAR,
-            last: 0x110ba as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x110c2 as std::ffi::c_int as LWCHAR,
-            last: 0x110c2 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11100 as std::ffi::c_int as LWCHAR,
-            last: 0x11102 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11127 as std::ffi::c_int as LWCHAR,
-            last: 0x1112b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1112d as std::ffi::c_int as LWCHAR,
-            last: 0x11134 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11173 as std::ffi::c_int as LWCHAR,
-            last: 0x11173 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11180 as std::ffi::c_int as LWCHAR,
-            last: 0x11181 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x111b6 as std::ffi::c_int as LWCHAR,
-            last: 0x111be as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x111c9 as std::ffi::c_int as LWCHAR,
-            last: 0x111cc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x111cf as std::ffi::c_int as LWCHAR,
-            last: 0x111cf as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1122f as std::ffi::c_int as LWCHAR,
-            last: 0x11231 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11234 as std::ffi::c_int as LWCHAR,
-            last: 0x11234 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11236 as std::ffi::c_int as LWCHAR,
-            last: 0x11237 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1123e as std::ffi::c_int as LWCHAR,
-            last: 0x1123e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11241 as std::ffi::c_int as LWCHAR,
-            last: 0x11241 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x112df as std::ffi::c_int as LWCHAR,
-            last: 0x112df as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x112e3 as std::ffi::c_int as LWCHAR,
-            last: 0x112ea as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11300 as std::ffi::c_int as LWCHAR,
-            last: 0x11301 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1133b as std::ffi::c_int as LWCHAR,
-            last: 0x1133c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11340 as std::ffi::c_int as LWCHAR,
-            last: 0x11340 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11366 as std::ffi::c_int as LWCHAR,
-            last: 0x1136c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11370 as std::ffi::c_int as LWCHAR,
-            last: 0x11374 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x113bb as std::ffi::c_int as LWCHAR,
-            last: 0x113c0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x113ce as std::ffi::c_int as LWCHAR,
-            last: 0x113ce as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x113d0 as std::ffi::c_int as LWCHAR,
-            last: 0x113d0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x113d2 as std::ffi::c_int as LWCHAR,
-            last: 0x113d2 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x113e1 as std::ffi::c_int as LWCHAR,
-            last: 0x113e2 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11438 as std::ffi::c_int as LWCHAR,
-            last: 0x1143f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11442 as std::ffi::c_int as LWCHAR,
-            last: 0x11444 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11446 as std::ffi::c_int as LWCHAR,
-            last: 0x11446 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1145e as std::ffi::c_int as LWCHAR,
-            last: 0x1145e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x114b3 as std::ffi::c_int as LWCHAR,
-            last: 0x114b8 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x114ba as std::ffi::c_int as LWCHAR,
-            last: 0x114ba as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x114bf as std::ffi::c_int as LWCHAR,
-            last: 0x114c0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x114c2 as std::ffi::c_int as LWCHAR,
-            last: 0x114c3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x115b2 as std::ffi::c_int as LWCHAR,
-            last: 0x115b5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x115bc as std::ffi::c_int as LWCHAR,
-            last: 0x115bd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x115bf as std::ffi::c_int as LWCHAR,
-            last: 0x115c0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x115dc as std::ffi::c_int as LWCHAR,
-            last: 0x115dd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11633 as std::ffi::c_int as LWCHAR,
-            last: 0x1163a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1163d as std::ffi::c_int as LWCHAR,
-            last: 0x1163d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1163f as std::ffi::c_int as LWCHAR,
-            last: 0x11640 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x116ab as std::ffi::c_int as LWCHAR,
-            last: 0x116ab as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x116ad as std::ffi::c_int as LWCHAR,
-            last: 0x116ad as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x116b0 as std::ffi::c_int as LWCHAR,
-            last: 0x116b5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x116b7 as std::ffi::c_int as LWCHAR,
-            last: 0x116b7 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1171d as std::ffi::c_int as LWCHAR,
-            last: 0x1171d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1171f as std::ffi::c_int as LWCHAR,
-            last: 0x1171f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11722 as std::ffi::c_int as LWCHAR,
-            last: 0x11725 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11727 as std::ffi::c_int as LWCHAR,
-            last: 0x1172b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1182f as std::ffi::c_int as LWCHAR,
-            last: 0x11837 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11839 as std::ffi::c_int as LWCHAR,
-            last: 0x1183a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1193b as std::ffi::c_int as LWCHAR,
-            last: 0x1193c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1193e as std::ffi::c_int as LWCHAR,
-            last: 0x1193e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11943 as std::ffi::c_int as LWCHAR,
-            last: 0x11943 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x119d4 as std::ffi::c_int as LWCHAR,
-            last: 0x119d7 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x119da as std::ffi::c_int as LWCHAR,
-            last: 0x119db as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x119e0 as std::ffi::c_int as LWCHAR,
-            last: 0x119e0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11a01 as std::ffi::c_int as LWCHAR,
-            last: 0x11a0a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11a33 as std::ffi::c_int as LWCHAR,
-            last: 0x11a38 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11a3b as std::ffi::c_int as LWCHAR,
-            last: 0x11a3e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11a47 as std::ffi::c_int as LWCHAR,
-            last: 0x11a47 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11a51 as std::ffi::c_int as LWCHAR,
-            last: 0x11a56 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11a59 as std::ffi::c_int as LWCHAR,
-            last: 0x11a5b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11a8a as std::ffi::c_int as LWCHAR,
-            last: 0x11a96 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11a98 as std::ffi::c_int as LWCHAR,
-            last: 0x11a99 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11c30 as std::ffi::c_int as LWCHAR,
-            last: 0x11c36 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11c38 as std::ffi::c_int as LWCHAR,
-            last: 0x11c3d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11c3f as std::ffi::c_int as LWCHAR,
-            last: 0x11c3f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11c92 as std::ffi::c_int as LWCHAR,
-            last: 0x11ca7 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11caa as std::ffi::c_int as LWCHAR,
-            last: 0x11cb0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11cb2 as std::ffi::c_int as LWCHAR,
-            last: 0x11cb3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11cb5 as std::ffi::c_int as LWCHAR,
-            last: 0x11cb6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11d31 as std::ffi::c_int as LWCHAR,
-            last: 0x11d36 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11d3a as std::ffi::c_int as LWCHAR,
-            last: 0x11d3a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11d3c as std::ffi::c_int as LWCHAR,
-            last: 0x11d3d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11d3f as std::ffi::c_int as LWCHAR,
-            last: 0x11d45 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11d47 as std::ffi::c_int as LWCHAR,
-            last: 0x11d47 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11d90 as std::ffi::c_int as LWCHAR,
-            last: 0x11d91 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11d95 as std::ffi::c_int as LWCHAR,
-            last: 0x11d95 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11d97 as std::ffi::c_int as LWCHAR,
-            last: 0x11d97 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11ef3 as std::ffi::c_int as LWCHAR,
-            last: 0x11ef4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11f00 as std::ffi::c_int as LWCHAR,
-            last: 0x11f01 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11f36 as std::ffi::c_int as LWCHAR,
-            last: 0x11f3a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11f40 as std::ffi::c_int as LWCHAR,
-            last: 0x11f40 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11f42 as std::ffi::c_int as LWCHAR,
-            last: 0x11f42 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x11f5a as std::ffi::c_int as LWCHAR,
-            last: 0x11f5a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x13440 as std::ffi::c_int as LWCHAR,
-            last: 0x13440 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x13447 as std::ffi::c_int as LWCHAR,
-            last: 0x13455 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1611e as std::ffi::c_int as LWCHAR,
-            last: 0x16129 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1612d as std::ffi::c_int as LWCHAR,
-            last: 0x1612f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x16af0 as std::ffi::c_int as LWCHAR,
-            last: 0x16af4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x16b30 as std::ffi::c_int as LWCHAR,
-            last: 0x16b36 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x16f4f as std::ffi::c_int as LWCHAR,
-            last: 0x16f4f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x16f8f as std::ffi::c_int as LWCHAR,
-            last: 0x16f92 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x16fe4 as std::ffi::c_int as LWCHAR,
-            last: 0x16fe4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1bc9d as std::ffi::c_int as LWCHAR,
-            last: 0x1bc9e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1cf00 as std::ffi::c_int as LWCHAR,
-            last: 0x1cf2d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1cf30 as std::ffi::c_int as LWCHAR,
-            last: 0x1cf46 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1d167 as std::ffi::c_int as LWCHAR,
-            last: 0x1d169 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1d17b as std::ffi::c_int as LWCHAR,
-            last: 0x1d182 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1d185 as std::ffi::c_int as LWCHAR,
-            last: 0x1d18b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1d1aa as std::ffi::c_int as LWCHAR,
-            last: 0x1d1ad as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1d242 as std::ffi::c_int as LWCHAR,
-            last: 0x1d244 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1da00 as std::ffi::c_int as LWCHAR,
-            last: 0x1da36 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1da3b as std::ffi::c_int as LWCHAR,
-            last: 0x1da6c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1da75 as std::ffi::c_int as LWCHAR,
-            last: 0x1da75 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1da84 as std::ffi::c_int as LWCHAR,
-            last: 0x1da84 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1da9b as std::ffi::c_int as LWCHAR,
-            last: 0x1da9f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1daa1 as std::ffi::c_int as LWCHAR,
-            last: 0x1daaf as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e000 as std::ffi::c_int as LWCHAR,
-            last: 0x1e006 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e008 as std::ffi::c_int as LWCHAR,
-            last: 0x1e018 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e01b as std::ffi::c_int as LWCHAR,
-            last: 0x1e021 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e023 as std::ffi::c_int as LWCHAR,
-            last: 0x1e024 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e026 as std::ffi::c_int as LWCHAR,
-            last: 0x1e02a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e08f as std::ffi::c_int as LWCHAR,
-            last: 0x1e08f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e130 as std::ffi::c_int as LWCHAR,
-            last: 0x1e136 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e2ae as std::ffi::c_int as LWCHAR,
-            last: 0x1e2ae as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e2ec as std::ffi::c_int as LWCHAR,
-            last: 0x1e2ef as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e4ec as std::ffi::c_int as LWCHAR,
-            last: 0x1e4ef as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e5ee as std::ffi::c_int as LWCHAR,
-            last: 0x1e5ef as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e8d0 as std::ffi::c_int as LWCHAR,
-            last: 0x1e8d6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1e944 as std::ffi::c_int as LWCHAR,
-            last: 0x1e94a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xe0100 as std::ffi::c_int as LWCHAR,
-            last: 0xe01ef as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-];
-#[no_mangle]
-pub static mut compose_table: wchar_range_table = wchar_range_table {
-    table: 0 as *const wchar_range as *mut wchar_range,
-    count: 0,
-};
-static mut ubin_array: [wchar_range; 10] = [
-    {
-        let mut init = wchar_range {
-            first: 0 as std::ffi::c_int as LWCHAR,
-            last: 0x7 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xb as std::ffi::c_int as LWCHAR,
-            last: 0xb as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xe as std::ffi::c_int as LWCHAR,
-            last: 0x1f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x7f as std::ffi::c_int as LWCHAR,
-            last: 0x9f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2028 as std::ffi::c_int as LWCHAR,
-            last: 0x2028 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2029 as std::ffi::c_int as LWCHAR,
-            last: 0x2029 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xd800 as std::ffi::c_int as LWCHAR,
-            last: 0xdfff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xe000 as std::ffi::c_int as LWCHAR,
-            last: 0xf8ff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf0000 as std::ffi::c_int as LWCHAR,
-            last: 0xffffd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x100000 as std::ffi::c_int as LWCHAR,
-            last: 0x10fffd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-];
-#[no_mangle]
-pub static mut ubin_table: wchar_range_table = wchar_range_table {
-    table: 0 as *const wchar_range as *mut wchar_range,
-    count: 0,
-};
-static mut wide_array: [wchar_range; 124] = [
-    {
-        let mut init = wchar_range {
-            first: 0x1100 as std::ffi::c_int as LWCHAR,
-            last: 0x115f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x231a as std::ffi::c_int as LWCHAR,
-            last: 0x231b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2329 as std::ffi::c_int as LWCHAR,
-            last: 0x232a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x23e9 as std::ffi::c_int as LWCHAR,
-            last: 0x23ec as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x23f0 as std::ffi::c_int as LWCHAR,
-            last: 0x23f0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x23f3 as std::ffi::c_int as LWCHAR,
-            last: 0x23f3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x25fd as std::ffi::c_int as LWCHAR,
-            last: 0x25fe as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2614 as std::ffi::c_int as LWCHAR,
-            last: 0x2615 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2630 as std::ffi::c_int as LWCHAR,
-            last: 0x2637 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2648 as std::ffi::c_int as LWCHAR,
-            last: 0x2653 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x267f as std::ffi::c_int as LWCHAR,
-            last: 0x267f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x268a as std::ffi::c_int as LWCHAR,
-            last: 0x268f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2693 as std::ffi::c_int as LWCHAR,
-            last: 0x2693 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26a1 as std::ffi::c_int as LWCHAR,
-            last: 0x26a1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26aa as std::ffi::c_int as LWCHAR,
-            last: 0x26ab as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26bd as std::ffi::c_int as LWCHAR,
-            last: 0x26be as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26c4 as std::ffi::c_int as LWCHAR,
-            last: 0x26c5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26ce as std::ffi::c_int as LWCHAR,
-            last: 0x26ce as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26d4 as std::ffi::c_int as LWCHAR,
-            last: 0x26d4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26ea as std::ffi::c_int as LWCHAR,
-            last: 0x26ea as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26f2 as std::ffi::c_int as LWCHAR,
-            last: 0x26f3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26f5 as std::ffi::c_int as LWCHAR,
-            last: 0x26f5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26fa as std::ffi::c_int as LWCHAR,
-            last: 0x26fa as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x26fd as std::ffi::c_int as LWCHAR,
-            last: 0x26fd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2705 as std::ffi::c_int as LWCHAR,
-            last: 0x2705 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x270a as std::ffi::c_int as LWCHAR,
-            last: 0x270b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2728 as std::ffi::c_int as LWCHAR,
-            last: 0x2728 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x274c as std::ffi::c_int as LWCHAR,
-            last: 0x274c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x274e as std::ffi::c_int as LWCHAR,
-            last: 0x274e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2753 as std::ffi::c_int as LWCHAR,
-            last: 0x2755 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2757 as std::ffi::c_int as LWCHAR,
-            last: 0x2757 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2795 as std::ffi::c_int as LWCHAR,
-            last: 0x2797 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x27b0 as std::ffi::c_int as LWCHAR,
-            last: 0x27b0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x27bf as std::ffi::c_int as LWCHAR,
-            last: 0x27bf as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2b1b as std::ffi::c_int as LWCHAR,
-            last: 0x2b1c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2b50 as std::ffi::c_int as LWCHAR,
-            last: 0x2b50 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2b55 as std::ffi::c_int as LWCHAR,
-            last: 0x2b55 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2e80 as std::ffi::c_int as LWCHAR,
-            last: 0x2e99 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2e9b as std::ffi::c_int as LWCHAR,
-            last: 0x2ef3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2f00 as std::ffi::c_int as LWCHAR,
-            last: 0x2fd5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2ff0 as std::ffi::c_int as LWCHAR,
-            last: 0x2fff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3000 as std::ffi::c_int as LWCHAR,
-            last: 0x3000 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3001 as std::ffi::c_int as LWCHAR,
-            last: 0x303e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3041 as std::ffi::c_int as LWCHAR,
-            last: 0x3096 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3099 as std::ffi::c_int as LWCHAR,
-            last: 0x30ff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3105 as std::ffi::c_int as LWCHAR,
-            last: 0x312f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3131 as std::ffi::c_int as LWCHAR,
-            last: 0x318e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3190 as std::ffi::c_int as LWCHAR,
-            last: 0x31e5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x31ef as std::ffi::c_int as LWCHAR,
-            last: 0x321e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3220 as std::ffi::c_int as LWCHAR,
-            last: 0x3247 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x3250 as std::ffi::c_int as LWCHAR,
-            last: 0xa48c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa490 as std::ffi::c_int as LWCHAR,
-            last: 0xa4c6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xa960 as std::ffi::c_int as LWCHAR,
-            last: 0xa97c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xac00 as std::ffi::c_int as LWCHAR,
-            last: 0xd7a3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xf900 as std::ffi::c_int as LWCHAR,
-            last: 0xfaff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfe10 as std::ffi::c_int as LWCHAR,
-            last: 0xfe19 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfe30 as std::ffi::c_int as LWCHAR,
-            last: 0xfe52 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfe54 as std::ffi::c_int as LWCHAR,
-            last: 0xfe66 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfe68 as std::ffi::c_int as LWCHAR,
-            last: 0xfe6b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xff01 as std::ffi::c_int as LWCHAR,
-            last: 0xff60 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xffe0 as std::ffi::c_int as LWCHAR,
-            last: 0xffe6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x16fe0 as std::ffi::c_int as LWCHAR,
-            last: 0x16fe4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x16ff0 as std::ffi::c_int as LWCHAR,
-            last: 0x16ff1 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x17000 as std::ffi::c_int as LWCHAR,
-            last: 0x187f7 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x18800 as std::ffi::c_int as LWCHAR,
-            last: 0x18cd5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x18cff as std::ffi::c_int as LWCHAR,
-            last: 0x18d08 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1aff0 as std::ffi::c_int as LWCHAR,
-            last: 0x1aff3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1aff5 as std::ffi::c_int as LWCHAR,
-            last: 0x1affb as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1affd as std::ffi::c_int as LWCHAR,
-            last: 0x1affe as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b000 as std::ffi::c_int as LWCHAR,
-            last: 0x1b122 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b132 as std::ffi::c_int as LWCHAR,
-            last: 0x1b132 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b150 as std::ffi::c_int as LWCHAR,
-            last: 0x1b152 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b155 as std::ffi::c_int as LWCHAR,
-            last: 0x1b155 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b164 as std::ffi::c_int as LWCHAR,
-            last: 0x1b167 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1b170 as std::ffi::c_int as LWCHAR,
-            last: 0x1b2fb as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1d300 as std::ffi::c_int as LWCHAR,
-            last: 0x1d356 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1d360 as std::ffi::c_int as LWCHAR,
-            last: 0x1d376 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f004 as std::ffi::c_int as LWCHAR,
-            last: 0x1f004 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f0cf as std::ffi::c_int as LWCHAR,
-            last: 0x1f0cf as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f18e as std::ffi::c_int as LWCHAR,
-            last: 0x1f18e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f191 as std::ffi::c_int as LWCHAR,
-            last: 0x1f19a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f200 as std::ffi::c_int as LWCHAR,
-            last: 0x1f202 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f210 as std::ffi::c_int as LWCHAR,
-            last: 0x1f23b as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f240 as std::ffi::c_int as LWCHAR,
-            last: 0x1f248 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f250 as std::ffi::c_int as LWCHAR,
-            last: 0x1f251 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f260 as std::ffi::c_int as LWCHAR,
-            last: 0x1f265 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f300 as std::ffi::c_int as LWCHAR,
-            last: 0x1f320 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f32d as std::ffi::c_int as LWCHAR,
-            last: 0x1f335 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f337 as std::ffi::c_int as LWCHAR,
-            last: 0x1f37c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f37e as std::ffi::c_int as LWCHAR,
-            last: 0x1f393 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f3a0 as std::ffi::c_int as LWCHAR,
-            last: 0x1f3ca as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f3cf as std::ffi::c_int as LWCHAR,
-            last: 0x1f3d3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f3e0 as std::ffi::c_int as LWCHAR,
-            last: 0x1f3f0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f3f4 as std::ffi::c_int as LWCHAR,
-            last: 0x1f3f4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f3f8 as std::ffi::c_int as LWCHAR,
-            last: 0x1f43e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f440 as std::ffi::c_int as LWCHAR,
-            last: 0x1f440 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f442 as std::ffi::c_int as LWCHAR,
-            last: 0x1f4fc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f4ff as std::ffi::c_int as LWCHAR,
-            last: 0x1f53d as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f54b as std::ffi::c_int as LWCHAR,
-            last: 0x1f54e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f550 as std::ffi::c_int as LWCHAR,
-            last: 0x1f567 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f57a as std::ffi::c_int as LWCHAR,
-            last: 0x1f57a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f595 as std::ffi::c_int as LWCHAR,
-            last: 0x1f596 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f5a4 as std::ffi::c_int as LWCHAR,
-            last: 0x1f5a4 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f5fb as std::ffi::c_int as LWCHAR,
-            last: 0x1f64f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f680 as std::ffi::c_int as LWCHAR,
-            last: 0x1f6c5 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f6cc as std::ffi::c_int as LWCHAR,
-            last: 0x1f6cc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f6d0 as std::ffi::c_int as LWCHAR,
-            last: 0x1f6d2 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f6d5 as std::ffi::c_int as LWCHAR,
-            last: 0x1f6d7 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f6dc as std::ffi::c_int as LWCHAR,
-            last: 0x1f6df as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f6eb as std::ffi::c_int as LWCHAR,
-            last: 0x1f6ec as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f6f4 as std::ffi::c_int as LWCHAR,
-            last: 0x1f6fc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f7e0 as std::ffi::c_int as LWCHAR,
-            last: 0x1f7eb as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f7f0 as std::ffi::c_int as LWCHAR,
-            last: 0x1f7f0 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f90c as std::ffi::c_int as LWCHAR,
-            last: 0x1f93a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f93c as std::ffi::c_int as LWCHAR,
-            last: 0x1f945 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1f947 as std::ffi::c_int as LWCHAR,
-            last: 0x1f9ff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1fa70 as std::ffi::c_int as LWCHAR,
-            last: 0x1fa7c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1fa80 as std::ffi::c_int as LWCHAR,
-            last: 0x1fa89 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1fa8f as std::ffi::c_int as LWCHAR,
-            last: 0x1fac6 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1face as std::ffi::c_int as LWCHAR,
-            last: 0x1fadc as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1fadf as std::ffi::c_int as LWCHAR,
-            last: 0x1fae9 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1faf0 as std::ffi::c_int as LWCHAR,
-            last: 0x1faf8 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x20000 as std::ffi::c_int as LWCHAR,
-            last: 0x2fffd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x30000 as std::ffi::c_int as LWCHAR,
-            last: 0x3fffd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-];
-#[no_mangle]
-pub static mut wide_table: wchar_range_table = wchar_range_table {
-    table: 0 as *const wchar_range as *mut wchar_range,
-    count: 0,
-};
-static mut fmt_array: [wchar_range; 21] = [
-    {
-        let mut init = wchar_range {
-            first: 0xad as std::ffi::c_int as LWCHAR,
-            last: 0xad as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x600 as std::ffi::c_int as LWCHAR,
-            last: 0x605 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x61c as std::ffi::c_int as LWCHAR,
-            last: 0x61c as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x6dd as std::ffi::c_int as LWCHAR,
-            last: 0x6dd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x70f as std::ffi::c_int as LWCHAR,
-            last: 0x70f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x890 as std::ffi::c_int as LWCHAR,
-            last: 0x891 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x8e2 as std::ffi::c_int as LWCHAR,
-            last: 0x8e2 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x180e as std::ffi::c_int as LWCHAR,
-            last: 0x180e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x200b as std::ffi::c_int as LWCHAR,
-            last: 0x200f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x202a as std::ffi::c_int as LWCHAR,
-            last: 0x202e as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2060 as std::ffi::c_int as LWCHAR,
-            last: 0x2064 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x2066 as std::ffi::c_int as LWCHAR,
-            last: 0x206f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfeff as std::ffi::c_int as LWCHAR,
-            last: 0xfeff as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xfff9 as std::ffi::c_int as LWCHAR,
-            last: 0xfffb as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x110bd as std::ffi::c_int as LWCHAR,
-            last: 0x110bd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x110cd as std::ffi::c_int as LWCHAR,
-            last: 0x110cd as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x13430 as std::ffi::c_int as LWCHAR,
-            last: 0x1343f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1bca0 as std::ffi::c_int as LWCHAR,
-            last: 0x1bca3 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x1d173 as std::ffi::c_int as LWCHAR,
-            last: 0x1d17a as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xe0001 as std::ffi::c_int as LWCHAR,
-            last: 0xe0001 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0xe0020 as std::ffi::c_int as LWCHAR,
-            last: 0xe007f as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-];
-#[no_mangle]
-pub static mut fmt_table: wchar_range_table = wchar_range_table {
-    table: 0 as *const wchar_range as *mut wchar_range,
-    count: 0,
-};
-static mut comb_table: [wchar_range; 4] = [
-    {
-        let mut init = wchar_range {
-            first: 0x644 as std::ffi::c_int as LWCHAR,
-            last: 0x622 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x644 as std::ffi::c_int as LWCHAR,
-            last: 0x623 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x644 as std::ffi::c_int as LWCHAR,
-            last: 0x625 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-    {
-        let mut init = wchar_range {
-            first: 0x644 as std::ffi::c_int as LWCHAR,
-            last: 0x627 as std::ffi::c_int as LWCHAR,
-        };
-        init
-    },
-];
-unsafe extern "C" fn is_in_table(mut ch: LWCHAR, mut table: *mut wchar_range_table) -> lbool {
-    let mut hi: std::ffi::c_uint = 0;
-    let mut lo: std::ffi::c_uint = 0;
-    if ((*table).table).is_null()
-        || (*table).count == 0 as std::ffi::c_int as std::ffi::c_uint
-        || ch < (*((*table).table).offset(0 as std::ffi::c_int as isize)).first
-    {
-        return LFALSE;
+
+static mut comb_table: LazyLock<Vec<wchar_range>> = LazyLock::new(|| {
+    vec![
+        wchar_range {
+            first: char::from_u32(0x644).unwrap(),
+            last: char::from_u32(0x622).unwrap(),
+        },
+        wchar_range {
+            first: char::from_u32(0x644).unwrap(),
+            last: char::from_u32(0x623).unwrap(),
+        },
+        wchar_range {
+            first: char::from_u32(0x644).unwrap(),
+            last: char::from_u32(0x625).unwrap(),
+        },
+        wchar_range {
+            first: char::from_u32(0x644).unwrap(),
+            last: char::from_u32(0x627).unwrap(),
+        },
+    ]
+});
+
+unsafe extern "C" fn is_in_table(ch: char, table: &wchar_range_table) -> bool {
+    let mut hi = 0;
+    let mut lo = 0;
+    if table.len() == 0 || ch < table[0].first {
+        return false;
     }
-    lo = 0 as std::ffi::c_int as std::ffi::c_uint;
-    hi = ((*table).count).wrapping_sub(1 as std::ffi::c_int as std::ffi::c_uint);
+    lo = 0;
+    hi = table.len() - 1;
     while lo <= hi {
-        let mut mid: std::ffi::c_uint = lo
-            .wrapping_add(hi)
-            .wrapping_div(2 as std::ffi::c_int as std::ffi::c_uint);
-        if ch > (*((*table).table).offset(mid as isize)).last {
-            lo = mid.wrapping_add(1 as std::ffi::c_int as std::ffi::c_uint);
-        } else if ch < (*((*table).table).offset(mid as isize)).first {
-            hi = mid.wrapping_sub(1 as std::ffi::c_int as std::ffi::c_uint);
+        let mut mid = (lo + hi) / 2;
+        if ch > table[mid].last {
+            lo = mid + 1;
+        } else if ch < table[mid].first {
+            hi = mid - 1;
         } else {
-            return LTRUE;
+            return true;
         }
     }
-    return LFALSE;
+    return false;
 }
+
+/*
+ * Is a character a UTF-8 composing character?
+ * If a composing character follows any char, the two combine into one glyph.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn is_composing_char(mut ch: LWCHAR) -> lbool {
-    if is_in_table(ch, &mut user_prt_table) as u64 != 0 {
-        return LFALSE;
+pub unsafe extern "C" fn is_composing_char(ch: char) -> bool {
+    if is_in_table(ch, &user_prt_table) {
+        return false;
     }
-    return (is_in_table(ch, &mut user_compose_table) as std::ffi::c_uint != 0
-        || is_in_table(ch, &mut compose_table) as std::ffi::c_uint != 0
-        || bs_mode != 2 as std::ffi::c_int
-            && is_in_table(ch, &mut fmt_table) as std::ffi::c_uint != 0)
-        as std::ffi::c_int as lbool;
+    return is_in_table(ch, &user_compose_table)
+        || is_in_table(ch, &compose_table)
+        || (bs_mode != BS_CONTROL && is_in_table(ch, &fmt_table));
 }
+
+/*
+ * Should this UTF-8 character be treated as binary?
+ */
 #[no_mangle]
-pub unsafe extern "C" fn is_ubin_char(mut ch: LWCHAR) -> lbool {
-    if is_in_table(ch, &mut user_prt_table) as u64 != 0 {
-        return LFALSE;
+pub unsafe extern "C" fn is_ubin_char(ch: char) -> bool {
+    if is_in_table(ch, &mut user_prt_table) {
+        return false;
     }
-    return (is_in_table(ch, &mut user_ubin_table) as std::ffi::c_uint != 0
-        || is_in_table(ch, &mut ubin_table) as std::ffi::c_uint != 0
-        || bs_mode == 2 as std::ffi::c_int
-            && is_in_table(ch, &mut fmt_table) as std::ffi::c_uint != 0)
-        as std::ffi::c_int as lbool;
+    return is_in_table(ch, &mut user_ubin_table)
+        || is_in_table(ch, &ubin_table)
+        || bs_mode == BS_CONTROL && is_in_table(ch, &fmt_table);
 }
+
+/*
+ * Is this a double width UTF-8 character?
+ */
 #[no_mangle]
-pub unsafe extern "C" fn is_wide_char(mut ch: LWCHAR) -> lbool {
-    return (is_in_table(ch, &mut user_wide_table) as std::ffi::c_uint != 0
-        || is_in_table(ch, &mut wide_table) as std::ffi::c_uint != 0) as std::ffi::c_int
-        as lbool;
+pub unsafe extern "C" fn is_wide_char(ch: char) -> bool {
+    return is_in_table(ch, &user_wide_table) || is_in_table(ch, &wide_table);
 }
+
+/*
+ * Is a character a UTF-8 combining character?
+ * A combining char acts like an ordinary char, but if it follows
+ * a specific char (not any char), the two combine into one glyph.
+ */
 #[no_mangle]
-pub unsafe extern "C" fn is_combining_char(mut ch1: LWCHAR, mut ch2: LWCHAR) -> lbool {
-    let mut i: std::ffi::c_int = 0;
-    i = 0 as std::ffi::c_int;
-    while i
-        < (::core::mem::size_of::<[wchar_range; 4]>() as std::ffi::c_ulong)
-            .wrapping_div(::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong)
-            as std::ffi::c_int
-    {
-        if ch1 == comb_table[i as usize].first && ch2 == comb_table[i as usize].last {
-            return LTRUE;
+pub unsafe extern "C" fn is_combining_char(mut ch1: char, mut ch2: char) -> bool {
+    /* The table is small; use linear search. */
+    for i in 0..comb_table.len() {
+        if ch1 == comb_table[i].first && ch2 == comb_table[i].last {
+            return true;
         }
-        i += 1;
     }
-    return LFALSE;
+    return false;
 }
-unsafe extern "C" fn run_static_initializers() {
-    compose_table = {
-        let mut init = wchar_range_table {
-            table: compose_array.as_mut_ptr(),
-            count: (::core::mem::size_of::<[wchar_range; 365]>() as std::ffi::c_ulong)
-                .wrapping_div(::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong)
-                as std::ffi::c_int as std::ffi::c_uint,
-        };
-        init
-    };
-    ubin_table = {
-        let mut init = wchar_range_table {
-            table: ubin_array.as_mut_ptr(),
-            count: (::core::mem::size_of::<[wchar_range; 10]>() as std::ffi::c_ulong)
-                .wrapping_div(::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong)
-                as std::ffi::c_int as std::ffi::c_uint,
-        };
-        init
-    };
-    wide_table = {
-        let mut init = wchar_range_table {
-            table: wide_array.as_mut_ptr(),
-            count: (::core::mem::size_of::<[wchar_range; 124]>() as std::ffi::c_ulong)
-                .wrapping_div(::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong)
-                as std::ffi::c_int as std::ffi::c_uint,
-        };
-        init
-    };
-    fmt_table = {
-        let mut init = wchar_range_table {
-            table: fmt_array.as_mut_ptr(),
-            count: (::core::mem::size_of::<[wchar_range; 21]>() as std::ffi::c_ulong)
-                .wrapping_div(::core::mem::size_of::<wchar_range>() as std::ffi::c_ulong)
-                as std::ffi::c_int as std::ffi::c_uint,
-        };
-        init
-    };
-}
-#[used]
-#[cfg_attr(target_os = "linux", link_section = ".init_array")]
-#[cfg_attr(target_os = "windows", link_section = ".CRT$XIB")]
-#[cfg_attr(target_os = "macos", link_section = "__DATA,__mod_init_func")]
-static INIT_ARRAY: [unsafe extern "C" fn(); 1] = [run_static_initializers];

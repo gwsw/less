@@ -1,7 +1,7 @@
 use crate::decode::lgetenv;
 use ::c2rust_bitfields;
-use ::libc;
 use std::ffi::CStr;
+use std::ffi::CString;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -2089,11 +2089,13 @@ pub unsafe extern "C" fn osc8_open() {
     let handler_ = lgetenv(CStr::from_ptr(env_name.as_mut_ptr()).to_str().unwrap());
     if handler_.as_ref().is_err()
         || strcmp(
-            handler_.unwrap(),
+            CString::new(handler_.unwrap()).unwrap().as_ptr(),
             b"-\0" as *const u8 as *const std::ffi::c_char,
         ) == 0 as std::ffi::c_int
     {
-        handler = lgetenv("LESS_OSC8_ANY").unwrap();
+        handler = CString::new(lgetenv("LESS_OSC8_ANY").unwrap())
+            .unwrap()
+            .as_ptr();
     }
     if isnullenv(handler) as u64 != 0 {
         let mut parg: PARG = parg {

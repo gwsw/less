@@ -1,6 +1,7 @@
 use crate::decode::lgetenv;
 use ::c2rust_bitfields;
 use ::libc;
+use std::ffi::CString;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -542,7 +543,7 @@ unsafe extern "C" fn findgtag(
         let mut qtag: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
         let cmd;
         if let Ok(c) = lgetenv("LESSGLOBALTAGS") {
-            cmd = c;
+            cmd = CString::new(c).unwrap().as_ptr();
         } else {
             return TAG_NOFILE;
         }

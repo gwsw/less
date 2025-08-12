@@ -1,7 +1,10 @@
+use crate::charset::init_charset;
+use crate::decode::{expand_cmd_tables, init_cmds, Tables};
 use crate::decode::{isnullenv, lgetenv};
 use crate::ifile::get_ifile;
 use crate::mark::Marks;
 use crate::util::ptr_to_str;
+use std::ffi::CString;
 extern "C" {
     fn snprintf(
         _: *mut std::ffi::c_char,
@@ -32,12 +35,9 @@ extern "C" {
     fn deinit();
     fn interactive() -> std::ffi::c_int;
     fn clear_bot();
-    fn init_charset();
     fn init_cmdhist();
     fn save_cmdhist();
     fn commands();
-    fn expand_cmd_tables();
-    fn init_cmds();
     fn check_altpipe_error();
     fn edit(filename: *const std::ffi::c_char) -> std::ffi::c_int;
     fn edit_first() -> std::ffi::c_int;
@@ -334,39 +334,42 @@ unsafe extern "C" fn security_feature(
  * whether certain secure features are allowed.
  */
 unsafe extern "C" fn init_secure() {
-    if isnullenv(lgetenv("LESSSECURE").unwrap_or(0 as *const std::ffi::c_char)) {
-        secure_allow_features = 0;
+    let mut s = lgetenv("LESSSECURE");
+    if isnullenv(&s) {
+        secure_allow_features = !0; /* allow everything */
     } else {
-        secure_allow_features = !0;
+        secure_allow_features = 0; /* allow nothing */
     }
 
-    let mut string = lgetenv("LESSSECURE_ALLOW").unwrap_or(0 as *const std::ffi::c_char);
-    if !isnullenv(string) {
-        let s = ptr_to_str(string);
+    let ls = lgetenv("LESSSECURE_ALLOW");
+    if !isnullenv(&ls) {
+        let mut s = ls.unwrap();
+        let mut s = s.as_mut_str();
         loop {
             let mut estr: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-            while *string as std::ffi::c_int == ' ' as i32
-                || *string as std::ffi::c_int == ',' as i32
-            {
-                string = string.offset(1);
+            let mut c = s.chars().next().unwrap();
+            while c == ' ' || c == ',' {
+                c = s.chars().next().unwrap();
             }
-            if *string as std::ffi::c_int == '\0' as i32 {
+            if c == '\0' {
                 break;
             }
-            estr = strchr(string, ',' as i32);
-            if estr.is_null() {
-                estr = string.offset(strlen(string) as isize);
+            let mut start = 0;
+            if let Some(i) = s.find(',') {
+                start = i;
+            } else {
+                start = s.len();
             }
-            while estr > string
-                && *estr.offset(-(1 as std::ffi::c_int) as isize) as std::ffi::c_int == ' ' as i32
-            {
-                estr = estr.offset(-1);
+            while start > 0 && s.chars().nth(start - 1).unwrap() == ' ' {
+                /* trim trailing spaces */
+                start -= 1;
             }
             secure_allow_features |= security_feature(
-                string,
-                estr.offset_from(string) as std::ffi::c_long as size_t,
+                CString::new(String::from(&mut *s)).unwrap().as_ptr(),
+                start as u64,
             );
-            string = estr;
+            let (_, r) = s.split_at_mut(start);
+            s = r;
         }
     }
 }
@@ -389,7 +392,8 @@ unsafe fn main_0(
     let mut less = Less::new(Marks::new());
     let marks = less.marks_ref_mut();
     less.marks.init();
-    init_cmds();
+    let mut tables = Tables::new();
+    init_cmds(&mut tables);
     init_poll();
     init_charset();
     init_line();
@@ -410,7 +414,7 @@ unsafe fn main_0(
     if ss.is_err() {
         scan_option(s, LTRUE);
     } else {
-        s = ss.unwrap();
+        s = CString::new(ss.unwrap()).unwrap().as_ptr();
     }
     while argc > 0 as std::ffi::c_int
         && ((*(*argv).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '-' as i32
@@ -432,23 +436,23 @@ unsafe fn main_0(
         quit(0 as std::ffi::c_int);
     }
     get_term();
-    expand_cmd_tables();
+    expand_cmd_tables(&mut tables);
     let ed = lgetenv("VISUAL");
     if ed.is_err() {
         let edit = lgetenv("EDITOR");
         if edit.is_ok() {
-            editor = edit.unwrap();
+            editor = CString::new(edit.unwrap()).unwrap().as_ptr();
         } else {
             editor = b"vi\0" as *const u8 as *const std::ffi::c_char;
         }
     } else {
-        editor = ed.unwrap();
+        editor = CString::new(ed.unwrap()).unwrap().as_ptr();
     }
     let editp = lgetenv("LESSEDIT");
     if editp.is_err() {
         editproto = b"%E ?lm+%lm. %g\0" as *const u8 as *const std::ffi::c_char;
     } else {
-        editproto = editp.unwrap();
+        editproto = CString::new(editp.unwrap()).unwrap().as_ptr();
     }
     ifile = 0 as *mut std::ffi::c_void;
     if dohelp != 0 {

@@ -339,6 +339,7 @@ const C2_END_LESSKEY_MAGIC: u8 = b'd';
 const NULL_POSITION: i32 = -1;
 const KRADIX: u32 = 64;
 
+#[derive(Debug)]
 struct Table {
     table: Vec<u8>,
 }
@@ -349,11 +350,23 @@ impl Table {
     }
 }
 
+#[derive(Debug)]
 pub struct Tables {
     pub fcmd_tables: Vec<Table>,
     pub ecmd_tables: Vec<Table>,
     pub var_tables: Vec<Table>,
     pub sysvar_tables: Vec<Table>,
+}
+
+impl Tables {
+    pub fn new() -> Self {
+        Tables {
+            fcmd_tables: Vec::new(),
+            ecmd_tables: Vec::new(),
+            var_tables: Vec::new(),
+            sysvar_tables: Vec::new(),
+        }
+    }
 }
 
 fn table_from_xbuf(xbuf: XBuffer) -> Table {
@@ -580,16 +593,23 @@ static mut dflt_vartable: LazyLock<Vec<u8>> = LazyLock::new(|| {
 unsafe extern "C" fn expand_special_keys(table: &mut Table) {
     let mut fm = 0;
     let mut to = fm;
-    while fm < table.table.len() {
-        while table.table[fm] != 0 {
+    let len = table.table.len();
+    while fm < len {
+        /*
+         * Rewrite each command in the table with any
+         * special key abbreviations expanded.
+         */
+        to = fm;
+        while to < fm && table.table[fm] != 0 {
             if table.table[fm] != SK_SPECIAL_KEY {
                 table.table[to] = table.table[fm];
                 to += 1;
                 fm += 1;
+                println!("to: {}, fm: {} len: {}", to, fm, table.table.len());
                 continue;
             }
 
-            if fm + 2 > table.table.len() {
+            if fm + 2 > len {
                 break; // not enough data
             }
 
@@ -612,7 +632,7 @@ unsafe extern "C" fn expand_special_keys(table: &mut Table) {
                 _ => &[0xFF], // fallback
             };
             for &b in replacement {
-                if to < table.table.len() {
+                if to < len {
                     table.table[to] = b;
                     to += 1;
                 }
@@ -629,13 +649,13 @@ unsafe extern "C" fn expand_special_keys(table: &mut Table) {
          * Fill any unused bytes between end of command and
          * the action byte with A_SKIP.
          */
-        while to <= fm && to < table.table.len() {
+        while to <= fm && to < len {
             table.table[to] = A_SKIP;
             to += 1;
         }
 
         fm += 1;
-        if fm >= table.table.len() {
+        if fm >= len {
             break;
         }
 
@@ -662,7 +682,6 @@ unsafe extern "C" fn expand_cmd_table(t_list: &mut [Table]) {
 /*
  * Expand special key abbreviations in all command tables.
  */
-#[no_mangle]
 pub unsafe extern "C" fn expand_cmd_tables(tables: &mut Tables) {
     expand_cmd_table(&mut tables.fcmd_tables);
     expand_cmd_table(&mut tables.ecmd_tables);
@@ -673,7 +692,6 @@ pub unsafe extern "C" fn expand_cmd_tables(tables: &mut Tables) {
 /*
  * Initialize the command lists.
  */
-#[no_mangle]
 pub unsafe extern "C" fn init_cmds(tables: &mut Tables) {
     add_fcmd_table(tables, Table::from(&cmdtable));
     add_ecmd_table(tables, Table::from(&edittable));
@@ -738,12 +756,10 @@ unsafe extern "C" fn pop_cmd_table(table: &mut Vec<Table>) {
     table.pop().unwrap();
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn add_fcmd_table(tables: &mut Tables, table: Table) {
     add_cmd_table(&mut tables.fcmd_tables, table);
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn add_ecmd_table(tables: &mut Tables, table: Table) {
     add_cmd_table(&mut tables.fcmd_tables, table);
 }
@@ -758,12 +774,10 @@ unsafe extern "C" fn add_var_table(tables: &mut Tables, buf: &mut [u8], len: usi
     add_cmd_table(&mut tables.var_tables, table_from_xbuf(xbuf));
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn add_uvar_table(tables: &mut Tables, buf: &mut [u8], len: usize) {
     add_var_table(tables, buf, len);
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn add_sysvar_table(tables: &mut Tables, buf: &mut [u8], len: usize) {
     add_var_table(tables, buf, len);
 }
@@ -1129,7 +1143,6 @@ unsafe extern "C" fn cmd_decode(
 /*
  * Decode a command from the cmdtables list.
  */
-#[no_mangle]
 pub unsafe extern "C" fn fcmd_decode(
     tables: &Tables,
     cmd: &[u8],
@@ -1141,7 +1154,6 @@ pub unsafe extern "C" fn fcmd_decode(
 /*
  * Decode a command from the edittables list.
  */
-#[no_mangle]
 pub unsafe extern "C" fn ecmd_decode(
     tables: &Tables,
     cmd: &[u8],
@@ -1154,8 +1166,7 @@ pub unsafe extern "C" fn ecmd_decode(
  * Get the value of an environment variable.
  * Looks first in the lesskey file, then in the real environment.
  */
-#[no_mangle]
-pub fn lgetenv(key: &str) -> Result<*const std::ffi::c_char, VarError> {
+pub fn lgetenv(key: &str) -> Result<String, VarError> {
     // FIXME add the lesskey file lookup
     /*
     let mut a: i32;
@@ -1165,24 +1176,18 @@ pub fn lgetenv(key: &str) -> Result<*const std::ffi::c_char, VarError> {
         return s;
     }
     */
-    let s = env::var(key);
-    let ret = match s {
-        Ok(val) => Ok(CString::new(val.as_str()).unwrap().as_ptr()),
-        Err(e) => Err(e),
-    };
+    env::var(key)
     /*
     a = cmd_decode(list_sysvar_tables, var, &mut s);
     if a == 0o1 as std::ffi::c_int {
         return s;
     }
     */
-    ret
 }
 
 /*
  * Like lgetenv, but also uses a buffer partially filled with an env table.
  */
-#[no_mangle]
 pub unsafe extern "C" fn lgetenv_ext(
     tables: &mut Tables,
     var: &str,
@@ -1228,14 +1233,13 @@ pub unsafe extern "C" fn lgetenv_ext(
             .as_bytes_mut(),
         env_end as usize,
     );
-    r = lgetenv(var).unwrap();
+    r = CString::new(lgetenv(var).unwrap()).unwrap().as_ptr();
     pop_cmd_table(&mut tables.var_tables);
     return r;
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn isnullenv(mut s: *const std::ffi::c_char) -> bool {
-    return s.is_null() || *s as std::ffi::c_int == '\0' as i32;
+pub unsafe extern "C" fn isnullenv(r: &Result<String, VarError>) -> bool {
+    r.is_err() || r.as_ref().unwrap() != ""
 }
 
 unsafe extern "C" fn gint(buf: &[u8]) -> usize {
@@ -1327,7 +1331,6 @@ unsafe extern "C" fn new_lesskey(tables: &mut Tables, buf: &mut [u8], sysvar: bo
 /*
  * Set up a user command table, based on a "lesskey" file.
  */
-#[no_mangle]
 pub unsafe extern "C" fn lesskey(tables: &mut Tables, filename: &[u8], sysvar: bool) -> i32 {
     let mut buf: *mut std::ffi::c_uchar = 0 as *mut std::ffi::c_uchar;
     let mut len: POSITION = 0;
@@ -1451,17 +1454,14 @@ unsafe extern "C" fn lesskey_text(
     return 0;
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn lesskey_src(tables: &mut Tables, filename: &[u8], sysvar: bool) -> i32 {
     return lesskey_text(tables, filename, sysvar, false);
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn lesskey_content(tables: &mut Tables, content: &[u8], sysvar: bool) -> i32 {
     return lesskey_text(tables, content, sysvar, true);
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn lesskey_parse_error(mut s: *mut std::ffi::c_char) {
     let mut parg: PARG = parg {
         p_string: 0 as *const std::ffi::c_char,
@@ -1485,14 +1485,14 @@ unsafe extern "C" fn add_hometable(
     let mut r: std::ffi::c_int = 0;
     if let Some(name) = envname {
         if let Ok(efilename) = lgetenv(name) {
-            filename = save(efilename);
+            filename = save(CString::new(efilename).unwrap().as_ptr());
         }
     } else if sysvar {
         filename = save(def_filename);
     } else {
         if let Ok(xdg) = lgetenv("XDG_CONFIG_HOME") {
             filename = dirfile(
-                xdg,
+                CString::new(xdg).unwrap().as_ptr(),
                 &*def_filename.offset(1 as std::ffi::c_int as isize),
                 1 as std::ffi::c_int,
             );
@@ -1500,7 +1500,7 @@ unsafe extern "C" fn add_hometable(
         if filename.is_null() {
             if let Ok(home) = lgetenv("HOME") {
                 let mut cfg_dir: *mut std::ffi::c_char = dirfile(
-                    home,
+                    CString::new(home).unwrap().as_ptr(),
                     b".config\0" as *const u8 as *const std::ffi::c_char,
                     0 as std::ffi::c_int,
                 );
@@ -1539,14 +1539,13 @@ unsafe extern "C" fn add_content_table(
     sysvar: bool,
 ) {
     if let Ok(content) = lgetenv(envname) {
-        lesskey_content(tables, ptr_to_str(content).unwrap().as_bytes(), sysvar);
+        lesskey_content(tables, content.as_bytes(), sysvar);
     }
 }
 
 /*
  * See if a char is a special line-editing command.
  */
-#[no_mangle]
 pub unsafe extern "C" fn editchar(tables: &Tables, c: u8, flags: i32) -> i32 {
     let mut action = 0;
     let mut nch = 0;

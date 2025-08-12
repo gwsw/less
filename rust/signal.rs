@@ -1,5 +1,6 @@
 use crate::decode::lgetenv;
 use ::libc;
+use std::ffi::CString;
 extern "C" {
     fn getpid() -> __pid_t;
     fn quit(status: std::ffi::c_int);
@@ -64,7 +65,7 @@ unsafe extern "C" fn terminate(mut type_0: std::ffi::c_int) {
 
 unsafe extern "C" fn sigusr(var: &str) {
     if let Ok(cmd) = lgetenv(var) {
-        ungetsc(cmd);
+        ungetsc(CString::new(cmd).unwrap().as_ptr());
         intio();
     }
 }

@@ -1,6 +1,7 @@
 use crate::decode::lgetenv;
 use crate::util::ptr_to_str;
 use std::ffi::CStr;
+use std::ffi::CString;
 extern "C" {
     fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
     fn snprintf(
@@ -388,7 +389,9 @@ unsafe extern "C" fn ltget_env(mut capname: *const std::ffi::c_char) -> *const s
         b"LESS_TERMCAP_%s\0" as *const u8 as *const std::ffi::c_char,
         capname,
     );
-    return lgetenv(CStr::from_ptr(name.as_mut_ptr()).to_str().unwrap()).unwrap();
+    CString::new(lgetenv(CStr::from_ptr(name.as_mut_ptr()).to_str().unwrap()).unwrap())
+        .unwrap()
+        .as_ptr()
 }
 unsafe extern "C" fn ltgetflag(mut capname: *const std::ffi::c_char) -> std::ffi::c_int {
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
@@ -457,7 +460,7 @@ unsafe extern "C" fn scrsize() {
         sc_height = sys_height;
     } else {
         if let Ok(s) = lgetenv("LINES") {
-            sc_height = atoi(s);
+            sc_height = atoi(CString::new(s).unwrap().as_ptr());
         } else {
             n = ltgetnum(b"li\0" as *const u8 as *const std::ffi::c_char);
             if n > 0 as std::ffi::c_int {
@@ -466,7 +469,7 @@ unsafe extern "C" fn scrsize() {
         }
     }
     if let Ok(s) = lgetenv("LESS_LINES") {
-        let mut height: std::ffi::c_int = atoi(s);
+        let mut height: std::ffi::c_int = atoi(CString::new(s).unwrap().as_ptr());
         sc_height = if height < 0 as std::ffi::c_int {
             sc_height + height
         } else {
@@ -481,7 +484,7 @@ unsafe extern "C" fn scrsize() {
         sc_width = sys_width;
     } else {
         if let Ok(s) = lgetenv("COLUMNS") {
-            sc_width = atoi(s);
+            sc_width = atoi(CString::new(s).unwrap().as_ptr());
         } else {
             n = ltgetnum(b"co\0" as *const u8 as *const std::ffi::c_char);
             if n > 0 as std::ffi::c_int {
@@ -490,7 +493,7 @@ unsafe extern "C" fn scrsize() {
         }
     }
     if let Ok(s) = lgetenv("LESS_COLUMNS") {
-        let mut width: std::ffi::c_int = atoi(s);
+        let mut width: std::ffi::c_int = atoi(CString::new(s).unwrap().as_ptr());
         sc_width = if width < 0 as std::ffi::c_int {
             sc_width + width
         } else {
@@ -583,7 +586,7 @@ pub unsafe extern "C" fn get_term() {
     if !t.is_ok() {
         term = b"unknown\0" as *const u8 as *const std::ffi::c_char;
     } else {
-        term = t.unwrap();
+        term = CString::new(t.unwrap()).unwrap().as_ptr();
     }
     hardcopy = 0 as std::ffi::c_int;
     if tgetent(termbuf.as_mut_ptr(), term) != 1 as std::ffi::c_int {
@@ -796,7 +799,7 @@ pub unsafe extern "C" fn get_term() {
         no_back_scroll = 1 as std::ffi::c_int;
     }
     shell_lines = if let Ok(en) = lgetenv("LESS_SHELL_LINES") {
-        atoi(en)
+        atoi(CString::new(en).unwrap().as_ptr())
     } else {
         1 as std::ffi::c_int
     };

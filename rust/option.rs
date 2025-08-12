@@ -1,5 +1,6 @@
 use crate::decode::lgetenv;
-use ::libc;
+use std::ffi::CString;
+
 extern "C" {
     fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
     fn snprintf(
@@ -778,7 +779,7 @@ pub unsafe extern "C" fn init_unsupport() {
     if ss.is_err() {
         return;
     } else {
-        s = ss.unwrap();
+        s = CString::new(ss.unwrap()).unwrap().as_ptr();
     }
     loop {
         let mut opt: *mut loption = 0 as *mut loption;

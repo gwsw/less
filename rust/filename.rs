@@ -1,6 +1,7 @@
 use crate::decode::{lgetenv, lgetenv_ext};
 use crate::xbuf::XBuffer;
 use ::c2rust_bitfields;
+use std::ffi::CString;
 
 extern "C" {
     pub type _IO_wide_data;
@@ -180,6 +181,9 @@ pub struct xcpy {
     pub dest: *mut std::ffi::c_char,
     pub copied: size_t,
 }
+const DEF_METACHARS: *const std::ffi::c_char =
+    b"; *?\t\n'\"()<>[]|&^`#\\$%=~{}," as *const u8 as *const std::ffi::c_char;
+
 #[no_mangle]
 pub unsafe extern "C" fn shell_unquote(mut str: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut name: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
@@ -232,19 +236,16 @@ pub unsafe extern "C" fn get_meta_escape() -> *const std::ffi::c_char {
     if ss.is_err() {
         s = b"\\\0" as *const u8 as *const std::ffi::c_char;
     } else {
-        s = ss.unwrap();
+        s = CString::new(ss.unwrap()).unwrap().as_ptr();
     }
     return s;
 }
 unsafe extern "C" fn metachars() -> *const std::ffi::c_char {
-    static mut mchars: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    if mchars.is_null() {
-        mchars = lgetenv("LESSMETACHARS").unwrap_or(0 as *const std::ffi::c_char);
-        if mchars.is_null() {
-            mchars = b"; *?\t\n'\"()<>[]|&^`#\\$%=~{},\0" as *const u8 as *const std::ffi::c_char;
-        }
+    let mchars = lgetenv("LESSMETACHARS");
+    if mchars.is_err() {
+        return DEF_METACHARS;
     }
-    return mchars;
+    0 as *const std::ffi::c_char
 }
 unsafe extern "C" fn metachar(mut c: std::ffi::c_char) -> lbool {
     return (strchr(metachars(), c as std::ffi::c_int)
@@ -391,7 +392,11 @@ pub unsafe extern "C" fn dirfile(
 #[no_mangle]
 pub unsafe extern "C" fn homefile(mut filename: *const std::ffi::c_char) -> *mut std::ffi::c_char {
     let mut pathname: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
-    pathname = dirfile(lgetenv("HOME").unwrap(), filename, 1 as std::ffi::c_int);
+    pathname = dirfile(
+        CString::new(lgetenv("HOME").unwrap()).unwrap().as_ptr(),
+        filename,
+        1 as std::ffi::c_int,
+    );
     if !pathname.is_null() {
         return pathname;
     }
@@ -588,7 +593,7 @@ unsafe extern "C" fn shellcmd(mut cmd: *const std::ffi::c_char) -> *mut FILE {
         if esccmd.is_null() {
             fd = popen(cmd, b"r\0" as *const u8 as *const std::ffi::c_char);
         } else {
-            let mut len: size_t = (strlen(shell))
+            let mut len: size_t = (shell.len() as u64)
                 .wrapping_add(strlen(esccmd))
                 .wrapping_add(5 as std::ffi::c_int as std::ffi::c_ulong);
             scmd = ecalloc(
@@ -638,7 +643,7 @@ pub unsafe extern "C" fn lglob(mut afilename: *const std::ffi::c_char) -> *mut s
     if lessecho_.is_err() {
         lessecho = b"lessecho\0" as *const u8 as *const std::ffi::c_char;
     } else {
-        lessecho = lessecho_.unwrap();
+        lessecho = CString::new(lessecho_.unwrap()).unwrap().as_ptr();
     }
     len = (strlen(lessecho))
         .wrapping_add(strlen(filename))
@@ -749,7 +754,7 @@ pub unsafe extern "C" fn open_altfile(
     if lessopen_.is_err() {
         return 0 as *mut std::ffi::c_char;
     } else {
-        lessopen = lessopen_.unwrap();
+        lessopen = CString::new(lessopen_.unwrap()).unwrap().as_ptr();
     }
     while *lessopen as std::ffi::c_int == '|' as i32 {
         lessopen = lessopen.offset(1);
@@ -836,7 +841,7 @@ pub unsafe extern "C" fn close_altfile(
     if lessclose_.is_err() {
         return;
     } else {
-        lessclose = lessclose_.unwrap();
+        lessclose = CString::new(lessclose_.unwrap()).unwrap().as_ptr();
     }
     if num_pct_s(lessclose) > 2 as std::ffi::c_int {
         error(

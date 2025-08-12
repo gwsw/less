@@ -46,6 +46,10 @@ pub mod lessecho;
 #[path = "lesskey.rs"]
 pub mod lesskey;
 */
+#[path = "compose_uni.rs"]
+pub mod compose_uni;
+#[path = "fmt_uni.rs"]
+pub mod fmt_uni;
 #[path = "lesskey_parse.rs"]
 pub mod lesskey_parse;
 #[path = "line.rs"]
@@ -84,9 +88,13 @@ pub mod signal;
 pub mod tags;
 #[path = "ttyin.rs"]
 pub mod ttyin;
+#[path = "ubin_uni.rs"]
+pub mod ubin_uni;
 #[path = "util.rs"]
 pub mod util;
 #[path = "version.rs"]
 pub mod version;
+#[path = "wide_uni.rs"]
+pub mod wide_uni;
 #[path = "xbuf.rs"]
 pub mod xbuf;

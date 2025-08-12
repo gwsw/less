@@ -1,6 +1,6 @@
 use crate::decode::lgetenv;
 use ::c2rust_bitfields;
-use ::libc;
+use std::ffi::CString;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -1143,7 +1143,7 @@ unsafe extern "C" fn cmd_complete(mut action: std::ffi::c_int) -> std::ffi::c_in
         if ss.is_err() {
             s = b"/\0" as *const u8 as *const std::ffi::c_char;
         } else {
-            s = ss.unwrap();
+            s = CString::new(ss.unwrap()).unwrap().as_ptr();
         }
         if cmd_istr(s) != 0 as std::ffi::c_int {
             current_block = 16725810106060436304;
@@ -1314,10 +1314,16 @@ unsafe extern "C" fn mlist_size(mut ml: *mut mlist) -> std::ffi::c_int {
     return size;
 }
 unsafe extern "C" fn histfile_find(mut must_exist: lbool) -> *mut std::ffi::c_char {
-    let mut home: *const std::ffi::c_char = lgetenv("HOME").unwrap();
+    let mut home: *const std::ffi::c_char =
+        CString::new(lgetenv("HOME").unwrap()).unwrap().as_ptr();
     let mut name: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
+    let var = if let Ok(state_home) = lgetenv("XDG_STATE_HOME") {
+        CString::new(state_home).unwrap().as_ptr()
+    } else {
+        0 as *const std::ffi::c_char
+    };
     name = dirfile(
-        lgetenv("XDG_STATE_HOME").unwrap_or(0 as *mut std::ffi::c_char),
+        var,
         &*(b".lesshst\0" as *const u8 as *const std::ffi::c_char)
             .offset(1 as std::ffi::c_int as isize),
         must_exist as std::ffi::c_int,
@@ -1339,8 +1345,13 @@ unsafe extern "C" fn histfile_find(mut must_exist: lbool) -> *mut std::ffi::c_ch
         }
     }
     if name.is_null() {
+        let var = if let Ok(state_home) = lgetenv("XDG_DATA_HOME") {
+            CString::new(state_home).unwrap().as_ptr()
+        } else {
+            0 as *const std::ffi::c_char
+        };
         name = dirfile(
-            lgetenv("XDG_DATA_HOME").unwrap_or(0 as *mut std::ffi::c_char),
+            var,
             &*(b".lesshst\0" as *const u8 as *const std::ffi::c_char)
                 .offset(1 as std::ffi::c_int as isize),
             must_exist as std::ffi::c_int,
@@ -1358,13 +1369,18 @@ unsafe extern "C" fn histfile_find(mut must_exist: lbool) -> *mut std::ffi::c_ch
 unsafe extern "C" fn histfile_name(mut must_exist: lbool) -> *mut std::ffi::c_char {
     let mut wname: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     if let Ok(name) = lgetenv("LESSHISTFILE") {
-        if strcmp(name, b"-\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int
-            || strcmp(name, b"/dev/null\0" as *const u8 as *const std::ffi::c_char)
-                == 0 as std::ffi::c_int
+        if strcmp(
+            CString::new(name.clone()).unwrap().as_ptr(),
+            b"-\0" as *const u8 as *const std::ffi::c_char,
+        ) == 0 as std::ffi::c_int
+            || strcmp(
+                CString::new(name.clone()).unwrap().as_ptr(),
+                b"/dev/null\0" as *const u8 as *const std::ffi::c_char,
+            ) == 0 as std::ffi::c_int
         {
             return 0 as *mut std::ffi::c_char;
         }
-        return save(name);
+        return save(CString::new(name.clone()).unwrap().as_ptr());
     }
     if strcmp(
         b".lesshst\0" as *const u8 as *const std::ffi::c_char,
@@ -1691,7 +1707,7 @@ pub unsafe extern "C" fn save_cmdhist() {
     if !fout.is_null() {
         make_file_private(fout);
         if let Ok(s) = lgetenv("LESSHISTSIZE") {
-            histsize = atoi(s);
+            histsize = atoi(CString::new(s).unwrap().as_ptr());
         }
         if histsize <= 0 as std::ffi::c_int {
             histsize = 100 as std::ffi::c_int;

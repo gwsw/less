@@ -1,5 +1,5 @@
 use crate::decode::lgetenv;
-use ::libc;
+use std::ffi::CString;
 extern "C" {
     fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
     fn snprintf(
@@ -128,7 +128,7 @@ static mut open_label: sigjmp_buf = [__jmp_buf_tag {
 #[no_mangle]
 pub unsafe extern "C" fn init_poll() {
     let mut idelay: std::ffi::c_int = if let Ok(delay) = lgetenv("LESS_DATA_DELAY") {
-        atoi(delay)
+        atoi(CString::new(delay).unwrap().as_ptr())
     } else {
         0 as std::ffi::c_int
     };
@@ -136,7 +136,7 @@ pub unsafe extern "C" fn init_poll() {
         waiting_for_data_delay = idelay;
     }
     idelay = if let Ok(delay) = lgetenv("LESS_SCREENFILL_TIME") {
-        atoi(delay)
+        atoi(CString::new(delay).unwrap().as_ptr())
     } else {
         0 as std::ffi::c_int
     };

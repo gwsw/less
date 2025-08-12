@@ -121,6 +121,7 @@ sub start_run {
 sub end_run {
     my ($out, $code) = @_;
     return if not $$out{in_run};
-    printf "\t{ 0x%04x, 0x%04x }, /* %s */\n", $$out{start_code}, $code, $$out{run_type};
+    #printf "\t{ 0x%04x, 0x%04x }, /* %s */\n", $$out{start_code}, $code, $$out{run_type};
+    printf "\twchar_range { first: 0x%04x, last: 0x%04x }, /* %s */\n", $$out{start_code}, $code, $$out{run_type};
     $$out{in_run} = 0;
 }
