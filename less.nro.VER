@@ -1928,7 +1928,7 @@ Again, in this case the dash is not considered to be part of
 the input pipe command.
 .
 .SH "NATIONAL CHARACTER SETS"
-There are three types of characters in the input file:
+There are five types of characters in the input file:
 .IP "normal characters"
 can be displayed directly to the screen.
 .IP "control characters"
@@ -1937,6 +1937,12 @@ in ordinary text files (such as backspace and tab).
 .IP "binary characters"
 should not be displayed directly and are not expected to be found
 in text files.
+.IP "composing characters"
+are not displayed separately, but modify the display of the
+preceding character. (Only when LESSCHARSET is "utf8".)
+.IP "deleted characters"
+are simply deleted from the input and not displayed.
+(Only when LESSCHARSET is "utf8".)
 .PP
 A "character set" is simply a description of which characters are to
 be considered normal, control, and binary.
@@ -2064,7 +2070,7 @@ of how the UTF-8 file is ill-formed.
 .PP
 When the character set is utf-8, in rare cases it may be desirable to
 override the Unicode definition of the type of certain characters.
-For example, characters in a Private Use Area are normally treated as control
+For example, characters in a Private Use Area are normally treated as binary
 characters, but if you are using a custom font with printable characters
 in that range, it may be desirable to tell
 .B less
@@ -2091,6 +2097,8 @@ A wide (2-space) printable character.
 A binary (non-printable) character.
 .IP "c"
 A composing (zero width) character.
+.IP "d"
+A deleted character (deleted from the input and not displayed).
 .RE
 .PP
 For example, setting LESSUTFCHARDEF to
@@ -2100,6 +2108,17 @@ For example, setting LESSUTFCHARDEF to
 .sp
 .fi
 would make all Private Use Area characters be treated as printable.
+.PP
+By default, emoji modifier characters are deleted because
+many terminals do not display them correctly.
+If you use a terminal which does display them correctly, you can
+cause them to be displayed by treating them as 
+composing characters, by setting LESSUTFCHARDEF to
+.nf
+.sp
+	FE00-FE0F:c,1F3FB-1F3FF:c,1F9B0-1F9B3:c,E0100-E01EF:c
+.sp
+.fi
 .SH "PROMPTS"
 The \-P option allows you to tailor the prompt to your preference.
 The string given to the \-P option replaces the specified prompt string.

@@ -545,6 +545,12 @@ public int pwidth(LWCHAR ch, int a, LWCHAR prev_ch, int prev_a)
 		}
 	} else
 	{
+		if (ch == VARSEL_15)
+			/* If prev char was double width, make it single width. */
+			return (prev_ch != 0 && pwidth(prev_ch, a, 0, 0) == 2) ? -1 : 0;
+		if (ch == VARSEL_16)
+			/* If prev char was single width, make it double width. */
+			return (prev_ch != 0 && pwidth(prev_ch, a, 0, 0) == 1) ? +1 : 0;
 		if (is_composing_char(ch) || is_combining_char(prev_ch, ch))
 		{
 			/*
@@ -927,6 +933,18 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 				add_linebuf((char) shifted_ansi.data[i], AT_ANSI, 0);
 			xbuf_reset(&shifted_ansi);
 		}
+		if (linebuf.end == linebuf.print)
+		{
+			if (is_composing_char(ch))
+				return (0);
+			if (ch == VARSEL_16)
+			{
+				char *p = &linebuf.buf[linebuf.end];
+				LWCHAR prev_ch = (linebuf.end > 0) ? step_char(&p, -1, linebuf.buf) : 0;
+				if (prev_ch != 0 && pwidth(prev_ch, a, 0, 0) == 1)
+					add_linebuf(' ', rscroll_attr, 0);
+			}
+		}
 	}
 
 	/* Add the char to the buf, even if we will left-shift it next. */
@@ -1295,6 +1313,17 @@ static int do_append(LWCHAR ch, constant char *rep, POSITION pos)
 			overstrike = 0;
 	}
 
+	if (is_omit_char(ch))
+	{
+		if (bs_mode == BS_CONTROL)
+		{
+			if (utf_mode)
+				STORE_STRING(prutfchar(ch), AT_BINARY, pos);
+			else
+				STORE_PRCHAR(ch, pos);
+		}
+		return (0); /* omit the character. */
+	}
 	if (ch == '\t')
 	{
 		/*
@@ -1538,7 +1567,11 @@ static void col_vs_pos(POSITION linepos, mutable struct col_pos *cp, POSITION sa
 				LWCHAR wch = get_wchar(utf8_buf);
 				int attr = 0; /* {{ ignoring attribute is not correct for magic cookie terminals }} */
 				utf8_len = 0;
-				if (utf_mode && ctldisp != OPT_ON && is_ubin_char(wch))
+				if (is_omit_char(wch))
+				{
+					if (bs_mode == BS_CONTROL)
+						cw = strlen(utf_mode ? prutfchar(wch) : prchar(wch));
+				} else if (utf_mode && ctldisp != OPT_ON && is_ubin_char(wch))
 					cw = (int) strlen(prutfchar(wch));
 				else
 					cw = pwidth(wch, attr, prev_ch, attr);

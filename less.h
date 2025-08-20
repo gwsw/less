@@ -554,6 +554,8 @@ typedef enum {
 #define ESC             CONTROL('[')
 #define ESCS            "\33"
 #define CSI             ((unsigned char)'\233')
+#define VARSEL_15       ((LWCHAR)0xFE0E)  /* VARIATION SELECTOR 15 */
+#define VARSEL_16       ((LWCHAR)0xFE0F)  /* VARIATION SELECTOR 16 */
 
 #if _OSK_MWC32
 #define LSIGNAL(sig,func)       os9_signal(sig,func)
