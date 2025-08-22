@@ -19,7 +19,8 @@
   the search begins at the position where the search command was invoked,
   not the current position (github #640).
 
-* Treat U+00AD and U+200D as binary characters (github #637).
+* Don't output U+00AD and U+200D, and fix some bugs handling emoji
+  modifier characters (github #637).
 
 * Fix hang if a search using ^S modifier matches empty string (github #634).
 
