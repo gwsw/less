@@ -435,6 +435,7 @@ typedef enum osc8_state {
 #define AT_ANSI         (1 << 4)  /* Content-supplied "ANSI" escape sequence */
 #define AT_BINARY       (1 << 5)  /* LESS*BINFMT representation */
 #define AT_HILITE       (1 << 6)  /* Internal highlights (e.g., for search) */
+#define AT_PLACEHOLDER  (1 << 7)  /* Internal highlights (e.g., for search) */
 
 #define AT_COLOR_SHIFT    8
 #define AT_NUM_COLORS     16

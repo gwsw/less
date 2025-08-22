@@ -848,6 +848,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 	size_t replen;
 	char cs;
 	int ov;
+	lbool need_shift;
 
 	ov = (a & (AT_UNDERLINE|AT_BOLD));
 	if (ov != AT_NORMAL)
@@ -933,26 +934,39 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 				add_linebuf((char) shifted_ansi.data[i], AT_ANSI, 0);
 			xbuf_reset(&shifted_ansi);
 		}
-		if (linebuf.end == linebuf.print)
+		if (linebuf.end == linebuf.print+1)
 		{
-			if (is_composing_char(ch))
-				return (0);
+			/* If first char is a placeholder, the one before it is double-width.
+			 * VS15 changes the double-width char to single-width, so replace the
+			 * placeholder with this VS15. */
+			if (ch == VARSEL_15 && (linebuf.attr[linebuf.end-1] & AT_PLACEHOLDER))
+			{
+				linebuf.end--;
+				inc_end_column(-1);
+			}
+		} else if (linebuf.end == linebuf.print)
+		{
+			/* VS16 changes the previous single-width char to double-width.
+			 * Add a placeholder to represent the second half of the
+			 * double-width char. */
 			if (ch == VARSEL_16)
 			{
 				char *p = &linebuf.buf[linebuf.end];
 				LWCHAR prev_ch = (linebuf.end > 0) ? step_char(&p, -1, linebuf.buf) : 0;
 				if (prev_ch != 0 && pwidth(prev_ch, a, 0, 0) == 1)
-					add_linebuf(' ', rscroll_attr, 0);
+					add_linebuf(' ', rscroll_attr|AT_PLACEHOLDER, 0);
 			}
 		}
 	}
 
 	/* Add the char to the buf, even if we will left-shift it next. */
+	need_shift = (cshift < hshift ||
+		(w <= 0 && (linebuf.end == linebuf.print || (linebuf.end == linebuf.print+1 && linebuf.attr[linebuf.end-1] & AT_PLACEHOLDER))));
 	inc_end_column(w);
 	for (i = 0;  i < replen;  i++)
 		add_linebuf(*rep++, a, 0);
 
-	if (cshift < hshift)
+	if (need_shift)
 	{
 		/* We haven't left-shifted enough yet. */
 		if (a == AT_ANSI)
@@ -975,7 +989,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 			 */
 			while (cshift > hshift)
 			{
-				add_linebuf(' ', rscroll_attr, 0);
+				add_linebuf(' ', rscroll_attr|AT_PLACEHOLDER, 0);
 				cshift--;
 			}
 		}
