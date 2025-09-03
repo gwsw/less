@@ -1,4 +1,5 @@
-use ::libc;
+use crate::line::gline;
+
 extern "C" {
     fn write(__fd: std::ffi::c_int, __buf: *const std::ffi::c_void, __n: size_t) -> ssize_t;
     fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
@@ -22,7 +23,6 @@ extern "C" {
     fn screen_trashed();
     fn ungetcc(c: std::ffi::c_char);
     fn squish_check();
-    fn gline(i: size_t, ap: *mut std::ffi::c_int) -> std::ffi::c_int;
     fn should_clear_after_line() -> lbool;
     fn supports_ctrl_x() -> std::ffi::c_int;
     fn getchr() -> std::ffi::c_int;
@@ -78,9 +78,9 @@ pub unsafe extern "C" fn put_line(mut forw_scroll: lbool) {
         return;
     }
     final_attr = 0 as std::ffi::c_int;
-    i = 0 as std::ffi::c_int as size_t;
+    i = 0;
     loop {
-        c = gline(i, &mut a);
+        c = gline(i as usize, &mut a);
         if !(c != '\0' as i32) {
             break;
         }
@@ -91,7 +91,7 @@ pub unsafe extern "C" fn put_line(mut forw_scroll: lbool) {
         } else {
             putchr(c);
         }
-        i = i.wrapping_add(1);
+        i += 1;
     }
     at_exit();
     if forw_scroll as std::ffi::c_uint != 0 && should_clear_after_line() as std::ffi::c_uint != 0 {

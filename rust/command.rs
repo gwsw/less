@@ -1,4 +1,6 @@
-use ::libc;
+use crate::line::load_line;
+use std::ffi::CStr;
+
 extern "C" {
     fn snprintf(
         _: *mut std::ffi::c_char,
@@ -80,7 +82,6 @@ extern "C" {
     fn jump_line_loc(pos: POSITION, sline: std::ffi::c_int);
     fn jump_loc(pos: POSITION, sline: std::ffi::c_int);
     fn set_line_contig_pos(pos: POSITION);
-    fn load_line(str: *const std::ffi::c_char);
     fn rrshift() -> std::ffi::c_int;
     fn clr_linenum();
     fn lsystem(cmd: *const std::ffi::c_char, donemsg: *const std::ffi::c_char);
@@ -953,7 +954,7 @@ unsafe extern "C" fn prompt() {
         putchr(':' as i32);
         at_exit();
     } else {
-        load_line(p);
+        load_line(CStr::from_ptr(p).to_bytes());
         put_line(LFALSE);
     }
     clear_eol();

@@ -1,4 +1,5 @@
-use ::libc;
+use crate::line::{pappend, pappend_b, pdone, prewind};
+
 extern "C" {
     fn ch_seek(pos: POSITION) -> std::ffi::c_int;
     fn ch_tell() -> POSITION;
@@ -7,15 +8,11 @@ extern "C" {
     fn line_position() -> POSITION;
     fn is_line_contig_pos(pos: POSITION) -> lbool;
     fn set_line_contig_pos(pos: POSITION);
-    fn prewind(contig: lbool);
     fn plinestart(pos: POSITION);
     fn pshift_all();
     fn savec();
     fn loadc();
-    fn pappend_b(c: std::ffi::c_char, pos: POSITION, before_pendc: lbool) -> std::ffi::c_int;
-    fn pappend(c: std::ffi::c_char, pos: POSITION) -> std::ffi::c_int;
     fn pflushmbc() -> std::ffi::c_int;
-    fn pdone(endline: lbool, chopped: lbool, forw: lbool);
     fn set_status_col(c: std::ffi::c_char, attr: std::ffi::c_int);
     fn null_line();
     fn chop_line() -> std::ffi::c_int;
@@ -44,7 +41,7 @@ pub type lbool = std::ffi::c_uint;
 pub const LTRUE: lbool = 1;
 pub const LFALSE: lbool = 0;
 pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
+pub type POSITION = i32;
 unsafe extern "C" fn init_status_col(
     mut base_pos: POSITION,
     mut disp_pos: POSITION,
@@ -102,22 +99,22 @@ unsafe extern "C" fn init_status_col(
 #[no_mangle]
 pub unsafe extern "C" fn forw_line_seg(
     mut curr_pos: POSITION,
-    mut skipeol: lbool,
-    mut rscroll: lbool,
-    mut nochop: lbool,
+    mut skipeol: bool,
+    mut rscroll: bool,
+    mut nochop: bool,
     mut p_linepos: *mut POSITION,
-    mut p_newline: *mut lbool,
+    mut p_newline: *mut bool,
 ) -> POSITION {
     let mut base_pos: POSITION = 0;
     let mut new_pos: POSITION = 0;
     let mut edisp_pos: POSITION = 0;
     let mut c: std::ffi::c_int = 0;
     let mut blankline: lbool = LFALSE;
-    let mut endline: lbool = LFALSE;
-    let mut chopped: lbool = LFALSE;
+    let mut endline: bool = false;
+    let mut chopped: bool = false;
     let mut backchars: std::ffi::c_int = 0;
     let mut wrap_pos: POSITION = 0;
-    let mut skipped_leading: lbool = LFALSE;
+    let mut skipped_leading: bool = false;
     if !p_linepos.is_null() {
         *p_linepos = -(1 as std::ffi::c_int) as POSITION;
     }
@@ -154,12 +151,12 @@ pub unsafe extern "C" fn forw_line_seg(
             }
         }
         if is_line_contig_pos(curr_pos) as u64 != 0 {
-            prewind(LTRUE);
+            prewind(true);
             plinestart(base_pos);
             ch_seek(curr_pos);
             new_pos = curr_pos;
         } else {
-            prewind(LFALSE);
+            prewind(false);
             plinestart(base_pos);
             ch_seek(base_pos);
             new_pos = base_pos;
@@ -169,7 +166,7 @@ pub unsafe extern "C" fn forw_line_seg(
                     null_line();
                     return -(1 as std::ffi::c_int) as POSITION;
                 }
-                backchars = pappend(c as std::ffi::c_char, new_pos);
+                backchars = pappend(c as u8, new_pos as i32);
                 new_pos += 1;
                 if backchars > 0 as std::ffi::c_int {
                     pshift_all();
@@ -203,8 +200,8 @@ pub unsafe extern "C" fn forw_line_seg(
         }
         blankline = (c == '\n' as i32 || c == '\r' as i32) as std::ffi::c_int as lbool;
         wrap_pos = -(1 as std::ffi::c_int) as POSITION;
-        skipped_leading = LFALSE;
-        chopped = LFALSE;
+        skipped_leading = false;
+        chopped = false;
         loop {
             if c == '\n' as i32 || c == -(1 as std::ffi::c_int) {
                 backchars = pflushmbc();
@@ -214,9 +211,9 @@ pub unsafe extern "C" fn forw_line_seg(
                     && hshift == 0 as std::ffi::c_int
                 {
                     new_pos -= (backchars + 1 as std::ffi::c_int) as POSITION;
-                    endline = LFALSE;
+                    endline = false;
                 } else {
-                    endline = LTRUE;
+                    endline = true;
                 }
                 edisp_pos = new_pos;
                 break;
@@ -224,10 +221,7 @@ pub unsafe extern "C" fn forw_line_seg(
                 if c != '\r' as i32 {
                     blankline = LFALSE;
                 }
-                backchars = pappend(
-                    c as std::ffi::c_char,
-                    ch_tell() - 1 as std::ffi::c_int as POSITION,
-                );
+                backchars = pappend(c as u8, (ch_tell() - 1) as i32);
                 if backchars > 0 as std::ffi::c_int {
                     if skipeol as u64 != 0 {
                         edisp_pos = ch_tell() - backchars as POSITION;
@@ -238,9 +232,9 @@ pub unsafe extern "C" fn forw_line_seg(
                             }
                         }
                         new_pos = ch_tell();
-                        endline = LTRUE;
+                        endline = true;
                         quit_if_one_screen = LFALSE as std::ffi::c_int;
-                        chopped = LTRUE;
+                        chopped = false;
                     } else {
                         if wordwrap == 0 {
                             new_pos = ch_tell() - backchars as POSITION;
@@ -264,19 +258,19 @@ pub unsafe extern "C" fn forw_line_seg(
                             new_pos = wrap_pos;
                             loadc();
                         }
-                        endline = LFALSE;
+                        endline = false;
                         edisp_pos = new_pos;
                     }
                     break;
                 } else {
                     if wordwrap != 0 {
                         if c == ' ' as i32 || c == '\t' as i32 {
-                            if skipped_leading as u64 != 0 {
+                            if skipped_leading {
                                 wrap_pos = ch_tell();
                                 savec();
                             }
                         } else {
-                            skipped_leading = LTRUE;
+                            skipped_leading = true;
                         }
                     }
                     c = ch_forw_get();
@@ -284,18 +278,9 @@ pub unsafe extern "C" fn forw_line_seg(
             }
         }
         if blankline as std::ffi::c_uint != 0 && show_attn != 0 {
-            pappend_b(
-                ' ' as i32 as std::ffi::c_char,
-                ch_tell() - 1 as std::ffi::c_int as POSITION,
-                LTRUE,
-            );
+            pappend_b(b' ', (ch_tell() - 1) as POSITION, true);
         }
-        pdone(
-            endline,
-            (rscroll as std::ffi::c_uint != 0 && chopped as std::ffi::c_uint != 0)
-                as std::ffi::c_int as lbool,
-            LTRUE,
-        );
+        pdone(endline, rscroll && chopped, true);
         if !(is_filtered(base_pos) as u64 != 0) {
             break;
         }
@@ -329,13 +314,13 @@ pub unsafe extern "C" fn forw_line_seg(
 pub unsafe extern "C" fn forw_line(
     mut curr_pos: POSITION,
     mut p_linepos: *mut POSITION,
-    mut p_newline: *mut lbool,
+    mut p_newline: *mut bool,
 ) -> POSITION {
     return forw_line_seg(
         curr_pos,
-        (chop_line() != 0 || hshift > 0 as std::ffi::c_int) as std::ffi::c_int as lbool,
-        LTRUE,
-        LFALSE,
+        chop_line() != 0 || hshift > 0,
+        true,
+        false,
         p_linepos,
         p_newline,
     );
@@ -347,11 +332,11 @@ pub unsafe extern "C" fn back_line(mut curr_pos: POSITION, mut p_newline: *mut l
     let mut edisp_pos: POSITION = 0;
     let mut begin_new_pos: POSITION = 0;
     let mut c: std::ffi::c_int = 0;
-    let mut endline: lbool = LFALSE;
-    let mut chopped: lbool = LFALSE;
+    let mut endline: bool = false;
+    let mut chopped: bool = false;
     let mut backchars: std::ffi::c_int = 0;
     let mut wrap_pos: POSITION = 0;
-    let mut skipped_leading: lbool = LFALSE;
+    let mut skipped_leading: bool = false;
     loop {
         if curr_pos == -(1 as std::ffi::c_int) as POSITION
             || curr_pos <= 0 as std::ffi::c_int as POSITION
@@ -410,18 +395,18 @@ pub unsafe extern "C" fn back_line(mut curr_pos: POSITION, mut p_newline: *mut l
             null_line();
             return -(1 as std::ffi::c_int) as POSITION;
         }
-        endline = LFALSE;
-        prewind(LFALSE);
+        endline = false;
+        prewind(false);
         plinestart(new_pos);
         if !p_newline.is_null() {
             *p_newline = LTRUE;
         }
         '_loop: loop {
             wrap_pos = -(1 as std::ffi::c_int) as POSITION;
-            skipped_leading = LFALSE;
+            skipped_leading = false;
             begin_new_pos = new_pos;
             ch_seek(new_pos);
-            chopped = LFALSE;
+            chopped = false;
             loop {
                 c = ch_forw_get();
                 if c == -(1 as std::ffi::c_int) {
@@ -437,19 +422,16 @@ pub unsafe extern "C" fn back_line(mut curr_pos: POSITION, mut p_newline: *mut l
                     {
                         backchars += 1;
                     } else {
-                        endline = LTRUE;
+                        endline = true;
                         edisp_pos = new_pos;
                         break '_loop;
                     }
                 } else {
-                    backchars = pappend(
-                        c as std::ffi::c_char,
-                        ch_tell() - 1 as std::ffi::c_int as POSITION,
-                    );
+                    backchars = pappend(c as u8, (ch_tell() - 1) as i32);
                     if backchars > 0 as std::ffi::c_int {
                         if chop_line() != 0 || hshift > 0 as std::ffi::c_int {
-                            endline = LTRUE;
-                            chopped = LTRUE;
+                            endline = true;
+                            chopped = true;
                             quit_if_one_screen = LFALSE as std::ffi::c_int;
                             edisp_pos = new_pos;
                             break '_loop;
@@ -459,11 +441,11 @@ pub unsafe extern "C" fn back_line(mut curr_pos: POSITION, mut p_newline: *mut l
                     } else {
                         if wordwrap != 0 {
                             if c == ' ' as i32 || c == '\t' as i32 {
-                                if skipped_leading as u64 != 0 {
+                                if skipped_leading {
                                     wrap_pos = new_pos;
                                 }
                             } else {
-                                skipped_leading = LTRUE;
+                                skipped_leading = true;
                             }
                         }
                         if !(new_pos >= curr_pos) {
@@ -514,7 +496,7 @@ pub unsafe extern "C" fn back_line(mut curr_pos: POSITION, mut p_newline: *mut l
                 }
             }
         }
-        pdone(endline, chopped, LFALSE);
+        pdone(endline, chopped, false);
         if !(is_filtered(base_pos) as u64 != 0) {
             break;
         }

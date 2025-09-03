@@ -2,8 +2,8 @@ use crate::charset::init_charset;
 use crate::decode::{expand_cmd_tables, init_cmds, Tables};
 use crate::decode::{isnullenv, lgetenv};
 use crate::ifile::get_ifile;
+use crate::line::init_line;
 use crate::mark::Marks;
-use crate::util::ptr_to_str;
 use std::ffi::CString;
 extern "C" {
     fn snprintf(
@@ -48,7 +48,6 @@ extern "C" {
     fn prev_ifile(h: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn nifile() -> std::ffi::c_int;
     fn repaint();
-    fn init_line();
     fn opt_header(type_0: std::ffi::c_int, s: *const std::ffi::c_char);
     fn scan_option(s: *const std::ffi::c_char, is_env: lbool);
     fn isoptpending() -> lbool;

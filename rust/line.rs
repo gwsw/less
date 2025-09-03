@@ -234,7 +234,17 @@ impl LineBuf {
     }
 }
 
-static mut linebuf: LazyLock<LineBuf> = LazyLock::new(|| LineBuf::new());
+static mut linebuf: LineBuf = LineBuf {
+    buf: Vec::new(),
+    attr: Vec::new(),
+    print: 0,
+    end: 0,
+    prev_end: 0,
+    pfx: [0; MAX_PFX_WIDTH],
+    pfx_attr: [0; MAX_PFX_WIDTH],
+    pfx_end: 0,
+};
+
 /*
  * Buffer of ansi sequences which have been shifted off the left edge
  * of the screen.
@@ -445,7 +455,22 @@ pub unsafe extern "C" fn init_line() {
     }
 
     size_linebuf = LINEBUF_SIZE;
+    linebuf.buf = Vec::with_capacity(LINEBUF_SIZE);
+    linebuf.attr = Vec::with_capacity(LINEBUF_SIZE);
+    linebuf.buf.resize(LINEBUF_SIZE, 0);
+    linebuf.attr.resize(LINEBUF_SIZE, 0);
     curr_last_ansi = 0;
+}
+
+/*
+ * Expand the line buffer.
+ */
+unsafe fn expand_linebuf() {
+    /* Double the size of the line buffer. */
+    let new_size = size_linebuf * 2;
+    linebuf.buf.resize(new_size, 0);
+    linebuf.attr.resize(new_size, 0);
+    size_linebuf = new_size;
 }
 
 /*
@@ -536,6 +561,13 @@ pub unsafe extern "C" fn prewind(mut contig: bool) {
  * Set a character in the line buffer.
  */
 unsafe extern "C" fn set_linebuf(n: usize, ch: u8, attr: i32) {
+    if n >= size_linebuf {
+        /*
+         * Won't fit in line buffer.
+         * Try to expand it.
+         */
+        expand_linebuf();
+    }
     linebuf.buf[n] = ch;
     linebuf.attr[n] = attr;
 }
@@ -1959,18 +1991,9 @@ pub unsafe extern "C" fn forw_raw_line_len(
             new_pos = ch_tell();
             break;
         } else {
-            /*
             if n >= size_linebuf - 1 {
-                if expand_linebuf() != 0 {
-                /*
-                 * Overflowed the input buffer.
-                 * Pretend the line ended here.
-                 */
-                    new_pos = ch_tell() - 1;
-                    break;
-                }
+                expand_linebuf();
             }
-            */
             linebuf.buf[n] = 0;
             n += 1;
             if read_len != -1 && read_len > 0 && n >= read_len as usize {
@@ -2021,37 +2044,26 @@ pub unsafe extern "C" fn back_raw_line(curr_pos: POSITION) -> (POSITION, usize, 
              */
             new_pos = 0;
             break;
-        } else {
-            if n <= 0 {
-                let mut old_size_linebuf = size_linebuf;
-                let mut fm = 0;
-                let mut to = 0;
-                /*
-                if expand_linebuf() != 0 {
-                   /*
-                    * Overflowed the input buffer.
-                    * Pretend the line ended here.
-                    */
-                    new_pos = ch_tell() + 1;
-                    break;
-                } else */
-                {
-                    /*
-                     * Shift the data to the end of the new linebuf.
-                     */
-                    fm = old_size_linebuf - 1;
-                    to = size_linebuf - 1;
-                    while fm >= linebuf.buf.len() {
-                        linebuf.buf[to] = linebuf.buf[fm];
-                        fm -= 1;
-                        to -= 1;
-                    }
-                    n = size_linebuf.wrapping_sub(old_size_linebuf);
-                }
-            }
-            n -= 1;
-            linebuf.buf[n] = c as u8;
         }
+        if n <= 0 {
+            let mut old_size_linebuf = size_linebuf;
+            let mut fm = 0;
+            let mut to = 0;
+            expand_linebuf();
+            /*
+             * Shift the data to the end of the new linebuf.
+             */
+            fm = old_size_linebuf - 1;
+            to = size_linebuf - 1;
+            while fm >= linebuf.buf.len() {
+                linebuf.buf[to] = linebuf.buf[fm];
+                fm -= 1;
+                to -= 1;
+            }
+            n = size_linebuf.wrapping_sub(old_size_linebuf);
+        }
+        n -= 1;
+        linebuf.buf[n] = c as u8;
     }
     (new_pos, n, size_linebuf - 1 - n)
 }
@@ -2095,13 +2107,11 @@ pub unsafe extern "C" fn skip_columns(
  * Append a string to the line buffer.
  */
 unsafe extern "C" fn pappstr(string: &[u8]) -> i32 {
-    let mut idx = 0;
-    while string[idx] != b'\0' {
-        if pappend(string[idx], NULL_POSITION) != 0 {
+    for c in string {
+        if pappend(*c, NULL_POSITION) != 0 {
             /* Doesn't fit on screen. */
             return 1;
         }
-        idx += 1;
     }
     0
 }
