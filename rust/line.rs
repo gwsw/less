@@ -15,24 +15,6 @@ use crate::xbuf::XBuffer;
 use std::ffi::CString;
 use std::sync::LazyLock;
 extern "C" {
-    fn calloc(_: std::ffi::c_ulong, _: std::ffi::c_ulong) -> *mut std::ffi::c_void;
-    fn free(_: *mut std::ffi::c_void);
-    fn memcpy(
-        _: *mut std::ffi::c_void,
-        _: *const std::ffi::c_void,
-        _: std::ffi::c_ulong,
-    ) -> *mut std::ffi::c_void;
-    fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
-    fn strchr(_: *const std::ffi::c_char, _: std::ffi::c_int) -> *mut std::ffi::c_char;
-    fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
-    fn linenumtoa(_: LINENUM, _: *mut std::ffi::c_char, _: std::ffi::c_int);
-    fn lstrtoulc(
-        _: *const std::ffi::c_char,
-        _: *mut *const std::ffi::c_char,
-        _: std::ffi::c_int,
-    ) -> std::ffi::c_ulong;
-    fn ecalloc(count: size_t, size: size_t) -> *mut std::ffi::c_void;
-    fn skipspc(s: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn parse_color(
         str: *const std::ffi::c_char,
         p_fg: *mut std::ffi::c_int,
@@ -1093,12 +1075,6 @@ pub unsafe extern "C" fn ansi_step(pansi: &mut AnsiState, ch: char) -> ANSI_STAT
 pub unsafe extern "C" fn ansi_osc8_state(pansi: &AnsiState) -> OSC8_STATE {
     pansi.ostate
 }
-
-/*
-pub unsafe extern "C" fn ansi_done(mut pansi: *mut ansi_state_0) {
-    free(pansi as *mut std::ffi::c_void);
-}
-*/
 
 /*
  * Will w characters in attribute a fit on the screen?
