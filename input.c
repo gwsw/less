@@ -338,7 +338,7 @@ get_forw_line:
 		*p_linepos = curr_pos;
 	if (p_newline != NULL)
 		*p_newline = endline;
-	set_line_contig_pos(new_pos);
+	set_line_contig_pos(endline ? NULL_POSITION : new_pos);
 	return (new_pos);
 }
 

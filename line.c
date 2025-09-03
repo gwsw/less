@@ -960,8 +960,10 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 	}
 
 	/* Add the char to the buf, even if we will left-shift it next. */
-	need_shift = (cshift < hshift ||
-		(w <= 0 && (linebuf.end == linebuf.print || (linebuf.end == linebuf.print+1 && linebuf.attr[linebuf.end-1] & AT_PLACEHOLDER))));
+	need_shift = (cshift < hshift);
+	if (!need_shift && w <= 0 && linebuf.end <= linebuf.print+1 && is_composing_char(ch) &&
+		(linebuf.end == linebuf.print || (linebuf.end == linebuf.print+1 && (linebuf.attr[linebuf.end-1] & AT_PLACEHOLDER))))
+		need_shift = TRUE;
 	inc_end_column(w);
 	for (i = 0;  i < replen;  i++)
 		add_linebuf(*rep++, a, 0);
@@ -1714,6 +1716,7 @@ public POSITION forw_raw_line_len(POSITION curr_pos, size_t read_len, constant c
 		(c = ch_forw_get()) == EOI)
 		return (NULL_POSITION);
 
+	set_line_contig_pos(NULL_POSITION);
 	n = 0;
 	for (;;)
 	{
@@ -1769,6 +1772,7 @@ public POSITION back_raw_line(POSITION curr_pos, constant char **linep, size_t *
 		ch_seek(curr_pos-1))
 		return (NULL_POSITION);
 
+	set_line_contig_pos(NULL_POSITION);
 	n = size_linebuf;
 	linebuf.buf[--n] = '\0';
 	for (;;)
