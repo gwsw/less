@@ -35,6 +35,9 @@
 
 * Fix lesskey bug using "invalid" action (github #643).
 
+* Fix bug causing file to appear to end prematurely if an input command
+  was received during a file read (github #649).
+
 * Fix performance issue in & filtering (github #638). Problem was introduced
   in da2a9ecdf16beb642d0c030e35f0351c5f2e5a12 and released in less-673.
 
