@@ -1056,7 +1056,7 @@ v681  8/2/25    Fix bug using -g with -J; fix bug when pasting input
                 using --incsearch; treat some composing chars as binary.
 v682  8/24/25   Add --cmd; fix lesskey bug using #stop; fix lesskey bug
                 using "invalid"; fix some emoji bugs.
-v683            Fix bug if cmd char received during file read.
+v683  9/4/25    Fix bug if cmd char received during file read.
 */
 
-char version[] = "683x";
+char version[] = "683";
