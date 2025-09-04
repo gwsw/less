@@ -524,10 +524,7 @@ const AT_COLOR_RSCROLL: i32 = 8 << AT_COLOR_SHIFT;
 const AT_COLOR_HEADER: i32 = 9 << AT_COLOR_SHIFT;
 const AT_COLOR_SEARCH: i32 = 10 << AT_COLOR_SHIFT;
 
-#[no_mangle]
 pub static mut utf_mode: bool = false;
-
-#[no_mangle]
 
 #[rustfmt::skip]
 pub static charsets: [charset; 20] = unsafe {
@@ -555,7 +552,6 @@ pub static charsets: [charset; 20] = unsafe {
         ]
 };
 
-#[no_mangle]
 #[rustfmt::skip]
 pub static cs_aliases: [cs_alias; 42] =
     [
@@ -607,7 +603,6 @@ static mut chardef: [u8; 256] = [0; 256];
 static mut binfmt: String = String::new();
 static mut utfbinfmt: String = String::new();
 
-#[no_mangle]
 pub static mut binattr: i32 = AT_STANDOUT | AT_COLOR_BIN;
 
 static mut user_wide_array: LazyLock<XBuffer> = LazyLock::new(|| XBuffer::new(16));
@@ -1002,7 +997,6 @@ unsafe extern "C" fn set_charset() {
     ilocale();
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn init_charset() {
     let mut s;
     // FIXME dfine LC_ALL (first param == 6 below) or use something else
@@ -1020,7 +1014,6 @@ pub unsafe extern "C" fn init_charset() {
 /*
  * Is a given character a "binary" character?
  */
-#[no_mangle]
 pub unsafe extern "C" fn binary_char(c: char) -> bool {
     if utf_mode {
         return is_ubin_char(c);
@@ -1034,7 +1027,6 @@ pub unsafe extern "C" fn binary_char(c: char) -> bool {
 /*
  * Is a given character a "control" character?
  */
-#[no_mangle]
 pub unsafe extern "C" fn control_char(c: char) -> bool {
     if c as usize >= chardef.len() {
         return true;
@@ -1046,7 +1038,6 @@ pub unsafe extern "C" fn control_char(c: char) -> bool {
  * Return the printable form of a character.
  * For example, in the "ascii" charset '\3' is printed as "^C".
  */
-#[no_mangle]
 pub unsafe extern "C" fn prchar<'a>(c: char) -> String {
     let c = char::from_u32(c as u32 & 0o377).unwrap();
     let mut s = String::new();
@@ -1066,7 +1057,6 @@ pub unsafe extern "C" fn prchar<'a>(c: char) -> String {
 /*
  * Return the printable form of a UTF-8 character.
  */
-#[no_mangle]
 pub unsafe extern "C" fn prutfchar(ch: char) -> &'static [u8] {
     static mut buf: [u8; 32] = [0; 32];
     let mut ch = ch;
@@ -1108,7 +1098,6 @@ pub unsafe extern "C" fn prutfchar(ch: char) -> &'static [u8] {
     &buf
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn utf_len(ch: u8) -> usize {
     if ch & 0x80 == 0 {
         return 1;
@@ -1132,7 +1121,6 @@ fn is_utf8_invalid(c: char) -> bool {
 /*
  * Does the parameter point to the lead byte of a well-formed UTF-8 character?
  */
-#[no_mangle]
 pub unsafe extern "C" fn is_utf8_well_formed(ss: &[u8], slen: usize) -> bool {
     let mut i = 0;
     let mut len = 0;
@@ -1165,7 +1153,6 @@ pub unsafe extern "C" fn is_utf8_well_formed(ss: &[u8], slen: usize) -> bool {
     }
     true
 }
-#[no_mangle]
 pub unsafe extern "C" fn utf_skip_to_lead(
     mut pp: *mut *const std::ffi::c_char,
     mut limit: *const std::ffi::c_char,
@@ -1193,7 +1180,6 @@ pub unsafe extern "C" fn utf_skip_to_lead(
 /*
  * Get the value of a UTF-8 character.
  */
-#[no_mangle]
 pub unsafe extern "C" fn get_wchar(sp: &[u8]) -> char {
     let mut idx = 0;
 
@@ -1231,7 +1217,6 @@ pub unsafe extern "C" fn get_wchar(sp: &[u8]) -> char {
 /*
  * Store a character into a UTF-8 string.
  */
-#[no_mangle]
 pub unsafe extern "C" fn put_wchar(mut pp: &mut [u8], ch: char) -> usize {
     let mut idx = 0;
     if !utf_mode || (ch as i32) < 0x80 {
@@ -1275,7 +1260,6 @@ fn is_utf8_trail(c: u8) -> bool {
  *
  * retruns the idenified wide char and the updated position
  */
-#[no_mangle]
 pub unsafe extern "C" fn step_charc(
     s: &[u8],
     dir: i32,
@@ -1335,7 +1319,7 @@ pub unsafe extern "C" fn step_charc(
     }
     return (ch, s_idx);
 }
-#[no_mangle]
+
 pub unsafe extern "C" fn step_char(
     p: &[u8],
     dir: i32,
@@ -1391,7 +1375,6 @@ unsafe extern "C" fn is_in_table(ch: char, table: &wchar_range_table) -> bool {
  * Is a character a UTF-8 composing character?
  * If a composing character follows any char, the two combine into one glyph.
  */
-#[no_mangle]
 pub unsafe extern "C" fn is_composing_char(ch: char) -> bool {
     if is_in_table(ch, &user_prt_table) {
         return false;
@@ -1404,7 +1387,6 @@ pub unsafe extern "C" fn is_composing_char(ch: char) -> bool {
 /*
  * Should this UTF-8 character be treated as binary?
  */
-#[no_mangle]
 pub unsafe extern "C" fn is_ubin_char(ch: char) -> bool {
     if is_in_table(ch, &mut user_prt_table) {
         return false;
@@ -1417,7 +1399,6 @@ pub unsafe extern "C" fn is_ubin_char(ch: char) -> bool {
 /*
  * Is this a double width UTF-8 character?
  */
-#[no_mangle]
 pub unsafe extern "C" fn is_wide_char(ch: char) -> bool {
     return is_in_table(ch, &user_wide_table) || is_in_table(ch, &wide_table);
 }
@@ -1427,7 +1408,6 @@ pub unsafe extern "C" fn is_wide_char(ch: char) -> bool {
  * A combining char acts like an ordinary char, but if it follows
  * a specific char (not any char), the two combine into one glyph.
  */
-#[no_mangle]
 pub unsafe extern "C" fn is_combining_char(mut ch1: char, mut ch2: char) -> bool {
     /* The table is small; use linear search. */
     for i in 0..comb_table.len() {

@@ -1,13 +1,9 @@
-use ::libc;
+use crate::line::forw_raw_line;
+
 extern "C" {
     fn ch_seek(pos: POSITION) -> std::ffi::c_int;
     fn ch_length() -> POSITION;
     fn screen_trashed();
-    fn forw_raw_line(
-        curr_pos: POSITION,
-        linep: *mut *const std::ffi::c_char,
-        line_lenp: *mut size_t,
-    ) -> POSITION;
     fn back_raw_line(
         curr_pos: POSITION,
         linep: *mut *const std::ffi::c_char,
@@ -33,7 +29,7 @@ pub type lbool = std::ffi::c_uint;
 pub const LTRUE: lbool = 1;
 pub const LFALSE: lbool = 0;
 pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
+pub type POSITION = i32;
 pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -193,6 +189,11 @@ unsafe extern "C" fn abort_delayed_msg(mut dmsg: *mut delayed_msg) {
         0 as *mut std::ffi::c_void as *mut PARG,
     );
 }
+
+/*
+ * Find the line number associated with a given position.
+ * Return 0 if we can't figure it out.
+ */
 #[no_mangle]
 pub unsafe extern "C" fn find_linenum(mut pos: POSITION) -> LINENUM {
     let mut p: *mut linenum_info = 0 as *mut linenum_info;
@@ -231,7 +232,7 @@ pub unsafe extern "C" fn find_linenum(mut pos: POSITION) -> LINENUM {
         linenum = (*p).line;
         cpos = (*p).pos;
         while cpos < pos {
-            cpos = forw_raw_line(cpos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
+            (cpos, _, _) = forw_raw_line(cpos);
             if sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
@@ -301,7 +302,7 @@ pub unsafe extern "C" fn find_pos(mut linenum: LINENUM) -> POSITION {
         clinenum = (*p).line;
         cpos = (*p).pos;
         while clinenum < linenum {
-            cpos = forw_raw_line(cpos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
+            (cpos, _, _) = forw_raw_line(cpos);
             if sigs
                 & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                     | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
@@ -371,8 +372,8 @@ unsafe extern "C" fn detlenmessage() {
 }
 #[no_mangle]
 pub unsafe extern "C" fn scan_eof() {
-    let mut pos: POSITION = 0 as std::ffi::c_int as POSITION;
-    let mut linenum: LINENUM = 0 as std::ffi::c_int as LINENUM;
+    let mut pos: POSITION = 0;
+    let mut linenum: LINENUM = 0;
     let mut dmsg: delayed_msg = delayed_msg {
         message: None,
         loopcount: 0,
@@ -392,7 +393,7 @@ pub unsafe extern "C" fn scan_eof() {
         if fresh0 % 256 as std::ffi::c_int as LINENUM == 0 as std::ffi::c_int as LINENUM {
             add_lnum(linenum, pos);
         }
-        pos = forw_raw_line(pos, 0 as *mut *const std::ffi::c_char, 0 as *mut size_t);
+        (pos, _, _) = forw_raw_line(pos);
         if sigs
             & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
                 | (1 as std::ffi::c_int) << 1 as std::ffi::c_int

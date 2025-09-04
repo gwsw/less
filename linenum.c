@@ -306,9 +306,9 @@ public LINENUM find_linenum(POSITION pos)
 	 * reading the file forward or backward till we
 	 * get to the place we want.
 	 *
-	 * First decide whether we should go forward from the 
+	 * First decide whether we should go forward from the
 	 * previous one or backwards from the next one.
-	 * The decision is based on which way involves 
+	 * The decision is based on which way involves
 	 * traversing fewer bytes in the file.
 	 */
 	start_delayed_msg(&dmsg, longloopmessage);
@@ -483,7 +483,7 @@ public void scan_eof(void)
 	if (ch_seek(0))
 		return;
 	/*
-	 * scanning_eof prevents the "Waiting for data" message from 
+	 * scanning_eof prevents the "Waiting for data" message from
 	 * overwriting "Determining length of file".
 	 */
 	start_delayed_msg(&dmsg, detlenmessage);
