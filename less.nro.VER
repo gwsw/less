@@ -2109,11 +2109,12 @@ For example, setting LESSUTFCHARDEF to
 .fi
 would make all Private Use Area characters be treated as printable.
 .PP
-By default, emoji modifier characters are deleted because
-many terminals do not display them correctly.
-If you use a terminal which does display them correctly, you can
-cause them to be displayed by treating them as 
-composing characters, by setting LESSUTFCHARDEF to
+By default, emoji modifiers, components and variation selectors
+are deleted because many terminals do not display them correctly.
+If you use a terminal which does display some or all of them correctly,
+you can cause to be displayed by setting LESSUTFCHARDEF
+to treat them as composing characters.
+For example, this sets them all to composing characters:
 .nf
 .sp
 	FE00-FE0F:c,1F3FB-1F3FF:c,1F9B0-1F9B3:c,E0100-E01EF:c
