@@ -1,3 +1,4 @@
+use crate::defs::*;
 use crate::line::{pappend, pappend_b, pdone, prewind};
 
 extern "C" {
@@ -45,21 +46,6 @@ extern "C" {
  * We use the term "raw line" to refer to lines simply
  * delimited by newlines; not processed with respect to screen width.
  */
-
-pub type __off_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type less_off_t = off_t;
-pub type POSITION = i32;
-
-const NULL_POSITION: i32 = -1;
-const EOI: i32 = -1;
-
-const OPT_OFF: i32 = 0;
-const OPT_ON: i32 = 0;
-const OPT_ONPLUS: i32 = 0;
 
 /*
  * Set the status column.

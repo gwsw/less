@@ -48,6 +48,8 @@ pub mod lesskey;
 */
 #[path = "compose_uni.rs"]
 pub mod compose_uni;
+#[path = "defs.rs"]
+pub mod defs;
 #[path = "fmt_uni.rs"]
 pub mod fmt_uni;
 #[path = "lesskey_parse.rs"]
