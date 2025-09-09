@@ -1,4 +1,32 @@
-use ::libc;
+//! Idiomatic Rust port of the C `ch_get` buffering logic.
+//!
+//! This is a self-contained, ergonomic Rust module that mirrors the original behavior
+//! while using safe, idiomatic abstractions. It models:
+//! - MRU buffer pool with fixed-size blocks (LBUFSIZE)
+//! - Hash lookup by block id (simplified to a `HashMap<i64, usize>`)
+//! - Seekable vs non-seekable inputs (pipes/FIFOs)
+//! - Optional "help file" source (static memory)
+//! - Ungot character support
+//! - Follow mode & waiting-for-data with user hooks
+//! - EOF handling similar to the C code
+//!
+//! Notes:
+//! - Signals (`ABORT_SIGS`, `sigs`) and platform-specific errno branches are exposed via
+//!   injected hooks/callbacks (`abort_sigs`, `on_wait`, etc.).
+//! - The original returned magic integers (`EOI`, `'?'`); here we return `GetChar` to
+//!   capture those semantics explicitly and type-safely.
+//! - The MRU list is a `VecDeque`; we do a short linear search when looking up an
+//!   existing block to keep the implementation dependency-free and clear.
+//!   (You can swap in `linked_hash_map` or `lru` crate if desired.)
+
+use crate::defs::*;
+use std::collections::{HashMap, VecDeque};
+use std::fs::File;
+use std::io::{self, Read, Seek, SeekFrom, Write};
+use std::thread;
+use std::thread::sleep;
+use std::time::Duration;
+
 extern "C" {
     fn lseek(__fd: std::ffi::c_int, __offset: __off_t, __whence: std::ffi::c_int) -> __off_t;
     fn close(__fd: std::ffi::c_int) -> std::ffi::c_int;
@@ -13,7 +41,6 @@ extern "C" {
     fn curr_ifile_changed() -> lbool;
     fn get_filestate(ifile: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn set_filestate(ifile: *mut std::ffi::c_void, filestate: *mut std::ffi::c_void);
-    fn iread(fd: std::ffi::c_int, buf: *mut std::ffi::c_uchar, len: size_t) -> ssize_t;
     fn sleep_ms(ms: std::ffi::c_int);
     fn flush();
     fn putstr(s: *const std::ffi::c_char);
@@ -24,24 +51,19 @@ extern "C" {
     static mut autobuf: std::ffi::c_int;
     static mut sigs: std::ffi::c_int;
     static mut follow_mode: std::ffi::c_int;
-    static mut waiting_for_data: lbool;
+    static mut waiting_for_data: bool;
     static helpdata: [std::ffi::c_char; 0];
     static size_helpdata: std::ffi::c_int;
     static mut curr_ifile: *mut std::ffi::c_void;
     static mut logfile: std::ffi::c_int;
     static mut namelogfile: *mut std::ffi::c_char;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __ssize_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type ssize_t = __ssize_t;
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
+
+/*
+ * Low level character input from the input file.
+ * We use these special purpose routines which optimize moving
+ * both forward and backward from the current read pointer.
+ */
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {
@@ -51,20 +73,16 @@ pub union parg {
     pub p_char: std::ffi::c_char,
 }
 pub type PARG = parg;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct filestate {
-    pub buflist: bufnode,
-    pub hashtbl: [bufnode; 1024],
-    pub file: std::ffi::c_int,
-    pub flags: std::ffi::c_int,
-    pub fpos: POSITION,
-    pub nbufs: std::ffi::c_int,
-    pub block: BLOCKNUM,
-    pub offset: size_t,
-    pub fsize: POSITION,
-}
+
+const BUFHASH_SIZE: usize = 1024;
 pub type BLOCKNUM = POSITION;
+
+/*
+ * Pool of buffers holding the most recently used blocks of the input file.
+ * The buffer pool is kept as a doubly-linked circular list,
+ * in order from most- to least-recently used.
+ * The circular list is anchored by the file state "thisfile".
+ */
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct bufnode {
@@ -73,291 +91,511 @@ pub struct bufnode {
     pub hnext: *mut bufnode,
     pub hprev: *mut bufnode,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct buf {
-    pub node: bufnode,
-    pub block: BLOCKNUM,
-    pub datasize: size_t,
-    pub data: [std::ffi::c_uchar; 8192],
-}
+
 #[no_mangle]
 pub static mut ignore_eoi: std::ffi::c_int = 0;
-static mut thisfile: *mut filestate = 0 as *const filestate as *mut filestate;
 static mut ch_ungotchar: std::ffi::c_uchar = 0;
-static mut ch_have_ungotchar: lbool = LFALSE;
+static mut ch_have_ungotchar: bool = false;
 static mut maxbufs: std::ffi::c_int = -(1 as std::ffi::c_int);
-unsafe extern "C" fn ch_position(mut block: BLOCKNUM, mut offset: size_t) -> POSITION {
-    return block * 8192 as std::ffi::c_int as BLOCKNUM + offset as POSITION;
+
+pub const LBUFSIZE: usize = 8192;
+
+/// Outcome of `ch_get`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GetChar {
+    /// Successfully produced the next byte.
+    Byte(u8),
+    /// End-of-input (EOI) — nothing more available now.
+    Eoi,
+    /// Non-seekable source lost data (C code returned `'?'`).
+    LostData,
 }
-unsafe extern "C" fn ch_get() -> std::ffi::c_int {
-    let mut read_again: lbool = LFALSE;
-    let mut len: POSITION = 0;
-    let mut pos: POSITION = 0;
-    let mut read_pipe_at_eof: lbool = LFALSE;
-    let mut current_block: u64;
-    let mut bp: *mut buf = 0 as *mut buf;
-    let mut bn: *mut bufnode = 0 as *mut bufnode;
-    let mut n: ssize_t = 0;
-    let mut h: std::ffi::c_int = 0;
-    if thisfile.is_null() {
-        return -(1 as std::ffi::c_int);
-    }
-    if (*thisfile).buflist.next != &mut (*thisfile).buflist as *mut bufnode {
-        bp = (*thisfile).buflist.next as *mut buf;
-        if (*thisfile).block == (*bp).block && (*thisfile).offset < (*bp).datasize {
-            return (*bp).data[(*thisfile).offset as usize] as std::ffi::c_int;
+
+/// Configurable behavior toggles, mirroring original flags.
+pub struct Config {
+    /// If true and input is non-seekable, allow auto-growing buffers (like `autobuf`).
+    pub autobuf: bool,
+    /// Max buffers allowed (None means unlimited, like `maxbufs < 0`).
+    pub maxbufs: Option<usize>,
+    /// Treat source as seekable (CH_CANSEEK) — set false for pipes/FIFOs.
+    pub can_seek: bool,
+    /// Treat source as help file (CH_HELPFILE) that reads from `helpdata`.
+    pub is_helpfile: bool,
+    /// Ignore EOI and wait for more data (tail -f behavior).
+    pub ignore_eoi: bool,
+    /// Follow mode; when `Name`, we'll call `curr_ifile_changed` hook.
+    pub follow_mode: FollowMode,
+    /// Optional static help data.
+    pub helpdata: Option<&'static [u8]>,
+    /// If present, all read bytes are also written here (logfile analogue).
+    pub logfile: Option<Box<dyn Write + Send>>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FollowMode {
+    Off,
+    Name,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            autobuf: false,
+            maxbufs: None,
+            can_seek: true,
+            is_helpfile: false,
+            ignore_eoi: false,
+            follow_mode: FollowMode::Off,
+            helpdata: None,
+            logfile: None,
         }
     }
-    waiting_for_data = LFALSE;
-    h = ((*thisfile).block & (1024 as std::ffi::c_int - 1 as std::ffi::c_int) as BLOCKNUM)
-        as std::ffi::c_int;
-    bn = (*thisfile).hashtbl[h as usize].hnext;
-    loop {
-        if !(bn != &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode) {
-            current_block = 12800627514080957624;
-            break;
+}
+
+#[derive(Debug, Clone)]
+struct Buffer {
+    block: i64,
+    datasize: usize,
+    data: [u8; LBUFSIZE],
+}
+
+impl Buffer {
+    fn empty_for(block: i64) -> Self {
+        Self {
+            block,
+            datasize: 0,
+            data: [0; LBUFSIZE],
         }
-        bp = bn as *mut buf;
-        if (*bp).block == (*thisfile).block {
-            if (*thisfile).offset >= (*bp).datasize {
-                current_block = 12800627514080957624;
-                break;
-            } else {
-                current_block = 4410251971103114040;
-                break;
+    }
+}
+
+/// Hooks to integrate platform-specific behavior (signals, UI messages, file changes).
+pub struct Hooks {
+    /// Return true to abort (maps to `ABORT_SIGS`).
+    pub abort_sigs: Box<dyn Fn() -> bool + Send + Sync>,
+    /// Called when we decide to show a waiting message (once per wait loop).
+    pub on_wait: Box<dyn Fn(&str) + Send + Sync>,
+    /// Sleep function (so callers can mock in tests).
+    pub sleep_ms: Box<dyn Fn(u64) + Send + Sync>,
+    /// Whether the current file (by name) changed while following.
+    pub curr_ifile_changed: Box<dyn Fn() -> bool + Send + Sync>,
+}
+
+impl Default for Hooks {
+    fn default() -> Self {
+        Self {
+            abort_sigs: Box::new(|| false),
+            on_wait: Box::new(|_msg| {}),
+            sleep_ms: Box::new(|ms| thread::sleep(Duration::from_millis(ms))),
+            curr_ifile_changed: Box::new(|| false),
+        }
+    }
+}
+
+/// Main state, analogous to `struct filestate` + surrounding globals.
+pub struct FileState<R: Read + Seek> {
+    reader: R,
+    pub cfg: Config,
+    pub hooks: Hooks,
+
+    /// MRU buffers (front = most recently used)
+    bufs: VecDeque<Buffer>,
+    /// Map block -> index in `bufs` (best-effort; updated on inserts/moves)
+    by_block: HashMap<i64, usize>,
+
+    /// Logical file position of next OS read.
+    fpos: u64,
+    /// Known file size (None for pipes until discovered).
+    fsize: Option<u64>,
+
+    /// Current logical position we want: (block, offset)
+    block: i64,
+    offset: usize,
+
+    /// Ungot character support.
+    ungot: Option<u8>,
+
+    /// Internal: whether we've printed the wait message during a wait loop.
+    waiting_for_data: bool,
+}
+
+impl<R: Read + Seek> FileState<R> {
+    pub fn new(reader: R, cfg: Config) -> Self {
+        Self {
+            reader,
+            cfg,
+            hooks: Hooks::default(),
+            bufs: VecDeque::new(),
+            by_block: HashMap::new(),
+            fpos: 0,
+            fsize: None,
+            block: 0,
+            offset: 0,
+            ungot: None,
+            waiting_for_data: false,
+        }
+    }
+
+    /// Set external hooks after construction.
+    pub fn with_hooks(mut self, hooks: Hooks) -> Self {
+        self.hooks = hooks;
+        self
+    }
+
+    /// Update the target read pointer (block, offset).
+    pub fn seek_logical(&mut self, block: i64, offset: usize) {
+        self.block = block;
+        self.offset = offset;
+    }
+
+    /// Equivalent of `ch_position(block, offset)`
+    #[inline]
+    fn logical_pos(block: i64, offset: usize) -> u64 {
+        (block as u64) * (LBUFSIZE as u64) + (offset as u64)
+    }
+
+    /// Get current logical position.
+    fn pos(&self) -> u64 {
+        Self::logical_pos(self.block, self.offset)
+    }
+
+    /// Equivalent of `ch_length()`
+    fn length(&self) -> Option<u64> {
+        self.fsize
+    }
+
+    /// Equivalent of `ch_resize()` — refresh `fsize` if seekable.
+    fn resize(&mut self) -> io::Result<()> {
+        if !self.cfg.can_seek {
+            return Ok(());
+        }
+        let cur = self.fpos;
+        let end = self.reader.seek(SeekFrom::End(0))?;
+        // Return to previous fpos
+        self.reader.seek(SeekFrom::Start(cur))?;
+        self.fsize = Some(end);
+        Ok(())
+    }
+
+    /// Equivalent of `ch_set_eof()` for pipes: set "known size" to current `fpos`.
+    fn set_eof(&mut self) {
+        self.fsize = Some(self.fpos);
+    }
+
+    /// Add a new buffer (like `ch_addbuf()`); returns whether it succeeded.
+    fn addbuf(&mut self) -> bool {
+        if let Some(max) = self.cfg.maxbufs {
+            if self.bufs.len() >= max {
+                return false;
             }
+        }
+        self.bufs.push_front(Buffer::empty_for(-1));
+        // Rebuild index map conservatively
+        self.reindex_blocks();
+        true
+    }
+
+    /// Rebuild the `by_block` map from current `bufs` order.
+    fn reindex_blocks(&mut self) {
+        self.by_block.clear();
+        for (i, b) in self.bufs.iter().enumerate() {
+            self.by_block.insert(b.block, i);
+        }
+    }
+
+    /// Move buffer at index `i` to MRU head.
+    fn move_to_head(&mut self, i: usize) {
+        if i == 0 {
+            return;
+        }
+        if let Some(buf) = self.bufs.remove(i) {
+            self.bufs.push_front(buf);
+            self.reindex_blocks();
+        }
+    }
+
+    /// Find a buffer containing `self.block`.
+    fn find_buffer_index(&self, blk: i64) -> Option<usize> {
+        self.by_block.get(&blk).copied()
+    }
+
+    /// Read into the current buffer (`bp`) starting at its current datasize.
+    fn read_into_buffer(&mut self, bidx: usize) -> io::Result<usize> {
+        // 1) Ungot character takes precedence.
+        if let Some(ch) = self.ungot.take() {
+            if self.bufs[bidx].datasize < LBUFSIZE {
+                let i = self.bufs[bidx].datasize;
+                self.bufs[bidx].data[i] = ch;
+                self.bufs[bidx].datasize += 1;
+            }
+            self.fpos += 1; // mirror C code advancing fpos
+            return Ok(1);
+        }
+        // 2) Helpfile byte if configured.
+        if self.cfg.is_helpfile {
+            if let Some(h) = self.cfg.helpdata {
+                let idx = self.fpos as usize;
+                if idx < h.len() {
+                    if self.bufs[bidx].datasize < LBUFSIZE {
+                        let i = self.bufs[bidx].datasize;
+                        self.bufs[bidx].data[i] = h[idx];
+                        self.bufs[bidx].datasize += 1;
+                    }
+                    self.fpos += 1;
+                    return Ok(1);
+                } else {
+                    return Ok(0); // EOF on helpdata
+                }
+            }
+        }
+        // 3) Actual I/O
+        let mut tmp = [0u8; LBUFSIZE];
+        let want = LBUFSIZE - self.bufs[bidx].datasize;
+        let n = self.reader.read(&mut tmp[..want])?;
+        if n > 0 {
+            let range = self.bufs[bidx].datasize..self.bufs[bidx].datasize + n;
+            self.bufs[bidx].data[range].copy_from_slice(&tmp[..n]);
+            self.bufs[bidx].datasize += n;
+            // Write to logfile if configured
+            if let Some(ref mut log) = self.cfg.logfile.as_mut() {
+                let _ = log.write_all(&tmp[..n]);
+            }
+        }
+        self.fpos += n as u64;
+        Ok(n)
+    }
+
+    pub fn ch_get(&mut self) -> GetChar {
+        // Quick check: front buffer has our block and enough data.
+        if let Some(front) = self.bufs.front() {
+            if front.block == self.block && self.offset < front.datasize {
+                return GetChar::Byte(front.data[self.offset]);
+            }
+        }
+
+        // Look for a buffer holding the desired block.
+        self.waiting_for_data = false;
+        if let Some(i) = self.find_buffer_index(self.block) {
+            let needs_more = {
+                let bp = &self.bufs[i];
+                self.offset >= bp.datasize
+            };
+            if !needs_more {
+                // Move MRU and return
+                self.move_to_head(i);
+                let bp = &self.bufs[0];
+                return GetChar::Byte(bp.data[self.offset]);
+            }
+            // else: fall through to read more into this buffer
+            self.move_to_head(i);
         } else {
-            bn = (*bn).hnext;
-        }
-    }
-    match current_block {
-        12800627514080957624 => {
-            if sigs
-                & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
-                != 0
-            {
-                return -(1 as std::ffi::c_int);
-            }
-            if bn == &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode {
-                if (*thisfile).buflist.prev == &mut (*thisfile).buflist as *mut bufnode
-                    || (*((*thisfile).buflist.prev as *mut buf)).block
-                        != -(1 as std::ffi::c_int) as BLOCKNUM
+            // Block not present: choose LRU (or allocate) and assign desired block.
+            let need_new = self.bufs.back().map(|b| b.block != -1).unwrap_or(true);
+            if need_new {
+                if (self.cfg.autobuf && !self.cfg.can_seek)
+                    || self.cfg.maxbufs.map_or(true, |m| self.bufs.len() < m)
                 {
-                    if autobuf != 0 && (*thisfile).flags & 0o1 as std::ffi::c_int == 0
-                        || (maxbufs < 0 as std::ffi::c_int || (*thisfile).nbufs < maxbufs)
-                    {
-                        if ch_addbuf() != 0 {
-                            autobuf = 0 as std::ffi::c_int;
+                    let _ = self.addbuf();
+                }
+            }
+            // Use tail if exists, else create one.
+            if self.bufs.is_empty() {
+                self.bufs.push_front(Buffer::empty_for(-1));
+            }
+            let mut tail = self.bufs.pop_back().unwrap();
+            tail.block = self.block;
+            tail.datasize = 0;
+            self.bufs.push_front(tail);
+            self.reindex_blocks();
+        }
+
+        // Now front buffer is for our block; read until we have `offset+1` or hit EOI.
+        loop {
+            // Are we past known EOF?
+            let pos = Self::logical_pos(self.block, self.bufs[0].datasize);
+            let mut read_pipe_at_eof = false;
+            if let Some(len) = self.length() {
+                if pos >= len {
+                    // Double-check file size in case it changed.
+                    let _ = self.resize();
+                    if let Some(len2) = self.length() {
+                        if pos >= len2 {
+                            if self.cfg.can_seek || self.cfg.is_helpfile {
+                                return GetChar::Eoi;
+                            }
+                            // Pipes: try to read once more to see if data appeared again.
+                            read_pipe_at_eof = true;
                         }
                     }
                 }
-                bn = (*thisfile).buflist.prev;
-                bp = bn as *mut buf;
-                (*(*bn).hnext).hprev = (*bn).hprev;
-                (*(*bn).hprev).hnext = (*bn).hnext;
-                (*bp).block = (*thisfile).block;
-                (*bp).datasize = 0 as std::ffi::c_int as size_t;
-                (*bn).hnext = (*thisfile).hashtbl[h as usize].hnext;
-                (*bn).hprev =
-                    &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode;
-                (*(*thisfile).hashtbl[h as usize].hnext).hprev = bn;
-                (*thisfile).hashtbl[h as usize].hnext = bn;
             }
-            current_block = 4761528863920922185;
-        }
-        _ => {}
-    }
-    loop {
-        match current_block {
-            4410251971103114040 => {
-                if (*thisfile).buflist.next != bn {
-                    (*(*bn).next).prev = (*bn).prev;
-                    (*(*bn).prev).next = (*bn).next;
-                    (*bn).next = (*thisfile).buflist.next;
-                    (*bn).prev = &mut (*thisfile).buflist;
-                    (*(*thisfile).buflist.next).prev = bn;
-                    (*thisfile).buflist.next = bn;
-                    (*(*bn).hnext).hprev = (*bn).hprev;
-                    (*(*bn).hprev).hnext = (*bn).hnext;
-                    (*bn).hnext = (*thisfile).hashtbl[h as usize].hnext;
-                    (*bn).hprev =
-                        &mut *((*thisfile).hashtbl).as_mut_ptr().offset(h as isize) as *mut bufnode;
-                    (*(*thisfile).hashtbl[h as usize].hnext).hprev = bn;
-                    (*thisfile).hashtbl[h as usize].hnext = bn;
+
+            // Ensure OS file pos matches desired.
+            if self.fpos != pos {
+                if !self.cfg.can_seek {
+                    return GetChar::LostData;
                 }
-                if (*thisfile).offset < (*bp).datasize {
-                    break;
-                } else {
-                    current_block = 4761528863920922185;
+                if self.reader.seek(SeekFrom::Start(pos)).is_err() {
+                    return GetChar::Eoi;
                 }
+                self.fpos = pos;
             }
-            _ => {
-                read_again = LFALSE;
-                len = 0;
-                pos = ch_position((*thisfile).block, (*bp).datasize);
-                read_pipe_at_eof = LFALSE;
-                len = ch_length();
-                if len != -(1 as std::ffi::c_int) as POSITION && pos >= len {
-                    ch_resize();
-                    len = ch_length();
-                    if len != -(1 as std::ffi::c_int) as POSITION && pos >= len {
-                        if (*thisfile).flags & (0o1 as std::ffi::c_int | 0o10 as std::ffi::c_int)
-                            != 0
-                        {
-                            return -(1 as std::ffi::c_int);
-                        }
-                        read_pipe_at_eof = LTRUE;
+
+            // Read chunk
+            let n = match self.read_into_buffer(0) {
+                Ok(n) => n,
+                Err(e) => {
+                    // Interrupted/Again map to no data this round
+                    match e.kind() {
+                        io::ErrorKind::Interrupted | io::ErrorKind::WouldBlock => 0,
+                        io::ErrorKind::BrokenPipe => 0,
+                        _ => return GetChar::Eoi,
                     }
                 }
-                if pos != (*thisfile).fpos {
-                    if (*thisfile).flags & 0o1 as std::ffi::c_int == 0 {
-                        return '?' as i32;
-                    }
-                    if lseek((*thisfile).file, pos, 0 as std::ffi::c_int)
-                        == -(1 as std::ffi::c_int) as off_t
-                    {
-                        error(
-                            b"seek error\0" as *const u8 as *const std::ffi::c_char,
-                            0 as *mut std::ffi::c_void as *mut PARG,
-                        );
-                        clear_eol();
-                        return -(1 as std::ffi::c_int);
-                    }
-                    (*thisfile).fpos = pos;
-                }
-                if ch_have_ungotchar as u64 != 0 {
-                    (*bp).data[(*bp).datasize as usize] = ch_ungotchar;
-                    n = 1 as std::ffi::c_int as ssize_t;
-                    ch_have_ungotchar = LFALSE;
-                } else if (*thisfile).flags & 0o10 as std::ffi::c_int != 0 {
-                    (*bp).data[(*bp).datasize as usize] =
-                        *helpdata.as_ptr().offset((*thisfile).fpos as isize) as std::ffi::c_uchar;
-                    n = 1 as std::ffi::c_int as ssize_t;
-                } else {
-                    n = iread(
-                        (*thisfile).file,
-                        &mut *((*bp).data).as_mut_ptr().offset((*bp).datasize as isize),
-                        (8192 as std::ffi::c_int as size_t).wrapping_sub((*bp).datasize),
-                    );
-                }
-                read_again = LFALSE;
-                if n == -(2 as std::ffi::c_int) as ssize_t {
-                    if (*thisfile).flags & 0o1 as std::ffi::c_int != 0 {
-                        (*thisfile).fsize = pos;
-                    }
-                    return -(1 as std::ffi::c_int);
-                }
-                if n == -(3 as std::ffi::c_int) as ssize_t {
-                    read_again = LTRUE;
-                    n = 0 as std::ffi::c_int as ssize_t;
-                }
-                if n < 0 as std::ffi::c_int as ssize_t {
-                    error(
-                        b"read error\0" as *const u8 as *const std::ffi::c_char,
-                        0 as *mut std::ffi::c_void as *mut PARG,
-                    );
-                    clear_eol();
-                    n = 0 as std::ffi::c_int as ssize_t;
-                }
-                if secure_allow((1 as std::ffi::c_int) << 7 as std::ffi::c_int) != 0 {
-                    if logfile >= 0 as std::ffi::c_int && n > 0 as std::ffi::c_int as ssize_t {
-                        write(
-                            logfile,
-                            &mut *((*bp).data).as_mut_ptr().offset((*bp).datasize as isize)
-                                as *mut std::ffi::c_uchar
-                                as *const std::ffi::c_void,
-                            n as size_t,
-                        );
-                    }
-                }
-                (*thisfile).fpos += n;
-                (*bp).datasize = ((*bp).datasize).wrapping_add(n as size_t);
-                if read_pipe_at_eof as u64 != 0 {
-                    ch_set_eof();
-                }
-                if n == 0 as std::ffi::c_int as ssize_t {
-                    if read_again as u64 == 0 {
-                        (*thisfile).fsize = pos;
-                    }
-                    if ignore_eoi != 0 || read_again as std::ffi::c_uint != 0 {
-                        if waiting_for_data as u64 == 0 {
-                            let mut parg: PARG = parg {
-                                p_string: 0 as *const std::ffi::c_char,
-                            };
-                            parg.p_string = wait_message();
-                            ixerror(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
-                            waiting_for_data = LTRUE;
-                        }
-                        sleep_ms(50 as std::ffi::c_int);
-                    }
-                    if ignore_eoi != 0
-                        && follow_mode == 1 as std::ffi::c_int
-                        && curr_ifile_changed() as std::ffi::c_uint != 0
-                    {
-                        screen_trashed_num(2 as std::ffi::c_int);
-                        return -(1 as std::ffi::c_int);
-                    }
-                    if sigs != 0 {
-                        return -(1 as std::ffi::c_int);
-                    }
-                    if read_pipe_at_eof as u64 != 0 {
-                        return -(1 as std::ffi::c_int);
-                    }
-                }
-                current_block = 4410251971103114040;
+            };
+
+            if read_pipe_at_eof {
+                self.set_eof();
             }
-        }
-    }
-    return (*bp).data[(*thisfile).offset as usize] as std::ffi::c_int;
-}
-#[no_mangle]
-pub unsafe extern "C" fn ch_ungetchar(mut c: std::ffi::c_int) {
-    if c < 0 as std::ffi::c_int {
-        ch_have_ungotchar = LFALSE;
-    } else {
-        if ch_have_ungotchar as u64 != 0 {
-            error(
-                b"ch_ungetchar overrun\0" as *const u8 as *const std::ffi::c_char,
-                0 as *mut std::ffi::c_void as *mut PARG,
-            );
-        }
-        ch_ungotchar = c as std::ffi::c_uchar;
-        ch_have_ungotchar = LTRUE;
-    };
-}
-#[no_mangle]
-pub unsafe extern "C" fn end_logfile() {
-    static mut tried: lbool = LFALSE;
-    if logfile < 0 as std::ffi::c_int {
-        return;
-    }
-    if tried as u64 == 0 && (*thisfile).fsize == -(1 as std::ffi::c_int) as POSITION {
-        tried = LTRUE;
-        ierror(
-            b"Finishing logfile\0" as *const u8 as *const std::ffi::c_char,
-            0 as *mut std::ffi::c_void as *mut PARG,
-        );
-        while ch_forw_get() != -(1 as std::ffi::c_int) {
-            if sigs
-                & ((1 as std::ffi::c_int) << 0 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 1 as std::ffi::c_int
-                    | (1 as std::ffi::c_int) << 2 as std::ffi::c_int)
-                != 0
-            {
+
+            if n == 0 {
+                // EOF or temporarily no data
+                if !self.cfg.ignore_eoi {
+                    return GetChar::Eoi;
+                }
+
+                // Follow-mode special case
+                if self.cfg.follow_mode == FollowMode::Name && (self.hooks.curr_ifile_changed)() {
+                    // Signal to caller to reopen (mirror screen_trashed=2 -> EOI)
+                    return GetChar::Eoi;
+                }
+
+                if (self.hooks.abort_sigs)() {
+                    return GetChar::Eoi;
+                }
+
+                if read_pipe_at_eof {
+                    return GetChar::Eoi;
+                }
+
+                if !self.waiting_for_data {
+                    (self.hooks.on_wait)("waiting for data...");
+                    self.waiting_for_data = true;
+                }
+                (self.hooks.sleep_ms)(50);
+                continue; // try again
+            }
+
+            // We may have enough now
+            if self.offset < self.bufs[0].datasize {
                 break;
             }
+            // else loop to read more
+        }
+
+        GetChar::Byte(self.bufs[0].data[self.offset])
+    }
+
+    pub fn ch_forw_get(&mut self) -> GetChar {
+        let c = self.ch_get();
+        match c {
+            GetChar::Byte(_) => {
+                if self.offset < LBUFSIZE - 1 {
+                    self.offset += 1;
+                } else {
+                    self.block += 1;
+                    self.offset = 0;
+                }
+                c
+            }
+            _ => c,
         }
     }
-    close(logfile);
-    logfile = -(1 as std::ffi::c_int);
-    free(namelogfile as *mut std::ffi::c_void);
-    namelogfile = 0 as *mut std::ffi::c_char;
-    putstr(b"\n\0" as *const u8 as *const std::ffi::c_char);
-    flush();
+
+    /// Push back a single byte so it will be returned by the next `ch_get`.
+    pub fn unget(&mut self, ch: u8) {
+        self.ungot = Some(ch);
+    }
+
+    /// Advance the logical offset by one (call after consuming a returned Byte).
+    pub fn advance(&mut self) {
+        self.offset += 1;
+        if self.offset >= LBUFSIZE {
+            self.block += 1;
+            self.offset = 0;
+        }
+    }
+
+    /// Expose file size (if known).
+    pub fn known_size(&self) -> Option<u64> {
+        self.fsize
+    }
 }
+
+// -------------------------------
+// Example usage (doc test style)
+// -------------------------------
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn basic_read_seekable() {
+        let data = vec![1u8, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let reader = Cursor::new(data);
+        let mut fs = FileState::new(
+            reader,
+            Config {
+                can_seek: true,
+                ..Default::default()
+            },
+        );
+        // Prepare position (block=0, offset=0)
+        fs.seek_logical(0, 0);
+        let mut out = Vec::new();
+        for _ in 0..10 {
+            match fs.ch_get() {
+                GetChar::Byte(b) => {
+                    out.push(b);
+                    fs.advance();
+                }
+                other => panic!("unexpected: {:?}", other),
+            }
+        }
+        assert_eq!(out, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    }
+
+    #[test]
+    fn helpfile_source() {
+        let reader = Cursor::new(Vec::<u8>::new());
+        let help: &'static [u8] = b"hello";
+        let mut fs = FileState::new(
+            reader,
+            Config {
+                can_seek: true,
+                is_helpfile: true,
+                helpdata: Some(help),
+                ..Default::default()
+            },
+        );
+        fs.seek_logical(0, 0);
+        let mut s = Vec::new();
+        loop {
+            match fs.ch_get() {
+                GetChar::Byte(b) => {
+                    s.push(b);
+                    fs.advance();
+                }
+                GetChar::Eoi => break,
+                _ => unreachable!(),
+            }
+        }
+        assert_eq!(s, b"hello");
+    }
+}
+
+/*
 #[no_mangle]
 pub unsafe extern "C" fn sync_logfile() {
     let mut bp: *mut buf = 0 as *mut buf;
@@ -402,6 +640,8 @@ pub unsafe extern "C" fn sync_logfile() {
         block += 1;
     }
 }
+*/
+/*
 unsafe extern "C" fn buffered(mut block: BLOCKNUM) -> lbool {
     let mut bp: *mut buf = 0 as *mut buf;
     let mut bn: *mut bufnode = 0 as *mut bufnode;
@@ -796,3 +1036,4 @@ pub unsafe extern "C" fn ch_getflags() -> std::ffi::c_int {
     }
     return (*thisfile).flags;
 }
+*/

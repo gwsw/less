@@ -605,7 +605,6 @@ unsafe extern "C" fn expand_special_keys(table: &mut Table) {
                 table.table[to] = table.table[fm];
                 to += 1;
                 fm += 1;
-                println!("to: {}, fm: {} len: {}", to, fm, table.table.len());
                 continue;
             }
 

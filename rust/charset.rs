@@ -901,8 +901,6 @@ unsafe extern "C" fn ilocale() {
  * Define the printing format for control (or binary utf) chars.
  */
 pub fn setfmt<'a>(s: Option<String>, default_fmt: &'a str, for_printf: bool) -> (String, i32) {
-    println!("set fmt");
-    println!("def: {}", default_fmt);
     let mut attr = AT_NORMAL;
     let mut s = match &s {
         None => default_fmt,
@@ -947,7 +945,6 @@ pub fn setfmt<'a>(s: Option<String>, default_fmt: &'a str, for_printf: bool) -> 
         }
         s = &rest[1..];
     }
-    println!("s: {}", s);
     (s.to_string(), attr)
 }
 

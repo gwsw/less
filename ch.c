@@ -155,7 +155,7 @@ static int ch_get(void)
 		return (EOI);
 
 	/*
-	 * Quick check for the common case where 
+	 * Quick check for the common case where
 	 * the desired char is in the head buffer.
 	 */
 	if (ch_bufhead != END_OF_CHAIN)
@@ -188,13 +188,13 @@ static int ch_get(void)
 	if (bn == END_OF_HCHAIN(h))
 	{
 		/*
-		 * Block is not in a buffer.  
-		 * Take the least recently used buffer 
+		 * Block is not in a buffer.
+		 * Take the least recently used buffer
 		 * and read the desired block into it.
-		 * If the LRU buffer has data in it, 
+		 * If the LRU buffer has data in it,
 		 * then maybe allocate a new buffer.
 		 */
-		if (ch_buftail == END_OF_CHAIN || 
+		if (ch_buftail == END_OF_CHAIN ||
 			bufnode_buf(ch_buftail)->block != -1)
 		{
 			/*
@@ -380,7 +380,7 @@ static int ch_get(void)
 }
 
 /*
- * ch_ungetchar is a rather kludgy and limited way to push 
+ * ch_ungetchar is a rather kludgy and limited way to push
  * a single char onto an input file descriptor.
  */
 public void ch_ungetchar(int c)
@@ -771,7 +771,7 @@ static int ch_addbuf(void)
 	struct bufnode *bn;
 
 	/*
-	 * Allocate and initialize a new buffer and link it 
+	 * Allocate and initialize a new buffer and link it
 	 * onto the tail of the buffer list.
 	 */
 	bp = (struct buf *) calloc(1, sizeof(struct buf));
@@ -861,7 +861,7 @@ public void ch_init(int f, int flags, ssize_t nread)
 		/*
 		 * Allocate and initialize a new filestate.
 		 */
-		thisfile = (struct filestate *) 
+		thisfile = (struct filestate *)
 				ecalloc(1, sizeof(struct filestate));
 		thisfile->buflist.next = thisfile->buflist.prev = END_OF_CHAIN;
 		thisfile->nbufs = 0;
@@ -965,7 +965,7 @@ static void ch_dump(struct filestate *fs)
 		return;
 	}
 	printf(" file %d, flags %x, fpos %x, fsize %x, blk/off %x/%x\n",
-		fs->file, fs->flags, fs->fpos, 
+		fs->file, fs->flags, fs->fpos,
 		fs->fsize, fs->block, fs->offset);
 	printf(" %d bufs:\n", fs->nbufs);
 	for (bn = fs->next; bn != &fs->buflist;  bn = bn->next)
