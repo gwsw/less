@@ -20,7 +20,7 @@
   not the current position (github #640).
 
 * Allow mixing of option arguments and filename arguments on the
-  command line (github #653).
+  command line unless POSIXLY_CORRECT is set (github #653).
 
 * Don't output U+00AD and U+200D, and fix some bugs handling emoji
   modifier characters (github #637).

@@ -252,6 +252,7 @@ int main(int argc, constant char *argv[])
 	constant int *files;
 	size_t num_files;
 	lbool end_opts = FALSE;
+	lbool posixly_correct = FALSE;
 
 #if MSDOS_COMPILER==WIN32C && (defined(__MINGW32__) || defined(_MSC_VER))
 	if (GetACP() != CP_UTF8)  /* not using a UTF-8 manifest */
@@ -321,6 +322,7 @@ int main(int argc, constant char *argv[])
 
 #define isoptstring(s)  (((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
 	xbuf_init(&xfiles);
+	posixly_correct = !isnullenv(lgetenv("POSIXLY_CORRECT"));
 	for (i = 0;  i < argc;  i++)
 	{
 		if (strcmp(argv[i], "--") == 0)
@@ -328,7 +330,11 @@ int main(int argc, constant char *argv[])
 		else if (!end_opts && (isoptstring(argv[i]) || isoptpending()))
 			scan_option(argv[i], FALSE);
 		else
+		{
+			if (posixly_correct)
+				end_opts = TRUE;
 			xbuf_add_data(&xfiles, (constant unsigned char *) &i, sizeof(i));
+		}
 	}
 #undef isoptstring
 

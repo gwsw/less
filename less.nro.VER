@@ -1613,7 +1613,8 @@ A command line argument of "\-\-" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.
 This can be useful when viewing a file whose name begins with a "\-" or "+".
 Otherwise, option arguments and filename arguments can be intermixed;
-that is, option arguments do not need to appear before filename arguments.
+that is, option arguments do not need to appear before filename arguments,
+unless the environment variable POSIXLY_CORRECT is set.
 .IP +
 If a command line option begins with \fB+\fP,
 the remainder of that option is taken to be an initial command to
@@ -2607,6 +2608,9 @@ automatically when running in
 .IP PATH
 User's search path (used to find a lesskey file
 on MS-DOS, Windows, and OS/2 systems).
+.IP POSIXLY_CORRECT
+If set to a non-null value, all option arguments on the command line
+are expected to appear before any filename arguments.
 .IP SHELL
 The shell used to execute the !\& command, as well as to expand filenames.
 .IP TERM
