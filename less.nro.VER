@@ -2611,6 +2611,9 @@ on MS-DOS, Windows, and OS/2 systems).
 .IP POSIXLY_CORRECT
 If set to a non-null value, all option arguments on the command line
 are expected to appear before any filename arguments.
+This must be set as an actual environment variable, not in a
+.B lesskey
+file.
 .IP SHELL
 The shell used to execute the !\& command, as well as to expand filenames.
 .IP TERM

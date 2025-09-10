@@ -322,7 +322,7 @@ int main(int argc, constant char *argv[])
 
 #define isoptstring(s)  (((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
 	xbuf_init(&xfiles);
-	posixly_correct = !isnullenv(lgetenv("POSIXLY_CORRECT"));
+	posixly_correct = (getenv("POSIXLY_CORRECT") != NULL);
 	for (i = 0;  i < argc;  i++)
 	{
 		if (strcmp(argv[i], "--") == 0)
