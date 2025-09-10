@@ -1612,6 +1612,8 @@ The default is to wrap at any character.
 A command line argument of "\-\-" marks the end of option arguments.
 Any arguments following this are interpreted as filenames.
 This can be useful when viewing a file whose name begins with a "\-" or "+".
+Otherwise, option arguments and filename arguments can be intermixed;
+that is, option arguments do not need to appear before filename arguments.
 .IP +
 If a command line option begins with \fB+\fP,
 the remainder of that option is taken to be an initial command to
