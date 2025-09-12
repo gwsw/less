@@ -13,7 +13,7 @@
  *
  * It is actually a pointer to an ifile structure,
  * but is opaque outside this module.
- * Ifile structures are kept in a linked list in the order they 
+ * Ifile structures are kept in a linked list in the order they
  * appear on the command line.
  * Any new file which does not already appear in the list is
  * inserted after the current file.
@@ -79,7 +79,7 @@ static void link_ifile(struct ifile *p, struct ifile *prev)
 	incr_index(p->h_next, 1);
 	ifiles++;
 }
-	
+
 /*
  * Unlink an ifile from the ifile list.
  */
@@ -178,7 +178,7 @@ public IFILE prev_ifile(IFILE h)
 public IFILE getoff_ifile(IFILE ifile)
 {
 	IFILE newifile;
-	
+
 	if ((newifile = prev_ifile(ifile)) != NULL_IFILE)
 		return (newifile);
 	if ((newifile = next_ifile(ifile)) != NULL_IFILE)
@@ -263,7 +263,7 @@ public constant char * get_real_filename(IFILE ifile)
  */
 public int get_index(IFILE ifile)
 {
-	return (int_ifile(ifile)->h_index); 
+	return (int_ifile(ifile)->h_index);
 }
 
 /*
@@ -353,8 +353,8 @@ public void if_dump(void)
 
 	for (p = anchor.h_next;  p != &anchor;  p = p->h_next)
 	{
-		printf("%x: %d. <%s> pos %d,%x\n", 
-			p, p->h_index, p->h_filename, 
+		printf("%x: %d. <%s> pos %d,%x\n",
+			p, p->h_index, p->h_filename,
 			p->h_scrpos.ln, p->h_scrpos.pos);
 		ch_dump(p->h_filestate);
 	}

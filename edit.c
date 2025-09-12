@@ -69,7 +69,7 @@ public void init_textlist(struct textlist *tlist, mutable char *str)
 	constant char *esc = get_meta_escape();
 	size_t esclen = strlen(esc);
 #endif
-	
+
 	tlist->string = skipsp(str);
 	tlist->endstring = tlist->string + strlen(tlist->string);
 	for (s = str;  s < tlist->endstring;  s++)
@@ -104,7 +104,7 @@ public void init_textlist(struct textlist *tlist, mutable char *str)
 public constant char * forw_textlist(struct textlist *tlist, constant char *prev)
 {
 	constant char *s;
-	
+
 	/*
 	 * prev == NULL means return the first word in the list.
 	 * Otherwise, return the word after "prev".
@@ -125,7 +125,7 @@ public constant char * forw_textlist(struct textlist *tlist, constant char *prev
 public constant char * back_textlist(struct textlist *tlist, constant char *prev)
 {
 	constant char *s;
-	
+
 	/*
 	 * prev == NULL means return the last word in the list.
 	 * Otherwise, return the word before "prev".
@@ -353,7 +353,7 @@ static void close_file(void)
 {
 	struct scrpos scrpos;
 	constant char *altfilename;
-	
+
 	if (curr_ifile == NULL_IFILE)
 		return;
 
@@ -399,7 +399,7 @@ public int edit(constant char *filename)
 		return (edit_ifile(NULL_IFILE));
 	return (edit_ifile(get_ifile(filename, curr_ifile)));
 }
-	
+
 /*
  * Clean up what edit_ifile did before error return.
  */
@@ -464,11 +464,11 @@ public int edit_ifile(IFILE ifile)
 		{
 			/*
 			 * File is already open.
-			 * chflags and f are not used by ch_init if ifile has 
-			 * filestate which should be the case if we're here. 
+			 * chflags and f are not used by ch_init if ifile has
+			 * filestate which should be the case if we're here.
 			 * Set them here to avoid uninitialized variable warnings.
 			 */
-			chflags = 0; 
+			chflags = 0;
 			f = -1;
 			alt_filename = get_altfilename(ifile);
 			open_filename = (alt_filename != NULL) ? alt_filename : filename;
@@ -489,7 +489,7 @@ public int edit_ifile(IFILE ifile)
 				 * The alternate "file" is actually a pipe.
 				 * f has already been set to the file descriptor of the pipe
 				 * in the call to open_altfile above.
-				 * Keep the file descriptor open because it was opened 
+				 * Keep the file descriptor open because it was opened
 				 * via popen(), and pclose() wants to close it.
 				 */
 				chflags |= CH_POPENED;
@@ -497,7 +497,7 @@ public int edit_ifile(IFILE ifile)
 					chflags |= CH_KEEPOPEN;
 			} else if (strcmp(filename, "-") == 0)
 			{
-				/* 
+				/*
 				 * Use standard input.
 				 * Keep the file descriptor open because we can't reopen it.
 				 */
@@ -542,13 +542,13 @@ public int edit_ifile(IFILE ifile)
 				error("%s", &parg);
 				free(p);
 				return edit_error(filename, alt_filename, altpipe, ifile);
-			} else 
+			} else
 			{
 				chflags |= CH_CANSEEK;
 				if (bin_file(f, &nread) && !force_open && !opened(ifile))
 				{
 					/*
-					 * Looks like a binary file.  
+					 * Looks like a binary file.
 					 * Ask user if we should proceed.
 					 */
 					parg.p_string = filename;
@@ -691,10 +691,10 @@ public int edit_list(char *filelist)
 
 	save_ifile = save_curr_ifile();
 	good_filename = NULL;
-	
+
 	/*
 	 * Run thru each filename in the list.
-	 * Try to glob the filename.  
+	 * Try to glob the filename.
 	 * If it doesn't expand, just try to open the filename.
 	 * If it does expand, try to open each name in that list.
 	 */
@@ -789,7 +789,7 @@ static int edit_istep(IFILE h, int n, int dir)
 			return (1);
 		}
 		h = next;
-	} 
+	}
 	/*
 	 * Found a file that we can edit.
 	 */
@@ -925,7 +925,7 @@ public void cat_file(void)
 
 /*
  * If the user asked for a log file and our input file
- * is standard input, create the log file.  
+ * is standard input, create the log file.
  * We take care not to blindly overwrite an existing file.
  */
 public void use_logfile(constant char *filename)

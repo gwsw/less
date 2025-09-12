@@ -1,9 +1,10 @@
 use crate::charset::init_charset;
 use crate::decode::{expand_cmd_tables, init_cmds, Tables};
 use crate::decode::{isnullenv, lgetenv};
-use crate::ifile::get_ifile;
+use crate::ifile::{IFile, IFileHandle, IFileManager};
 use crate::line::init_line;
 use crate::mark::Marks;
+use std::env;
 use std::ffi::CString;
 extern "C" {
     fn snprintf(
@@ -45,7 +46,6 @@ extern "C" {
     fn cat_file();
     fn last_component(name: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn get_one_screen() -> lbool;
-    fn prev_ifile(h: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn nifile() -> std::ffi::c_int;
     fn repaint();
     fn opt_header(type_0: std::ffi::c_int, s: *const std::ffi::c_char);
@@ -123,12 +123,6 @@ pub static mut new_file: lbool = LFALSE;
 #[no_mangle]
 pub static mut is_tty: std::ffi::c_int = 0;
 #[no_mangle]
-pub static mut curr_ifile: *mut std::ffi::c_void =
-    0 as *const std::ffi::c_void as *mut std::ffi::c_void;
-#[no_mangle]
-pub static mut old_ifile: *mut std::ffi::c_void =
-    0 as *const std::ffi::c_void as *mut std::ffi::c_void;
-#[no_mangle]
 pub static mut initial_scrpos: scrpos = scrpos { pos: 0, ln: 0 };
 #[no_mangle]
 pub static mut start_attnpos: POSITION = -(1 as std::ffi::c_int) as POSITION;
@@ -136,8 +130,7 @@ pub static mut start_attnpos: POSITION = -(1 as std::ffi::c_int) as POSITION;
 pub static mut end_attnpos: POSITION = -(1 as std::ffi::c_int) as POSITION;
 #[no_mangle]
 pub static mut wscroll: std::ffi::c_int = 0;
-#[no_mangle]
-pub static mut progname: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+pub static mut progname: String = String::new();
 #[no_mangle]
 pub static mut quitting: lbool = LFALSE;
 #[no_mangle]
@@ -162,13 +155,29 @@ pub static mut less_start_time: time_t = 0;
 #[no_mangle]
 pub static mut one_screen: std::ffi::c_int = 0;
 
+#[no_mangle]
+pub static mut curr_ifile: Option<IFileHandle> = None;
+#[no_mangle]
+pub static mut old_ifile: Option<IFileHandle> = None;
+
+const FAKE_HELPFILE: &'static str = "@/\\less/\\help/\\file/\\@";
+const FAKE_EMPTYFILE: &'static str = "@/\\less/\\empty/\\file/\\@";
+
 pub struct Less {
-    marks: Marks,
+    pub marks: Marks,
+    pub ifiles: IFileManager,
+    //pub curr_ifile: Option<IFile>,
+    //pub old_ifile: Option<IFile>,
 }
 
 impl Less {
     pub fn new(marks: Marks) -> Self {
-        Less { marks }
+        Less {
+            marks: marks,
+            ifiles: IFileManager::new(),
+            //curr_ifile: None,
+            //old_ifile: None,
+        }
     }
 
     pub fn marks_ref(&self) -> &Marks {
@@ -372,16 +381,16 @@ unsafe extern "C" fn init_secure() {
         }
     }
 }
-unsafe fn main_0(
-    mut argc: std::ffi::c_int,
-    mut argv: *mut *const std::ffi::c_char,
-) -> std::ffi::c_int {
-    let mut ifile: *mut std::ffi::c_void = 0 as *mut std::ffi::c_void;
+
+fn is_opt_string(s: &str) -> bool {
+    (s.starts_with("-") || s.starts_with("+")) && s.len() > 1
+}
+
+unsafe fn main_0() -> i32 {
+    let args: Vec<String> = env::args().collect();
+    let mut ifile: Option<IFileHandle> = None;
     let mut s: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
-    let fresh0 = argv;
-    argv = argv.offset(1);
-    progname = *fresh0;
-    argc -= 1;
+    progname = args[0].clone();
     init_secure();
     /*
      * Process command line arguments and LESS environment arguments.
@@ -390,6 +399,7 @@ unsafe fn main_0(
     is_tty = isatty(1 as std::ffi::c_int);
     let mut less = Less::new(Marks::new());
     let marks = less.marks_ref_mut();
+    let mut ifiles = less.ifiles;
     less.marks.init();
     let mut tables = Tables::new();
     init_cmds(&mut tables);
@@ -400,7 +410,7 @@ unsafe fn main_0(
     init_option();
     init_search();
     if strcmp(
-        last_component(progname),
+        last_component(CString::new(progname.clone()).unwrap().as_ptr()),
         b"more\0" as *const u8 as *const std::ffi::c_char,
     ) == 0 as std::ffi::c_int
         && lgetenv("LESS_IS_MORE").is_err()
@@ -415,20 +425,14 @@ unsafe fn main_0(
     } else {
         s = CString::new(ss.unwrap()).unwrap().as_ptr();
     }
-    while argc > 0 as std::ffi::c_int
-        && ((*(*argv).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '-' as i32
-            || *(*argv).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int == '+' as i32)
-            && *(*argv).offset(1 as std::ffi::c_int as isize) as std::ffi::c_int != '\0' as i32
-            || isoptpending() as std::ffi::c_uint != 0)
-    {
-        let fresh1 = argv;
-        argv = argv.offset(1);
-        s = *fresh1;
-        argc -= 1;
-        if strcmp(s, b"--\0" as *const u8 as *const std::ffi::c_char) == 0 as std::ffi::c_int {
+    for arg in args.iter() {
+        if !(is_opt_string(arg.as_str()) || isoptpending() != 0) {
             break;
         }
-        scan_option(s, LFALSE);
+        if arg.starts_with("--") {
+            break;
+        }
+        scan_option(CString::new(arg.clone()).unwrap().as_ptr(), LFALSE);
     }
     if isoptpending() as u64 != 0 {
         nopendopt();
@@ -453,23 +457,17 @@ unsafe fn main_0(
     } else {
         editproto = CString::new(editp.unwrap()).unwrap().as_ptr();
     }
-    ifile = 0 as *mut std::ffi::c_void;
+
+    /*
+     * Call get_ifile with all the command line filenames
+     * to "register" them with the ifile system.
+     */
     if dohelp != 0 {
-        ifile = get_ifile(
-            b"@/\\less/\\help/\\file/\\@\0" as *const u8 as *const std::ffi::c_char,
-            ifile,
-        );
+        ifile = Some(ifiles.get_ifile(FAKE_HELPFILE, ifile));
     }
-    loop {
-        let fresh2 = argc;
-        argc = argc - 1;
-        if !(fresh2 > 0 as std::ffi::c_int) {
-            break;
-        }
-        let fresh3 = argv;
-        argv = argv.offset(1);
-        get_ifile(*fresh3, ifile);
-        ifile = prev_ifile(0 as *mut std::ffi::c_void);
+    for arg in args.iter() {
+        let _ = ifiles.get_ifile(arg, ifile);
+        ifile = ifiles.prev_ifile(None);
     }
     if is_tty == 0 {
         set_output(1 as std::ffi::c_int);
@@ -657,21 +655,8 @@ pub unsafe extern "C" fn quit(mut status: std::ffi::c_int) {
 pub unsafe extern "C" fn secure_allow(mut features: std::ffi::c_int) -> std::ffi::c_int {
     return (secure_allow_features & features == features) as std::ffi::c_int;
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn main() {
-    let mut args: Vec<*mut std::ffi::c_char> = Vec::new();
-    for arg in ::std::env::args() {
-        args.push(
-            (::std::ffi::CString::new(arg))
-                .expect("Failed to convert argument into CString.")
-                .into_raw(),
-        );
-    }
-    args.push(::core::ptr::null_mut());
-    unsafe {
-        ::std::process::exit(main_0(
-            (args.len() - 1) as std::ffi::c_int,
-            args.as_mut_ptr() as *mut *const std::ffi::c_char,
-        ) as i32)
-    }
+    unsafe { ::std::process::exit(main_0()) }
 }

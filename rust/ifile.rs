@@ -1,304 +1,377 @@
-use crate::main::Less;
-use crate::mark::Marks;
-use ::libc;
-extern "C" {
-    fn free(_: *mut std::ffi::c_void);
-    fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
-    fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
-    fn save(s: *const std::ffi::c_char) -> *mut std::ffi::c_char;
-    fn ecalloc(count: size_t, size: size_t) -> *mut std::ffi::c_void;
-    fn lrealpath(path: *const std::ffi::c_char) -> *mut std::ffi::c_char;
-    fn unmark(ifile: *mut std::ffi::c_void);
-    static mut curr_ifile: *mut std::ffi::c_void;
+use std::any::Any;
+use std::collections::VecDeque;
+use std::fs;
+use std::path::{Path, PathBuf};
+
+/// Opaque handle (like the C `IFILE` pointer).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct IFileHandle(pub usize);
+
+/// Position type used by `scrpos` (matches C `POSITION`).
+pub type Position = u64;
+/// NULL_POSITION analogue.
+pub const NULL_POSITION: Position = u64::MAX;
+
+/// Saved screen position (mirrors `struct scrpos` from the C code).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ScrPos {
+    pub pos: Position,
+    pub ln: i32,
 }
 
-/*
- * An IFILE represents an input file.
- *
- * It is actually a pointer to an ifile structure,
- * but is opaque outside this module.
- * Ifile structures are kept in a linked list in the order they
- * appear on the command line.
- * Any new file which does not already appear in the list is
- * inserted after the current file.
- */
-pub type __off_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type size_t = std::ffi::c_ulong;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct scrpos {
-    pub pos: POSITION,
-    pub ln: std::ffi::c_int,
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct ifile {
-    pub h_next: *mut ifile,
-    pub h_prev: *mut ifile,
-    pub h_filename: *mut std::ffi::c_char,
-    pub h_rfilename: *mut std::ffi::c_char,
-    pub h_filestate: *mut std::ffi::c_void,
-    pub h_index: std::ffi::c_int,
-    pub h_hold: std::ffi::c_int,
-    pub h_opened: std::ffi::c_char,
-    pub h_scrpos: scrpos,
-    pub h_altpipe: *mut std::ffi::c_void,
-    pub h_altfilename: *mut std::ffi::c_char,
-}
-
-/*
- * Anchor for linked list.
- */
-static mut anchor: ifile = unsafe {
-    {
-        let mut init = ifile {
-            h_next: &anchor as *const ifile as *mut ifile,
-            h_prev: &anchor as *const ifile as *mut ifile,
-            h_filename: 0 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            h_rfilename: 0 as *const std::ffi::c_char as *mut std::ffi::c_char,
-            h_filestate: 0 as *const std::ffi::c_void as *mut std::ffi::c_void,
-            h_index: 0 as std::ffi::c_int,
-            h_hold: 0 as std::ffi::c_int,
-            h_opened: '\0' as i32 as std::ffi::c_char,
-            h_scrpos: {
-                let mut init = scrpos {
-                    pos: -(1 as std::ffi::c_int) as POSITION,
-                    ln: 0 as std::ffi::c_int,
-                };
-                init
-            },
-            h_altpipe: 0 as *const std::ffi::c_void as *mut std::ffi::c_void,
-            h_altfilename: 0 as *const std::ffi::c_char as *mut std::ffi::c_char,
-        };
-        init
-    }
-};
-
-static mut ifiles: std::ffi::c_int = 0 as std::ffi::c_int;
-unsafe extern "C" fn incr_index(mut p: *mut ifile, mut incr: std::ffi::c_int) {
-    while p != &mut anchor as *mut ifile {
-        (*p).h_index += incr;
-        p = (*p).h_next;
-    }
-}
-
-unsafe extern "C" fn link_ifile(mut p: *mut ifile, mut prev: *mut ifile) {
-    if prev.is_null() {
-        prev = &mut anchor;
-    }
-    (*p).h_next = (*prev).h_next;
-    (*p).h_prev = prev;
-    (*(*prev).h_next).h_prev = p;
-    (*prev).h_next = p;
-    (*p).h_index = (*prev).h_index + 1 as std::ffi::c_int;
-    incr_index((*p).h_next, 1 as std::ffi::c_int);
-    ifiles += 1;
-}
-unsafe extern "C" fn unlink_ifile(mut p: *mut ifile) {
-    (*(*p).h_next).h_prev = (*p).h_prev;
-    (*(*p).h_prev).h_next = (*p).h_next;
-    incr_index((*p).h_next, -(1 as std::ffi::c_int));
-    ifiles -= 1;
-}
-unsafe extern "C" fn new_ifile(
-    mut filename: *const std::ffi::c_char,
-    mut prev: *mut ifile,
-) -> *mut ifile {
-    let mut p: *mut ifile = 0 as *mut ifile;
-    p = ecalloc(
-        1 as std::ffi::c_int as size_t,
-        ::core::mem::size_of::<ifile>() as std::ffi::c_ulong,
-    ) as *mut ifile;
-    (*p).h_filename = save(filename);
-    (*p).h_rfilename = lrealpath(filename);
-    (*p).h_scrpos.pos = -(1 as std::ffi::c_int) as POSITION;
-    (*p).h_opened = 0 as std::ffi::c_int as std::ffi::c_char;
-    (*p).h_hold = 0 as std::ffi::c_int;
-    (*p).h_filestate = 0 as *mut std::ffi::c_void;
-    (*p).h_altfilename = 0 as *mut std::ffi::c_char;
-    (*p).h_altpipe = 0 as *mut std::ffi::c_void;
-    link_ifile(p, prev);
-    // FIXME find a way to call mark_check_ifile
-    //mark_check_ifile(p as *mut std::ffi::c_void);
-    return p;
-}
-#[no_mangle]
-pub unsafe extern "C" fn del_ifile(mut h: *mut std::ffi::c_void) {
-    let mut p: *mut ifile = 0 as *mut ifile;
-    if h == 0 as *mut std::ffi::c_void {
-        return;
-    }
-    unmark(h);
-    if h == curr_ifile {
-        curr_ifile = getoff_ifile(curr_ifile);
-    }
-    p = h as *mut ifile;
-    unlink_ifile(p);
-    free((*p).h_rfilename as *mut std::ffi::c_void);
-    free((*p).h_filename as *mut std::ffi::c_void);
-    free(p as *mut std::ffi::c_void);
-}
-#[no_mangle]
-pub unsafe extern "C" fn next_ifile(mut h: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
-    let mut p: *mut ifile = 0 as *mut ifile;
-    p = if h == 0 as *mut std::ffi::c_void {
-        &mut anchor
-    } else {
-        h as *mut ifile
-    };
-    if (*p).h_next == &mut anchor as *mut ifile {
-        return 0 as *mut std::ffi::c_void;
-    }
-    return (*p).h_next as *mut std::ffi::c_void;
-}
-#[no_mangle]
-pub unsafe extern "C" fn prev_ifile(mut h: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
-    let mut p: *mut ifile = 0 as *mut ifile;
-    p = if h == 0 as *mut std::ffi::c_void {
-        &mut anchor
-    } else {
-        h as *mut ifile
-    };
-    if (*p).h_prev == &mut anchor as *mut ifile {
-        return 0 as *mut std::ffi::c_void;
-    }
-    return (*p).h_prev as *mut std::ffi::c_void;
-}
-#[no_mangle]
-pub unsafe extern "C" fn getoff_ifile(mut ifile: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
-    let mut newifile: *mut std::ffi::c_void = 0 as *mut std::ffi::c_void;
-    newifile = prev_ifile(ifile);
-    if newifile != 0 as *mut std::ffi::c_void {
-        return newifile;
-    }
-    newifile = next_ifile(ifile);
-    if newifile != 0 as *mut std::ffi::c_void {
-        return newifile;
-    }
-    return 0 as *mut std::ffi::c_void;
-}
-#[no_mangle]
-pub unsafe extern "C" fn nifile() -> std::ffi::c_int {
-    return ifiles;
-}
-unsafe extern "C" fn find_ifile(mut filename: *const std::ffi::c_char) -> *mut ifile {
-    let mut p: *mut ifile = 0 as *mut ifile;
-    let mut rfilename: *mut std::ffi::c_char = lrealpath(filename);
-    p = anchor.h_next;
-    while p != &mut anchor as *mut ifile {
-        if strcmp(rfilename, (*p).h_rfilename) == 0 as std::ffi::c_int {
-            if strlen(filename) < strlen((*p).h_filename) {
-                free((*p).h_filename as *mut std::ffi::c_void);
-                (*p).h_filename = save(filename);
-            }
-            break;
-        } else {
-            p = (*p).h_next;
+impl Default for ScrPos {
+    fn default() -> Self {
+        Self {
+            pos: NULL_POSITION,
+            ln: 0,
         }
     }
-    free(rfilename as *mut std::ffi::c_void);
-    if p == &mut anchor as *mut ifile {
-        p = 0 as *mut ifile;
+}
+
+/// Rust representation of the C `struct ifile` (same field names where practical).
+#[derive(Debug)]
+pub struct IFile {
+    /// Display filename (h_filename in C).
+    pub h_filename: PathBuf,
+    /// Canonical filename (h_rfilename in C); may be None if resolution failed.
+    pub h_rfilename: Option<PathBuf>,
+    /// File state (opaque pointer in C). We store an optional boxed Any value.
+    pub h_filestate: Option<Box<dyn Any + Send + Sync>>,
+    /// Index within the command-line list (h_index in C). 1-based like original C.
+    pub h_index: i32,
+    /// Hold count (h_hold in C).
+    pub h_hold: i32,
+    /// Has this ifile been opened? (h_opened in C)
+    pub h_opened: bool,
+    /// Saved position within the file (h_scrpos in C)
+    pub h_scrpos: ScrPos,
+    /// Alt pipe pointer (h_altpipe in C) stored opaquely
+    pub h_altpipe: Option<Box<dyn Any + Send + Sync>>,
+    /// Alt filename (h_altfilename in C)
+    pub h_altfilename: Option<PathBuf>,
+}
+
+impl IFile {
+    fn new(filename: impl AsRef<Path>) -> Self {
+        let filename = filename.as_ref().to_path_buf();
+        let r = fs::canonicalize(&filename).ok();
+        Self {
+            h_filename: filename,
+            h_rfilename: r,
+            h_filestate: None,
+            h_index: 0,
+            h_hold: 0,
+            h_opened: false,
+            h_scrpos: ScrPos::default(),
+            h_altpipe: None,
+            h_altfilename: None,
+        }
     }
-    return p;
 }
-#[no_mangle]
-pub unsafe extern "C" fn get_ifile(
-    mut filename: *const std::ffi::c_char,
-    mut prev: *mut std::ffi::c_void,
-) -> *mut std::ffi::c_void {
-    let mut p: *mut ifile = 0 as *mut ifile;
-    p = find_ifile(filename);
-    if p.is_null() {
-        p = new_ifile(filename, prev as *mut ifile);
+
+/// Manager storing the ordered list of IFiles using a `VecDeque`.
+/// The ordering in the deque mirrors the linked-list order in the
+/// original C implementation (front == first after the anchor).
+pub struct IFileManager {
+    files: VecDeque<IFile>,
+}
+
+impl IFileManager {
+    pub fn new() -> Self {
+        Self {
+            files: VecDeque::new(),
+        }
     }
-    return p as *mut std::ffi::c_void;
-}
-#[no_mangle]
-pub unsafe extern "C" fn get_filename(mut ifile: *mut std::ffi::c_void) -> *const std::ffi::c_char {
-    if ifile.is_null() {
-        return 0 as *const std::ffi::c_char;
+
+    /// Helper: try to canonicalize (like `lrealpath` in the C code).
+    fn canonicalize(path: &Path) -> Option<PathBuf> {
+        fs::canonicalize(path).ok()
     }
-    return (*(ifile as *mut ifile)).h_filename;
-}
-#[no_mangle]
-pub unsafe extern "C" fn get_real_filename(
-    mut ifile: *mut std::ffi::c_void,
-) -> *const std::ffi::c_char {
-    if ifile.is_null() {
-        return 0 as *const std::ffi::c_char;
+
+    /// Get number of ifiles (like `nifile()` in C).
+    pub fn nifile(&self) -> usize {
+        self.files.len()
     }
-    return (*(ifile as *mut ifile)).h_rfilename;
-}
-#[no_mangle]
-pub unsafe extern "C" fn get_index(mut ifile: *mut std::ffi::c_void) -> std::ffi::c_int {
-    return (*(ifile as *mut ifile)).h_index;
-}
-#[no_mangle]
-pub unsafe extern "C" fn store_pos(mut ifile: *mut std::ffi::c_void, mut scrpos: *mut scrpos) {
-    (*(ifile as *mut ifile)).h_scrpos = *scrpos;
-}
-#[no_mangle]
-pub unsafe extern "C" fn get_pos(mut ifile: *mut std::ffi::c_void, mut scrpos: *mut scrpos) {
-    *scrpos = (*(ifile as *mut ifile)).h_scrpos;
-}
-#[no_mangle]
-pub unsafe extern "C" fn set_open(mut ifile: *mut std::ffi::c_void) {
-    (*(ifile as *mut ifile)).h_opened = 1 as std::ffi::c_int as std::ffi::c_char;
-}
-#[no_mangle]
-pub unsafe extern "C" fn opened(mut ifile: *mut std::ffi::c_void) -> std::ffi::c_int {
-    return (*(ifile as *mut ifile)).h_opened as std::ffi::c_int;
-}
-#[no_mangle]
-pub unsafe extern "C" fn hold_ifile(mut ifile: *mut std::ffi::c_void, mut incr: std::ffi::c_int) {
-    (*(ifile as *mut ifile)).h_hold += incr;
-}
-#[no_mangle]
-pub unsafe extern "C" fn held_ifile(mut ifile: *mut std::ffi::c_void) -> std::ffi::c_int {
-    return (*(ifile as *mut ifile)).h_hold;
-}
-#[no_mangle]
-pub unsafe extern "C" fn get_filestate(mut ifile: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
-    return (*(ifile as *mut ifile)).h_filestate;
-}
-#[no_mangle]
-pub unsafe extern "C" fn set_filestate(
-    mut ifile: *mut std::ffi::c_void,
-    mut filestate: *mut std::ffi::c_void,
-) {
-    let ref mut fresh0 = (*(ifile as *mut ifile)).h_filestate;
-    *fresh0 = filestate;
-}
-#[no_mangle]
-pub unsafe extern "C" fn set_altpipe(
-    mut ifile: *mut std::ffi::c_void,
-    mut p: *mut std::ffi::c_void,
-) {
-    let ref mut fresh1 = (*(ifile as *mut ifile)).h_altpipe;
-    *fresh1 = p;
-}
-#[no_mangle]
-pub unsafe extern "C" fn get_altpipe(mut ifile: *mut std::ffi::c_void) -> *mut std::ffi::c_void {
-    return (*(ifile as *mut ifile)).h_altpipe;
-}
-#[no_mangle]
-pub unsafe extern "C" fn set_altfilename(
-    mut ifile: *mut std::ffi::c_void,
-    mut altfilename: *mut std::ffi::c_char,
-) {
-    let mut p: *mut ifile = ifile as *mut ifile;
-    if !((*p).h_altfilename).is_null() && (*p).h_altfilename != altfilename {
-        free((*p).h_altfilename as *mut std::ffi::c_void);
+
+    /// Recompute h_index for all entries so they match the C behaviour
+    /// (1-based index where the first file after the anchor is index 1).
+    fn recompute_indices(&mut self) {
+        for (i, f) in self.files.iter_mut().enumerate() {
+            f.h_index = (i as i32) + 1; // 1-based
+        }
     }
-    (*p).h_altfilename = altfilename;
+
+    /// Insert a new ifile after the given handle. If `after` is None,
+    /// insert at the beginning (after the conceptual anchor), matching
+    /// the C `new_ifile(..., prev)` semantics where prev==NULL means
+    /// insert at the head.
+    pub fn link_after(
+        &mut self,
+        after: Option<IFileHandle>,
+        filename: impl AsRef<Path>,
+    ) -> IFileHandle {
+        let slot = IFile::new(filename);
+        let insert_pos = match after {
+            None => 0, // insert at head (after anchor)
+            Some(h) if h.0 < self.files.len() => h.0 + 1,
+            _ => self.files.len(), // invalid handle -> append at end
+        };
+        self.files.insert(insert_pos, slot);
+        self.recompute_indices();
+        IFileHandle(insert_pos)
+    }
+
+    /// Allocate a new ifile and insert it after `prev` (mirrors `new_ifile`).
+    /// `prev` may be None (insert at head).
+    pub fn new_ifile(
+        &mut self,
+        filename: impl AsRef<Path>,
+        prev: Option<IFileHandle>,
+    ) -> IFileHandle {
+        self.link_after(prev, filename)
+    }
+
+    /// Delete an existing ifile. Returns true if deletion occurred.
+    /// Mirrors the behaviour of `del_ifile` (note: callers should handle
+    /// any relocation of "current file" like the C code does).
+    pub fn del_ifile(&mut self, h: Option<IFileHandle>) -> bool {
+        let h = match h {
+            Some(hh) => hh,
+            None => return false,
+        };
+        if h.0 >= self.files.len() {
+            return false;
+        }
+        // Remove the slot
+        let _removed = self.files.remove(h.0);
+        self.recompute_indices();
+        true
+    }
+
+    /// Find an ifile by filename. Attempts to canonicalize the argument
+    /// and compare against stored `h_rfilename` (like `find_ifile`).
+    pub fn find_ifile(&self, filename: impl AsRef<Path>) -> Option<IFileHandle> {
+        let filename = filename.as_ref();
+        let r = Self::canonicalize(filename);
+        for (i, f) in self.files.iter().enumerate() {
+            if let (Some(ref rf), Some(ref rf_arg)) = (&f.h_rfilename, &r) {
+                if rf == rf_arg {
+                    return Some(IFileHandle(i));
+                }
+            } else {
+                // fallback: compare display names (not canonical)
+                if f.h_filename == filename {
+                    return Some(IFileHandle(i));
+                }
+            }
+        }
+        None
+    }
+
+    /// Get or create the ifile for `filename`. If not found, insert after `prev`.
+    pub fn get_ifile(
+        &mut self,
+        filename: impl AsRef<Path>,
+        prev: Option<IFileHandle>,
+    ) -> IFileHandle {
+        if let Some(h) = self.find_ifile(filename.as_ref()) {
+            return h;
+        }
+        self.new_ifile(filename, prev)
+    }
+
+    /// Get the display filename associated with an ifile.
+    pub fn get_filename(&self, h: Option<IFileHandle>) -> Option<&Path> {
+        let h = h?;
+        self.files.get(h.0).map(|f| f.h_filename.as_path())
+    }
+
+    /// Get the canonical (real) filename associated with an ifile.
+    pub fn get_real_filename(&self, h: Option<IFileHandle>) -> Option<&Path> {
+        let h = h?;
+        self.files.get(h.0).and_then(|f| f.h_rfilename.as_deref())
+    }
+
+    /// Get the index of the file associated with an ifile (1-based).
+    pub fn get_index(&self, h: Option<IFileHandle>) -> Option<i32> {
+        let h = h?;
+        self.files.get(h.0).map(|f| f.h_index)
+    }
+
+    /// Store the screen position for an ifile.
+    pub fn store_pos(&mut self, h: Option<IFileHandle>, scrpos: ScrPos) {
+        if let Some(hh) = h {
+            if let Some(f) = self.files.get_mut(hh.0) {
+                f.h_scrpos = scrpos;
+            }
+        }
+    }
+
+    /// Recall the screen position associated with an ifile.
+    pub fn get_pos(&self, h: Option<IFileHandle>) -> Option<ScrPos> {
+        let h = h?;
+        self.files.get(h.0).map(|f| f.h_scrpos)
+    }
+
+    /// Mark the ifile as opened.
+    pub fn set_open(&mut self, h: Option<IFileHandle>) {
+        if let Some(hh) = h {
+            if let Some(f) = self.files.get_mut(hh.0) {
+                f.h_opened = true;
+            }
+        }
+    }
+
+    /// Whether the ifile has been opened previously.
+    pub fn opened(&self, h: Option<IFileHandle>) -> bool {
+        if let Some(hh) = h {
+            self.files.get(hh.0).map(|f| f.h_opened).unwrap_or(false)
+        } else {
+            false
+        }
+    }
+
+    /// Increment/decrement hold count (like `hold_ifile`).
+    pub fn hold_ifile(&mut self, h: Option<IFileHandle>, incr: i32) {
+        if let Some(hh) = h {
+            if let Some(f) = self.files.get_mut(hh.0) {
+                f.h_hold += incr;
+            }
+        }
+    }
+
+    /// Return hold count.
+    pub fn held_ifile(&self, h: Option<IFileHandle>) -> Option<i32> {
+        let h = h?;
+        self.files.get(h.0).map(|f| f.h_hold)
+    }
+
+    /// Get/Set the opaque filestate pointer.
+    pub fn get_filestate(&self, h: Option<IFileHandle>) -> Option<&Box<dyn Any + Send + Sync>> {
+        let h = h?;
+        self.files.get(h.0).and_then(|f| f.h_filestate.as_ref())
+    }
+
+    pub fn set_filestate(
+        &mut self,
+        h: Option<IFileHandle>,
+        fs: Option<Box<dyn Any + Send + Sync>>,
+    ) {
+        if let Some(hh) = h {
+            if let Some(f) = self.files.get_mut(hh.0) {
+                f.h_filestate = fs;
+            }
+        }
+    }
+
+    /// Set/get alt pipe and alt filename (opaque in original C).
+    pub fn set_altpipe(&mut self, h: Option<IFileHandle>, p: Option<Box<dyn Any + Send + Sync>>) {
+        if let Some(hh) = h {
+            if let Some(f) = self.files.get_mut(hh.0) {
+                f.h_altpipe = p;
+            }
+        }
+    }
+    pub fn get_altpipe(&self, h: Option<IFileHandle>) -> Option<&Box<dyn Any + Send + Sync>> {
+        let h = h?;
+        self.files.get(h.0).and_then(|f| f.h_altpipe.as_ref())
+    }
+
+    pub fn set_altfilename(&mut self, h: Option<IFileHandle>, alt: Option<impl AsRef<Path>>) {
+        if let Some(hh) = h {
+            if let Some(f) = self.files.get_mut(hh.0) {
+                f.h_altfilename = alt.map(|p| p.as_ref().to_path_buf());
+            }
+        }
+    }
+
+    pub fn get_altfilename(&self, h: Option<IFileHandle>) -> Option<&Path> {
+        let h = h?;
+        self.files.get(h.0).and_then(|f| f.h_altfilename.as_deref())
+    }
+
+    /// Return the ifile after a given one in the list (NULL_IFILE semantics supported).
+    /// Mirrors `next_ifile` in C: if `h` is None, returns the first file; if we're at the end,
+    /// returns None.
+    pub fn next_ifile(&self, h: Option<IFileHandle>) -> Option<IFileHandle> {
+        if self.files.is_empty() {
+            return None;
+        }
+        let pos = match h {
+            None => {
+                return Some(IFileHandle(0));
+            }
+            Some(hh) => hh.0,
+        };
+        if pos + 1 >= self.files.len() {
+            None
+        } else {
+            Some(IFileHandle(pos + 1))
+        }
+    }
+
+    /// Return the ifile before a given one in the list (NULL_IFILE semantics supported).
+    pub fn prev_ifile(&self, h: Option<IFileHandle>) -> Option<IFileHandle> {
+        if self.files.is_empty() {
+            return None;
+        }
+        let pos = match h {
+            None => {
+                return Some(IFileHandle(self.files.len() - 1));
+            }
+            Some(hh) => hh.0,
+        };
+        if pos == 0 {
+            None
+        } else {
+            Some(IFileHandle(pos - 1))
+        }
+    }
+
+    /// Return a different ifile from the given one, preferring prev then next (like `getoff_ifile`).
+    pub fn getoff_ifile(&self, h: Option<IFileHandle>) -> Option<IFileHandle> {
+        if let Some(p) = self.prev_ifile(h) {
+            return Some(p);
+        }
+        if let Some(n) = self.next_ifile(h) {
+            return Some(n);
+        }
+        None
+    }
 }
-#[no_mangle]
-pub unsafe extern "C" fn get_altfilename(
-    mut ifile: *mut std::ffi::c_void,
-) -> *mut std::ffi::c_char {
-    return (*(ifile as *mut ifile)).h_altfilename;
+
+// ------------------
+// Unit tests
+// ------------------
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new_link_and_indices() {
+        let mut mgr = IFileManager::new();
+        let a = mgr.new_ifile("a.txt", None);
+        let b = mgr.new_ifile("b.txt", Some(a));
+        let c = mgr.new_ifile("c.txt", Some(b));
+
+        assert_eq!(mgr.nifile(), 3);
+        assert_eq!(mgr.get_index(Some(a)).unwrap(), 1);
+        assert_eq!(mgr.get_index(Some(b)).unwrap(), 2);
+        assert_eq!(mgr.get_index(Some(c)).unwrap(), 3);
+
+        // insert x after a -> a,x,b,c
+        let x = mgr.link_after(Some(a), "x.txt");
+        assert_eq!(mgr.get_filename(Some(x)).unwrap(), Path::new("x.txt"));
+        assert_eq!(mgr.get_index(Some(x)).unwrap(), 2);
+        assert_eq!(mgr.get_index(Some(b)).unwrap(), 3);
+    }
+
+    #[test]
+    fn find_and_get_ifile() {
+        let mut mgr = IFileManager::new();
+        let h = mgr.get_ifile("file.txt", None);
+        assert_eq!(mgr.get_filename(Some(h)).unwrap(), Path::new("file.txt"));
+        let found = mgr.find_ifile("file.txt").unwrap();
+        assert_eq!(found, h);
+    }
 }

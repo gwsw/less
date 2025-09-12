@@ -1,4 +1,3 @@
-use crate::ifile::get_ifile;
 use crate::util::ptr_to_str;
 use ::c2rust_bitfields;
 use ::libc;
@@ -11,6 +10,10 @@ extern "C" {
     fn free(_: *mut std::ffi::c_void);
     fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
     fn postoa(_: POSITION, _: *mut std::ffi::c_char, _: std::ffi::c_int);
+    fn get_ifile(
+        filename: *const std::ffi::c_char,
+        prev: *mut std::ffi::c_void,
+    ) -> *mut std::ffi::c_void;
     fn lstrtoic(
         _: *const std::ffi::c_char,
         _: *mut *const std::ffi::c_char,

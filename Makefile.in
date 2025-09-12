@@ -51,7 +51,7 @@ SHELL = /bin/sh
 .c.o:
 	${CC} -I. ${CFLAGS_COMPILE_ONLY} -DBINDIR=\"${bindir}\" -DSYSDIR=\"${sysconfdir}\" ${CPPFLAGS} ${CFLAGS} $<
 
-OBJ = xbuf.${O} decode.${O} line.${O} charset.${O} ch.${O}
+OBJ = xbuf.${O} decode.${O} line.${O} charset.${O} ch.${O} ifile.${O}
 
 ifneq (@SECURE_COMPILE@,1)
 OBJ += lesskey_parse.${O}
