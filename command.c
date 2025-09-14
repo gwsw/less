@@ -988,6 +988,7 @@ static void prompt(void)
 		put_line(FALSE);
 	}
 	clear_eol();
+	resume_screen();
 }
 
 /*
