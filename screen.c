@@ -2370,6 +2370,7 @@ public void bell(void)
 public void clear(void)
 {
 	assert_interactive();
+	suspend_screen();
 #if !MSDOS_COMPILER
 	ltputs(sc_clear, sc_height, putchr);
 #else
@@ -2380,7 +2381,6 @@ public void clear(void)
 	_clearscreen(_GCLEARSCREEN);
 #endif
 #endif
-	suspend_screen();
 }
 
 /*
