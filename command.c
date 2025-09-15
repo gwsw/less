@@ -2288,6 +2288,7 @@ public void commands(void)
 			pos_rehead();
 			hshift -= (int) number;
 			screen_trashed();
+			cmd_exec();
 			break;
 
 		case A_RSHIFT:
@@ -2301,6 +2302,7 @@ public void commands(void)
 			pos_rehead();
 			hshift += (int) number;
 			screen_trashed();
+			cmd_exec();
 			break;
 
 		case A_LLSHIFT:
@@ -2310,6 +2312,7 @@ public void commands(void)
 			pos_rehead();
 			hshift = 0;
 			screen_trashed();
+			cmd_exec();
 			break;
 
 		case A_RRSHIFT:
@@ -2319,6 +2322,7 @@ public void commands(void)
 			pos_rehead();
 			hshift = rrshift();
 			screen_trashed();
+			cmd_exec();
 			break;
 
 		case A_PREFIX:
