@@ -2627,7 +2627,7 @@ automatically when running in
 User's search path (used to find a lesskey file
 on MS-DOS, Windows, and OS/2 systems).
 .IP POSIXLY_CORRECT
-If set to a non-null value, all option arguments on the command line
+If set to any value, all option arguments on the command line
 are expected to appear before any filename arguments.
 This must be set as an actual environment variable, not in a
 .B lesskey
