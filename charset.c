@@ -456,6 +456,12 @@ static void set_charset(void)
 	 * rather than from predefined charset entry.
 	 */
 	ilocale();
+#ifdef __MVS__
+/*
+	 * z/OS Locale does not properly support UTF-8. Default to "utf-8".
+*/
+  (void) icharset("utf-8", 1);
+#endif
 #else
 #if MSDOS_COMPILER
 #if MSDOS_COMPILER==WIN32C
