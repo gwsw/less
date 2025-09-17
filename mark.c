@@ -204,7 +204,7 @@ public void setmark(char c, int where)
 	get_scrpos(&scrpos, where);
 	if (scrpos.pos == NULL_POSITION)
 	{
-		bell();
+		lbell();
 		return;
 	}
 	cmark(m, curr_ifile, scrpos.pos, scrpos.ln);
@@ -223,7 +223,7 @@ public void clrmark(char c)
 		return;
 	if (m->m_scrpos.pos == NULL_POSITION)
 	{
-		bell();
+		lbell();
 		return;
 	}
 	m->m_scrpos.pos = NULL_POSITION;

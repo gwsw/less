@@ -64,7 +64,7 @@ public void eof_bell(void)
 	}
 #endif
 	if (quiet == NOT_QUIET)
-		bell();
+		lbell();
 	else
 		vbell();
 }
@@ -250,7 +250,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			 */
 			pos_clear();
 			force = TRUE;
-			clear();
+			lclear();
 			home();
 		}
 
@@ -265,7 +265,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			force = TRUE;
 			if (top_scroll)
 			{
-				clear();
+				lclear();
 				home();
 			} else if (!first_time && !is_filtering() && full_screen)
 			{

@@ -194,7 +194,7 @@ static void after_header_message(void)
         return;
     last_msg = now;
 #endif
-    bell();
+    lbell();
     /* {{ This message displays before the file text is updated, which is not a good UX. }} */
     /** error("Cannot display text before header; use --header=- to disable header", NULL_PARG); */
 }
@@ -347,7 +347,7 @@ public void jump_loc(POSITION pos, int sline)
 		}
 		lastmark();
 		if (!top_scroll)
-			clear();
+			lclear();
 		else
 			home();
 		screen_trashed_num(0);

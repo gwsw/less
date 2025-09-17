@@ -2587,6 +2587,17 @@ receives a SIGUSR1 signal.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 
 of the termcap "xx" capability for the terminal.
+.IP LESS_TERMINFO_xxxx
+Where "xxxx" is any string of characters, overrides the definition
+of the terminfo "xxxx" capability for the terminal.
+You can use either LESS_TERMCAP_xx or LESS_TERMINFO_xxxx to override
+a terminal capability, regardless of whether
+.B less
+is built with the
+.B termcap
+or the
+.B terminfo
+library.
 .IP LESS_TERMCAP_BRACKETED_PASTE_START
 Overrides the standard ANSI escape sequence to enable bracketed paste.
 This is used when the \-\-no-paste option is in effect.

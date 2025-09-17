@@ -473,7 +473,7 @@ static int mca_opt_nonfirst_char(char c)
 		}
 	} else if (!ambig)
 	{
-		bell();
+		lbell();
 	}
 	return (MCA_MORE);
 }
@@ -786,7 +786,7 @@ static int mca_char(char c)
 			/* Redraw the search prompt and search string. */
 			if (is_screen_trashed() || !full_screen)
 			{
-				clear();
+				lclear();
 				repaint();
 			}
 			mca_search1();
@@ -842,7 +842,7 @@ static void make_display(void)
 	 * We need to clear and repaint screen before any change.
 	 */
 	if (!full_screen && !(quit_if_one_screen && one_screen))
-		clear();
+		lclear();
 	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
 	 */
@@ -1311,7 +1311,7 @@ static int forw_loop(int until_hilite)
 	{
 		if (until_hilite && highest_hilite > curr_len)
 		{
-			bell();
+			lbell();
 			break;
 		}
 		make_display();
@@ -2134,7 +2134,7 @@ public void commands(void)
 			cmd_exec();
 			if (new_ifile == NULL_IFILE)
 			{
-				bell();
+				lbell();
 				break;
 			}
 			if (edit_ifile(new_ifile) != 0)
@@ -2344,7 +2344,7 @@ public void commands(void)
 			break;
 
 		default:
-			bell();
+			lbell();
 			break;
 		}
 	}

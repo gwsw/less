@@ -41,7 +41,7 @@ extern long jump_sline_fraction;
 static RETSIGTYPE u_interrupt(int type)
 {
 	(void) type;
-	bell();
+	lbell();
 #if OS2
 	LSIGNAL(SIGINT, SIG_ACK);
 #endif
@@ -91,10 +91,10 @@ static RETSIGTYPE stop(int type)
  * "Window" change handler
  */
 	/* ARGSUSED*/
-public RETSIGTYPE winch(int type)
+public RETSIGTYPE lwinch(int type)
 {
 	(void) type;
-	LSIGNAL(SIG_LESSWINDOW, winch);
+	LSIGNAL(SIG_LESSWINDOW, lwinch);
 #if LESSTEST
 	/*
 	 * Ignore window changes during lesstest.
@@ -180,10 +180,10 @@ public void init_signals(int on)
 		(void) LSIGNAL(SIGTSTP, !secure_allow(SF_STOP) ? SIG_IGN : stop);
 #endif
 #ifdef SIGWINCH
-		(void) LSIGNAL(SIGWINCH, winch);
+		(void) LSIGNAL(SIGWINCH, lwinch);
 #endif
 #ifdef SIGWIND
-		(void) LSIGNAL(SIGWIND, winch);
+		(void) LSIGNAL(SIGWIND, lwinch);
 #endif
 #ifdef SIGQUIT
 		(void) LSIGNAL(SIGQUIT, SIG_IGN);

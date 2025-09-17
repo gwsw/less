@@ -464,7 +464,7 @@ static int cmd_ichar(constant char *cs, size_t clen)
 	if (strlen(cmdbuf) + clen >= sizeof(cmdbuf)-1)
 	{
 		/* No room in the command buffer for another char. */
-		bell();
+		lbell();
 		return (CC_ERROR);
 	}
 		
@@ -660,7 +660,7 @@ static int cmd_updown(int action)
 		/*
 		 * The current command has no history list.
 		 */
-		bell();
+		lbell();
 		return (CC_OK);
 	}
 
@@ -705,7 +705,7 @@ static int cmd_updown(int action)
 	/*
 	 * We didn't find a history entry that matches.
 	 */
-	bell();
+	lbell();
 	return (CC_OK);
 }
 
@@ -1171,7 +1171,7 @@ static int cmd_complete(int action)
 #endif /* TAB_COMPLETE_FILENAME */
 		if (tk_text == NULL)
 		{
-			bell();
+			lbell();
 			return (CC_OK);
 		}
 		if (action == EC_EXPAND)
@@ -1239,7 +1239,7 @@ static int cmd_complete(int action)
 	
 fail:
 	in_completion = FALSE;
-	bell();
+	lbell();
 	return (CC_OK);
 }
 
@@ -1281,7 +1281,7 @@ static int cmd_uchar(char c, size_t *plen)
 			} else
 			{
 				/* UTF8_INVALID or stray UTF8_TRAIL */
-				bell();
+				lbell();
 				return (CC_ERROR);
 			}
 		} else if (IS_UTF8_TRAIL(c))
@@ -1293,14 +1293,14 @@ static int cmd_uchar(char c, size_t *plen)
 			{
 				/* complete, but not well formed (non-shortest form), sequence */
 				cmd_mbc_buf_len = 0;
-				bell();
+				lbell();
 				return (CC_ERROR);
 			}
 		} else
 		{
 			/* Flush incomplete (truncated) sequence.  */
 			cmd_mbc_buf_len = 0;
-			bell();
+			lbell();
 			/* Handle new char.  */
 			goto retry;
 		}
