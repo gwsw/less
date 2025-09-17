@@ -1951,7 +1951,7 @@ pub unsafe extern "C" fn null_line() {
 pub unsafe extern "C" fn forw_raw_line_len(
     curr_pos: POSITION,
     read_len: isize,
-) -> (POSITION, usize, usize) {
+) -> (POSITION, &u8, usize) {
     let mut n = 0;
     let mut c = 0;
     let mut new_pos = 0;
@@ -1981,10 +1981,10 @@ pub unsafe extern "C" fn forw_raw_line_len(
         }
     }
     linebuf.buf[n] = 0;
-    (new_pos, 0, n)
+    (new_pos, linebuf.buf, n)
 }
 
-pub unsafe extern "C" fn forw_raw_line(curr_pos: POSITION) -> (POSITION, usize, usize) {
+pub unsafe extern "C" fn forw_raw_line(curr_pos: POSITION) -> (POSITION, &u8, usize) {
     forw_raw_line_len(curr_pos, -1)
 }
 
