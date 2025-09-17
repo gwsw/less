@@ -155,4 +155,21 @@
 #define SK_BACKTAB             15
 #define SK_CTL_BACKSPACE       16
 #define SK_BACKSPACE           17
+#define SK_PAD_U               18
+#define SK_PAD_D               19
+#define SK_PAD_R               20
+#define SK_PAD_L               21
+#define SK_PAD_UR              22
+#define SK_PAD_UL              23
+#define SK_PAD_DR              24
+#define SK_PAD_DL              25
+#define SK_PAD_CENTER          26
+#define SK_PAD_STAR            27
+#define SK_PAD_SLASH           28
+#define SK_PAD_DASH            29
+#define SK_PAD_PLUS            30
+#define SK_PAD_DOT             31
+#define SK_PAD_COMMA           32
+#define SK_PAD_ZERO            33
+
 #define SK_CONTROL_K           40

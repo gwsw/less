@@ -1158,6 +1158,54 @@ public constant char * special_key_str(int key)
 	case SK_END:
 		s = ltgetstr("kend", "@7", &sp);
 		break;
+	case SK_PAD_UL:
+		s = ltgetstr("ka1", "K1", &sp);
+		break;
+	case SK_PAD_U:
+		s = ltgetstr("ka2", NULL, &sp);
+		break;
+	case SK_PAD_UR:
+		s = ltgetstr("ka3", "K3", &sp);
+		break;
+	case SK_PAD_L:
+		s = ltgetstr("kb1", NULL, &sp);
+		break;
+	case SK_PAD_CENTER:
+		s = ltgetstr("kb2", "K2", &sp);
+		break;
+	case SK_PAD_R:
+		s = ltgetstr("kb3", NULL, &sp);
+		break;
+	case SK_PAD_DL:
+		s = ltgetstr("kc1", "K4", &sp);
+		break;
+	case SK_PAD_D:
+		s = ltgetstr("kc2", NULL, &sp);
+		break;
+	case SK_PAD_DR:
+		s = ltgetstr("kc3", "K5", &sp);
+		break;
+	case SK_PAD_STAR:
+		s = ltgetstr("kpMUL", NULL, &sp);
+		break;
+	case SK_PAD_SLASH:
+		s = ltgetstr("kpDIV", NULL, &sp);
+		break;
+	case SK_PAD_DASH:
+		s = ltgetstr("kpSUB", NULL, &sp);
+		break;
+	case SK_PAD_PLUS:
+		s = ltgetstr("kpADD", NULL, &sp);
+		break;
+	case SK_PAD_DOT:
+		s = ltgetstr("kpDOT", NULL, &sp);
+		break;
+	case SK_PAD_COMMA:
+		s = ltgetstr("kpCMA", NULL, &sp);
+		break;
+	case SK_PAD_ZERO:
+		s = ltgetstr("kpZRO", NULL, &sp);
+		break;
 	case SK_DELETE:
 		s = ltgetstr("kdch1", "kD", &sp);
 		if (s == NULL)

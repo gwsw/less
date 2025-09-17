@@ -183,6 +183,24 @@ static unsigned char cmdtable[] =
 	'!',0,                          A_SHELL,
 	'#',0,                          A_PSHELL,
 	'+',0,                          A_FIRSTCMD,
+
+	SK(SK_PAD_U),0,                 A_B_LINE,
+	SK(SK_PAD_D),0,                 A_F_LINE,
+	SK(SK_PAD_R),0,                 A_RSHIFT,
+	SK(SK_PAD_L),0,                 A_LSHIFT,
+	SK(SK_PAD_UR),0,                A_B_SCREEN,
+	SK(SK_PAD_UL),0,                A_GOLINE,
+	SK(SK_PAD_DR),0,                A_F_SCREEN,
+	SK(SK_PAD_DL),0,                A_GOEND,
+	SK(SK_PAD_STAR),0,              A_NOACTION|A_EXTRA,   '*',0,
+	SK(SK_PAD_SLASH),0,             A_NOACTION|A_EXTRA,   '/',0,
+	SK(SK_PAD_DASH),0,              A_NOACTION|A_EXTRA,   '-',0,
+	SK(SK_PAD_PLUS),0,              A_NOACTION|A_EXTRA,   '+',0,
+	SK(SK_PAD_DOT),0,               A_NOACTION|A_EXTRA,   '.',0,
+	SK(SK_PAD_COMMA),0,             A_NOACTION,
+	SK(SK_PAD_ZERO),0,              A_NOACTION|A_EXTRA,   '0',0,
+	SK(SK_PAD_CENTER),0,            A_NOACTION,
+
 	ESC,'[','2','0','0','~',0,      A_START_PASTE,
 	ESC,'[','2','0','1','~',0,      A_END_PASTE,
 
@@ -234,6 +252,22 @@ static unsigned char edittable[] =
 	ESC,'j',0,                      EC_DOWN,        /* ESC j */
 	SK(SK_DOWN_ARROW),0,            EC_DOWN,        /* DOWNARROW */
 	CONTROL('G'),0,                 EC_ABORT,       /* CTRL-G */
+	SK(SK_PAD_U),0,                 EC_UP,
+	SK(SK_PAD_D),0,                 EC_DOWN,
+	SK(SK_PAD_R),0,                 EC_RIGHT,
+	SK(SK_PAD_L),0,                 EC_LEFT,
+	SK(SK_PAD_UR),0,                A_NOACTION,
+	SK(SK_PAD_UL),0,                A_NOACTION,
+	SK(SK_PAD_DR),0,                A_NOACTION,
+	SK(SK_PAD_DL),0,                A_NOACTION,
+	SK(SK_PAD_STAR),0,              A_NOACTION|A_EXTRA,   '*',0,
+	SK(SK_PAD_SLASH),0,             A_NOACTION|A_EXTRA,   '/',0,
+	SK(SK_PAD_DASH),0,              A_NOACTION|A_EXTRA,   '-',0,
+	SK(SK_PAD_PLUS),0,              A_NOACTION|A_EXTRA,   '+',0,
+	SK(SK_PAD_DOT),0,               A_NOACTION|A_EXTRA,   '.',0,
+	SK(SK_PAD_COMMA),0,             A_NOACTION|A_EXTRA,   ',',0,
+	SK(SK_PAD_ZERO),0,              A_NOACTION|A_EXTRA,   '0',0,
+	SK(SK_PAD_CENTER),0,            A_NOACTION,
 	ESC,'[','M',0,                  EC_X11MOUSE,    /* X11 mouse report */
 	ESC,'[','<',0,                  EC_X116MOUSE,   /* X11 1006 mouse report */
 	ESC,'[','2','0','0','~',0,      A_START_PASTE,  /* open paste bracket */
