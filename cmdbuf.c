@@ -455,39 +455,6 @@ static int cmd_left(void)
 }
 
 /*
- * Insert a char into the command buffer, at the current position.
- */
-static int cmd_ichar(constant char *cs, size_t clen)
-{
-	char *s;
-	
-	if (strlen(cmdbuf) + clen >= sizeof(cmdbuf)-1)
-	{
-		/* No room in the command buffer for another char. */
-		lbell();
-		return (CC_ERROR);
-	}
-		
-	/*
-	 * Make room for the new character (shift the tail of the buffer right).
-	 */
-	for (s = &cmdbuf[strlen(cmdbuf)];  s >= cp;  s--)
-		s[clen] = s[0];
-	/*
-	 * Insert the character into the buffer.
-	 */
-	for (s = cp;  s < cp + clen;  s++)
-		*s = *cs++;
-	/*
-	 * Reprint the tail of the line from the inserted char.
-	 */
-	have_updown_match = FALSE;
-	cmd_repaint(cp);
-	cmd_right();
-	return (CC_OK);
-}
-
-/*
  * Backspace in the command buffer.
  * Delete the char to the left of the cursor.
  */
@@ -551,6 +518,39 @@ static int cmd_delete(void)
 	 */
 	cmd_right();
 	cmd_erase();
+	return (CC_OK);
+}
+
+/*
+ * Insert a char into the command buffer, at the current position.
+ */
+static int cmd_ichar(constant char *cs, size_t clen)
+{
+	char *s;
+	
+	if (strlen(cmdbuf) + clen >= sizeof(cmdbuf)-1)
+	{
+		/* No room in the command buffer for another char. */
+		lbell();
+		return (CC_ERROR);
+	}
+		
+	/*
+	 * Make room for the new character (shift the tail of the buffer right).
+	 */
+	for (s = &cmdbuf[strlen(cmdbuf)];  s >= cp;  s--)
+		s[clen] = s[0];
+	/*
+	 * Insert the character into the buffer.
+	 */
+	for (s = cp;  s < cp + clen;  s++)
+		*s = *cs++;
+	/*
+	 * Reprint the tail of the line from the inserted char.
+	 */
+	have_updown_match = FALSE;
+	cmd_repaint(cp);
+	cmd_right();
 	return (CC_OK);
 }
 
