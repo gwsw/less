@@ -1168,10 +1168,10 @@ public constant char * special_key_str(int key)
 		s = ltgetstr("kcbt", "kB", &sp);
 		break;
 	case SK_CTL_RIGHT_ARROW:
-		s = ltgetstr("kRIT5", "kr", &sp);
+		s = ltgetstr("kRIT5", NULL, &sp);
 		break;
 	case SK_CTL_LEFT_ARROW:
-		s = ltgetstr("kLFT5", "kl", &sp);
+		s = ltgetstr("kLFT5", NULL, &sp);
 		break;
 	case SK_F1:
 		s = ltgetstr("kf1", "k1", &sp);
