@@ -1069,6 +1069,9 @@ public constant char * special_key_str(int key)
 	case SK_END:
 		s = windowid ? ltgetstr("kend", "@7", &sp) : k_end;
 		break;
+	case SK_F1:
+		s = windowid ? ltgetstr("kf1", "k1", &sp) : k_f1;
+		break;
 	case SK_DELETE:
 		s = windowid ? ltgetstr("kdch1", "kD", &sp) : k_delete;
 		if (s == NULL)
@@ -1157,6 +1160,9 @@ public constant char * special_key_str(int key)
 		break;
 	case SK_END:
 		s = ltgetstr("kend", "@7", &sp);
+		break;
+	case SK_F1:
+		s = ltgetstr("kf1", "k1", &sp);
 		break;
 	case SK_PAD_UL:
 		s = ltgetstr("ka1", "K1", &sp);
