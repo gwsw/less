@@ -43,7 +43,7 @@ extern int errno;
 #include <sys/utsname.h>
 #endif
 
-#if HAVE_POLL && !MSDOS_COMPILER
+#if HAVE_POLL && !MSDOS_COMPILER && !defined(__MVS__)
 #define USE_POLL 1
 static lbool use_poll = TRUE;
 #else
