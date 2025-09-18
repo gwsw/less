@@ -1057,8 +1057,8 @@ v681  8/2/25    Fix bug using -g with -J; fix bug when pasting input
 v682  8/24/25   Add --cmd; fix lesskey bug using #stop; fix lesskey bug
                 using "invalid"; fix some emoji bugs.
 v683  9/4/25    Fix bug if cmd char received during file read.
-v684            Allow mixing of options and filenames on command line;
+v684  9/18/25   Allow mixing of options and filenames on command line;
                 add LESS_TERMCAP_SUSPEND & LESS_TERMCAP_RESUME.
 */
 
-char version[] = "684x";
+char version[] = "684";
