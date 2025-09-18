@@ -1161,6 +1161,18 @@ public constant char * special_key_str(int key)
 	case SK_END:
 		s = ltgetstr("kend", "@7", &sp);
 		break;
+	case SK_INSERT:
+		s = ltgetstr("kich1", "kI", &sp);
+		break;
+	case SK_BACKTAB:
+		s = ltgetstr("kcbt", "kB", &sp);
+		break;
+	case SK_CTL_RIGHT_ARROW:
+		s = ltgetstr("kRIT5", "kr", &sp);
+		break;
+	case SK_CTL_LEFT_ARROW:
+		s = ltgetstr("kLFT5", "kl", &sp);
+		break;
 	case SK_F1:
 		s = ltgetstr("kf1", "k1", &sp);
 		break;
