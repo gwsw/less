@@ -1503,7 +1503,7 @@ public void get_term(void)
 		sc_backspace = "\b";
 	else
 	{
-		sc_backspace = ltgetstr(NULL, "bc", &sp);
+		sc_backspace = ltgetstr("OTbc", "bc", &sp);
 		if (sc_backspace == NULL || *sc_backspace == '\0')
 			sc_backspace = "\b";
 	}
