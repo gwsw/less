@@ -1670,10 +1670,10 @@ Delete the word to the left of the cursor.
 (That is, CONTROL and DELETE simultaneously.)
 Delete the word under the cursor.
 .IP "INSERT or [ ESC-i ]"
-Toggle insert mode.
+Toggle between insert mode and replace mode.
 When insert mode is on (the default), typing a character adds it to the
 line at the cursor position.
-When insert mode is off, typing a character replaces the character 
+When replace mode is on, typing a character replaces the character 
 at the cursor position.
 .IP "UPARROW [ ESC-k ]"
 Retrieve the previous command line.
@@ -2614,6 +2614,14 @@ Overrides the standard ANSI escape sequence to enable mouse reporting.
 This is used when the \-\-mouse option is in effect.
 .IP LESS_TERMCAP_MOUSE_END
 Overrides the standard ANSI escape sequence to disable mouse reporting.
+.IP LESS_TERMCAP_NCURSOR
+Set normal cursor.
+This string will be sent to the terminal when switching to 
+insert mode on the command line.
+.IP LESS_TERMCAP_RCURSOR
+Set replace cursor.
+This string will be sent to the terminal when switching to 
+replace mode on the command line.
 .IP LESS_TERMCAP_SUSPEND
 Defines an escape sequence to temporarily suspend screen updates.
 This is sent to the terminal before clearing the screen.

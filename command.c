@@ -149,6 +149,8 @@ static void start_mca(int action, constant char *prompt, void *mlist, int cmdfla
 {
 	set_mca(action);
 	cmd_putstr(prompt);
+	if (action != A_PREFIX)
+		cmd_setcursor(TRUE);
 	set_mlist(mlist, cmdflags);
 }
 
@@ -207,6 +209,7 @@ static void mca_search1(void)
 		cmd_putstr("/");
 	else
 		cmd_putstr("?");
+	cmd_setcursor(TRUE);
 	forw_prompt = 0;
 }
 
@@ -259,6 +262,7 @@ static void exec_mca(void)
 
 	cmd_exec();
 	cbuf = get_cmdbuf();
+	cmd_setcursor(FALSE);
 	if (cbuf == NULL)
 		return;
 

@@ -326,6 +326,23 @@ static void cmd_repaint_curr(void)
 }
 
 /*
+ * Set cursor type.
+ */
+public void cmd_setcursor(lbool editing)
+{
+	set_lcursor(editing && !insert_mode);
+}
+
+/*
+ * Restore default cursor and return CC_QUIT.
+ */
+static int cmd_quit(void)
+{
+	cmd_setcursor(FALSE);
+	return CC_QUIT;
+}
+
+/*
  * Shift the cmdbuf display left a half-screen.
  */
 static void cmd_lshift(void)
@@ -470,7 +487,7 @@ static int cmd_erase(void)
 		 * Backspace past beginning of the buffer:
 		 * this usually means abort the command.
 		 */
-		return (CC_QUIT);
+		return cmd_quit();
 	}
 	/*
 	 * Move cursor left (to the char being erased).
@@ -500,7 +517,7 @@ static int cmd_erase(void)
 	 * to abort the current command, if CF_QUIT_ON_ERASE is set.
 	 */
 	if ((curr_cmdflags & CF_QUIT_ON_ERASE) && cp == cmdbuf && *cp == '\0')
-		return (CC_QUIT);
+		return cmd_quit();
 	return (CC_OK);
 }
 
@@ -615,7 +632,7 @@ static int cmd_kill(void)
 	if (cmdbuf[0] == '\0')
 	{
 		/* Buffer is already empty; abort the current command. */
-		return (CC_QUIT);
+		return cmd_quit();
 	}
 	cmd_offset = 0;
 	cmd_home();
@@ -628,7 +645,7 @@ static int cmd_kill(void)
 	 * to abort the current command, if CF_QUIT_ON_ERASE is set.
 	 */
 	if (curr_cmdflags & CF_QUIT_ON_ERASE)
-		return (CC_QUIT);
+		return cmd_quit();
 	return (CC_OK);
 }
 
@@ -908,6 +925,7 @@ static int cmd_edit(char c, lbool stay_in_completion)
 	case EC_INSERT:
 		not_in_completion();
 		insert_mode = !insert_mode;
+		cmd_setcursor(TRUE);
 		return (CC_OK);
 	case EC_BACKSPACE:
 		not_in_completion();
@@ -918,7 +936,7 @@ static int cmd_edit(char c, lbool stay_in_completion)
 	case EC_ABORT:
 		not_in_completion();
 		(void) cmd_kill();
-		return (CC_QUIT);
+		return cmd_quit();
 	case EC_W_BACKSPACE:
 		not_in_completion();
 		return (cmd_werase());

@@ -247,6 +247,8 @@ static constant char
 	*sc_e_bracketed_paste,  /* End bracketed paste mode */
 	*sc_suspend,            /* Suspend screen updates */
 	*sc_resume,             /* Resume screen updates */
+	*sc_norm_cursor,        /* Set normal cursor */
+	*sc_repl_cursor,        /* Set replace cursor */
 	*sc_init,               /* Startup terminal initialization */
 	*sc_deinit;             /* Exit terminal de-initialization */
 
@@ -1466,6 +1468,13 @@ public void get_term(void)
 	if (sc_resume == NULL)
 		sc_resume = "";
 
+	sc_norm_cursor = ltgetstr("NCURSOR", "NCURSOR", &sp);
+	if (sc_norm_cursor == NULL)
+		sc_norm_cursor = "";
+	sc_repl_cursor = ltgetstr("RCURSOR", "RCURSOR", &sp);
+	if (sc_repl_cursor == NULL)
+		sc_repl_cursor = "";
+
 	sc_init = ltgetstr("smcup", "ti", &sp);
 	if (sc_init == NULL)
 		sc_init = "";
@@ -1912,6 +1921,16 @@ public void resume_screen(void)
 }
 
 /*
+ * Set cursor type.
+ */
+public void set_lcursor(lbool repl)
+{
+#if !MSDOS_COMPILER
+	ltputs(repl ? sc_repl_cursor : sc_norm_cursor, 1, putchr);
+#endif
+}
+
+/*
  * Initialize terminal
  */
 public void init(void)
@@ -1986,6 +2005,7 @@ public void deinit(void)
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
 	{
+		set_lcursor(FALSE);
 		if (mousecap)
 			deinit_mouse();
         if (no_paste)
@@ -2002,6 +2022,7 @@ public void deinit(void)
 	win32_deinit_vt_term();
 	if (!(quit_if_one_screen && one_screen))
 	{
+		set_lcursor(FALSE);
 		if (mousecap)
 			deinit_mouse();
 		if (!no_init)
