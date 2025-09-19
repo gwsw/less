@@ -1669,6 +1669,12 @@ Delete the word to the left of the cursor.
 .IP "\(haDELETE [ ESC-X or ESC-DELETE ]"
 (That is, CONTROL and DELETE simultaneously.)
 Delete the word under the cursor.
+.IP "INSERT or [ ESC-i ]"
+Toggle insert mode.
+When insert mode is on (the default), typing a character adds it to the
+line at the cursor position.
+When insert mode is off, typing a character replaces the character 
+at the cursor position.
 .IP "UPARROW [ ESC-k ]"
 Retrieve the previous command line.
 If you first enter some text and then press UPARROW,
