@@ -1,10 +1,15 @@
 use crate::defs::*;
-use crate::line::forw_raw_line;
 use crate::ifile::{IFileHandle, IFileManager, ScrPos};
+use crate::line::forw_raw_line;
 use ::c2rust_bitfields;
+use glob::glob;
 use std::any::Any;
 use std::ffi::{CStr, CString};
-use std::path::Path;
+use std::fs::File;
+use std::fs::OpenOptions;
+use std::io::ErrorKind;
+use std::os::unix::ffi::OsStrExt;
+use std::path::{Path, PathBuf};
 
 extern "C" {
     pub type _IO_wide_data;
@@ -18,16 +23,6 @@ extern "C" {
     fn close(__fd: std::ffi::c_int) -> std::ffi::c_int;
     fn isatty(__fd: std::ffi::c_int) -> std::ffi::c_int;
     fn free(_: *mut std::ffi::c_void);
-    fn strcmp(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> std::ffi::c_int;
-    fn strncmp(
-        _: *const std::ffi::c_char,
-        _: *const std::ffi::c_char,
-        _: std::ffi::c_ulong,
-    ) -> std::ffi::c_int;
-    fn strstr(_: *const std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
-    fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
-    fn skipsp(s: *mut std::ffi::c_char) -> *mut std::ffi::c_char;
-    fn skipspc(s: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn quit(status: std::ffi::c_int);
     fn end_logfile();
     fn ch_length() -> POSITION;
@@ -89,27 +84,8 @@ extern "C" {
     static mut closequote: std::ffi::c_char;
     static mut logfile: std::ffi::c_int;
     static mut force_logfile: std::ffi::c_int;
-    static mut namelogfile: *mut std::ffi::c_char;
+    static mut namelogfile: Option<String>;
 }
-pub type __dev_t = std::ffi::c_ulong;
-pub type __uid_t = std::ffi::c_uint;
-pub type __gid_t = std::ffi::c_uint;
-pub type __ino_t = std::ffi::c_ulong;
-pub type __mode_t = std::ffi::c_uint;
-pub type __nlink_t = std::ffi::c_ulong;
-pub type __off_t = std::ffi::c_long;
-pub type __off64_t = std::ffi::c_long;
-pub type __time_t = std::ffi::c_long;
-pub type __blksize_t = std::ffi::c_long;
-pub type __blkcnt_t = std::ffi::c_long;
-pub type __ssize_t = std::ffi::c_long;
-pub type __syscall_slong_t = std::ffi::c_long;
-pub type ino_t = __ino_t;
-pub type dev_t = __dev_t;
-pub type mode_t = __mode_t;
-pub type off_t = __off_t;
-pub type ssize_t = __ssize_t;
-pub type size_t = std::ffi::c_ulong;
 
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -179,25 +155,25 @@ pub struct scrpos {
     pub pos: POSITION,
     pub ln: std::ffi::c_int,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub union parg {
-    pub p_string: *const std::ffi::c_char,
-    pub p_int: std::ffi::c_int,
-    pub p_linenum: LINENUM,
-    pub p_char: std::ffi::c_char,
+#[derive(Clone)]
+pub enum Parg {
+    String(String),
+    Int(i32),
+    LineNum(LINENUM),
+    Char(char),
+    Null,
 }
-pub type PARG = parg;
+pub type PARG = Parg;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct textlist {
     pub string: *mut std::ffi::c_char,
     pub endstring: *mut std::ffi::c_char,
 }
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct MlOption {
     pub opt_name: String,
-    pub opt_func: dyn Fn(&str, usize) -> (),
+    pub opt_func: fn(&str, usize) -> (),
 }
 
 #[no_mangle]
@@ -219,7 +195,6 @@ impl TextList {
 }
 
 //FIXME stub function until set_tabs from optfunc is properly implemented
-fn set_tabs_dummy(s: &str, len: usize) {}
 fn set_tabs_dummy(s: &str, len: usize) {}
 
 /*
@@ -264,21 +239,24 @@ fn init_textlist(s: &str) -> TextList {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn forw_textlist(tlist: &Textlist, prev: Option<&String>) -> Option<&String> {
-	/*
-	 * prev is None means return the first word in the list.
-	 * Otherwise, return the word after "prev".
-	 */
+pub unsafe extern "C" fn forw_textlist<'a>(
+    tlist: &'a TextList,
+    prev: Option<&String>,
+) -> Option<&'a String> {
+    /*
+     * prev is None means return the first word in the list.
+     * Otherwise, return the word after "prev".
+     */
     if prev.is_none() {
-        return tlist.string[0];
+        return Some(&tlist.strings[0]);
     }
     let len = tlist.strings.len();
-    for (i, s) in tlist.strings.enumerate() {
-        if s == prev {
+    for (i, s) in tlist.strings.iter().enumerate() {
+        if Some(s) == prev {
             if i + 1 > len {
                 return None;
             } else {
-                return tlist.strings[i + 1];
+                return Some(&tlist.strings[i + 1]);
             }
         }
     }
@@ -286,19 +264,22 @@ pub unsafe extern "C" fn forw_textlist(tlist: &Textlist, prev: Option<&String>) 
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn back_textlist(tlist: &TextList, prev: Option<&String>) -> Option<&String> {
-	/*
-	 * prev is None means return the last word in the list.
-	 * Otherwise, return the word before "prev".
-	 */
+pub unsafe extern "C" fn back_textlist<'a>(
+    tlist: &'a TextList,
+    prev: Option<&String>,
+) -> Option<&'a String> {
+    /*
+     * prev is None means return the last word in the list.
+     * Otherwise, return the word before "prev".
+     */
     if prev.is_none() {
         return tlist.strings.last();
     }
     let len = tlist.strings.len();
-    for (i, s) in tlist.strings.enumerate() {
-        if s == prev {
+    for (i, s) in tlist.strings.iter().enumerate() {
+        if Some(s) == prev {
             if i > 0 {
-                return tlist.strings[i - 1];
+                return Some(&tlist.strings[i - 1]);
             } else {
                 return None;
             }
@@ -312,19 +293,19 @@ pub unsafe extern "C" fn back_textlist(tlist: &TextList, prev: Option<&String>) 
  */
 unsafe extern "C" fn modeline_option(s: &str, opt_len: usize) {
     let mut options: [MlOption; 2] = [
-            MlOption {
-                opt_name: "ts=",
-                opt_func: set_tabs_dummy,
-            },
-            MlOption {
-                opt_name: "tabstop=",
-                opt_func: set_tabs_dummy,
-            },
+        MlOption {
+            opt_name: "ts=".into(),
+            opt_func: set_tabs_dummy,
+        },
+        MlOption {
+            opt_name: "tabstop=".into(),
+            opt_func: set_tabs_dummy,
+        },
     ];
     for opt in options {
-        name_len = opt.opt_name.len();
-        if opt_len > name_len && s.starts_with(opt.opt_name) {
-            opt.opt_func(s[name_len..], opt_len - name_len);
+        let name_len = opt.opt_name.len();
+        if opt_len > name_len && s.starts_with(&opt.opt_name) {
+            (opt.opt_func)(&s[name_len..], opt_len - name_len);
         }
     }
 }
@@ -335,7 +316,7 @@ unsafe extern "C" fn modeline_option(s: &str, opt_len: usize) {
  */
 unsafe extern "C" fn modeline_option_len(s: &str) -> usize {
     let mut prev = ' ';
-    for (i, c) in s.chars_indices() {
+    for (i, c) in s.char_indices() {
         if prev != '\\' && (c == ' ' || c == ':') {
             return i;
         }
@@ -347,22 +328,19 @@ unsafe extern "C" fn modeline_option_len(s: &str) -> usize {
 /*
  * Parse colon- or space-separated option settings in a modeline.
  */
-unsafe extern "C" fn modeline_options(
-    s: &str,
-    end_char: char,
-) {
+unsafe extern "C" fn modeline_options(s: &str, end_char: char) {
     let mut s = s;
     loop {
         let mut opt_len = 0;
         s = s.trim_start();
-        if s.len() == 0 || s.chars().next() == end_char {
+        if s.len() == 0 || s.chars().next() == Some(end_char) {
             break;
         }
-        opt_len = modelin_option(s);
+        opt_len = modeline_option_len(s);
         modeline_option(s, opt_len);
-        s = s[opt_len..];
+        s = &s[opt_len..];
         if s.len() > 0 {
-            s = s[1..]; // skip past the separator
+            s = &s[1..]; // skip past the separator
         }
     }
 }
@@ -373,13 +351,14 @@ unsafe extern "C" fn modeline_options(
 unsafe extern "C" fn check_modeline(line: &str) {
     let pgms: [&str; 4] = ["less:", "vim:", "vi:", "ex:"];
     let mut line = line;
-    for (i, pgm) in pgms.iter.enumerate() {
+    for (i, pgm) in pgms.iter().enumerate() {
         if let Some(idx) = line.find(pgm) {
             let s = line[idx + pgm.len()..].trim_start();
-            if line[idx..] == line || lint.nth(idx - 1) == ' ' {
+            if &line[idx..] == line || line.chars().nth(idx - 1) == Some(' ') {
                 if s == "set" {
-                    modeline_options(s[4..], ':');
-                } else if i != 0 { // "less:" requires "set"
+                    modeline_options(&s[4..], ':');
+                } else if i != 0 {
+                    // "less:" requires "set"
                     modeline_options(s, '\0');
                 }
                 break;
@@ -398,33 +377,32 @@ unsafe extern "C" fn check_modeline(line: &str) {
 unsafe extern "C" fn check_modelines() {
     let mut pos = 0;
     for i in 0..modelines {
-        abort_sigs() {
+        if abort_sigs() {
             return;
         }
         let (pos, line, _) = forw_raw_line(pos);
         if pos == NULL_POSITION {
             break;
         }
-        check_modeline(line);
+        check_modeline(std::str::from_utf8_unchecked(line));
     }
 }
 
 /*
  * Close a pipe opened via popen.
  */
+// FIXME - add a proper implementation
 unsafe extern "C" fn close_pipe(mut pipefd: *mut FILE) {
     let mut status: std::ffi::c_int = 0;
     let mut p: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
-    let mut parg: PARG = parg {
-        p_string: 0 as *const std::ffi::c_char,
-    };
+    let mut parg = Parg::Null;
     if pipefd.is_null() {
         return;
     }
     status = pclose(pipefd);
     if status == -(1 as std::ffi::c_int) {
         p = errno_message(b"pclose\0" as *const u8 as *const std::ffi::c_char);
-        parg.p_string = p;
+        parg = Parg::String(CStr::from_ptr(p).to_string_lossy().into_owned());
         error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
         free(p as *mut std::ffi::c_void);
         return;
@@ -435,7 +413,7 @@ unsafe extern "C" fn close_pipe(mut pipefd: *mut FILE) {
     if status & 0x7f as std::ffi::c_int == 0 as std::ffi::c_int {
         let mut s: std::ffi::c_int = (status & 0xff00 as std::ffi::c_int) >> 8 as std::ffi::c_int;
         if s != 0 as std::ffi::c_int {
-            parg.p_int = s;
+            parg = Parg::Int(s);
             error(
                 b"Input preprocessor failed (status %d)\0" as *const u8 as *const std::ffi::c_char,
                 &mut parg,
@@ -449,8 +427,12 @@ unsafe extern "C" fn close_pipe(mut pipefd: *mut FILE) {
         > 0 as std::ffi::c_int
     {
         let mut sig: std::ffi::c_int = status & 0x7f as std::ffi::c_int;
-        if sig != 13 as std::ffi::c_int || ch_length() != -(1 as std::ffi::c_int) as POSITION {
-            parg.p_string = signal_message(sig);
+        if sig != 13 || ch_length() != -(1 as std::ffi::c_int) as POSITION {
+            parg = Parg::String(
+                CStr::from_ptr(signal_message(sig))
+                    .to_string_lossy()
+                    .into_owned(),
+            );
             error(
                 b"Input preprocessor terminated: %s\0" as *const u8 as *const std::ffi::c_char,
                 &mut parg,
@@ -458,8 +440,8 @@ unsafe extern "C" fn close_pipe(mut pipefd: *mut FILE) {
         }
         return;
     }
-    if status != 0 as std::ffi::c_int {
-        parg.p_int = status;
+    if status != 0 {
+        parg = Parg::Int(status);
         error(
             b"Input preprocessor exited with status %x\0" as *const u8 as *const std::ffi::c_char,
             &mut parg,
@@ -467,15 +449,15 @@ unsafe extern "C" fn close_pipe(mut pipefd: *mut FILE) {
     }
 }
 
-
 /*
  * Drain and close an input pipe if needed.
  */
 #[no_mangle]
 pub unsafe extern "C" fn close_altpipe(ifiles: &mut IFileManager, ifile: Option<IFileHandle>) {
     let altpipe = ifiles.get_altpipe(ifile);
-    if !altpipe.is_none() && ch_getflags() & CH_KEEPOPEN {
-        close_pipe(altpipe);
+    if !altpipe.is_none() && ch_getflags() & CH_KEEPOPEN != 0 {
+        // FIXME  replace with proper implementation
+        //close_pipe(altpipe);
         ifiles.set_altpipe(ifile, None);
     }
 }
@@ -485,46 +467,52 @@ pub unsafe extern "C" fn close_altpipe(ifiles: &mut IFileManager, ifile: Option<
  * May or may not close the pipe.
  */
 #[no_mangle]
-pub unsafe extern "C" fn check_altpipe_error(ifiles: &IFileManager) {
+pub unsafe extern "C" fn check_altpipe_error(ifiles: &mut IFileManager) {
     if show_preproc_error == 0 {
         return;
     }
     if !curr_ifile.is_none() && !(ifiles.get_altfilename(curr_ifile)).is_none() {
-        ifiles.close_altpipe(curr_ifile);
+        close_altpipe(ifiles, curr_ifile);
     }
 }
 
 /*
  * Close the current input file.
  */
-unsafe extern "C" fn close_file(ifils: &mut IFileManager) {
-    let scrpos = SrcPos { pos: 0, ln: 0 };
-    let mut altfilename: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
+unsafe extern "C" fn close_file(ifiles: &mut IFileManager) {
+    let mut scr_pos = ScrPos { pos: 0, ln: 0 };
+    let mut altfilename: Option<&Path>;
     if curr_ifile.is_none() {
         return;
     }
-	/*
-	 * Save the current position so that we can return to
-	 * the same position if we edit this file again.
-	 */
-    get_scrpos(&scrpos, 0);
-    if scrpos.pos != NULL_POSITION {
-        ifiles.store_pos(curr_ifile, &mut scrpos);
-        ifiles.lastmark();
+    /*
+     * Save the current position so that we can return to
+     * the same position if we edit this file again.
+     */
+    let mut scrp = scrpos { pos: 0, ln: 0 };
+    get_scrpos(&mut scrp, 0);
+    if scrp.pos != NULL_POSITION {
+        scr_pos.pos = scrp.pos as u64;
+        scr_pos.ln = scrp.ln;
+        ifiles.store_pos(curr_ifile, scr_pos);
+        lastmark();
     }
-	/*
-	 * Close the file descriptor, unless it is a pipe.
-	 */
+    /*
+     * Close the file descriptor, unless it is a pipe.
+     */
     ch_close();
-	/*
-	 * If we opened a file using an alternate name,
-	 * do special stuff to close it.
-	 */
-    altfilename = ifiles.get_altfilename(curr_ifile);
-    if !altfilename.is_none() {
-        ifiles.close_altpipe(curr_ifile);
-        ifiles.close_altfile(altfilename, ifiles.get_filename(curr_ifile));
-        ifiles.set_altfilename(curr_ifile, None);
+    /*
+     * If we opened a file using an alternate name,
+     * do special stuff to close it.
+     */
+    if let Some(altfilename) = ifiles.get_altfilename(curr_ifile).map(|p| p.to_path_buf()) {
+        let filename = ifiles.get_filename(curr_ifile).unwrap().to_path_buf();
+        close_altpipe(ifiles, curr_ifile);
+        close_altfile(
+            altfilename.as_os_str().as_bytes().as_ptr() as *const i8,
+            filename.as_os_str().as_bytes().as_ptr() as *const i8,
+        );
+        ifiles.set_altfilename(curr_ifile, None::<&Path>);
     }
     curr_ifile = None;
     curr_dev = 0;
@@ -537,37 +525,50 @@ unsafe extern "C" fn close_file(ifils: &mut IFileManager) {
  * Filename == NULL means just close the current file.
  */
 #[no_mangle]
-pub unsafe extern "C" fn edit(ifiles: &IFileManager, filename: Option<impl AsRef<Path>>) -> i32 {
+pub unsafe extern "C" fn edit(
+    ifiles: &mut IFileManager,
+    filename: Option<impl AsRef<Path>>,
+) -> i32 {
     if filename.is_none() {
         return edit_ifile(ifiles, None);
     }
-    return edit_ifile(ifiles, ifiles.get_ifile(filename, curr_ifile));
+    let h = ifiles.get_ifile(filename.unwrap(), curr_ifile);
+    return edit_ifile(ifiles, Some(h));
 }
 
 /*
  * Clean up what edit_ifile did before error return.
  */
 unsafe extern "C" fn edit_error(
-    ifile: &mut IFileManager,
+    ifiles: &mut IFileManager,
     filename: Option<impl AsRef<Path>>,
     alt_filename: Option<impl AsRef<Path>>,
     altpipe: Option<Box<dyn Any + Send + Sync>>,
     ifile: Option<IFileHandle>,
 ) -> i32 {
     if !alt_filename.is_none() {
-        close_pipe(altpipe as *mut FILE);
-        ifiles.close_altfile(alt_filename, filename);
+        // FIXME  replace with proper implementation
+        //close_pipe(altpipe as *mut FILE);
+        close_altfile(
+            alt_filename
+                .unwrap()
+                .as_ref()
+                .as_os_str()
+                .as_bytes()
+                .as_ptr() as *const i8,
+            filename.unwrap().as_ref().as_os_str().as_bytes().as_ptr() as *const i8,
+        );
         //free(alt_filename as *mut std::ffi::c_char as *mut std::ffi::c_void);
     }
     ifiles.del_ifile(ifile);
-	/*
-	 * Re-open the current file.
-	 */
+    /*
+     * Re-open the current file.
+     */
     if curr_ifile == ifile {
-		/*
-		 * Whoops.  The "current" ifile is the one we just deleted.
-		 * Just give up.
-		 */
+        /*
+         * Whoops.  The "current" ifile is the one we just deleted.
+         * Just give up.
+         */
         quit(1);
     }
     return 1;
@@ -582,53 +583,44 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
     let mut f: std::ffi::c_int = 0;
     let mut answer: std::ffi::c_int = 0;
     let mut chflags: std::ffi::c_int = 0;
-    let mut filename: Option<String> = None;
-    let mut open_filename: Option<String> = None;
-    let mut alt_filename: Option<String> = None;
+    let mut filename: Option<PathBuf> = None;
+    let mut open_filename: Option<PathBuf> = None;
+    let mut alt_filename: Option<PathBuf> = None;
     let mut altpipe: Option<&Box<dyn Any + Send + Sync>> = None;
     let mut was_curr_ifile: Option<IFileHandle> = None;
     let mut p: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
-    let mut parg: PARG = parg {
-        p_string: 0 as *const std::ffi::c_char,
-    };
+    let mut parg: PARG = Parg::Null;
     let mut nread: ssize_t = 0 as std::ffi::c_int as ssize_t;
     if ifile == curr_ifile {
-		/*
-		 * Already have the correct file open.
-		 */
+        /*
+         * Already have the correct file open.
+         */
         return 0;
     }
     new_file = true;
     if ifile.is_some() {
-		/*
-		 * See if LESSOPEN specifies an "alternate" file to open.
-		 */
-        filename = Some(
-            ifiles
-                .get_filename(ifile)
-                .unwrap()
-                .to_string_lossy()
-                .into_owned(),
-        );
-        altpipe = ifiles.get_altpipe(ifile);
+        /*
+         * See if LESSOPEN specifies an "alternate" file to open.
+         */
+        filename = ifiles.get_filename(ifile).map(|p| p.to_path_buf());
         /*
          * File is already open.
          * chflags and f are not used by ch_init if ifile has
          * filestate which should be the case if we're here.
          * Set them here to avoid uninitialized variable warnings.
          */
-        if !altpipe.is_none() {
+        if let Some(_) = ifiles.get_altpipe(ifile) {
             chflags = 0;
             f = -1;
-            alt_filename = ifiles.get_altfilename(ifile);
+            alt_filename = ifiles.get_altfilename(ifile).map(|p| p.to_path_buf());
             open_filename = if !alt_filename.is_none() {
-                alt_filename
+                alt_filename.clone()
             } else {
-                filename
+                filename.clone()
             };
         } else {
-            if filename == Some(FAKE_HELPFILE.into());
-                || filename == Some(FAKE_EMPTYFILE.into());
+            if filename == Some(PathBuf::from(FAKE_HELPFILE))
+                || filename == Some(PathBuf::from(FAKE_EMPTYFILE))
             {
                 alt_filename = None;
             } else {
@@ -646,69 +638,107 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
                 */
             }
             open_filename = if !alt_filename.is_none() {
-                alt_filename
+                alt_filename.clone()
             } else {
-                filename
+                filename.clone()
             };
 
             chflags = 0;
             if !altpipe.is_none() {
-				/*
-				 * The alternate "file" is actually a pipe.
-				 * f has already been set to the file descriptor of the pipe
-				 * in the call to open_altfile above.
-				 * Keep the file descriptor open because it was opened
-				 * via popen(), and pclose() wants to close it.
-				 */
+                /*
+                 * The alternate "file" is actually a pipe.
+                 * f has already been set to the file descriptor of the pipe
+                 * in the call to open_altfile above.
+                 * Keep the file descriptor open because it was opened
+                 * via popen(), and pclose() wants to close it.
+                 */
                 chflags |= CH_POPENED;
-                if filename == Some("-".into()) {
+                if filename == Some(PathBuf::from("-")) {
                     chflags |= CH_KEEPOPEN;
                 }
-            } else if filename == Some("-".into()) {
-				/*
-				 * Use standard input.
-				 * Keep the file descriptor open because we can't reopen it.
-				 */
+            } else if filename == Some(PathBuf::from("-")) {
+                /*
+                 * Use standard input.
+                 * Keep the file descriptor open because we can't reopen it.
+                 */
                 f = fd0;
                 chflags |= CH_KEEPOPEN;
-				/*
-				 * Must switch stdin to BINARY mode.
-				 */
+                /*
+                 * Must switch stdin to BINARY mode.
+                 */
                 // FIXME switch to binary mode
                 //SET_BINARY(f);
-            } else if open_filename == Some(FAKE_EMPTYFILE.into()) {
+            } else if open_filename == Some(PathBuf::from(FAKE_EMPTYFILE)) {
                 f = -1;
                 chflags |= CH_NODATA;
-            } else if open_filename == Some(FAKE_HELPFILE.into()) {
+            } else if open_filename == Some(PathBuf::from(FAKE_HELPFILE)) {
                 f = -1;
                 chflags |= CH_HELPFILE;
             } else {
-                p = bad_file(CString::new(open_filename.unwrap()).unwrap().as_ptr());
+                p = bad_file(
+                    CString::new(
+                        open_filename
+                            .clone()
+                            .unwrap()
+                            .to_string_lossy()
+                            .into_owned(),
+                    )
+                    .unwrap()
+                    .as_ptr(),
+                );
                 if !p.is_null() {
                     /*
                      * It looks like a bad file.  Don't try to open it.
                      */
-                    parg.p_string = p;
+                    parg = Parg::String(CStr::from_ptr(p).to_string_lossy().into_owned());
                     error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
                     free(p as *mut std::ffi::c_void);
-                    return edit_error(filename, alt_filename, Some(*altpipe.unwrap()), ifile);
+                    return edit_error(
+                        ifiles,
+                        filename,
+                        alt_filename,
+                        Some(Box::new(altpipe.clone().unwrap())),
+                        ifile,
+                    );
                 } else {
-                    f = iopen(CString::new(open_filename.unwrap()).unwrap().as_ptr(), 0);
+                    f = iopen(
+                        CString::new(
+                            open_filename
+                                .clone()
+                                .unwrap()
+                                .to_string_lossy()
+                                .into_owned(),
+                        )
+                        .unwrap()
+                        .as_ptr(),
+                        0,
+                    );
                     if f < 0 {
                         /*
                          * Got an error trying to open it.
                          */
-                        let mut p_0: *mut std::ffi::c_char =
-                            errno_message(CString::new(filename.unwrap()).unwrap().as_ptr());
-                        parg.p_string = p_0;
+                        let mut p_0: *mut std::ffi::c_char = errno_message(
+                            CString::new(filename.clone().unwrap().to_string_lossy().into_owned())
+                                .unwrap()
+                                .as_ptr(),
+                        );
+                        parg = Parg::String(CStr::from_ptr(p_0).to_string_lossy().into_owned());
                         error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
                         free(p_0 as *mut std::ffi::c_void);
-                        return edit_error(filename, alt_filename, Some(*altpipe.unwrap()), ifile);
+                        return edit_error(
+                            ifiles,
+                            filename.clone(),
+                            alt_filename,
+                            Some(Box::new(altpipe.clone().unwrap())),
+                            ifile,
+                        );
                     } else {
                         chflags |= CH_CANSEEK;
                         if bin_file(f, &mut nread) != 0 && force_open == 0 && !ifiles.opened(ifile)
                         {
-                            parg.p_string = CString::new(filename.unwrap()).unwrap().as_ptr();
+                            parg = Parg::String(
+                                filename.clone().unwrap().to_string_lossy().into_owned(),
+                            );
                             answer = query(
                                 b"\"%s\" may be a binary file.  See it anyway? \0" as *const u8
                                     as *const std::ffi::c_char,
@@ -717,9 +747,10 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
                             if answer != 'y' as i32 && answer != 'Y' as i32 {
                                 close(f);
                                 return edit_error(
+                                    ifiles,
                                     filename,
                                     alt_filename,
-                                    Some(*altpipe.unwrap()),
+                                    Some(Box::new(altpipe.clone().unwrap())),
                                     ifile,
                                 );
                             }
@@ -729,53 +760,56 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
             }
         }
         if force_open == 0 && f >= 0 && isatty(f) != 0 {
-            let mut parg_0: PARG = parg {
-                p_string: 0 as *const std::ffi::c_char,
-            };
-            parg_0.p_string = CString::new(filename.unwrap()).unwrap().as_ptr();
+            let mut parg_0 = Parg::String(filename.clone().unwrap().to_string_lossy().into_owned());
             error(
                 b"%s is a terminal (use -f to open it)\0" as *const u8 as *const std::ffi::c_char,
                 &mut parg_0,
             );
-            return edit_error(ifiles, filename, alt_filename, Some(*altpipe.unwrap()), ifile);
+            return edit_error(
+                ifiles,
+                filename.clone(),
+                alt_filename,
+                Some(Box::new(altpipe.clone().unwrap())),
+                ifile,
+            );
         }
     }
     end_logfile();
     was_curr_ifile = save_curr_ifile(ifiles);
     if curr_ifile.is_some() {
         let mut was_helpfile = ch_getflags() & CH_HELPFILE;
-        close_file();
+        close_file(ifiles);
         if was_helpfile != 0 && ifiles.held_ifile(was_curr_ifile).unwrap() <= 1 {
-			/*
-			 * Don't keep the help file in the ifile list.
-			 */
+            /*
+             * Don't keep the help file in the ifile list.
+             */
             ifiles.del_ifile(was_curr_ifile);
             was_curr_ifile = None;
         }
     }
     unsave_ifile(ifiles, was_curr_ifile);
     if ifile.is_none() {
-		/*
-		 * No new file to open.
-		 * (Don't set old_ifile, because if you call edit_ifile(NULL),
-		 *  you're supposed to have saved curr_ifile yourself,
-		 *  and you'll restore it if necessary.)
-		 */
+        /*
+         * No new file to open.
+         * (Don't set old_ifile, because if you call edit_ifile(NULL),
+         *  you're supposed to have saved curr_ifile yourself,
+         *  and you'll restore it if necessary.)
+         */
         return 0;
     }
 
-	/*
-	 * Set up the new ifile.
-	 * Get the saved position for the file.
-	 */
+    /*
+     * Set up the new ifile.
+     * Get the saved position for the file.
+     */
     curr_ifile = ifile;
     soft_eof = NULL_POSITION;
     ifiles.set_altfilename(curr_ifile, alt_filename);
-    ifiles.set_altpipe(curr_ifile, Some(*altpipe.unwrap()));
+    ifiles.set_altpipe(curr_ifile, Some(Box::new(altpipe.clone().unwrap())));
     ifiles.set_open(curr_ifile);
     let scr_pos = ifiles.get_pos(curr_ifile).unwrap();
     initial_scrpos.ln = scr_pos.ln;
-    initial_scrpos.pos = scr_pos.pos as i32;
+    initial_scrpos.pos = scr_pos.pos as i64;
     ch_init(f, chflags, nread);
     consecutive_nulls = 0;
     check_modelines();
@@ -783,10 +817,10 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
         if was_curr_ifile.is_some() {
             old_ifile = was_curr_ifile;
         }
-        if !namelogfile.is_null() && is_tty != 0 {
-            use_logfile(namelogfile);
+        if !namelogfile.is_none() && is_tty != 0 {
+            use_logfile(&namelogfile.clone().unwrap())
         }
-        if open_filename != Some("-".into()) {
+        if open_filename != Some(PathBuf::from("-")) {
             let mut statbuf: stat = stat {
                 st_dev: 0,
                 st_ino: 0,
@@ -814,7 +848,9 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
                 __glibc_reserved: [0; 3],
             };
             let mut r = stat(
-                CString::new(open_filename.unwrap()).unwrap().as_ptr(),
+                CString::new(open_filename.unwrap().to_string_lossy().into_owned())
+                    .unwrap()
+                    .as_ptr(),
                 &mut statbuf,
             );
             if r == 0 {
@@ -829,23 +865,26 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
     }
     flush();
     if is_tty != 0 {
-		/*
-		 * Output is to a real tty.
-		 */
+        /*
+         * Output is to a real tty.
+         */
 
-		/*
-		 * Indicate there is nothing displayed yet.
-		 */
+        /*
+         * Indicate there is nothing displayed yet.
+         */
         pos_clear();
         clr_linenum();
         clr_hilite();
         undo_osc8();
         hshift = 0 as std::ffi::c_int;
-        if filename != Some(FAKE_HELPFILE.into())
-            && filename != Some(FAKE_EMPTYFILE.into())
+        if filename != Some(PathBuf::from(FAKE_HELPFILE))
+            && filename != Some(PathBuf::from(FAKE_EMPTYFILE))
         {
-            let mut qfilename: *mut std::ffi::c_char =
-                shell_quote(CString::new(filename.unwrap()).unwrap().as_ptr());
+            let mut qfilename: *mut std::ffi::c_char = shell_quote(
+                CString::new(filename.unwrap().to_string_lossy().into_owned())
+                    .unwrap()
+                    .as_ptr(),
+            );
             cmd_addhist(ml_examine as *mut mlist, qfilename, LTRUE);
             free(qfilename as *mut std::ffi::c_void);
         }
@@ -863,43 +902,49 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
  * Then edit the first one.
  */
 #[no_mangle]
-pub unsafe extern "C" fn edit_list(
-    ifiles: &mut IFileManager,
-    filelist: &str,
-) -> i32 {
+pub unsafe extern "C" fn edit_list(ifiles: &mut IFileManager, filelist: &str) -> i32 {
     let mut save_ifile: Option<IFileHandle> = None;
-    let mut good_filename: Option<&Path> = None;
-    let mut filename = Option<&String> = None;
-    let mut gfilelist: Option<&String> = None;
+    let mut good_filename: Option<PathBuf> = None;
+    let mut filename: Option<&String> = None;
     let mut gfilename: Option<&String> = None;
     let mut qfilename: Option<String> = None;
     save_ifile = save_curr_ifile(ifiles);
-	/*
-	 * Run thru each filename in the list.
-	 * Try to glob the filename.
-	 * If it doesn't expand, just try to open the filename.
-	 * If it does expand, try to open each name in that list.
-	 */
+    /*
+     * Run thru each filename in the list.
+     * Try to glob the filename.
+     * If it doesn't expand, just try to open the filename.
+     * If it does expand, try to open each name in that list.
+     */
     let tl_files = init_textlist(filelist);
     loop {
-        filename = forw_textlist(tl_files, filename);
+        filename = forw_textlist(&tl_files, filename);
         if filename.is_none() {
             break;
         }
-        gfilelist = Some(&CStr::from_ptr(lglob(CString::new(filename).unwrap().as_ptr())).to_string_lossy().into_owned());
-        let tl_gfiles = init_textlist(gfilelist.unwrap());
+        let gfilelist = if let Ok(gfl) = glob(filename.unwrap()) {
+            gfl.filter(|p| p.is_ok())
+                .map(|p| p.unwrap())
+                .map(|p| p.as_path().to_string_lossy().to_owned().into_owned())
+                .collect()
+        } else {
+            Vec::new()
+        };
+        let mut tl_gfiles = TextList::new(gfilelist);
         loop {
-            gfilename = forw_textlist(&mut tl_gfiles, gfilename);
-            if gfilename.is_none() {
+            if let Some(gfname) = forw_textlist(&tl_gfiles, gfilename.as_deref()) {
+                let c_gfilename = CString::new(gfname.clone()).unwrap().as_ptr();
+                qfilename = Some(
+                    CStr::from_ptr(shell_unquote(c_gfilename))
+                        .to_string_lossy()
+                        .into_owned(),
+                );
+                if edit(ifiles, qfilename) == 0 && good_filename.is_none() {
+                    if let Some(path) = ifiles.get_filename(curr_ifile) {
+                        good_filename = Some(path.to_path_buf());
+                    }
+                }
+            } else {
                 break;
-            }
-            qfilename = Some(
-                CStr::from_ptr(shell_unquote(CString::new(*gfilename.unwrap()).unwrap().as_ptr()))
-                    .to_string_lossy()
-                    .into_owned(),
-            );
-            if edit(ifiles, qfilename) == 0 && good_filename.is_none() {
-                good_filename = ifiles.get_filename(curr_ifile);
             }
         }
     }
@@ -907,12 +952,12 @@ pub unsafe extern "C" fn edit_list(
         unsave_ifile(ifiles, save_ifile);
         return 1;
     }
-    if get_ifile(good_filename, curr_ifile) == curr_ifile {
+    if Some(ifiles.get_ifile(&good_filename.as_ref().unwrap(), curr_ifile)) == curr_ifile {
         unsave_ifile(ifiles, save_ifile);
         return 0;
     }
     reedit_ifile(ifiles, save_ifile);
-    return edit(ifiles, good_filename);
+    return edit(ifiles, Some(&good_filename.unwrap()));
 }
 
 /*
@@ -949,9 +994,9 @@ unsafe extern "C" fn edit_istep(
     let mut n = n;
     let mut h = h;
 
-	/*
-	 * Skip n filenames, then try to edit each filename.
-	 */
+    /*
+     * Skip n filenames, then try to edit each filename.
+     */
     loop {
         next = if dir > 0 {
             ifiles.next_ifile(h)
@@ -965,23 +1010,23 @@ unsafe extern "C" fn edit_istep(
             }
         }
         if next.is_none() {
-			/*
-			 * Reached end of the ifile list.
-			 */
+            /*
+             * Reached end of the ifile list.
+             */
             return 1;
         }
         if abort_sigs() {
-			/*
-			 * Interrupt breaks out, if we're in a long
-			 * list of files that can't be opened.
-			 */
+            /*
+             * Interrupt breaks out, if we're in a long
+             * list of files that can't be opened.
+             */
             return 1;
         }
         h = next;
     }
-	/*
-	 * Found a file that we can edit.
-	 */
+    /*
+     * Found a file that we can edit.
+     */
     0
 }
 
@@ -1007,14 +1052,14 @@ pub unsafe extern "C" fn edit_prev(ifiles: &mut IFileManager, n: i32) -> i32 {
  * Edit a specific file in the command line (ifile) list.
  */
 #[no_mangle]
-pub unsafe extern "C" fn edit_index(n: i32) -> i32 {
+pub unsafe extern "C" fn edit_index(ifiles: &mut IFileManager, n: i32) -> i32 {
     let mut h: Option<IFileHandle> = None;
     loop {
         h = ifiles.next_ifile(h);
         if h.is_none() {
             return 1;
         }
-        if !(ifiles.get_index(h) != n) {
+        if !(ifiles.get_index(h) != Some(n)) {
             break;
         }
     }
@@ -1043,39 +1088,39 @@ pub unsafe extern "C" fn unsave_ifile(ifiles: &mut IFileManager, save_ifile: Opt
 pub unsafe extern "C" fn reedit_ifile(ifiles: &mut IFileManager, save_ifile: Option<IFileHandle>) {
     let next = ifiles.next_ifile(save_ifile);
     let prev = ifiles.prev_ifile(save_ifile);
-	/*
-	 * Try to reopen the ifile.
-	 * Note that opening it may fail (maybe the file was removed),
-	 * in which case the ifile will be deleted from the list.
-	 * So save the next and prev ifiles first.
-	 */
+    /*
+     * Try to reopen the ifile.
+     * Note that opening it may fail (maybe the file was removed),
+     * in which case the ifile will be deleted from the list.
+     * So save the next and prev ifiles first.
+     */
     unsave_ifile(ifiles, save_ifile);
     if edit_ifile(ifiles, save_ifile) == 0 {
         return;
     }
-	/*
-	 * If can't reopen it, open the next input file in the list.
-	 */
+    /*
+     * If can't reopen it, open the next input file in the list.
+     */
     if next.is_some() && edit_inext(ifiles, next, 0) == 0 {
         return;
     }
-	/*
-	 * If can't open THAT one, open the previous input file in the list.
-	 */
+    /*
+     * If can't open THAT one, open the previous input file in the list.
+     */
     if prev.is_some() && edit_iprev(ifiles, prev, 0) == 0 {
         return;
     }
 
-	/*
-	 * If can't even open that, we're stuck.  Just quit.
-	 */
+    /*
+     * If can't even open that, we're stuck.  Just quit.
+     */
     quit(1);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn reopen_curr_ifile(ifiles: &mut IFileManager) {
     let save_ifile = save_curr_ifile(ifiles);
-    close_file();
+    close_file(ifiles);
     reedit_ifile(ifiles, save_ifile);
 }
 
@@ -1083,7 +1128,7 @@ pub unsafe extern "C" fn reopen_curr_ifile(ifiles: &mut IFileManager) {
  * Edit standard input.
  */
 #[no_mangle]
-pub unsafe extern "C" fn edit_stdin(ifiles: &IFileManager) -> i32 {
+pub unsafe extern "C" fn edit_stdin(ifiles: &mut IFileManager) -> i32 {
     if isatty(fd0) != 0 {
         error(
             b"Missing filename (\"less --help\" for help)\0" as *const u8
@@ -1118,41 +1163,37 @@ pub unsafe extern "C" fn cat_file() {
  * We take care not to blindly overwrite an existing file.
  */
 #[no_mangle]
-pub unsafe extern "C" fn use_logfile(mut filename: *const std::ffi::c_char) {
-    let mut exists = 0;
+pub unsafe extern "C" fn use_logfile(filename: &str) {
+    let mut exists = false;
+    let mut path = Path::new(filename);
     let mut answer = 0;
-    let mut parg: PARG = parg {
-        p_string: 0 as *const std::ffi::c_char,
-    };
+    let mut parg = Parg::Null;
+    let mut file = OpenOptions::new();
+    let mut log_file;
     if ch_getflags() & CH_CANSEEK != 0 {
-		/*
-		 * Can't currently use a log file on a file that can seek.
-		 */
+        /*
+         * Can't currently use a log file on a file that can seek.
+         */
         return;
     }
-	/*
-	 * {{ We could use access() here. }}
-	 */
-    exists = open(filename, 0);
-    if exists >= 0 {
-        close(exists);
+    if let Ok(e) = path.try_exists() {
+        exists = e;
     }
-    exists = (exists >= 0) as i32;
 
-	/*
-	 * Decide whether to overwrite the log file or append to it.
-	 * If it doesn't exist we "overwrite" it.
-	 */
-    if exists == 0 || force_logfile != 0 {
-		/*
-		 * Overwrite (or create) the log file.
-		 */
+    /*
+     * Decide whether to overwrite the log file or append to it.
+     * If it doesn't exist we "overwrite" it.
+     */
+    if !exists || force_logfile != 0 {
+        /*
+         * Overwrite (or create) the log file.
+         */
         answer = 'O' as i32;
     } else {
-		/*
-		 * Ask user what to do.
-		 */
-        parg.p_string = filename;
+        /*
+         * Ask user what to do.
+         */
+        parg = Parg::String(filename.into());
         answer = query(
             b"Warning: \"%s\" exists; Overwrite, Append, Don't log, or Quit? \0" as *const u8
                 as *const std::ffi::c_char,
@@ -1165,19 +1206,14 @@ pub unsafe extern "C" fn use_logfile(mut filename: *const std::ffi::c_char) {
                 /*
                  * Overwrite: create the file.
                  */
-                logfile = creat(filename, CREAT_RW);
+                log_file = file.read(true).write(true).create(true).open(path);
                 break;
             }
             Some('A') | Some('a') => {
                 /*
                  * Append: open the file and seek to the end.
                  */
-                logfile = open(filename, OPEN_APPEND);
-                if lseek(logfile, 0, SEEK_END,) == BAD_SEEK {
-                    close(logfile);
-                    logfile = -1;
-                }
-                break;
+                log_file = file.append(true).open(path);
             }
             Some('D') | Some('d') => return,
             _ => {
@@ -1190,10 +1226,10 @@ pub unsafe extern "C" fn use_logfile(mut filename: *const std::ffi::c_char) {
         }
     }
     if logfile < 0 {
-		/*
-		 * Error in opening logfile.
-		 */
-        parg.p_string = filename;
+        /*
+         * Error in opening logfile.
+         */
+        parg = Parg::String(filename.into());
         error(
             b"Cannot write to \"%s\"\0" as *const u8 as *const std::ffi::c_char,
             &mut parg,
