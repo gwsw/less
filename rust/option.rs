@@ -1,4 +1,5 @@
 use crate::decode::lgetenv;
+use crate::defs::*;
 use std::ffi::CString;
 
 extern "C" {
@@ -40,14 +41,6 @@ extern "C" {
     static mut opt_use_backslash: std::ffi::c_int;
     static mut ctldisp: std::ffi::c_int;
 }
-pub type __off_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

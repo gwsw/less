@@ -1,5 +1,5 @@
+use crate::defs::*;
 use ::c2rust_bitfields;
-use ::libc;
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -40,9 +40,6 @@ extern "C" {
     ) -> std::ffi::c_int;
     static mut version: [std::ffi::c_char; 0];
 }
-pub type size_t = std::ffi::c_ulong;
-pub type __off_t = std::ffi::c_long;
-pub type __off64_t = std::ffi::c_long;
 #[derive(Copy, Clone, BitfieldStruct)]
 #[repr(C)]
 pub struct _IO_FILE {

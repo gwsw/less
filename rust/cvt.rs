@@ -1,4 +1,4 @@
-use ::libc;
+use crate::defs::*;
 extern "C" {
     pub type ansi_state_0;
     fn iswupper(__wc: wint_t) -> std::ffi::c_int;
@@ -16,10 +16,6 @@ extern "C" {
     fn ansi_done(pansi: *mut ansi_state_0);
     static mut utf_mode: std::ffi::c_int;
 }
-pub type size_t = std::ffi::c_ulong;
-pub type wint_t = std::ffi::c_uint;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type ansi_state = std::ffi::c_uint;
 pub const ANSI_END: ansi_state = 3;
 pub const ANSI_ERR: ansi_state = 2;
 pub const ANSI_MID: ansi_state = 1;

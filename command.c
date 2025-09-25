@@ -164,7 +164,7 @@ static void mca_search1(void)
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
 		set_mca(A_FILTER);
-	else 
+	else
 #endif
 	if (search_type & SRCH_FORW)
 		set_mca(A_F_SEARCH);
@@ -198,7 +198,7 @@ static void mca_search1(void)
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
 		cmd_putstr("&/");
-	else 
+	else
 #endif
 	if (search_type & SRCH_FORW)
 		cmd_putstr("/");
@@ -221,7 +221,7 @@ static void mca_opt_toggle(void)
 	int no_prompt = (optflag & OPT_NO_PROMPT);
 	int flag = (optflag & ~OPT_NO_PROMPT);
 	constant char *dash = (flag == OPT_NO_TOGGLE) ? "_" : "-";
-	
+
 	set_mca(A_OPT_TOGGLE);
 	cmd_putstr(dash);
 	if (optgetname)
@@ -416,7 +416,7 @@ static int mca_opt_first_char(char c)
 /*
  * Add a char to a long option name.
  * See if we've got a match for an option name yet.
- * If so, display the complete name and stop 
+ * If so, display the complete name and stop
  * accepting chars until user hits RETURN.
  */
 static int mca_opt_nonfirst_char(char c)
@@ -434,7 +434,7 @@ static int mca_opt_nonfirst_char(char c)
 		/* {{ Checking for TAB here is ugly.
 		 *    Also doesn't extend well -- can't do BACKTAB this way
 		 *    because it's a multichar sequence. }} */
-		if (c != '\t') 
+		if (c != '\t')
 			return (MCA_MORE);
 	}
 	/*
@@ -519,7 +519,7 @@ static int mca_opt_char(char c)
 		opt_lower = ASCII_IS_LOWER(c);
 	}
 	/*
-	 * If the option which was entered does not take a 
+	 * If the option which was entered does not take a
 	 * parameter, toggle the option immediately,
 	 * so user doesn't have to hit RETURN.
 	 */
@@ -555,7 +555,7 @@ static int mca_search_char(char c)
 	int flag = 0;
 
 	/*
-	 * Certain characters as the first char of 
+	 * Certain characters as the first char of
 	 * the pattern have special meaning:
 	 *      !  Toggle the NO_MATCH flag
 	 *      *  Toggle the PAST_EOF flag
@@ -664,7 +664,7 @@ static int mca_char(char c)
 		case A_INVALID:
 			/*
 			 * Not part of the number.
-			 * End the number and treat this char 
+			 * End the number and treat this char
 			 * as a normal command character.
 			 */
 			number = cmd_int(&fraction);
@@ -865,7 +865,7 @@ static void prompt(void)
 	if (ungot != NULL && !ungot->ug_end_command)
 	{
 		/*
-		 * No prompt necessary if commands are from 
+		 * No prompt necessary if commands are from
 		 * ungotten chars rather than from the user.
 		 */
 		return;
@@ -881,7 +881,7 @@ static void prompt(void)
 	 * If we've hit EOF on the last file and the -E flag is set, quit.
 	 */
 	if (get_quit_at_eof() == OPT_ONPLUS &&
-	    eof_displayed(FALSE) && !(ch_getflags() & CH_HELPFILE) && 
+	    eof_displayed(FALSE) && !(ch_getflags() & CH_HELPFILE) &&
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
 
@@ -889,13 +889,13 @@ static void prompt(void)
 	 * If the entire file is displayed and the -F flag is set, quit.
 	 */
 	if (quit_if_one_screen &&
-	    entire_file_displayed() && !(ch_getflags() & CH_HELPFILE) && 
+	    entire_file_displayed() && !(ch_getflags() & CH_HELPFILE) &&
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
 	quit_if_one_screen = FALSE; /* only get one chance at this */
 
 #if MSDOS_COMPILER==WIN32C
-	/* 
+	/*
 	 * In Win32, display the file name in the window title.
 	 */
 	if (!(ch_getflags() & CH_HELPFILE))
@@ -911,9 +911,9 @@ static void prompt(void)
 	 * Select the proper prompt and display it.
 	 */
 	/*
-	 * If the previous action was a forward movement, 
+	 * If the previous action was a forward movement,
 	 * don't clear the bottom line of the display;
-	 * just print the prompt since the forward movement guarantees 
+	 * just print the prompt since the forward movement guarantees
 	 * that we're in the right position to display the prompt.
 	 * Clearing the line could cause a problem: for example, if the last
 	 * line displayed ended at the right screen edge without a newline,
@@ -994,7 +994,7 @@ static char getcc_end_command(void)
 	case A_B_SEARCH:
 	case A_FILTER:
 		/* We have "/string" but no newline.  Add the \n. */
-		return ('\n'); 
+		return ('\n');
 	default:
 		/* Some other incomplete command.  Let user complete it. */
 		if (ungot != NULL)
@@ -1190,7 +1190,7 @@ static void multi_search(constant char *pattern, int n, int silent)
 	if (search_type & SRCH_FIRST_FILE)
 	{
 		/*
-		 * Start at the first (or last) file 
+		 * Start at the first (or last) file
 		 * in the command line list.
 		 */
 		if (search_type & SRCH_FORW)
@@ -1298,8 +1298,8 @@ static int forw_loop(int until_hilite)
 	ch_set_eof();
 
 	/*
-	 * This gets us back in "F mode" after processing 
-	 * a non-abort signal (e.g. window-change).  
+	 * This gets us back in "F mode" after processing
+	 * a non-abort signal (e.g. window-change).
 	 */
 	if (sigs && !ABORT_SIGS())
 		return (until_hilite ? A_F_UNTIL_HILITE : A_F_FOREVER);
@@ -1453,7 +1453,7 @@ public void commands(void)
 				 * We're in a multichar command.
 				 * Add the character to the command buffer
 				 * and display it on the screen.
-				 * If the user backspaces past the start 
+				 * If the user backspaces past the start
 				 * of the line, abort the command.
 				 */
 				if (cmd_char(c) == CC_QUIT || cmdbuf_empty())
@@ -1608,7 +1608,7 @@ public void commands(void)
 			cmd_exec();
 			backward((int) number, TRUE, FALSE, FALSE);
 			break;
-		
+
 		case A_FF_SCREEN:
 			/*
 			 * Force forward one screen.
@@ -1648,7 +1648,7 @@ public void commands(void)
 
 		case A_F_SCROLL:
 			/*
-			 * Forward N lines 
+			 * Forward N lines
 			 * (default same as last 'd' or 'u' command).
 			 */
 			if (number > 0)
@@ -1661,7 +1661,7 @@ public void commands(void)
 
 		case A_B_SCROLL:
 			/*
-			 * Forward N lines 
+			 * Forward N lines
 			 * (default same as last 'd' or 'u' command).
 			 */
 			if (number > 0)
@@ -1775,7 +1775,7 @@ public void commands(void)
 			/*
 			 * Exit.
 			 */
-			if (curr_ifile != NULL_IFILE && 
+			if (curr_ifile != NULL_IFILE &&
 			    ch_getflags() & CH_HELPFILE)
 			{
 				/*
@@ -1891,7 +1891,7 @@ public void commands(void)
 			search_type = last_search_type;
 			DO_SEARCH();
 			break;
-		
+
 		case A_T_AGAIN_SEARCH:
 			/*
 			 * Repeat previous search, multiple files.
@@ -1911,8 +1911,8 @@ public void commands(void)
 			break;
 
 		case A_T_REVERSE_SEARCH:
-			/* 
-			 * Repeat previous search, 
+			/*
+			 * Repeat previous search,
 			 * multiple files in reverse direction.
 			 */
 			save_search_type = search_type = last_search_type;
@@ -1959,7 +1959,7 @@ public void commands(void)
 #endif
 			error("Command not available", NULL_PARG);
 			break;
-			
+
 		case A_VISUAL:
 			/*
 			 * Invoke an editor on the input file.
@@ -2010,7 +2010,7 @@ public void commands(void)
 			cmd_exec();
 			if (edit_next((int) number))
 			{
-				if (get_quit_at_eof() && eof_displayed(FALSE) && 
+				if (get_quit_at_eof() && eof_displayed(FALSE) &&
 				    !(ch_getflags() & CH_HELPFILE))
 					quit(QUIT_OK);
 				parg.p_string = (number > 1) ? "(N-th) " : "";
@@ -2182,7 +2182,7 @@ public void commands(void)
 				if (ungot != NULL)
 				{
 					/*
-					 * Probably from a lesskey file, in which case there 
+					 * Probably from a lesskey file, in which case there
 					 * is probably an ungotten letter from the "extra" string.
 					 * Eat it so it is not interpreted as a command.
 					 */

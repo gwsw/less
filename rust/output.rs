@@ -1,4 +1,6 @@
+use crate::defs::*;
 use crate::line::gline;
+use crate::signal::sigs;
 
 extern "C" {
     fn write(__fd: std::ffi::c_int, __buf: *const std::ffi::c_void, __n: size_t) -> ssize_t;
@@ -26,7 +28,6 @@ extern "C" {
     fn should_clear_after_line() -> lbool;
     fn supports_ctrl_x() -> std::ffi::c_int;
     fn getchr() -> std::ffi::c_int;
-    static mut sigs: std::ffi::c_int;
     static mut sc_width: std::ffi::c_int;
     static mut so_s_width: std::ffi::c_int;
     static mut so_e_width: std::ffi::c_int;
@@ -34,18 +35,6 @@ extern "C" {
     static mut utf_mode: std::ffi::c_int;
     static mut intr_char: std::ffi::c_char;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __ssize_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type ssize_t = __ssize_t;
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

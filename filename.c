@@ -138,7 +138,7 @@ static lbool metachar(char c)
 static lbool must_quote(char c)
 {
 	/* {{ Maybe the set of must_quote chars should be configurable? }} */
-	return (c == '\n'); 
+	return (c == '\n');
 }
 
 /*
@@ -169,7 +169,7 @@ public char * shell_quoten(constant char *s, size_t slen)
 			if (esclen == 0)
 			{
 				/*
-				 * We've got a metachar, but this shell 
+				 * We've got a metachar, but this shell
 				 * doesn't support escape chars.  Use quotes.
 				 */
 				use_quotes = TRUE;
@@ -313,13 +313,13 @@ typedef struct xcpy { char *dest; size_t copied; } xcpy;
 
 static void xcpy_char(xcpy *xp, char ch)
 {
-	if (xp->dest != NULL) *(xp->dest)++ = ch; 
+	if (xp->dest != NULL) *(xp->dest)++ = ch;
 	xp->copied++;
 }
 
 static void xcpy_filename(xcpy *xp, constant char *str)
 {
-	/* If filename contains spaces, quote it 
+	/* If filename contains spaces, quote it
 	 * to prevent edit_list from splitting it. */
 	lbool quote = (strchr(str, ' ') != NULL);
 	if (quote)
@@ -347,7 +347,7 @@ static size_t fexpand_copy(constant char *fr, char *to)
 			{
 				/* Two identical chars. Output just one. */
 				fr += 1;
-			} else 
+			} else
 			{
 				/* Single char. Expand to a (quoted) file name. */
 				expand = TRUE;
@@ -385,7 +385,7 @@ public char * fexpand(constant char *s)
 	char *e;
 
 	/*
-	 * Make one pass to see how big a buffer we 
+	 * Make one pass to see how big a buffer we
 	 * need to allocate for the expanded string.
 	 */
 	n = fexpand_copy(s, NULL);
@@ -421,8 +421,8 @@ public char * fcomplete(constant char *s)
 	/*
 	 * But in DOS, we have to glob "s*.*".
 	 * But if the final component of the filename already has
-	 * a dot in it, just do "s*".  
-	 * (Thus, "FILE" is globbed as "FILE*.*", 
+	 * a dot in it, just do "s*".
+	 * (Thus, "FILE" is globbed as "FILE*.*",
 	 *  but "FILE.A" is globbed as "FILE.A*").
 	 */
 	{
@@ -490,7 +490,7 @@ public int bin_file(int f, ssize_t *n)
 		{
 			bin_count++;
 			utf_skip_to_lead(&p, edata);
-		} else 
+		} else
 		{
 			LWCHAR c = step_charc(&p, +1, edata);
 			struct ansi_state *pansi;
@@ -560,7 +560,7 @@ static FILE * shellcmd(constant char *cmd)
 		char *esccmd;
 
 		/*
-		 * Read the output of <$SHELL -c cmd>.  
+		 * Read the output of <$SHELL -c cmd>.
 		 * Escape any metacharacters in the command.
 		 */
 		esccmd = shell_quote(cmd);
@@ -659,7 +659,7 @@ public char * lglob(constant char *afilename)
 	char *pfilename;
 	char *qfilename;
 	DECL_GLOB_NAME(fnd,drive,dir,fname,ext,handle)
-	
+
 	GLOB_FIRST_NAME(filename, &fnd, handle);
 	if (GLOB_FIRST_FAILED(handle))
 	{
@@ -840,7 +840,7 @@ static int num_pct_s(constant char *lessopen)
 #endif
 
 /*
- * See if we should open a "replacement file" 
+ * See if we should open a "replacement file"
  * instead of the file we're about to open.
  */
 public char * open_altfile(constant char *filename, int *pf, void **pfd)
@@ -856,7 +856,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 #if HAVE_FILENO
 	int returnfd = 0;
 #endif
-	
+
 	if (!secure_allow(SF_LESSOPEN))
 		return (NULL);
 	if (!use_lessopen)
@@ -867,7 +867,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 	while (*lessopen == '|')
 	{
 		/*
-		 * If LESSOPEN starts with a |, it indicates 
+		 * If LESSOPEN starts with a |, it indicates
 		 * a "pipe preprocessor".
 		 */
 #if !HAVE_FILENO
@@ -916,7 +916,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 		int f;
 
 		/*
-		 * The alt file is a pipe. Read one char 
+		 * The alt file is a pipe. Read one char
 		 * to see if the pipe will produce any data.
 		 * If it does, push the char back on the pipe.
 		 */
@@ -927,7 +927,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 			/*
 			 * Pipe is empty.
 			 * If more than 1 pipe char was specified,
-			 * the exit status tells whether the file itself 
+			 * the exit status tells whether the file itself
 			 * is empty, or if there is no alt file.
 			 * If only one pipe char, just assume no alt file.
 			 */
@@ -975,12 +975,12 @@ public void close_altfile(constant char *altfilename, constant char *filename)
 	FILE *fd;
 	char *cmd;
 	size_t len;
-	
+
 	if (!secure_allow(SF_LESSOPEN))
 		return;
 	if ((lessclose = lgetenv("LESSCLOSE")) == NULL)
 		return;
-	if (num_pct_s(lessclose) > 2) 
+	if (num_pct_s(lessclose) > 2)
 	{
 		error("LESSCLOSE ignored; must contain no more than 2 %%s", NULL_PARG);
 		return;
@@ -998,7 +998,7 @@ public void close_altfile(constant char *altfilename, constant char *filename)
 		pclose(fd);
 #endif
 }
-		
+
 /*
  * Is the specified file a directory?
  */
@@ -1042,7 +1042,7 @@ public char * bad_file(constant char *filename)
 	{
 		static char is_a_dir[] = " is a directory";
 
-		m = (char *) ecalloc(strlen(filename) + sizeof(is_a_dir), 
+		m = (char *) ecalloc(strlen(filename) + sizeof(is_a_dir),
 			sizeof(char));
 		strcpy(m, filename);
 		strcat(m, is_a_dir);
@@ -1097,7 +1097,7 @@ public POSITION filesize(int f)
 public lbool curr_ifile_changed(void)
 {
 #if HAVE_STAT_INO
-	/* 
+	/*
 	 * If the file's i-number or device has changed,
 	 * or if the file is smaller than it previously was,
 	 * the file must be different.
@@ -1114,7 +1114,7 @@ public lbool curr_ifile_changed(void)
 }
 
 /*
- * 
+ *
  */
 public constant char * shell_coption(void)
 {

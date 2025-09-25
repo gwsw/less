@@ -1,6 +1,7 @@
 use crate::charset::init_charset;
 use crate::decode::{expand_cmd_tables, init_cmds, Tables};
 use crate::decode::{isnullenv, lgetenv};
+use crate::defs::*;
 use crate::ifile::{IFile, IFileHandle, IFileManager};
 use crate::line::init_line;
 use crate::mark::Marks;
@@ -83,17 +84,6 @@ extern "C" {
     static mut term_init_done: std::ffi::c_int;
     static mut first_time: lbool;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __time_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type time_t = __time_t;
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct scrpos {

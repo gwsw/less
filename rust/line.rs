@@ -11,9 +11,11 @@ use crate::charset::step_char;
 use crate::charset::step_charc;
 use crate::decode::isnullenv;
 use crate::decode::lgetenv;
+use crate::defs::*;
 use crate::xbuf::XBuffer;
 use std::ffi::CString;
 use std::sync::LazyLock;
+
 extern "C" {
     fn parse_color(
         str: *const std::ffi::c_char,
@@ -71,16 +73,6 @@ extern "C" {
     static mut use_color: i32;
     static mut status_line: bool;
 }
-pub type __off_t = i64;
-pub type off_t = __off_t;
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type less_off_t = off_t;
-pub type POSITION = i32;
-pub type LINENUM = off_t;
 
 /* Parsing position in an OSC8 link: "\e]8;PARAMS;URI\e\\" (final "\e\\" may be "\7") */
 #[derive(Copy, Clone)]
@@ -281,8 +273,6 @@ static mut mbc_buf_index: std::ffi::c_int = 0 as std::ffi::c_int;
 static mut mbc_pos: POSITION = 0;
 static mut saved_line_end: usize = 0;
 static mut saved_end_column: i32 = 0;
-
-const NULL_POSITION: POSITION = -1;
 
 /* Special char bit-flags used to tell put_line() to do something special */
 const AT_NORMAL: i32 = 0;
@@ -1301,7 +1291,7 @@ fn is_utf8_lead(c: u8) -> bool {
  * Expand tabs into spaces, handle underlining, boldfacing, etc.
  * Returns 0 if ok, 1 if couldn't fit in buffer.
  */
-pub unsafe extern "C" fn pappend_b(c: u8, pos: POSITION, before_pendc: bool) -> i32 {
+pub unsafe extern "C" fn pappend_b(c: u8, pos: POSITION, before_pendc: bool) -> i64 {
     let mut ch: char = (c & 0o377) as char;
     let mut r = 0;
 
@@ -1326,7 +1316,7 @@ pub unsafe extern "C" fn pappend_b(c: u8, pos: POSITION, before_pendc: bool) -> 
             mbc_buf_index = r + 1;
             mbc_buf_len = 0;
             if r != 0 {
-                return mbc_buf_index;
+                return mbc_buf_index as i64;
             }
         }
         /*
@@ -1398,10 +1388,10 @@ pub unsafe extern "C" fn pappend_b(c: u8, pos: POSITION, before_pendc: bool) -> 
         /* How many chars should caller back up? */
         r = if !utf_mode { 1 } else { mbc_buf_index };
     }
-    r
+    r as i64
 }
 
-pub unsafe extern "C" fn pappend(c: u8, pos: POSITION) -> i32 {
+pub unsafe extern "C" fn pappend(c: u8, pos: POSITION) -> i64 {
     if ff_starts_line < 0 {
         ff_starts_line = if c == b'L' & 0o37 { 1 } else { 0 };
     }
@@ -1860,7 +1850,7 @@ pub unsafe extern "C" fn col_from_pos(
 ) -> i32 {
     let mut cp = ColPos { col: 0, pos: 0 };
     cp.pos = spos;
-    cp.col = NULL_POSITION;
+    cp.col = NULL_POSITION as i32;
     col_vs_pos(linepos, &mut cp, saved_pos, saved_col);
     return cp.col;
 }
@@ -1948,10 +1938,10 @@ pub unsafe extern "C" fn null_line() {
  * lines which are not split for screen width.
  * {{ This is supposed to be more efficient than forw_line(). }}
  */
-pub unsafe extern "C" fn forw_raw_line_len(
+pub unsafe extern "C" fn forw_raw_line_len<'a>(
     curr_pos: POSITION,
     read_len: isize,
-) -> (POSITION, &u8, usize) {
+) -> (POSITION, &'a [u8], usize) {
     let mut n = 0;
     let mut c = 0;
     let mut new_pos = 0;
@@ -1960,7 +1950,7 @@ pub unsafe extern "C" fn forw_raw_line_len(
         c = ch_forw_get();
         c == EOI
     } {
-        return (NULL_POSITION, 0, 0);
+        return (NULL_POSITION, &linebuf.buf, 0);
     }
     loop {
         if c == b'\n' as i32 || c == EOI || (sigs & (S_INTERRUPT | S_SWINTERRUPT | S_STOP)) != 0 {
@@ -1981,10 +1971,10 @@ pub unsafe extern "C" fn forw_raw_line_len(
         }
     }
     linebuf.buf[n] = 0;
-    (new_pos, linebuf.buf, n)
+    (new_pos, &linebuf.buf, n)
 }
 
-pub unsafe extern "C" fn forw_raw_line(curr_pos: POSITION) -> (POSITION, &u8, usize) {
+pub unsafe extern "C" fn forw_raw_line<'a>(curr_pos: POSITION) -> (POSITION, &'a [u8], usize) {
     forw_raw_line_len(curr_pos, -1)
 }
 

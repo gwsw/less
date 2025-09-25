@@ -1,4 +1,5 @@
 use crate::decode::lgetenv;
+use crate::defs::*;
 use ::libc;
 use std::ffi::CString;
 extern "C" {
@@ -26,9 +27,6 @@ extern "C" {
     static mut quit_on_intr: std::ffi::c_int;
 }
 pub type __pid_t = std::ffi::c_int;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
 pub type __sighandler_t = Option<unsafe extern "C" fn(std::ffi::c_int) -> ()>;
 #[no_mangle]
 pub static mut sigs: std::ffi::c_int = 0;

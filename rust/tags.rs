@@ -1,7 +1,9 @@
 use crate::decode::lgetenv;
+use crate::defs::*;
+use crate::signal::sigs;
 use ::c2rust_bitfields;
-use ::libc;
 use std::ffi::CString;
+
 extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -66,13 +68,8 @@ extern "C" {
     ) -> std::ffi::c_int;
     fn error(fmt: *const std::ffi::c_char, parg: *mut PARG);
     static mut linenums: std::ffi::c_int;
-    static mut sigs: std::ffi::c_int;
     static mut ctldisp: std::ffi::c_int;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __off64_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type size_t = std::ffi::c_ulong;
 #[derive(Copy, Clone, BitfieldStruct)]
 #[repr(C)]
 pub struct _IO_FILE {
@@ -123,12 +120,6 @@ pub const _ISdigit: C2RustUnnamed = 2048;
 pub const _ISalpha: C2RustUnnamed = 1024;
 pub const _ISlower: C2RustUnnamed = 512;
 pub const _ISupper: C2RustUnnamed = 256;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

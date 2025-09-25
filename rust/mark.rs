@@ -1,6 +1,6 @@
+use crate::defs::*;
 use crate::util::ptr_to_str;
 use ::c2rust_bitfields;
-use ::libc;
 use std::ptr;
 extern "C" {
     pub type _IO_wide_data;
@@ -81,9 +81,6 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-pub type less_off_t = off_t;
-pub type POSITION = i32;
-pub type LINENUM = i32;
 #[derive(Copy, Clone, PartialEq)]
 #[repr(C)]
 pub struct scrpos {

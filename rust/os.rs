@@ -1,4 +1,6 @@
 use crate::decode::lgetenv;
+use crate::defs::*;
+use crate::signal::sigs;
 use std::ffi::CString;
 extern "C" {
     fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
@@ -35,7 +37,6 @@ extern "C" {
     fn nanosleep(__requested_time: *const timespec, __remaining: *mut timespec) -> std::ffi::c_int;
     fn __errno_location() -> *mut std::ffi::c_int;
     fn poll(__fds: *mut pollfd, __nfds: nfds_t, __timeout: std::ffi::c_int) -> std::ffi::c_int;
-    static mut sigs: std::ffi::c_int;
     static mut ignore_eoi: std::ffi::c_int;
     static mut exit_F_on_close: std::ffi::c_int;
     static mut follow_mode: std::ffi::c_int;
@@ -47,15 +48,6 @@ extern "C" {
     static mut less_start_time: time_t;
     static mut tty: std::ffi::c_int;
 }
-pub type __uintmax_t = std::ffi::c_ulong;
-pub type __off_t = std::ffi::c_long;
-pub type __time_t = std::ffi::c_long;
-pub type __ssize_t = std::ffi::c_long;
-pub type __syscall_slong_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type ssize_t = __ssize_t;
-pub type time_t = __time_t;
-pub type size_t = std::ffi::c_ulong;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct __sigset_t {
@@ -68,13 +60,6 @@ pub struct timespec {
     pub tv_sec: __time_t,
     pub tv_nsec: __syscall_slong_t,
 }
-pub type uintmax_t = __uintmax_t;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type uintmax = uintmax_t;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct __jmp_buf_tag {

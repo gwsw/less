@@ -20,6 +20,7 @@
 //!   (You can swap in `linked_hash_map` or `lru` crate if desired.)
 
 use crate::defs::*;
+use crate::defs::*;
 use std::collections::{HashMap, VecDeque};
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom, Write};

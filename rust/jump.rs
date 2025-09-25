@@ -1,4 +1,4 @@
-use ::libc;
+use crate::defs::*;
 extern "C" {
     fn home();
     fn bell();
@@ -47,16 +47,6 @@ extern "C" {
     static mut top_scroll: std::ffi::c_int;
     static mut header_start_pos: POSITION;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __time_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type time_t = __time_t;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct scrpos {

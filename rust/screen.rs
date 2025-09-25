@@ -1,4 +1,5 @@
 use crate::decode::lgetenv;
+use crate::defs::*;
 use crate::util::ptr_to_str;
 use std::ffi::CStr;
 use std::ffi::CString;
@@ -86,10 +87,6 @@ extern "C" {
     static mut hilite_search: std::ffi::c_int;
     static mut tty: std::ffi::c_int;
 }
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
 pub type COLOR_TYPE = std::ffi::c_uint;
 pub const CT_6BIT: COLOR_TYPE = 2;
 pub const CT_4BIT: COLOR_TYPE = 1;

@@ -1,4 +1,5 @@
-use ::libc;
+use crate::defs::*;
+
 extern "C" {
     fn free(_: *mut std::ffi::c_void);
     fn strcpy(_: *mut std::ffi::c_char, _: *const std::ffi::c_char) -> *mut std::ffi::c_char;
@@ -46,16 +47,6 @@ extern "C" {
     static mut osc8_path: *mut std::ffi::c_char;
     static mut editor: *const std::ffi::c_char;
 }
-pub type __off_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 static mut s_proto: [std::ffi::c_char; 52] = unsafe {
     *::core::mem::transmute::<&[u8; 52], &[std::ffi::c_char; 52]>(
         b"?n?f%f .?m(%T %i of %m) ..?e(END) ?x- Next\\: %x..%t\0",

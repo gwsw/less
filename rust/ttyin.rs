@@ -1,23 +1,14 @@
-use ::libc;
+use crate::defs::*;
 extern "C" {
-    fn open(
-        __file: *const std::ffi::c_char,
-        __oflag: std::ffi::c_int,
-        _: ...
-    ) -> std::ffi::c_int;
+    fn open(__file: *const std::ffi::c_char, __oflag: std::ffi::c_int, _: ...) -> std::ffi::c_int;
     fn ttyname(__fd: std::ffi::c_int) -> *mut std::ffi::c_char;
     fn quit(status: std::ffi::c_int);
     fn iread(fd: std::ffi::c_int, buf: *mut std::ffi::c_uchar, len: size_t) -> ssize_t;
     fn flush();
 }
-pub type __ssize_t = std::ffi::c_long;
-pub type ssize_t = __ssize_t;
-pub type size_t = std::ffi::c_ulong;
 #[no_mangle]
 pub static mut tty: std::ffi::c_int = 0;
-unsafe extern "C" fn open_tty_device(
-    mut dev: *const std::ffi::c_char,
-) -> std::ffi::c_int {
+unsafe extern "C" fn open_tty_device(mut dev: *const std::ffi::c_char) -> std::ffi::c_int {
     return open(dev, 0 as std::ffi::c_int);
 }
 #[no_mangle]

@@ -1,4 +1,4 @@
-use ::libc;
+use crate::defs::*;
 extern "C" {
     fn ch_seek(pos: POSITION) -> std::ffi::c_int;
     fn ch_tell() -> POSITION;
@@ -8,11 +8,6 @@ extern "C" {
     fn error(fmt: *const std::ffi::c_char, parg: *mut PARG);
     fn position(sindex: std::ffi::c_int) -> POSITION;
 }
-pub type __off_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

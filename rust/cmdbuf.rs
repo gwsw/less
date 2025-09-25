@@ -1,4 +1,5 @@
 use crate::decode::lgetenv;
+use crate::defs::*;
 use ::c2rust_bitfields;
 use std::ffi::CString;
 extern "C" {
@@ -100,22 +101,6 @@ extern "C" {
     static mut marks_modified: std::ffi::c_int;
     static mut no_paste: std::ffi::c_int;
 }
-pub type __dev_t = std::ffi::c_ulong;
-pub type __uid_t = std::ffi::c_uint;
-pub type __gid_t = std::ffi::c_uint;
-pub type __ino_t = std::ffi::c_ulong;
-pub type __mode_t = std::ffi::c_uint;
-pub type __nlink_t = std::ffi::c_ulong;
-pub type __off_t = std::ffi::c_long;
-pub type __off64_t = std::ffi::c_long;
-pub type __time_t = std::ffi::c_long;
-pub type __blksize_t = std::ffi::c_long;
-pub type __blkcnt_t = std::ffi::c_long;
-pub type __ssize_t = std::ffi::c_long;
-pub type __syscall_slong_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type ssize_t = __ssize_t;
-pub type size_t = std::ffi::c_ulong;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct timespec {
@@ -178,11 +163,6 @@ pub struct stat {
     pub st_ctim: timespec,
     pub __glibc_reserved: [__syscall_slong_t; 3],
 }
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

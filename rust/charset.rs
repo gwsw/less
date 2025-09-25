@@ -1,5 +1,6 @@
 use crate::compose_uni::compose_table;
 use crate::decode::lgetenv;
+use crate::defs::*;
 use crate::fmt_uni::fmt_table;
 use crate::ubin_uni::ubin_table;
 use crate::wide_uni::wide_table;
@@ -40,9 +41,6 @@ extern "C" {
     fn nl_langinfo(__item: nl_item) -> *mut std::ffi::c_char;
     static mut bs_mode: std::ffi::c_int;
 }
-pub type __off_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type size_t = std::ffi::c_ulong;
 pub type C2RustUnnamed = std::ffi::c_uint;
 pub const _ISalnum: C2RustUnnamed = 8;
 pub const _ISpunct: C2RustUnnamed = 4;
@@ -56,11 +54,6 @@ pub const _ISdigit: C2RustUnnamed = 2048;
 pub const _ISalpha: C2RustUnnamed = 1024;
 pub const _ISlower: C2RustUnnamed = 512;
 pub const _ISupper: C2RustUnnamed = 256;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

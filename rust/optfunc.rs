@@ -1,4 +1,4 @@
-use ::libc;
+use crate::defs::*;
 extern "C" {
     fn sprintf(_: *mut std::ffi::c_char, _: *const std::ffi::c_char, _: ...) -> std::ffi::c_int;
     fn snprintf(
@@ -134,21 +134,6 @@ extern "C" {
     static mut tags: *mut std::ffi::c_char;
     static mut ztags: [std::ffi::c_char; 0];
 }
-pub type __uintmax_t = std::ffi::c_ulong;
-pub type __off_t = std::ffi::c_long;
-pub type __ssize_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type ssize_t = __ssize_t;
-pub type size_t = std::ffi::c_ulong;
-pub type uintmax_t = __uintmax_t;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type uintmax = uintmax_t;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

@@ -1,4 +1,4 @@
-use ::libc;
+use crate::defs::*;
 extern "C" {
     fn quit(status: std::ffi::c_int);
     fn home();
@@ -58,16 +58,6 @@ extern "C" {
     static mut getting_one_screen: lbool;
     static mut tagoption: *mut std::ffi::c_char;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __time_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type time_t = __time_t;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[no_mangle]
 pub static mut squished: lbool = LFALSE;
 #[no_mangle]

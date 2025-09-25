@@ -1,4 +1,6 @@
 use crate::decode::lgetenv;
+use crate::defs::*;
+use crate::signal::sigs;
 use ::c2rust_bitfields;
 use std::ffi::CStr;
 use std::ffi::CString;
@@ -132,7 +134,6 @@ extern "C" {
     fn get_scrpos(scrpos: *mut scrpos, where_0: std::ffi::c_int);
     fn sindex_from_sline(sline: std::ffi::c_int) -> std::ffi::c_int;
     fn pr_expand(proto: *const std::ffi::c_char) -> *const std::ffi::c_char;
-    static mut sigs: std::ffi::c_int;
     static mut how_search: std::ffi::c_int;
     static mut caseless: std::ffi::c_int;
     static mut linenums: std::ffi::c_int;
@@ -158,10 +159,6 @@ extern "C" {
     static mut squished: lbool;
     static mut can_goto_line: std::ffi::c_int;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __off64_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type size_t = std::ffi::c_ulong;
 #[derive(Copy, Clone, BitfieldStruct)]
 #[repr(C)]
 pub struct _IO_FILE {
@@ -200,13 +197,6 @@ pub struct _IO_FILE {
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
 pub type wint_t = std::ffi::c_uint;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct scrpos {

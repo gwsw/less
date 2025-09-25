@@ -1,3 +1,4 @@
+use crate::defs::*;
 use crate::evar::expand_evars;
 use crate::screen::special_key_str;
 use crate::util::ptr_to_str;
@@ -76,17 +77,6 @@ extern "C" {
     static mut mousecap: i32;
     static mut sc_height: std::ffi::c_int;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __ssize_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type ssize_t = __ssize_t;
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {
@@ -1379,7 +1369,7 @@ pub unsafe extern "C" fn lesskey(tables: &mut Tables, filename: &[u8], sysvar: b
 
     n = read(f, buf as *mut std::ffi::c_void, len as size_t);
     close(f);
-    if n != len {
+    if n as i64 != len {
         free(buf as *mut std::ffi::c_void);
         return -1;
     }

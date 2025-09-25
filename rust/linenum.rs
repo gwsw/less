@@ -1,3 +1,4 @@
+use crate::defs::*;
 use crate::line::forw_raw_line;
 
 extern "C" {
@@ -20,17 +21,6 @@ extern "C" {
     static mut nonum_headers: std::ffi::c_int;
     static mut header_start_pos: POSITION;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __time_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type time_t = __time_t;
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type less_off_t = off_t;
-pub type POSITION = i32;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

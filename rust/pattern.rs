@@ -1,5 +1,5 @@
+use crate::defs::*;
 use ::c2rust_bitfields;
-use ::libc;
 extern "C" {
     pub type re_dfa_t;
     fn free(_: *mut std::ffi::c_void);
@@ -30,13 +30,6 @@ extern "C" {
     static mut caseless: std::ffi::c_int;
     static mut is_caseless: std::ffi::c_int;
 }
-pub type __off_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

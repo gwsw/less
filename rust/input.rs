@@ -199,7 +199,7 @@ pub unsafe extern "C" fn forw_line_seg(
                     null_line();
                     return -(1 as std::ffi::c_int) as POSITION;
                 }
-                backchars = pappend(c as u8, new_pos as i32);
+                backchars = pappend(c as u8, new_pos as i64);
                 new_pos += 1;
                 if backchars > 0 {
                     pshift_all();
@@ -241,7 +241,7 @@ pub unsafe extern "C" fn forw_line_seg(
         chopped = false;
         loop {
             if c == b'\n' as i32 || c == EOI {
-                backchars = pflushmbc();
+                backchars = pflushmbc() as i64;
                 new_pos = ch_tell();
                 if backchars > 0 && (nochop || chop_line() == 0) && hshift == 0 {
                     new_pos -= (backchars + 1) as POSITION;
@@ -259,8 +259,8 @@ pub unsafe extern "C" fn forw_line_seg(
                 /*
                  * Append the char to the line and get the next char.
                  */
-                backchars = pappend(c as u8, (ch_tell() - 1) as i32);
-                if backchars > 0 as std::ffi::c_int {
+                backchars = pappend(c as u8, (ch_tell() - 1) as i64);
+                if backchars > 0 {
                     /*
                      * The char won't fit in the line; the line
                      * is too long to print in the screen width.
@@ -518,7 +518,7 @@ pub unsafe extern "C" fn back_line(
                         break '_loop;
                     }
                 } else {
-                    backchars = pappend(c as u8, (ch_tell() - 1) as i32);
+                    backchars = pappend(c as u8, (ch_tell() - 1) as i64) as i32;
                     if backchars > 0 {
                         /*
                          * Got a full printable line, but we haven't

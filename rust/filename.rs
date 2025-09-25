@@ -1,4 +1,5 @@
 use crate::decode::{lgetenv, lgetenv_ext};
+use crate::defs::*;
 use crate::xbuf::XBuffer;
 use ::c2rust_bitfields;
 use std::ffi::CString;
@@ -94,8 +95,8 @@ pub type __syscall_slong_t = std::ffi::c_long;
 pub type ino_t = __ino_t;
 pub type dev_t = __dev_t;
 pub type off_t = __off_t;
-pub type ssize_t = __ssize_t;
-pub type size_t = std::ffi::c_ulong;
+pub type less_stat_t = stat;
+pub type less_off_t = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct timespec {
@@ -158,14 +159,6 @@ pub struct stat {
     pub st_ctim: timespec,
     pub __glibc_reserved: [__syscall_slong_t; 3],
 }
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LWCHAR = std::ffi::c_ulong;
-pub type less_off_t = off_t;
-pub type less_stat_t = stat;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {

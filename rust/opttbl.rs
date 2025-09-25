@@ -1,6 +1,6 @@
 use crate::decode::lgetenv;
+use crate::defs::*;
 use crate::xbuf::XBuffer;
-use ::libc;
 extern "C" {
     fn strlen(_: *const std::ffi::c_char) -> std::ffi::c_ulong;
     fn sprefix(
@@ -43,11 +43,6 @@ extern "C" {
     fn opt_nosearch_header_cols(type_0: std::ffi::c_int, s: *const std::ffi::c_char);
     fn opt_no_paste(type_0: std::ffi::c_int, s: *const std::ffi::c_char);
 }
-pub type size_t = std::ffi::c_ulong;
-pub type lbool = std::ffi::c_uint;
-pub const LTRUE: lbool = 1;
-pub const LFALSE: lbool = 0;
-pub type LWCHAR = std::ffi::c_ulong;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct loption {

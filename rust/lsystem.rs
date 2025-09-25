@@ -1,4 +1,5 @@
 use crate::decode::lgetenv;
+use crate::defs::*;
 use ::c2rust_bitfields;
 use ::libc;
 use std::ffi::CString;
@@ -46,10 +47,6 @@ extern "C" {
     fn open_tty() -> std::ffi::c_int;
     fn signal(__sig: std::ffi::c_int, __handler: __sighandler_t) -> __sighandler_t;
 }
-pub type __off_t = std::ffi::c_long;
-pub type __off64_t = std::ffi::c_long;
-pub type off_t = __off_t;
-pub type size_t = std::ffi::c_ulong;
 #[derive(Copy, Clone, BitfieldStruct)]
 #[repr(C)]
 pub struct _IO_FILE {
@@ -87,9 +84,6 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-pub type less_off_t = off_t;
-pub type POSITION = less_off_t;
-pub type LINENUM = off_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union parg {
