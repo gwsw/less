@@ -582,6 +582,22 @@ static int mouse_wheel_up(void)
 }
 
 /*
+ * Return action for a mouse wheel left event.
+ */
+static int mouse_wheel_left(void)
+{
+	return ((mousecap == OPT_ONPLUS) ? A_R_MOUSE : A_L_MOUSE);
+}
+
+/*
+ * Return action for a mouse wheel right event.
+ */
+static int mouse_wheel_right(void)
+{
+	return ((mousecap == OPT_ONPLUS) ? A_L_MOUSE : A_R_MOUSE);
+}
+
+/*
  * Return action for the left mouse button trigger.
  */
 static int mouse_button_left(int x, int y, lbool down, lbool drag)
@@ -701,6 +717,10 @@ static int x11mouse_action(lbool skip)
 		return mouse_wheel_down();
 	case X11MOUSE_WHEEL_UP:
 		return mouse_wheel_up();
+	case X11MOUSE_WHEEL_LEFT:
+		return mouse_wheel_left();
+	case X11MOUSE_WHEEL_RIGHT:
+		return mouse_wheel_right();
 	case X11MOUSE_BUTTON1:
 	case X11MOUSE_BUTTON2:
 	case X11MOUSE_BUTTON3:
@@ -735,6 +755,10 @@ static int x116mouse_action(lbool skip)
 		return mouse_wheel_down();
 	case X11MOUSE_WHEEL_UP:
 		return mouse_wheel_up();
+	case X11MOUSE_WHEEL_LEFT:
+		return mouse_wheel_left();
+	case X11MOUSE_WHEEL_RIGHT:
+		return mouse_wheel_right();
 	case X11MOUSE_BUTTON1:
 	case X11MOUSE_BUTTON2:
 	case X11MOUSE_BUTTON3: {

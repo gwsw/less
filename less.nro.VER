@@ -1851,6 +1851,8 @@ description for acceptable values of \fIn\fP.
 Enables mouse input:
 scrolling the mouse wheel down moves forward in the file,
 scrolling the mouse wheel up moves backwards in the file,
+scrolling the mouse wheel left scrolls left in the file,
+scrolling the mouse wheel right scrolls right in the file,
 left-click sets the "#" mark to the line where the mouse is clicked,
 and right-click (or any other) returns to the "#" mark position.
 Holding down the left button and dragging also moves in the file.
@@ -1858,7 +1860,7 @@ If a left-click is performed with the mouse cursor on an OSC 8 hyperlink,
 the hyperlink is selected as if by the \*^O\*^N command.
 If a left-click is performed with the mouse cursor on an OSC 8 hyperlink
 which is already selected, the hyperlink is opened as if by the \*^O\*^O command.
-The number of lines to scroll when the wheel is moved
+The number of lines or columns to scroll when the wheel is moved
 can be set by the
 .B "\-\-wheel\-lines"
 option.
@@ -2048,13 +2050,13 @@ ANSI color escape sequences (as defined in
 https://\*:www\*:.ecma\-international\*:.org/\*:publications\-and\-standards/\*:standards/\*:ecma\-48).
 .hy
 .IP "\fB\-\-wheel\-lines=\fP\fIn\fP"
-Set the number of lines to scroll when the mouse wheel is scrolled
+Set the number of lines or columns to scroll when the mouse wheel is scrolled
 and the
 .B "\-\-mouse"
 or
 .B "\-\-MOUSE"
 option is in effect.
-The default is 1 line.
+The default is 1 line or column.
 .IP "\fB\-\-wordwrap\fP"
 When the
 .B "\-S"

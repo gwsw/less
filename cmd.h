@@ -76,17 +76,19 @@
 #define A_X11MOUSE_IN          64
 #define A_F_MOUSE              66
 #define A_B_MOUSE              67
+#define A_L_MOUSE              68
+#define A_R_MOUSE              69
 /* Note "X116" refers to extended (1006) X11 mouse reporting. */
-#define A_X116MOUSE_IN         68
-#define A_PSHELL               69
-#define A_CLR_SEARCH           70
-#define A_OSC8_F_SEARCH        71
-#define A_OSC8_B_SEARCH        72
-#define A_OSC8_OPEN            73
-#define A_OSC8_JUMP            74
-#define A_START_PASTE          75 /* must not overlap EC_* */
-#define A_END_PASTE            76 /* must not overlap EC_* */
-#define A_F_FOREVER_BELL       77
+#define A_X116MOUSE_IN         70
+#define A_PSHELL               71
+#define A_CLR_SEARCH           72
+#define A_OSC8_F_SEARCH        73
+#define A_OSC8_B_SEARCH        74
+#define A_OSC8_OPEN            75
+#define A_OSC8_JUMP            76
+#define A_START_PASTE          77 /* must not overlap EC_* */
+#define A_END_PASTE            78 /* must not overlap EC_* */
+#define A_F_FOREVER_BELL       79
 
 /* These values must not conflict with any A_* or EC_* value. */
 #define A_INVALID              100
