@@ -1869,6 +1869,26 @@ Like
 .BR "\-\-mouse" ","
 except the direction scrolled
 on mouse wheel movement is reversed.
+.IP "\fB\-\-horz-mouse\fP"
+Enables horizontal mouse input:
+scrolling the mouse wheel left scrolls left in the file,
+scrolling the mouse wheel right scrolls right in the file,
+Holding down the left button and dragging also moves horizontally in the file.
+The number of columns to scroll when the wheel is moved can be set by the
+.B "\-\-wheel\-lines"
+option.
+The
+.B "\-\-horz-mouse"
+option implies the
+.B "\-\-mouse"
+option
+and thus works only on terminals which support X11 mouse reporting,
+and on Windows.
+.IP "\fB\-\-HORZ-MOUSE\fP"
+Like
+.BR "\-\-horz-mouse" ","
+except the direction scrolled
+on horizontal mouse wheel movement is reversed.
 .IP "\fB\-\-no\-edit\-warn\fP"
 Don't print a warning message when using the v command
 on a file which was opened using a LESSOPEN preprocessor
@@ -2048,13 +2068,15 @@ ANSI color escape sequences (as defined in
 https://\*:www\*:.ecma\-international\*:.org/\*:publications\-and\-standards/\*:standards/\*:ecma\-48).
 .hy
 .IP "\fB\-\-wheel\-lines=\fP\fIn\fP"
-Set the number of lines to scroll when the mouse wheel is scrolled
+Set the number of lines or columns to scroll when the mouse wheel is scrolled
 and the
-.B "\-\-mouse"
+.BR "\-\-mouse" ","
+.BR "\-\-MOUSE" ","
+.B "\-\-horz-mouse"
 or
-.B "\-\-MOUSE"
+.B "\-\-HORZ-MOUSE"
 option is in effect.
-The default is 1 line.
+The default is 1 line or column.
 .IP "\fB\-\-wordwrap\fP"
 When the
 .B "\-S"

@@ -54,6 +54,7 @@ extern long match_shift_fraction;
 extern LWCHAR rscroll_char;
 extern int rscroll_attr;
 extern int mousecap;
+extern int horz_mousecap;
 extern int wheel_lines;
 extern int less_is_more;
 extern int linenum_width;
@@ -909,8 +910,33 @@ public void opt_mousecap(int type, constant char *s)
 			deinit_mouse();
 		else
 			init_mouse();
-		break;
+		// fallthough
 	case INIT:
+		if (mousecap == OPT_OFF && horz_mousecap != OPT_OFF) {
+			horz_mousecap = OPT_OFF;
+			opt_horz_mousecap(type, s);
+		}
+		break;
+	case QUERY:
+		break;
+	}
+}
+
+/*
+ * Handler for the --horz-mouse option.
+ */
+	/*ARGSUSED*/
+public void opt_horz_mousecap(int type, constant char *s)
+{
+	switch (type)
+	{
+	case TOGGLE:
+	case INIT:
+		if (horz_mousecap != OPT_OFF && mousecap == OPT_OFF) {
+			mousecap = horz_mousecap;
+			opt_mousecap(type, s);
+		}
+		break;
 	case QUERY:
 		break;
 	}

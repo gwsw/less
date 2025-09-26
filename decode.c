@@ -35,6 +35,8 @@
 
 extern int erase_char, erase2_char, kill_char;
 extern int mousecap;
+extern int horz_mousecap;
+extern int hshift;
 extern int sc_height;
 extern char *no_config;
 
@@ -582,30 +584,69 @@ static int mouse_wheel_up(void)
 }
 
 /*
+ * Return action for a mouse wheel left event.
+ */
+static int mouse_wheel_left(void)
+{
+	switch (horz_mousecap) {
+		case OPT_ON: return A_L_MOUSE;
+		case OPT_ONPLUS: return A_R_MOUSE;
+		case OPT_OFF: return A_NOACTION;
+	}
+}
+
+/*
+ * Return action for a mouse wheel right event.
+ */
+static int mouse_wheel_right(void)
+{
+	switch (horz_mousecap) {
+		case OPT_ON: return A_R_MOUSE;
+		case OPT_ONPLUS: return A_L_MOUSE;
+		case OPT_OFF: return A_NOACTION;
+	}
+}
+
+/*
  * Return action for the left mouse button trigger.
  */
 static int mouse_button_left(int x, int y, lbool down, lbool drag)
 {
+	static int last_drag_x = -1;
 	static int last_drag_y = -1;
 	static int last_click_y = -1;
 
 	if (down && !drag)
 	{
+		last_drag_x = x;
 		last_drag_y = last_click_y = y;
 	}
-	if (allow_drag && drag && last_drag_y >= 0)
+	if (allow_drag && drag)
 	{
-		/* Drag text up/down */
-		if (y > last_drag_y)
-		{
+		if (horz_mousecap != OPT_OFF && last_drag_x >= 0 && x != last_drag_x) {
+			/* Drag text left/right */
+			pos_rehead();
+			if (hshift < x - last_drag_x)
+				hshift = 0;
+			else
+				hshift -= x - last_drag_x;
+			screen_trashed();
 			cmd_exec();
-			backward(y - last_drag_y, FALSE, FALSE, FALSE);
-			last_drag_y = y;
-		} else if (y < last_drag_y)
-		{
-			cmd_exec();
-			forward(last_drag_y - y, FALSE, FALSE, FALSE);
-			last_drag_y = y;
+			last_drag_x = x;
+		}
+		if (last_drag_y >= 0) {
+			/* Drag text up/down */
+			if (y > last_drag_y)
+			{
+				cmd_exec();
+				backward(y - last_drag_y, FALSE, FALSE, FALSE);
+				last_drag_y = y;
+			} else if (y < last_drag_y)
+			{
+				cmd_exec();
+				forward(last_drag_y - y, FALSE, FALSE, FALSE);
+				last_drag_y = y;
+			}
 		}
 	} else if (!down)
 	{
@@ -701,6 +742,10 @@ static int x11mouse_action(lbool skip)
 		return mouse_wheel_down();
 	case X11MOUSE_WHEEL_UP:
 		return mouse_wheel_up();
+	case X11MOUSE_WHEEL_LEFT:
+		return mouse_wheel_left();
+	case X11MOUSE_WHEEL_RIGHT:
+		return mouse_wheel_right();
 	case X11MOUSE_BUTTON1:
 	case X11MOUSE_BUTTON2:
 	case X11MOUSE_BUTTON3:
@@ -735,6 +780,10 @@ static int x116mouse_action(lbool skip)
 		return mouse_wheel_down();
 	case X11MOUSE_WHEEL_UP:
 		return mouse_wheel_up();
+	case X11MOUSE_WHEEL_LEFT:
+		return mouse_wheel_left();
+	case X11MOUSE_WHEEL_RIGHT:
+		return mouse_wheel_right();
 	case X11MOUSE_BUTTON1:
 	case X11MOUSE_BUTTON2:
 	case X11MOUSE_BUTTON3: {

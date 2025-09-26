@@ -3242,6 +3242,9 @@ static lbool win32_mouse_event(XINPUT_RECORD *xip)
 	case MOUSE_WHEELED:
 		b = X11MOUSE_OFFSET + (((int)xip->ir.Event.MouseEvent.dwButtonState < 0) ? X11MOUSE_WHEEL_DOWN : X11MOUSE_WHEEL_UP);
 		break;
+	case MOUSE_HWHEELED:
+		b = X11MOUSE_OFFSET + (((int)xip->ir.Event.MouseEvent.dwButtonState < 0) ? X11MOUSE_WHEEL_LEFT : X11MOUSE_WHEEL_RIGHT);
+		break;
 	case MOUSE_MOVED:
 		if (xip->ir.Event.MouseEvent.dwButtonState != 1)
 			return (FALSE);

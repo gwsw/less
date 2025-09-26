@@ -1648,6 +1648,29 @@ public void commands(void)
 			backward(wheel_lines, FALSE, FALSE, FALSE);
 			break;
 
+		case A_L_MOUSE:
+			/*
+			 * Left wheel_lines lines.
+			 */
+			pos_rehead();
+			if (wheel_lines > hshift)
+				hshift = 0;
+			else
+				hshift -= wheel_lines;
+			screen_trashed();
+			cmd_exec();
+			break;
+
+		case A_R_MOUSE:
+			/*
+			 * Right wheel_lines lines.
+			 */
+			pos_rehead();
+			hshift += wheel_lines;
+			screen_trashed();
+			cmd_exec();
+			break;
+
 		case A_FF_LINE:
 			/*
 			 * Force forward N (default 1) line.

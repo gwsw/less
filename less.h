@@ -631,14 +631,16 @@ typedef enum {
 #endif
 
 /* X11 mouse reporting definitions */
-#define X11MOUSE_BUTTON1    0 /* Left button press */
-#define X11MOUSE_BUTTON2    1 /* Middle button press */
-#define X11MOUSE_BUTTON3    2 /* Right button press */
-#define X11MOUSE_BUTTON_REL 3 /* Button release */
-#define X11MOUSE_DRAG       0x20 /* Drag with button down */
-#define X11MOUSE_WHEEL_UP   0x40 /* Wheel scroll up */
-#define X11MOUSE_WHEEL_DOWN 0x41 /* Wheel scroll down */
-#define X11MOUSE_OFFSET     0x20 /* Added to button & pos bytes to create a char */
+#define X11MOUSE_BUTTON1     0 /* Left button press */
+#define X11MOUSE_BUTTON2     1 /* Middle button press */
+#define X11MOUSE_BUTTON3     2 /* Right button press */
+#define X11MOUSE_BUTTON_REL  3 /* Button release */
+#define X11MOUSE_DRAG        0x20 /* Drag with button down */
+#define X11MOUSE_WHEEL_UP    0x40 /* Wheel scroll up */
+#define X11MOUSE_WHEEL_DOWN  0x41 /* Wheel scroll down */
+#define X11MOUSE_WHEEL_LEFT  0x42 /* Wheel scroll left */
+#define X11MOUSE_WHEEL_RIGHT 0x43 /* Wheel scroll right */
+#define X11MOUSE_OFFSET      0x20 /* Added to button & pos bytes to create a char */
 
 /* Security features. */
 #define SF_EDIT             (1<<1)  /* Edit file (v) */
