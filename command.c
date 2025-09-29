@@ -93,6 +93,7 @@ static int screen_trashed_value = 0;
 static lbool literal_char = FALSE;
 static lbool ignoring_input = FALSE;
 static struct scrpos search_incr_pos = { NULL_POSITION, 0 };
+static int search_incr_hshift;
 #if HAVE_TIME
 static time_type ignoring_input_time;
 #endif
@@ -217,6 +218,7 @@ static void mca_search(void)
 		/* Remember where the incremental search started. */
 		get_scrpos(&search_incr_pos, TOP);
 		search_incr_start = search_pos(search_type);
+		search_incr_hshift = hshift;
 	}
 	mca_search1();
 	set_mlist(ml_search, 0);
@@ -766,6 +768,7 @@ static int mca_char(char c)
 			{
 				/* User has backspaced to an empty pattern. */
 				undo_search(1);
+				hshift = search_incr_hshift;
 				jump_loc(search_incr_pos.pos, search_incr_pos.ln);
 			} else
 			{
@@ -779,6 +782,7 @@ static int mca_char(char c)
 				{
 					/* No match, invalid pattern, etc. */
 					undo_search(1);
+					hshift = search_incr_hshift;
 					jump_loc(search_incr_pos.pos, search_incr_pos.ln);
 				}
 				no_poll = FALSE;
