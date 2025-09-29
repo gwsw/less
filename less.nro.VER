@@ -106,10 +106,16 @@ Scroll horizontally left N characters, default half the screen width
 (see the \-# option).
 If a number N is specified, it becomes the default for future RIGHTARROW
 and LEFTARROW commands.
-.IP "ESC-} or \(haRIGHTARROW"
+.IP "ESC-} or \(haRIGHTARROW or END"
 Scroll horizontally right to show the end of the longest displayed line.
-.IP "ESC-{ or \(haLEFTARROW"
+.IP "ESC-{ or \(haLEFTARROW or HOME"
 Scroll horizontally left back to the first column.
+.IP "\(haEND or SHIFT-END"
+Go to line N in the file, default the end of the file, and
+scroll horizontally right to show the end of the longest displayed line.
+.IP "\(haHOME or SHIFT-HOME"
+Go to line N in the file, default 1 (beginning of file),
+and scroll horizontally left back to the first column.
 .IP "r or \(haR or \(haL"
 Repaint the screen.
 .IP R
@@ -1692,7 +1698,7 @@ If the completed filename is a directory, a "/" is appended to the filename.
 (On MS-DOS and Windows systems, a "\e" is appended.)
 The environment variable LESSSEPARATOR can be used to specify a
 different character to append to a directory name.
-.IP "BACKTAB [ ESC-TAB ]"
+.IP "BACKTAB (SHIFT-TAB) [ ESC-TAB ]"
 Like, TAB, but cycles in the reverse direction thru the matching filenames.
 .IP "\(haL"
 Complete the partial filename to the left of the cursor.

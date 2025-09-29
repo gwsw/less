@@ -171,5 +171,9 @@
 #define SK_PAD_DOT             31
 #define SK_PAD_COMMA           32
 #define SK_PAD_ZERO            33
+#define SK_SHIFT_HOME          34
+#define SK_SHIFT_END           35
+#define SK_CTL_HOME            36
+#define SK_CTL_END             37
 
 #define SK_CONTROL_K           40

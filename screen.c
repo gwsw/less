@@ -1034,6 +1034,10 @@ public constant char * special_key_str(int key)
 	static char k_backtab[]         = { '\340', PCK_SHIFT_TAB, 0 };
 	static char k_pagedown[]        = { '\340', PCK_PAGEDOWN, 0 };
 	static char k_pageup[]          = { '\340', PCK_PAGEUP, 0 };
+	static char k_ctl_home[]        = { '\340', PCK_CTL_HOME, 0 };
+	static char k_ctl_end[]         = { '\340', PCK_CTL_END, 0 };
+	static char k_shift_home[]      = { '\340', PCK_SHIFT_HOME, 0 };
+	static char k_shift_end[]       = { '\340', PCK_SHIFT_END, 0 };
 	static char k_f1[]              = { '\340', PCK_F1, 0 };
 #endif
 #if !MSDOS_COMPILER
@@ -1138,6 +1142,18 @@ public constant char * special_key_str(int key)
 	case SK_BACKTAB:
 		s = k_backtab;
 		break;
+	case SK_SHIFT_HOME:
+		s = k_shift_home;
+		break;
+	case SK_CTL_HOME:
+		s = k_ctl_home;
+		break;
+	case SK_SHIFT_END:
+		s = k_shift_end;
+		break;
+	case SK_CTL_END:
+		s = k_ctl_end;
+		break;
 #else
 	case SK_RIGHT_ARROW:
 		s = ltgetstr("kcuf1", "kr", &sp);
@@ -1160,8 +1176,20 @@ public constant char * special_key_str(int key)
 	case SK_HOME:
 		s = ltgetstr("khome", "kh", &sp);
 		break;
+	case SK_SHIFT_HOME:
+		s = ltgetstr("kHOM", "#2", &sp);
+		break;
+	case SK_CTL_HOME:
+		s = ltgetstr("kHOM5", NULL, &sp);
+		break;
 	case SK_END:
 		s = ltgetstr("kend", "@7", &sp);
+		break;
+	case SK_SHIFT_END:
+		s = ltgetstr("kEND", "#7", &sp);
+		break;
+	case SK_CTL_END:
+		s = ltgetstr("kEND5", NULL, &sp);
 		break;
 	case SK_INSERT:
 		s = ltgetstr("kich1", "kI", &sp);
@@ -1256,6 +1284,7 @@ public constant char * special_key_str(int key)
 	return (s);
 }
 
+#if !MSDOS_COMPILER
 static constant char *ltgoto(constant char *cap, int col, int line)
 {
 #if HAVE_TERMINFO
@@ -1264,6 +1293,7 @@ static constant char *ltgoto(constant char *cap, int col, int line)
 	return tgoto(cap, col, line);
 #endif
 }
+#endif /* MSDOS_COMPILER */
 
 #if MSDOS_COMPILER
 public void init_win_colors(void)
@@ -3274,11 +3304,29 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 		case PCK_DELETE: /* delete */
 			scan = PCK_CTL_DELETE;
 			break;
+		case PCK_HOME:
+			scan = PCK_CTL_HOME;
+			break;
+		case PCK_END:
+			scan = PCK_CTL_END;
+			break;
 		}
 	} else if (xip->ir.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
 	{
 		if (xip->ichar == '\t')
 			scan = PCK_SHIFT_TAB;
+		else
+		{
+			switch (xip->ir.Event.KeyEvent.wVirtualScanCode)
+			{
+				case PCK_HOME:
+					scan = PCK_SHIFT_HOME;
+					break;
+				case PCK_END:
+					scan = PCK_SHIFT_END;
+					break;
+			}
+		}
 	}
 	if (scan < 0 && xip->ichar == 0)
 		scan = xip->ir.Event.KeyEvent.wVirtualScanCode;
