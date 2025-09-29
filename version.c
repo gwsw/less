@@ -1059,6 +1059,7 @@ v682  8/24/25   Add --cmd; fix lesskey bug using #stop; fix lesskey bug
 v683  9/4/25    Fix bug if cmd char received during file read.
 v684  9/18/25   Allow mixing of options and filenames on command line;
                 add LESS_TERMCAP_SUSPEND & LESS_TERMCAP_RESUME.
+v685
 */
 
-char version[] = "684";
+char version[] = "685x";
