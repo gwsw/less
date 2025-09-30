@@ -113,9 +113,7 @@ public constant char * forw_textlist(struct textlist *tlist, constant char *prev
 		s = tlist->string;
 	else
 		s = prev + strlen(prev);
-	if (s >= tlist->endstring)
-		return (NULL);
-	while (*s == '\0')
+	while (s < tlist->endstring && *s == '\0')
 		s++;
 	if (s >= tlist->endstring)
 		return (NULL);
