@@ -1190,6 +1190,7 @@ static lbool matches_filters(POSITION pos, char *cline, size_t line_len, int *ch
 			struct hilite hl;
 			hl.hl_startpos = linepos;
 			hl.hl_endpos = pos;
+            hl.hl_attr = 0;
 			add_hilite(&filter_anchor, &hl);
 			free(cline);
 			free(chpos);
