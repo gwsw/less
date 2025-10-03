@@ -203,9 +203,11 @@ Followed by another single quote, returns to the position at
 which the last "large" movement command was executed.
 Followed by a \(ha or $, jumps to the beginning or end of the
 file respectively.
-Marks are preserved when a new file is examined within a single instance of
+Marks are preserved when a new file is examined within a single invocation of
 .BR less ,
 so the \(aq command can be used to switch between input files.
+The \-\-save-marks option causes marks to be preserved across different invocations of
+.BR less .
 .IP "\(haX\(haX"
 Same as single quote.
 .IP "ESC-m"
