@@ -2,6 +2,7 @@ use crate::charset::init_charset;
 use crate::decode::{expand_cmd_tables, init_cmds, Tables};
 use crate::decode::{isnullenv, lgetenv};
 use crate::defs::*;
+use crate::edit::edit_first;
 use crate::ifile::{IFile, IFileHandle, IFileManager};
 use crate::line::init_line;
 use crate::mark::Marks;
@@ -42,7 +43,6 @@ extern "C" {
     fn commands();
     fn check_altpipe_error();
     fn edit(filename: *const std::ffi::c_char) -> std::ffi::c_int;
-    fn edit_first() -> std::ffi::c_int;
     fn edit_next(n: std::ffi::c_int) -> std::ffi::c_int;
     fn cat_file();
     fn last_component(name: *const std::ffi::c_char) -> *const std::ffi::c_char;
@@ -455,13 +455,13 @@ unsafe fn main_0() -> i32 {
     if dohelp != 0 {
         ifile = Some(ifiles.get_ifile(FAKE_HELPFILE, ifile));
     }
-    for arg in args.iter() {
+    for arg in args[1..].iter() {
         let _ = ifiles.get_ifile(arg, ifile);
         ifile = ifiles.prev_ifile(None);
     }
     if is_tty == 0 {
         set_output(1 as std::ffi::c_int);
-        if edit_first() == 0 as std::ffi::c_int {
+        if edit_first(&mut ifiles) == 0 {
             loop {
                 cat_file();
                 if !(edit_next(1 as std::ffi::c_int) == 0 as std::ffi::c_int) {
@@ -501,8 +501,8 @@ unsafe fn main_0() -> i32 {
         }
         initial_scrpos.ln = jump_sline;
     } else {
-        if edit_first() != 0 {
-            quit(1 as std::ffi::c_int);
+        if edit_first(&mut ifiles) != 0 {
+            quit(1);
         }
         if quit_if_one_screen != 0 {
             if nifile() > 1 as std::ffi::c_int {

@@ -176,11 +176,8 @@ pub struct MlOption {
     pub opt_func: fn(&str, usize) -> (),
 }
 
-#[no_mangle]
 pub static mut fd0: std::ffi::c_int = 0 as std::ffi::c_int;
-#[no_mangle]
 pub static mut curr_dev: dev_t = 0;
-#[no_mangle]
 pub static mut curr_ino: ino_t = 0;
 
 #[derive(Debug, Clone)]
@@ -204,7 +201,6 @@ fn set_tabs_dummy(s: &str, len: usize) {}
  * words, returning each one as a standard null-terminated string.
  * back_textlist does the same, but runs thru the list backwards.
  */
-#[no_mangle]
 fn init_textlist(s: &str) -> TextList {
     let mut delim_quoted = false;
     let mut s = s.trim_start();
@@ -238,7 +234,6 @@ fn init_textlist(s: &str) -> TextList {
     TextList::new(result)
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn forw_textlist<'a>(
     tlist: &'a TextList,
     prev: Option<&String>,
@@ -263,7 +258,6 @@ pub unsafe extern "C" fn forw_textlist<'a>(
     None
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn back_textlist<'a>(
     tlist: &'a TextList,
     prev: Option<&String>,
@@ -452,7 +446,6 @@ unsafe extern "C" fn close_pipe(mut pipefd: *mut FILE) {
 /*
  * Drain and close an input pipe if needed.
  */
-#[no_mangle]
 pub unsafe extern "C" fn close_altpipe(ifiles: &mut IFileManager, ifile: Option<IFileHandle>) {
     let altpipe = ifiles.get_altpipe(ifile);
     if !altpipe.is_none() && ch_getflags() & CH_KEEPOPEN != 0 {
@@ -466,7 +459,6 @@ pub unsafe extern "C" fn close_altpipe(ifiles: &mut IFileManager, ifile: Option<
  * Check for error status from the current altpipe.
  * May or may not close the pipe.
  */
-#[no_mangle]
 pub unsafe extern "C" fn check_altpipe_error(ifiles: &mut IFileManager) {
     if show_preproc_error == 0 {
         return;
@@ -524,7 +516,6 @@ unsafe extern "C" fn close_file(ifiles: &mut IFileManager) {
  * Filename == "-" means standard input.
  * Filename == NULL means just close the current file.
  */
-#[no_mangle]
 pub unsafe extern "C" fn edit(
     ifiles: &mut IFileManager,
     filename: Option<impl AsRef<Path>>,
@@ -578,11 +569,10 @@ unsafe extern "C" fn edit_error(
  * Edit a new file (given its IFILE).
  * ifile == NULL means just close the current file.
  */
-#[no_mangle]
 pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFileHandle>) -> i32 {
-    let mut f: std::ffi::c_int = 0;
-    let mut answer: std::ffi::c_int = 0;
-    let mut chflags: std::ffi::c_int = 0;
+    let mut f = 0;
+    let mut answer = 0;
+    let mut chflags = 0;
     let mut filename: Option<PathBuf> = None;
     let mut open_filename: Option<PathBuf> = None;
     let mut alt_filename: Option<PathBuf> = None;
@@ -590,7 +580,7 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
     let mut was_curr_ifile: Option<IFileHandle> = None;
     let mut p: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut parg: PARG = Parg::Null;
-    let mut nread: ssize_t = 0 as std::ffi::c_int as ssize_t;
+    let mut nread = 0;
     if ifile == curr_ifile {
         /*
          * Already have the correct file open.
@@ -603,13 +593,13 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
          * See if LESSOPEN specifies an "alternate" file to open.
          */
         filename = ifiles.get_filename(ifile).map(|p| p.to_path_buf());
-        /*
-         * File is already open.
-         * chflags and f are not used by ch_init if ifile has
-         * filestate which should be the case if we're here.
-         * Set them here to avoid uninitialized variable warnings.
-         */
         if let Some(_) = ifiles.get_altpipe(ifile) {
+            /*
+             * File is already open.
+             * chflags and f are not used by ch_init if ifile has
+             * filestate which should be the case if we're here.
+             * Set them here to avoid uninitialized variable warnings.
+             */
             chflags = 0;
             f = -1;
             alt_filename = ifiles.get_altfilename(ifile).map(|p| p.to_path_buf());
@@ -626,8 +616,7 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
             } else {
                 // FIXME
                 /*
-                alt_filename = Some(
-                    CStr::from_ptr(open_altfile(
+                alt_filename = open_altfile(
                         CString.new(filename.unwrap()).unwrap().as_ptr(),
                         &mut f,
                         &mut Some(*altpipe.unwrap()),
@@ -804,12 +793,23 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
      */
     curr_ifile = ifile;
     soft_eof = NULL_POSITION;
+    println!("altfilename: {:?}", alt_filename);
     ifiles.set_altfilename(curr_ifile, alt_filename);
-    ifiles.set_altpipe(curr_ifile, Some(Box::new(altpipe.clone().unwrap())));
+    println!("altpipe: {:?}", altpipe);
+    println!("curr_ifile: {:?}", curr_ifile);
+    if altpipe.is_none() {
+        ifiles.set_altpipe(curr_ifile, None);
+    } else {
+        ifiles.set_altpipe(curr_ifile, Some(Box::new(altpipe.clone().unwrap())));
+    }
     ifiles.set_open(curr_ifile);
-    let scr_pos = ifiles.get_pos(curr_ifile).unwrap();
-    initial_scrpos.ln = scr_pos.ln;
-    initial_scrpos.pos = scr_pos.pos as i64;
+    //let scr_pos = ifiles.get_pos(curr_ifile).unwrap();
+    if let Some(scr_pos) = ifiles.get_pos(curr_ifile) {
+        initial_scrpos.ln = scr_pos.ln;
+        initial_scrpos.pos = scr_pos.pos as i64;
+    } else {
+        println!("cannot get pos!");
+    }
     ch_init(f, chflags, nread);
     consecutive_nulls = 0;
     check_modelines();
@@ -901,7 +901,6 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
  * For each filename in the list, enter it into the ifile list.
  * Then edit the first one.
  */
-#[no_mangle]
 pub unsafe extern "C" fn edit_list(ifiles: &mut IFileManager, filelist: &str) -> i32 {
     let mut save_ifile: Option<IFileHandle> = None;
     let mut good_filename: Option<PathBuf> = None;
@@ -963,7 +962,6 @@ pub unsafe extern "C" fn edit_list(ifiles: &mut IFileManager, filelist: &str) ->
 /*
  * Edit the first file in the command line (ifile) list.
  */
-#[no_mangle]
 pub unsafe extern "C" fn edit_first(ifiles: &mut IFileManager) -> i32 {
     if ifiles.nifile() == 0 {
         return edit_stdin(ifiles);
@@ -975,7 +973,6 @@ pub unsafe extern "C" fn edit_first(ifiles: &mut IFileManager) -> i32 {
 /*
  * Edit the last file in the command line (ifile) list.
  */
-#[no_mangle]
 pub unsafe extern "C" fn edit_last(ifiles: &mut IFileManager) -> std::ffi::c_int {
     curr_ifile = None;
     return edit_prev(ifiles, 1);
@@ -1034,7 +1031,6 @@ unsafe extern "C" fn edit_inext(ifiles: &mut IFileManager, h: Option<IFileHandle
     return edit_istep(ifiles, h, n, 1);
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn edit_next(ifiles: &mut IFileManager, n: i32) -> i32 {
     return edit_istep(ifiles, curr_ifile, n, 1);
 }
@@ -1043,7 +1039,6 @@ unsafe extern "C" fn edit_iprev(ifiles: &mut IFileManager, h: Option<IFileHandle
     return edit_istep(ifiles, h, n, -(1 as std::ffi::c_int));
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn edit_prev(ifiles: &mut IFileManager, n: i32) -> i32 {
     return edit_istep(ifiles, curr_ifile, n, -(1 as std::ffi::c_int));
 }
@@ -1051,7 +1046,6 @@ pub unsafe extern "C" fn edit_prev(ifiles: &mut IFileManager, n: i32) -> i32 {
 /*
  * Edit a specific file in the command line (ifile) list.
  */
-#[no_mangle]
 pub unsafe extern "C" fn edit_index(ifiles: &mut IFileManager, n: i32) -> i32 {
     let mut h: Option<IFileHandle> = None;
     loop {
@@ -1066,7 +1060,6 @@ pub unsafe extern "C" fn edit_index(ifiles: &mut IFileManager, n: i32) -> i32 {
     return edit_ifile(ifiles, h);
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn save_curr_ifile(ifiles: &mut IFileManager) -> Option<IFileHandle> {
     if curr_ifile.is_some() {
         ifiles.hold_ifile(curr_ifile, 1);
@@ -1074,7 +1067,6 @@ pub unsafe extern "C" fn save_curr_ifile(ifiles: &mut IFileManager) -> Option<IF
     curr_ifile
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn unsave_ifile(ifiles: &mut IFileManager, save_ifile: Option<IFileHandle>) {
     if save_ifile.is_some() {
         ifiles.hold_ifile(save_ifile, -(1 as std::ffi::c_int));
@@ -1084,7 +1076,6 @@ pub unsafe extern "C" fn unsave_ifile(ifiles: &mut IFileManager, save_ifile: Opt
 /*
  * Reedit the ifile which was previously open.
  */
-#[no_mangle]
 pub unsafe extern "C" fn reedit_ifile(ifiles: &mut IFileManager, save_ifile: Option<IFileHandle>) {
     let next = ifiles.next_ifile(save_ifile);
     let prev = ifiles.prev_ifile(save_ifile);
@@ -1117,7 +1108,6 @@ pub unsafe extern "C" fn reedit_ifile(ifiles: &mut IFileManager, save_ifile: Opt
     quit(1);
 }
 
-#[no_mangle]
 pub unsafe extern "C" fn reopen_curr_ifile(ifiles: &mut IFileManager) {
     let save_ifile = save_curr_ifile(ifiles);
     close_file(ifiles);
@@ -1127,7 +1117,6 @@ pub unsafe extern "C" fn reopen_curr_ifile(ifiles: &mut IFileManager) {
 /*
  * Edit standard input.
  */
-#[no_mangle]
 pub unsafe extern "C" fn edit_stdin(ifiles: &mut IFileManager) -> i32 {
     if isatty(fd0) != 0 {
         error(
@@ -1144,7 +1133,6 @@ pub unsafe extern "C" fn edit_stdin(ifiles: &mut IFileManager) -> i32 {
  * Copy a file directly to standard output.
  * Used if standard output is not a tty.
  */
-#[no_mangle]
 pub unsafe extern "C" fn cat_file() {
     let mut c = 0;
     loop {
@@ -1162,7 +1150,6 @@ pub unsafe extern "C" fn cat_file() {
  * is standard input, create the log file.
  * We take care not to blindly overwrite an existing file.
  */
-#[no_mangle]
 pub unsafe extern "C" fn use_logfile(filename: &str) {
     let mut exists = false;
     let mut path = Path::new(filename);

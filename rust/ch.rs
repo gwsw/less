@@ -256,7 +256,7 @@ impl<R: Read + Seek> FileState<R> {
     }
 
     /// Get current logical position.
-    fn pos(&self) -> u64 {
+    pub fn pos(&self) -> u64 {
         Self::logical_pos(self.block, self.offset)
     }
 

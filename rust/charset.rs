@@ -1104,10 +1104,6 @@ pub unsafe extern "C" fn utf_len(ch: u8) -> usize {
     1
 }
 
-fn is_utf8_invalid(c: char) -> bool {
-    c as i32 & 0xFE == 0xFE
-}
-
 /*
  * Does the parameter point to the lead byte of a well-formed UTF-8 character?
  */
@@ -1116,7 +1112,7 @@ pub unsafe extern "C" fn is_utf8_well_formed(ss: &[u8], slen: usize) -> bool {
     let mut len = 0;
     let mut s0 = ss[0];
 
-    if is_utf8_invalid(s0 as char) {
+    if is_utf8_invalid(s0) {
         return false;
     }
     len = utf_len(ss[0]);
@@ -1143,27 +1139,44 @@ pub unsafe extern "C" fn is_utf8_well_formed(ss: &[u8], slen: usize) -> bool {
     }
     true
 }
-pub unsafe extern "C" fn utf_skip_to_lead(
-    mut pp: *mut *const std::ffi::c_char,
-    mut limit: *const std::ffi::c_char,
-) {
-    loop {
-        *pp = (*pp).offset(1);
-        if !(*pp < limit
-            && !(*(*pp).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0o377 as std::ffi::c_int
-                & 0xc0 as std::ffi::c_int
-                == 0xc0 as std::ffi::c_int
-                && !(*(*pp).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                    & 0o377 as std::ffi::c_int
-                    & 0xfe as std::ffi::c_int
-                    == 0xfe as std::ffi::c_int))
-            && !(*(*pp).offset(0 as std::ffi::c_int as isize) as std::ffi::c_int
-                & 0x80 as std::ffi::c_int
-                == 0 as std::ffi::c_int))
-        {
+
+/// Check if a byte is a UTF-8 lead byte (starts with 11xxxxxx pattern)
+#[inline]
+fn is_utf8_lead(c: u8) -> bool {
+    (c & 0xC0) == 0xC0
+}
+
+/// Check if a byte is an ASCII byte (starts with 0 bit, i.e., 0xxxxxxx)
+#[inline]
+fn is_ascii_octet(c: u8) -> bool {
+    (c & 0x80) == 0
+}
+
+#[inline]
+fn is_utf8_invalid(c: u8) -> bool {
+    c & 0xFE == 0xFE
+}
+
+#[inline]
+fn is_utf8_trail(c: u8) -> bool {
+    c & 0xC0 == 0x80
+}
+
+/// Skip bytes until a UTF-8 lead byte (11xxxxxx) or ASCII byte (0xxxxxxx) is found.
+///
+/// Updates the position to point to the next valid UTF-8 lead byte or ASCII byte.
+///
+/// # Arguments
+/// * `data` - The byte slice to search
+/// * `pos` - Mutable reference to the current position (will be updated)
+/// * `limit` - The maximum position (exclusive)
+pub fn utf_skip_to_lead(data: &[u8], pos: &mut usize, limit: usize) {
+    while *pos < limit && *pos < data.len() {
+        let byte = data[*pos];
+        if is_utf8_lead(byte) || is_ascii_octet(byte) {
             break;
         }
+        *pos += 1;
     }
 }
 
@@ -1239,10 +1252,6 @@ pub unsafe extern "C" fn put_wchar(mut pp: &mut [u8], ch: char) -> usize {
         idx += 1;
     }
     idx
-}
-
-fn is_utf8_trail(c: u8) -> bool {
-    c & 0xC0 == 0x80
 }
 
 /*

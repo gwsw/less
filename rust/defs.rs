@@ -63,3 +63,17 @@ pub const SEEK_END: i32 = 2;
 pub unsafe fn abort_sigs() -> bool {
     (sigs & (S_INTERRUPT | S_SWINTERRUPT | S_STOP)) != 0
 }
+
+/* Security features. */
+pub const SF_EDIT: i32 = 1 << 1; /* Edit file (v) */
+pub const SF_EXAMINE: i32 = 1 << 2; /* Examine file (:e) */
+pub const SF_GLOB: i32 = 1 << 3; /* Expand file pattern */
+pub const SF_HISTORY: i32 = 1 << 4; /* History file */
+pub const SF_LESSKEY: i32 = 1 << 5; /* Lesskey files */
+pub const SF_LESSOPEN: i32 = 1 << 6; /* LESSOPEN */
+pub const SF_LOGFILE: i32 = 1 << 7; /* Log file (s, -o) */
+pub const SF_PIPE: i32 = 1 << 8; /* Pipe (|) */
+pub const SF_SHELL: i32 = 1 << 9; /* Shell command (!) */
+pub const SF_STOP: i32 = 1 << 10; /* Stop signal */
+pub const SF_TAGS: i32 = 1 << 11; /* Tags */
+pub const SF_OSC8_OPEN: i32 = 1 << 12; /* OSC8 open */

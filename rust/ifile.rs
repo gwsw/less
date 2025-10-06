@@ -128,6 +128,7 @@ impl IFileManager {
         filename: impl AsRef<Path>,
         prev: Option<IFileHandle>,
     ) -> IFileHandle {
+        println!("---> new file: {:?}", filename.as_ref());
         self.link_after(prev, filename)
     }
 
@@ -278,6 +279,7 @@ impl IFileManager {
     }
 
     pub fn set_altfilename(&mut self, h: Option<IFileHandle>, alt: Option<impl AsRef<Path>>) {
+        println!("set: {:?}", h);
         if let Some(hh) = h {
             if let Some(f) = self.files.get_mut(hh.0) {
                 f.h_altfilename = alt.map(|p| p.as_ref().to_path_buf());
