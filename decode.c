@@ -193,8 +193,8 @@ static unsigned char cmdtable[] =
 	SK(SK_PAD_R),0,                 A_RSHIFT,
 	SK(SK_PAD_L),0,                 A_LSHIFT,
 	SK(SK_PAD_UR),0,                A_B_SCREEN,
-	SK(SK_PAD_UL),0,                A_GOLINE,
-	SK(SK_PAD_DR),0,                A_F_SCREEN,
+	SK(SK_PAD_UL),0,                A_LLSHIFT,
+	SK(SK_PAD_DR),0,                A_RRSHIFT,
 	SK(SK_PAD_DL),0,                A_GOEND,
 	SK(SK_PAD_STAR),0,              A_NOACTION|A_EXTRA,   '*',0,
 	SK(SK_PAD_SLASH),0,             A_NOACTION|A_EXTRA,   '/',0,
@@ -249,8 +249,12 @@ static unsigned char edittable[] =
 	ESC,SK(SK_BACKSPACE),0,         EC_W_BACKSPACE, /* ESC BACKSPACE */
 	ESC,'0',0,                      EC_HOME,        /* ESC 0 */
 	SK(SK_HOME),0,                  EC_HOME,        /* HOME */
+	SK(SK_SHIFT_HOME),0,            EC_HOME,        /* SHIFT-HOME */
+	SK(SK_CTL_HOME),0,              EC_HOME,        /* CTRL-HOME */
 	ESC,'$',0,                      EC_END,         /* ESC $ */
 	SK(SK_END),0,                   EC_END,         /* END */
+	SK(SK_SHIFT_END),0,             EC_END,         /* SHIFT-END */
+	SK(SK_CTL_END),0,               EC_END,         /* CTRL-END */
 	ESC,'k',0,                      EC_UP,          /* ESC k */
 	SK(SK_UP_ARROW),0,              EC_UP,          /* UPARROW */
 	ESC,'j',0,                      EC_DOWN,        /* ESC j */
