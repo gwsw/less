@@ -3,6 +3,9 @@
 .\" Define a string for the caret ("hat") as portably as possible.
 .ie \n(.g .ds ^ \(ha
 .el       .ds ^ ^
+.\" Define a string for the tilde as portably as possible.
+.ie \n(.g .ds ~ \(ti
+.el       .ds ~ ~
 .\" Define a string to interpolate the hyphenless break point escape
 .\" sequence (for URLs and similar) if the formatter claims groff
 .\" compatibility, else interpolate nothing.
@@ -19,7 +22,7 @@ less \- display the contents of a file in a terminal
 .br
 .B "less \-\-version"
 .br
-.B "less [\-[+]aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\(ti]"
+.B "less [\-[+]aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\*~]"
 .br
 .B "     [\-b \fIspace\/\fP] [\-h \fIlines\/\fP] [\-j \fIline\/\fP] [\-k \fIkeyfile\/\fP]"
 .br
@@ -1352,8 +1355,8 @@ Filenames containing a space should then be preceded by the open quote
 character and followed by the close quote character.
 Note that even after the quote characters are changed, this option
 remains \-" (a dash followed by a double quote).
-.IP "\-\(ti or \-\-tilde"
-Normally lines after end of file are displayed as a single tilde (\(ti).
+.IP "\-\*~ or \-\-tilde"
+Normally lines after end of file are displayed as a single tilde (\*~).
 This option causes lines after end of file to be displayed as blank lines.
 .IP "\-# or \-\-shift"
 Specifies the default number of positions to scroll horizontally
