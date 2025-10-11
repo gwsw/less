@@ -1,4 +1,9 @@
 .TH LESSECHO 1 "@@DATE@@" "less @@VERSION@@"
+.\" Define a string to interpolate the hyphenless break point escape
+.\" sequence (for URLs and similar) if the formatter claims groff
+.\" compatibility, else interpolate nothing.
+.ie \n(.g .ds : \:
+.el       .ds : \" empty
 .SH NAME
 lessecho \- expand metacharacters
 .SH SYNOPSIS
@@ -53,4 +58,7 @@ The default is that only arguments containing metacharacters are quoted.
 This manual page was written by Thomas Schoepf <schoepf@debian.org>,
 for the Debian GNU/Linux system (but may be used by others).
 .PP
-Report bugs at https://github.com/gwsw/less/issues.
+Report bugs at
+.nh
+https://\*:github\*:.com/\*:gwsw/\*:less/\*:issues.
+.hy

@@ -1,5 +1,10 @@
 '\" t
 .TH LESS 1 "@@DATE@@" "less @@VERSION@@"
+.\" Define a string to interpolate the hyphenless break point escape
+.\" sequence (for URLs and similar) if the formatter claims groff
+.\" compatibility, else interpolate nothing.
+.ie \n(.g .ds : \:
+.el       .ds : \" empty
 .SH NAME
 less \- display the contents of a file in a terminal
 .SH SYNOPSIS
@@ -804,7 +809,7 @@ the second specifies the background color.
 Each integer is a value between 0 and 255 inclusive which selects
 a "CSI 38;5" color value (see
 .nh
-https://en.wikipedia.org/wiki/ANSI_escape_code#SGR).
+https://\*:en\*:.wikipedia\*:.org/\*:wiki/\*:ANSI_escape_code\*:#SGR).
 .hy
 If either integer is a "-" or is omitted,
 the corresponding color is set to that of normal text.
@@ -840,7 +845,7 @@ CHAR_INFO.Attributes
 value, between 0 and 15 inclusive
 (see 
 .nh
-https://learn.microsoft.com/en\-us/windows/console/char\-info\-str).
+https://\*:learn\*:.microsoft\*:.com/\*:en\-us/\*:windows/\*:console/\*:char\-info\-str).
 .hy
 
 To avoid confusion, it is recommended that the equivalent letters rather than numbers
@@ -1219,7 +1224,7 @@ the name of a command compatible with
 and that command is executed to find the tag.
 (See 
 .nh
-http://www.gnu.org/software/global/global.html).
+http://\*:www\*:.gnu\*:.org/\*:software/\*:global/\*:global\*:.html).
 .hy
 The \-t option may also be specified from within
 .B less
@@ -1600,7 +1605,7 @@ The \-D option can be used to change the colors.
 Colored text works only if the terminal supports 
 ANSI color escape sequences (as defined in 
 .nh
-https://www.ecma\-international.org/publications\-and\-standards/standards/ecma\-48).
+https://\*:www\*:.ecma\-international\*:.org/\*:publications\-and\-standards/\*:standards/\*:ecma\-48).
 .hy
 .IP "\-\-wheel-lines=\fIn\fP"
 Set the number of lines to scroll when the mouse wheel is scrolled
@@ -2684,11 +2689,11 @@ Mark Nudelman
 .br
 Report bugs at 
 .nh
-https://github.com/gwsw/less/issues.
+https://\*:github\*:.com/\*:gwsw/\*:less/\*:issues.
 .hy
 .br
 For more information, see the less homepage at
 .br
 .nh
-https://greenwoodsoftware.com/less.
+https://\*:greenwoodsoftware\*:.com/\*:less.
 .hy
