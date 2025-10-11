@@ -1,5 +1,8 @@
 '\" t
 .TH LESSKEY 1 "@@DATE@@" "less @@VERSION@@"
+.\" Define a string for the caret ("hat") as portably as possible.
+.ie \n(.g .ds ^ \(ha
+.el       .ds ^ ^
 .\" Define a string to interpolate the hyphenless break point escape
 .\" sequence (for URLs and similar) if the formatter claims groff
 .\" compatibility, else interpolate nothing.
@@ -161,29 +164,29 @@ l l.
 e	forw\-line
 j	forw\-line
 \ekd	forw\-line
-^E	forw\-line
-^N	forw\-line
+\*^E	forw\-line
+\*^N	forw\-line
 k	back\-line
 y	back\-line
-^Y	back\-line
-^K	back\-line
-^P	back\-line
+\*^Y	back\-line
+\*^K	back\-line
+\*^P	back\-line
 J	forw\-line\-force
 K	back\-line\-force
 Y	back\-line\-force
 \eej	forw\-newline
 \eek	back\-newline
 d	forw\-scroll
-^D	forw\-scroll
+\*^D	forw\-scroll
 u	back\-scroll
-^U	back\-scroll
+\*^U	back\-scroll
 \e40	forw\-screen
 f	forw\-screen
-^F	forw\-screen
-^V	forw\-screen
+\*^F	forw\-screen
+\*^V	forw\-screen
 \ekD	forw\-screen
 b	back\-screen
-^B	back\-screen
+\*^B	back\-screen
 \eev	back\-screen
 \ekU	back\-screen
 z	forw\-window
@@ -194,8 +197,8 @@ F	forw\-forever
 \eeF	forw\-until\-hilite
 R	repaint\-flush
 r	repaint
-^R	repaint
-^L	repaint
+\*^R	repaint
+\*^L	repaint
 \eeu	undo\-hilite
 \eeU	clear\-search
 g	goto\-line
@@ -216,15 +219,15 @@ p	percent
 )	back\-bracket ()
 [	forw\-bracket []
 ]	back\-bracket []
-\ee^F	forw\-bracket
-\ee^B	back\-bracket
+\ee\*^F	forw\-bracket
+\ee\*^B	back\-bracket
 G	goto\-end
 \ee>	goto\-end
 >	goto\-end
 \eke	goto\-end
 \eeG	goto\-end\-buffered
 \&=	status
-^G	status
+\*^G	status
 :f	status
 /	forw\-search
 ?	back\-search
@@ -234,20 +237,20 @@ n	repeat\-search
 \een	repeat\-search\-all
 N	reverse\-search
 \eeN	reverse\-search\-all
-^O^N	osc8\-forw\-search
-^On	osc8\-forw\-search
-^O^P	osc8\-back\-search
-^Op	osc8\-back\-search
-^O^O	osc8\-open
+\*^O\*^N	osc8\-forw\-search
+\*^On	osc8\-forw\-search
+\*^O\*^P	osc8\-back\-search
+\*^Op	osc8\-back\-search
+\*^O\*^O	osc8\-open
 &	filter
 m	set\-mark
 M	set\-mark\-bottom
 \eem	clear\-mark
 \&'	goto\-mark
-^X^X	goto\-mark
+\*^X\*^X	goto\-mark
 E	examine
 :e	examine
-^X^V	examine
+\*^X\*^V	examine
 :n	next\-file
 :p	prev\-file
 t	next\-tag
