@@ -754,7 +754,7 @@ Standout text.
 .IP "u"
 Underlined text.
 .RE
-
+.PP
 .RS
 The uppercase letters and digits can be used only when the \-\-use\-color option is enabled.
 When text color is specified by both an uppercase letter and a lowercase letter,
@@ -847,7 +847,7 @@ value, between 0 and 15 inclusive
 .nh
 https://\*:learn\*:.microsoft\*:.com/\*:en\-us/\*:windows/\*:console/\*:char\-info\-str).
 .hy
-
+.IP
 To avoid confusion, it is recommended that the equivalent letters rather than numbers
 be used after a lowercase color selector on MS-DOS/Windows.
 .IP \(bu
@@ -1434,7 +1434,7 @@ This option selects the column in which the first character
 of the search match will be placed after the shift.
 In other words, there will be \fIn\fP characters visible 
 to the left of the search match.
-
+.IP
 Alternately, the number may be specified as a fraction of the width
 of the screen, starting with a decimal point: \&.5 is half of the
 screen width, \&.3 is three tenths of the screen width, and so on.
