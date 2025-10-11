@@ -3,7 +3,7 @@
 lessecho \- expand metacharacters
 .SH SYNOPSIS
 .B lessecho
-.I "[-ox] [-cx] [-pn] [-dn] [-mx] [-nn] [-ex] [-a] file ..."
+.I "[\-ox] [\-cx] [\-pn] [\-dn] [\-mx] [\-nn] [\-ex] [\-a] file ..."
 .SH "DESCRIPTION"
 .B lessecho
 is a program that simply echos its arguments on standard output.
@@ -18,12 +18,12 @@ A summary of options is included below.
 .TP
 .B \-e\fIx\fP
 Specifies "\fIx\fP", rather than backslash, to be the escape char for metachars.
-If \fIx\fP is "-", no escape char is used and arguments containing metachars
+If \fIx\fP is "\-", no escape char is used and arguments containing metachars
 are surrounded by quotes instead.
 .TP
 .B \-o\fIx\fP
 Specifies "\fIx\fP", rather than double-quote, to be the open quote character,
-which is used if the \-e- option is specified.
+which is used if the \-e\- option is specified.
 .TP
 .B \-c\fIx\fP
 Specifies "\fIx\fP" to be the close quote character.

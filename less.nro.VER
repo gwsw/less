@@ -751,7 +751,7 @@ Underlined text.
 .RE
 
 .RS
-The uppercase letters and digits can be used only when the \-\-use-color option is enabled.
+The uppercase letters and digits can be used only when the \-\-use\-color option is enabled.
 When text color is specified by both an uppercase letter and a lowercase letter,
 the uppercase letter takes precedence. 
 For example, error messages are normally displayed as standout text.
@@ -840,7 +840,7 @@ CHAR_INFO.Attributes
 value, between 0 and 15 inclusive
 (see 
 .nh
-https://learn.microsoft.com/en-us/windows/console/char-info-str).
+https://learn.microsoft.com/en\-us/windows/console/char\-info\-str).
 .hy
 
 To avoid confusion, it is recommended that the equivalent letters rather than numbers
@@ -1588,19 +1588,19 @@ If a line is marked, the entire line (rather than just the status column)
 is highlighted.
 Also lines highlighted due to the \-w option will have
 the entire line highlighted.
-If \-\-use-color is set, the line is colored rather than highlighted.
+If \-\-use\-color is set, the line is colored rather than highlighted.
 .IP "\-\-use-backslash"
 This option changes the interpretations of options which follow this one.
 After the \-\-use-backslash option, any backslash in an option string is
 removed and the following character is taken literally.
 This allows a dollar sign to be included in option strings.
-.IP "\-\-use-color"
+.IP "\-\-use\-color"
 Enables colored text in various places.
 The \-D option can be used to change the colors.
 Colored text works only if the terminal supports 
 ANSI color escape sequences (as defined in 
 .nh
-https://www.ecma-international.org/publications-and-standards/standards/ecma-48).
+https://www.ecma\-international.org/publications\-and\-standards/standards/ecma\-48).
 .hy
 .IP "\-\-wheel-lines=\fIn\fP"
 Set the number of lines to scroll when the mouse wheel is scrolled
@@ -2110,7 +2110,7 @@ A deleted character (deleted from the input and not displayed).
 For example, setting LESSUTFCHARDEF to
 .nf
 .sp
-	E000-F8FF:p,F0000-FFFFD:p,100000-10FFFD:p
+	E000\-F8FF:p,F0000\-FFFFD:p,100000\-10FFFD:p
 .sp
 .fi
 would make all Private Use Area characters be treated as printable.
@@ -2123,7 +2123,7 @@ to treat them as composing characters.
 For example, this sets them all to composing characters:
 .nf
 .sp
-	FE00-FE0F:c,1F3FB-1F3FF:c,1F9B0-1F9B3:c,E0100-E01EF:c
+	FE00\-FE0F:c,1F3FB\-1F3FF:c,1F9B0\-1F9B3:c,E0100\-E01EF:c
 .sp
 .fi
 .SH "PROMPTS"
@@ -2266,7 +2266,7 @@ Some examples:
 This prompt prints the filename, if known;
 otherwise the string "Standard input".
 .sp
-?f%f \&.?ltLine %lt:?pt%pt\e%:?btByte %bt:-...
+?f%f \&.?ltLine %lt:?pt%pt\e%:?btByte %bt:\-...
 .sp
 This prompt would print the filename, if known.
 The filename is followed by the line number, if known,
@@ -2276,7 +2276,7 @@ Notice how each question mark has a matching period,
 and how the % after the %pt
 is included literally by escaping it with a backslash.
 .sp
-?n?f%f\ .?m(%T %i of %m)\ ..?e(END)\ ?x-\ Next\e:\ %x..%t
+?n?f%f\ .?m(%T %i of %m)\ ..?e(END)\ ?x\-\ Next\e:\ %x..%t
 .sp
 This prints the filename if this is the first prompt in a file,
 followed by the "file N of N" message if there is more
@@ -2290,17 +2290,17 @@ the other two prompts (\-m and \-M respectively).
 Each is broken into two lines here for readability only.
 .nf
 .sp
-?n?f%f\ .?m(%T\ %i\ of\ %m)\ ..?e(END)\ ?x-\ Next\e:\ %x.:
+?n?f%f\ .?m(%T\ %i\ of\ %m)\ ..?e(END)\ ?x\-\ Next\e:\ %x.:
 	?pB%pB\e%:byte\ %bB?s/%s...%t
 .sp
-?f%f\ .?n?m(%T\ %i\ of\ %m)\ ..?ltlines\ %lt-%lb?L/%L.\ :
-	byte\ %bB?s/%s.\ .?e(END)\ ?x-\ Next\e:\ %x.:?pB%pB\e%..%t
+?f%f\ .?n?m(%T\ %i\ of\ %m)\ ..?ltlines\ %lt\-%lb?L/%L.\ :
+	byte\ %bB?s/%s.\ .?e(END)\ ?x\-\ Next\e:\ %x.:?pB%pB\e%..%t
 .sp
 .fi
 And here is the default message produced by the = command:
 .nf
 .sp
-?f%f\ .?m(%T\ %i\ of\ %m)\ .?ltlines\ %lt-%lb?L/%L.\ .
+?f%f\ .?m(%T\ %i\ of\ %m)\ .?ltlines\ %lt\-%lb?L/%L.\ .
 	byte\ %bB?s/%s.\ ?e(END)\ :?pB%pB\e%..%t
 .fi
 .PP
