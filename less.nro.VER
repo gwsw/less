@@ -1107,14 +1107,29 @@ variable, rather than being typed in with each
 command.
 Such an option must either be the last option in the LESS variable,
 or be terminated by a dollar sign.
- \-Ps followed by a string changes the default (short) prompt
+.PP
+.RS
+.TP
+\-Ps
+followed by a string changes the default (short) prompt
 to that string.
- \-Pm changes the medium (\-m) prompt.
- \-PM changes the long (\-M) prompt.
- \-Ph changes the prompt for the help screen.
- \-P= changes the message printed by the = command.
- \-Pw changes the message printed while waiting for data (in the "F" command).
-.sp 1
+.TP
+\-Pm
+changes the medium (\-m) prompt.
+.TP
+\-PM
+changes the long (\-M) prompt.
+.TP
+\-Ph
+changes the prompt for the help screen.
+.TP
+\-P=
+changes the message printed by the = command.
+.TP
+\-Pw
+changes the message printed while waiting for data (in the "F" command).
+.RE
+.IP
 All prompt strings consist of a sequence of
 letters and special escape sequences.
 See the section on PROMPTS for more details.
