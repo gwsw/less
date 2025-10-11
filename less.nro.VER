@@ -227,7 +227,7 @@ By default, searching is case-sensitive (uppercase and lowercase
 are considered different); the \-i option can be used to change this.
 The search starts at the first line displayed
 (but see the \-a and \-j options, which change this).
-.sp
+.IP
 Certain characters are special
 if entered at the beginning of the pattern;
 they modify the type of search rather than become part of the pattern:
@@ -277,7 +277,7 @@ even if it is one of the above search modifier characters.
 Search backward in the file for the N-th line containing the pattern.
 The search starts at the last line displayed
 (but see the \-a and \-j options, which change this).
-.sp
+.IP
 Certain characters are special as in the / command:
 .RS
 .IP "\(haN or !"
@@ -351,7 +351,7 @@ beginning of the prompt,
 as a reminder that some lines in the file may be hidden.
 Multiple & commands may be entered, in which case only lines
 which match all of the patterns will be displayed.
-.sp
+.IP
 Certain characters are special as in the / command:
 .RS
 .IP "\(haN or !"
@@ -543,13 +543,13 @@ the specified filename is opened in the current instance of
 .PP
 In a simple case where the opener accepts the complete URI
 as a command line parameter, the handler may be as simple as
+.PP
 .EX
 .nf
-.sp
 echo mybrowser '%o'
-.sp
 .fi
 .EE
+.PP
 In other cases, the URI may need to be modified, so the handler
 may have to do some manipulation of the %o value.
 .PP
@@ -622,32 +622,32 @@ to avoid typing "less \-options \&...\&" each time
 .B less
 is invoked, you might tell
 .BR csh :
-.sp
+.PP
 setenv LESS "\-options"
-.sp
+.PP
 or if you use
 .BR sh :
-.sp
+.PP
 LESS="\-options"; export LESS
-.sp
+.PP
 On MS-DOS and Windows, you don't need the quotes, but you should 
 be careful that any percent signs in the options string are not
 interpreted as an environment variable expansion.
-.sp
+.PP
 The environment variable is parsed before the command line,
 so command line options override the LESS environment variable.
 If an option appears in the LESS variable, it can be reset
 to its default value on the command line by beginning the command
 line option with "\-+".
-.sp
+.PP
 Some options like \-k or \-D require a string to follow the option letter.
 The string for that option is considered to end when a dollar sign ($) is found.
 For example, you can set two \-D options like this:
-.sp
+.PP
 .EX
 LESS="Dnwb$Dsbw"
-.sp
 .EE
+.PP
 If the \-\-use-backslash option appears earlier in the options, then
 a dollar sign or backslash may be included literally in an option string
 by preceding it with a backslash.
@@ -1022,7 +1022,7 @@ In the text,
 .B lesskey
 lines may be separated by either newlines as usual, or by semicolons.
 A literal semicolon may be represented by a backslash followed by a semicolon.
-.sp
+.IP
 Warning: certain environment variables such as 
 LESS, LESSSECURE, LESSCHARSET and others,
 which are used early in startup, 
@@ -1088,7 +1088,7 @@ will ask for confirmation before overwriting it.
 .IP "\-O\fIfilename\fP or \-\-LOG-FILE=\fIfilename\fP"
 The \-O option is like \-o, but it will overwrite an existing
 file without asking for confirmation.
-.sp
+.IP
 If no log file has been specified,
 the \-o and \-O options can be used from within
 .B less
@@ -1163,7 +1163,7 @@ cannot keep track of the actual appearance of the screen
 each type of control character).
 Thus, various display problems may result,
 such as long lines being split in the wrong place.
-.sp
+.IP
 USE OF THE \-r OPTION IS DANGEROUS AND IS NOT RECOMMENDED.
 .br
 The \-r option can be set on the command line or via the \- command, 
@@ -1174,30 +1174,30 @@ Like \-r, but only a limited set of escape
 sequences are output in "raw" form.
 Unlike \-r, the screen appearance is maintained correctly.
 The sequences which are output raw are:
-.sp
+.IP
 1. ANSI SGR ("color") sequences
-.sp
+.IP
 2. OSC 8 hyperlinks
-.sp
+.IP
 3. Other OSC sequences, if the OSC type number is listed in
 the LESSANSIOSCALLOW environment variable
-.sp
+.IP
 4. OSC sequences starting with a non-standard introductory character
 (that is, something other than "]"), if the character is listed in
 the LESSANSIOSCCHARS environment variable followed by an asterisk
-.sp
+.IP
 ANSI color escape sequences are sequences of the form:
-.sp
+.IP
 .EX
 	ESC [ \&...\& m
-.sp
 .EE
+.IP
 where the "...\&" is zero or more color specification characters.
 Color escape sequences are only supported when the color
 is changed within one line, not across lines. 
 In other words, the beginning of each line is assumed to be
 normal (non-colored), regardless of any escape sequences in previous lines.
-.sp
+.IP
 You can make
 .B less
 think that characters other than "m" can end ANSI color escape sequences
@@ -1208,13 +1208,13 @@ And you can make
 think that characters other than the standard ones may appear between
 the ESC and the m by setting the environment variable LESSANSIMIDCHARS
 to the list of characters which can appear.
-.sp
+.IP
 OSC sequences are of the form:
-.sp
+.IP
 .EX
 	ESC ] N ; \&...\& \\7
-.sp
 .EE
+.IP
 where the OSC type number N is a decimal integer.
 The terminating sequence may be either a BEL character (\\7) 
 as above, or the two-character sequence "ESC \\".
@@ -1263,7 +1263,7 @@ that is, they are sent to the terminal when they appear in the input.
 Causes backspaces, tabs, carriage returns and "formatting characters"
 (as defined by Unicode) to be treated as control characters;
 that is, they are handled as specified by the \-r option.
-.sp
+.IP
 By default, if neither \-u nor \-U is given,
 backspaces which appear adjacent to an underscore character
 are treated specially:
@@ -1280,7 +1280,7 @@ Unicode formatting characters, such as the Byte Order Mark,
 are sent to the terminal.
 Text which is overstruck or underlined can be searched for
 if neither \-u nor \-U is in effect.
-.sp
+.IP
 See also the \-\-proc-backspace, \-\-proc-tab,
 and \-\-proc-return options.
 .IP "\-V or \-\-version"
@@ -2136,13 +2136,13 @@ A deleted character (deleted from the input and not displayed).
 .RE
 .PP
 For example, setting LESSUTFCHARDEF to
+.PP
 .EX
 .nf
-.sp
 	E000\-F8FF:p,F0000\-FFFFD:p,100000\-10FFFD:p
-.sp
 .fi
 .EE
+.PP
 would make all Private Use Area characters be treated as printable.
 .PP
 By default, emoji modifiers, components and variation selectors
@@ -2151,11 +2151,10 @@ If you use a terminal which does display some or all of them correctly,
 you can cause to be displayed by setting LESSUTFCHARDEF
 to treat them as composing characters.
 For example, this sets them all to composing characters:
+.PP
 .EX
 .nf
-.sp
 	FE00\-FE0F:c,1F3FB\-1F3FF:c,1F9B0\-1F9B3:c,E0100\-E01EF:c
-.sp
 .fi
 .EE
 .SH "PROMPTS"
@@ -2165,7 +2164,7 @@ Certain characters in the string are interpreted specially.
 The prompt mechanism is rather complicated to provide flexibility,
 but the ordinary user need not understand the details of constructing
 personalized prompt strings.
-.sp
+.PP
 A percent sign followed by a single character is expanded
 according to what the following character is.
 (References to the input file size below refer to the preprocessed size,
@@ -2292,18 +2291,18 @@ Any of the special characters may be included in the prompt literally
 by preceding it with a backslash.
 .PP
 Some examples:
-.sp
+.PP
 .EX
 ?f%f:Standard input.
-.sp
 .EE
+.PP
 This prompt prints the filename, if known;
 otherwise the string "Standard input".
-.sp
+.PP
 .EX
 ?f%f \&.?ltLine %lt:?pt%pt\e%:?btByte %bt:\-...
-.sp
 .EE
+.PP
 This prompt would print the filename, if known.
 The filename is followed by the line number, if known,
 otherwise the percent if known, otherwise the byte offset if known.
@@ -2311,11 +2310,11 @@ Otherwise, a dash is printed.
 Notice how each question mark has a matching period,
 and how the % after the %pt
 is included literally by escaping it with a backslash.
-.sp
+.PP
 .EX
 ?n?f%f\ .?m(%T %i of %m)\ ..?e(END)\ ?x\-\ Next\e:\ %x..%t
-.sp
 .EE
+.PP
 This prints the filename if this is the first prompt in a file,
 followed by the "file N of N" message if there is more
 than one input file.
@@ -2326,21 +2325,21 @@ This is the default prompt.
 For reference, here are the defaults for
 the other two prompts (\-m and \-M respectively).
 Each is broken into two lines here for readability only.
+.PP
 .EX
 .nf
-.sp
 ?n?f%f\ .?m(%T\ %i\ of\ %m)\ ..?e(END)\ ?x\-\ Next\e:\ %x.:
 	?pB%pB\e%:byte\ %bB?s/%s...%t
-.sp
+.PP
 ?f%f\ .?n?m(%T\ %i\ of\ %m)\ ..?ltlines\ %lt\-%lb?L/%L.\ :
 	byte\ %bB?s/%s.\ .?e(END)\ ?x\-\ Next\e:\ %x.:?pB%pB\e%..%t
-.sp
 .fi
 .EE
+.PP
 And here is the default message produced by the = command:
+.PP
 .EX
 .nf
-.sp
 ?f%f\ .?m(%T\ %i\ of\ %m)\ .?ltlines\ %lt\-%lb?L/%L.\ .
 	byte\ %bB?s/%s.\ ?e(END)\ :?pB%pB\e%..%t
 .fi
@@ -2351,13 +2350,13 @@ if an environment variable LESSEDIT is defined, it is used
 as the command to be executed when the v command is invoked.
 The LESSEDIT string is expanded in the same way as the prompt strings.
 The default value for LESSEDIT is:
+.PP
 .EX
 .nf
-.sp
 	%E\ ?lm+%lm.\ %g
-.sp
 .fi
 .EE
+.PP
 Note that this expands to the editor name, followed by a + and the
 line number, followed by the shell-escaped file name.
 If your editor does not accept the "+linenumber" syntax, or has other

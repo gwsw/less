@@ -59,15 +59,15 @@ except as noted below.
 .
 .SH "COMMAND SECTION"
 The command section begins with the line
-.sp
+.PP
 #command
-.sp
+.PP
 If the command section is the first section in the file,
 this line may be omitted.
 The command section consists of lines of the form:
-.sp
+.PP
 	\fIstring\fP <whitespace> \fIaction\fP <whitespace> [extra-string] <newline>
-.sp
+.PP
 Whitespace is any sequence of one or more spaces and/or tabs.
 The \fIstring\fP is the command key(s) which invoke the action.
 The \fIstring\fP may be a single command key, or a sequence of up to 15 keys.
@@ -89,7 +89,7 @@ l l l.
 \et	TAB	(0x09)
 .TE
 .RE
-.sp
+.PP
 \ek followed by a single character represents the char(s) produced when one of these keys is pressed:
 .RS 5m
 .TS
@@ -131,13 +131,13 @@ For example, see the "{" and ":t" commands in the example below.
 It can also be used to execute more than one command when a key is pressed.
 For example, if this line were in a lesskey file, pressing the "B" key
 would first set the "b" mark and then search for the string "next":
-.sp
+.PP
 .EX
 .nf
     B set\-mark b/next\en
 .fi
-.sp
 .EE
+.PP
 The extra string has a special meaning for the "quit" action:
 when
 .B less
@@ -151,7 +151,7 @@ default command keys used by
 Documentation on each command can be found in the
 .B less
 man page, under the key sequence which invokes the command.
-.sp
+.PP
 .RS 5m
 .TS
 l l.
@@ -288,7 +288,6 @@ Q	quit
 ZZ	quit
 .TE
 .RE
-.sp
 .SH PRECEDENCE
 Commands specified by
 .B lesskey
@@ -303,9 +302,9 @@ will give an error beep for an "invalid" command,
 but not for a "noaction" command.
 In addition, ALL default commands may be disabled by
 adding this control line to the input file:
-.sp
+.PP
 #stop
-.sp
+.PP
 This will cause all default commands to be ignored.
 The #stop line should be the last line in that section of the file.
 .PP
@@ -317,11 +316,11 @@ For example, failure to provide a "quit" command can lead to frustration.
 .
 .SH "LINE EDITING SECTION"
 The line-editing section begins with the line:
-.sp
+.PP
 .EX
 #line\-edit
-.sp
 .EE
+.PP
 This section specifies new key bindings for the line editing commands,
 in a manner similar to the way key bindings for
 ordinary commands are specified in the #command section.
@@ -332,7 +331,7 @@ one per line as in the example below.
 The following input file describes the set of
 default line-editing keys used by
 .BR less :
-.sp
+.PP
 .RS 5m
 .TS
 l l.
@@ -369,13 +368,12 @@ l l.
 \ee[<	mouse6
 .TE
 .RE
-.sp
 .
 .SH "LESS ENVIRONMENT VARIABLES"
 The environment variable section begins with the line
-.sp
+.PP
 #env
-.sp
+.PP
 Following this line is a list of environment variable assignments.
 Each line consists of an environment variable name, an equals sign (=)
 and the value to be assigned to the environment variable.
@@ -385,7 +383,7 @@ Variables assigned in this way are visible only to
 If a variable is specified in the system environment and also in a
 lesskey file, the value in the lesskey file takes precedence.
 .
-.sp
+.PP
 If the variable name is followed by += rather than =,
 the string is appended to the variable's existing value.
 This currently works only if any += lines immediately follow
@@ -399,7 +397,7 @@ it should be appended to the end of the preceding line.
 (It cannot be added to the beginning of the += string because space after
 the equals sign is ignored, as noted above.)
 .
-.sp
+.PP
 In the string after the = sign, a substring of the form ${NAME}
 is replaced with the value of the environment variable "NAME".
 The value of the variable may come from either the system environment,
@@ -426,20 +424,20 @@ the remainder of the line is parsed if and only if the running version of
 matches the operator.
 This can be helpful if a lesskey file is used by different versions of
 .BR less .
-.sp
+.PP
 For example, suppose that a new command named 'sideways\-search' is added in
 .B less
 version 777.
 Then the following line would assign the command to the Q key, but only in versions of
 .B less
 which support it. The line would be ignored by versions earlier than 777.
-.sp
+.PP
 .EX
 .nf
 	#version >= 777  Q sideways\-search
 .fi
-.sp
 .EE
+.PP
 These six operators are supported:
 .RS 5m
 .TS
@@ -452,7 +450,7 @@ l l.
  !=	Not equal to
 .TE
 .RE
-.sp
+.PP
 The #version feature is not supported in
 .B less
 and
@@ -464,7 +462,7 @@ In those older versions, all #version lines are ignored.
 The following input file sets the \-i and \-S options when
 .B less
 is run and, on version 595 and higher, adds a \-\-color option.
-.sp
+.PP
 .EX
 .nf
 	#env
