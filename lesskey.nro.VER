@@ -132,10 +132,12 @@ It can also be used to execute more than one command when a key is pressed.
 For example, if this line were in a lesskey file, pressing the "B" key
 would first set the "b" mark and then search for the string "next":
 .sp
+.EX
 .nf
     B set\-mark b/next\en
 .fi
 .sp
+.EE
 The extra string has a special meaning for the "quit" action:
 when
 .B less
@@ -316,8 +318,10 @@ For example, failure to provide a "quit" command can lead to frustration.
 .SH "LINE EDITING SECTION"
 The line-editing section begins with the line:
 .sp
+.EX
 #line\-edit
 .sp
+.EE
 This section specifies new key bindings for the line editing commands,
 in a manner similar to the way key bindings for
 ordinary commands are specified in the #command section.
@@ -430,10 +434,12 @@ Then the following line would assign the command to the Q key, but only in versi
 .B less
 which support it. The line would be ignored by versions earlier than 777.
 .sp
+.EX
 .nf
 	#version >= 777  Q sideways\-search
 .fi
 .sp
+.EE
 These six operators are supported:
 .RS 5m
 .TS
@@ -459,6 +465,7 @@ The following input file sets the \-i and \-S options when
 .B less
 is run and, on version 595 and higher, adds a \-\-color option.
 .sp
+.EX
 .nf
 	#env
 	## (Note that there must be a space at the end of the next line,
@@ -466,6 +473,7 @@ is run and, on version 595 and higher, adds a \-\-color option.
 	LESS = \-i\ \-S\ 
 	#version\ >=\ 595\ \ LESS\ +=\ \-\-color=Hkc
 .fi
+.EE
 .
 .SH "SEE ALSO"
 .BR less (1)

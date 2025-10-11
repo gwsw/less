@@ -543,11 +543,13 @@ the specified filename is opened in the current instance of
 .PP
 In a simple case where the opener accepts the complete URI
 as a command line parameter, the handler may be as simple as
+.EX
 .nf
 .sp
 echo mybrowser '%o'
 .sp
 .fi
+.EE
 In other cases, the URI may need to be modified, so the handler
 may have to do some manipulation of the %o value.
 .PP
@@ -642,8 +644,10 @@ Some options like \-k or \-D require a string to follow the option letter.
 The string for that option is considered to end when a dollar sign ($) is found.
 For example, you can set two \-D options like this:
 .sp
+.EX
 LESS="Dnwb$Dsbw"
 .sp
+.EE
 If the \-\-use-backslash option appears earlier in the options, then
 a dollar sign or backslash may be included literally in an option string
 by preceding it with a backslash.
@@ -1184,8 +1188,10 @@ the LESSANSIOSCCHARS environment variable followed by an asterisk
 .sp
 ANSI color escape sequences are sequences of the form:
 .sp
+.EX
 	ESC [ \&...\& m
 .sp
+.EE
 where the "...\&" is zero or more color specification characters.
 Color escape sequences are only supported when the color
 is changed within one line, not across lines. 
@@ -1205,8 +1211,10 @@ to the list of characters which can appear.
 .sp
 OSC sequences are of the form:
 .sp
+.EX
 	ESC ] N ; \&...\& \\7
 .sp
+.EE
 where the OSC type number N is a decimal integer.
 The terminating sequence may be either a BEL character (\\7) 
 as above, or the two-character sequence "ESC \\".
@@ -2128,11 +2136,13 @@ A deleted character (deleted from the input and not displayed).
 .RE
 .PP
 For example, setting LESSUTFCHARDEF to
+.EX
 .nf
 .sp
 	E000\-F8FF:p,F0000\-FFFFD:p,100000\-10FFFD:p
 .sp
 .fi
+.EE
 would make all Private Use Area characters be treated as printable.
 .PP
 By default, emoji modifiers, components and variation selectors
@@ -2141,11 +2151,13 @@ If you use a terminal which does display some or all of them correctly,
 you can cause to be displayed by setting LESSUTFCHARDEF
 to treat them as composing characters.
 For example, this sets them all to composing characters:
+.EX
 .nf
 .sp
 	FE00\-FE0F:c,1F3FB\-1F3FF:c,1F9B0\-1F9B3:c,E0100\-E01EF:c
 .sp
 .fi
+.EE
 .SH "PROMPTS"
 The \-P option allows you to tailor the prompt to your preference.
 The string given to the \-P option replaces the specified prompt string.
@@ -2281,13 +2293,17 @@ by preceding it with a backslash.
 .PP
 Some examples:
 .sp
+.EX
 ?f%f:Standard input.
 .sp
+.EE
 This prompt prints the filename, if known;
 otherwise the string "Standard input".
 .sp
+.EX
 ?f%f \&.?ltLine %lt:?pt%pt\e%:?btByte %bt:\-...
 .sp
+.EE
 This prompt would print the filename, if known.
 The filename is followed by the line number, if known,
 otherwise the percent if known, otherwise the byte offset if known.
@@ -2296,8 +2312,10 @@ Notice how each question mark has a matching period,
 and how the % after the %pt
 is included literally by escaping it with a backslash.
 .sp
+.EX
 ?n?f%f\ .?m(%T %i of %m)\ ..?e(END)\ ?x\-\ Next\e:\ %x..%t
 .sp
+.EE
 This prints the filename if this is the first prompt in a file,
 followed by the "file N of N" message if there is more
 than one input file.
@@ -2308,6 +2326,7 @@ This is the default prompt.
 For reference, here are the defaults for
 the other two prompts (\-m and \-M respectively).
 Each is broken into two lines here for readability only.
+.EX
 .nf
 .sp
 ?n?f%f\ .?m(%T\ %i\ of\ %m)\ ..?e(END)\ ?x\-\ Next\e:\ %x.:
@@ -2317,23 +2336,28 @@ Each is broken into two lines here for readability only.
 	byte\ %bB?s/%s.\ .?e(END)\ ?x\-\ Next\e:\ %x.:?pB%pB\e%..%t
 .sp
 .fi
+.EE
 And here is the default message produced by the = command:
+.EX
 .nf
 .sp
 ?f%f\ .?m(%T\ %i\ of\ %m)\ .?ltlines\ %lt\-%lb?L/%L.\ .
 	byte\ %bB?s/%s.\ ?e(END)\ :?pB%pB\e%..%t
 .fi
+.EE
 .PP
 The prompt expansion features are also used for another purpose:
 if an environment variable LESSEDIT is defined, it is used
 as the command to be executed when the v command is invoked.
 The LESSEDIT string is expanded in the same way as the prompt strings.
 The default value for LESSEDIT is:
+.EX
 .nf
 .sp
 	%E\ ?lm+%lm.\ %g
 .sp
 .fi
+.EE
 Note that this expands to the editor name, followed by a + and the
 line number, followed by the shell-escaped file name.
 If your editor does not accept the "+linenumber" syntax, or has other
