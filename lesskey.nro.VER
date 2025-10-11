@@ -14,10 +14,18 @@
 .SH NAME
 lesskey \- customize key bindings for less
 .SH "SYNOPSIS (deprecated)"
-.B "lesskey [\-o output] [\-\-] [input]"
+.B lesskey
+.RB [ \-o
+.IR output ]
+.B \-\-
+.I input
 .br
-.B "lesskey [\-\-output=output] [\-\-] [input]"
-.br
+.B lesskey
+.RB [ \-\-output=\c
+.IR output ]
+.B \-\-
+.I input
+.PP
 .B "lesskey \-V"
 .br
 .B "lesskey \-\-version"
