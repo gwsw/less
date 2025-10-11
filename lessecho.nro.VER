@@ -7,8 +7,27 @@
 .SH NAME
 lessecho \- expand metacharacters
 .SH SYNOPSIS
+.HP
 .B lessecho
-.I "[\-ox] [\-cx] [\-pn] [\-dn] [\-mx] [\-nn] [\-ex] [\-a] file ..."
+.RB [ \-a ]
+.RB [ \-o\c
+.IR x ]
+.RB [ \-c\c
+.IR x ]
+.RB [ \-p\c
+.IR n ]
+.RB [ \-d\c
+.IR n ]
+.RB [ \-m\c
+.IR x ]
+.RB [ \-n\c
+.IR n ]
+.RB [ \-e\c
+.IR x ]
+.I file
+\&.\|.\|.
+.PP
+.B "lessecho \-\-version"
 .SH "DESCRIPTION"
 .B lessecho
 is a program that simply echos its arguments on standard output.
