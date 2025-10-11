@@ -6,6 +6,9 @@
 .\" Define a string for the tilde as portably as possible.
 .ie \n(.g .ds ~ \(ti
 .el       .ds ~ ~
+.\" Define a string for the neutral apostrophe as portably as possible.
+.ie \n(.g .ds ' \(aq
+.el       .ds ' '
 .\" Define a string to interpolate the hyphenless break point escape
 .\" sequence (for URLs and similar) if the formatter claims groff
 .\" compatibility, else interpolate nothing.
@@ -552,7 +555,7 @@ as a command line parameter, the handler may be as simple as
 .PP
 .EX
 .nf
-echo mybrowser '%o'
+echo mybrowser \*'%o\*'
 .fi
 .EE
 .PP

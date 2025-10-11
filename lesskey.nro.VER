@@ -3,6 +3,9 @@
 .\" Define a string for the caret ("hat") as portably as possible.
 .ie \n(.g .ds ^ \(ha
 .el       .ds ^ ^
+.\" Define a string for the neutral apostrophe as portably as possible.
+.ie \n(.g .ds ' \(aq
+.el       .ds ' '
 .\" Define a string to interpolate the hyphenless break point escape
 .\" sequence (for URLs and similar) if the formatter claims groff
 .\" compatibility, else interpolate nothing.
@@ -246,7 +249,7 @@ N	reverse\-search
 m	set\-mark
 M	set\-mark\-bottom
 \eem	clear\-mark
-\&'	goto\-mark
+\&\*'	goto\-mark
 \*^X\*^X	goto\-mark
 E	examine
 :e	examine
