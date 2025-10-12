@@ -24,7 +24,6 @@ less \- display the contents of a file in a terminal
 .\" AT&T man(7) macros accept six arguments at most.
 .RB [ \- [ + ] aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\*~\c
 ]
-.br
 .RB [ \-b\ \c
 .IR space ]
 .RB [ \-h\ \c
