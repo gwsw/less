@@ -53,7 +53,7 @@ less \- display the contents of a file in a terminal
 .RB [ + [ + ]\c
 .IR less-command ]
 .RB [ \-\- ]
-.RI [ file ] .\|.\|.
+.RI [ file \ .\|.\|.]
 .ad \n(sA \" Restore the adjustment mode.
 .PP
 .B "less \-?"
