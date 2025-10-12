@@ -17,15 +17,45 @@
 .SH NAME
 less \- display the contents of a file in a terminal
 .SH SYNOPSIS
-.B "less [\-[+]aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\*~]"
+.HP
+.nr sA \n(.j \" Save the adjustment mode.
+.na
+.B less
+.\" AT&T man(7) macros accept six arguments at most.
+.RB [ \- [ + ] aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\*~\c
+]
 .br
-.B "     [\-b \fIspace\/\fP] [\-h \fIlines\/\fP] [\-j \fIline\/\fP] [\-k \fIkeyfile\/\fP]"
-.br
-.B "     [\-{oO} \fIlogfile\/\fP] [\-p \fIpattern\/\fP] [\-P \fIprompt\/\fP] [\-t \fItag\/\fP]"
-.br
-.B "     [\-T \fItagsfile\/\fP] [\-x \fItab\/\fP,...] [\-y \fIlines\/\fP] [\-[z] \fIlines\/\fP]"
-.br
-.B "     [\-# \fIshift\/\fP] [+[+]\fIcmd\/\fP] [\-\-] [\fIfilename\/\fP]..."
+.RB [ \-b\ \c
+.IR space ]
+.RB [ \-h\ \c
+.IR lines ]
+.RB [ \-j\ \c
+.IR line ]
+.RB [ \-k\ \c
+.IR keyfile ]
+.RB [ \- { oO }\ \c
+.IR logfile ]
+.RB [ \-p\ \c
+.I pattern ]
+.RB [ \-P\ \c
+.IR prompt ]
+.RB [ \-t\ \c
+.IR tag ]
+.RB [ \-T\ \c
+.IR tagsfile ]
+.RB [ \-x\ \c
+.IR tab ,.\|.\|.]\&
+.RB [ \-y\ \c
+.IR lines ]
+.RB [ \- [ z ]\ \c
+.IR lines ]
+.RB [ \-#\ \c
+.IR shift ]
+.RB [ + [ + ]\c
+.IR cmd ]
+.RB [ \-\- ]
+.RI [ filename ] .\|.\|.
+.ad \n(sA \" Restore the adjustment mode.
 .PP
 .B "less \-?"
 .br
