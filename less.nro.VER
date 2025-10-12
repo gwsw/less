@@ -32,7 +32,8 @@ less \- display the contents of a file in a terminal
 .IR line ]
 .RB [ \-k\ \c
 .IR key-file ]
-.RB [ \- { oO }\ \c
+.RB [ \- { o | O\c
+}
 .IR log-file ]
 .RB [ \-p\ \c
 .I pattern ]
