@@ -49,7 +49,9 @@ less \- display the contents of a file in a terminal
 }.\|.\|.]]\&
 .RB [ \-y\ \c
 .IR lines ]
-.RB [ \- [ z ]\ \c
+.RB [ \-z\ \c
+.IR lines ]
+.RB [ \-\c
 .IR lines ]
 .RB [ \-#\ \c
 .IR shift ]
