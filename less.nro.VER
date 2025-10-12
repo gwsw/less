@@ -17,14 +17,6 @@
 .SH NAME
 less \- display the contents of a file in a terminal
 .SH SYNOPSIS
-.B "less \-?"
-.br
-.B "less \-\-help"
-.br
-.B "less \-V"
-.br
-.B "less \-\-version"
-.br
 .B "less [\-[+]aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\*~]"
 .br
 .B "     [\-b \fIspace\/\fP] [\-h \fIlines\/\fP] [\-j \fIline\/\fP] [\-k \fIkeyfile\/\fP]"
@@ -34,7 +26,15 @@ less \- display the contents of a file in a terminal
 .B "     [\-T \fItagsfile\/\fP] [\-x \fItab\/\fP,...] [\-y \fIlines\/\fP] [\-[z] \fIlines\/\fP]"
 .br
 .B "     [\-# \fIshift\/\fP] [+[+]\fIcmd\/\fP] [\-\-] [\fIfilename\/\fP]..."
+.PP
+.B "less \-?"
 .br
+.B "less \-\-help"
+.PP
+.B "less \-V"
+.br
+.B "less \-\-version"
+.PP
 (See the OPTIONS section for alternate option syntax with long option names.)
 .
 .SH DESCRIPTION
