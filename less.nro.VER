@@ -31,9 +31,9 @@ less \- display the contents of a file in a terminal
 .RB [ \-j\ \c
 .IR line ]
 .RB [ \-k\ \c
-.IR keyfile ]
+.IR key-file ]
 .RB [ \- { oO }\ \c
-.IR logfile ]
+.IR log-file ]
 .RB [ \-p\ \c
 .I pattern ]
 .RB [ \-P\ \c
@@ -41,7 +41,7 @@ less \- display the contents of a file in a terminal
 .RB [ \-t\ \c
 .IR tag ]
 .RB [ \-T\ \c
-.IR tagsfile ]
+.IR tags-file ]
 .RB [ \-x\ \c
 .IR tab ,.\|.\|.]\&
 .RB [ \-y\ \c
@@ -51,9 +51,9 @@ less \- display the contents of a file in a terminal
 .RB [ \-#\ \c
 .IR shift ]
 .RB [ + [ + ]\c
-.IR cmd ]
+.IR less-command ]
 .RB [ \-\- ]
-.RI [ filename ] .\|.\|.
+.RI [ file ] .\|.\|.
 .ad \n(sA \" Restore the adjustment mode.
 .PP
 .B "less \-?"
