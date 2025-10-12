@@ -44,7 +44,9 @@ less \- display the contents of a file in a terminal
 .RB [ \-T\ \c
 .IR tags-file ]
 .RB [ \-x\ \c
-.IR tab ,.\|.\|.]\&
+.IR tab [{\c
+.BI , tab\c
+}.\|.\|.]]\&
 .RB [ \-y\ \c
 .IR lines ]
 .RB [ \- [ z ]\ \c
