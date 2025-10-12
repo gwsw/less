@@ -55,7 +55,7 @@ less \- display the contents of a file in a terminal
 .IR lines ]
 .RB [ \-#\ \c
 .IR shift ]
-.RB [ + [ + ]\c
+.RB [ +\c
 .IR less-command ]
 .RB [ \-\- ]
 .RI [ file \ .\|.\|.]
