@@ -53,6 +53,11 @@ less \- display the contents of a file in a terminal
 .IR lines ]
 .RB [ \-\c
 .IR lines ]
+.\" Work around bugs in the man(7) font selection macros in Solaris 10,
+.\" Plan 9, and DWB 3.3 troffs.
+.\".RB [ "\-\[dq]\c"\" works with groff, mandoc, and Heirloom Doctools
+[\fB\-"\c
+.IR cc ]
 .RB [ \-#\ \c
 .IR shift ]
 .RB [ +\c
