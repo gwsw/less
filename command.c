@@ -150,6 +150,8 @@ static void start_mca(int action, constant char *prompt, void *mlist, int cmdfla
 {
 	set_mca(action);
 	cmd_putstr(prompt);
+	if (action != A_PREFIX)
+		cmd_setcursor(TRUE);
 	set_mlist(mlist, cmdflags);
 }
 
@@ -208,6 +210,7 @@ static void mca_search1(void)
 		cmd_putstr("/");
 	else
 		cmd_putstr("?");
+	cmd_setcursor(TRUE);
 	forw_prompt = 0;
 }
 
@@ -261,6 +264,7 @@ static void exec_mca(void)
 
 	cmd_exec();
 	cbuf = get_cmdbuf();
+	cmd_setcursor(FALSE);
 	if (cbuf == NULL)
 		return;
 
@@ -475,7 +479,7 @@ static int mca_opt_nonfirst_char(char c)
 		}
 	} else if (!ambig)
 	{
-		bell();
+		lbell();
 	}
 	return (MCA_MORE);
 }
@@ -767,7 +771,7 @@ static int mca_char(char c)
 			if (*pattern == '\0')
 			{
 				/* User has backspaced to an empty pattern. */
-				undo_search(1);
+				undo_search(TRUE);
 				hshift = search_incr_hshift;
 				jump_loc(search_incr_pos.pos, search_incr_pos.ln);
 			} else
@@ -781,7 +785,7 @@ static int mca_char(char c)
 				if (search(st | SRCH_INCR, pattern, 1) != 0)
 				{
 					/* No match, invalid pattern, etc. */
-					undo_search(1);
+					undo_search(TRUE);
 					hshift = search_incr_hshift;
 					jump_loc(search_incr_pos.pos, search_incr_pos.ln);
 				}
@@ -790,7 +794,7 @@ static int mca_char(char c)
 			/* Redraw the search prompt and search string. */
 			if (is_screen_trashed() || !full_screen)
 			{
-				clear();
+				lclear();
 				repaint();
 			}
 			mca_search1();
@@ -846,7 +850,7 @@ static void make_display(void)
 	 * We need to clear and repaint screen before any change.
 	 */
 	if (!full_screen && !(quit_if_one_screen && one_screen))
-		clear();
+		lclear();
 	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
 	 */
@@ -1315,7 +1319,7 @@ static int forw_loop(int until_hilite)
 	{
 		if (until_hilite && highest_hilite > curr_len)
 		{
-			bell();
+			lbell();
 			break;
 		}
 		make_display();
@@ -2138,7 +2142,7 @@ public void commands(void)
 			cmd_exec();
 			if (new_ifile == NULL_IFILE)
 			{
-				bell();
+				lbell();
 				break;
 			}
 			if (edit_ifile(new_ifile) != 0)
@@ -2348,7 +2352,7 @@ public void commands(void)
 			break;
 
 		default:
-			bell();
+			lbell();
 			break;
 		}
 	}

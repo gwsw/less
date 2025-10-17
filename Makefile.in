@@ -17,7 +17,7 @@ CPPFLAGS = @CPPFLAGS@
 EXEEXT = @EXEEXT@
 O=o
 ifneq ($(strip $(LESSTEST)),)
-CPPFLAGS += -DLESSTEST
+CPPFLAGS += -DLESSTEST -UTERMINFO
 endif
 
 # Make with SAN=1 to enable the gcc address sanitizer.
@@ -78,6 +78,7 @@ lessecho$(EXEEXT): lessecho.${O} version.${O}
 charset.${O}: compose.uni ubin.uni wide.uni
 
 ${OBJ}: ${srcdir}/less.h ${srcdir}/funcs.h defines.h lang.h pattern.h xbuf.h
+screen.${O} ttyin.${O}: pckeys.h
 
 install: all ${srcdir}/less.nro ${srcdir}/lesskey.nro ${srcdir}/lessecho.nro installdirs
 	${INSTALL_PROGRAM} less$(EXEEXT) ${DESTDIR}${bindir}/${binprefix}less$(EXEEXT)

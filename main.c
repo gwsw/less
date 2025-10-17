@@ -251,6 +251,7 @@ int main(int argc, constant char *argv[])
 	struct xbuffer xfiles;
 	constant int *files;
 	size_t num_files;
+	size_t f;
 	lbool end_opts = FALSE;
 	lbool posixly_correct = FALSE;
 
@@ -373,7 +374,7 @@ int main(int argc, constant char *argv[])
 		ifile = get_ifile(FAKE_HELPFILE, ifile);
 	files = (constant int *) xfiles.data;
 	num_files = xfiles.end / sizeof(int);
-	for (i = 0;  i < num_files;  i++)
+	for (f = 0;  f < num_files;  f++)
 	{
 #if (MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC)
 		/*
@@ -387,7 +388,7 @@ int main(int argc, constant char *argv[])
 		char *gfilename;
 		char *qfilename;
 		
-		gfilename = lglob(argv[files[i]]);
+		gfilename = lglob(argv[files[f]]);
 		init_textlist(&tlist, gfilename);
 		filename = NULL;
 		while ((filename = forw_textlist(&tlist, filename)) != NULL)
@@ -399,7 +400,7 @@ int main(int argc, constant char *argv[])
 		}
 		free(gfilename);
 #else
-		(void) get_ifile(argv[files[i]], ifile);
+		(void) get_ifile(argv[files[f]], ifile);
 		ifile = prev_ifile(NULL_IFILE);
 #endif
 	}

@@ -569,9 +569,10 @@ static FILE * shellcmd(constant char *cmd)
 			fd = popen(cmd, "r");
 		} else
 		{
-			size_t len = strlen(shell) + strlen(esccmd) + 5;
+			constant char *copt = shell_coption();
+			size_t len = strlen(shell) + strlen(esccmd) + strlen(copt) + 3;
 			scmd = (char *) ecalloc(len, sizeof(char));
-			SNPRINTF3(scmd, len, "%s %s %s", shell, shell_coption(), esccmd);
+			SNPRINTF3(scmd, len, "%s %s %s", shell, copt, esccmd);
 			free(esccmd);
 			fd = popen(scmd, "r");
 			free(scmd);

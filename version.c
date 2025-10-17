@@ -1059,8 +1059,9 @@ v682  8/24/25   Add --cmd; fix lesskey bug using #stop; fix lesskey bug
 v683  9/4/25    Fix bug if cmd char received during file read.
 v684  9/18/25   Allow mixing of options and filenames on command line;
                 add LESS_TERMCAP_SUSPEND & LESS_TERMCAP_RESUME.
-v685            Make --incsearch return to same column as well as same line;
+v685  10/4/25   Make --incsearch return to same column as well as same line;
                 fix some problems reported by valgrind.
+v686
 */
 
-char version[] = "685x";
+char version[] = "686x";

@@ -11,6 +11,10 @@
 
 ======================================================================
 
+	Major changes between "less" versions 685 and 686
+
+======================================================================
+
 	Major changes between "less" versions 679 and 685
 
 * Add --cmd option (github #624).

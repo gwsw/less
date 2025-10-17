@@ -181,6 +181,12 @@ fi
 AC_MSG_RESULT(using $TERMLIBS)
 LIBS="$LIBS $TERMLIBS"
 
+# Check for terminfo vs termcap.
+AC_MSG_CHECKING(for terminfo)
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <curses.h>
+#include <term.h>]], [[setupterm("",0,0); tigetflag(""); tigetnum(""); tigetstr("")]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_TERMINFO)],[AC_MSG_RESULT(no)])
+
 # Autoheader templates for symbols defined later by AC_DEFINE.
 AH_TEMPLATE([HAVE_GNU_REGEX],
 	[GNU regex library])
@@ -238,6 +244,8 @@ AH_TEMPLATE([HAVE_SIGEMPTYSET],
 	[Define HAVE_SIGEMPTYSET if you have the sigemptyset macro.])
 AH_TEMPLATE([HAVE_SIGSETJMP],
 	[Define HAVE_SIGSETJMP if you have sigsetjmp and siglongjmp.])
+AH_TEMPLATE([HAVE_TERMINFO],
+	[Define HAVE_TERMINFO if you have the terminfo library.])
 AH_TEMPLATE([EDIT_PGM],
 	[Define EDIT_PGM to your editor.])
 AH_TEMPLATE([SECURE_COMPILE],

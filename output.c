@@ -664,7 +664,7 @@ public void get_return(void)
 
 #if ONLY_RETURN
 	while ((c = getchr()) != '\n' && c != '\r')
-		bell();
+		lbell();
 #else
 	c = getchr();
 	if (c != '\n' && c != '\r' && c != ' ' && c != READ_INTR)
