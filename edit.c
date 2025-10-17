@@ -77,20 +77,20 @@ public void init_textlist(struct textlist *tlist, mutable char *str)
 #if SPACES_IN_FILENAMES
 		if (meta_quoted)
 		{
-			meta_quoted = 0;
+			meta_quoted = FALSE;
 		} else if (esclen > 0 && s + esclen < tlist->endstring &&
 		           strncmp(s, esc, esclen) == 0)
 		{
-			meta_quoted = 1;
+			meta_quoted = TRUE;
 			s += esclen - 1;
 		} else if (delim_quoted)
 		{
 			if (*s == closequote)
-				delim_quoted = 0;
+				delim_quoted = FALSE;
 		} else /* (!delim_quoted) */
 		{
 			if (*s == openquote)
-				delim_quoted = 1;
+				delim_quoted = TRUE;
 			else if (*s == ' ')
 				*s = '\0';
 		}
