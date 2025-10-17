@@ -17,7 +17,7 @@ CPPFLAGS = @CPPFLAGS@
 EXEEXT = @EXEEXT@
 O=o
 ifneq ($(strip $(LESSTEST)),)
-CPPFLAGS += -DLESSTEST
+CPPFLAGS += -DLESSTEST -UTERMINFO
 endif
 
 # Make with SAN=1 to enable the gcc address sanitizer.
