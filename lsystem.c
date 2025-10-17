@@ -135,9 +135,10 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 			char *esccmd = shell_quote(cmd);
 			if (esccmd != NULL)
 			{
-				size_t len = strlen(shell) + strlen(esccmd) + 5;
+				constant char *copt = shell_coption();
+				size_t len = strlen(shell) + strlen(esccmd) + strlen(copt) + 3;
 				p = (char *) ecalloc(len, sizeof(char));
-				SNPRINTF3(p, len, "%s %s %s", shell, shell_coption(), esccmd);
+				SNPRINTF3(p, len, "%s %s %s", shell, copt, esccmd);
 				free(esccmd);
 			}
 		}
