@@ -771,7 +771,7 @@ static int mca_char(char c)
 			if (*pattern == '\0')
 			{
 				/* User has backspaced to an empty pattern. */
-				undo_search(1);
+				undo_search(TRUE);
 				hshift = search_incr_hshift;
 				jump_loc(search_incr_pos.pos, search_incr_pos.ln);
 			} else
@@ -785,7 +785,7 @@ static int mca_char(char c)
 				if (search(st | SRCH_INCR, pattern, 1) != 0)
 				{
 					/* No match, invalid pattern, etc. */
-					undo_search(1);
+					undo_search(TRUE);
 					hshift = search_incr_hshift;
 					jump_loc(search_incr_pos.pos, search_incr_pos.ln);
 				}
