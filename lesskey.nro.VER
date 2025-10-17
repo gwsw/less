@@ -85,7 +85,8 @@ l l l.
 .TE
 .RE
 .sp
-\ek followed by a single character represents the char(s) produced when one of these keys is pressed:
+\ek followed by one or two characters represents the char(s) produced
+when one of these keys is pressed:
 .RS 5m
 .TS
 l l.
@@ -106,6 +107,22 @@ l l.
 \ekx	DELETE
 \ekX	ctrl-DELETE
 \ek1	F1
+\ekp1	lower left key on the numeric keypad
+\ekp2	lower center key on the numeric keypad
+\ekp3	lower right key on the numeric keypad
+\ekp4	center left key on the numeric keypad
+\ekp5	center key on the numeric keypad
+\ekp6	center right key on the numeric keypad
+\ekp7	upper left key on the numeric keypad
+\ekp8	upper center key on the numeric keypad
+\ekp9	upper right key on the numeric keypad
+\ekp0	0 on the numeric keypad
+\ekp*	* on the numeric keypad
+\ekp/	/ on the numeric keypad
+\ekp-	- on the numeric keypad
+\ekp+	+ on the numeric keypad
+\ekp.	. on the numeric keypad
+\ekp,	, on the numeric keypad
 .TE
 .RE
 .PP
@@ -254,6 +271,21 @@ s	toggle-option o
 	## extra string with ONE dash; eg:
 	##   s toggle-option -log-file\en
 \&_	display-option
+\ekp1	goto-end
+\ekp2	forw-line
+\ekp3	forw-screen
+\ekp4	left-scroll
+\ekp6	right-scroll
+\ekp7	goto-line
+\ekp8	back-line
+\ekp9	back-screen
+\ekp0	noaction 0
+\ekp*	noaction *
+\ekp/	noaction /
+\ekp-	noaction -
+\ekp+	noaction +
+\ekp.	noaction .
+\ekp,	noaction ,
 |	pipe
 v	visual
 !	shell
@@ -356,6 +388,19 @@ l l.
 \eku	up
 \eej	down
 ^G	abort
+\ekp1	end
+\ekp2	down
+\ekp4	left
+\ekp6	right
+\ekp7	home
+\ekp8	up
+\ekp0	noaction 0
+\ekp*	noaction *
+\ekp/	noaction /
+\ekp-	noaction -
+\ekp+	noaction +
+\ekp.	noaction .
+\ekp,	noaction ,
 \ee[M	mouse
 \ee[<	mouse6
 .TE

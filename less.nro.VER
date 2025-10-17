@@ -106,10 +106,16 @@ Scroll horizontally left N characters, default half the screen width
 (see the \-# option).
 If a number N is specified, it becomes the default for future RIGHTARROW
 and LEFTARROW commands.
-.IP "ESC-} or \(haRIGHTARROW"
+.IP "ESC-} or \(haRIGHTARROW or END"
 Scroll horizontally right to show the end of the longest displayed line.
-.IP "ESC-{ or \(haLEFTARROW"
+.IP "ESC-{ or \(haLEFTARROW or HOME"
 Scroll horizontally left back to the first column.
+.IP "\(haEND or SHIFT-END"
+Go to line N in the file, default the end of the file, and
+scroll horizontally right to show the end of the longest displayed line.
+.IP "\(haHOME or SHIFT-HOME"
+Go to line N in the file, default 1 (beginning of file),
+and scroll horizontally left back to the first column.
 .IP "r or \(haR or \(haL"
 Repaint the screen.
 .IP R
@@ -1672,6 +1678,12 @@ Delete the word to the left of the cursor.
 .IP "\(haDELETE [ ESC-X or ESC-DELETE ]"
 (That is, CONTROL and DELETE simultaneously.)
 Delete the word under the cursor.
+.IP "INSERT or [ ESC-i ]"
+Toggle between insert mode and replace mode.
+When insert mode is on (the default), typing a character adds it to the
+line at the cursor position.
+When replace mode is on, typing a character replaces the character 
+at the cursor position.
 .IP "UPARROW [ ESC-k ]"
 Retrieve the previous command line.
 If you first enter some text and then press UPARROW,
@@ -1689,7 +1701,7 @@ If the completed filename is a directory, a "/" is appended to the filename.
 (On MS-DOS and Windows systems, a "\e" is appended.)
 The environment variable LESSSEPARATOR can be used to specify a
 different character to append to a directory name.
-.IP "BACKTAB [ ESC-TAB ]"
+.IP "BACKTAB (SHIFT-TAB) [ ESC-TAB ]"
 Like, TAB, but cycles in the reverse direction thru the matching filenames.
 .IP "\(haL"
 Complete the partial filename to the left of the cursor.
@@ -2590,6 +2602,17 @@ receives a SIGUSR1 signal.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 
 of the termcap "xx" capability for the terminal.
+.IP LESS_TERMINFO_xxxx
+Where "xxxx" is any string of characters, overrides the definition
+of the terminfo "xxxx" capability for the terminal.
+You can use either LESS_TERMCAP_xx or LESS_TERMINFO_xxxx to override
+a terminal capability, regardless of whether
+.B less
+is built with the
+.B termcap
+or the
+.B terminfo
+library.
 .IP LESS_TERMCAP_BRACKETED_PASTE_START
 Overrides the standard ANSI escape sequence to enable bracketed paste.
 This is used when the \-\-no-paste option is in effect.
@@ -2600,6 +2623,14 @@ Overrides the standard ANSI escape sequence to enable mouse reporting.
 This is used when the \-\-mouse option is in effect.
 .IP LESS_TERMCAP_MOUSE_END
 Overrides the standard ANSI escape sequence to disable mouse reporting.
+.IP LESS_TERMCAP_NCURSOR
+Set normal cursor.
+This string will be sent to the terminal when switching to 
+insert mode on the command line.
+.IP LESS_TERMCAP_RCURSOR
+Set replace cursor.
+This string will be sent to the terminal when switching to 
+replace mode on the command line.
 .IP LESS_TERMCAP_SUSPEND
 Defines an escape sequence to temporarily suspend screen updates.
 This is sent to the terminal before clearing the screen.

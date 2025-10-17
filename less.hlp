@@ -314,6 +314,7 @@
  END ............................ ESC-$ ... Move cursor to end of line.
  BACKSPACE ................................ Delete char to left of cursor.
  DELETE ......................... ESC-x ... Delete char under cursor.
+ INSERT ......................... ESC-i ... Toggle insert mode.
  ctrl-BACKSPACE   ESC-BACKSPACE ........... Delete word to left of cursor.
  ctrl-DELETE .... ESC-DELETE .... ESC-X ... Delete word under cursor.
  ctrl-U ......... ESC (MS-DOS only) ....... Delete entire line.

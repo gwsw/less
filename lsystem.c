@@ -227,7 +227,7 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 	 * Warning: this leaves a signal pending (in "sigs"),
 	 * so psignals() should be called soon after lsystem().
 	 */
-	winch(0);
+	lwinch(0);
 #endif
 }
 
@@ -355,7 +355,7 @@ public int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
 	screen_trashed();
 #if defined(SIGWINCH) || defined(SIGWIND)
 	/* {{ Probably don't need this here. }} */
-	winch(0);
+	lwinch(0);
 #endif
 	return (0);
 }
