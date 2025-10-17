@@ -1,26 +1,79 @@
 '\" t
-.TH LESS 1 "Version @@VERSION@@: @@DATE@@"
+.TH LESS 1 "@@DATE@@" "less @@VERSION@@"
+.\" Define a string for the caret ("hat") as portably as possible.
+.ie \n(.g .ds ^ \(ha
+.el       .ds ^ ^
+.\" Define a string for the tilde as portably as possible.
+.ie \n(.g .ds ~ \(ti
+.el       .ds ~ ~
+.\" Define a string for the neutral apostrophe as portably as possible.
+.ie \n(.g .ds ' \(aq
+.el       .ds ' '
+.\" Define a string to interpolate the hyphenless break point escape
+.\" sequence (for URLs and similar) if the formatter claims groff
+.\" compatibility, else interpolate nothing.
+.ie \n(.g .ds : \:
+.el       .ds : \" empty
 .SH NAME
 less \- display the contents of a file in a terminal
 .SH SYNOPSIS
+.HP
+.nr sA \n(.j \" Save the adjustment mode.
+.na
+.B less
+.\" AT&T man(7) macros accept six arguments at most.
+.RB [ \- [ + ] aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\*~\c
+]
+.RB [ \-b\ \c
+.IR space ]
+.RB [ \-h\ \c
+.IR lines ]
+.RB [ \-j\ \c
+.IR line ]
+.RB [ \-k\ \c
+.IR key-file ]
+.RB [ \- { o | O\c
+}
+.IR log-file ]
+.RB [ \-p\ \c
+.I pattern ]
+.RB [ \-P\ \c
+.IR prompt ]
+.RB [ \-t\ \c
+.IR tag ]
+.RB [ \-T\ \c
+.IR tags-file ]
+.RB [ \-x\ \c
+.IR tab [{\c
+.BI , tab\c
+}.\|.\|.]]\&
+.RB [ \-y\ \c
+.IR lines ]
+.RB [ \-z\ \c
+.IR lines ]
+.RB [ \-\c
+.IR lines ]
+.\" Work around bugs in the man(7) font selection macros in Solaris 10,
+.\" Plan 9, and DWB 3.3 troffs.
+.\".RB [ "\-\[dq]\c"\" works with groff, mandoc, and Heirloom Doctools
+[\fB\-"\c
+.IR cc ]
+.RB [ \-#\ \c
+.IR shift ]
+.RB [ +\c
+.IR less-command ]
+.RB [ \-\- ]
+.RI [ file \ .\|.\|.]
+.ad \n(sA \" Restore the adjustment mode.
+.PP
 .B "less \-?"
 .br
 .B "less \-\-help"
-.br
+.PP
 .B "less \-V"
 .br
 .B "less \-\-version"
-.br
-.B "less [\-[+]aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\(ti]"
-.br
-.B "     [\-b \fIspace\/\fP] [\-h \fIlines\/\fP] [\-j \fIline\/\fP] [\-k \fIkeyfile\/\fP]"
-.br
-.B "     [\-{oO} \fIlogfile\/\fP] [\-p \fIpattern\/\fP] [\-P \fIprompt\/\fP] [\-t \fItag\/\fP]"
-.br
-.B "     [\-T \fItagsfile\/\fP] [\-x \fItab\/\fP,...] [\-y \fIlines\/\fP] [\-[z] \fIlines\/\fP]"
-.br
-.B "     [\-# \fIshift\/\fP] [+[+]\fIcmd\/\fP] [\-\-] [\fIfilename\/\fP]..."
-.br
+.PP
 (See the OPTIONS section for alternate option syntax with long option names.)
 .
 .SH DESCRIPTION
@@ -47,35 +100,35 @@ Commands may be preceded by a decimal number,
 called N in the descriptions below.
 The number is used by some commands, as indicated.
 .PP
-In the following descriptions, \(haX means control-X.
+In the following descriptions, \*^X means control-X.
 ESC stands for the ESCAPE key; for example ESC-v means the
 two character sequence "ESCAPE", then "v".
 .IP "h or H"
 Help: display a summary of these commands.
 If you forget all the other commands, remember this one.
-.IP "SPACE or \(haV or f or \(haF"
+.IP "SPACE or \*^V or f or \*^F"
 Scroll forward N lines, default one window (see option \-z below).
 If N is more than the screen size, only the final screenful is displayed.
-Warning: some systems use \(haV as a special literalization character.
+Warning: some systems use \*^V as a special literalization character.
 .IP "z"
 Like SPACE, but if N is specified, it becomes the new window size.
-.IP "ENTER or RETURN or \(haN or e or \(haE or j or \(haJ"
+.IP "ENTER or RETURN or \*^N or e or \*^E or j or \*^J"
 Scroll forward N lines, default 1.
 The entire N lines are displayed, even if N is more than the screen size.
-.IP "d or \(haD"
+.IP "d or \*^D"
 Scroll forward N lines, default one half of the screen size.
 If N is specified, it becomes the new default for
 subsequent d and u commands.
-.IP "b or \(haB or ESC-v"
+.IP "b or \*^B or ESC-v"
 Scroll backward N lines, default one window (see option \-z below).
 If N is more than the screen size, only the final screenful is displayed.
 .IP "w"
 Like ESC-v, but if N is specified, it becomes the new window size.
-.IP "y or \(haY or \(haP or k or \(haK"
+.IP "y or \*^Y or \*^P or k or \*^K"
 Scroll backward N lines, default 1.
 The entire N lines are displayed, even if N is more than the screen size.
-Warning: some systems use \(haY as a special job control character.
-.IP "u or \(haU"
+Warning: some systems use \*^Y as a special job control character.
+.IP "u or \*^U"
 Scroll backward N lines, default one half of the screen size.
 If N is specified, it becomes the new default for
 subsequent d and u commands.
@@ -106,17 +159,17 @@ Scroll horizontally left N characters, default half the screen width
 (see the \-# option).
 If a number N is specified, it becomes the default for future RIGHTARROW
 and LEFTARROW commands.
-.IP "ESC-} or \(haRIGHTARROW or END"
+.IP "ESC-} or \*^RIGHTARROW or END"
 Scroll horizontally right to show the end of the longest displayed line.
-.IP "ESC-{ or \(haLEFTARROW or HOME"
+.IP "ESC-{ or \*^LEFTARROW or HOME"
 Scroll horizontally left back to the first column.
-.IP "\(haEND or SHIFT-END"
+.IP "\*^END or SHIFT-END"
 Go to line N in the file, default the end of the file, and
 scroll horizontally right to show the end of the longest displayed line.
-.IP "\(haHOME or SHIFT-HOME"
+.IP "\*^HOME or SHIFT-HOME"
 Go to line N in the file, default 1 (beginning of file),
 and scroll horizontally left back to the first column.
-.IP "r or \(haR or \(haL"
+.IP "r or \*^R or \*^L"
 Repaint the screen.
 .IP R
 Repaint the screen, discarding any buffered input.
@@ -129,10 +182,10 @@ Normally this command would be used when already at the end of the file.
 It is a way to monitor the tail of a file which is growing
 while it is being viewed.
 (The behavior is similar to the "tail \-f" command.)
-To stop waiting for more data, enter the interrupt character (usually \(haC).
+To stop waiting for more data, enter the interrupt character (usually \*^C).
 On systems which support
 .BR poll (2)
-you can also use \(haX or the character specified by the \-\-intr option.
+you can also use \*^X or the character specified by the \-\-intr option.
 If the input is a pipe and the \-\-exit-follow-on-close option is in effect,
 .B less
 will automatically stop waiting for data when the input side 
@@ -181,17 +234,17 @@ Like }, but applies to parentheses rather than curly brackets.
 Like {, but applies to square brackets rather than curly brackets.
 .IP "]"
 Like }, but applies to square brackets rather than curly brackets.
-.IP "ESC-\(haF"
+.IP "ESC-\*^F"
 Followed by two characters,
 acts like {, but uses the two characters as open and close brackets,
 respectively.
-For example, "ESC \(haF < >" could be used to
+For example, "ESC \*^F < >" could be used to
 go forward to the > which matches the < in the top displayed line.
-.IP "ESC-\(haB"
+.IP "ESC-\*^B"
 Followed by two characters,
 acts like }, but uses the two characters as open and close brackets,
 respectively.
-For example, "ESC \(haB < >" could be used to
+For example, "ESC \*^B < >" could be used to
 go backward to the < which matches the > in the bottom displayed line.
 .IP m
 Followed by any lowercase or uppercase letter,
@@ -207,14 +260,14 @@ Followed by any lowercase or uppercase letter, returns to the position which
 was previously marked with that letter.
 Followed by another single quote, returns to the position at
 which the last "large" movement command was executed.
-Followed by a \(ha or $, jumps to the beginning or end of the
+Followed by a \*^ or $, jumps to the beginning or end of the
 file respectively.
 Marks are preserved when a new file is examined within a single invocation of
 .BR less ,
 so the \(aq command can be used to switch between input files.
 The \-\-save-marks option causes marks to be preserved across different invocations of
 .BR less .
-.IP "\(haX\(haX"
+.IP "\*^X\*^X"
 Same as single quote.
 .IP "ESC-m"
 Followed by any lowercase or uppercase letter,
@@ -228,49 +281,49 @@ By default, searching is case-sensitive (uppercase and lowercase
 are considered different); the \-i option can be used to change this.
 The search starts at the first line displayed
 (but see the \-a and \-j options, which change this).
-.sp
+.IP
 Certain characters are special
 if entered at the beginning of the pattern;
 they modify the type of search rather than become part of the pattern:
 .RS
-.IP "\(haN or !"
+.IP "\*^N or !"
 Search for lines which do NOT match the pattern.
-.IP "\(haE or *"
+.IP "\*^E or *"
 Search multiple files.
 That is, if the search reaches the END of the current file
 without finding a match,
 the search continues in the next file in the command line list.
-.IP "\(haF or @"
+.IP "\*^F or @"
 Begin the search at the first line of the FIRST file
 in the command line list,
 regardless of what is currently displayed on the screen
 or the settings of the \-a or \-j options.
-.IP "\(haK"
+.IP "\*^K"
 Highlight any text which matches the pattern on the current screen,
 but don't move to the first match (KEEP current position).
-.IP "\(haR"
+.IP "\*^R"
 Don't interpret regular expression metacharacters;
 that is, do a simple textual comparison.
-.IP "\(haS"
+.IP "\*^S"
 Followed by a digit N between 1 and 5.
 Only text which has a non-empty match for the N-th parenthesized SUB-PATTERN 
 will be considered to match the pattern.
-For example, searching for "(abc)|(def)" modified with \(haS1
+For example, searching for "(abc)|(def)" modified with \*^S1
 would search for instances of "abc", but would highlight 
 instances of both "abc" and "def".
 (Supported only if
 .B less 
 is built with one of the regular expression libraries
 .BR posix ", " pcre ", or " pcre2 ".)"
-Multiple \(haS modifiers can be specified,
+Multiple \*^S modifiers can be specified,
 to match more than one sub-pattern.
-.IP "\(haW"
+.IP "\*^W"
 WRAP around the current file.
 That is, if the search reaches the end of the current file
 without finding a match, the search continues from the first line of the
 current file up to the line where it started.
-If the \(haW modifier is set, the \(haE modifier is ignored.
-.IP "\(haL"
+If the \*^W modifier is set, the \*^E modifier is ignored.
+.IP "\*^L"
 The next character is taken literally; that is, it becomes part of the pattern
 even if it is one of the above search modifier characters.
 .RE
@@ -278,33 +331,33 @@ even if it is one of the above search modifier characters.
 Search backward in the file for the N-th line containing the pattern.
 The search starts at the last line displayed
 (but see the \-a and \-j options, which change this).
-.sp
+.IP
 Certain characters are special as in the / command:
 .RS
-.IP "\(haN or !"
+.IP "\*^N or !"
 Search for lines which do NOT match the pattern.
-.IP "\(haE or *"
+.IP "\*^E or *"
 Search multiple files.
 That is, if the search reaches the beginning of the current file
 without finding a match,
 the search continues in the previous file in the command line list.
-.IP "\(haF or @"
+.IP "\*^F or @"
 Begin the search at the last line of the last file
 in the command line list,
 regardless of what is currently displayed on the screen
 or the settings of the \-a or \-j options.
-.IP "\(haK"
+.IP "\*^K"
 As in forward searches.
-.IP "\(haR"
+.IP "\*^R"
 As in forward searches.
-.IP "\(haS"
+.IP "\*^S"
 As in forward searches.
-.IP "\(haW"
+.IP "\*^W"
 WRAP around the current file.
 That is, if the search reaches the beginning of the current file
 without finding a match, the search continues from the last line of the
 current file up to the line where it started.
-.IP "\(haL"
+.IP "\*^L"
 As in forward searches.
 .RE
 .IP "ESC-/pattern"
@@ -313,15 +366,15 @@ Same as "/*".
 Same as "?*".
 .IP n
 Repeat previous search, for N-th line containing the last pattern.
-If the previous search was modified by \(haN, the search is made for the
+If the previous search was modified by \*^N, the search is made for the
 N-th line NOT containing the pattern.
-If the previous search was modified by \(haE, the search continues
+If the previous search was modified by \*^E, the search continues
 in the next (or previous) file if not satisfied in the current file.
-If the previous search was modified by \(haR, the search is done
+If the previous search was modified by \*^R, the search is done
 without using regular expressions.
-If the previous search was modified by \(haW, the search wraps at
+If the previous search was modified by \*^W, the search wraps at
 the end (or beginning) of the file.
-There is no effect if the previous search was modified by \(haF or \(haK.
+There is no effect if the previous search was modified by \*^F or \*^K.
 .IP N
 Repeat previous search, but in the reverse direction.
 .IP "ESC-n"
@@ -352,12 +405,12 @@ beginning of the prompt,
 as a reminder that some lines in the file may be hidden.
 Multiple & commands may be entered, in which case only lines
 which match all of the patterns will be displayed.
-.sp
+.IP
 Certain characters are special as in the / command:
 .RS
-.IP "\(haN or !"
+.IP "\*^N or !"
 Display only lines which do NOT match the pattern.
-.IP "\(haR"
+.IP "\*^R"
 Don't interpret regular expression metacharacters;
 that is, do a simple textual comparison.
 .RE
@@ -380,10 +433,10 @@ the list of files and the first one is examined.
 If the filename contains one or more spaces,
 the entire filename should be enclosed in double quotes
 (also see the \-" option).
-.IP "\(haX\(haV or E"
+.IP "\*^X\*^V or E"
 Same as :e.
-Warning: some systems use \(haV as a special literalization character.
-On such systems, you may not be able to use \(haV.
+Warning: some systems use \*^V as a special literalization character.
+On such systems, you may not be able to use \*^V.
 .IP ":n"
 Examine the next file (from the list of files given in the command line).
 If a number N is specified, the N-th next file is examined.
@@ -400,13 +453,13 @@ Go to the next tag, if there were more than one matches for the current tag.
 See the \-t option for more details about tags.
 .IP "T"
 Go to the previous tag, if there were more than one matches for the current tag.
-.IP "\(haO\(haN or \(haOn"
+.IP "\*^O\*^N or \*^On"
 Search forward in the file for the N-th next OSC 8 hyperlink.
-.IP "\(haO\(haP or \(haOp"
+.IP "\*^O\*^P or \*^Op"
 Search backward in the file for the N-th previous OSC 8 hyperlink.
-.IP "\(haO\(haL or \(haOl"
+.IP "\*^O\*^L or \*^Ol"
 Jump to the currently selected OSC 8 hyperlink.
-.IP "= or \(haG or :f"
+.IP "= or \*^G or :f"
 Prints some information about the file being viewed,
 including its name
 and the line number and byte offset of the bottom line being displayed.
@@ -417,7 +470,7 @@ and the percent of the file above the last displayed line.
 Followed by one of the command line option letters (see OPTIONS below),
 this will change the setting of that option
 and print a message describing the new setting.
-If a \(haP (CONTROL-P) is entered immediately after the dash,
+If a \*^P (CONTROL-P) is entered immediately after the dash,
 the setting of the option is changed but no message is printed.
 If the option letter has a numeric value (such as \-b or \-h),
 or a string value (such as \-P or \-t),
@@ -430,7 +483,7 @@ rather than a single option letter.
 Press ENTER or RETURN after typing the option name to change it.
 You can enter just the beginning of an option name, 
 then press TAB to find all option names which begin with that string.
-A \(haP immediately after the second dash suppresses printing of a
+A \*^P immediately after the second dash suppresses printing of a
 message describing the new setting, as in the \- command.
 .IP \-+
 Followed by one of the command line option letters
@@ -491,7 +544,7 @@ current file.
 A pound sign (#) is replaced by the name of the previously examined file.
 "!!" repeats the last shell command.
 "!" with no shell command invokes an interactive shell.
-If a \(haP (CONTROL-P) is entered immediately after the !,
+If a \*^P (CONTROL-P) is entered immediately after the !,
 no "done" message is printed after the shell command is executed.
 On Unix systems, the shell is taken from the environment variable SHELL,
 or defaults to "sh".
@@ -507,17 +560,17 @@ The section of the file to be piped is between the position marked by
 the letter and the current screen.
 The entire current screen is included, regardless of whether the
 marked position is before or after the current screen.
-<m> may also be \(ha or $ to indicate beginning or end of file respectively.
+<m> may also be \*^ or $ to indicate beginning or end of file respectively.
 If <m> is \&.\& or newline, the current screen is piped.
-If a \(haP (CONTROL-P) is entered immediately after the mark letter,
+If a \*^P (CONTROL-P) is entered immediately after the mark letter,
 no "done" message is printed after the shell command is executed.
 .IP "s filename"
 Save the input to a file.
 This works only if the input is a pipe, not an ordinary file.
-.IP "\(haO\(haO"
+.IP "\*^O\*^O"
 .RS
 Run a shell command to open the URI in the current OSC 8 hyperlink,
-selected by a previous \(haO\(haN or \(haO\(haP command.
+selected by a previous \*^O\*^N or \*^O\*^P command.
 To find the shell command,
 the environment variable named "LESS_OSC8_xxx" is read, 
 where "xxx" is the scheme from the URI (the part before the first colon),
@@ -533,7 +586,7 @@ There are two special cases:
 .IP 1.
 If the URI begins with "#", the remainder of the URI is taken to be 
 the value of the id parameter in another OSC 8 link in the same file,
-and \(haO\(haO will simply jump to that link.
+and \*^O\*^O will simply jump to that link.
 .IP 2.
 If the opener begins with the characters ":e" followed by 
 whitespace and a filename,
@@ -544,11 +597,13 @@ the specified filename is opened in the current instance of
 .PP
 In a simple case where the opener accepts the complete URI
 as a command line parameter, the handler may be as simple as
+.PP
+.EX
 .nf
-.sp
-echo mybrowser '%o'
-.sp
+echo mybrowser \*'%o\*'
 .fi
+.EE
+.PP
 In other cases, the URI may need to be modified, so the handler
 may have to do some manipulation of the %o value.
 .PP
@@ -577,9 +632,9 @@ any metacharacters interpreted by prompt expansion
 (such as percent, dot, colon, backslash, etc.) must be escaped with a backslash
 (see the PROMPTS section for details).
 .RE
-.IP "\(haX"
+.IP "\*^X"
 When the "Waiting for data" message is displayed,
-such as while in the F command, pressing \(haX
+such as while in the F command, pressing \*^X
 will stop
 .B less
 from waiting and return to a prompt.
@@ -588,13 +643,13 @@ This may cause
 to think that the file ends at the current position,
 so it may be necessary to use the R or F command to see more data.
 The \-\-intr option can be used to specify a different character
-to use instead of \(haX.
+to use instead of \*^X.
 This command works only on systems that support the
 .BR poll (2)
 function.
 On systems without
 .BR poll (2),
-the interrupt character (usually \(haC) can be used instead.
+the interrupt character (usually \*^C) can be used instead.
 .
 .SH OPTIONS
 Command line options are described below.
@@ -621,30 +676,32 @@ to avoid typing "less \-options \&...\&" each time
 .B less
 is invoked, you might tell
 .BR csh :
-.sp
+.PP
 setenv LESS "\-options"
-.sp
+.PP
 or if you use
 .BR sh :
-.sp
+.PP
 LESS="\-options"; export LESS
-.sp
+.PP
 On MS-DOS and Windows, you don't need the quotes, but you should 
 be careful that any percent signs in the options string are not
 interpreted as an environment variable expansion.
-.sp
+.PP
 The environment variable is parsed before the command line,
 so command line options override the LESS environment variable.
 If an option appears in the LESS variable, it can be reset
 to its default value on the command line by beginning the command
 line option with "\-+".
-.sp
+.PP
 Some options like \-k or \-D require a string to follow the option letter.
 The string for that option is considered to end when a dollar sign ($) is found.
 For example, you can set two \-D options like this:
-.sp
+.PP
+.EX
 LESS="Dnwb$Dsbw"
-.sp
+.EE
+.PP
 If the \-\-use-backslash option appears earlier in the options, then
 a dollar sign or backslash may be included literally in an option string
 by preceding it with a backslash.
@@ -755,9 +812,9 @@ Standout text.
 .IP "u"
 Underlined text.
 .RE
-
+.PP
 .RS
-The uppercase letters and digits can be used only when the \-\-use-color option is enabled.
+The uppercase letters and digits can be used only when the \-\-use\-color option is enabled.
 When text color is specified by both an uppercase letter and a lowercase letter,
 the uppercase letter takes precedence. 
 For example, error messages are normally displayed as standout text.
@@ -810,7 +867,7 @@ the second specifies the background color.
 Each integer is a value between 0 and 255 inclusive which selects
 a "CSI 38;5" color value (see
 .nh
-https://en.wikipedia.org/wiki/ANSI_escape_code#SGR).
+https://\*:en\*:.wikipedia\*:.org/\*:wiki/\*:ANSI_escape_code\*:#SGR).
 .hy
 If either integer is a "-" or is omitted,
 the corresponding color is set to that of normal text.
@@ -846,9 +903,9 @@ CHAR_INFO.Attributes
 value, between 0 and 15 inclusive
 (see 
 .nh
-https://learn.microsoft.com/en-us/windows/console/char-info-str).
+https://\*:learn\*:.microsoft\*:.com/\*:en\-us/\*:windows/\*:console/\*:char\-info\-str).
 .hy
-
+.IP
 To avoid confusion, it is recommended that the equivalent letters rather than numbers
 be used after a lowercase color selector on MS-DOS/Windows.
 .IP \(bu
@@ -1019,7 +1076,7 @@ In the text,
 .B lesskey
 lines may be separated by either newlines as usual, or by semicolons.
 A literal semicolon may be represented by a backslash followed by a semicolon.
-.sp
+.IP
 Warning: certain environment variables such as 
 LESS, LESSSECURE, LESSCHARSET and others,
 which are used early in startup, 
@@ -1034,7 +1091,7 @@ a command line option.
 Causes
 .B less
 to exit immediately (with status 2)
-when an interrupt character (usually \(haC) is typed.
+when an interrupt character (usually \*^C) is typed.
 Normally, an interrupt character causes
 .B less
 to stop whatever it is doing and return to its command prompt.
@@ -1085,7 +1142,7 @@ will ask for confirmation before overwriting it.
 .IP "\-O\fIfilename\fP or \-\-LOG-FILE=\fIfilename\fP"
 The \-O option is like \-o, but it will overwrite an existing
 file without asking for confirmation.
-.sp
+.IP
 If no log file has been specified,
 the \-o and \-O options can be used from within
 .B less
@@ -1108,14 +1165,29 @@ variable, rather than being typed in with each
 command.
 Such an option must either be the last option in the LESS variable,
 or be terminated by a dollar sign.
- \-Ps followed by a string changes the default (short) prompt
+.PP
+.RS
+.TP
+\-Ps
+followed by a string changes the default (short) prompt
 to that string.
- \-Pm changes the medium (\-m) prompt.
- \-PM changes the long (\-M) prompt.
- \-Ph changes the prompt for the help screen.
- \-P= changes the message printed by the = command.
- \-Pw changes the message printed while waiting for data (in the "F" command).
-.sp 1
+.TP
+\-Pm
+changes the medium (\-m) prompt.
+.TP
+\-PM
+changes the long (\-M) prompt.
+.TP
+\-Ph
+changes the prompt for the help screen.
+.TP
+\-P=
+changes the message printed by the = command.
+.TP
+\-Pw
+changes the message printed while waiting for data (in the "F" command).
+.RE
+.IP
 All prompt strings consist of a sequence of
 letters and special escape sequences.
 See the section on PROMPTS for more details.
@@ -1136,7 +1208,7 @@ where the terminal bell would have been rung.
 .IP "\-r or \-\-raw-control-chars"
 Causes "raw" control characters to be displayed.
 The default is to display control characters using the caret notation;
-for example, a control-A (octal 001) is displayed as "\(haA"
+for example, a control-A (octal 001) is displayed as "\*^A"
 (with some exceptions as described under the \-U option).
 Warning: when the \-r option is used,
 .B less
@@ -1145,7 +1217,7 @@ cannot keep track of the actual appearance of the screen
 each type of control character).
 Thus, various display problems may result,
 such as long lines being split in the wrong place.
-.sp
+.IP
 USE OF THE \-r OPTION IS DANGEROUS AND IS NOT RECOMMENDED.
 .br
 The \-r option can be set on the command line or via the \- command, 
@@ -1156,28 +1228,30 @@ Like \-r, but only a limited set of escape
 sequences are output in "raw" form.
 Unlike \-r, the screen appearance is maintained correctly.
 The sequences which are output raw are:
-.sp
+.IP
 1. ANSI SGR ("color") sequences
-.sp
+.IP
 2. OSC 8 hyperlinks
-.sp
+.IP
 3. Other OSC sequences, if the OSC type number is listed in
 the LESSANSIOSCALLOW environment variable
-.sp
+.IP
 4. OSC sequences starting with a non-standard introductory character
 (that is, something other than "]"), if the character is listed in
 the LESSANSIOSCCHARS environment variable followed by an asterisk
-.sp
+.IP
 ANSI color escape sequences are sequences of the form:
-.sp
+.IP
+.EX
 	ESC [ \&...\& m
-.sp
+.EE
+.IP
 where the "...\&" is zero or more color specification characters.
 Color escape sequences are only supported when the color
 is changed within one line, not across lines. 
 In other words, the beginning of each line is assumed to be
 normal (non-colored), regardless of any escape sequences in previous lines.
-.sp
+.IP
 You can make
 .B less
 think that characters other than "m" can end ANSI color escape sequences
@@ -1188,11 +1262,13 @@ And you can make
 think that characters other than the standard ones may appear between
 the ESC and the m by setting the environment variable LESSANSIMIDCHARS
 to the list of characters which can appear.
-.sp
+.IP
 OSC sequences are of the form:
-.sp
+.IP
+.EX
 	ESC ] N ; \&...\& \\7
-.sp
+.EE
+.IP
 where the OSC type number N is a decimal integer.
 The terminating sequence may be either a BEL character (\\7) 
 as above, or the two-character sequence "ESC \\".
@@ -1225,7 +1301,7 @@ the name of a command compatible with
 and that command is executed to find the tag.
 (See 
 .nh
-http://www.gnu.org/software/global/global.html).
+http://\*:www\*:.gnu\*:.org/\*:software/\*:global/\*:global\*:.html).
 .hy
 The \-t option may also be specified from within
 .B less
@@ -1241,7 +1317,7 @@ that is, they are sent to the terminal when they appear in the input.
 Causes backspaces, tabs, carriage returns and "formatting characters"
 (as defined by Unicode) to be treated as control characters;
 that is, they are handled as specified by the \-r option.
-.sp
+.IP
 By default, if neither \-u nor \-U is given,
 backspaces which appear adjacent to an underscore character
 are treated specially:
@@ -1258,7 +1334,7 @@ Unicode formatting characters, such as the Byte Order Mark,
 are sent to the terminal.
 Text which is overstruck or underlined can be searched for
 if neither \-u nor \-U is in effect.
-.sp
+.IP
 See also the \-\-proc-backspace, \-\-proc-tab,
 and \-\-proc-return options.
 .IP "\-V or \-\-version"
@@ -1313,7 +1389,7 @@ lines less than the current screen size.
 For example, if the screen is 24 lines, \fI\-z\-4\fP sets the
 scrolling window to 20 lines.  If the screen is resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
-.IP "\-\(dq\fIcc\fP\ or\ \-\-quotes=\fIcc\fP"
+.IP "\-""\fIcc\fP\ or\ \-\-quotes=\fIcc\fP"
 Changes the filename quoting character.
 This may be necessary if you are trying to name a file
 which contains both spaces and quote characters.
@@ -1327,8 +1403,8 @@ Filenames containing a space should then be preceded by the open quote
 character and followed by the close quote character.
 Note that even after the quote characters are changed, this option
 remains \-" (a dash followed by a double quote).
-.IP "\-\(ti or \-\-tilde"
-Normally lines after end of file are displayed as a single tilde (\(ti).
+.IP "\-\*~ or \-\-tilde"
+Normally lines after end of file are displayed as a single tilde (\*~).
 This option causes lines after end of file to be displayed as blank lines.
 .IP "\-# or \-\-shift"
 Specifies the default number of positions to scroll horizontally
@@ -1378,7 +1454,7 @@ with the same name as the original (now renamed) file),
 will display the contents of that new file.
 .IP "\-\-form-feed"
 When scrolling forward or backward in the file,
-stop if a line beginning with a form feed character (\(haL) is reached.
+stop if a line beginning with a form feed character (\*^L) is reached.
 This can be useful when viewing a file which uses form feeds between pages.
 .IP "\-\-header=\fIL\fP,\fIC\fP,\fIN\fP"
 .RS
@@ -1416,7 +1492,7 @@ Subsequent search commands will be "incremental"; that is,
 will advance to the next line containing the search pattern 
 as each character of the pattern is typed in.
 .IP "\-\-intr=\fIc\fP"
-Use the character \fIc\fP instead of \(haX to interrupt a read
+Use the character \fIc\fP instead of \*^X to interrupt a read
 when the "Waiting for data" message is displayed.
 \fIc\fP must be an ASCII character; that is, one with a value 
 between 1 and 127 inclusive.
@@ -1435,7 +1511,7 @@ This option selects the column in which the first character
 of the search match will be placed after the shift.
 In other words, there will be \fIn\fP characters visible 
 to the left of the search match.
-
+.IP
 Alternately, the number may be specified as a fraction of the width
 of the screen, starting with a decimal point: \&.5 is half of the
 screen width, \&.3 is three tenths of the screen width, and so on.
@@ -1476,9 +1552,9 @@ left-click sets the "#" mark to the line where the mouse is clicked,
 and right-click (or any other) returns to the "#" mark position.
 Holding down the left button and dragging also moves in the file.
 If a left-click is performed with the mouse cursor on an OSC 8 hyperlink,
-the hyperlink is selected as if by the \(haO\(haN command.
+the hyperlink is selected as if by the \*^O\*^N command.
 If a left-click is performed with the mouse cursor on an OSC 8 hyperlink
-which is already selected, the hyperlink is opened as if by the \(haO\(haO command.
+which is already selected, the hyperlink is opened as if by the \*^O\*^O command.
 The number of lines to scroll when the wheel is moved
 can be set by the \-\-wheel-lines option.
 Mouse input works only on terminals which support X11 mouse reporting,
@@ -1576,9 +1652,9 @@ E, F, K, N, R or W.
 Setting any of these has the same effect as typing that
 control character at the beginning of every search pattern.
 For example, setting \-\-search-options=W is the same as
-typing \(haW at the beginning of every pattern.
+typing \*^W at the beginning of every pattern.
 The value may also contain a digit between 1 and 5,
-which has the same effect as typing \(haS followed by that digit
+which has the same effect as typing \*^S followed by that digit
 at the beginning of every search pattern.
 The value "-" disables all default search modifiers.
 .IP "\-\-show-preproc-errors"
@@ -1594,19 +1670,19 @@ If a line is marked, the entire line (rather than just the status column)
 is highlighted.
 Also lines highlighted due to the \-w option will have
 the entire line highlighted.
-If \-\-use-color is set, the line is colored rather than highlighted.
+If \-\-use\-color is set, the line is colored rather than highlighted.
 .IP "\-\-use-backslash"
 This option changes the interpretations of options which follow this one.
 After the \-\-use-backslash option, any backslash in an option string is
 removed and the following character is taken literally.
 This allows a dollar sign to be included in option strings.
-.IP "\-\-use-color"
+.IP "\-\-use\-color"
 Enables colored text in various places.
 The \-D option can be used to change the colors.
 Colored text works only if the terminal supports 
 ANSI color escape sequences (as defined in 
 .nh
-https://www.ecma-international.org/publications-and-standards/standards/ecma-48).
+https://\*:www\*:.ecma\-international\*:.org/\*:publications\-and\-standards/\*:standards/\*:ecma\-48).
 .hy
 .IP "\-\-wheel-lines=\fIn\fP"
 Set the number of lines to scroll when the mouse wheel is scrolled
@@ -1651,16 +1727,16 @@ a key does not exist on a particular keyboard.
 (Note that the forms beginning with ESC do not work
 on some MS-DOS and Windows systems because ESC is the line erase character.)
 Any of these special keys may be entered literally by preceding
-it with the "literal" character, either \(haV or \(haA.
+it with the "literal" character, either \*^V or \*^A.
 A backslash itself may also be entered literally by entering two backslashes.
 .IP "LEFTARROW [ ESC-h ]"
 Move the cursor one space to the left.
 .IP "RIGHTARROW [ ESC-l ]"
 Move the cursor one space to the right.
-.IP "\(haLEFTARROW [ ESC-b or ESC-LEFTARROW ]"
+.IP "\*^LEFTARROW [ ESC-b or ESC-LEFTARROW ]"
 (That is, CONTROL and LEFTARROW simultaneously.)
 Move the cursor one word to the left.
-.IP "\(haRIGHTARROW [ ESC-w or ESC-RIGHTARROW ]"
+.IP "\*^RIGHTARROW [ ESC-w or ESC-RIGHTARROW ]"
 (That is, CONTROL and RIGHTARROW simultaneously.)
 Move the cursor one word to the right.
 .IP "HOME [ ESC-0 ]"
@@ -1672,10 +1748,10 @@ Delete the character to the left of the cursor,
 or cancel the command if the command line is empty.
 .IP "DELETE or [ ESC-x ]"
 Delete the character under the cursor.
-.IP "\(haBACKSPACE [ ESC-BACKSPACE ]"
+.IP "\*^BACKSPACE [ ESC-BACKSPACE ]"
 (That is, CONTROL and BACKSPACE simultaneously.)
 Delete the word to the left of the cursor.
-.IP "\(haDELETE [ ESC-X or ESC-DELETE ]"
+.IP "\*^DELETE [ ESC-X or ESC-DELETE ]"
 (That is, CONTROL and DELETE simultaneously.)
 Delete the word under the cursor.
 .IP "INSERT or [ ESC-i ]"
@@ -1703,16 +1779,16 @@ The environment variable LESSSEPARATOR can be used to specify a
 different character to append to a directory name.
 .IP "BACKTAB (SHIFT-TAB) [ ESC-TAB ]"
 Like, TAB, but cycles in the reverse direction thru the matching filenames.
-.IP "\(haL"
+.IP "\*^L"
 Complete the partial filename to the left of the cursor.
 If it matches more than one filename, all matches are entered into
 the command line (if they fit).
-.IP "\(haU (Unix and OS/2) or ESC (MS-DOS and Windows)"
+.IP "\*^U (Unix and OS/2) or ESC (MS-DOS and Windows)"
 Delete the entire command line,
 or cancel the command if the cursor is at the beginning of the command line.
 If you have changed your line-kill character in Unix to something
-other than \(haU, that character is used instead of \(haU.
-.IP "\(haG"
+other than \*^U, that character is used instead of \*^U.
+.IP "\*^G"
 Delete the entire command line and return to the main prompt.
 .
 .SH "KEY BINDINGS"
@@ -2053,7 +2129,7 @@ interface is also not available, the default character set is utf-8.
 .PP
 Control and binary characters are displayed in standout (reverse video).
 Each such character is displayed in caret notation if possible
-(e.g.\& \(haA for control-A).  Caret notation is used only if
+(e.g.\& \*^A for control-A).  Caret notation is used only if
 inverting the 0100 bit results in a normal printable character.
 Otherwise, the character is displayed as a hex number in angle brackets.
 This format can be changed by
@@ -2120,11 +2196,13 @@ A deleted character (deleted from the input and not displayed).
 .RE
 .PP
 For example, setting LESSUTFCHARDEF to
+.PP
+.EX
 .nf
-.sp
-	E000-F8FF:p,F0000-FFFFD:p,100000-10FFFD:p
-.sp
+	E000\-F8FF:p,F0000\-FFFFD:p,100000\-10FFFD:p
 .fi
+.EE
+.PP
 would make all Private Use Area characters be treated as printable.
 .PP
 By default, emoji modifiers, components and variation selectors
@@ -2133,11 +2211,12 @@ If you use a terminal which does display some or all of them correctly,
 you can cause them to be displayed by setting LESSUTFCHARDEF
 to treat them as composing characters.
 For example, this sets them all to composing characters:
+.PP
+.EX
 .nf
-.sp
-	FE00-FE0F:c,1F3FB-1F3FF:c,1F9B0-1F9B3:c,E0100-E01EF:c
-.sp
+	FE00\-FE0F:c,1F3FB\-1F3FF:c,1F9B0\-1F9B3:c,E0100\-E01EF:c
 .fi
+.EE
 .SH "PROMPTS"
 The \-P option allows you to tailor the prompt to your preference.
 The string given to the \-P option replaces the specified prompt string.
@@ -2145,7 +2224,7 @@ Certain characters in the string are interpreted specially.
 The prompt mechanism is rather complicated to provide flexibility,
 but the ordinary user need not understand the details of constructing
 personalized prompt strings.
-.sp
+.PP
 A percent sign followed by a single character is expanded
 according to what the following character is.
 (References to the input file size below refer to the preprocessed size,
@@ -2196,7 +2275,7 @@ Replaced by the total number of input files.
 .IP "%o"
 Replaced by the URI of the currently selected OSC 8 hyperlink,
 or a question mark if no hyperlink is selected.
-This is used by OSC 8 handlers as explained in the \(haO\(haO command description.
+This is used by OSC 8 handlers as explained in the \*^O\*^O command description.
 .IP "%p\fIX\fP"
 Replaced by the percent into the current input file, based on byte offsets.
 The line used is determined by the \fIX\fP as with the %b option.
@@ -2272,14 +2351,18 @@ Any of the special characters may be included in the prompt literally
 by preceding it with a backslash.
 .PP
 Some examples:
-.sp
+.PP
+.EX
 ?f%f:Standard input.
-.sp
+.EE
+.PP
 This prompt prints the filename, if known;
 otherwise the string "Standard input".
-.sp
-?f%f \&.?ltLine %lt:?pt%pt\e%:?btByte %bt:-...
-.sp
+.PP
+.EX
+?f%f \&.?ltLine %lt:?pt%pt\e%:?btByte %bt:\-...
+.EE
+.PP
 This prompt would print the filename, if known.
 The filename is followed by the line number, if known,
 otherwise the percent if known, otherwise the byte offset if known.
@@ -2287,9 +2370,11 @@ Otherwise, a dash is printed.
 Notice how each question mark has a matching period,
 and how the % after the %pt
 is included literally by escaping it with a backslash.
-.sp
-?n?f%f\ .?m(%T %i of %m)\ ..?e(END)\ ?x-\ Next\e:\ %x..%t
-.sp
+.PP
+.EX
+?n?f%f\ .?m(%T %i of %m)\ ..?e(END)\ ?x\-\ Next\e:\ %x..%t
+.EE
+.PP
 This prints the filename if this is the first prompt in a file,
 followed by the "file N of N" message if there is more
 than one input file.
@@ -2300,32 +2385,38 @@ This is the default prompt.
 For reference, here are the defaults for
 the other two prompts (\-m and \-M respectively).
 Each is broken into two lines here for readability only.
+.PP
+.EX
 .nf
-.sp
-?n?f%f\ .?m(%T\ %i\ of\ %m)\ ..?e(END)\ ?x-\ Next\e:\ %x.:
+?n?f%f\ .?m(%T\ %i\ of\ %m)\ ..?e(END)\ ?x\-\ Next\e:\ %x.:
 	?pB%pB\e%:byte\ %bB?s/%s...%t
-.sp
-?f%f\ .?n?m(%T\ %i\ of\ %m)\ ..?ltlines\ %lt-%lb?L/%L.\ :
-	byte\ %bB?s/%s.\ .?e(END)\ ?x-\ Next\e:\ %x.:?pB%pB\e%..%t
-.sp
+.PP
+?f%f\ .?n?m(%T\ %i\ of\ %m)\ ..?ltlines\ %lt\-%lb?L/%L.\ :
+	byte\ %bB?s/%s.\ .?e(END)\ ?x\-\ Next\e:\ %x.:?pB%pB\e%..%t
 .fi
+.EE
+.PP
 And here is the default message produced by the = command:
+.PP
+.EX
 .nf
-.sp
-?f%f\ .?m(%T\ %i\ of\ %m)\ .?ltlines\ %lt-%lb?L/%L.\ .
+?f%f\ .?m(%T\ %i\ of\ %m)\ .?ltlines\ %lt\-%lb?L/%L.\ .
 	byte\ %bB?s/%s.\ ?e(END)\ :?pB%pB\e%..%t
 .fi
+.EE
 .PP
 The prompt expansion features are also used for another purpose:
 if an environment variable LESSEDIT is defined, it is used
 as the command to be executed when the v command is invoked.
 The LESSEDIT string is expanded in the same way as the prompt strings.
 The default value for LESSEDIT is:
+.PP
+.EX
 .nf
-.sp
 	%E\ ?lm+%lm.\ %g
-.sp
 .fi
+.EE
+.PP
 Note that this expands to the editor name, followed by a + and the
 line number, followed by the shell-escaped file name.
 If your editor does not accept the "+linenumber" syntax, or has other
@@ -2344,7 +2435,7 @@ the examine command (:e)
 .IP "glob"
 metacharacters such as * in filenames,
 .br
-and filename completion (TAB, \(haL)
+and filename completion (TAB, \*^L)
 .IP "history"
 history file
 .IP "lesskey"
@@ -2354,7 +2445,7 @@ input preprocessor (LESSOPEN environment variable)
 .IP "logfile"
 log files (s and \-o)
 .IP "osc8"
-opening OSC 8 links (\(haO\(haO)
+opening OSC 8 links (\*^O\*^O)
 .IP "pipe"
 the pipe command (|) 
 .IP "shell"
@@ -2715,11 +2806,11 @@ Mark Nudelman
 .br
 Report bugs at 
 .nh
-https://github.com/gwsw/less/issues.
+https://\*:github\*:.com/\*:gwsw/\*:less/\*:issues.
 .hy
 .br
 For more information, see the less homepage at
 .br
 .nh
-https://greenwoodsoftware.com/less.
+https://\*:greenwoodsoftware\*:.com/\*:less.
 .hy
