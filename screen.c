@@ -68,7 +68,11 @@ extern int fd0;
 #endif
 #endif
 
-#if HAVE_TERMINFO
+#if HAVE_TERMINFO && !USE_TERMCAP
+#define USE_TERMINFO 1
+#endif
+
+#if USE_TERMINFO
 #include <curses.h>
 #include <term.h>
 #else
@@ -201,7 +205,7 @@ public int vt_enabled = -1;     /* Is virtual terminal processing available? */
  * These two variables are sometimes defined in,
  * and needed by, the termcap library.
  */
-#if HAVE_TERMINFO
+#if USE_TERMINFO
 #undef HAVE_OSPEED
 #else
 #if MUST_DEFINE_OSPEED
@@ -767,7 +771,7 @@ static int ltgetflag(constant char *tiname, constant char *tcname)
 		return (*s != '\0' && *s != '0');
 	if (hardcopy)
 		return (0);
-#if HAVE_TERMINFO
+#if USE_TERMINFO
 	return tiname == NULL ? 0 : tigetflag(tiname);
 #else
 	return tcname == NULL ? 0 : tgetflag(tcname);
@@ -782,7 +786,7 @@ static int ltgetnum(constant char *tiname, constant char *tcname)
 		return (atoi(s));
 	if (hardcopy)
 		return (-1);
-#if HAVE_TERMINFO
+#if USE_TERMINFO
 	return tiname == NULL ? -1 : tigetnum(tiname);
 #else
 	return tcname == NULL ? -1 : tgetnum(tcname);
@@ -797,7 +801,7 @@ static constant char * ltgetstr(constant char *tiname, constant char *tcname, ch
 		return (s);
 	if (hardcopy)
 		return (NULL);
-#if HAVE_TERMINFO
+#if USE_TERMINFO
 	if (tiname == NULL)
 		return (NULL);
 	s = tigetstr(tiname);
@@ -1287,7 +1291,7 @@ public constant char * special_key_str(int key)
 #if !MSDOS_COMPILER
 static constant char *ltgoto(constant char *cap, int col, int line)
 {
-#if HAVE_TERMINFO
+#if USE_TERMINFO
 	return tparm(cap, line, col);
 #else
 	return tgoto(cap, col, line);
@@ -1381,7 +1385,7 @@ public void get_term(void)
 	 * Some termcap libraries assume termbuf is static
 	 * (accessible after tgetent returns).
 	 */
-#if !HAVE_TERMINFO
+#if !USE_TERMINFO
 	static char termbuf[TERMBUF_SIZE];
 #endif
 	static char sbuf[TERMSBUF_SIZE];
@@ -1409,7 +1413,7 @@ public void get_term(void)
 	if ((term = lgetenv("TERM")) == NULL)
 		term = DEFAULT_TERM;
 	hardcopy = 0;
-#if HAVE_TERMINFO
+#if USE_TERMINFO
 	if (setupterm(term, -1, NULL) != OK)
 		hardcopy = 1;
 #else
