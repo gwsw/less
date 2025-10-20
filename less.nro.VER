@@ -254,7 +254,7 @@ the status column shows the marked line.
 .IP M
 Acts like m, except the last displayed line is marked
 rather than the first displayed line.
-.IP "\(aq"
+.IP "\*'"
 (Single quote.)
 Followed by any lowercase or uppercase letter, returns to the position which
 was previously marked with that letter.
@@ -264,7 +264,7 @@ Followed by a \*^ or $, jumps to the beginning or end of the
 file respectively.
 Marks are preserved when a new file is examined within a single invocation of
 .BR less ,
-so the \(aq command can be used to switch between input files.
+so the \*' command can be used to switch between input files.
 The \-\-save\-marks option causes marks to be preserved across different invocations of
 .BR less .
 .IP "\*^X\*^X"
@@ -2542,7 +2542,7 @@ Characters which may end an ANSI color escape sequence
 .IP LESSANSIMIDCHARS
 Characters which may appear between the ESC character and the
 end character in an ANSI color escape sequence
-(default "0123456789:;[?!"\(aq#%()*+\ ").
+(default "0123456789:;[?!"\*'#%()*+\ ").
 .IP LESSANSIOSCALLOW
 A comma-separated list of OSC types which are output directly to the
 terminal when \-R is in effect
