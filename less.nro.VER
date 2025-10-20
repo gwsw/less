@@ -1266,12 +1266,12 @@ to the list of characters which can appear.
 OSC sequences are of the form:
 .IP
 .EX
-	ESC ] N ; \&...\& \\7
+	ESC ] N ; \&...\& \e7
 .EE
 .IP
 where the OSC type number N is a decimal integer.
-The terminating sequence may be either a BEL character (\\7) 
-as above, or the two-character sequence "ESC \\".
+The terminating sequence may be either a BEL character (\e7)
+as above, or the two-character sequence "ESC \e".
 .IP "\-s or \-\-squeeze\-blank\-lines"
 Causes consecutive blank lines to be squeezed into a single blank line.
 This is useful when viewing
@@ -2618,7 +2618,7 @@ file. (Not used if "$LESSKEYIN_SYSTEM" exists.)
 List of characters which are considered "metacharacters" by the shell.
 .IP LESSMETAESCAPE
 Prefix which less will add before each metacharacter in a
-command sent to the shell (default "\\").
+command sent to the shell (default "\e").
 .IP LESSOPEN
 Command line to invoke the (optional) input-preprocessor.
 .IP LESSSECURE
@@ -2629,7 +2629,7 @@ Enables individual features which are normally disabled by LESSSECURE.
 See discussion under SECURITY.
 .IP LESSSEPARATOR
 String to be appended to a directory name in filename completion
-(default "\\" on MS-DOS, Windows, and OS/2; otherwise "/").
+(default "\e" on MS-DOS, Windows, and OS/2; otherwise "/").
 .IP LESSUTFBINFMT
 Format for displaying non-printable Unicode code points.
 .IP LESSUTFCHARDEF 
