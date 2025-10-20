@@ -2687,6 +2687,8 @@ receives a SIGUSR1 signal.
 .IP LESS_TERMCAP_xx
 Where "xx" is any two characters, overrides the definition 
 of the termcap "xx" capability for the terminal.
+No escape sequences in the string are processed, so any
+nonprintable characters such as ESC must be in the string literally.
 .IP LESS_TERMINFO_xxxx
 Where "xxxx" is any string of characters, overrides the definition
 of the terminfo "xxxx" capability for the terminal.
