@@ -190,7 +190,7 @@ public int len_cmdbuf(void)
  */
 public lbool cmdbuf_empty(void)
 {
-	return cp == cmdbuf && cmd_mbc_buf_len == 0;
+	return cmdbuf[0] == '\0' && cmd_mbc_buf_len == 0;
 }
 
 /*

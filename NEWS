@@ -13,6 +13,9 @@
 
 	Major changes between "less" versions 685 and 686
 
+* Fix bug when entering search modifier key at start of non-empty 
+  search string (github #668).
+
 ======================================================================
 
 	Major changes between "less" versions 679 and 685
