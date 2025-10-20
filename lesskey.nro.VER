@@ -138,7 +138,7 @@ l l.
 \ekp0	0 on the numeric keypad
 \ekp*	* on the numeric keypad
 \ekp/	/ on the numeric keypad
-\ekp-	- on the numeric keypad
+\ekp\-	\- on the numeric keypad
 \ekp+	+ on the numeric keypad
 \ekp.	. on the numeric keypad
 \ekp,	, on the numeric keypad
@@ -303,7 +303,7 @@ s	toggle\-option o
 \ekp0	noaction 0
 \ekp*	noaction *
 \ekp/	noaction /
-\ekp-	noaction -
+\ekp\-	noaction \-
 \ekp+	noaction +
 \ekp.	noaction .
 \ekp,	noaction ,
@@ -419,7 +419,7 @@ l l.
 \ekp0	noaction 0
 \ekp*	noaction *
 \ekp/	noaction /
-\ekp-	noaction -
+\ekp\-	noaction \-
 \ekp+	noaction +
 \ekp.	noaction .
 \ekp,	noaction ,
