@@ -20,11 +20,6 @@
   Add shift-HOME and ctrl-HOME to scroll left and jump to top, and
   add shift-END and ctrl-END to scroll right and jump to end (github #658).
 
-* Implement ESC-i or INSERT to toggle insert mode in command line.
-
-* Add LESS_TERMCAP_NCURSOR and LESS_TERMCAP_RCURSOR to change cursor
-  to show insert/replace mode.
-
 * Fix bug when entering search modifier key at start of non-empty 
   search string (github #668).
 

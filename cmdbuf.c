@@ -35,7 +35,9 @@ static int cmd_offset;           /* Index into cmdbuf of first displayed char */
 static lbool literal;            /* Next input char should not be interpreted */
 static size_t updown_match;      /* Prefix length in up/down movement */
 static lbool have_updown_match = FALSE;
+#if LESS_INSERT_MODE
 static lbool insert_mode = TRUE;
+#endif
 
 static int cmd_complete(int action);
 /*
@@ -326,23 +328,6 @@ static void cmd_repaint_curr(void)
 }
 
 /*
- * Set cursor type.
- */
-public void cmd_setcursor(lbool editing)
-{
-	set_lcursor(editing && !insert_mode);
-}
-
-/*
- * Restore default cursor and return CC_QUIT.
- */
-static int cmd_quit(void)
-{
-	cmd_setcursor(FALSE);
-	return CC_QUIT;
-}
-
-/*
  * Shift the cmdbuf display left a half-screen.
  */
 static void cmd_lshift(void)
@@ -487,7 +472,7 @@ static int cmd_erase(void)
 		 * Backspace past beginning of the buffer:
 		 * this usually means abort the command.
 		 */
-		return cmd_quit();
+		return CC_QUIT;
 	}
 	/*
 	 * Move cursor left (to the char being erased).
@@ -517,7 +502,7 @@ static int cmd_erase(void)
 	 * to abort the current command, if CF_QUIT_ON_ERASE is set.
 	 */
 	if ((curr_cmdflags & CF_QUIT_ON_ERASE) && cp == cmdbuf && *cp == '\0')
-		return cmd_quit();
+		return CC_QUIT;
 	return (CC_OK);
 }
 
@@ -553,8 +538,10 @@ static int cmd_ichar(constant char *cs, size_t clen)
 		return (CC_ERROR);
 	}
 		
+#if LESS_INSERT_MODE
 	if (!insert_mode)
 		cmd_delete();
+#endif
 	/*
 	 * Make room for the new character (shift the tail of the buffer right).
 	 */
@@ -632,7 +619,7 @@ static int cmd_kill(void)
 	if (cmdbuf[0] == '\0')
 	{
 		/* Buffer is already empty; abort the current command. */
-		return cmd_quit();
+		return CC_QUIT;
 	}
 	cmd_offset = 0;
 	cmd_home();
@@ -645,7 +632,7 @@ static int cmd_kill(void)
 	 * to abort the current command, if CF_QUIT_ON_ERASE is set.
 	 */
 	if (curr_cmdflags & CF_QUIT_ON_ERASE)
-		return cmd_quit();
+		return CC_QUIT;
 	return (CC_OK);
 }
 
@@ -924,8 +911,9 @@ static int cmd_edit(char c, lbool stay_in_completion)
 		return (CC_OK);
 	case EC_INSERT:
 		not_in_completion();
+#if LESS_INSERT_MODE
 		insert_mode = !insert_mode;
-		cmd_setcursor(TRUE);
+#endif
 		return (CC_OK);
 	case EC_BACKSPACE:
 		not_in_completion();
@@ -936,7 +924,7 @@ static int cmd_edit(char c, lbool stay_in_completion)
 	case EC_ABORT:
 		not_in_completion();
 		(void) cmd_kill();
-		return cmd_quit();
+		return CC_QUIT;
 	case EC_W_BACKSPACE:
 		not_in_completion();
 		return (cmd_werase());
@@ -973,9 +961,10 @@ static int cmd_istr(constant char *str)
 	constant char *endline = str + strlen(str);
 	constant char *s;
 	int action = CC_OK;
+#if LESS_INSERT_MODE
 	lbool save_insert_mode = insert_mode;
-
 	insert_mode = TRUE;
+#endif
 	for (s = str;  *s != '\0';  )
 	{
 		constant char *os = s;
@@ -984,7 +973,9 @@ static int cmd_istr(constant char *str)
 		if (action != CC_OK)
 			break;
 	}
+#if LESS_INSERT_MODE
 	insert_mode = save_insert_mode;
+#endif
 	return (action);
 }
 
