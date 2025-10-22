@@ -43,8 +43,10 @@ struct mark
 #define MOUSEMARK       (NMARKS-2)
 #define LASTMARK        (NMARKS-1)
 static struct mark marks[NMARKS];
-public int marks_modified = 0;
-
+public lbool marks_modified = FALSE;
+#if CMD_HISTORY
+static struct mark file_marks[NMARKS];
+#endif
 
 /*
  * Initialize a mark struct.
@@ -77,6 +79,10 @@ public void init_mark(void)
 		}
 		marks[i].m_letter = letter;
 		cmark(&marks[i], NULL_IFILE, NULL_POSITION, -1);
+#if CMD_HISTORY
+		file_marks[i].m_letter = letter;
+		cmark(&file_marks[i], NULL_IFILE, NULL_POSITION, -1);
+#endif
 	}
 }
 
@@ -102,22 +108,35 @@ static void mark_get_ifile(struct mark *m)
 }
 
 /*
+ * Return the mark table index identified by a character.
+ */
+static int getumark_index(char c)
+{
+	if (c >= 'a' && c <= 'z')
+		return c-'a';
+	if (c >= 'A' && c <= 'Z')
+		return c-'A'+26;
+	if (c == '\'')
+		return LASTMARK;
+	if (c == '#')
+		return MOUSEMARK;
+	return -1;
+}
+
+/*
  * Return the user mark struct identified by a character.
  */
 static struct mark * getumark(char c)
 {
-	PARG parg;
-	if (c >= 'a' && c <= 'z')
-		return (&marks[c-'a']);
-	if (c >= 'A' && c <= 'Z')
-		return (&marks[c-'A'+26]);
-	if (c == '\'')
-		return (&marks[LASTMARK]);
-	if (c == '#')
-		return (&marks[MOUSEMARK]);
-	parg.p_char = (char) c;
-	error("Invalid mark letter %c", &parg);
-	return (NULL);
+	int index = getumark_index(c);
+	if (index < 0 || index >= NUMARKS)
+	{
+		PARG parg;
+		parg.p_char = (char) c;
+		error("Invalid mark letter %c", &parg);
+		return NULL;
+	}
+	return &marks[index];
 }
 
 /*
@@ -208,7 +227,7 @@ public void setmark(char c, int where)
 		return;
 	}
 	cmark(m, curr_ifile, scrpos.pos, scrpos.ln);
-	marks_modified = 1;
+	marks_modified = TRUE;
 }
 
 /*
@@ -227,7 +246,7 @@ public void clrmark(char c)
 		return;
 	}
 	m->m_scrpos.pos = NULL_POSITION;
-	marks_modified = 1;
+	marks_modified = TRUE;
 }
 
 /*
@@ -243,7 +262,7 @@ public void lastmark(void)
 	if (scrpos.pos == NULL_POSITION)
 		return;
 	cmark(&marks[LASTMARK], curr_ifile, scrpos.pos, scrpos.ln);
-	marks_modified = 1;
+	marks_modified = TRUE;
 }
 
 /*
@@ -316,14 +335,11 @@ public char posmark(POSITION pos)
 	/* Only user marks */
 	for (i = 0;  i < NUMARKS;  i++)
 	{
-		if (marks[i].m_ifile == curr_ifile && marks[i].m_scrpos.pos == pos)
-		{
-			if (i < 26) return (char) ('a' + i);
-			if (i < 26*2) return (char) ('A' + (i - 26));
-			return '#';
-		}
+		struct mark *m = &marks[i];
+		if (m->m_ifile == curr_ifile && m->m_scrpos.pos == pos)
+			return m->m_letter;
 	}
-	return 0;
+	return '\0';
 }
 
 /*
@@ -364,20 +380,42 @@ public void mark_check_ifile(IFILE ifile)
 #if CMD_HISTORY
 
 /*
+ * Initialize a mark struct, including the filename.
+ */
+static void cmarkf(struct mark *m, IFILE ifile, POSITION pos, int ln, constant char *filename)
+{
+	cmark(m, ifile, pos, ln);
+	m->m_filename = (filename == NULL) ? NULL : save(filename);
+}
+
+/*
  * Save marks to history file.
  */
 public void save_marks(FILE *fout, constant char *hdr)
 {
 	int i;
 
-	if (!perma_marks)
-		return;
+	if (perma_marks)
+	{
+		/* Copy active marks to file_marks. */
+		for (i = 0;  i < NMARKS;  i++)
+		{
+			struct mark *m = &marks[i];
+			if (m->m_ifile != NULL_IFILE)
+				cmark(&file_marks[i], m->m_ifile, m->m_scrpos.pos, m->m_scrpos.ln);
+		}
+	}
 
+	/*
+	 * Save file_marks to the history file.
+	 * These may have been read from the history file at startup
+	 * (in restore_mark), or copied from the active marks above.
+	 */
 	fprintf(fout, "%s\n", hdr);
 	for (i = 0;  i < NMARKS;  i++)
 	{
 		constant char *filename;
-		struct mark *m = &marks[i];
+		struct mark *m = &file_marks[i];
 		char pos_str[INT_STRLEN_BOUND(m->m_scrpos.pos) + 2];
 		if (m->m_scrpos.pos == NULL_POSITION)
 			continue;
@@ -396,7 +434,7 @@ public void save_marks(FILE *fout, constant char *hdr)
  */
 public void restore_mark(constant char *line)
 {
-	struct mark *m;
+	int mark_index;
 	int ln;
 	POSITION pos;
 
@@ -404,8 +442,8 @@ public void restore_mark(constant char *line)
 	if (*line++ != 'm')
 		return;
 	skip_whitespace;
-	m = getumark(*line++);
-	if (m == NULL)
+	mark_index = getumark_index(*line++);
+	if (mark_index < 0)
 		return;
 	skip_whitespace;
 	ln = lstrtoic(line, &line, 10);
@@ -420,8 +458,9 @@ public void restore_mark(constant char *line)
 	if (pos < 0)
 		return;
 	skip_whitespace;
-	cmark(m, NULL_IFILE, pos, ln);
-	m->m_filename = save(line);
+	/* Save in both active marks table and file_marks table. */
+	cmarkf(&marks[mark_index], NULL_IFILE, pos, ln, line);
+	cmarkf(&file_marks[mark_index], NULL_IFILE, pos, ln, line);
 }
 
 #endif /* CMD_HISTORY */

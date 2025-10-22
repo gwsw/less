@@ -23,7 +23,7 @@
 extern int sc_width;
 extern int utf_mode;
 extern int no_hist_dups;
-extern int marks_modified;
+extern lbool marks_modified;
 extern int no_paste;
 public lbool pasting = FALSE;
 
