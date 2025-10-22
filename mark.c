@@ -27,7 +27,6 @@ struct mark
 	 * because we don't want to create an ifile until the 
 	 * user explicitly requests the file (by name or mark).
 	 */
-	char m_letter;           /* Associated character */
 	IFILE m_ifile;           /* Input file being marked */
 	char *m_filename;        /* Name of the input file */
 	struct scrpos m_scrpos;  /* Position of the mark */
@@ -71,16 +70,8 @@ public void init_mark(void)
 
 	for (i = 0;  i < NMARKS;  i++)
 	{
-		char letter;
-		switch (i) {
-		case MOUSEMARK: letter = '#'; break;
-		case LASTMARK: letter = '\''; break;
-		default: letter = (char) ((i < 26) ? 'a'+i : 'A'+i-26); break;
-		}
-		marks[i].m_letter = letter;
 		cmark(&marks[i], NULL_IFILE, NULL_POSITION, -1);
 #if CMD_HISTORY
-		file_marks[i].m_letter = letter;
 		cmark(&file_marks[i], NULL_IFILE, NULL_POSITION, -1);
 #endif
 	}
@@ -137,6 +128,18 @@ static struct mark * getumark(char c)
 		return NULL;
 	}
 	return &marks[index];
+}
+
+/*
+ * Return the letter associated with a mark index.
+ */
+static char mark_letter(int index)
+{
+	switch (index) {
+	case MOUSEMARK: return '#';
+	case LASTMARK: return '\'';
+	default: return (char) ((index < 26) ? 'a'+index : 'A'+index-26);
+	}
 }
 
 /*
@@ -337,7 +340,7 @@ public char posmark(POSITION pos)
 	{
 		struct mark *m = &marks[i];
 		if (m->m_ifile == curr_ifile && m->m_scrpos.pos == pos)
-			return m->m_letter;
+			return mark_letter(i);
 	}
 	return '\0';
 }
@@ -425,7 +428,7 @@ public void save_marks(FILE *fout, constant char *hdr)
 			filename = get_real_filename(m->m_ifile);
 		if (strcmp(filename, "-") != 0)
 			fprintf(fout, "m %c %d %s %s\n",
-				m->m_letter, m->m_scrpos.ln, pos_str, filename);
+				mark_letter(i), m->m_scrpos.ln, pos_str, filename);
 	}
 }
 
