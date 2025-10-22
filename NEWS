@@ -20,6 +20,9 @@
   Add shift-HOME and ctrl-HOME to scroll left and jump to top, and
   add shift-END and ctrl-END to scroll right and jump to end (github #658).
 
+* When --save-marks is not used, retain any marks saved in the history file
+  (github #662).
+
 * Fix bug when entering search modifier key at start of non-empty 
   search string (github #668).
 
