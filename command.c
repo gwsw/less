@@ -574,7 +574,10 @@ static int mca_search_char(char c)
 	 */
 	if (!cmdbuf_empty() || literal_char)
 	{
+		lbool was_literal_char = literal_char;
 		literal_char = FALSE;
+		if (was_literal_char)
+			mca_search();
 		return (NO_MCA);
 	}
 
