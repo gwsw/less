@@ -23,7 +23,6 @@
 public int errmsgs;    /* Count of messages displayed by error() */
 public int need_clr;
 public int final_attr;
-public int at_prompt;
 
 extern int sigs;
 extern int sc_width;
@@ -494,7 +493,6 @@ public int putchr(int ch)
 	if (ob >= &obuf[sizeof(obuf)-1])
 		flush();
 	*ob++ = c;
-	at_prompt = 0;
 	return (c);
 }
 
