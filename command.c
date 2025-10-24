@@ -577,7 +577,7 @@ static int mca_search_char(char c)
 		lbool was_literal_char = literal_char;
 		literal_char = FALSE;
 		if (was_literal_char)
-			mca_search();
+			mca_search1();
 		return (NO_MCA);
 	}
 
