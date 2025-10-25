@@ -260,7 +260,7 @@ static int attrcolor = -1;
 static int init_done = 0;
 
 public int auto_wrap;           /* Terminal does \r\n when write past margin */
-public int ignaw;               /* Terminal ignores \n immediately after wrap */
+public int defer_wrap;          /* Terminal ignores \n immediately after wrap */
 public int erase_char;          /* The user's erase char */
 public int erase2_char;         /* The user's other erase char */
 public int kill_char;           /* The user's line-kill char */
@@ -1326,7 +1326,7 @@ public void get_term(void)
 	termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
 #if MSDOS_COMPILER
 	auto_wrap = 1;
-	ignaw = 0;
+	defer_wrap = 0;
 	can_goto_line = 1;
 	clear_bg = 1;
 	/*
@@ -1428,7 +1428,7 @@ public void get_term(void)
 	pos_init();
 
 	auto_wrap = ltgetflag("am", "am");
-	ignaw = ltgetflag("xenl", "xn");
+	defer_wrap = ltgetflag("xenl", "xn");
 	above_mem = ltgetflag("da", "da");
 	below_mem = ltgetflag("db", "db");
 	clear_bg = ltgetflag("bce", "ut");
@@ -1773,7 +1773,7 @@ static void win32_init_vt_term(void)
 	if (vt_enabled)
 	{
 		auto_wrap = 1;
-		ignaw = 1;
+		defer_wrap = 1;
 	}
 }
 
