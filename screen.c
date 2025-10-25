@@ -260,7 +260,7 @@ static int attrcolor = -1;
 static int init_done = 0;
 
 public int auto_wrap;           /* Terminal does \r\n when write past margin */
-public int defer_wrap;          /* Terminal ignores \n immediately after wrap */
+public int defer_wrap;          /* After printing char in last column, doesn't wrap until next char */
 public int erase_char;          /* The user's erase char */
 public int erase2_char;         /* The user's other erase char */
 public int kill_char;           /* The user's line-kill char */
