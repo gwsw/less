@@ -29,6 +29,7 @@ E "LINES" "38"
 E "LESS" "R"
 E "LESSCHARSET" "utf8"
 E "LANG" "C"
+E "LC_CTYPE" "en_US.UTF-8"
 T "osc8"
 A "osc8"
 F "osc8" 626685

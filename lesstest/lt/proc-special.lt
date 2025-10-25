@@ -28,6 +28,7 @@ E "COLUMNS" "93"
 E "LINES" "34"
 E "LESSCHARSET" "utf8"
 E "LANG" "C"
+E "LC_CTYPE" "en_US.UTF-8"
 T "proc-special"
 A "proc-special"
 F "proc-special" 79

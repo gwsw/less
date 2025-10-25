@@ -28,6 +28,7 @@ E "COLUMNS" "116"
 E "LINES" "41"
 E "LESSCHARSET" "utf8"
 E "LANG" "C"
+E "LC_CTYPE" "en_US.UTF-8"
 T "table-50x200"
 A "table-50x200"
 F "table-50x200" 60200

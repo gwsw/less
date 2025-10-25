@@ -27,7 +27,7 @@ E "LESS_TERMCAP_@7" "OF"
 E "COLUMNS" "115"
 E "LINES" "39"
 E "LANG" "C"
-E "LC_CTYPE" "C.UTF-8"
+E "LC_CTYPE" "en_US.UTF-8"
 T "seq200"
 A "seq200"
 F "seq200" 692

@@ -27,7 +27,7 @@ E "LESS_TERMCAP_@7" "OF"
 E "COLUMNS" "79"
 E "LINES" "27"
 E "LANG" "C"
-E "LC_CTYPE" "C.UTF-8"
+E "LC_CTYPE" "en_US.UTF-8"
 T "wordwrap"
 A "wordwrap"
 F "wordwrap" 148784
