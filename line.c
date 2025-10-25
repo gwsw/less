@@ -97,7 +97,7 @@ extern int twiddle;
 extern int status_col;
 extern int status_col_width;
 extern int linenum_width;
-extern int auto_wrap, ignaw;
+extern int auto_wrap, defer_wrap;
 extern int bo_s_width, bo_e_width;
 extern int ul_s_width, ul_e_width;
 extern int bl_s_width, bl_e_width;
@@ -1480,14 +1480,14 @@ public void pdone(lbool endline, lbool chopped, lbool forw)
 	 * the next line is blank.  In that case the single newline output for
 	 * that blank line would be ignored!)
 	 */
-	if (end_column < sc_width + cshift || !auto_wrap || (endline && ignaw) || ctldisp == OPT_ON)
+	if (end_column < sc_width + cshift || !auto_wrap || (endline && defer_wrap) || ctldisp == OPT_ON)
 	{
 		add_linebuf('\n', AT_NORMAL, 0);
 	} 
-	else if (ignaw && end_column >= sc_width + cshift && forw)
+	else if (defer_wrap && end_column >= sc_width + cshift && forw)
 	{
 		/*
-		 * Terminals with "ignaw" don't wrap until they *really* need
+		 * Terminals with "defer_wrap" don't wrap until they *really* need
 		 * to, i.e. when the character *after* the last one to fit on a
 		 * line is output. But they are too hard to deal with when they
 		 * get in the state where a full screen width of characters
@@ -1509,7 +1509,7 @@ public void pdone(lbool endline, lbool chopped, lbool forw)
 	 * colored with the last char's background color before the color
 	 * reset sequence is sent. Clear the line to reset the background color.
 	 */
-	if (auto_wrap && !ignaw && end_column >= sc_width + cshift)
+	if (auto_wrap && !defer_wrap && end_column >= sc_width + cshift)
 		clear_after_line = TRUE;
 	set_linebuf(linebuf.end, '\0', AT_NORMAL);
 }

@@ -27,7 +27,7 @@ E "LESS_TERMCAP_@7" "OF"
 E "COLUMNS" "79"
 E "LINES" "34"
 E "LANG" "C"
-E "LC_CTYPE" "C.UTF-8"
+E "LC_CTYPE" "en_US.UTF-8"
 T "filter1"
 A "filter1"
 F "filter1" 3893
