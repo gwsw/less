@@ -26,6 +26,8 @@
 * Fix bug when entering search modifier key at start of non-empty 
   search string (github #668).
 
+* Fix bug repainting screen with --form-feed (github #672).
+
 ======================================================================
 
 	Major changes between "less" versions 679 and 685
