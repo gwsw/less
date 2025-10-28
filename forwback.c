@@ -216,7 +216,7 @@ public int overlay_header(void)
  *   The first real line after the blanks will start at ch_zero().
  * "to_newline" means count file lines rather than screen lines.
  */
-public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_newline, int nblank)
+public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_newline, lbool do_stop_on_form_feed, int nblank)
 {
 	int nlines = 0;
 	lbool do_repaint;
@@ -348,7 +348,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			continue;
 		}
 		put_line(TRUE);
-		if (stop_on_form_feed && !do_repaint && line_is_ff() && position(TOP) != NULL_POSITION)
+		if (do_stop_on_form_feed && !do_repaint && line_is_ff() && position(TOP) != NULL_POSITION)
 			break;
 		forw_prompt = 1;
 	}
@@ -370,7 +370,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 /*
  * Display n lines, scrolling backward.
  */
-public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_newline)
+public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_newline, lbool do_stop_on_form_feed)
 {
 	int nlines = 0;
 	lbool do_repaint;
@@ -413,7 +413,7 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			home();
 			add_line();
 			put_line(FALSE);
-			if (stop_on_form_feed && line_is_ff())
+			if (do_stop_on_form_feed && line_is_ff())
 				break;
 		}
 	}
@@ -464,7 +464,7 @@ public void forward(int n, lbool force, lbool only_last, lbool to_newline)
 			{
 				do
 				{
-					back(1, position(TOP), TRUE, FALSE, FALSE);
+					back(1, position(TOP), TRUE, FALSE, FALSE, stop_on_form_feed);
 					pos = position(BOTTOM_PLUS_ONE);
 				} while (pos == NULL_POSITION && !ABORT_SIGS());
 			}
@@ -474,7 +474,7 @@ public void forward(int n, lbool force, lbool only_last, lbool to_newline)
 			return;
 		}
 	}
-	forw(n, pos, force, only_last, to_newline, 0);
+	forw(n, pos, force, only_last, to_newline, stop_on_form_feed, 0);
 }
 
 /*
@@ -491,7 +491,7 @@ public void backward(int n, lbool force, lbool only_last, lbool to_newline)
 		eof_bell();
 		return;
 	}
-	back(n, pos, force, only_last, to_newline);
+	back(n, pos, force, only_last, to_newline, stop_on_form_feed);
 }
 
 /*
