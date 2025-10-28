@@ -171,7 +171,6 @@ static int toggle_fraction(int *num, long *frac, constant char *s, constant char
 	lbool err;
 	if (s == NULL)
 	{
-		(*calc)();
 	} else if (*s == '.')
 	{
         long tfrac;
@@ -183,7 +182,6 @@ static int toggle_fraction(int *num, long *frac, constant char *s, constant char
 			return -1;
 		}
 		*frac = tfrac;
-		(*calc)();
 	} else
 	{
 		int tnum = getnumc(&s, printopt, &err);
@@ -195,6 +193,7 @@ static int toggle_fraction(int *num, long *frac, constant char *s, constant char
 		*frac = -1;
 		*num = tnum;
 	}
+	(*calc)();
 	return 0;
 }
 
@@ -241,10 +240,18 @@ public void opt_j(int type, constant char *s)
 
 public void calc_jump_sline(void)
 {
+	/* If jump_sline_fraction is set, calculate jump_sline from it. */
 	if (jump_sline_fraction >= 0)
 		jump_sline = (int) muldiv(sc_height, jump_sline_fraction, NUM_FRAC_DENOM);
+	/* Negative jump_sline means relative to bottom of screen. */
+	if (jump_sline < 0)
+		jump_sline += sc_height;
+	/* If jump_sline is obscured by header, move it after the header. */
 	if (jump_sline <= header_lines)
 		jump_sline = header_lines + 1;
+	/* If jump_sline is past bottom of screen, move it to the bottom. */
+	if (jump_sline >= sc_height)
+		jump_sline = sc_height - 1;
 }
 
 /*
