@@ -1,6 +1,10 @@
 #!/bin/sh
 usage="usage: remaketest FILE.lt..."
 
+extract_env() {
+	eval export $1=$(sed -n "/^E \"$1\"/ { s/^E \"$1\" \"\([^\"]*\).*$/\1/; p; q; }" < $2)
+}
+
 # Create a .lt file, using the same inputs as were used to create an existing .lt file.
 # Moves the current .lt file to xxx.lt.old
 
@@ -19,6 +23,16 @@ for lt_file in "$@"; do
     fi
     rm -f "$lt_file.textname"
     if [ ! -r "$text_file" ]; then echo "cannot read $text_file"; exit 1; fi
+
+	extract_env LESS          $lt_file
+	extract_env LESSCHARSET   $lt_file
+	extract_env LANG          $lt_file
+	extract_env LC_CTYPE      $lt_file
+	extract_env LINES         $lt_file
+	extract_env COLUMNS       $lt_file
+
+	LINES=$(($LINES+1))
+	COLUMNS=$(($COLUMNS+1))
 
     # Extract the input keypresses from lt_file and pass them to maketest.
     if $lt_dir/extract -k "$lt_file" > "$lt_file.k" && 
