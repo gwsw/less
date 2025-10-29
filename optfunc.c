@@ -183,7 +183,7 @@ static void toggle_fraction(int *num, long *frac, constant char *s, constant cha
 	} else
 	{
 		if (!getnumc(&s, printopt, neg_ok, num))
-			return -1;
+			return;
 		*frac = -1;
 	}
 	(*calc)();
