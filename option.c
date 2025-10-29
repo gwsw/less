@@ -485,9 +485,8 @@ public lbool toggle_option(struct loption *o, lbool lower, constant char *s, int
 			error(o->odesc[1], &parg);
 			break;
 		case O_STRING:
-			/*
-			 * Message was already printed by the handling function.
-			 */
+			if (how_toggle != OPT_NO_TOGGLE)
+				(*o->ofunc)(QUERY, NULL);
 			break;
 		}
 	}
