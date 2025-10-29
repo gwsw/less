@@ -166,35 +166,27 @@ public void opt__O(int type, constant char *s)
 }
 #endif
 
-static int toggle_fraction(int *num, long *frac, constant char *s, constant char *printopt, void (*calc)(void))
+static void toggle_fraction(int *num, long *frac, constant char *s, constant char *printopt, lbool neg_ok, void (*calc)(void))
 {
-	lbool err;
 	if (s == NULL)
 	{
 	} else if (*s == '.')
 	{
-        long tfrac;
 		s++;
-		tfrac = getfraction(&s, printopt, &err);
-		if (err)
+		if (!getfraction(&s, frac))
 		{
-			error("Invalid fraction", NULL_PARG);
-			return -1;
+			PARG parg;
+			parg.p_string = printopt;
+			error("Invalid fraction in %s", &parg);
+			return;
 		}
-		*frac = tfrac;
 	} else
 	{
-		int tnum = getnumc(&s, printopt, &err);
-		if (err)
-		{
-			error("Invalid number", NULL_PARG);
+		if (!getnumc(&s, printopt, neg_ok, num))
 			return -1;
-		}
 		*frac = -1;
-		*num = tnum;
 	}
 	(*calc)();
-	return 0;
 }
 
 static void query_fraction(int value, long fraction, constant char *int_msg, constant char *frac_msg)
@@ -229,7 +221,7 @@ public void opt_j(int type, constant char *s)
 	case INIT:
 	case TOGGLE:
 		toggle_fraction(&jump_sline, &jump_sline_fraction,
-			s, "j", calc_jump_sline);
+			s, "-j", TRUE, calc_jump_sline);
 		break;
 	case QUERY:
 		query_fraction(jump_sline, jump_sline_fraction, 
@@ -264,7 +256,7 @@ public void opt_shift(int type, constant char *s)
 	case INIT:
 	case TOGGLE:
 		toggle_fraction(&shift_count, &shift_count_fraction,
-			s, "#", calc_shift_count);
+			s, "-#", FALSE, calc_shift_count);
 		break;
 	case QUERY:
 		query_fraction(shift_count, shift_count_fraction,
@@ -861,7 +853,7 @@ public void opt_match_shift(int type, constant char *s)
 	case INIT:
 	case TOGGLE:
 		toggle_fraction(&match_shift, &match_shift_fraction,
-			s, "--match-shift", calc_match_shift);
+			s, "--match-shift", FALSE, calc_match_shift);
 		break;
 	case QUERY:
 		query_fraction(match_shift, match_shift_fraction,
@@ -1026,28 +1018,24 @@ public void opt_intr(int type, constant char *s)
  * Return -1 if the list entry is missing or empty.
  * Updates *sp to point to the first char of the next number in the list.
  */
-public int next_cnum(constant char **sp, constant char *printopt, constant char *errmsg, lbool *errp)
+static lbool next_cnum(constant char **sp, constant char *printopt, mutable int *p_num)
 {
-	int n;
-	*errp = FALSE;
 	if (**sp == '\0') /* at end of line */
-		return -1;
+	{
+		*p_num = -1;
+		return TRUE;
+	}
 	if (**sp == ',') /* that's the next comma; we have an empty string */
 	{
 		++(*sp);
-		return -1;
+		*p_num = -1;
+		return TRUE;
 	}
-	n = getnumc(sp, printopt, errp);
-	if (*errp)
-	{
-		PARG parg;
-		parg.p_string = errmsg;
-		error("invalid %s", &parg);
-		return -1;
-	}
+	if (!getnumc(sp, printopt, FALSE, p_num))
+		return FALSE;
 	if (**sp == ',')
 		++(*sp);
-	return n;
+	return TRUE;
 }
 
 /*
@@ -1057,26 +1045,21 @@ public int next_cnum(constant char **sp, constant char *printopt, constant char 
 static lbool parse_header(constant char *s, int *lines, int *cols, POSITION *start_pos)
 {
 	int n;
-	lbool err;
 
 	if (*s == '-')
 		s = "0,0";
-
-	n = next_cnum(&s, "header", "number of lines", &err);
-	if (err) return FALSE;
+	if (!next_cnum(&s, "--header", &n))
+		return FALSE;
 	if (n >= 0) *lines = n;
-
-	n = next_cnum(&s, "header", "number of columns", &err);
-	if (err) return FALSE;
+	if (!next_cnum(&s, "--header", &n))
+		return FALSE;
 	if (n >= 0) *cols = n;
-
-	n = next_cnum(&s, "header", "line number", &err);
-	if (err) return FALSE;
-	if (n > 0) 
+	if (!next_cnum(&s, "--header", &n))
+		return FALSE;
+	if (n > 0)
 	{
-		LINENUM lnum = (LINENUM) n;
-		if (lnum < 1) lnum = 1;
-		*start_pos = find_pos(lnum);
+		if (n < 1) n = 1;
+		*start_pos = find_pos((LINENUM)n);
 	}
 	return TRUE;
 }

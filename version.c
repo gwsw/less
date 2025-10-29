@@ -1063,7 +1063,8 @@ v685  10/4/25   Make --incsearch return to same column as well as same line;
                 fix some problems reported by valgrind.
 v686            Map keypad keys; make HOME/END scroll horizontally; 
                 retain saved marks even if --save-marks is not specified;
-				fix repaint bug with --form-feed.
+				fix repaint bug with --form-feed; fix bugs passing negative
+				values to cmd line options.
 */
 
 char version[] = "686x";
