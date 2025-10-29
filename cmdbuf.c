@@ -1404,7 +1404,6 @@ public LINENUM cmd_int(mutable long *frac)
 {
 	constant char *p;
 	LINENUM n = 0;
-	lbool err;
 
 	for (p = cmdbuf;  *p >= '0' && *p <= '9';  p++)
 	{
@@ -1417,8 +1416,8 @@ public LINENUM cmd_int(mutable long *frac)
 	*frac = 0;
 	if (*p++ == '.')
 	{
-		*frac = getfraction(&p, NULL, &err);
-		/* {{ do something if err is set? }} */
+		/* {{ Just ignore error in fractional part. }} */
+		(void) getfraction(&p, frac);
 	}
 	return (n);
 }

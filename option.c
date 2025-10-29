@@ -94,7 +94,7 @@ public void scan_option(constant char *s, lbool is_env)
 				break;
 			case O_NUMBER:
 				printopt = opt_desc(pendopt);
-				*(pendopt->ovar) = getnumc(&s, printopt, NULL);
+				getnumc(&s, printopt, FALSE, pendopt->ovar);
 				break;
 			}
 		}
@@ -292,7 +292,7 @@ public void scan_option(constant char *s, lbool is_env)
 			}
 			if (o->otype & O_UNSUPPORTED)
 				break;
-			*(o->ovar) = getnumc(&s, printopt, NULL);
+			getnumc(&s, printopt, FALSE, o->ovar);
 			break;
 		}
 		/*
@@ -314,11 +314,9 @@ public void scan_option(constant char *s, lbool is_env)
  *      OPT_UNSET       set to the default value
  *      OPT_SET         set to the inverse of the default value
  */
-public void toggle_option(struct loption *o, lbool lower, constant char *s, int how_toggle)
+public lbool toggle_option(struct loption *o, lbool lower, constant char *s, int how_toggle)
 {
-	int num;
 	int no_prompt;
-	lbool err;
 	PARG parg;
 
 	no_prompt = (how_toggle & OPT_NO_PROMPT);
@@ -327,21 +325,21 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 	if (o == NULL)
 	{
 		error("No such option", NULL_PARG);
-		return;
+		return FALSE;
 	}
 
 	if (how_toggle == OPT_TOGGLE && (o->otype & O_NO_TOGGLE))
 	{
 		parg.p_string = opt_desc(o);
 		error("Cannot change the %s option", &parg);
-		return;
+		return FALSE;
 	}
 
 	if (how_toggle == OPT_NO_TOGGLE && (o->otype & O_NO_QUERY))
 	{
 		parg.p_string = opt_desc(o);
 		error("Cannot query the %s option", &parg);
-		return;
+		return FALSE;
 	} 
 
 	/*
@@ -426,7 +424,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 			case OPT_UNSET:
 				error("Cannot use \"-+\" or \"-!\" for a string option",
 					NULL_PARG);
-				return;
+				return FALSE;
 			}
 			break;
 		case O_NUMBER:
@@ -436,9 +434,8 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 			switch (how_toggle)
 			{
 			case OPT_TOGGLE:
-				num = getnumc(&s, NULL, &err);
-				if (!err)
-					*(o->ovar) = num;
+				if (!getnumc(&s, opt_desc(o), FALSE, o->ovar))
+					return FALSE;
 				break;
 			case OPT_UNSET:
 				*(o->ovar) = o->odefault;
@@ -446,7 +443,7 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 			case OPT_SET:
 				error("Can't use \"-!\" for a numeric option",
 					NULL_PARG);
-				return;
+				return FALSE;
 			}
 			break;
 		}
@@ -488,15 +485,15 @@ public void toggle_option(struct loption *o, lbool lower, constant char *s, int 
 			error(o->odesc[1], &parg);
 			break;
 		case O_STRING:
-			/*
-			 * Message was already printed by the handling function.
-			 */
+			if (how_toggle != OPT_NO_TOGGLE)
+				(*o->ofunc)(QUERY, NULL);
 			break;
 		}
 	}
 
 	if (how_toggle != OPT_NO_TOGGLE && (o->otype & O_REPAINT))
 		screen_trashed();
+	return TRUE;
 }
 
 /*
@@ -653,26 +650,29 @@ static constant char * optstring(constant char *s, char **p_str, constant char *
 	return (p);
 }
 
-/*
- */
-static int num_error(constant char *printopt, lbool *errp, lbool overflow)
-{
-	PARG parg;
+typedef enum {
+	NUM_ERR_NONE, NUM_ERR_OVERFLOW, NUM_ERR_NEG, NUM_ERR_MISSING
+} num_error_type;
 
-	if (errp != NULL)
-	{
-		*errp = TRUE;
-		return (-1);
-	}
+/*
+ * Display error message for invalid number.
+ */
+static lbool num_error(constant char *printopt, num_error_type error_type)
+{
 	if (printopt != NULL)
 	{
+		constant char *msg;
+		PARG parg;
+		switch (error_type)
+		{
+		case NUM_ERR_OVERFLOW: msg = "Number too large in %s"; break;
+		case NUM_ERR_NEG:      msg = "Negative number not allowed in %s"; break;
+		default:               msg = "Number is required after %s"; break;
+		}
 		parg.p_string = printopt;
-		error((overflow
-		       ? "Number too large in '%s'"
-		       : "Number is required after %s"),
-		      &parg);
+		error(msg, &parg);
 	}
-	return (-1);
+	return FALSE;
 }
 
 /*
@@ -680,38 +680,38 @@ static int num_error(constant char *printopt, lbool *errp, lbool overflow)
  * Like atoi(), but takes a pointer to a char *, and updates
  * the char * to point after the translated number.
  */
-public int getnumc(constant char **sp, constant char *printopt, lbool *errp)
+public lbool getnumc(constant char **sp, constant char *printopt, lbool neg_ok, mutable int *p_num)
 {
 	constant char *s = *sp;
 	int n;
-	lbool neg;
+	lbool neg = FALSE;
 
 	s = skipspc(s);
-	neg = FALSE;
 	if (*s == '-')
 	{
+		if (!neg_ok)
+			return num_error(printopt, NUM_ERR_NEG);
 		neg = TRUE;
 		s++;
 	}
 	if (*s < '0' || *s > '9')
-		return (num_error(printopt, errp, FALSE));
-
+		return num_error(printopt, NUM_ERR_MISSING);
 	n = lstrtoic(s, sp, 10);
 	if (n < 0)
-		return (num_error(printopt, errp, TRUE));
-	if (errp != NULL)
-		*errp = FALSE;
+		return num_error(printopt, NUM_ERR_OVERFLOW);
 	if (neg)
 		n = -n;
-	return (n);
+	*p_num = n;
+	return TRUE;
 }
 
-public int getnum(char **sp, constant char *printopt, lbool *errp)
+public lbool getnum(char **sp, constant char *printopt, lbool neg_ok, mutable int *p_num)
 {
 	constant char *cs = *sp;
-	int r = getnumc(&cs, printopt, errp);
+	if (!getnumc(&cs, printopt, neg_ok, p_num))
+		return FALSE;
 	*sp = (char *) cs;
-	return r;
+	return TRUE;
 }
 
 /*
@@ -720,7 +720,7 @@ public int getnum(char **sp, constant char *printopt, lbool *errp)
  * The value of the fraction is returned as parts per NUM_FRAC_DENOM.
  * That is, if "n" is returned, the fraction intended is n/NUM_FRAC_DENOM.
  */
-public long getfraction(constant char **sp, constant char *printopt, lbool *errp)
+public lbool getfraction(constant char **sp, mutable long *p_frac)
 {
 	constant char *s;
 	long frac = 0;
@@ -728,7 +728,7 @@ public long getfraction(constant char **sp, constant char *printopt, lbool *errp
 
 	s = skipspc(*sp);
 	if (*s < '0' || *s > '9')
-		return (num_error(printopt, errp, FALSE));
+		return FALSE;
 
 	for ( ;  *s >= '0' && *s <= '9';  s++)
 	{
@@ -740,9 +740,8 @@ public long getfraction(constant char **sp, constant char *printopt, lbool *errp
 	while (fraclen++ < NUM_LOG_FRAC_DENOM)
 		frac *= 10;
 	*sp = s;
-	if (errp != NULL)
-		*errp = FALSE;
-	return (frac);
+	*p_frac = frac;
+	return TRUE;
 }
 
 /*

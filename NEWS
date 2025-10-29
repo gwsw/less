@@ -28,6 +28,9 @@
 
 * Fix bug repainting screen with --form-feed (github #672).
 
+* Fix bugs passing invalid negative values to some command line
+  options (github #675).
+
 ======================================================================
 
 	Major changes between "less" versions 679 and 685

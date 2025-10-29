@@ -40,6 +40,7 @@ public int ctldisp;             /* Send control chars to screen untranslated */
 public int force_open;          /* Open the file even if not regular file */
 public int swindow;             /* Size of scrolling window */
 public int jump_sline;          /* Screen line of "jump target" */
+public int jump_sline_arg;
 public long jump_sline_fraction = -1;
 public int shift_count;         /* Number of positions to shift horizontally */
 public long shift_count_fraction = -1;
