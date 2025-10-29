@@ -44,6 +44,7 @@ extern char *wproto;
 extern char *every_first_cmd;
 extern IFILE curr_ifile;
 extern char version[];
+extern int jump_sline_arg;
 extern int jump_sline;
 extern long jump_sline_fraction;
 extern int shift_count;
@@ -220,11 +221,11 @@ public void opt_j(int type, constant char *s)
 	{
 	case INIT:
 	case TOGGLE:
-		toggle_fraction(&jump_sline, &jump_sline_fraction,
+		toggle_fraction(&jump_sline_arg, &jump_sline_fraction,
 			s, "-j", TRUE, calc_jump_sline);
 		break;
 	case QUERY:
-		query_fraction(jump_sline, jump_sline_fraction, 
+		query_fraction(jump_sline_arg, jump_sline_fraction,
 			"Position target at screen line %d", "Position target at screen position %s");
 		break;
 	}
@@ -232,6 +233,7 @@ public void opt_j(int type, constant char *s)
 
 public void calc_jump_sline(void)
 {
+	jump_sline = jump_sline_arg;
 	/* If jump_sline_fraction is set, calculate jump_sline from it. */
 	if (jump_sline_fraction >= 0)
 		jump_sline = (int) muldiv(sc_height, jump_sline_fraction, NUM_FRAC_DENOM);
