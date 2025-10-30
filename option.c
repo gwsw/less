@@ -485,7 +485,7 @@ public lbool toggle_option(struct loption *o, lbool lower, constant char *s, int
 			error(o->odesc[1], &parg);
 			break;
 		case O_STRING:
-			if (how_toggle != OPT_NO_TOGGLE)
+			if (how_toggle != OPT_NO_TOGGLE && o->ofunc != NULL)
 				(*o->ofunc)(QUERY, NULL);
 			break;
 		}
