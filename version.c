@@ -1061,10 +1061,10 @@ v684  9/18/25   Allow mixing of options and filenames on command line;
                 add LESS_TERMCAP_SUSPEND & LESS_TERMCAP_RESUME.
 v685  10/4/25   Make --incsearch return to same column as well as same line;
                 fix some problems reported by valgrind.
-v686            Map keypad keys; make HOME/END scroll horizontally; 
+v686  10/30/25  Map keypad keys; make HOME/END scroll horizontally; 
                 retain saved marks even if --save-marks is not specified;
-				fix repaint bug with --form-feed; fix bugs passing negative
-				values to cmd line options.
+                fix repaint bug with --form-feed; fix bugs passing negative
+                values to cmd line options.
 */
 
-char version[] = "686x";
+char version[] = "686";
