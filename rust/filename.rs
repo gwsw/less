@@ -662,7 +662,7 @@ pub type AltFileResult = Option<AltFile>;
 ///
 /// This function checks the LESSOPEN environment variable and potentially runs
 /// a preprocessor command to generate an alternative version of the file.
-pub unsafe fn open_altfile<F>(filename: &str) -> AltFileResult {
+pub unsafe fn open_altfile(filename: &str) -> AltFileResult {
     if secure_allow(SF_LESSOPEN) == 0 {
         return None;
     }

@@ -1,4 +1,5 @@
 use crate::defs::*;
+use crate::ifile::{IFileHandle, IFileManager};
 
 extern "C" {
     fn free(_: *mut std::ffi::c_void);
@@ -22,9 +23,7 @@ extern "C" {
     fn shell_quote(s: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn last_component(name: *const std::ffi::c_char) -> *const std::ffi::c_char;
     fn eof_displayed(offset: lbool) -> lbool;
-    fn next_ifile(h: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn nifile() -> std::ffi::c_int;
-    fn get_filename(ifile: *mut std::ffi::c_void) -> *const std::ffi::c_char;
     fn get_index(ifile: *mut std::ffi::c_void) -> std::ffi::c_int;
     fn find_linenum(pos: POSITION) -> LINENUM;
     fn currline(where_0: std::ffi::c_int) -> LINENUM;
@@ -43,7 +42,7 @@ extern "C" {
     static mut less_is_more: std::ffi::c_int;
     static mut header_lines: std::ffi::c_int;
     static mut utf_mode: std::ffi::c_int;
-    static mut curr_ifile: *mut std::ffi::c_void;
+    static mut curr_ifile: Option<IFileHandle>;
     static mut osc8_path: *mut std::ffi::c_char;
     static mut editor: *const std::ffi::c_char;
 }
@@ -164,6 +163,10 @@ unsafe extern "C" fn ap_linenum(mut linenum: LINENUM) {
     linenumtoa(linenum, buf.as_mut_ptr(), 10 as std::ffi::c_int);
     ap_str(buf.as_mut_ptr());
 }
+
+/*
+ * Append an integer to the end of the message.
+ */
 unsafe extern "C" fn ap_int(mut num: std::ffi::c_int) {
     let mut buf: [std::ffi::c_char; 13] = [0; 13];
     inttoa(num, buf.as_mut_ptr(), 10 as std::ffi::c_int);
@@ -187,7 +190,11 @@ unsafe extern "C" fn curr_byte(mut where_0: std::ffi::c_int) -> POSITION {
     }
     return pos;
 }
-unsafe extern "C" fn cond(mut c: std::ffi::c_char, mut where_0: std::ffi::c_int) -> lbool {
+unsafe extern "C" fn cond(
+    ifiles: &mut IFileManager,
+    mut c: std::ffi::c_char,
+    mut where_0: std::ffi::c_int,
+) -> lbool {
     let mut len: POSITION = 0;
     match c as std::ffi::c_int {
         97 => return (mp > message.as_mut_ptr()) as std::ffi::c_int as lbool,
@@ -198,10 +205,7 @@ unsafe extern "C" fn cond(mut c: std::ffi::c_char, mut where_0: std::ffi::c_int)
         99 => return (hshift != 0 as std::ffi::c_int) as std::ffi::c_int as lbool,
         101 => return eof_displayed(LFALSE),
         102 | 103 => {
-            return (strcmp(
-                get_filename(curr_ifile),
-                b"-\0" as *const u8 as *const std::ffi::c_char,
-            ) != 0 as std::ffi::c_int) as std::ffi::c_int as lbool;
+            return ifiles.get_filename(curr_ifile) != "-";
         }
         108 | 100 => {
             if linenums == 0 {
@@ -259,12 +263,16 @@ unsafe extern "C" fn cond(mut c: std::ffi::c_char, mut where_0: std::ffi::c_int)
     }
     return LFALSE;
 }
-unsafe extern "C" fn protochar(mut c: std::ffi::c_char, mut where_0: std::ffi::c_int) {
+unsafe extern "C" fn protochar(
+    ifiles: &mut IFileManager,
+    mut c: std::ffi::c_char,
+    mut where_0: std::ffi::c_int,
+) {
     let mut pos: POSITION = 0;
     let mut len: POSITION = 0;
     let mut linenum: LINENUM = 0;
     let mut last_linenum: LINENUM = 0;
-    let mut h: *mut std::ffi::c_void = 0 as *mut std::ffi::c_void;
+    let mut h: Option<IFileHandle>;
     let mut s: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     match c as std::ffi::c_int {
         98 => {
@@ -315,13 +323,16 @@ unsafe extern "C" fn protochar(mut c: std::ffi::c_char, mut where_0: std::ffi::c
             ap_str(editor);
         }
         102 => {
-            ap_estr(get_filename(curr_ifile), LTRUE);
+            ap_estr(ifiles.get_filename(curr_ifile), LTRUE);
         }
         70 => {
-            ap_estr(last_component(get_filename(curr_ifile)), LTRUE);
+            ap_estr(last_component(ifiles.get_filename(curr_ifile)), LTRUE);
         }
         103 => {
-            s = shell_quote(get_filename(curr_ifile));
+            let f_name = CString::new(ifiles.get_filename(curr_ifile).unwrap().to_str())
+                .expect("convert to CString failed")
+                .as_ptr();
+            s = shell_quote(f_name);
             ap_str(s);
             free(s as *mut std::ffi::c_void);
         }
@@ -421,9 +432,12 @@ unsafe extern "C" fn protochar(mut c: std::ffi::c_char, mut where_0: std::ffi::c
             }
         }
         120 => {
-            h = next_ifile(curr_ifile);
-            if h != 0 as *mut std::ffi::c_void {
-                ap_str(get_filename(h));
+            h = ifiles.next_ifile(curr_ifile);
+            if h.is_some() {
+                let f_name = CString::new(ifiles
+                    .get_filename(h)
+                    .unwrap().to_str()).as_ptr();
+                    .ap_str(ifiles.get_filename(h));
             } else {
                 ap_quest();
             }
@@ -495,7 +509,10 @@ unsafe extern "C" fn wherechar(
     return p;
 }
 #[no_mangle]
-pub unsafe extern "C" fn pr_expand(mut proto: *const std::ffi::c_char) -> *const std::ffi::c_char {
+pub unsafe extern "C" fn pr_expand(
+    ifiles: &mut IFileManager,
+    mut proto: *const std::ffi::c_char,
+) -> *const std::ffi::c_char {
     let mut p: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut c: std::ffi::c_char = 0;
     let mut where_0: std::ffi::c_int = 0;
@@ -520,7 +537,7 @@ pub unsafe extern "C" fn pr_expand(mut proto: *const std::ffi::c_char) -> *const
                 } else {
                     where_0 = 0 as std::ffi::c_int;
                     p = wherechar(p, &mut where_0);
-                    if cond(c, where_0) as u64 == 0 {
+                    if cond(ifiles, c, where_0) as u64 == 0 {
                         p = skipcond(p);
                     }
                 }
@@ -537,7 +554,7 @@ pub unsafe extern "C" fn pr_expand(mut proto: *const std::ffi::c_char) -> *const
                 } else {
                     where_0 = 0 as std::ffi::c_int;
                     p = wherechar(p, &mut where_0);
-                    protochar(c, where_0);
+                    protochar(ifiles, c, where_0);
                 }
             }
             _ => {
@@ -552,11 +569,11 @@ pub unsafe extern "C" fn pr_expand(mut proto: *const std::ffi::c_char) -> *const
     return message.as_mut_ptr();
 }
 #[no_mangle]
-pub unsafe extern "C" fn eq_message() -> *const std::ffi::c_char {
-    return pr_expand(eqproto);
+pub unsafe extern "C" fn eq_message(ifiles: &mut IFileManager) -> *const std::ffi::c_char {
+    return pr_expand(ifiles, eqproto);
 }
 #[no_mangle]
-pub unsafe extern "C" fn pr_string() -> *const std::ffi::c_char {
+pub unsafe extern "C" fn pr_string(ifiles: &mut IFileManager) -> *const std::ffi::c_char {
     let mut prompt: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
     let mut type_0: std::ffi::c_int = 0;
     type_0 = if less_is_more == 0 {
@@ -566,15 +583,18 @@ pub unsafe extern "C" fn pr_string() -> *const std::ffi::c_char {
     } else {
         1 as std::ffi::c_int
     };
-    prompt = pr_expand(if ch_getflags() & 0o10 as std::ffi::c_int != 0 {
-        hproto
-    } else {
-        prproto[type_0 as usize] as *const std::ffi::c_char
-    });
+    prompt = pr_expand(
+        ifiles,
+        if ch_getflags() & 0o10 as std::ffi::c_int != 0 {
+            hproto
+        } else {
+            prproto[type_0 as usize] as *const std::ffi::c_char
+        },
+    );
     new_file = LFALSE;
     return prompt;
 }
 #[no_mangle]
-pub unsafe extern "C" fn wait_message() -> *const std::ffi::c_char {
-    return pr_expand(wproto);
+pub unsafe extern "C" fn wait_message(ifiles: &mut IFileManager) -> *const std::ffi::c_char {
+    return pr_expand(ifiles, wproto);
 }

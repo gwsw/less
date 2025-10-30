@@ -1,4 +1,5 @@
 use crate::defs::*;
+use crate::filename::{open_altfile, AltFileResult};
 use crate::ifile::{IFileHandle, IFileManager, ScrPos};
 use crate::line::forw_raw_line;
 use ::c2rust_bitfields;
@@ -38,11 +39,6 @@ extern "C" {
     fn shell_quote(s: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn bin_file(f: std::ffi::c_int, n: *mut ssize_t) -> std::ffi::c_int;
     fn lglob(afilename: *const std::ffi::c_char) -> *mut std::ffi::c_char;
-    fn open_altfile(
-        filename: *const std::ffi::c_char,
-        pf: *mut std::ffi::c_int,
-        pfd: *mut *mut std::ffi::c_void,
-    ) -> *mut std::ffi::c_char;
     fn close_altfile(altfilename: *const std::ffi::c_char, filename: *const std::ffi::c_char);
     fn bad_file(filename: *const std::ffi::c_char) -> *mut std::ffi::c_char;
     fn store_pos(ifile: *mut std::ffi::c_void, scrpos: *mut scrpos);
@@ -534,7 +530,7 @@ unsafe extern "C" fn edit_error(
     ifiles: &mut IFileManager,
     filename: Option<impl AsRef<Path>>,
     alt_filename: Option<impl AsRef<Path>>,
-    altpipe: Option<Box<dyn Any + Send + Sync>>,
+    altpipe: Option<AltFile>,
     ifile: Option<IFileHandle>,
 ) -> i32 {
     if !alt_filename.is_none() {
@@ -562,330 +558,346 @@ unsafe extern "C" fn edit_error(
          */
         quit(1);
     }
-    return 1;
+    1
 }
 
-/*
- * Edit a new file (given its IFILE).
- * ifile == NULL means just close the current file.
- */
+use crate::filename::AltFile;
+use std::os::unix::fs::MetadataExt;
+use std::os::unix::io::IntoRawFd;
+
 pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFileHandle>) -> i32 {
-    let mut f = 0;
-    let mut answer = 0;
-    let mut chflags = 0;
+    let mut f: std::ffi::c_int = 0;
+    let mut answer: std::ffi::c_int = 0;
+    let mut chflags: std::ffi::c_int = 0;
     let mut filename: Option<PathBuf> = None;
     let mut open_filename: Option<PathBuf> = None;
     let mut alt_filename: Option<PathBuf> = None;
-    let mut altpipe: Option<&Box<dyn Any + Send + Sync>> = None;
+    let mut altpipe: Option<AltFile> = None;
     let mut was_curr_ifile: Option<IFileHandle> = None;
-    let mut p: *mut std::ffi::c_char = 0 as *mut std::ffi::c_char;
     let mut parg: PARG = Parg::Null;
-    let mut nread = 0;
+    let mut nread: ssize_t = 0;
+
+    /* If they asked to re-open the same ifile, do nothing. */
     if ifile == curr_ifile {
-        /*
-         * Already have the correct file open.
-         */
         return 0;
     }
+
     new_file = true;
-    if ifile.is_some() {
-        /*
-         * See if LESSOPEN specifies an "alternate" file to open.
-         */
-        filename = ifiles.get_filename(ifile).map(|p| p.to_path_buf());
-        if let Some(_) = ifiles.get_altpipe(ifile) {
-            /*
-             * File is already open.
-             * chflags and f are not used by ch_init if ifile has
-             * filestate which should be the case if we're here.
-             * Set them here to avoid uninitialized variable warnings.
-             */
+
+    if let Some(h) = ifile {
+        /* See if LESSOPEN specifies an "alternate" file to open. */
+        filename = ifiles.get_filename(Some(h)).map(|p| p.to_path_buf());
+
+        /* If ifile already has an altpipe recorded (file already opened), use that. */
+        if let Some(existing_altpipe) = ifiles.get_altpipe(Some(h)) {
             chflags = 0;
             f = -1;
-            alt_filename = ifiles.get_altfilename(ifile).map(|p| p.to_path_buf());
-            open_filename = if !alt_filename.is_none() {
-                alt_filename.clone()
-            } else {
-                filename.clone()
-            };
+            alt_filename = ifiles.get_altfilename(Some(h)).map(|p| p.to_path_buf());
+            open_filename = alt_filename.clone().or_else(|| filename.clone());
         } else {
-            if filename == Some(PathBuf::from(FAKE_HELPFILE))
-                || filename == Some(PathBuf::from(FAKE_EMPTYFILE))
-            {
-                alt_filename = None;
-            } else {
-                // FIXME
-                /*
-                alt_filename = open_altfile(
-                        CString.new(filename.unwrap()).unwrap().as_ptr(),
-                        &mut f,
-                        &mut Some(*altpipe.unwrap()),
-                    ))
-                    .to_string_lossy()
-                    .into_owned(),
-                );
-                */
-            }
-            open_filename = if !alt_filename.is_none() {
-                alt_filename.clone()
-            } else {
-                filename.clone()
-            };
+            /* Ask filename.rs if there's an alternate file or pipe. */
+            let fname_str = filename
+                .as_ref()
+                .map(|p| p.to_string_lossy().into_owned())
+                .unwrap_or_default();
 
-            chflags = 0;
-            if !altpipe.is_none() {
-                /*
-                 * The alternate "file" is actually a pipe.
-                 * f has already been set to the file descriptor of the pipe
-                 * in the call to open_altfile above.
-                 * Keep the file descriptor open because it was opened
-                 * via popen(), and pclose() wants to close it.
-                 */
-                chflags |= CH_POPENED;
-                if filename == Some(PathBuf::from("-")) {
-                    chflags |= CH_KEEPOPEN;
+            match open_altfile(&fname_str) {
+                /* open_altfile returned a pipe: remember the pipe and leave f = -1 */
+                Some(AltFile::Pipe(pipe_value)) => {
+                    chflags = 0;
+                    f = -1;
+                    altpipe = Some(AltFile::Pipe(pipe_value));
+                    open_filename = filename.clone();
                 }
-            } else if filename == Some(PathBuf::from("-")) {
-                /*
-                 * Use standard input.
-                 * Keep the file descriptor open because we can't reopen it.
-                 */
-                f = fd0;
-                chflags |= CH_KEEPOPEN;
-                /*
-                 * Must switch stdin to BINARY mode.
-                 */
-                // FIXME switch to binary mode
-                //SET_BINARY(f);
-            } else if open_filename == Some(PathBuf::from(FAKE_EMPTYFILE)) {
-                f = -1;
-                chflags |= CH_NODATA;
-            } else if open_filename == Some(PathBuf::from(FAKE_HELPFILE)) {
-                f = -1;
-                chflags |= CH_HELPFILE;
-            } else {
-                p = bad_file(
-                    CString::new(
-                        open_filename
-                            .clone()
-                            .unwrap()
-                            .to_string_lossy()
-                            .into_owned(),
-                    )
-                    .unwrap()
-                    .as_ptr(),
-                );
-                if !p.is_null() {
-                    /*
-                     * It looks like a bad file.  Don't try to open it.
-                     */
-                    parg = Parg::String(CStr::from_ptr(p).to_string_lossy().into_owned());
-                    error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
-                    free(p as *mut std::ffi::c_void);
-                    return edit_error(
-                        ifiles,
-                        filename,
-                        alt_filename,
-                        Some(Box::new(altpipe.clone().unwrap())),
-                        ifile,
-                    );
-                } else {
-                    f = iopen(
-                        CString::new(
-                            open_filename
-                                .clone()
-                                .unwrap()
-                                .to_string_lossy()
-                                .into_owned(),
-                        )
-                        .unwrap()
-                        .as_ptr(),
-                        0,
-                    );
-                    if f < 0 {
-                        /*
-                         * Got an error trying to open it.
-                         */
-                        let mut p_0: *mut std::ffi::c_char = errno_message(
-                            CString::new(filename.clone().unwrap().to_string_lossy().into_owned())
+
+                /* open_altfile returned an alternate filename: open it */
+                Some(AltFile::RegularFile(s)) => {
+                    alt_filename = Some(PathBuf::from(&s));
+                    open_filename = alt_filename.clone().or_else(|| filename.clone());
+
+                    chflags = 0;
+                    let open_path = open_filename.as_ref().unwrap();
+                    // Try to open with Rust's std::fs (read-only).
+                    match OpenOptions::new().read(true).open(open_path) {
+                        Ok(file) => {
+                            // Transfer ownership of the fd to C-style code.
+                            let rawfd = file.into_raw_fd();
+                            f = rawfd;
+                            chflags |= CH_CANSEEK;
+
+                            // Check for binary file using existing helper (expects fd).
+                            if bin_file(f, &mut nread) != 0
+                                && force_open == 0
+                                && !ifiles.opened(Some(h))
+                            {
+                                parg = Parg::String(
+                                    filename.as_ref().unwrap().to_string_lossy().into_owned(),
+                                );
+                                answer = query(
+                                    b"\"%s\" may be a binary file.  See it anyway? \0" as *const u8
+                                        as *const std::ffi::c_char,
+                                    &mut parg,
+                                );
+                                if answer != 'y' as i32 && answer != 'Y' as i32 {
+                                    // close the fd we transferred to C (close wrapper)
+                                    close(f);
+                                    return edit_error(
+                                        ifiles,
+                                        filename.clone(),
+                                        alt_filename.take(),
+                                        altpipe,
+                                        ifile,
+                                    );
+                                }
+                            }
+                        }
+                        Err(_) => {
+                            // Opening failed: report errno via errno_message (existing C helper).
+                            let p0 = errno_message(
+                                CString::new(
+                                    filename.clone().unwrap().to_string_lossy().into_owned(),
+                                )
                                 .unwrap()
                                 .as_ptr(),
-                        );
-                        parg = Parg::String(CStr::from_ptr(p_0).to_string_lossy().into_owned());
-                        error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
-                        free(p_0 as *mut std::ffi::c_void);
-                        return edit_error(
-                            ifiles,
-                            filename.clone(),
-                            alt_filename,
-                            Some(Box::new(altpipe.clone().unwrap())),
-                            ifile,
-                        );
-                    } else {
-                        chflags |= CH_CANSEEK;
-                        if bin_file(f, &mut nread) != 0 && force_open == 0 && !ifiles.opened(ifile)
-                        {
-                            parg = Parg::String(
-                                filename.clone().unwrap().to_string_lossy().into_owned(),
                             );
-                            answer = query(
-                                b"\"%s\" may be a binary file.  See it anyway? \0" as *const u8
-                                    as *const std::ffi::c_char,
-                                &mut parg,
+                            parg = Parg::String(CStr::from_ptr(p0).to_string_lossy().into_owned());
+                            error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
+                            free(p0 as *mut std::ffi::c_void);
+                            return edit_error(
+                                ifiles,
+                                filename.clone(),
+                                alt_filename.clone(),
+                                altpipe,
+                                ifile,
                             );
-                            if answer != 'y' as i32 && answer != 'Y' as i32 {
-                                close(f);
-                                return edit_error(
-                                    ifiles,
-                                    filename,
-                                    alt_filename,
-                                    Some(Box::new(altpipe.clone().unwrap())),
-                                    ifile,
-                                );
-                            }
                         }
                     }
                 }
-            }
-        }
+
+                /* Fake empty file */
+                Some(AltFile::EmptyFile) => {
+                    f = -1;
+                    chflags |= CH_NODATA;
+                    open_filename = Some(PathBuf::from(FAKE_EMPTYFILE));
+                }
+
+                /* No alternate: open the original filename (or handle "-" special case) */
+                None => {
+                    open_filename = filename.clone();
+
+                    if let Some(fname) = filename.as_ref() {
+                        if fname.as_os_str() == "-" {
+                            f = fd0;
+                            chflags |= CH_KEEPOPEN;
+                            // SET_BINARY(f) if platform requires it — left for later pass.
+                        } else if fname == &PathBuf::from(FAKE_EMPTYFILE) {
+                            f = -1;
+                            chflags |= CH_NODATA;
+                        } else if fname == &PathBuf::from(FAKE_HELPFILE) {
+                            f = -1;
+                            chflags |= CH_HELPFILE;
+                        } else {
+                            // Check bad_file before attempting open.
+                            let c_fname =
+                                CString::new(fname.to_string_lossy().into_owned()).unwrap();
+                            let badp = bad_file(c_fname.as_ptr());
+                            if !badp.is_null() {
+                                parg = Parg::String(
+                                    CStr::from_ptr(badp).to_string_lossy().into_owned(),
+                                );
+                                error(b"%s\0" as *const u8 as *const std::ffi::c_char, &mut parg);
+                                free(badp as *mut std::ffi::c_void);
+                                return edit_error(
+                                    ifiles,
+                                    filename.clone(),
+                                    alt_filename.clone(),
+                                    altpipe,
+                                    ifile,
+                                );
+                            }
+
+                            // Open with Rust std API
+                            match OpenOptions::new().read(true).open(fname) {
+                                Ok(file) => {
+                                    let rawfd = file.into_raw_fd();
+                                    f = rawfd;
+                                    chflags |= CH_CANSEEK;
+                                    if bin_file(f, &mut nread) != 0
+                                        && force_open == 0
+                                        && !ifiles.opened(Some(h))
+                                    {
+                                        parg = Parg::String(
+                                            filename
+                                                .as_ref()
+                                                .unwrap()
+                                                .to_string_lossy()
+                                                .into_owned(),
+                                        );
+                                        answer = query(
+                                            b"\"%s\" may be a binary file.  See it anyway? \0"
+                                                as *const u8
+                                                as *const std::ffi::c_char,
+                                            &mut parg,
+                                        );
+                                        if answer != 'y' as i32 && answer != 'Y' as i32 {
+                                            close(f);
+                                            return edit_error(
+                                                ifiles,
+                                                filename.clone(),
+                                                alt_filename.clone(),
+                                                altpipe,
+                                                ifile,
+                                            );
+                                        }
+                                    }
+                                }
+                                Err(_) => {
+                                    let p0 = errno_message(
+                                        CString::new(
+                                            filename
+                                                .clone()
+                                                .unwrap()
+                                                .to_string_lossy()
+                                                .into_owned(),
+                                        )
+                                        .unwrap()
+                                        .as_ptr(),
+                                    );
+                                    parg = Parg::String(
+                                        CStr::from_ptr(p0).to_string_lossy().into_owned(),
+                                    );
+                                    error(
+                                        b"%s\0" as *const u8 as *const std::ffi::c_char,
+                                        &mut parg,
+                                    );
+                                    free(p0 as *mut std::ffi::c_void);
+                                    return edit_error(
+                                        ifiles,
+                                        filename.clone(),
+                                        alt_filename.clone(),
+                                        altpipe,
+                                        ifile,
+                                    );
+                                }
+                            }
+                        }
+                    } else {
+                        // No filename — error out
+                        return edit_error(
+                            ifiles,
+                            filename.clone(),
+                            alt_filename.clone(),
+                            altpipe,
+                            ifile,
+                        );
+                    }
+                }
+            } // match open_altfile
+        } // else: no existing altpipe
+
+        /* If it's a tty and not forced, refuse to open. */
         if force_open == 0 && f >= 0 && isatty(f) != 0 {
-            let mut parg_0 = Parg::String(filename.clone().unwrap().to_string_lossy().into_owned());
+            parg = Parg::String(filename.as_ref().unwrap().to_string_lossy().into_owned());
             error(
                 b"%s is a terminal (use -f to open it)\0" as *const u8 as *const std::ffi::c_char,
-                &mut parg_0,
+                &mut parg,
             );
             return edit_error(
                 ifiles,
                 filename.clone(),
-                alt_filename,
-                Some(Box::new(altpipe.clone().unwrap())),
+                alt_filename.clone(),
+                altpipe,
                 ifile,
             );
         }
-    }
+    } // end if ifile.is_some()
+
+    /* Close existing logfile (if any) and prepare to switch files. */
     end_logfile();
+
+    /* Save current ifile, close currently open file. */
     was_curr_ifile = save_curr_ifile(ifiles);
     if curr_ifile.is_some() {
-        let mut was_helpfile = ch_getflags() & CH_HELPFILE;
+        let was_helpfile = ch_getflags() & CH_HELPFILE;
         close_file(ifiles);
-        if was_helpfile != 0 && ifiles.held_ifile(was_curr_ifile).unwrap() <= 1 {
-            /*
-             * Don't keep the help file in the ifile list.
-             */
-            ifiles.del_ifile(was_curr_ifile);
-            was_curr_ifile = None;
+        if was_helpfile != 0 {
+            if let Some(w) = was_curr_ifile {
+                if ifiles.held_ifile(Some(w)).unwrap_or(0) <= 1 {
+                    ifiles.del_ifile(Some(w));
+                    was_curr_ifile = None;
+                }
+            }
         }
     }
     unsave_ifile(ifiles, was_curr_ifile);
+
+    /* If caller asked to just close the current file, we're done. */
     if ifile.is_none() {
-        /*
-         * No new file to open.
-         * (Don't set old_ifile, because if you call edit_ifile(NULL),
-         *  you're supposed to have saved curr_ifile yourself,
-         *  and you'll restore it if necessary.)
-         */
         return 0;
     }
 
-    /*
-     * Set up the new ifile.
-     * Get the saved position for the file.
-     */
+    /* Set up the new ifile as current. */
     curr_ifile = ifile;
     soft_eof = NULL_POSITION;
-    println!("altfilename: {:?}", alt_filename);
-    ifiles.set_altfilename(curr_ifile, alt_filename);
-    println!("altpipe: {:?}", altpipe);
-    println!("curr_ifile: {:?}", curr_ifile);
-    if altpipe.is_none() {
-        ifiles.set_altpipe(curr_ifile, None);
-    } else {
-        ifiles.set_altpipe(curr_ifile, Some(Box::new(altpipe.clone().unwrap())));
-    }
+    ifiles.set_altfilename(curr_ifile, alt_filename.as_ref().map(|p| p.as_path()));
+    ifiles.set_altpipe(curr_ifile, altpipe);
     ifiles.set_open(curr_ifile);
-    //let scr_pos = ifiles.get_pos(curr_ifile).unwrap();
-    if let Some(scr_pos) = ifiles.get_pos(curr_ifile) {
-        initial_scrpos.ln = scr_pos.ln;
-        initial_scrpos.pos = scr_pos.pos as i64;
-    } else {
-        println!("cannot get pos!");
+
+    if let Some(scrpos) = ifiles.get_pos(curr_ifile) {
+        initial_scrpos.ln = scrpos.ln;
+        initial_scrpos.pos = scrpos.pos as i64;
     }
-    ch_init(f, chflags, nread);
+
+    //ch_init(f, chflags, nread);
     consecutive_nulls = 0;
     check_modelines();
-    if chflags & CH_HELPFILE == 0 {
+
+    if (chflags & CH_HELPFILE) == 0 {
         if was_curr_ifile.is_some() {
             old_ifile = was_curr_ifile;
         }
         if !namelogfile.is_none() && is_tty != 0 {
-            use_logfile(&namelogfile.clone().unwrap())
+            println!("namelogfile: {:?}", namelogfile);
+            use_logfile(&namelogfile.clone().unwrap());
         }
-        if open_filename != Some(PathBuf::from("-")) {
-            let mut statbuf: stat = stat {
-                st_dev: 0,
-                st_ino: 0,
-                st_nlink: 0,
-                st_mode: 0,
-                st_uid: 0,
-                st_gid: 0,
-                __pad0: 0,
-                st_rdev: 0,
-                st_size: 0,
-                st_blksize: 0,
-                st_blocks: 0,
-                st_atim: timespec {
-                    tv_sec: 0,
-                    tv_nsec: 0,
-                },
-                st_mtim: timespec {
-                    tv_sec: 0,
-                    tv_nsec: 0,
-                },
-                st_ctim: timespec {
-                    tv_sec: 0,
-                    tv_nsec: 0,
-                },
-                __glibc_reserved: [0; 3],
-            };
-            let mut r = stat(
-                CString::new(open_filename.unwrap().to_string_lossy().into_owned())
-                    .unwrap()
-                    .as_ptr(),
-                &mut statbuf,
-            );
-            if r == 0 {
-                curr_ino = statbuf.st_ino;
-                curr_dev = statbuf.st_dev;
+
+        if let Some(open_fn) = open_filename.as_ref() {
+            if open_fn.as_os_str() != "-" {
+                // use Rust metadata to get ino/dev
+                if let Ok(meta) = std::fs::metadata(open_fn) {
+                    curr_ino = meta.ino() as dev_t;
+                    curr_dev = meta.dev() as dev_t;
+                }
             }
         }
+
         if !every_first_cmd.is_null() {
             ungetsc(every_first_cmd);
             ungetcc_end_command();
         }
     }
-    flush();
-    if is_tty != 0 {
-        /*
-         * Output is to a real tty.
-         */
 
-        /*
-         * Indicate there is nothing displayed yet.
-         */
+    flush();
+
+    if is_tty != 0 {
         pos_clear();
         clr_linenum();
         clr_hilite();
         undo_osc8();
-        hshift = 0 as std::ffi::c_int;
+        hshift = 0;
         if filename != Some(PathBuf::from(FAKE_HELPFILE))
             && filename != Some(PathBuf::from(FAKE_EMPTYFILE))
         {
-            let mut qfilename: *mut std::ffi::c_char = shell_quote(
+            let qfilename = shell_quote(
                 CString::new(filename.unwrap().to_string_lossy().into_owned())
                     .unwrap()
                     .as_ptr(),
             );
-            cmd_addhist(ml_examine as *mut mlist, qfilename, LTRUE);
+            cmd_addhist(
+                ml_examine as *mut std::ffi::c_void as *mut mlist,
+                qfilename,
+                LTRUE,
+            );
             free(qfilename as *mut std::ffi::c_void);
         }
         if want_filesize != 0 {
@@ -893,6 +905,7 @@ pub unsafe extern "C" fn edit_ifile(ifiles: &mut IFileManager, ifile: Option<IFi
         }
         set_header(0);
     }
+
     0
 }
 
@@ -1157,6 +1170,7 @@ pub unsafe extern "C" fn use_logfile(filename: &str) {
     let mut parg = Parg::Null;
     let mut file = OpenOptions::new();
     let mut log_file;
+    println!("use logfile: {}", filename);
     if ch_getflags() & CH_CANSEEK != 0 {
         /*
          * Can't currently use a log file on a file that can seek.

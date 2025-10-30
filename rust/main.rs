@@ -134,8 +134,7 @@ pub static mut logfile: std::ffi::c_int = -(1 as std::ffi::c_int);
 #[no_mangle]
 pub static mut force_logfile: lbool = LFALSE;
 #[no_mangle]
-pub static mut namelogfile: *mut std::ffi::c_char =
-    0 as *const std::ffi::c_char as *mut std::ffi::c_char;
+pub static mut namelogfile: Option<String> = None;
 #[no_mangle]
 pub static mut editor: *const std::ffi::c_char = 0 as *const std::ffi::c_char;
 #[no_mangle]

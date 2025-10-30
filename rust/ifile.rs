@@ -1,3 +1,4 @@
+use crate::filename::AltFile;
 use std::any::Any;
 use std::collections::VecDeque;
 use std::fs;
@@ -36,7 +37,7 @@ pub struct IFile {
     /// Canonical filename (h_rfilename in C); may be None if resolution failed.
     pub h_rfilename: Option<PathBuf>,
     /// File state (opaque pointer in C). We store an optional boxed Any value.
-    pub h_filestate: Option<Box<dyn Any + Send + Sync>>,
+    pub h_filestate: Option<AltFile>,
     /// Index within the command-line list (h_index in C). 1-based like original C.
     pub h_index: i32,
     /// Hold count (h_hold in C).
@@ -46,7 +47,7 @@ pub struct IFile {
     /// Saved position within the file (h_scrpos in C)
     pub h_scrpos: ScrPos,
     /// Alt pipe pointer (h_altpipe in C) stored opaquely
-    pub h_altpipe: Option<Box<dyn Any + Send + Sync>>,
+    pub h_altpipe: Option<AltFile>,
     /// Alt filename (h_altfilename in C)
     pub h_altfilename: Option<PathBuf>,
 }
@@ -248,16 +249,12 @@ impl IFileManager {
     }
 
     /// Get/Set the opaque filestate pointer.
-    pub fn get_filestate(&self, h: Option<IFileHandle>) -> Option<&Box<dyn Any + Send + Sync>> {
+    pub fn get_filestate(&self, h: Option<IFileHandle>) -> Option<&AltFile> {
         let h = h?;
         self.files.get(h.0).and_then(|f| f.h_filestate.as_ref())
     }
 
-    pub fn set_filestate(
-        &mut self,
-        h: Option<IFileHandle>,
-        fs: Option<Box<dyn Any + Send + Sync>>,
-    ) {
+    pub fn set_filestate(&mut self, h: Option<IFileHandle>, fs: Option<AltFile>) {
         if let Some(hh) = h {
             if let Some(f) = self.files.get_mut(hh.0) {
                 f.h_filestate = fs;
@@ -266,14 +263,14 @@ impl IFileManager {
     }
 
     /// Set/get alt pipe and alt filename (opaque in original C).
-    pub fn set_altpipe(&mut self, h: Option<IFileHandle>, p: Option<Box<dyn Any + Send + Sync>>) {
+    pub fn set_altpipe(&mut self, h: Option<IFileHandle>, p: Option<AltFile>) {
         if let Some(hh) = h {
             if let Some(f) = self.files.get_mut(hh.0) {
                 f.h_altpipe = p;
             }
         }
     }
-    pub fn get_altpipe(&self, h: Option<IFileHandle>) -> Option<&Box<dyn Any + Send + Sync>> {
+    pub fn get_altpipe(&self, h: Option<IFileHandle>) -> Option<&AltFile> {
         let h = h?;
         self.files.get(h.0).and_then(|f| f.h_altpipe.as_ref())
     }
