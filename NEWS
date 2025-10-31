@@ -33,6 +33,8 @@
 
 * Fix incorrect display of Lit indicator (github #670).
 
+* Disallow mouse click to open OSC8 link in SECURE mode (github #676).
+
 ======================================================================
 
 	Major changes between "less" versions 679 and 685

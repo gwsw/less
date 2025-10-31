@@ -591,8 +591,11 @@ static int mouse_button_left(int x, int y, lbool down, lbool drag)
 	} else if (!down)
 	{
 #if OSC8_LINK
-		if (osc8_click(y, x))
-			return (A_NOACTION);
+		if (secure_allow(SF_OSC8_OPEN))
+		{
+			if (osc8_click(y, x))
+				return (A_NOACTION);
+		}
 #else
 		(void) x;
 #endif /* OSC8_LINK */
