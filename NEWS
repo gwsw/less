@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 685 and 686
+	Major changes between "less" versions 685 and 687
 
 * Map keypad keys, and use terminfo rather than termcap since keypad
   definitions don't exist in termcap (github #650).

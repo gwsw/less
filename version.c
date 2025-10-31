@@ -1065,6 +1065,7 @@ v686  10/30/25  Map keypad keys; make HOME/END scroll horizontally;
                 retain saved marks even if --save-marks is not specified;
                 fix repaint bug with --form-feed; fix bugs passing negative
                 values to cmd line options.
+v687
 */
 
-char version[] = "686";
+char version[] = "687x";
