@@ -232,12 +232,12 @@ public int sindex_from_sline(int sline)
 	if (sline < 0)
 		sline += sc_height;
 	/*
-	 * Can't be less than 1 or greater than sc_height.
+	 * Can't be less than 1 or greater than sc_height-1.
 	 */
 	if (sline <= 0)
 		sline = 1;
-	if (sline > sc_height)
-		sline = sc_height;
+	if (sline >= sc_height)
+		sline = sc_height-1;
 	/*
 	 * Return zero-based line number, not one-based.
 	 */
