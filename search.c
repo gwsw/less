@@ -354,20 +354,24 @@ public void clear_attn(void)
  */
 public void undo_search(lbool clear)
 {
-	lbool osc8_active = undo_osc8();
-	clear_pattern(&search_info);
 #if HILITE_SEARCH
+	lbool osc8_active = undo_osc8();
+	lbool has_pattern = prev_pattern(&search_info);
 	if (clear)
 	{
+		clear_pattern(&search_info);
 		clr_hilite();
 	} else
 	{
-		if (hilite_anchor.first != NULL)
+		if (has_pattern)
 			hide_hilite = !hide_hilite;
 		else if (!osc8_active)
 			error("No previous regular expression", NULL_PARG);
 	}
 	repaint_hilite(TRUE);
+#else
+	undo_osc8();
+	clear_pattern(&search_info);
 #endif
 }
 
