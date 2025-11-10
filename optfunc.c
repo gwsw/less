@@ -74,6 +74,7 @@ extern int nosearch_header_cols;
 extern POSITION header_start_pos;
 extern char *init_header;
 extern char *first_cmd_at_prompt;
+extern char *autosave;
 #if LOGFILE
 extern char *namelogfile;
 extern lbool force_logfile;
@@ -469,6 +470,30 @@ public void opt__P(int type, constant char *s)
 	case QUERY:
 		parg.p_string = prproto[pr_type];
 		error("%s", &parg);
+		break;
+	}
+}
+
+/*
+ * Handler for --autosave option.
+ */
+public void opt_autosave(int type, constant char *s)
+{
+	PARG parg;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		if (s == NULL)
+			s = "-";
+		if (autosave != NULL)
+			free(autosave);
+		autosave = save(s);
+		break;
+	case QUERY:
+		parg.p_string = autosave ? autosave : "-";
+		error("Autosave actions: %s", &parg);
 		break;
 	}
 }
@@ -1256,3 +1281,10 @@ public int get_swindow(void)
 	return (sc_height - header_lines + swindow);
 }
 
+/*
+ * Should an action initiate an autosave?
+ */
+public lbool autosave_action(char act)
+{
+	return strchr(autosave, act) != NULL || strchr(autosave, '*') != NULL;
+}

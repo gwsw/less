@@ -803,6 +803,13 @@ public void cmd_addhist(struct mlist *mlist, constant char *cmd, lbool modified)
 	 * Thus, an UPARROW will always retrieve the previous command.
 	 */
 	mlist->curr_mp = ml->next;
+	if (modified)
+	{
+		if (mlist == &mlist_search && autosave_action('/'))
+			save_cmdhist();
+		else if (mlist == &mlist_shell && autosave_action('!'))
+			save_cmdhist();
+	}
 #endif
 }
 

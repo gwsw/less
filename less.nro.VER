@@ -1416,6 +1416,26 @@ of the screen, starting with a decimal point: \&.5 is half of the
 screen width, \&.3 is three tenths of the screen width, and so on.
 If the number is specified as a fraction, the actual number of
 scroll positions is recalculated if the terminal window is resized.
+.IP "\-\-autosave=\fIactions\fP
+Normally the history file is saved only when
+.B less
+exits.
+This option specifies other actions which will cause the history file to be saved.
+Each action is defined by a single character in the \fIactions\fP string:
+.RS
+.IP "m"
+Setting or clearing a mark while \-\-save-marks is in effect.
+.IP "/"
+Searching.
+.IP "!"
+Running a shell command.
+.IP "*"
+Any action; same as "m/!".
+.RE
+.IP
+Can be set to "-" to specify the default, that only exiting
+.B less
+will cause the history file to be saved.
 .IP "\-\-cmd=\fIcommands\fP
 The specified string is taken to be an initial command to
 .BR less .

@@ -1065,7 +1065,8 @@ v686  10/30/25  Map keypad keys; make HOME/END scroll horizontally;
                 retain saved marks even if --save-marks is not specified;
                 fix repaint bug with --form-feed; fix bugs passing negative
                 values to cmd line options.
-v687            Disallow opening OSC8 link via mouse in secure mode.
+v687            Disallow opening OSC8 link via mouse in secure mode;
+                add --autosave.
 */
 
 char version[] = "687x";

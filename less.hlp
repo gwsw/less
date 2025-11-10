@@ -219,6 +219,8 @@
   -# [_N]  ....  --shift=[_N]
                   Set horizontal scroll amount (0 = one half screen width).
 
+                --autosave=[_m_/_!_*]
+                  Actions which cause the history file to be saved.
                 --exit-follow-on-close
                   Exit F command on a pipe when writer closes pipe.
                 --file-size

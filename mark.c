@@ -241,6 +241,8 @@ public void setmark(char c, int where)
 	}
 	cmark(m, curr_ifile, scrpos.pos, scrpos.ln);
 	marks_modified = TRUE;
+	if (perma_marks && autosave_action('m'))
+		save_cmdhist();
 }
 
 /*
@@ -260,6 +262,8 @@ public void clrmark(char c)
 	}
 	m->m_scrpos.pos = NULL_POSITION;
 	marks_modified = TRUE;
+	if (perma_marks && autosave_action('m'))
+		save_cmdhist();
 }
 
 /*
