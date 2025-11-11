@@ -34,7 +34,7 @@ extern int auto_wrap;
 extern lbool plusoption;
 extern int forw_scroll;
 extern int back_scroll;
-extern int ignore_eoi;
+extern lbool ignore_eoi;
 extern int header_lines;
 extern int header_cols;
 extern int full_screen;

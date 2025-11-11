@@ -22,7 +22,7 @@
 
 typedef POSITION BLOCKNUM;
 
-public int ignore_eoi;
+public lbool ignore_eoi = FALSE;
 
 /*
  * Pool of buffers holding the most recently used blocks of the input file.

@@ -93,7 +93,7 @@ static JUMP_BUF read_label;
 static JUMP_BUF open_label;
 
 extern int sigs;
-extern int ignore_eoi;
+extern lbool ignore_eoi;
 extern int exit_F_on_close;
 extern int follow_mode;
 extern int scanning_eof;
