@@ -1436,6 +1436,8 @@ Any action; same as "m/!".
 Can be set to "-" to specify the default, that only exiting
 .B less
 will cause the history file to be saved.
+Note that, depending on your shell, if you specify this option on the 
+command line, the "!" and "*" characters may need to be escaped or quoted.
 .IP "\-\-cmd=\fIcommands\fP
 The specified string is taken to be an initial command to
 .BR less .
