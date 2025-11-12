@@ -25,6 +25,8 @@
 * When --save-marks is not used, retain any marks saved in the history file
   (github #662).
 
+* Make SIGHUP do an orderly exit like SIGTERM.
+
 * Fix bug when entering search modifier key at start of non-empty 
   search string (github #668).
 
