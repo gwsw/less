@@ -15,6 +15,8 @@
 
 * Add --autosave option (github #678).
 
+* Add ESC-f command (github #680).
+
 * Map keypad keys, and use terminfo rather than termcap since keypad
   definitions don't exist in termcap (github #650).
 
