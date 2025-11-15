@@ -191,6 +191,9 @@ public void init_signals(int on)
 #ifdef SIGTERM
 		(void) LSIGNAL(SIGTERM, terminate);
 #endif
+#ifdef SIGHUP
+		(void) LSIGNAL(SIGHUP, terminate);
+#endif
 #ifdef SIGUSR1
 		(void) LSIGNAL(SIGUSR1, sigusr1);
 #endif
@@ -218,6 +221,9 @@ public void init_signals(int on)
 #endif
 #ifdef SIGTERM
 		(void) LSIGNAL(SIGTERM, SIG_DFL);
+#endif
+#ifdef SIGHUP
+		(void) LSIGNAL(SIGHUP, SIG_DFL);
 #endif
 #ifdef SIGUSR1
 		(void) LSIGNAL(SIGUSR1, SIG_DFL);

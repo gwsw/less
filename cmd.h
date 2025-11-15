@@ -86,6 +86,7 @@
 #define A_OSC8_JUMP            74
 #define A_START_PASTE          75 /* must not overlap EC_* */
 #define A_END_PASTE            76 /* must not overlap EC_* */
+#define A_F_FOREVER_BELL       77
 
 /* These values must not conflict with any A_* or EC_* value. */
 #define A_INVALID              100

@@ -92,6 +92,7 @@ static unsigned char cmdtable[] =
 	ESC,'j',0,                      A_F_NEWLINE,
 	ESC,'k',0,                      A_B_NEWLINE,
 	'F',0,                          A_F_FOREVER,
+	ESC,'f',0,                      A_F_FOREVER_BELL,
 	ESC,'F',0,                      A_F_UNTIL_HILITE,
 	'R',0,                          A_FREPAINT,
 	'r',0,                          A_REPAINT,

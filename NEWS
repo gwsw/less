@@ -15,6 +15,8 @@
 
 * Add --autosave option (github #678).
 
+* Add ESC-f command (github #680).
+
 * Map keypad keys, and use terminfo rather than termcap since keypad
   definitions don't exist in termcap (github #650).
 
@@ -24,6 +26,8 @@
 
 * When --save-marks is not used, retain any marks saved in the history file
   (github #662).
+
+* Make SIGHUP do an orderly exit like SIGTERM.
 
 * Fix bug when entering search modifier key at start of non-empty 
   search string (github #668).

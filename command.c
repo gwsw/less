@@ -1302,28 +1302,30 @@ static void multi_search(constant char *pattern, int n, int silent)
 /*
  * Forward forever, or until a highlighted line appears.
  */
-static int forw_loop(int until_hilite)
+static int forw_loop(int action)
 {
-	POSITION curr_len;
+	POSITION prev_hilite;
 
 	if (ch_getflags() & CH_HELPFILE)
 		return (A_NOACTION);
 
 	cmd_exec();
 	jump_forw_buffered();
-	curr_len = ch_length();
-	highest_hilite = until_hilite ? curr_len : NULL_POSITION;
+	highest_hilite = prev_hilite = 0;
 	ignore_eoi = 1;
 	while (!sigs)
 	{
-		if (until_hilite && highest_hilite > curr_len)
+		if (action != A_F_FOREVER && highest_hilite > prev_hilite)
 		{
 			lbell();
-			break;
+			if (action == A_F_UNTIL_HILITE)
+				break;
+			prev_hilite = highest_hilite;
 		}
 		make_display();
 		forward(1, FALSE, FALSE, FALSE);
 	}
+	highest_hilite = NULL_POSITION;
 	ignore_eoi = 0;
 	ch_set_eof();
 
@@ -1332,7 +1334,7 @@ static int forw_loop(int until_hilite)
 	 * a non-abort signal (e.g. window-change).  
 	 */
 	if (sigs && !ABORT_SIGS())
-		return (until_hilite ? A_F_UNTIL_HILITE : A_F_FOREVER);
+		return (action);
 
 	return (A_NOACTION);
 }
@@ -1662,6 +1664,8 @@ public void commands(void)
 			break;
 
 		case A_F_FOREVER:
+		case A_F_FOREVER_BELL:
+		case A_F_UNTIL_HILITE:
 			/*
 			 * Forward forever, ignoring EOF.
 			 */
@@ -1669,11 +1673,7 @@ public void commands(void)
 				error("Warning: command may not work correctly when file is viewed via LESSOPEN", NULL_PARG);
 			if (show_attn)
 				set_attnpos(bottompos);
-			newaction = forw_loop(0);
-			break;
-
-		case A_F_UNTIL_HILITE:
-			newaction = forw_loop(1);
+			newaction = forw_loop(action);
 			break;
 
 		case A_F_SCROLL:

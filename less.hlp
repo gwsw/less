@@ -29,6 +29,7 @@
   ESC-{  ^LeftArrow    Left  to first column.
   F                    Forward forever; like "tail -f".
   ESC-F                Like F but stop when search pattern is found.
+  ESC-f                Like F but ring the bell when search pattern is found.
   r  ^R  ^L            Repaint screen.
   R                    Repaint screen, discarding buffered input.
         ---------------------------------------------------
