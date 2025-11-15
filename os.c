@@ -101,6 +101,7 @@ extern char intr_char;
 extern int is_tty;
 extern int quit_if_one_screen;
 extern int one_screen;
+extern int term_init_done;
 #if HAVE_TIME
 extern time_type less_start_time;
 #endif
@@ -369,11 +370,14 @@ start:
 #endif
 		return (READ_ERR);
 	}
-	if (fd != tty && n > 0)
+	if (fd != tty && !any_data)
 	{
-		if (!any_data)
+		/* We have received the first byte of data, or
+		 * read EOF on an empty file: init the terminal. */
+		if (!term_init_done)
 			init();
-		any_data = TRUE;
+		if (n > 0)
+			any_data = TRUE;
 	}
 	return (n);
 }
