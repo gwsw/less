@@ -500,7 +500,6 @@ int main(int argc, constant char *argv[])
 		putchr('\n');
 	}
 	set_output(1);
-	init();
 	commands();
 	quit(QUIT_OK);
 	/*NOTREACHED*/

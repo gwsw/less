@@ -51,8 +51,8 @@ static lbool use_poll = TRUE;
 #endif
 #if USE_POLL
 #include <poll.h>
-static lbool any_data = FALSE;
 #endif
+static lbool any_data = FALSE;
 
 /*
  * BSD setjmp() saves (and longjmp() restores) the signal mask.
@@ -369,10 +369,12 @@ start:
 #endif
 		return (READ_ERR);
 	}
-#if USE_POLL
 	if (fd != tty && n > 0)
+	{
+		if (!any_data)
+			init();
 		any_data = TRUE;
-#endif
+	}
 	return (n);
 }
 
