@@ -1370,8 +1370,10 @@ The default for \fIn\fP is 8.
 .IP "\-X or \-\-no\-init"
 Disables sending the termcap initialization and deinitialization strings
 to the terminal.
-This is sometimes desirable if the deinitialization string does
+This is sometimes desirable if initialization or deinitialization does
 something unnecessary, like clearing the screen.
+If the \-X option is not used, initialization is delayed until either
+the first byte of data is read or EOF is reached on an empty file.
 .IP "\-y\fIn\fP or \-\-max\-forw\-scroll=\fIn\fP"
 Specifies a maximum number of lines to scroll forward.
 If it is necessary to scroll forward more than \fIn\fP lines,
