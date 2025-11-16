@@ -471,7 +471,7 @@ int main(int argc, constant char *argv[])
 		/*
 		 * See if file fits on one screen to decide whether 
 		 * to send terminal init. But don't need this 
-		 * if -X (no_init) overrides this (see init()).
+		 * if -X (no_init) overrides this (see term_init()).
 		 */
 		if (quit_if_one_screen)
 		{
@@ -611,7 +611,7 @@ public void quit(int status)
 	check_altpipe_error();
 	if (interactive())
 		clear_bot();
-	deinit();
+	term_deinit();
 	flush();
 	if (redraw_on_quit && term_init_done)
 	{

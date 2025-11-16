@@ -1948,7 +1948,7 @@ public void resume_screen(void)
 /*
  * Initialize terminal
  */
-public void init(void)
+public void term_init(void)
 {
 	clear_bot_if_needed();
 #if !MSDOS_COMPILER
@@ -2013,7 +2013,7 @@ public void init(void)
 /*
  * Deinitialize terminal
  */
-public void deinit(void)
+public void term_deinit(void)
 {
 	if (!init_done)
 		return;

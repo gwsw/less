@@ -253,7 +253,7 @@ public void psignals(void)
 		LSIGNAL(SIGTTOU, SIG_IGN);
 #endif
 		clear_bot();
-		deinit();
+		term_deinit();
 		flush();
 		raw_mode(0);
 #ifdef SIGTTOU
@@ -269,7 +269,7 @@ public void psignals(void)
 		 */
 		LSIGNAL(SIGTSTP, stop);
 		raw_mode(1);
-		init();
+		term_init();
 		screen_trashed();
 		tsignals |= S_WINCH;
 	}

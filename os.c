@@ -375,7 +375,7 @@ start:
 		/* We have received the first byte of data, or
 		 * read EOF on an empty file: init the terminal. */
 		if (!term_init_done)
-			init();
+			term_init();
 		if (n > 0)
 			any_data = TRUE;
 	}
