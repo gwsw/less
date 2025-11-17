@@ -1372,8 +1372,11 @@ Disables sending the termcap initialization and deinitialization strings
 to the terminal.
 This is sometimes desirable if initialization or deinitialization does
 something unnecessary, like clearing the screen.
-If the \-X option is not used, initialization is delayed until either
-the first byte of data is read or EOF is reached on an empty file.
+If the \-X option is not used, the terminal initialization string
+is sent when the first byte of data is read,
+or end of file is reached on an empty file.
+Note that some terminals require the initialization string for proper
+operation, so they may not behave completely correctly when \-X is used.
 .IP "\-y\fIn\fP or \-\-max\-forw\-scroll=\fIn\fP"
 Specifies a maximum number of lines to scroll forward.
 If it is necessary to scroll forward more than \fIn\fP lines,
