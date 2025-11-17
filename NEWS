@@ -39,6 +39,9 @@
 
 * Fix incorrect display of Lit indicator (github #670).
 
+* Fix incorrect display when returning to a mark after resizeing window
+  (github #681).
+
 * Disallow mouse click to open OSC8 link in SECURE mode (github #676).
 
 ======================================================================
