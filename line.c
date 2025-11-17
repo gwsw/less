@@ -129,7 +129,7 @@ static struct color_map color_map[] = {
 	{ AT_COLOR_BIN,            "kR" },
 	{ AT_COLOR_CTRL,           "kR" },
 	{ AT_COLOR_ERROR,          "kY" },
-	{ AT_COLOR_LINENUM,        "c" },
+	{ AT_COLOR_LINENUM,        "c*" },
 	{ AT_COLOR_MARK,           "Wb" },
 	{ AT_COLOR_PROMPT,         "kC" },
 	{ AT_COLOR_RSCROLL,        "kc" },
@@ -436,7 +436,7 @@ public void plinestart(POSITION pos)
 		for (i = 0; i + len < (size_t) linenum_width; i++)
 			add_pfx(' ', AT_NORMAL);
 		for (i = 0; i < len; i++)
-			add_pfx(buf[i], AT_BOLD|AT_COLOR_LINENUM);
+			add_pfx(buf[i], use_color ? AT_COLOR_LINENUM : AT_BOLD);
 		add_pfx(' ', AT_NORMAL);
 	}
 	end_column = (int) linebuf.pfx_end; /*{{type-issue}}*/
