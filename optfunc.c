@@ -492,7 +492,7 @@ public void opt_autosave(int type, constant char *s)
 		autosave = save(s);
 		break;
 	case QUERY:
-		parg.p_string = autosave ? autosave : "-";
+		parg.p_string = (autosave != NULL) ? autosave : "-";
 		error("Autosave actions: %s", &parg);
 		break;
 	}
