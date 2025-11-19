@@ -1011,7 +1011,7 @@ For example, if "\-j4" is used, the target line is the
 fourth line on the screen, so forward searches begin at the fifth line
 on the screen.
 However nonrepeated searches (invoked with "/" or "?")
-always begin at the start or end of the current screen respectively.
+always begin at the first or last line on the screen respectively.
 .RE
 .IP "\-J or \-\-status\-column"
 Displays a status column at the left edge of the screen.
