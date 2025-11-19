@@ -226,7 +226,7 @@ public void scan_option(constant char *s, lbool is_env)
 		{
 			parg.p_string = printopt;
 			if (ambig)
-				error("%s is an ambiguous abbreviation (\"less --help\" for help)",
+				error("--%s is an ambiguous abbreviation (\"less --help\" for help)",
 					&parg);
 			else
 				error("There is no %s option (\"less --help\" for help)",
