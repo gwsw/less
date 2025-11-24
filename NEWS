@@ -24,8 +24,14 @@
   Add shift-HOME and ctrl-HOME to scroll left and jump to top, and
   add shift-END and ctrl-END to scroll right and jump to end (github #658).
 
+* When setting line number colors (-DN), don't force bold attribute.
+  To set bold, you must append "d" or "*" to the color string (github #684).
+
 * When --save-marks is not used, retain any marks saved in the history file
   (github #662).
+
+* Defer sending the terminal init string until the first char is read
+  from the input file (github #682).
 
 * Make SIGHUP do an orderly exit like SIGTERM.
 
