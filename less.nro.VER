@@ -2419,7 +2419,7 @@ Each is broken into two lines here for readability only.
 	?pB%pB\e%:byte\ %bB?s/%s...%t
 .PP
 ?f%f\ .?n?m(%T\ %i\ of\ %m)\ ..?ltlines\ %lt\-%lb?L/%L.\ :
-	byte\ %bB?s/%s.\ .?e(END)\ ?x\-\ Next\e:\ %x.:?pB%pB\e%..%t
+	byte\ %bB?s/%s.\ .?e(END)\ ?x\-\ Next\e:\ %x.:?pB%pB\e%..?c\ (column\ %c).%t
 .fi
 .EE
 .PP
@@ -2428,7 +2428,7 @@ And here is the default message produced by the = command:
 .EX
 .nf
 ?f%f\ .?m(%T\ %i\ of\ %m)\ .?ltlines\ %lt\-%lb?L/%L.\ .
-	byte\ %bB?s/%s.\ ?e(END)\ :?pB%pB\e%..%t
+	byte\ %bB?s/%s.\ ?e(END)\ :?pB%pB\e%..?c\ (column\ %c).%t
 .fi
 .EE
 .PP
