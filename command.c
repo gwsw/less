@@ -849,7 +849,10 @@ static void make_display(void)
 	 * We need to clear and repaint screen before any change.
 	 */
 	if (!full_screen && !(quit_if_one_screen && one_screen))
+	{
+		term_init(); /* {{ ugly, but we could get here before term_init }} */
 		lclear();
+	}
 	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
 	 */

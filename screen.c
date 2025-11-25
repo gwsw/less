@@ -1950,6 +1950,8 @@ public void resume_screen(void)
  */
 public void term_init(void)
 {
+	if (init_done)
+		return;
 	clear_bot_if_needed();
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
@@ -1965,7 +1967,7 @@ public void term_init(void)
 			 */
 			if (*sc_init != '\0' && *sc_deinit != '\0' && !no_alt_screen)
 				lower_left();
-			term_init_done = 1;
+			term_init_done = TRUE;
 		}
 		if (!no_keypad)
 			ltputs(sc_s_keypad, sc_height, putchr);
@@ -1996,7 +1998,7 @@ public void term_init(void)
 		if (!no_init)
 		{
 			win32_init_term();
-			term_init_done = 1;
+			term_init_done = TRUE;
 		}
 		if (mousecap)
 			init_mouse();

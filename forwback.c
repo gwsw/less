@@ -222,6 +222,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 	lbool do_repaint;
 	lbool newline;
 	lbool first_line = TRUE;
+	lbool need_home = FALSE;
 
 	if (pos != NULL_POSITION)
 		pos = after_header_pos(pos);
@@ -250,8 +251,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			 */
 			pos_clear();
 			force = TRUE;
-			lclear();
-			home();
+			need_home = TRUE;
 		}
 
 		if (pos != position(BOTTOM_PLUS_ONE) || empty_screen())
@@ -265,8 +265,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			force = TRUE;
 			if (top_scroll)
 			{
-				lclear();
-				home();
+				need_home = TRUE;
 			} else if (!first_time && !is_filtering() && full_screen)
 			{
 				putstr("...skipping...\n");
@@ -327,6 +326,12 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		nlines++;
 		if (do_repaint)
 			continue;
+		if (need_home)
+		{
+			lclear();
+			home();
+			need_home = FALSE;
+		}
 		/*
 		 * If this is the first screen displayed and
 		 * we hit an early EOF (i.e. before the requested
