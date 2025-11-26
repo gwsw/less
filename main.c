@@ -75,7 +75,7 @@ extern int      quit_if_one_screen;
 extern int      no_init;
 extern int      errmsgs;
 extern int      redraw_on_quit;
-extern int      term_init_done;
+extern int      term_addrs;
 extern lbool    first_time;
 
 #if MSDOS_COMPILER==WIN32C && (defined(__MINGW32__) || defined(_MSC_VER))
@@ -613,7 +613,7 @@ public void quit(int status)
 		clear_bot();
 	term_deinit();
 	flush();
-	if (redraw_on_quit && term_init_done)
+	if (redraw_on_quit && term_addrs)
 	{
 		/*
 		 * The last file text displayed might have been on an 

@@ -257,7 +257,8 @@ static constant char
 static int attrcolor = -1;
 #endif
 
-static int init_done = 0;
+/* term_init has been called; terminal is ready for use by less */
+static lbool term_init_done = FALSE;
 
 public int auto_wrap;           /* Terminal does \r\n when write past margin */
 public int defer_wrap;          /* After printing char in last column, doesn't wrap until next char */
@@ -275,8 +276,8 @@ public int can_goto_line;               /* Can move cursor to any line */
 public int clear_bg;                    /* Clear fills with background color */
 public lbool missing_cap = FALSE;       /* Some capability is missing */
 public constant char *kent = NULL;      /* Keypad ENTER sequence */
-public lbool term_init_done = FALSE;
-public lbool full_screen = TRUE;
+public lbool term_addrs = FALSE;        /* "ti" has been sent to terminal */
+public lbool full_screen = TRUE;        /* We're using all lines of terminal */
 
 static int attrmode = AT_NORMAL;
 static int termcap_debug = -1;
@@ -1950,8 +1951,9 @@ public void resume_screen(void)
  */
 public void term_init(void)
 {
-	if (init_done)
+	if (term_init_done)
 		return;
+	term_init_done = TRUE;
 	clear_bot_if_needed();
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
@@ -1967,7 +1969,7 @@ public void term_init(void)
 			 */
 			if (*sc_init != '\0' && *sc_deinit != '\0' && !no_alt_screen)
 				lower_left();
-			term_init_done = TRUE;
+			term_addrs = TRUE;
 		}
 		if (!no_keypad)
 			ltputs(sc_s_keypad, sc_height, putchr);
@@ -1976,7 +1978,6 @@ public void term_init(void)
 		if (no_paste)
 			init_bracketed_paste();
 	}
-	init_done = 1;
 	if (top_scroll) 
 	{
 		int i;
@@ -1998,7 +1999,7 @@ public void term_init(void)
 		if (!no_init)
 		{
 			win32_init_term();
-			term_init_done = TRUE;
+			term_addrs = TRUE;
 		}
 		if (mousecap)
 			init_mouse();
@@ -2006,7 +2007,6 @@ public void term_init(void)
 	}
 	win32_init_vt_term();
 #endif
-	init_done = 1;
 	initcolor();
 	flush();
 #endif
@@ -2017,7 +2017,7 @@ public void term_init(void)
  */
 public void term_deinit(void)
 {
-	if (!init_done)
+	if (!term_init_done)
 		return;
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
@@ -2048,7 +2048,7 @@ public void term_deinit(void)
 	clreol();
 #endif
 #endif
-	init_done = 0;
+	term_init_done = FALSE;
 }
 
 /*
@@ -2056,13 +2056,13 @@ public void term_deinit(void)
  */
 public int interactive(void)
 {
-	return (is_tty && init_done);
+	return (is_tty && term_init_done);
 }
 
 static void assert_interactive(void)
 {
-	if (interactive()) return;
-	/* abort(); */
+	if (!interactive())
+		error("Internal error: terminal not initialized", NULL_PARG);
 }
 
 /*
