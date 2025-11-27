@@ -903,7 +903,7 @@ static lbool not_in_no_config(constant char *word, size_t wlen, void *arg)
 }
 static lbool ignore_env(constant char *var)
 {
-	if (no_config == NULL)
+	if (isnullenv(no_config))
 		return FALSE; /* no_config is not set; don't ignore anything */
 	/* no_config is set; ignore any var that does not appear in no_config */
 	return parse_csl(not_in_no_config, no_config, (void*) var);
@@ -1075,7 +1075,7 @@ public int lesskey(constant char *filename, lbool sysvar)
 	ssize_t n;
 	int f;
 
-	if (!secure_allow(SF_LESSKEY) || no_config != NULL)
+	if (!secure_allow(SF_LESSKEY) || !isnullenv(no_config))
 		return (1);
 	/*
 	 * Try to open the lesskey file.
@@ -1137,7 +1137,7 @@ static int lesskey_text(constant char *filename, lbool sysvar, lbool content)
 	int r;
 	static struct lesskey_tables tables;
 
-	if (!secure_allow(SF_LESSKEY) || no_config != NULL)
+	if (!secure_allow(SF_LESSKEY) || !isnullenv(no_config))
 		return (1);
 	r = content ? parse_lesskey_content(filename, &tables) : parse_lesskey(filename, &tables);
 	if (r != 0)
