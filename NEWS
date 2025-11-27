@@ -24,6 +24,8 @@
   Add shift-HOME and ctrl-HOME to scroll left and jump to top, and
   add shift-END and ctrl-END to scroll right and jump to end (github #658).
 
+* Add LESSNOCONFIG environment variable.
+
 * When setting line number colors (-DN), don't force bold attribute.
   To set bold, you must append "d" or "*" to the color string (github #684).
 

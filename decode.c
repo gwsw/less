@@ -36,6 +36,7 @@
 extern int erase_char, erase2_char, kill_char;
 extern int mousecap;
 extern int sc_height;
+extern char *no_config;
 
 static constant lbool allow_drag = TRUE;
 
@@ -867,6 +868,46 @@ public int ecmd_decode(constant char *cmd, constant char **sp)
 	return (cmd_decode(list_ecmd_tables, cmd, sp));
 }
 
+/*
+ * Parse a comma-separated list.
+ * Call func repeatedly, passing each item in the list.
+ * Stop and return FALSE if func ever returns FALSE,
+ * otherwise parse the entire list and return TRUE.
+ */
+public lbool parse_csl(lbool (*func)(constant char *word, size_t wlen, void *arg), constant char *str, void *arg)
+{
+	for (;;)
+	{
+		constant char *estr;
+		while (*str == ' ' || *str == ',') ++str; /* skip leading spaces/commas */
+		if (*str == '\0') break;
+		estr = strchr(str, ',');
+		if (estr == NULL) estr = str + strlen(str);
+		while (estr > str && estr[-1] == ' ') --estr; /* trim trailing spaces */
+		if (!(*func)(str, ptr_diff(estr, str), arg))
+			return FALSE;
+		str = estr;
+	}
+	return TRUE;
+}
+
+/*
+ * Should we ignore the setting of an environment variable?
+ */
+static lbool not_in_no_config(constant char *word, size_t wlen, void *arg)
+{
+	constant char *var = (constant char *) arg;
+	if (wlen == strlen(var) && strncmp(var, word, wlen) == 0)
+		return FALSE;
+	return TRUE;
+}
+static lbool ignore_env(constant char *var)
+{
+	if (no_config == NULL)
+		return FALSE; /* no_config is not set; don't ignore anything */
+	/* no_config is set; ignore any var that does not appear in no_config */
+	return parse_csl(not_in_no_config, no_config, (void*) var);
+}
 
 /*
  * Get the value of an environment variable.
@@ -877,6 +918,8 @@ public constant char * lgetenv(constant char *var)
 	int a;
 	constant char *s;
 
+	if (ignore_env(var))
+		return (NULL);
 	a = cmd_decode(list_var_tables, var, &s);
 	if (a == EV_OK)
 		return (s);
@@ -1032,7 +1075,7 @@ public int lesskey(constant char *filename, lbool sysvar)
 	ssize_t n;
 	int f;
 
-	if (!secure_allow(SF_LESSKEY))
+	if (!secure_allow(SF_LESSKEY) || no_config != NULL)
 		return (1);
 	/*
 	 * Try to open the lesskey file.
@@ -1094,7 +1137,7 @@ static int lesskey_text(constant char *filename, lbool sysvar, lbool content)
 	int r;
 	static struct lesskey_tables tables;
 
-	if (!secure_allow(SF_LESSKEY))
+	if (!secure_allow(SF_LESSKEY) || no_config != NULL)
 		return (1);
 	r = content ? parse_lesskey_content(filename, &tables) : parse_lesskey(filename, &tables);
 	if (r != 0)

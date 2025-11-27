@@ -2691,6 +2691,14 @@ so scrolling may be slower.
 Duration (in milliseconds) after starting to read data from the input,
 after which the "Waiting for data" message will be displayed.
 The default is 4000 (4 seconds).
+.IP LESSNOCONFIG
+If set to an empty string or "-", all environment variables except TERM are ignored
+(treated as if they were not set).
+If set to a comma-separated list of environment variable names,
+all environment variables except TERM and those in the list are ignored.
+If set to any value, all
+.B lesskey
+files are also ignored.
 .IP LESS_IS_MORE
 Emulate the
 .BR more (1)
