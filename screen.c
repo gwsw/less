@@ -1409,7 +1409,7 @@ public void get_term(void)
 	/*
 	 * Find out what kind of terminal this is.
 	 */
-	if ((term = lgetenv("TERM")) == NULL)
+	if ((term = lgetenv("TERM")) == NULL && (term = getenv("TERM")) == NULL)
 		term = DEFAULT_TERM;
 	hardcopy = 0;
 #if USE_TERMINFO

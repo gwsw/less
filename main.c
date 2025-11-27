@@ -40,6 +40,7 @@ public constant char *progname;
 public lbool    quitting = FALSE;
 public int      dohelp;
 public char *   init_header = NULL;
+public char *   no_config = NULL;
 static int      secure_allow_features;
 
 #if LOGFILE
@@ -205,6 +206,12 @@ static int security_feature(constant char *name, size_t len)
 		return security_feature_error("invalid", len, name);
 	return features[match].sf_value;
 }
+
+static lbool set_security_feature(constant char *word, size_t wlen, void *arg)
+{
+	secure_allow_features |= security_feature(word, wlen);
+	return TRUE;
+}
 #endif /* !SECURE */
 
 /*
@@ -224,19 +231,7 @@ static void init_secure(void)
 
 	str = lgetenv("LESSSECURE_ALLOW");
 	if (!isnullenv(str))
-	{
-		for (;;)
-		{
-			constant char *estr;
-			while (*str == ' ' || *str == ',') ++str; /* skip leading spaces/commas */
-			if (*str == '\0') break;
-			estr = strchr(str, ',');
-			if (estr == NULL) estr = str + strlen(str);
-			while (estr > str && estr[-1] == ' ') --estr; /* trim trailing spaces */
-			secure_allow_features |= security_feature(str, ptr_diff(estr, str));
-			str = estr;
-		}
-	}
+		parse_csl(set_security_feature, str, NULL);
 #endif
 }
 
@@ -254,6 +249,8 @@ int main(int argc, constant char *argv[])
 	size_t f;
 	lbool end_opts = FALSE;
 	lbool posixly_correct = FALSE;
+
+	no_config = getenv("LESSNOCONFIG");
 
 #if MSDOS_COMPILER==WIN32C && (defined(__MINGW32__) || defined(_MSC_VER))
 	if (GetACP() != CP_UTF8)  /* not using a UTF-8 manifest */
@@ -323,7 +320,7 @@ int main(int argc, constant char *argv[])
 
 #define isoptstring(s)  (((s)[0] == '-' || (s)[0] == '+') && (s)[1] != '\0')
 	xbuf_init(&xfiles);
-	posixly_correct = (getenv("POSIXLY_CORRECT") != NULL);
+	posixly_correct = (lgetenv("POSIXLY_CORRECT") != NULL);
 	for (i = 0;  i < argc;  i++)
 	{
 		if (strcmp(argv[i], "--") == 0)
