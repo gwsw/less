@@ -185,7 +185,7 @@ public void init_line(void)
 			s = skipspc(s);
 			if (*s == ',')
 				++s;
-			xbuf_add_data(&xbuf, (constant void *) &num, sizeof(num));
+			xbuf_add_data(&xbuf, &num, sizeof(num));
 			++osc_ansi_allow_count;
 		}
 		osc_ansi_allow = (long *) xbuf.data;

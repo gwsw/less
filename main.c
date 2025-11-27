@@ -334,7 +334,7 @@ int main(int argc, constant char *argv[])
 		{
 			if (posixly_correct)
 				end_opts = TRUE;
-			xbuf_add_data(&xfiles, (constant unsigned char *) &i, sizeof(i));
+			xbuf_add_data(&xfiles, &i, sizeof(i));
 		}
 	}
 #undef isoptstring
