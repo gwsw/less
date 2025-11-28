@@ -894,19 +894,17 @@ public lbool parse_csl(lbool (*func)(constant char *word, size_t wlen, void *arg
 /*
  * Should we ignore the setting of an environment variable?
  */
-static lbool not_in_no_config(constant char *word, size_t wlen, void *arg)
+static lbool word_no_match(constant char *word, size_t wlen, void *arg)
 {
 	constant char *var = (constant char *) arg;
-	if (wlen == strlen(var) && strncmp(var, word, wlen) == 0)
-		return FALSE;
-	return TRUE;
+	return !(wlen == strlen(var) && strncmp(var, word, wlen) == 0);
 }
 static lbool ignore_env(constant char *var)
 {
 	if (isnullenv(no_config))
 		return FALSE; /* no_config is not set; don't ignore anything */
 	/* no_config is set; ignore any var that does not appear in no_config */
-	return parse_csl(not_in_no_config, no_config, (void*) var);
+	return parse_csl(word_no_match, no_config, (void*) var);
 }
 
 /*
