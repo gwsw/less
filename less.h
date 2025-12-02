@@ -266,6 +266,11 @@ typedef off_t           LINENUM;
 #endif
 #endif
 
+/* Use iread() to read tty? */
+#if !MSDOS_COMPILER || MSDOS_COMPILER == DJGPPC
+#define LESS_IREAD_TTY 1
+#endif
+
 /*
  * Flags for creat()
  */
