@@ -1915,27 +1915,36 @@ public void load_line(constant char *str)
 }
 
 /*
- * Find the shift necessary to show the end of the longest displayed line.
+ * Find the length of the longest displayed line on the screen.
  */
-public int rrshift(void)
+public int longest_line_width(void)
 {
 	POSITION pos;
 	int save_width;
-	int sline;
+	int sindex;
 	int longest = 0;
 
 	save_width = sc_width;
 	sc_width = INT_MAX; /* so forw_line() won't chop */
-	for (sline = TOP; sline < sc_height; sline++)
-		if ((pos = position(sline)) != NULL_POSITION)
+	for (sindex = TOP; sindex < sc_height-1; sindex++)
+		if ((pos = position(sindex)) != NULL_POSITION)
 			break;
-	for (; sline < sc_height && pos != NULL_POSITION; sline++)
+	for (; sindex < sc_height-1 && pos != NULL_POSITION; sindex++)
 	{
 		pos = forw_line(pos, NULL, NULL);
 		if (end_column > longest)
 			longest = end_column;
 	}
 	sc_width = save_width;
+	return longest;
+}
+
+/*
+ * Find the shift necessary to show the end of the longest displayed line.
+ */
+public int rrshift(void)
+{
+	int longest = longest_line_width();
 	if (longest < sc_width)
 		return 0;
 	return longest - sc_width;

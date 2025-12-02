@@ -2269,7 +2269,10 @@ and a "j" means use the "target" line, as specified by the \-j option.
 .IP "%B"
 Replaced by the size of the current input file.
 .IP "%c"
-Replaced by the column number of the text appearing in the first
+Replaced by the column number of the text which appears in the first
+column of the screen.
+.IP "%C"
+Replaced by the column number of the text which appears (or would appear) in the last
 column of the screen.
 .IP "%d\fIX\fP"
 Replaced by the page number of a line in the input file.
@@ -2309,6 +2312,11 @@ The line used is determined by the \fIX\fP as with the %b option.
 .IP "%P\fIX\fP"
 Replaced by the percent into the current input file, based on line numbers.
 The line used is determined by the \fIX\fP as with the %b option.
+.IP "%Q"
+Replaced by the percent of the last column of text displayed on the screen
+compared to the length of the longest line currently displayed
+(that is, %C divided by %W).
+Note that using this sequence can make displaying the prompt be slower than usual.
 .IP "%s"
 Same as %B.
 .IP "%t"
@@ -2318,6 +2326,9 @@ Usually used at the end of the string, but may appear anywhere.
 Normally expands to the word "file".
 However if viewing files via a tags list using the \-t option,
 it expands to the word "tag".
+.IP "%W"
+Replaced by the width of the longest line currently displayed on the screen.
+Note that using this sequence can make displaying the prompt be slower than usual.
 .IP "%x"
 Replaced by the name of the next input file in the list.
 .PP
@@ -2365,6 +2376,9 @@ of the specified line is known.
 .IP "?P\fIX\fP"
 True if the percent into the current input file, based on line numbers,
 of the specified line is known.
+.IP "?Q"
+True if %Q is less than 100.
+Note that using this sequence can make displaying the prompt be slower than usual.
 .IP "?s"
 Same as "?B".
 .IP "?x"
