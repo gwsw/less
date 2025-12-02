@@ -883,14 +883,19 @@ public void ch_init(int f, int flags, ssize_t nread)
 	 */
 	ch_fsize = (flags & CH_HELPFILE) ? size_helpdata : filesize(ch_file);
 
-	/*
-	 * This is a kludge to workaround a Linux kernel bug: files in some
-	 * pseudo filesystems like /proc and tracefs have a size of 0 according
-	 * to fstat() but have readable data.
-	 */
-	if (ch_fsize == 0 && nread > 0)
+	if (ch_fsize == 0)
 	{
-		ch_flags |= CH_NOTRUSTSIZE;
+		/*
+		 * This is a kludge to workaround a Linux kernel bug: files in some
+		 * pseudo filesystems like /proc and tracefs have a size of 0 according
+		 * to fstat() but have readable data.
+		 */
+		if (nread > 0)
+			ch_flags |= CH_NOTRUSTSIZE;
+		/* Normally term_init happens in iread when the first byte of data
+		 * is read, but if the file is empty we never get that far.
+		 * So we do it here. Yuck. */
+		term_init();
 	}
 
 	ch_flush();
