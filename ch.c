@@ -280,6 +280,8 @@ static int ch_get(void)
 		{
 			n = iread(ch_file, &bp->data[bp->datasize], LBUFSIZE - bp->datasize);
 		}
+		if (n > 0)
+			have_read_data();
 
 		read_again = FALSE;
 		if (n == READ_INTR)
@@ -892,10 +894,10 @@ public void ch_init(int f, int flags, ssize_t nread)
 		 */
 		if (nread > 0)
 			ch_flags |= CH_NOTRUSTSIZE;
-		/* Normally term_init happens in iread when the first byte of data
-		 * is read, but if the file is empty we never get that far.
-		 * So we do it here. Yuck. */
-		term_init();
+		/* Normally have_read_data is called in ch_get when the first byte
+		 * of data is read, but if the file is empty we never call ch_get.
+		 * So we do it here when we open an empty file. Yuck. */
+		have_read_data();
 	}
 
 	ch_flush();
