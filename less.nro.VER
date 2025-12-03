@@ -26,6 +26,8 @@ less \- display the contents of a file in a terminal
 ]
 .RB [ \-b\ \c
 .IR space ]
+.RB [ \-D\ \c
+.IR color ]
 .RB [ \-h\ \c
 .IR lines ]
 .RB [ \-j\ \c
