@@ -373,14 +373,8 @@ start:
 #if LESS_IREAD_TTY
 	if (fd != tty) /* if this is file data, not tty */
 #endif
-	if (!any_data)
-	{
-		/* We have received the first byte of data, or
-		 * read EOF on an empty file: init the terminal. */
-		term_init();
-		if (n > 0)
-			any_data = TRUE;
-	}
+	if (!any_data && n > 0)
+        any_data = TRUE;
 	return (n);
 }
 
@@ -424,6 +418,15 @@ public void intio(void)
 	{
 		LONG_JUMP(read_label, 1);
 	}
+}
+
+/*
+ * Called to indicate that we have read file data
+ * (or the file is empty so we won't ever read data).
+ */
+public void have_read_data(void)
+{
+    term_init();
 }
 
 /*
