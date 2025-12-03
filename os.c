@@ -421,15 +421,6 @@ public void intio(void)
 }
 
 /*
- * Called to indicate that we have read file data
- * (or the file is empty so we won't ever read data).
- */
-public void have_read_data(void)
-{
-    term_init();
-}
-
-/*
  * Return the current time.
  */
 #if HAVE_TIME
