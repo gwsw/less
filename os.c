@@ -51,8 +51,8 @@ static lbool use_poll = TRUE;
 #endif
 #if USE_POLL
 #include <poll.h>
-#endif
 static lbool any_data = FALSE;
+#endif
 
 /*
  * BSD setjmp() saves (and longjmp() restores) the signal mask.
@@ -370,11 +370,10 @@ start:
 #endif
 		return (READ_ERR);
 	}
-#if LESS_IREAD_TTY
-	if (fd != tty) /* if this is file data, not tty */
+#if USE_POLL
+	if (fd != tty && n > 0)
+		any_data = TRUE;
 #endif
-	if (!any_data && n > 0)
-        any_data = TRUE;
 	return (n);
 }
 
