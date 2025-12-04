@@ -289,7 +289,7 @@ static int ch_get(void)
 		{
 			n = iread(ch_file, &bp->data[bp->datasize], LBUFSIZE - bp->datasize);
 		}
-		if (n > 0)
+		if (n >= 0)
 			have_read_data();
 
 		read_again = FALSE;
