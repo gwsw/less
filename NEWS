@@ -52,6 +52,8 @@
 
 * Disallow mouse click to open OSC8 link in SECURE mode (github #676).
 
+* Update Unicode tables.
+
 ======================================================================
 
 	Major changes between "less" versions 679 and 685
