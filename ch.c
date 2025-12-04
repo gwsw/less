@@ -906,7 +906,8 @@ public void ch_init(int f, int flags, ssize_t nread)
 		/* Normally have_read_data is called in ch_get when the first byte
 		 * of data is read, but if the file is empty we never call ch_get.
 		 * So we do it here when we open an empty file. Yuck. */
-		have_read_data();
+		if (flags & CH_CANSEEK)
+			have_read_data();
 	}
 
 	ch_flush();
