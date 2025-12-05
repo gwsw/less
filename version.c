@@ -1069,7 +1069,7 @@ v687  11/17/25  Disallow opening OSC8 link via mouse in secure mode;
                 add --autosave; make SIGHUP act like SIGTERM; add ESC-f.
 v688  11/28/25  Add LESSNOCONFIG; defer "ti" until first char received;
                 don't auto-bold line numbers.
-v689
+v689            Add prompt seqs %C, %W, %Q, ?Q.
 */
 
 char version[] = "689x";
