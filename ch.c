@@ -142,15 +142,6 @@ static POSITION ch_position(BLOCKNUM block, size_t offset)
 }
 
 /*
- * Called to indicate that we have read some file data
- * (or the file is empty so we won't ever read data).
- */
-static void have_read_data(void)
-{
-	term_init();
-}
-
-/*
  * Get the character pointed to by the read pointer.
  */
 static int ch_get(void)
