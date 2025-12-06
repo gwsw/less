@@ -1807,7 +1807,7 @@ If the completed filename is a directory, a "/" is appended to the filename.
 The environment variable LESSSEPARATOR can be used to specify a
 different character to append to a directory name.
 .IP "BACKTAB (SHIFT-TAB) [ ESC-TAB ]"
-Like, TAB, but cycles in the reverse direction thru the matching filenames.
+Like TAB, but cycles in the reverse direction thru the matching filenames.
 .IP "\*^L"
 Complete the partial filename to the left of the cursor.
 If it matches more than one filename, all matches are entered into
@@ -2526,7 +2526,9 @@ and the environment variable LESS_IS_MORE is not set to 0,
 behaves (mostly) in conformance with the POSIX 
 .BR more (1)
 command specification.
-In this mode, less behaves differently in these ways:
+In this mode,
+.B less
+behaves differently in these ways:
 .PP
 The \-e option works differently.
 If the \-e option is not set,
