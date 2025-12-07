@@ -638,6 +638,17 @@ static int mca_search_char(char c)
 }
 
 /*
+ * Jump back to the starting position of an incremental search.
+ */
+static void jump_search_incr_pos(void)
+{
+	if (search_incr_pos.pos == NULL_POSITION)
+		return;
+	hshift = search_incr_hshift;
+	jump_loc(search_incr_pos.pos, search_incr_pos.ln);
+}
+
+/*
  * Handle a character of a multi-character command.
  */
 static int mca_char(char c)
@@ -771,8 +782,7 @@ static int mca_char(char c)
 			{
 				/* User has backspaced to an empty pattern. */
 				undo_search(TRUE);
-				hshift = search_incr_hshift;
-				jump_loc(search_incr_pos.pos, search_incr_pos.ln);
+				jump_search_incr_pos();
 			} else
 			{
 				/*
@@ -785,8 +795,7 @@ static int mca_char(char c)
 				{
 					/* No match, invalid pattern, etc. */
 					undo_search(TRUE);
-					hshift = search_incr_hshift;
-					jump_loc(search_incr_pos.pos, search_incr_pos.ln);
+					jump_search_incr_pos();
 				}
 				no_poll = FALSE;
 			}
