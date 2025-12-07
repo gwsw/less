@@ -426,7 +426,6 @@ public void intio(void)
 public void have_read_data(void)
 {
 	any_data = TRUE;
-	term_init();
 }
 
 /*

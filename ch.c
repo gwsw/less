@@ -280,8 +280,6 @@ static int ch_get(void)
 		{
 			n = iread(ch_file, &bp->data[bp->datasize], LBUFSIZE - bp->datasize);
 		}
-		if (n >= 0)
-			have_read_data();
 
 		read_again = FALSE;
 		if (n == READ_INTR)
@@ -885,20 +883,14 @@ public void ch_init(int f, int flags, ssize_t nread)
 	 */
 	ch_fsize = (flags & CH_HELPFILE) ? size_helpdata : filesize(ch_file);
 
-	if (ch_fsize == 0)
+	if (ch_fsize == 0 && nread > 0)
 	{
 		/*
 		 * This is a kludge to workaround a Linux kernel bug: files in some
 		 * pseudo filesystems like /proc and tracefs have a size of 0 according
 		 * to fstat() but have readable data.
 		 */
-		if (nread > 0)
-			ch_flags |= CH_NOTRUSTSIZE;
-		/* Normally have_read_data is called in ch_get when the first byte
-		 * of data is read, but if the file is empty we never call ch_get.
-		 * So we do it here when we open an empty file. Yuck. */
-		if (flags & CH_CANSEEK)
-			have_read_data();
+		ch_flags |= CH_NOTRUSTSIZE;
 	}
 
 	ch_flush();
