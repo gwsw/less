@@ -70,7 +70,6 @@ public void scan_option(constant char *s, lbool is_env)
 	char *str;
 	lbool set_default;
 	lbool lc;
-	lbool ambig;
 	PARG parg;
 
 	if (s == NULL)
@@ -179,14 +178,20 @@ public void scan_option(constant char *s, lbool is_env)
 		 * Not a special case.
 		 * Look up the option letter in the option table.
 		 */
-		ambig = FALSE;
 		if (optname == NULL)
 		{
 			printopt = propt(optc);
 			lc = ASCII_IS_LOWER(optc);
 			o = findopt(optc);
+			if (o == NULL)
+			{
+				parg.p_string = printopt;
+				error("There is no %s option (\"less --help\" for help)", &parg);
+				return;
+			}
 		} else
 		{
+			lbool ambig = FALSE;
 			printopt = optname;
 			lc = ASCII_IS_LOWER(optname[0]);
 			o = findopt_name(&optname, NULL, &ambig);
@@ -208,7 +213,7 @@ public void scan_option(constant char *s, lbool is_env)
 				    (o->otype & OTYPE) != O_NUMBER)
 				{
 					parg.p_string = printopt;
-					error("The %s option should not be followed by =",
+					error("The --%s option should not be followed by =",
 						&parg);
 					return;
 				}
@@ -221,17 +226,15 @@ public void scan_option(constant char *s, lbool is_env)
 				 */
 				o = NULL;
 			}
-		}
-		if (o == NULL)
-		{
-			parg.p_string = printopt;
-			if (ambig)
-				error("--%s is an ambiguous abbreviation (\"less --help\" for help)",
-					&parg);
-			else
-				error("There is no %s option (\"less --help\" for help)",
-					&parg);
-			return;
+			if (o == NULL)
+			{
+				parg.p_string = printopt;
+				if (ambig)
+					error("--%s is an ambiguous abbreviation (\"less --help\" for help)", &parg);
+				else
+					error("There is no --%s option (\"less --help\" for help)", &parg);
+				return;
+			}
 		}
 
 		str = NULL;
