@@ -425,7 +425,9 @@ public void intio(void)
  */
 public void have_read_data(void)
 {
+#if USE_POLL
 	any_data = TRUE;
+#endif
 }
 
 /*

@@ -31,6 +31,7 @@ extern int is_tty;
 extern int oldbot;
 extern int utf_mode;
 extern char intr_char;
+extern lbool term_init_ever;
 
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;
@@ -416,7 +417,7 @@ public void flush(void)
 	ob = obuf;
 
 #if MSDOS_COMPILER==MSOFTC
-	if (interactive())
+	if (outfd == 1)
 	{
 		obuf[n] = '\0';
 		_outtext(obuf);
@@ -424,7 +425,7 @@ public void flush(void)
 	}
 #else
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
-	if (interactive())
+	if (outfd == 1)
 	{
 		ob = obuf + n;
 		*ob = '\0';
@@ -454,8 +455,17 @@ public void set_output(int fd)
 public int putchr(int ch)
 {
 	char c = (char) ch;
+
+	/*
+	 * Init the terminal if thiss is the first byte written to stdout
+	 * (rather than stderr), and the terminal has never been initted.
+	 * If it has previously been initted, it will be reinitted explicitly
+	 * as part of a term_deinit/term_init pair, so we shouldn't do it here.
+	 */
+	if (!term_init_ever && outfd == 1)
+		term_init();
+
 #if 0 /* fake UTF-8 output for testing */
-	extern int utf_mode;
 	if (utf_mode)
 	{
 		static char ubuf[MAX_UTF_CHAR_LEN];

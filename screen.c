@@ -259,6 +259,7 @@ static int attrcolor = -1;
 
 /* term_init has been called; terminal is ready for use by less */
 static lbool term_init_done = FALSE;
+public lbool term_init_ever = FALSE;
 
 public int auto_wrap;           /* Terminal does \r\n when write past margin */
 public int defer_wrap;          /* After printing char in last column, doesn't wrap until next char */
@@ -1953,7 +1954,7 @@ public void term_init(void)
 {
 	if (term_init_done)
 		return;
-	term_init_done = TRUE;
+	term_init_done = term_init_ever = TRUE;
 	clear_bot_if_needed();
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
@@ -2061,8 +2062,6 @@ public int interactive(void)
 
 static void assert_interactive(void)
 {
-	if (!interactive())
-		error("Internal error: terminal not initialized", NULL_PARG);
 }
 
 /*

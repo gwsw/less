@@ -78,6 +78,7 @@ extern int      errmsgs;
 extern int      redraw_on_quit;
 extern int      term_addrs;
 extern lbool    first_time;
+extern lbool    term_init_ever;
 
 #if MSDOS_COMPILER==WIN32C && (defined(__MINGW32__) || defined(_MSC_VER))
 /* malloc'ed 0-terminated utf8 of 0-terminated wide ws, or null on errors */
@@ -413,6 +414,7 @@ int main(int argc, constant char *argv[])
 		 * Just copy the input file(s) to output.
 		 */
 		set_output(1); /* write to stdout */
+		term_init_ever = TRUE; /* don't init terminal in putchr */
 		SET_BINARY(1);
 		if (edit_first() == 0)
 		{
@@ -497,7 +499,6 @@ int main(int argc, constant char *argv[])
 		putchr('\n');
 	}
 	set_output(1);
-	term_init();
 	commands();
 	quit(QUIT_OK);
 	/*NOTREACHED*/
