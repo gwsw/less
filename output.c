@@ -417,7 +417,7 @@ public void flush(void)
 	ob = obuf;
 
 #if MSDOS_COMPILER==MSOFTC
-	if (outfd == 1)
+	if (interactive())
 	{
 		obuf[n] = '\0';
 		_outtext(obuf);
@@ -425,7 +425,7 @@ public void flush(void)
 	}
 #else
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
-	if (outfd == 1)
+	if (interactive())
 	{
 		ob = obuf + n;
 		*ob = '\0';
