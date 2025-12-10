@@ -442,10 +442,12 @@ public void flush(void)
 /*
  * Set the output file descriptor (1=stdout or 2=stderr).
  */
-public void set_output(int fd)
+public void set_output(int fd, lbool before_init)
 {
 	flush();
 	outfd = fd;
+	if (before_init)
+		term_init_ever = TRUE; /* don't init terminal in putchr */
 }
 
 /*

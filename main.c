@@ -413,8 +413,7 @@ int main(int argc, constant char *argv[])
 		 * Output is not a tty.
 		 * Just copy the input file(s) to output.
 		 */
-		set_output(1); /* write to stdout */
-		term_init_ever = TRUE; /* don't init terminal in putchr */
+		set_output(1, TRUE); /* write to stdout */
 		SET_BINARY(1);
 		if (edit_first() == 0)
 		{
@@ -498,7 +497,7 @@ int main(int argc, constant char *argv[])
 		get_return();
 		putchr('\n');
 	}
-	set_output(1);
+	set_output(1, FALSE);
 	commands();
 	quit(QUIT_OK);
 	/*NOTREACHED*/

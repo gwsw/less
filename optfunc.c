@@ -548,7 +548,7 @@ public void opt__V(int type, constant char *s)
 		dispversion();
 		break;
 	case INIT:
-		set_output(1); /* Force output to stdout per GNU standard for --version output. */
+		set_output(1, TRUE); /* Force output to stdout per GNU standard for --version output. */
 		putstr("less ");
 		putstr(version);
 		putstr(" (");
