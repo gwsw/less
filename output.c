@@ -84,7 +84,7 @@ public void put_line(lbool forw_scroll)
 /*
  * win_flush has at least one non-critical issue when an escape sequence
  * begins at the last char of the buffer, and possibly more issues.
- * as a temporary measure to reduce likelyhood of encountering end-of-buffer
+ * as a temporary measure to reduce likelihood of encountering end-of-buffer
  * issues till the SGR parser is replaced, OUTBUF_SIZE is 8K on Windows.
  */
 static char obuf[OUTBUF_SIZE];
@@ -459,7 +459,7 @@ public int putchr(int ch)
 	char c = (char) ch;
 
 	/*
-	 * Init the terminal if thiss is the first byte written to stdout
+	 * Init the terminal if this is the first byte written to stdout
 	 * (rather than stderr), and the terminal has never been initted.
 	 * If it has previously been initted, it will be reinitted explicitly
 	 * as part of a term_deinit/term_init pair, so we shouldn't do it here.
