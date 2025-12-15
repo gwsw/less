@@ -109,7 +109,9 @@ two character sequence "ESCAPE", then "v".
 Help: display a summary of these commands.
 If you forget all the other commands, remember this one.
 .IP "SPACE or \*^V or f or \*^F"
-Scroll forward N lines, default one window (see option \-z below).
+Scroll forward N lines, default one window (see option
+.B \-z
+below).
 If N is more than the screen size, only the final screenful is displayed.
 Warning: some systems use \*^V as a special literalization character.
 .IP "z"
@@ -122,7 +124,9 @@ Scroll forward N lines, default one half of the screen size.
 If N is specified, it becomes the new default for
 subsequent d and u commands.
 .IP "b or \*^B or ESC-v"
-Scroll backward N lines, default one window (see option \-z below).
+Scroll backward N lines, default one window (see option
+.B "\-z"
+below).
 If N is more than the screen size, only the final screenful is displayed.
 .IP "w"
 Like ESC-v, but if N is specified, it becomes the new window size.
@@ -151,14 +155,20 @@ A file line is a complete line in the file, terminated by a newline.
 Scroll backwards N file lines, default 1.
 .IP "ESC-) or RIGHTARROW"
 Scroll horizontally right N characters, default half the screen width
-(see the \-# option).
+(see the
+.B "\-#"
+option).
 If a number N is specified, it becomes the default for future RIGHTARROW
 and LEFTARROW commands.
-While the text is scrolled, it acts as though the \-S option
+While the text is scrolled, it acts as though the
+.B "\-S"
+option
 (chop lines) were in effect.
 .IP "ESC-( or LEFTARROW"
 Scroll horizontally left N characters, default half the screen width
-(see the \-# option).
+(see the
+.B "\-#"
+option).
 If a number N is specified, it becomes the default for future RIGHTARROW
 and LEFTARROW commands.
 .IP "ESC-} or \*^RIGHTARROW or END"
@@ -187,8 +197,12 @@ while it is being viewed.
 To stop waiting for more data, enter the interrupt character (usually \*^C).
 On systems which support
 .BR poll (2)
-you can also use \*^X or the character specified by the \-\-intr option.
-If the input is a pipe and the \-\-exit\-follow\-on\-close option is in effect,
+you can also use \*^X or the character specified by the
+.B "\-\-intr"
+option.
+If the input is a pipe and the
+.B "\-\-exit\-follow\-on\-close"
+option is in effect,
 .B less
 will automatically stop waiting for data when the input side 
 of the pipe is closed.
@@ -254,7 +268,9 @@ go backward to the < which matches the > in the bottom displayed line.
 .IP m
 Followed by any lowercase or uppercase letter,
 marks the first displayed line with that letter.
-If the status column is enabled via the \-J option,
+If the status column is enabled via the
+.B "\-J"
+option,
 the status column shows the marked line.
 .IP M
 Acts like m, except the last displayed line is marked
@@ -270,7 +286,9 @@ file respectively.
 Marks are preserved when a new file is examined within a single invocation of
 .BR less ,
 so the \*' command can be used to switch between input files.
-The \-\-save\-marks option causes marks to be preserved across different invocations of
+The
+.B "\-\-save\-marks"
+option causes marks to be preserved across different invocations of
 .BR less .
 .IP "\*^X\*^X"
 Same as single quote.
@@ -283,9 +301,15 @@ N defaults to 1.
 The pattern is a regular expression, as recognized by
 the regular expression library supplied by your system.
 By default, searching is case-sensitive (uppercase and lowercase 
-are considered different); the \-i option can be used to change this.
+are considered different); the
+.B "\-i"
+option can be used to change this.
 The search starts at the first line displayed
-(but see the \-a and \-j options, which change this).
+(but see the
+.B "\-a"
+and
+.B "\-j"
+options, which change this).
 .IP
 Certain characters are special
 if entered at the beginning of the pattern;
@@ -302,7 +326,11 @@ the search continues in the next file in the command line list.
 Begin the search at the first line of the FIRST file
 in the command line list,
 regardless of what is currently displayed on the screen
-or the settings of the \-a or \-j options.
+or the settings of the
+.B "\-a"
+or
+.B "\-j"
+options.
 .IP "\*^K"
 Highlight any text which matches the pattern on the current screen,
 but don't move to the first match (KEEP current position).
@@ -335,7 +363,11 @@ even if it is one of the above search modifier characters.
 .IP ?pattern
 Search backward in the file for the N-th line containing the pattern.
 The search starts at the last line displayed
-(but see the \-a and \-j options, which change this).
+(but see the
+.B "\-a"
+and
+.B "\-j"
+options, which change this).
 .IP
 Certain characters are special as in the / command:
 .RS
@@ -350,7 +382,11 @@ the search continues in the previous file in the command line list.
 Begin the search at the last line of the last file
 in the command line list,
 regardless of what is currently displayed on the screen
-or the settings of the \-a or \-j options.
+or the settings of the
+.B "\-a"
+or
+.B "\-j"
+options.
 .IP "\*^K"
 As in forward searches.
 .IP "\*^R"
@@ -394,11 +430,15 @@ Turn off highlighting of strings matching the current search pattern.
 If highlighting is already off because of a previous ESC-u command,
 turn highlighting back on.
 Any search command will also turn highlighting back on.
-(Highlighting can also be disabled by toggling the \-G option;
+(Highlighting can also be disabled by toggling the
+.B "\-G"
+option;
 in that case search commands do not turn highlighting back on.)
 .IP "ESC-U"
 Like ESC-u but also clears the saved search pattern.
-If the status column is enabled via the \-J option,
+If the status column is enabled via the
+.B "\-J"
+option,
 this clears all search matches marked in the status column.
 .IP "&pattern"
 Display only lines which match the pattern;
@@ -437,7 +477,9 @@ If the filename consists of several files, they are all inserted into
 the list of files and the first one is examined.
 If the filename contains one or more spaces,
 the entire filename should be enclosed in double quotes
-(also see the \-" option).
+(also see the
+.B "\-\[dq]"
+option).
 .IP "\*^X\*^V or E"
 Same as :e.
 Warning: some systems use \*^V as a special literalization character.
@@ -455,7 +497,9 @@ If a number N is specified, the N-th file in the list is examined.
 Remove the current file from the list of files.
 .IP "t"
 Go to the next tag, if there were more than one matches for the current tag.
-See the \-t option for more details about tags.
+See the
+.B "\-t"
+option for more details about tags.
 .IP "T"
 Go to the previous tag, if there were more than one matches for the current tag.
 .IP "\*^O\*^N or \*^On"
@@ -477,8 +521,16 @@ this will change the setting of that option
 and print a message describing the new setting.
 If a \*^P (CONTROL-P) is entered immediately after the dash,
 the setting of the option is changed but no message is printed.
-If the option letter has a numeric value (such as \-b or \-h),
-or a string value (such as \-P or \-t),
+If the option letter has a numeric value (such as
+.B "\-b"
+or
+.BR "\-h" "),"
+
+or a string value (such as
+.B "\-P"
+or
+.BR "\-t" "),"
+
 a new value may be entered after the option letter.
 If no new value is entered, a message describing
 the current setting is printed and nothing is changed.
@@ -495,7 +547,9 @@ Followed by one of the command line option letters
 this will reset the option to its default setting
 and print a message describing the new setting.
 (The "\-+\fIX\fP" command does the same thing
-as "\-+\fIX\fP" on the command line.)
+as
+.RB "\[dq]" "\-+X" "\[dq]"
+on the command line.)
 This does not work for string-valued options.
 .IP \-\-+
 Like the \-+ command, but takes a long option name
@@ -647,7 +701,9 @@ This may cause
 .B less
 to think that the file ends at the current position,
 so it may be necessary to use the R or F command to see more data.
-The \-\-intr option can be used to specify a different character
+The
+.B "\-\-intr"
+option can be used to specify a different character
 to use instead of \*^X.
 This command works only on systems that support the
 .BR poll (2)
@@ -667,13 +723,30 @@ either a dash followed by a single letter,
 or two dashes followed by a long option name.
 A long option name may be abbreviated as long as
 the abbreviation is unambiguous.
-For example, \-\-mouse may be abbreviated \-\-mou, but not
-\-\-mo, since both \-\-mouse and \-\-modelines begin with \-\-mo.
-Some long option names are in uppercase, such as \-\-QUIT\-AT\-EOF, as
-distinct from \-\-quit\-at\-eof.
+For example,
+.B "\-\-mouse"
+may be abbreviated
+.BR "\-\-mou" ","
+but not
+.BR "\-\-mo" ","
+since both
+.B "\-\-mouse"
+and
+.B "\-\-modelines"
+begin with
+.BR "\-\-mo" "."
+
+Some long option names are in uppercase, such as
+.BR "\-\-QUIT\-AT\-EOF" ","
+as
+distinct from
+.BR "\-\-quit\-at\-eof" "."
 Such option names need only have their first letter capitalized;
 the remainder of the name may be in either case.
-For example, \-\-Quit\-at\-eof is equivalent to \-\-QUIT\-AT\-EOF.
+For example,
+.B "\-\-Quit\-at\-eof"
+is equivalent to
+.BR "\-\-QUIT\-AT\-EOF" "."
 .PP
 Options are also taken from the environment variable "LESS".
 For example,
@@ -697,39 +770,54 @@ The environment variable is parsed before the command line,
 so command line options override the LESS environment variable.
 If an option appears in the LESS variable, it can be reset
 to its default value on the command line by beginning the command
-line option with "\-+".
+line option with
+.RB "\[dq]" "\-+" "\[dq]."
 .PP
-Some options like \-k or \-D require a string to follow the option letter.
+Some options like
+.B "\-k"
+or
+.B "\-D"
+require a string to follow the option letter.
 The string for that option is considered to end when a dollar sign ($) is found.
-For example, you can set two \-D options like this:
+For example, you can set two
+.B "\-D"
+options like this:
 .PP
 .EX
 LESS="Dnwb$Dsbw"
 .EE
 .PP
-If the \-\-use\-backslash option appears earlier in the options, then
+If the
+.B "\-\-use\-backslash"
+option appears earlier in the options, then
 a dollar sign or backslash may be included literally in an option string
 by preceding it with a backslash.
-If the \-\-use\-backslash option is not in effect, then backslashes are
+If the
+.B "\-\-use\-backslash"
+option is not in effect, then backslashes are
 not treated specially, and there is no way to include a dollar sign
 in the option string.
-.IP "\-? or \-\-help"
+.IP "\fB\-?\fP or \fB\-\-help\fP"
 This option displays a summary of the commands accepted by
 .B less
 (the same as the h command).
 (Depending on how your shell interprets the question mark,
-it may be necessary to quote the question mark, thus: "\-\e?".)
-.IP "\-a or \-\-search\-skip\-screen"
+it may be necessary to quote the question mark, thus: "\fB\-\e?\fP".)
+.IP "\fB\-a\fP or \fB\-\-search\-skip\-screen\fP"
 By default, forward searches start at the top of the displayed screen
 and backwards searches start at the bottom of the displayed screen
 (except for repeated searches invoked by the n or N commands,
 which start after or before the "target" line respectively;
-see the \-j option for more about the target line).
-The \-a option causes forward searches to instead start at
+see the
+.B "\-j"
+option for more about the target line).
+The
+.B "\-a"
+option causes forward searches to instead start at
 the bottom of the screen
 and backward searches to start at the top of the screen,
 thus skipping all lines displayed on the screen.
-.IP "\-A or \-\-SEARCH\-SKIP\-SCREEN"
+.IP "\fB\-A\fP or \fB\-\-SEARCH\-SKIP\-SCREEN\fP"
 Causes all forward searches (not just non-repeated searches)
 to start just after the target line, and all backward searches
 to start just before the target line.
@@ -738,45 +826,61 @@ Thus, forward searches will skip part of the displayed screen
 Similarly backwards searches will skip the displayed screen
 from the last line up to and including the target line.
 This was the default behavior in less versions prior to 441.
-.IP "\-b\fIn\fP or \-\-buffers=\fIn\fP"
+.IP "\fB\-b\fP\fIn\fP or \fB\-\-buffers=\fP\fIn\fP"
 Specifies the amount of buffer space
 .B less
 will use for each file, in units of kilobytes (1024 bytes).
 By default 64\ KB of buffer space is used for each file
-(unless the file is a pipe; see the \-B option).
-The \-b option specifies instead that \fIn\fP kilobytes of
+(unless the file is a pipe; see the
+.B "\-B"
+option).
+The
+.B "\-b"
+option specifies instead that \fIn\fP kilobytes of
 buffer space should be used for each file.
 If \fIn\fP is \-1, buffer space is unlimited; that is,
 the entire file can be read into memory.
-.IP "\-B or \-\-auto\-buffers"
+.IP "\fB\-B\fP or \fB\-\-auto\-buffers\fP"
 By default, when data is read from a pipe,
 buffers are allocated automatically as needed.
 If a large amount of data is read from the pipe, this can cause
 a large amount of memory to be allocated.
-The \-B option disables this automatic allocation of buffers for pipes,
+The
+.B "\-B"
+option disables this automatic allocation of buffers for pipes,
 so that only 64\ KB
-(or the amount of space specified by the \-b option)
+(or the amount of space specified by the
+.B "\-b"
+option)
 is used for the pipe.
-Warning: use of \-B can result in erroneous display, since only the
+Warning: use of
+.B "\-B"
+can result in erroneous display, since only the
 most recently viewed part of the piped data is kept in memory;
 any earlier data is lost.
 Lost characters are displayed as question marks.
-.IP "\-c or \-\-clear\-screen"
+.IP "\fB\-c\fP or \fB\-\-clear\-screen\fP"
 Causes full screen repaints to be painted from the top line down.
 By default,
 full screen repaints are done by scrolling from the bottom of the screen.
-.IP "\-C or \-\-CLEAR\-SCREEN"
-Same as \-c, for compatibility with older versions of
+.IP "\fB\-C\fP or \fB\-\-CLEAR\-SCREEN\fP"
+Same as
+.BR "\-c" ","
+for compatibility with older versions of
 .BR less .
-.IP "\-d or \-\-dumb"
-The \-d option suppresses the error message
+.IP "\fB\-d\fP or \fB\-\-dumb\fP"
+The
+.B "\-d"
+option suppresses the error message
 normally displayed if the terminal is dumb;
 that is, lacks some important capability,
 such as the ability to clear the screen or scroll backward.
-The \-d option does not otherwise change the behavior of
+The
+.B "\-d"
+option does not otherwise change the behavior of
 .B less
 on a dumb terminal.
-.IP "\-D\fBx\fP\fIcolor\fP or \-\-color=\fBx\fP\fIcolor\fP"
+.IP "\fB\-Dx\fP\fIcolor\fP or \fB\-\-color=x\fP\fIcolor\fP"
 Changes the color of different parts of the displayed text.
 \fBx\fP is a single character which selects the type of text 
 whose color is being set:
@@ -788,11 +892,15 @@ Control characters.
 .IP "E"
 Errors and informational messages.
 .IP "H"
-Header lines and columns, set via the \-\-header option.
+Header lines and columns, set via the
+.B "\-\-header"
+option.
 .IP "M"
 Mark letters in the status column.
 .IP "N"
-Line numbers enabled via the \-N option.
+Line numbers enabled via the
+.B "\-N"
+option.
 .IP "P"
 Prompts.
 .IP "R"
@@ -800,7 +908,9 @@ The rscroll character.
 .IP "S"
 Search results.
 .IP "W"
-The highlight enabled via the \-w option.
+The highlight enabled via the
+.B "\-w"
+option.
 .IP "1\-5"
 The text in a search result which matches
 the first through fifth parenthesized sub-pattern.
@@ -819,23 +929,33 @@ Underlined text.
 .RE
 .PP
 .RS
-The uppercase letters and digits can be used only when the \-\-use\-color option is enabled.
+The uppercase letters and digits can be used only when the
+.B "\-\-use\-color"
+option is enabled.
 When text color is specified by both an uppercase letter and a lowercase letter,
 the uppercase letter takes precedence. 
 For example, error messages are normally displayed as standout text.
 So if both "s" and "E" are given a color, the "E" color applies
 to error messages, and the "s" color applies to other standout text.
 The lowercase letters refer to bold and underline text formed by 
-overstriking with backspaces (see the \-U option) and to non-content
+overstriking with backspaces (see the
+.B "\-U"
+option) and to non-content
 text (such as line numbers and prompts), 
-but not to text formatted using ANSI escape sequences with the \-R option
+but not to text formatted using ANSI escape sequences with the
+.B "\-R"
+option
 (but see the note below for different behavior on Windows and MS-DOS).
 .PP
 A lowercase letter may be followed by a + to indicate that
 the normal format change and the specified color should both be used.
-For example, \-Dug displays underlined text as green without underlining;
+For example,
+.B "\-Dug"
+displays underlined text as green without underlining;
 the green color has replaced the usual underline formatting.
-But \-Du+g displays underlined text as both green and in underlined format.
+But
+.B "\-Du+g"
+displays underlined text as both green and in underlined format.
 .PP
 \fIcolor\fP is either a 4-bit color string or an 8-bit color string:
 .PP
@@ -860,8 +980,12 @@ White
 Yellow
 .PP
 The corresponding uppercase letter denotes a brighter shade of the color.
-For example, \-DNGk displays line numbers as bright green text on a black 
-background, and \-DEbR displays error messages as blue text on a 
+For example,
+.B "\-DNGk"
+displays line numbers as bright green text on a black 
+background, and
+.B "\-DEbR"
+displays error messages as blue text on a 
 bright red background.
 If either character is a "\-" or is omitted, the corresponding color 
 is set to that of normal text.
@@ -888,15 +1012,19 @@ Bold
 .IP "l or &"
 Blinking
 .PP
-On MS-DOS and Windows, the \-\-color option behaves
+On MS-DOS and Windows, the
+.B "\-\-color"
+option behaves
 differently from what is described above in these ways:
 .IP \(bu
 The bold (d and *) and blinking (l and &) text attributes
 at the end of a color string are not supported.
 .IP \(bu
 Lowercase color selector letters refer to text formatted by ANSI
-escape sequences with \-R,
-in addition to overstruck and non-content text (but see \-Da).
+escape sequences with
+.BR "\-R" ","
+in addition to overstruck and non-content text (but see
+.BR "\-Da" ")."
 .IP \(bu
 For historical reasons, when a lowercase color selector letter 
 is followed by a numeric color value,
@@ -920,15 +1048,19 @@ are not supported on systems earlier than Windows 10.
 Only a limited set of ANSI escape sequences to set color in the content work correctly.
 4-bit color sequences work, but "CSI 38;5" color sequences do not.
 .IP \(bu
-The \-Da option makes the behavior of \-\-color 
+The
+.B "\-Da"
+option makes the behavior of
+.B "\-\-color"
 more similar to its behavior on non-MS-DOS/Windows systems by (1)
 making lowercase color selector letters not affect text formatted
 with ANSI escape sequences, and (2)
 allowing "CSI 38;5" color sequences in the content
 work by passing them to the terminal (only on Windows 10 and later; on
-earlier Windows systems, such sequences do not work regardless of the setting of \-Da).
+earlier Windows systems, such sequences do not work regardless of the setting of
+.BR "\-Da" ")."
 .RE
-.IP "\-e or \-\-quit\-at\-eof"
+.IP "\fB\-e\fP or \fB\-\-quit\-at\-eof\fP"
 Causes
 .B less
 to automatically exit
@@ -936,11 +1068,11 @@ the second time it reaches end-of-file.
 By default, the only way to exit
 .B less
 is via the "q" command.
-.IP "\-E or \-\-QUIT\-AT\-EOF"
+.IP "\fB\-E\fP or \fB\-\-QUIT\-AT\-EOF\fP"
 Causes
 .B less
 to automatically exit the first time it reaches end-of-file.
-.IP "\-f or \-\-force"
+.IP "\fB\-f\fP or \fB\-\-force\fP"
 Forces non-regular files to be opened.
 (A non-regular file is a directory or a device special file.)
 Also suppresses the warning message when a binary file is opened.
@@ -948,41 +1080,49 @@ By default,
 .B less
 will refuse to open non-regular files.
 Note that some operating systems will not allow directories
-to be read, even if \-f is set.
-.IP "\-F or \-\-quit\-if\-one\-screen"
+to be read, even if
+.B "\-f"
+is set.
+.IP "\fB\-F\fP or \fB\-\-quit\-if\-one\-screen\fP"
 Causes
 .B less
 to automatically exit
 if the entire file can be displayed on the first screen.
 Also see the description of the LESS_SHELL_LINES environment variable below.
-.IP "\-g or \-\-hilite\-search"
+.IP "\fB\-g\fP or \fB\-\-hilite\-search\fP"
 Normally,
 .B less
 will highlight ALL strings which match the last search command.
-The \-g option changes this behavior to highlight only the particular string
+The
+.B "\-g"
+option changes this behavior to highlight only the particular string
 which was found by the last search command.
 This can cause
 .B less
 to run somewhat faster than the default.
-.IP "\-G or \-\-HILITE\-SEARCH"
+.IP "\fB\-G\fP or \fB\-\-HILITE\-SEARCH\fP"
 The \-G option suppresses all highlighting of strings found by search commands.
-.IP "\-h\fIn\fP or \-\-max\-back\-scroll=\fIn\fP"
+.IP "\fB\-h\fP\fIn\fP or \fB\-\-max\-back\-scroll=\fP\fIn\fP"
 Specifies a maximum number of lines to scroll backward.
 If it is necessary to scroll backward more than \fIn\fP lines,
 the screen is repainted in a forward direction instead.
 (If the terminal does not have the ability to scroll
-backward, \-h0 is implied.)
-.IP "\-i or \-\-ignore\-case"
+backward,
+.B "\-h0"
+is implied.)
+.IP "\fB\-i\fP or \fB\-\-ignore\-case\fP"
 Causes searches to ignore case; that is,
 uppercase and lowercase are considered identical.
 This option is ignored if any uppercase letters
 appear in the search pattern;
 in other words,
 if a pattern contains uppercase letters, then that search does not ignore case.
-.IP "\-I or \-\-IGNORE\-CASE"
-Like \-i, but searches ignore case even if
+.IP "\fB\-I\fP or \fB\-\-IGNORE\-CASE\fP"
+Like
+.BR "\-i" ","
+but searches ignore case even if
 the pattern contains uppercase letters.
-.IP "\-j\fIn\fP or \-\-jump\-target=\fIn\fP"
+.IP "\fB\-j\fP\fIn\fP or \fB\-\-jump\-target=\fP\fIn\fP"
 Specifies a line on the screen where the "target" line
 is to be positioned.
 The target line is the line specified by any command to
@@ -998,28 +1138,40 @@ of the screen, starting with a decimal point: \&.5 is in the middle of the
 screen, \&.3 is three tenths down from the first line, and so on.
 If the line is specified as a fraction, the actual line number
 is recalculated if the terminal window is resized.
-If the \-\-header option is used and the target line specified by \-j
+If the
+.B "\-\-header"
+option is used and the target line specified by
+.B "\-j"
 would be obscured by the header, the target line is moved to the first
 line after the header.
 .RS
 .PP
-If any form of the \-j option is used,
+If any form of the
+.B "\-j"
+option is used,
 repeated forward searches (invoked with "n" or "N")
 begin at the line immediately after the target line,
 and repeated backward searches begin at the target line,
-unless changed by \-a or \-A.
-For example, if "\-j4" is used, the target line is the
+unless changed by
+.B "\-a"
+or
+.BR "\-A" "."
+For example, if
+.RB "\[dq]" "\-j4" "\[dq]"
+is used, the target line is the
 fourth line on the screen, so forward searches begin at the fifth line
 on the screen.
 However nonrepeated searches (invoked with "/" or "?")
 always begin at the first or last line on the screen respectively.
 .RE
-.IP "\-J or \-\-status\-column"
+.IP "\fB\-J\fP or \fB\-\-status\-column\fP"
 Displays a status column at the left edge of the screen.
 The character displayed in the status column may be one of:
 .RS
 .IP ">"
-The line is chopped with the \-S option, and 
+The line is chopped with the
+.B "\-S"
+option, and 
 the text that is chopped off beyond the right edge of the screen
 contains a match for the current search.
 .IP "<"
@@ -1036,22 +1188,28 @@ but none to the right or left of it.
 The line has been marked with the corresponding letter via the m or M command.
 .IP "#"
 The line has been marked by left-clicking it with the mouse
-when the \-\-mouse option is in effect.
+when the
+.B "\-\-mouse"
+option is in effect.
 .RE
-.IP "\-k\fIfilename\fP or \-\-lesskey\-file=\fIfilename\fP"
+.IP "\fB\-k\fP\fIfilename\fP or \fB\-\-lesskey\-file=\fP\fIfilename\fP"
 Causes
 .B less
 to open and interpret the named file as a
 .BR lesskey (1)
 binary file.
-Multiple \-k options may be specified.
+Multiple
+.B "\-k"
+options may be specified.
 If the LESSKEY or LESSKEY_SYSTEM environment variable is set, or
 if a lesskey file is found in a standard place (see KEY BINDINGS),
 it is also used as a
 .B lesskey
 file.
-Note the warning under "\-\-lesskey\-content" below.
-.IP "\-\-lesskey\-src=\fIfilename\fP"
+Note the warning under
+.B "\-\-lesskey\-content"
+below.
+.IP "\fB\-\-lesskey\-src=\fP\fIfilename\fP"
 Causes
 .B less
 to open and interpret the named file as a 
@@ -1073,8 +1231,10 @@ Newer versions of
 .B less
 read the lesskey source
 file directly and ignore the binary file if the source file exists.
-Note the warning under "\-\-lesskey\-content" below.
-.IP "\-\-lesskey\-content=\fItext\fP"
+Note the warning under
+.B "\-\-lesskey\-content"
+below.
+.IP "\fB\-\-lesskey\-content=\fP\fItext\fP"
 Causes
 .B less
 to interpret the specified text as the contents of a
@@ -1089,13 +1249,14 @@ Warning: certain environment variables such as
 LESS, LESSSECURE, LESSCHARSET and others,
 which are used early in startup, 
 cannot be set in a file specified by a command line option
-(\-\-lesskey, \-\-lesskey\-src or \-\-lesskey\-content).  When using a
+.RB "(" "\-\-lesskey" "," "\-\-lesskey\-src" " or " "\-\-lesskey\-content" ")."
+When using a
 .B lesskey
 file to set environment variables, it is safer to use the
 default lesskey file, or to specify the file using the
 LESSKEYIN or LESSKEY_CONTENT environment variables rather than using 
 a command line option.
-.IP "\-K or \-\-quit\-on\-intr"
+.IP "\fB\-K\fP or \fB\-\-quit\-on\-intr\fP"
 Causes
 .B less
 to exit immediately (with status 2)
@@ -1105,14 +1266,14 @@ Normally, an interrupt character causes
 to stop whatever it is doing and return to its command prompt.
 Note that use of this option makes it impossible to return to the
 command prompt from the "F" command.
-.IP "\-L or \-\-no\-lessopen"
+.IP "\fB\-L\fP or \fB\-\-no\-lessopen\fP"
 Ignore the LESSOPEN environment variable
 (see the INPUT PREPROCESSOR section below).
 This option can be set from within
 .BR less ,
 but it will apply only to files opened subsequently, not to the
 file which is currently open.
-.IP "\-m or \-\-long\-prompt"
+.IP "\fB\-m\fP or \fB\-\-long\-prompt\fP"
 Causes
 .B less
 to prompt verbosely (like 
@@ -1121,12 +1282,12 @@ with the percent into the file.
 By default,
 .B less
 prompts with a colon.
-.IP "\-M or \-\-LONG\-PROMPT"
+.IP "\fB\-M\fP or \fB\-\-LONG\-PROMPT\fP"
 Causes
 .B less
 to prompt even more verbosely than
 .BR more (1).
-.IP "\-n or \-\-line\-numbers"
+.IP "\fB\-n\fP or \fB\-\-line\-numbers\fP"
 Suppresses line numbers.
 The default (to use line numbers) may cause
 .B less
@@ -1135,10 +1296,10 @@ Using line numbers means: the line number will be displayed in the verbose
 prompt and in the = command,
 and the v command will pass the current line number to the editor
 (see also the discussion of LESSEDIT in PROMPTS below).
-.IP "\-N or \-\-LINE\-NUMBERS"
+.IP "\fB\-N\fP or \fB\-\-LINE\-NUMBERS\fP"
 Causes a line number to be displayed at the beginning of
 each line in the display.
-.IP "\-o\fIfilename\fP or \-\-log\-file=\fIfilename\fP"
+.IP "\fB\-o\fP\fIfilename\fP or \fB\-\-log\-file=\fP\fIfilename\fP"
 Causes
 .B less
 to copy its input to the named file as it is being viewed.
@@ -1147,24 +1308,34 @@ not an ordinary file.
 If the file already exists,
 .B less
 will ask for confirmation before overwriting it.
-.IP "\-O\fIfilename\fP or \-\-LOG\-FILE=\fIfilename\fP"
-The \-O option is like \-o, but it will overwrite an existing
+.IP "\fB\-O\fP\fIfilename\fP or \fB\-\-LOG\-FILE=\fP\fIfilename\fP"
+The
+.B "\-O"
+option is like
+.B "\-o,"
+but it will overwrite an existing
 file without asking for confirmation.
 .IP
 If no log file has been specified,
-the \-o and \-O options can be used from within
+the
+.B "\-o"
+and
+.B "\-O"
+options can be used from within
 .B less
 to specify a log file.
 Without a file name, they will simply report the name of the log file.
-The "s" command is equivalent to specifying \-o from within
+The "s" command is equivalent to specifying
+.B "\-o"
+from within
 .BR less .
-.IP "\-p\fIpattern\fP or \-\-pattern=\fIpattern\fP"
+.IP "\fB\-p\fP\fIpattern\fP or \fB\-\-pattern=\fP\fIpattern\fP"
 The \-p option on the command line is equivalent to
 specifying +/\fIpattern\fP;
 that is, it tells
 .B less
 to start at the first occurrence of \fIpattern\fP in the file.
-.IP "\-P\fIprompt\fP or \-\-prompt=\fIprompt\fP"
+.IP "\fB\-P\fP\fIprompt\fP or \fB\-\-prompt=\fP\fIprompt\fP"
 Provides a way to tailor the three prompt
 styles to your own preference.
 This option would normally be put in the LESS environment
@@ -1176,30 +1347,34 @@ or be terminated by a dollar sign.
 .PP
 .RS
 .TP
-\-Ps
+\fB\-Ps\fP
 followed by a string changes the default (short) prompt
 to that string.
 .TP
-\-Pm
-changes the medium (\-m) prompt.
+\fB\-Pm\fP
+changes the medium
+.RB "(" "\-m" ")"
+prompt.
 .TP
-\-PM
-changes the long (\-M) prompt.
+\fB\-PM\fP
+changes the long
+.RB "(" "\-M" ")"
+prompt.
 .TP
-\-Ph
+\fB\-Ph\fP
 changes the prompt for the help screen.
 .TP
-\-P=
+\fB\-P=\fP
 changes the message printed by the = command.
 .TP
-\-Pw
+\fB\-Pw\fP
 changes the message printed while waiting for data (in the "F" command).
 .RE
 .IP
 All prompt strings consist of a sequence of
 letters and special escape sequences.
 See the section on PROMPTS for more details.
-.IP "\-q or \-\-quiet or \-\-silent"
+.IP "\fB\-q\fP or \fB\-\-quiet\fP or \fB\-\-silent\fP"
 Causes moderately "quiet" operation:
 the terminal bell is not rung
 if an attempt is made to scroll past the end of the file
@@ -1208,17 +1383,21 @@ If the terminal has a "visual bell", it is used instead.
 The bell will be rung on certain other errors,
 such as typing an invalid character.
 The default is to ring the terminal bell in all such cases.
-.IP "\-Q or \-\-QUIET or \-\-SILENT"
+.IP "\fB\-Q\fP or \fB\-\-QUIET\fP or \fB\-\-SILENT\fP"
 Causes totally "quiet" operation:
 the terminal bell is never rung.
 If the terminal has a "visual bell", it is used in all cases
 where the terminal bell would have been rung.
-.IP "\-r or \-\-raw\-control\-chars"
+.IP "\fB\-r\fP or \fB\-\-raw\-control\-chars\fP"
 Causes "raw" control characters to be displayed.
 The default is to display control characters using the caret notation;
 for example, a control-A (octal 001) is displayed as "\*^A"
-(with some exceptions as described under the \-U option).
-Warning: when the \-r option is used,
+(with some exceptions as described under the
+.B "\-U"
+option).
+Warning: when the
+.B "\-r"
+option is used,
 .B less
 cannot keep track of the actual appearance of the screen
 (since this depends on how the screen responds to
@@ -1226,15 +1405,26 @@ each type of control character).
 Thus, various display problems may result,
 such as long lines being split in the wrong place.
 .IP
-USE OF THE \-r OPTION IS DANGEROUS AND IS NOT RECOMMENDED.
+USE OF THE
+.B "\-r"
+OPTION IS DANGEROUS AND IS NOT RECOMMENDED.
 .br
-The \-r option can be set on the command line or via the \- command, 
+The
+.B "\-r"
+option can be set on the command line or via the \- command, 
 but to avoid unintentional use, it cannot be set in a LESS environment variable.
-If \-r appears in a LESS environment variable, it is treated as if it were \-R.
-.IP "\-R or \-\-RAW\-CONTROL\-CHARS"
-Like \-r, but only a limited set of escape 
+If
+.B "\-r"
+appears in a LESS environment variable, it is treated as if it were
+.BR "\-R" "."
+.IP "\fB\-R\fP or \fB\-\-RAW\-CONTROL\-CHARS\fP"
+Like
+.BR "\-r" ","
+but only a limited set of escape 
 sequences are output in "raw" form.
-Unlike \-r, the screen appearance is maintained correctly.
+Unlike
+.BR "\-r" ","
+the screen appearance is maintained correctly.
 The sequences which are output raw are:
 .IP
 1. ANSI SGR ("color") sequences
@@ -1280,23 +1470,31 @@ OSC sequences are of the form:
 where the OSC type number N is a decimal integer.
 The terminating sequence may be either a BEL character (\e7)
 as above, or the two-character sequence "ESC \e".
-.IP "\-s or \-\-squeeze\-blank\-lines"
+.IP "\fB\-s\fP or \fB\-\-squeeze\-blank\-lines\fP"
 Causes consecutive blank lines to be squeezed into a single blank line.
 This is useful when viewing
 .BR nroff (1)
 output.
-.IP "\-S or \-\-chop\-long\-lines"
+.IP "\fB\-S\fP or \fB\-\-chop\-long\-lines\fP"
 Causes lines longer than the screen width to be
 chopped (truncated) rather than wrapped.
 That is, the portion of a long line that does not fit in
 the screen width is not displayed until you press RIGHT-ARROW.
 The default is to wrap long lines; that is, display the remainder
 on the next line.
-See also the \-\-wordwrap option.
-While the \-\-header option is active, the \-S option is ignored,
+See also the
+.B "\-\-wordwrap"
+option.
+While the
+.B "\-\-header"
+option is active, the
+.B "\-S"
+option is ignored,
 and lines longer than the screen width are truncated.
-.IP "\-t\fItag\fP or \-\-tag=\fItag\fP"
-The \-t option, followed immediately by a TAG,
+.IP "\fB\-t\fP\fItag\fP or \fB\-\-tag=\fP\fItag\fP"
+The
+.B "\-t"
+option, followed immediately by a TAG,
 will edit the file containing that tag.
 For this to work, tag information must be available;
 for example, there may be a file in the current directory called "tags",
@@ -1311,22 +1509,32 @@ and that command is executed to find the tag.
 .nh
 http://\*:www\*:.gnu\*:.org/\*:software/\*:global/\*:global\*:.html).
 .hy
-The \-t option may also be specified from within
+The
+.B "\-t"
+option may also be specified from within
 .B less
 (using the \- command) as a way of examining a new file.
-The command ":t" is equivalent to specifying \-t from within
+The command ":t" is equivalent to specifying
+.B "\-t"
+from within
 .BR less .
-.IP "\-T\fItagsfile\fP or \-\-tag\-file=\fItagsfile\fP"
+.IP "\fB\-T\fP\fItagsfile\fP or \fB\-\-tag\-file=\fP\fItagsfile\fP"
 Specifies a tags file to be used instead of "tags".
-.IP "\-u or \-\-underline\-special"
+.IP "\fB\-u\fP or \fB\-\-underline\-special\fP"
 Causes backspaces and carriage returns to be treated as printable characters;
 that is, they are sent to the terminal when they appear in the input.
-.IP "\-U or \-\-UNDERLINE\-SPECIAL"
+.IP "\fB\-U\fP or \fB\-\-UNDERLINE\-SPECIAL\fP"
 Causes backspaces, tabs, carriage returns and "formatting characters"
 (as defined by Unicode) to be treated as control characters;
-that is, they are handled as specified by the \-r option.
+that is, they are handled as specified by the
+.B "\-r"
+option.
 .IP
-By default, if neither \-u nor \-U is given,
+By default, if neither
+.B "\-u"
+nor
+.B "\-U"
+is given,
 backspaces which appear adjacent to an underscore character
 are treated specially:
 the underlined text is displayed
@@ -1337,55 +1545,76 @@ the overstruck text is printed
 using the terminal's hardware boldface capability.
 Other backspaces are deleted, along with the preceding character.
 Carriage returns immediately followed by a newline are deleted.
-Other carriage returns are handled as specified by the \-r option.
+Other carriage returns are handled as specified by the
+.B "\-r"
+option.
 Unicode formatting characters, such as the Byte Order Mark,
 are sent to the terminal.
 Text which is overstruck or underlined can be searched for
-if neither \-u nor \-U is in effect.
+if neither
+.B "\-u"
+nor
+.B "\-U"
+is in effect.
 .IP
-See also the \-\-proc\-backspace, \-\-proc\-tab,
-and \-\-proc\-return options.
-.IP "\-V or \-\-version"
+See also the
+.BR "\-\-proc\-backspace" "," "\-\-proc\-tab" ", and " "\-\-proc\-return"
+options.
+.IP "\fB\-V\fP or \fB\-\-version\fP"
 Displays the version number of
 .BR less .
-.IP "\-w or \-\-hilite\-unread"
+.IP "\fB\-w\fP or \fB\-\-hilite\-unread\fP"
 Temporarily highlights the first "new" line after a forward movement
 of a full page.
 The first "new" line is the line immediately following the line previously
 at the bottom of the screen.
 Also highlights the target line after a g or p command.
 The highlight is removed at the next command which causes movement.
-If the \-\-status\-line option is in effect, the entire line
+If the
+.B "\-\-status\-line"
+option is in effect, the entire line
 (the width of the screen) is highlighted.
 Otherwise, only the text in the line is highlighted,
-unless the \-J option is in effect,
+unless the
+.B "\-J"
+option is in effect,
 in which case only the status column is highlighted.
-.IP "\-W or \-\-HILITE\-UNREAD"
-Like \-w, but temporarily highlights the first new line after any
+.IP "\fB\-W\fP or \fB\-\-HILITE\-UNREAD\fP"
+Like
+.BR "\-w" ","
+but temporarily highlights the first new line after any
 forward movement command larger than one line.
-.IP "\-x\fIn\fP,...\& or \-\-tabs=\fIn\fP,..."
+.IP "\fB\-x\fP\fIn\fP,...\& or \fB\-\-tabs=\fP\fIn\fP,..."
 Sets tab stops.
 If only one \fIn\fP is specified, tab stops are set at multiples of \fIn\fP.
 If multiple values separated by commas are specified, tab stops
 are set at those positions, and then continue with the same spacing as the
 last two.
-For example, "\-x9,17" will set tabs at positions 9, 17, 25, 33, etc.
+For example,
+.RB "\[dq]" "\-x9,17" "\[dq]"
+will set tabs at positions 9, 17, 25, 33, etc.
 The default for \fIn\fP is 8.
-.IP "\-X or \-\-no\-init"
+.IP "\fB\-X\fP or \fB\-\-no\-init\fP"
 Disables sending the termcap initialization and deinitialization strings
 to the terminal.
 This is sometimes desirable if initialization or deinitialization does
 something unnecessary, like clearing the screen.
 Note that some terminals require the initialization string for proper
-operation, so they may not behave completely correctly when \-X is used.
-.IP "\-y\fIn\fP or \-\-max\-forw\-scroll=\fIn\fP"
+operation, so they may not behave completely correctly when
+.B "\-X"
+is used.
+.IP "\fB\-y\fP\fIn\fP or \fB\-\-max\-forw\-scroll=\fP\fIn\fP"
 Specifies a maximum number of lines to scroll forward.
 If it is necessary to scroll forward more than \fIn\fP lines,
 the screen is repainted instead.
-The \-c or \-C option may be used to repaint from the top of
+The
+.B "\-c"
+or
+.B "\-C"
+option may be used to repaint from the top of
 the screen if desired.
 By default, any forward movement causes scrolling.
-.IP "\-z\fIn\fP or \-\-window=\fIn\fP or \-\fIn\fP"
+.IP "\fB\-z\fP\fIn\fP or \fB\-\-window=\fP\fIn\fP or \-\fIn\fP"
 Changes the default scrolling window size to \fIn\fP lines.
 The default is one screenful.
 The z and w commands can also be used to change the window size.
@@ -1396,10 +1625,12 @@ If the number
 is negative, it indicates
 .I n
 lines less than the current screen size.
-For example, if the screen is 24 lines, \fI\-z\-4\fP sets the
+For example, if the screen is 24 lines,
+.B "\-z\-4"
+sets the
 scrolling window to 20 lines.  If the screen is resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
-.IP "\-""\fIcc\fP\ or\ \-\-quotes=\fIcc\fP"
+.IP "\fB\-""\fP\fIcc\fP\ or\ \fB\-\-quotes=\fP\fIcc\fP"
 Changes the filename quoting character.
 This may be necessary if you are trying to name a file
 which contains both spaces and quote characters.
@@ -1413,10 +1644,10 @@ Filenames containing a space should then be preceded by the open quote
 character and followed by the close quote character.
 Note that even after the quote characters are changed, this option
 remains \-" (a dash followed by a double quote).
-.IP "\-\*~ or \-\-tilde"
+.IP "\fB\-\*~\fP or \fB\-\-tilde\fP"
 Normally lines after end of file are displayed as a single tilde (\*~).
 This option causes lines after end of file to be displayed as blank lines.
-.IP "\-# or \-\-shift"
+.IP "\fB\-#\fP or \fB\-\-shift\fP"
 Specifies the default number of positions to scroll horizontally
 in the RIGHTARROW and LEFTARROW commands.
 If the number specified is zero, it sets the default number of
@@ -1426,7 +1657,7 @@ of the screen, starting with a decimal point: \&.5 is half of the
 screen width, \&.3 is three tenths of the screen width, and so on.
 If the number is specified as a fraction, the actual number of
 scroll positions is recalculated if the terminal window is resized.
-.IP "\-\-autosave=\fIactions\fP
+.IP "\fB\-\-autosave=\fP\fIactions\fP
 Normally the history file is saved only when
 .B less
 exits.
@@ -1434,7 +1665,9 @@ This option specifies other actions which will cause the history file to be save
 Each action is defined by a single character in the \fIactions\fP string:
 .RS
 .IP "m"
-Setting or clearing a mark while \-\-save-marks is in effect.
+Setting or clearing a mark while
+.B "\-\-save-marks"
+is in effect.
 .IP "/"
 Searching.
 .IP "!"
@@ -1448,35 +1681,45 @@ Can be set to "-" to specify the default, that only exiting
 will cause the history file to be saved.
 Note that, depending on your shell, if you specify this option on the 
 command line, the "!" and "*" characters may need to be escaped or quoted.
-.IP "\-\-cmd=\fIcommands\fP
+.IP "\fB\-\-cmd=\fP\fIcommands\fP
 The specified string is taken to be an initial command to
 .BR less .
 This is similar to specifying "+\fIcommands\fP", except that
-commands specified by \-\-cmd are not executed if
+commands specified by
+.B "\-\-cmd"
+are not executed if
 .B less
-exits immediately due to the use of the \-E or \-F option, while
+exits immediately due to the use of the
+.B "\-E"
+or
+.B "\-F"
+option, while
 commands specified by the \fB+\fP option are executed even if
 .B less
 exits immediately.
-.IP "\-\-exit\-follow\-on\-close"
+.IP "\fB\-\-exit\-follow\-on\-close\fP"
 When using the "F" command on a pipe,
 .B less
 will automatically stop waiting for more data when the input side of the 
 pipe is closed.
-.IP "\-\-file\-size"
-If \-\-file\-size is specified,
+.IP "\fB\-\-file\-size\fP"
+If
+.B "\-\-file\-size"
+is specified,
 .B less
 will determine the size of the file 
 immediately after opening the file.
 Then the "=" command will display the number of lines in the file.
 Normally this is not done, because it can be slow if the input file 
 is non-seekable (such as a pipe) and is large.
-.IP "\-\-follow\-name"
+.IP "\fB\-\-follow\-name\fP"
 Normally, if the input file is renamed while an F command is executing,
 .B less
 will continue to display the contents of the original file despite
 its name change.
-If \-\-follow\-name is specified, during an F command
+If
+.B "\-\-follow\-name"
+is specified, during an F command
 .B less
 will periodically attempt to reopen the file by name.
 If the reopen succeeds and the file is a different file from the original
@@ -1484,11 +1727,11 @@ If the reopen succeeds and the file is a different file from the original
 with the same name as the original (now renamed) file),
 .B less
 will display the contents of that new file.
-.IP "\-\-form\-feed"
+.IP "\fB\-\-form\-feed\fP"
 When scrolling forward or backward in the file,
 stop if a line beginning with a form feed character (\*^L) is reached.
 This can be useful when viewing a file which uses form feeds between pages.
-.IP "\-\-header=\fIL\fP,\fIC\fP,\fIN\fP"
+.IP "\fB\-\-header=\fP\fIL\fP,\fIC\fP,\fIN\fP"
 .RS
 Sets the number of header lines and columns displayed on the screen.
 The number of header lines is set to \fIL\fP.
@@ -1500,11 +1743,18 @@ If \fIC\fP is empty or missing, the number of header columns is unchanged.
 The first header line is set to line number \fIN\fP in the file.
 If \fIN\fP is empty or missing, it is taken to be 
 the number of the line currently displayed in the first line of the screen
-(if the \-\-header command has been issued from within
+(if the
+.B "\-\-header"
+command has been issued from within
 .BR less "),"
-or 1 (if the \-\-header option has been given on the command line).
-The special form "\-\-header=\-" disables header lines and header columns, 
-and is equivalent to "\-\-header=0,0".
+or 1 (if the
+.B "\-\-header"
+option has been given on the command line).
+The special form
+.RB "\[dq]" "\-\-header=\-" "\[dq]"
+disables header lines and header columns, 
+and is equivalent to
+.RB "\[dq]" "\-\-header=0,0" "\[dq]."
 .PP
 When \fIL\fP is nonzero, the first \fIL\fP lines at the top
 of the screen are replaced with the \fIL\fP lines of the file beginning at line \fIN\fP,
@@ -1514,28 +1764,34 @@ When \fIC\fP is nonzero, the first \fIC\fP characters displayed at the
 beginning of each line are replaced with the first \fIC\fP characters of the line,
 even if the rest of the line is scrolled horizontally.
 .PP
-While the \-\-header option is active, 
+While the
+.B "\-\-header"
+option is active, 
 lines longer than the screen width are truncated, 
-and the \-S option is ignored.
+and the
+.B "\-S"
+option is ignored.
 .RE
-.IP "\-\-incsearch"
+.IP "\fB\-\-incsearch\fP"
 Subsequent search commands will be "incremental"; that is,
 .B less
 will advance to the next line containing the search pattern 
 as each character of the pattern is typed in.
-.IP "\-\-intr=\fIc\fP"
+.IP "\fB\-\-intr=\fP\fIc\fP"
 Use the character \fIc\fP instead of \*^X to interrupt a read
 when the "Waiting for data" message is displayed.
 \fIc\fP must be an ASCII character; that is, one with a value 
 between 1 and 127 inclusive.
 A caret followed by a single character can be used 
 to specify a control character.
-.IP "\-\-line\-num\-width=\fIn\fP"
+.IP "\fB\-\-line\-num\-width=\fP\fIn\fP"
 Sets the minimum width of the line number field when the \-N option is in effect 
 to \fIn\fP characters.
 The default is 7.
-.IP "\-\-match\-shift=\fIn\fP"
-When \-S is in effect, if a search match is not visible
+.IP "\fB\-\-match\-shift=\fP\fIn\fP"
+When
+.B "\-S"
+is in effect, if a search match is not visible
 because it is shifted to the left or right of the currently
 visible screen, the text will horizontally shift 
 to ensure that the search match is visible.
@@ -1549,7 +1805,7 @@ of the screen, starting with a decimal point: \&.5 is half of the
 screen width, \&.3 is three tenths of the screen width, and so on.
 If the number is specified as a fraction, the actual number of
 scroll positions is recalculated if the terminal window is resized.
-.IP "\-\-modelines=\fIn\fP"
+.IP "\fB\-\-modelines=\fP\fIn\fP"
 .RS
 Before displaying a file,
 .B less 
@@ -1573,10 +1829,14 @@ option settings may be separated by either spaces or colons.
 The word "set" is required if the program name is "less"
 but optional if any of the other three names are used.
 If any option setting is of the form "tabstop=\fIn\fP" or "ts=\fIn\fP",
-then tab stops are automatically set as if \-\-tabs=\fIn\fP had been given.
-See the \-\-tabs description for acceptable values of \fIn\fP.
+then tab stops are automatically set as if
+.BI "\-\-tabs=" "n"
+had been given.
+See the
+.B "\-\-tabs"
+description for acceptable values of \fIn\fP.
 .RE
-.IP "\-\-mouse"
+.IP "\fB\-\-mouse\fP"
 Enables mouse input:
 scrolling the mouse wheel down moves forward in the file,
 scrolling the mouse wheel up moves backwards in the file,
@@ -1588,31 +1848,37 @@ the hyperlink is selected as if by the \*^O\*^N command.
 If a left-click is performed with the mouse cursor on an OSC 8 hyperlink
 which is already selected, the hyperlink is opened as if by the \*^O\*^O command.
 The number of lines to scroll when the wheel is moved
-can be set by the \-\-wheel\-lines option.
+can be set by the
+.B "\-\-wheel\-lines"
+option.
 Mouse input works only on terminals which support X11 mouse reporting,
 and on Windows.
-.IP "\-\-MOUSE"
-Like \-\-mouse, except the direction scrolled
+.IP "\fB\-\-MOUSE\fP"
+Like
+.BR "\-\-mouse" ","
+except the direction scrolled
 on mouse wheel movement is reversed.
-.IP "\-\-no\-edit\-warn"
+.IP "\fB\-\-no\-edit\-warn\fP"
 Don't print a warning message when using the v command
 on a file which was opened using a LESSOPEN preprocessor
 (see the INPUT PREPROCESSOR section below).
-.IP "\-\-no\-keypad"
+.IP "\fB\-\-no\-keypad\fP"
 Disables sending the keypad initialization and deinitialization strings
 to the terminal.
 This is sometimes useful if the keypad strings make the numeric
 keypad behave in an undesirable manner.
-.IP "\-\-no\-histdups"
+.IP "\fB\-\-no\-histdups\fP"
 This option changes the behavior so that if a search string or
 file name is typed in, and the same string is already in the history list,
 the existing copy is removed from the history list before the new one is added.
 Thus, a given string will appear only once in the history list.
 Normally, a string may appear multiple times.
-.IP "\-\-no\-number\-headers"
-Header lines (defined via the \-\-header option) are not assigned line numbers.
+.IP "\fB\-\-no\-number\-headers\fP"
+Header lines (defined via the
+.B "\-\-header"
+option) are not assigned line numbers.
 Line number 1 is assigned to the first line after any header lines.
-.IP "\-\-no\-paste"
+.IP "\fB\-\-no\-paste\fP"
 If the terminal supports xterm-compatible "bracketed paste",
 any text pasted into
 .B less
@@ -1620,46 +1886,82 @@ is ignored, except that one line of text may be pasted into the command line
 at the bottom of the screen (search strings, file names, etc).
 That is, the first newline of text pasted into the command line
 and any text that follows it is ignored.
-.IP "\-\-no\-search\-header\-lines"
+.IP "\fB\-\-no\-search\-header\-lines\fP"
 Searches do not include header lines, but still include header columns.
-.IP "\-\-no\-search\-header\-columns"
+.IP "\fB\-\-no\-search\-header\-columns\fP"
 Searches do not include header columns, but still include header lines.
-.IP "\-\-no\-search\-headers"
+.IP "\fB\-\-no\-search\-headers\fP"
 Searches do not include header lines or header columns.
-.IP "\-\-no\-vbell"
+.IP "\fB\-\-no\-vbell\fP"
 Disables the terminal's visual bell.
-.IP "\-\-proc\-backspace"
-If set, backspaces are handled as if neither the \-u option 
-nor the \-U option were set.
+.IP "\fB\-\-proc\-backspace\fP"
+If set, backspaces are handled as if neither the
+.B "\-u"
+option 
+nor the
+.B "\-U"
+option were set.
 That is, a backspace adjacent to an underscore causes text to be
 displayed in underline mode, and a backspace between identical
 characters cause text to be displayed in boldface mode.
-This option overrides the \-u and \-U options, so that display of
+This option overrides the
+.B "\-u"
+and
+.B "\-U"
+options, so that display of
 backspaces can be controlled separate from tabs and carriage returns.
-If not set, backspace display is controlled by the \-u and \-U options.
-.IP "\-\-PROC\-BACKSPACE"
-If set, backspaces are handled as if the \-U option were set;
+If not set, backspace display is controlled by the
+.B "\-u"
+and
+.B "\-U"
+options.
+.IP "\fB\-\-PROC\-BACKSPACE\fP"
+If set, backspaces are handled as if the
+.B "\-U"
+option were set;
 that is backspaces are treated as control characters.
-.IP "\-\-proc\-return"
-If set, carriage returns are handled as if neither the \-u option 
-nor the \-U option were set.
+.IP "\fB\-\-proc\-return\fP"
+If set, carriage returns are handled as if neither the
+.B "\-u"
+option 
+nor the
+.B "\-U"
+option were set.
 That is, a carriage return immediately before a newline is deleted.
-This option overrides the \-u and \-U options, so that display of
+This option overrides the
+.B "\-u"
+and
+.B "\-U"
+options, so that display of
 carriage returns can be controlled separate from that of backspaces and tabs.
-If not set, carriage return display is controlled by the \-u and \-U options.
-.IP "\-\-PROC\-RETURN"
-If set, carriage returns are handled as if the \-U option were set;
+If not set, carriage return display is controlled by the
+.B "\-u"
+and
+.B "\-U"
+options.
+.IP "\fB\-\-PROC\-RETURN\fP"
+If set, carriage returns are handled as if the
+.B "\-U"
+option were set;
 that is carriage returns are treated as control characters.
-.IP "\-\-proc\-tab"
-If set, tabs are handled as if the \-U option were not set.
+.IP "\fB\-\-proc\-tab\fP"
+If set, tabs are handled as if the
+.B "\-U"
+option were not set.
 That is, tabs are expanded to spaces.
-This option overrides the \-U option, so that display of
+This option overrides the
+.B "\-U"
+option, so that display of
 tabs can be controlled separate from that of backspaces and carriage returns.
-If not set, tab display is controlled by the \-U option.
-.IP "\-\-PROC\-TAB"
-If set, tabs are handled as if the \-U option were set;
+If not set, tab display is controlled by the
+.B "\-U"
+option.
+.IP "\fB\-\-PROC\-TAB\fP"
+If set, tabs are handled as if the
+.B "\-U"
+option were set;
 that is tabs are treated as control characters.
-.IP "\-\-redraw\-on\-quit"
+.IP "\fB\-\-redraw\-on\-quit\fP"
 When quitting, after sending the terminal deinitialization string,
 redraws the entire last screen.
 On terminals whose terminal deinitialization string causes the
@@ -1667,65 +1969,85 @@ terminal to switch from an alternate screen,
 this makes the last screenful of the current file remain visible after
 .B less
 has quit.
-.IP "\-\-rscroll=\fIc\fP"
+.IP "\fB\-\-rscroll=\fP\fIc\fP"
 This option changes the character used to mark truncated lines.
 It may begin with a two-character attribute indicator like LESSBINFMT does.
 If there is no attribute indicator, standout is used.
 If set to "\-", truncated lines are not marked.
-.IP "\-\-save\-marks"
+.IP "\fB\-\-save\-marks\fP"
 Save marks in the history file, so marks are retained
 across different invocations of
 .BR less .
-.IP "\-\-search\-options=\fI...\fP"
+.IP "\fB\-\-search\-options=\fP\fI...\fP"
 Sets default search modifiers. 
 The value is a string of one or more of the characters
 E, F, K, N, R or W.
 Setting any of these has the same effect as typing that
 control character at the beginning of every search pattern.
-For example, setting \-\-search\-options=W is the same as
+For example, setting
+.B "\-\-search\-options=W"
+is the same as
 typing \*^W at the beginning of every pattern.
 The value may also contain a digit between 1 and 5,
 which has the same effect as typing \*^S followed by that digit
 at the beginning of every search pattern.
 The value "\-" disables all default search modifiers.
-.IP "\-\-show\-preproc\-errors"
+.IP "\fB\-\-show\-preproc\-errors\fP"
 If a preprocessor produces data, 
 then exits with a non-zero exit code,
 .B less
 will display a warning.
-.IP "\-\-status\-col\-width=\fIn\fP"
-Sets the width of the status column when the \-J option is in effect.
+.IP "\fB\-\-status\-col\-width=\fP\fIn\fP"
+Sets the width of the status column when the
+.B "\-J"
+option is in effect.
 The default is 2 characters.
-.IP "\-\-status\-line"
+.IP "\fB\-\-status\-line\fP"
 If a line is marked, the entire line (rather than just the status column)
 is highlighted.
-Also lines highlighted due to the \-w option will have
+Also lines highlighted due to the
+.B "\-w"
+option will have
 the entire line highlighted.
-If \-\-use\-color is set, the line is colored rather than highlighted.
-.IP "\-\-use\-backslash"
+If
+.B "\-\-use\-color"
+is set, the line is colored rather than highlighted.
+.IP "\fB\-\-use\-backslash\fP"
 This option changes the interpretations of options which follow this one.
-After the \-\-use\-backslash option, any backslash in an option string is
+After the
+.B "\-\-use\-backslash"
+option, any backslash in an option string is
 removed and the following character is taken literally.
 This allows a dollar sign to be included in option strings.
-.IP "\-\-use\-color"
+.IP "\fB\-\-use\-color\fP"
 Enables colored text in various places.
-The \-D option can be used to change the colors.
+The
+.B "\-D"
+option can be used to change the colors.
 Colored text works only if the terminal supports 
 ANSI color escape sequences (as defined in 
 .nh
 https://\*:www\*:.ecma\-international\*:.org/\*:publications\-and\-standards/\*:standards/\*:ecma\-48).
 .hy
-.IP "\-\-wheel\-lines=\fIn\fP"
+.IP "\fB\-\-wheel\-lines=\fP\fIn\fP"
 Set the number of lines to scroll when the mouse wheel is scrolled
-and the \-\-mouse or \-\-MOUSE option is in effect.
+and the
+.B "\-\-mouse"
+or
+.B "\-\-MOUSE"
+option is in effect.
 The default is 1 line.
-.IP "\-\-wordwrap"
-When the \-S option is not in use,
+.IP "\fB\-\-wordwrap\fP"
+When the
+.B "\-S"
+option is not in use,
 wrap each line at a space or tab if possible,
 so that a word is not split between two lines.
 The default is to wrap at any character.
-.IP \-\-
-A command line argument of "\-\-" marks the end of option arguments.
+.IP \fB\-\-\fP
+A command line argument of
+.RB "\[dq]" "\-\-" "\[dq]"
+marks the end of option arguments.
 Any arguments following this are interpreted as filenames.
 This can be useful when viewing a file whose name begins with a "\-" or "+".
 Otherwise, option arguments and filename arguments can be intermixed;
@@ -1746,7 +2068,9 @@ If the option starts with ++, the initial command applies to
 every file being viewed, not just the first one.
 The + command described previously
 may also be used to set (or change) an initial command for every file.
-Also see the \-\-cmd option.
+Also see the
+.B "\-\-cmd"
+option.
 .
 .SH "LINE EDITING"
 When entering a command line at the bottom of the screen
@@ -2243,8 +2567,12 @@ For example, this sets them all to composing characters:
 .fi
 .EE
 .SH "PROMPTS"
-The \-P option allows you to tailor the prompt to your preference.
-The string given to the \-P option replaces the specified prompt string.
+The
+.B "\-P"
+option allows you to tailor the prompt to your preference.
+The string given to the
+.B "\-P"
+option replaces the specified prompt string.
 Certain characters in the string are interpreted specially.
 The prompt mechanism is rather complicated to provide flexibility,
 but the ordinary user need not understand the details of constructing
@@ -2263,7 +2591,9 @@ display is used,
 an "m" means use the middle line,
 a "b" means use the bottom line,
 a "B" means use the line just after the bottom line,
-and a "j" means use the "target" line, as specified by the \-j option.
+and a "j" means use the "target" line, as specified by the
+.B "\-j"
+option.
 .IP "%B"
 Replaced by the size of the current input file.
 .IP "%c"
@@ -2322,7 +2652,9 @@ Causes any trailing spaces to be removed.
 Usually used at the end of the string, but may appear anywhere.
 .IP "%T"
 Normally expands to the word "file".
-However if viewing files via a tags list using the \-t option,
+However if viewing files via a tags list using the
+.B "\-t"
+option,
 it expands to the word "tag".
 .IP "%W"
 Replaced by the width of the longest line currently displayed on the screen.
@@ -2422,7 +2754,11 @@ followed by the name of the next file, if there is one.
 Finally, any trailing spaces are truncated.
 This is the default prompt.
 For reference, here are the defaults for
-the other two prompts (\-m and \-M respectively).
+the other two prompts 
+.B "\-m"
+and
+.B "\-M"
+respectively).
 Each is broken into two lines here for readability only.
 .PP
 .EX
@@ -2478,11 +2814,15 @@ and filename completion (TAB, \*^L)
 .IP "history"
 history file
 .IP "lesskey"
-use of lesskey files (\-k and \-\-lesskey\-src)
+use of lesskey files 
+.B "\-k"
+and
+.BR "\-\-lesskey\-src" ")"
 .IP "lessopen"
 input preprocessor (LESSOPEN environment variable)
 .IP "logfile"
-log files (s and \-o)
+log files (s and
+.BR "\-o" ")"
 .IP "osc8"
 opening OSC 8 links (\*^O\*^O)
 .IP "pipe"
@@ -2494,7 +2834,8 @@ stopping
 .B less
 via a SIGTSTP signal
 .IP "tags"
-use of tags files (\-t)
+use of tags files
+.RB "(" "\-t" ")"
 .PP
 The LESSSECURE_ALLOW environment variable can be set to a comma-separated list
 of names of features which are selectively enabled when LESSSECURE is set.
@@ -2526,23 +2867,47 @@ In this mode,
 .B less
 behaves differently in these ways:
 .PP
-The \-e option works differently.
-If the \-e option is not set,
+The
+.B "\-e"
+option works differently.
+If the
+.B "\-e"
+option is not set,
 .B less
-behaves as if the \-e option were set.
-If the \-e option is set,
+behaves as if the
+.B "\-e"
+option were set.
+If the
+.B "\-e"
+option is set,
 .B less
-behaves as if the \-E option were set.
+behaves as if the
+.B "\-E"
+option were set.
 .PP
-The \-m option works differently.
-If the \-m option is not set, the medium prompt is used,
+The
+.B "\-m"
+option works differently.
+If the
+.B "\-m"
+option is not set, the medium prompt is used,
 and it is prefixed with the string "\-\-More\-\-".
-If the \-m option is set, the short prompt is used.
+If the
+.B "\-m"
+option is set, the short prompt is used.
 .PP
-The \-n option acts like the \-z option.
-The normal behavior of the \-n option is unavailable in this mode.
+The
+.B "\-n"
+option acts like the
+.B "\-z"
+option.
+The normal behavior of the
+.B "\-n"
+option is unavailable in this mode.
 .PP
-The parameter to the \-p option is taken to be a
+The parameter to the
+.B "\-p"
+option is taken to be a
 .B less
 command rather than a search pattern.
 .PP
@@ -2592,7 +2957,9 @@ end character in an ANSI color escape sequence
 (default "0123456789:;[?!"\*'#%()*+\ ").
 .IP LESSANSIOSCALLOW
 A comma-separated list of OSC types which are output directly to the
-terminal when \-R is in effect
+terminal when
+.B "\-R"
+is in effect
 (default "8"; that is, only OSC 8 sequences are output directly).
 .IP LESSANSIOSCCHARS
 Characters which may follow an ESC character to mark the start
@@ -2621,7 +2988,9 @@ in filenames on Unix systems.
 Editor prototype string (used for the v command).
 See discussion under PROMPTS.
 .IP LESSGLOBALTAGS
-Name of the command used by the \-t option to find global tags.
+Name of the command used by the
+.B "\-t"
+option to find global tags.
 Normally should be set to "global" if your system has the
 .BR global (1)
 command.  If not set, global tags are not used.
@@ -2652,7 +3021,9 @@ Name of the default
 .I "lesskey binary"
 file. (Not used if "$LESSKEYIN" exists.)
 .IP LESSKEY_CONTENT
-The value is parsed as if it were the parameter of a \-\-lesskey\-content option.
+The value is parsed as if it were the parameter of a
+.B "\-\-lesskey\-content"
+option.
 .IP LESSKEYIN_SYSTEM
 Name of the default system-wide
 .I "lesskey source"
@@ -2724,14 +3095,18 @@ sets an OSC 8 handler for opening OSC 8 links containing a URI with that scheme.
 Sets an OSC 8 handler for opening OSC 8 links for which there is 
 no specific LESS_OSC8_xxx handler set for the "xxx" scheme.
 .IP LESS_SHELL_LINES
-When the \-F option is set,
+When the
+.B "\-F"
+option is set,
 .B less
 exits automatically if the number of screen lines used to display the file 
 is less than or equal to the screen height minus the value of 
 the LESS_SHELL_LINES variable.
 Thus, if you use a shell prompt which occupies more than one screen line,
 this variable can be set to the number of lines used by your prompt,
-to ensure that the entire file can be seen when \-F is used.
+to ensure that the entire file can be seen when
+.B "\-F"
+is used.
 If not set, LESS_SHELL_LINES is assumed to be 1.
 .IP LESS_SIGUSR1
 If set to a string of one or more
@@ -2757,12 +3132,16 @@ or the
 library.
 .IP LESS_TERMCAP_BRACKETED_PASTE_START
 Overrides the standard ANSI escape sequence to enable bracketed paste.
-This is used when the \-\-no\-paste option is in effect.
+This is used when the
+.B "\-\-no\-paste"
+option is in effect.
 .IP LESS_TERMCAP_BRACKETED_PASTE_END
 Overrides the standard ANSI escape sequence to disable bracketed paste.
 .IP LESS_TERMCAP_MOUSE_START
 Overrides the standard ANSI escape sequence to enable mouse reporting.
-This is used when the \-\-mouse option is in effect.
+This is used when the
+.B "\-\-mouse"
+option is in effect.
 .IP LESS_TERMCAP_MOUSE_END
 Overrides the standard ANSI escape sequence to disable mouse reporting.
 .IP LESS_TERMCAP_SUSPEND
