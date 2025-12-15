@@ -1264,8 +1264,6 @@ when an interrupt character (usually \*^C) is typed.
 Normally, an interrupt character causes
 .B less
 to stop whatever it is doing and return to its command prompt.
-Note that use of this option makes it impossible to return to the
-command prompt from the "F" command.
 .IP "\fB\-L\fP or \fB\-\-no\-lessopen\fP"
 Ignore the LESSOPEN environment variable
 (see the INPUT PREPROCESSOR section below).
