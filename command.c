@@ -48,7 +48,6 @@ extern void *ml_examine;
 extern int wheel_lines;
 extern int def_search_type;
 extern lbool search_wrapped;
-extern lbool no_poll;
 extern int no_paste;
 extern lbool pasting;
 extern int no_edit_warn;
@@ -785,19 +784,12 @@ static int mca_char(char c)
 				jump_search_incr_pos();
 			} else
 			{
-				/*
-				 * Suppress tty polling while searching.
-				 * This avoids a problem where tty input
-				 * can cause the search to be interrupted.
-				 */
-				no_poll = TRUE;
 				if (search(st | SRCH_INCR, pattern, 1) != 0)
 				{
 					/* No match, invalid pattern, etc. */
 					undo_search(TRUE);
 					jump_search_incr_pos();
 				}
-				no_poll = FALSE;
 			}
 			/* Redraw the search prompt and search string. */
 			if (is_screen_trashed() || !full_screen)

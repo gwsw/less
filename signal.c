@@ -297,5 +297,9 @@ public void psignals(void)
 	{
 		if (quit_on_intr)
 			quit(QUIT_INTERRUPT);
+		getcc_clear();
+#if MSDOS_COMPILER==WIN32C
+		win32_getch_clear();
+#endif
 	}
 }

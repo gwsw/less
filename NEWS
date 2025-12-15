@@ -33,6 +33,9 @@
 * When setting line number colors (-DN), don't force bold attribute.
   To set bold, you must append "d" or "*" to the color string (github #684).
 
+* While waiting for file data, only ^C or ^X will interrupt, not any command.
+  This reverts to behavior that existed before less-670 (github #700).
+
 * When --save-marks is not used, retain any marks saved in the history file
   (github #662).
 

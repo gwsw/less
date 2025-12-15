@@ -82,7 +82,6 @@ static lbool opening;
 public lbool waiting_for_data;
 public int consecutive_nulls = 0;
 public lbool getting_one_screen = FALSE;
-public lbool no_poll = FALSE;
 
 /* Milliseconds to wait for data before displaying "waiting for data" message. */
 static int waiting_for_data_delay = 4000;
@@ -164,8 +163,6 @@ static int check_poll(int fd, int tty)
 				/* Break out of "waiting for data". */
 				return (READ_INTR);
 			ungetcc_back((char) ch);
-			if (!no_poll)
-				return (READ_INTR);
 		}
 	}
 	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
@@ -317,19 +314,14 @@ start:
 #if MSDOS_COMPILER==WIN32C
 	if (!(quit_if_one_screen && one_screen) && win32_kbhit2(TRUE))
 	{
-		int c;
-		lbool intr;
-
-		c = WIN32getch();
-		intr = (c == CONTROL('C') || c == intr_char);
-		if (!intr)
-			WIN32ungetch((char) c);
-		if (intr || !no_poll)
+		int c = WIN32getch();
+		if (c == CONTROL('C') || c == intr_char)
 		{
 			sigs |= S_SWINTERRUPT;
 			reading = FALSE;
 			return (READ_INTR);
 		}
+		WIN32ungetch(c);
 	}
 #endif
 #endif

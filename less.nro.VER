@@ -187,8 +187,7 @@ while it is being viewed.
 To stop waiting for more data, enter the interrupt character (usually \*^C).
 On systems which support
 .BR poll (2)
-you can also use \*^X or the character specified by the \-\-intr option,
-or enter any command character.
+you can also use \*^X or the character specified by the \-\-intr option.
 If the input is a pipe and the \-\-exit\-follow\-on\-close option is in effect,
 .B less
 will automatically stop waiting for data when the input side 
