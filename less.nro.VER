@@ -525,12 +525,10 @@ If the option letter has a numeric value (such as
 .B "\-b"
 or
 .BR "\-h" "),"
-
 or a string value (such as
 .B "\-P"
 or
 .BR "\-t" "),"
-
 a new value may be entered after the option letter.
 If no new value is entered, a message describing
 the current setting is printed and nothing is changed.
@@ -1991,7 +1989,7 @@ which has the same effect as typing \*^S followed by that digit
 at the beginning of every search pattern.
 The value "\-" disables all default search modifiers.
 .IP "\fB\-\-show\-preproc\-errors\fP"
-If a preprocessor produces data, 
+If a LESSOPEN preprocessor produces data, 
 then exits with a non-zero exit code,
 .B less
 will display a warning.
@@ -2385,8 +2383,8 @@ preceding character. (Only when LESSCHARSET is "utf8".)
 are simply deleted from the input and not displayed.
 (Only when LESSCHARSET is "utf8".)
 .PP
-A "character set" is simply a description of which characters are to
-be considered normal, control, and binary.
+A "character set" is a description of which of these categories
+each character belongs to.
 The LESSCHARSET environment variable may be used to select a character set.
 Possible values for LESSCHARSET are:
 .IP ascii
