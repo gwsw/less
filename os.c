@@ -362,10 +362,13 @@ start:
 #endif
 		return (READ_ERR);
 	}
-#if USE_POLL
-	if (fd != tty && n > 0)
-		any_data = TRUE;
+#if LESS_IREAD_TTY
+	if (fd != tty)
 #endif
+	{
+		if (n > 0)
+			polling_ok();
+	}
 	return (n);
 }
 
@@ -412,10 +415,9 @@ public void intio(void)
 }
 
 /*
- * Called to indicate that we have read some file data
- * (or the file is empty so we won't ever read data).
+ * We can start polling the input file.
  */
-public void have_read_data(void)
+public void polling_ok(void)
 {
 #if USE_POLL
 	any_data = TRUE;

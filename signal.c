@@ -59,7 +59,7 @@ static RETSIGTYPE u_interrupt(int type)
 #if HILITE_SEARCH
 	set_filter_pattern(NULL, 0);
 #endif
-	have_read_data();
+	polling_ok();
 	intio();
 }
 #endif
