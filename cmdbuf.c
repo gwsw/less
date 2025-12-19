@@ -807,8 +807,10 @@ public void cmd_addhist(struct mlist *mlist, constant char *cmd, lbool modified)
 	{
 		if (mlist == &mlist_search && autosave_action('/'))
 			save_cmdhist();
+#if SHELL_ESCAPE || PIPEC
 		else if (mlist == &mlist_shell && autosave_action('!'))
 			save_cmdhist();
+#endif
 	}
 #endif
 }

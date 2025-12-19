@@ -21,7 +21,7 @@
  * SECURE is 1 if you wish to disable a bunch of features in order to
  * be safe to run by unprivileged users.
  */
-#define SECURE          0
+#define SECURE          SECURE_COMPILE
 
 /*
  * SHELL_ESCAPE is 1 if you wish to allow shell escapes.
@@ -82,7 +82,7 @@
  * PIPEC is 1 if you wish to have the "|" command
  * which allows the user to pipe data into a shell command.
  */
-#define PIPEC           1
+#define PIPEC           (!SECURE && HAVE_POPEN)
 
 /*
  * LOGFILE is 1 if you wish to allow the -o option (to create log files).
