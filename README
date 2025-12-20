@@ -110,6 +110,29 @@ programmers", not "persons who attempt to circumvent computer security".)
 
 
 =======================================================================
+INSTALLATION (Windows-95, Windows-98 and Windows-NT systems only,
+              with Microsoft Visual C++, mingw, or Borland C)
+
+1. Move the distributed source to its own directory.
+
+2. If you wish, you may edit defines.wn to remove some optional features.
+   If you choose not to include some features in your version, you may
+   wish to edit the manual page less.man and the help page help.c
+   to remove the descriptions of the features which you are removing.
+
+3. If you are using Microsoft Visual C++, run "nmake -f Makefile.wnm".
+   If you are using mingw, run "make -f Makefile.wng".
+   If you are using Borland C, run "make -f Makefile.wnb".
+
+   You can set the environment variable SECURE_COMPILE to 1 during the
+   make to build a "secure" version of less, with some features disabled.
+
+4. If the make succeeds, it will generate the programs "less.exe" and
+   "lesskey.exe" in your current directory.  Test the generated programs.
+
+
+
+=======================================================================
 INSTALLATION (MS-DOS systems only,
               with Microsoft C, Borland C, or DJGPP)
 
@@ -145,34 +168,6 @@ INSTALLATION (MS-DOS systems only,
 
 7. When satisfied that it works, you may wish to install LESS.EXE and
    LESSKEY.EXE in a directory which is included in your PATH.
-
-
-
-=======================================================================
-INSTALLATION (Windows-95, Windows-98 and Windows-NT systems only,
-              with Borland C or Microsoft Visual C++)
-
-1. Move the distributed source to its own directory.
-
-2. If you are using Borland C, rename Makefile.wnb to Makefile.
-   If you are using Microsoft Visual C++, rename Makefile.wnm to Makefile.
-
-3. Check the Makefile to make sure the definitions look ok.
-
-4. If you wish, you may edit defines.wn to remove some optional features.
-   If you choose not to include some features in your version, you may
-   wish to edit the manual page less.man and the help page help.c
-   to remove the descriptions of the features which you are removing.
-
-5. Type "make" and watch the fun.
-
-6. If the make succeeds, it will generate the programs "less.exe" and
-   "lesskey.exe" in your current directory.  Test the generated programs.
-
-7. When satisfied that it works, if you wish to install it
-   in a public place, type "make install".
-   See step 6 of the Unix installation instructions for details
-   on how to change the default installation directories.
 
 
 
@@ -237,10 +232,3 @@ INSTALLATION (OS-9 systems only,
    See step 6 of the Unix installation instructions for details
    on how to change the default installation directories.
 
-=======================================================================
-ACKNOWLEDGMENTS:
-  Some versions of the less distribution are packaged using 
-  Info-ZIP's compression utility.
-  Info-ZIP's software is free and can be obtained as source 
-  code or executables from various anonymous-ftp sites,
-  including ftp.uu.net:/pub/archiving/zip.
