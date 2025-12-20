@@ -435,7 +435,6 @@ static void set_charset(void)
 #endif
 #endif
 
-#if HAVE_STRSTR
 	/*
 	 * Check whether LC_ALL, LC_CTYPE or LANG look like UTF-8 is used.
 	 */
@@ -448,7 +447,6 @@ static void set_charset(void)
 			if (icharset("utf-8", 1))
 				return;
 	}
-#endif
 
 #if HAVE_LOCALE
 	/*

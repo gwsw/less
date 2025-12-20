@@ -1859,7 +1859,6 @@ static void ltputs(constant char *str, int affcnt, int (*f_putc)(int))
 {
 	while (str != NULL && *str != '\0')
 	{
-#if HAVE_STRSTR
 		constant char *obrac = strstr(str, "$<");
 		if (obrac != NULL)
 		{
@@ -1887,7 +1886,6 @@ static void ltputs(constant char *str, int affcnt, int (*f_putc)(int))
 				continue;
 			}
 		}
-#endif
 		/* Pass the rest of the string to tputs and we're done. */
 		do_tputs(str, affcnt, f_putc);
 		break;

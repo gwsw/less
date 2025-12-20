@@ -554,7 +554,7 @@ char * strchr(char *s, char c)
 #endif
 
 #if !HAVE_MEMCPY
-void * memcpy(void *dst, void *src, size_t len)
+void * memcpy(void *dst, constant void *src, size_t len)
 {
 	char *dstp = (char *) dst;
 	char *srcp = (char *) src;
@@ -563,6 +563,25 @@ void * memcpy(void *dst, void *src, size_t len)
 	for (i = 0;  i < len;  i++)
 		dstp[i] = srcp[i];
 	return (dst);
+}
+#endif
+
+#if !HAVE_STRSTR
+char * strstr(constant char *haystack, constant char *needle)
+{
+	if (*needle == '\0')
+		return (char *) haystack;
+	for (; *haystack; haystack++) {
+		constant char *h = haystack;
+		constant char *n = needle;
+		while (*h != '\0' && *n != '\0' && *h == *n) {
+			h++;
+			n++;
+		}
+		if (*n == '\0')
+			return (char *) haystack;
+	}
+	return NULL;
 }
 #endif
 

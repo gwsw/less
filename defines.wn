@@ -76,7 +76,7 @@
  * This will generally work if your system provides the "popen" function
  * and the "echo" shell command.
  */
-#define GLOB            0
+#define GLOB            (!SECURE)
 
 /*
  * PIPEC is 1 if you wish to have the "|" command
@@ -173,6 +173,15 @@
  * HAVE_DUP is 1 if your system has the dup() call.
  */
 #define HAVE_DUP        1
+
+/* Define to 1 if you have the memcpy() function. */
+#define HAVE_MEMCPY     1
+
+/* Define to 1 if you have the strchr() function. */
+#define HAVE_STRCHR     1
+
+/* Define to 1 if you have the strstr() function. */
+#define HAVE_STRSTR     1
 
 /* Define to 1 to support reading lesskey source files (not just binary). */
 #define HAVE_LESSKEYSRC 1

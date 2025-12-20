@@ -210,7 +210,6 @@ static void modeline_options(constant char *str, char end_char)
  */
 static void check_modeline(constant char *line)
 {
-#if HAVE_STRSTR
 	static constant char *pgms[] = { "less:", "vim:", "vi:", "ex:", NULL };
 	constant char **pgm;
 	for (pgm = pgms;  *pgm != NULL;  ++pgm)
@@ -235,7 +234,6 @@ static void check_modeline(constant char *line)
 			pline = str;
 		}
 	}
-#endif /* HAVE_STRSTR */
 }
 
 /*
