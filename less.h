@@ -52,9 +52,6 @@
 #if HAVE_CTYPE_H
 #include <ctype.h>
 #endif
-#if HAVE_WCTYPE_H
-#include <wctype.h>
-#endif
 #if HAVE_LIMITS_H
 #include <limits.h>
 #endif

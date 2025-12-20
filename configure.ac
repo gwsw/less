@@ -36,7 +36,7 @@ AC_CHECK_LIB(termlib, tgetent, [have_termlib=yes], [have_termlib=no])
 AC_SEARCH_LIBS([regcmp], [gen intl PW])
 
 # Checks for header files.
-AC_CHECK_HEADERS_ONCE([ctype.h errno.h fcntl.h inttypes.h limits.h stdckdint.h stdio.h stdlib.h string.h termcap.h ncurses/termcap.h ncursesw/termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h sys/types.h sys/wait.h time.h wctype.h])
+AC_CHECK_HEADERS_ONCE([ctype.h errno.h fcntl.h limits.h stdckdint.h stdio.h stdlib.h string.h termcap.h ncurses/termcap.h ncursesw/termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h sys/types.h sys/wait.h time.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
@@ -236,8 +236,6 @@ AH_TEMPLATE([HAVE_TERMIOS_FUNCS],
 	[Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr.])
 AH_TEMPLATE([HAVE_UPPER_LOWER],
 	[Define HAVE_UPPER_LOWER if you have isupper, islower, toupper, tolower.])
-AH_TEMPLATE([HAVE_WCTYPE],
-	[Define HAVE_WCTYPE if you have iswupper, iswlower, towupper, towlower.])
 AH_TEMPLATE([HAVE_SIGSET_T],
 	[Define HAVE_SIGSET_T you have the sigset_t type.])
 AH_TEMPLATE([HAVE_SIGEMPTYSET],
@@ -354,9 +352,6 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #if HAVE_CTYPE_H
 #include <ctype.h>
 #endif]], [[static int x; x = isupper(x); x = tolower(x); x = toupper(x);]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_UPPER_LOWER)],[AC_MSG_RESULT(no)])
-
-AC_MSG_CHECKING(for wctype functions)
-AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <wctype.h>]], [[iswlower(0); iswupper(0); towlower(0); towupper(0);]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_WCTYPE)],[AC_MSG_RESULT(no)])
 
 # Checks for external variable ospeed in the termcap library.
 have_ospeed=no
