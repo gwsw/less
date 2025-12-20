@@ -145,7 +145,7 @@
 /*
  * Define if you have the <sgstat.h> header file.
  */
-#undef HAVE_SGSTAT_H
+#define HAVE_SGSTAT_H   0
 
 /*
  * HAVE_PERROR is 1 if your system has the perror() call.
@@ -175,13 +175,13 @@
 #define HAVE_DUP        1
 
 /* Define to 1 if you have the memcpy() function. */
-#define HAVE_MEMCPY     1
+#define HAVE_MEMCPY 1
 
 /* Define to 1 if you have the strchr() function. */
-#define HAVE_STRCHR     1
+#define HAVE_STRCHR 1
 
 /* Define to 1 if you have the strstr() function. */
-#define HAVE_STRSTR     1
+#define HAVE_STRSTR 1
 
 /* Define to 1 to support reading lesskey source files (not just binary). */
 #define HAVE_LESSKEYSRC 1
@@ -256,130 +256,164 @@
 #define HAVE_REGEXEC2 1
 #endif
 
-/* Define HAVE_VOID if your compiler supports the "void" type. */
-#define HAVE_VOID 1
-
 /* Define HAVE_CONST if your compiler supports the "const" modifier. */
 #define HAVE_CONST 1
 
-/* Define HAVE_TIME_T if your system supports the "time_t" type. */
-#define HAVE_TIME_T 1
+/* Define to 1 if you have the <ctype.h> header file. */
+#define HAVE_CTYPE_H 1
 
-/* Define HAVE_STRERROR if you have the strerror() function. */
-#define HAVE_STRERROR 1
+/* Define HAVE_ERRNO if you have the errno variable. */
+#define HAVE_ERRNO 1
+
+/* Define to 1 if you have the <errno.h> header file. */
+#define HAVE_ERRNO_H 1
+
+/* Define to 1 if you have the 'fchmod' function. */
+#define HAVE_FCHMOD 0
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#define HAVE_FCNTL_H 1
 
 /* Define HAVE_FILENO if you have the fileno() macro. */
 #define HAVE_FILENO 1
 
-/* Define HAVE_ERRNO if you have the errno variable */
-#define HAVE_ERRNO 1
-/* Define MUST_DEFINE_ERRNO if you have errno but it is not defined in errno.h */
-#define MUST_DEFINE_ERRNO 0
-/* Define HAVE_SETTABLE_ERRNO if the errno variable can be assigned to. */
-#define HAVE_SETTABLE_ERRNO 1
+/* Define to 1 if you have the 'fsync' function. */
+#define HAVE_FSYNC  0
 
-/* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
-#define HAVE_SYS_ERRLIST 1
+/* Define to 1 if you have the <inttypes.h> header file. */
+#define HAVE_INTTYPES_H 0
 
-/* Define HAVE_OSPEED if your termcap library has the ospeed variable */
-#define HAVE_OSPEED 0
-/* Define MUST_DEFINE_OSPEED if you have ospeed but it is not defined
- * in termcap.h. */
-#define MUST_DEFINE_OSPEED 0
+/* Define to 1 if you have the <limits.h> header file. */
+#define HAVE_LIMITS_H 1
 
 /* Define HAVE_LOCALE if you have locale.h and setlocale. */
 #define HAVE_LOCALE 0
 
-/* Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr */
-#define HAVE_TERMIOS_FUNCS 0
+/* Define to 1 if you have the 'nanosleep' function. */
+#define HAVE_NANOSLEEP 0
 
-/* Define HAVE_UPPER_LOWER if you have isupper, islower, toupper, tolower */
-#define HAVE_UPPER_LOWER 1
+/* Define to 1 if you have the <ncurses/termcap.h> header file. */
+#define HAVE_NCURSES_TERMCAP_H 0
 
-/* Define if you have the _setjmp function.  */
-#define HAVE__SETJMP    1
+/* Define HAVE_OSPEED if your termcap library has the ospeed variable. */
+#define HAVE_OSPEED 0
 
-/* Define if you have the memcpy function.  */
-#define HAVE_MEMCPY 1
+/* Define to 1 if you have the 'poll' function. */
+#define HAVE_POLL 0
 
-/* Define if you have the popen function.  */
+/* Define to 1 if you have the 'popen' function. */
 #define HAVE_POPEN 1
 
-/* Define if you have the sigsetmask function.  */
+/* Define to 1 if you have the 'realpath' function. */
+#define HAVE_REALPATH 0
+
+/* Define HAVE_SETTABLE_ERRNO if the errno variable can be assigned to. */
+#define HAVE_SETTABLE_ERRNO 1
+
+/* Define HAVE_SIGEMPTYSET if you have the sigemptyset macro. */
+#define HAVE_SIGEMPTYSET 0
+
+/* Define to 1 if you have the 'sigprocmask' function. */
+#define HAVE_SIGPROCMASK 0
+
+/* Define HAVE_SIGSETJMP if you have sigsetjmp and siglongjmp. */
+#define HAVE_SIGSETJMP 0
+
+/* Define to 1 if you have the 'sigsetmask' function. */
 #define HAVE_SIGSETMASK 0
 
-/* Define if you have the sigprocmask function.  */
-#define HAVE_SIGPROCMASK        0
-
-/* Define if you have the sigset_t type and sigemptyset macro */
+/* Define to 1 if the system has the type 'sigset_t'. */
 #define HAVE_SIGSET_T   0
-#define HAVE_SIGEMPTYSET        0
 
-/* Define if you have the stat function.  */
+/* Define to 1 if you have the 'snprintf' function. */
+#define HAVE_SNPRINTF 1
+
+/* Define to 1 if you have the 'stat' function.  */
 #define HAVE_STAT 1
 
-/* Define if you have the strchr function.  */
-#define HAVE_STRCHR 1
+/* Define HAVE_STAT_INO if your struct stat has st_ino and st_dev. */
+#define HAVE_STAT_INO 0
 
-/* Define if you have the system function.  */
-#define HAVE_SYSTEM     1
+/* Define to 1 if you have the <stdckdint.h> header file. */
+#define HAVE_STDCKDINT_H 0
 
-/* Define if you have the snprintf function.  */
-#define HAVE_SNPRINTF   1
+/* Define to 1 if you have the <stdint.h> header file. */
+#define HAVE_STDINT_H 0
 
-/* Define if you have the <ctype.h> header file.  */
-#define HAVE_CTYPE_H 1
-
-/* Define if you have the <wctype.h> header file.  */
-#define HAVE_WCTYPE_H 1
-
-/* Define if you have the <errno.h> header file.  */
-#define HAVE_ERRNO_H 1
-
-/* Define if you have the <fcntl.h> header file.  */
-#define HAVE_FCNTL_H 1
-
-/* Define if you have the <limits.h> header file.  */
-#define HAVE_LIMITS_H 1
-
-/* Define if you have the <stdio.h> header file.  */
+/* Define to 1 if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1
 
-/* Define if you have the <string.h> header file.  */
-#define HAVE_STRING_H 1
-
-/* Define if you have the <stdlib> header file. */
+/* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
 
-/* Define if you have the <sys/ioctl.h> header file.  */
+/* Define HAVE_STRERROR if you have the strerror() function. */
+#define HAVE_STRERROR 1
+
+/* Define to 1 if you have the <strings.h> header file. */
+#define HAVE_STRINGS_H  0
+
+/* Define to 1 if you have the <string.h> header file. */
+#define HAVE_STRING_H 1
+
+/* Define to 1 if you have the 'strsignal' function. */
+#define HAVE_STRSIGNAL 0
+
+/* Define to 1 if you have the 'system' function. */
+#define HAVE_SYSTEM 1
+
+/* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable. */
+#define HAVE_SYS_ERRLIST 1
+
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
 #define HAVE_SYS_IOCTL_H 0
 
-/* Define if you have the <sys/ptem.h> header file.  */
-#define HAVE_SYS_PTEM_H 0
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#define HAVE_SYS_STAT_H 0
 
-/* Define if you have the <sys/stream.h> header file.  */
-#define HAVE_SYS_STREAM_H       0
+/* Define to 1 if you have the <sys/stream.h> header file. */
+#define HAVE_SYS_STREAM_H   0
 
-/* Define if you have the <termcap.h> header file.  */
-#define HAVE_TERMCAP_H  0
+/* Define to 1 if you have the <sys/wait.h> header file. */
+#define HAVE_SYS_WAIT_H 0
 
-/* Define if you have the <termio.h> header file.  */
-#define HAVE_TERMIO_H   0
+/* Define to 1 if you have the <termcap.h> header file. */
+#define HAVE_TERMCAP_H 0
 
-/* Define if you have the <termios.h> header file.  */
+/* Define HAVE_TERMINFO if you have the terminfo library. */
+#define HAVE_TERMINFO 0
+
+/* Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr. */
+#define HAVE_TERMIOS_FUNCS 0
+
+/* Define to 1 if you have the <termios.h> header file. */
 #define HAVE_TERMIOS_H 0
 
-/* Define if you have the <time.h> header file.  */
+/* Define to 1 if you have the <termio.h> header file. */
+#define HAVE_TERMIO_H 0
+
+/* Define to 1 if you have the <time.h> header file. */
 #define HAVE_TIME_H 1
 
-/* Define if you have the <unistd.h> header file.  */
+/* Define HAVE_TIME_T if your system supports the "time_t" type. */
+#define HAVE_TIME_T 1
+
+/* Define to 1 if you have the 'ttyname' function. */
+#define HAVE_TTYNAME 0
+
+/* Define to 1 if you have the <unistd.h> header file. */
 #ifdef MINGW
 #define HAVE_UNISTD_H 1
 #else
 #define HAVE_UNISTD_H 0
 #endif
 
-/* Define if you have the <values.h> header file.  */
+/* Define HAVE_UPPER_LOWER if you have isupper, islower, toupper, tolower. */
+#define HAVE_UPPER_LOWER 1
+
+/* Define to 1 if you have the 'usleep' function. */
+#define HAVE_USLEEP 0
+
+/* Define to 1 if you have the <values.h> header file. */
 #ifdef _MSC_VER
 #define HAVE_VALUES_H 0
 #else
@@ -389,6 +423,20 @@
 #define HAVE_VALUES_H 1
 #endif
 #endif
+
+/* Define HAVE_VOID if your compiler supports the "void" type. */
+#define HAVE_VOID 1
+
+/* Define to 1 if you have the '_setjmp' function. */
+#define HAVE__SETJMP 1
+
+/* Define MUST_DEFINE_ERRNO if you have errno but it is not defined in
+   errno.h. */
+#define MUST_DEFINE_ERRNO 0
+
+/* Define MUST_DEFINE_OSPEED if you have ospeed but it is not defined in
+   termcap.h. */
+#define MUST_DEFINE_OSPEED 0
 
 #define popen   _popen
 
