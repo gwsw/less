@@ -12,7 +12,7 @@ CC = bcc32
 LIBDIR = $(MAKEDIR)\..\lib
 
 CFLAGS = -O2 -w-pro -TWC -P-c -v- -d -f- -ff- -vi
-LDFLAGS = -Tpe -v- -ap -c -x -V4.0 -GF:AGGRESSIVE
+LDFLAGS = -Tpe -v- -ap -c -x -V4.0 -GF:AGGRESSIVE -L${LIBDIR}
 LD = ilink32
 LIBS = ${LIBDIR}\import32.lib ${LIBDIR}\cw32.lib
 

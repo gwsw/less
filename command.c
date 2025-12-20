@@ -1508,7 +1508,9 @@ public void commands(void)
 				 * want erase_char/kill_char to be treated
 				 * as line editing characters.
 				 */
-				constant char tbuf[2] = { c, '\0' };
+				char tbuf[2];
+				tbuf[0] = c;
+				tbuf[1] = '\0';
 				action = fcmd_decode(tbuf, &extra);
 			}
 			/*

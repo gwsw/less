@@ -249,7 +249,7 @@ int main(int argc, constant char *argv[])
 	size_t num_files;
 	size_t f;
 	lbool end_opts = FALSE;
-	lbool posixly_correct = FALSE;
+	lbool posixly_correct;
 
 	no_config = getenv("LESSNOCONFIG");
 

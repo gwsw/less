@@ -435,7 +435,7 @@ public void flush(void)
 #endif
 #endif
 
-	if (write(outfd, obuf, n) != n)
+	if (write(outfd, obuf, n) != (ssize_t) n)
 		screen_trashed();
 }
 
