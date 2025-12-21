@@ -1402,7 +1402,6 @@ public void commands(void)
 #endif
 
 	search_type = SRCH_FORW;
-	wscroll = (sc_height + 1) / 2;
 	newaction = A_NOACTION;
 
 	for (;;)

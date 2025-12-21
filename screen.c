@@ -306,11 +306,11 @@ extern int mousecap;
 extern int is_tty;
 extern int use_color;
 extern int no_paste;
+extern int wscroll;
 #if HILITE_SEARCH
 extern int hilite_search;
 #endif
 #if MSDOS_COMPILER==WIN32C
-extern int wscroll;
 extern HANDLE tty;
 #else
 extern int tty;
@@ -835,7 +835,6 @@ public void scrsize(void)
 #define DEF_SC_HEIGHT   24
 #endif
 
-
 	sys_width = sys_height = 0;
 
 #if LESSTEST
@@ -966,6 +965,11 @@ public void scrsize(void)
  */
 public void screen_size_changed(void)
 {
+	constant char *env = lgetenv("LESS_SHELL_LINES");
+	shell_lines = isnullenv(env) ? 1 : atoi(env);
+	if (shell_lines >= sc_height)
+		shell_lines = sc_height - 1;
+	wscroll = (sc_height + 1) / 2;
 	calc_jump_sline();
 	calc_shift_count();
 	calc_match_shift();
@@ -1323,7 +1327,7 @@ public void init_win_colors(void)
 /*
  * Get terminal capabilities via termcap.
  */
-public void get_term(void)
+public void get_term(lbool init)
 {
 	termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
 #if MSDOS_COMPILER
@@ -1349,6 +1353,7 @@ public void get_term(void)
     }
 #else
 #if MSDOS_COMPILER==WIN32C
+	if (init)
     {
 	CONSOLE_SCREEN_BUFFER_INFO scr;
 
@@ -1628,12 +1633,6 @@ public void get_term(void)
 	}
 }
 #endif /* MSDOS_COMPILER */
-	{
-		const char *env = lgetenv("LESS_SHELL_LINES");
-		shell_lines = isnullenv(env) ? 1 : atoi(env);
-		if (shell_lines >= sc_height)
-			shell_lines = sc_height - 1;
-	}
 }
 
 #if !MSDOS_COMPILER

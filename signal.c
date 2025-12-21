@@ -284,12 +284,9 @@ public void psignals(void)
 		 */
 		old_width = sc_width;
 		old_height = sc_height;
-		scrsize();
+		get_term(FALSE);
 		if (sc_width != old_width || sc_height != old_height)
-		{
-			wscroll = (sc_height + 1) / 2;
 			screen_size_changed();
-		}
 		screen_trashed();
 	}
 #endif

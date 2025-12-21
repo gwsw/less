@@ -347,7 +347,7 @@ int main(int argc, constant char *argv[])
 		quit(QUIT_OK);
 	}
 
-	get_term();
+	get_term(TRUE);
 	expand_cmd_tables();
 
 #if EDITOR

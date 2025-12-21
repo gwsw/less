@@ -32,6 +32,7 @@
 #endif
 #endif
 
+extern int sigs;
 extern IFILE curr_ifile;
 
 
@@ -221,15 +222,13 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 	 */
 	reedit_ifile(save_ifile);
 
-#if defined(SIGWINCH) || defined(SIGWIND)
 	/*
 	 * Since we were ignoring window change signals while we executed
 	 * the system command, we must assume the window changed.
 	 * Warning: this leaves a signal pending (in "sigs"),
 	 * so psignals() should be called soon after lsystem().
 	 */
-	lwinch(0);
-#endif
+	sigs |= S_WINCH;
 }
 
 #endif
