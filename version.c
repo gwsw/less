@@ -1070,8 +1070,7 @@ v687  11/17/25  Disallow opening OSC8 link via mouse in secure mode;
 v688  11/28/25  Add LESSNOCONFIG; defer "ti" until first char received;
                 don't auto-bold line numbers.
 v689            Add prompt seqs %C, %W, %Q, ?Q; don't allow any command to
-                interrupt waiting for data.
-
+                interrupt waiting for data; fix screen resize on Windows.
 */
 
 char version[] = "689x";

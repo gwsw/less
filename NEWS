@@ -44,6 +44,8 @@
 
 * Make SIGHUP do an orderly exit like SIGTERM.
 
+* Fix bugs and improve behavior of screen resize on Windows.
+
 * Fix bug when entering search modifier key at start of non-empty 
   search string (github #668).
 
