@@ -76,7 +76,7 @@ INSTALLATION (Unix & Linux systems only):
    Makefile now.  Take particular notice of the list of "terminal" 
    libraries in the LIBS definition in the Makefile; these may need 
    to be edited.  The terminal libraries will be some subset of
-       -lncurses  -lcurses  -ltermcap  -ltermlib
+    -ltinfo -ltinfow -lxcurses -lncursesw -lncurses -lcurses -ltermcap -ltermlib
 
    If you wish, you may edit defines.h to remove some optional features.
    If you choose not to include some features in your version, you may
@@ -124,8 +124,8 @@ INSTALLATION (Windows-95, Windows-98 and Windows-NT systems only,
    If you are using mingw, run "make -f Makefile.wng".
    If you are using Borland C, run "make -f Makefile.wnb".
 
-   You can set the environment variable SECURE_COMPILE to 1 during the
-   make to build a "secure" version of less, with some features disabled.
+   If the environment variable SECURE_COMPILE is to 1 during the make,
+   a "secure" version of less is built, with some features disabled.
 
 4. If the make succeeds, it will generate the programs "less.exe" and
    "lesskey.exe" in your current directory.  Test the generated programs.
