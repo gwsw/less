@@ -785,7 +785,7 @@ static int cmd_search(constant char *cmd, constant unsigned char *table, constan
 	while (table < endtable)
 	{
 		int taction;
-		const unsigned char *textra;
+		constant unsigned char *textra;
 		size_t cmdlen;
 		size_t match = cmd_match((constant char *) table, cmd);
 		table = cmd_next_entry(table, &taction, &textra, &cmdlen);
