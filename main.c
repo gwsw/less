@@ -498,6 +498,9 @@ int main(int argc, constant char *argv[])
 		putchr('\n');
 	}
 	set_output(1, FALSE);
+#if MSDOS_COMPILER
+	term_init();
+#endif
 	commands();
 	quit(QUIT_OK);
 	/*NOTREACHED*/

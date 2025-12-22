@@ -2337,7 +2337,6 @@ public void line_left(void)
 #endif
 }
 
-#if 0
 /*
  * Check if the console size has changed and reset internals 
  * (in lieu of SIGWINCH for WIN32).
@@ -2362,12 +2361,11 @@ public void check_winch(void)
 		if (!no_init && con_out_ours == con_out)
 			SetConsoleScreenBufferSize(con_out, size);
 		pos_init();
-		wscroll = (sc_height + 1) / 2;
+		screen_size_changed();
 		screen_trashed();
 	}
 #endif
 }
-#endif
 
 /*
  * Goto a specific line on the screen.
@@ -3373,7 +3371,6 @@ static lbool win32_window_event(XINPUT_RECORD *xip)
 {
 	if (xip->ir.EventType != WINDOW_BUFFER_SIZE_EVENT)
 		return (FALSE);
-	sigs |= S_WINCH;
 	win32_enqueue(READ_AGAIN);
 	return (TRUE);
 }
