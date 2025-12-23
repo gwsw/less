@@ -1763,7 +1763,7 @@ static void initcolor(void)
 static void win32_init_vt_term(void)
 {
 	if (vt_enabled == 0 || (vt_enabled == 1 && con_out == con_out_ours))
-		return;  // already initialized
+		return;  /* already initialized */
 
 	/* don't care about the initial mode, and win VT hard-enables am+xn */
 	vt_enabled = SetConsoleMode(con_out, ENABLE_PROCESSED_OUTPUT |
@@ -1808,9 +1808,11 @@ static void win32_init_term(void)
 			CONSOLE_TEXTMODE_BUFFER,
 			(LPVOID) NULL);
 
-		// we don't care about the initial state. we need processed
-		// output without anything else (no wrap at EOL, no VT,
-		// no disabled auto-return).
+		/*
+		 * We don't care about the initial state. We need processed
+		 * output without anything else (no wrap at EOL, no VT,
+		 * no disabled auto-return).
+		 */
 		if (SetConsoleMode(con_out_ours, ENABLE_PROCESSED_OUTPUT))
 			auto_wrap = 0;
 	}
