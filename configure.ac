@@ -187,13 +187,14 @@ if test "x$TERMLIBS" = x; then
 fi
 AC_MSG_RESULT(using $TERMLIBS)
 LIBS="$LIBS $TERMLIBS"
-fi
 
 # Check for terminfo vs termcap.
 AC_MSG_CHECKING(for terminfo)
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <curses.h>
 #include <term.h>]], [[setupterm("",0,0); tigetflag(""); tigetnum(""); tigetstr("")]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_TERMINFO)],[AC_MSG_RESULT(no)])
+
+fi
 
 # Autoheader templates for symbols defined later by AC_DEFINE.
 AH_TEMPLATE([HAVE_GNU_REGEX],
