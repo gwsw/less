@@ -46,6 +46,13 @@ AC_TYPE_SIZE_T
 
 # Checks for terminal libraries
 AC_MSG_CHECKING([for working terminal libraries])
+
+AC_ARG_WITH(termlib,
+  [  --without-termlib       Don't require a terminal library])
+if test "x$with_termlib" = "xno"; then
+  AC_MSG_RESULT([not using a terminal library due to --without-termlib])
+else
+
 TERMLIBS=
 include_termcap_h=
 if test "x$ac_cv_header_termcap_h" = xyes; then include_termcap_h="#include <termcap.h>"; elif test "x$ac_cv_header_ncurses_termcap_h" = xyes; then include_termcap_h="#include <ncurses/termcap.h>"; elif test "x$ac_cv_header_ncursesw_termcap_h" = xyes; then include_termcap_h="#include <ncursesw/termcap.h>"; fi
@@ -180,6 +187,7 @@ if test "x$TERMLIBS" = x; then
 fi
 AC_MSG_RESULT(using $TERMLIBS)
 LIBS="$LIBS $TERMLIBS"
+fi
 
 # Check for terminfo vs termcap.
 AC_MSG_CHECKING(for terminfo)
