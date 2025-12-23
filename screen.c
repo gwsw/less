@@ -1327,7 +1327,7 @@ public void init_win_colors(void)
 /*
  * Get terminal capabilities via termcap.
  */
-public void get_term(lbool init)
+public void get_term()
 {
 	termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
 #if MSDOS_COMPILER
@@ -1353,7 +1353,6 @@ public void get_term(lbool init)
     }
 #else
 #if MSDOS_COMPILER==WIN32C
-	if (init)
     {
 	CONSOLE_SCREEN_BUFFER_INFO scr;
 

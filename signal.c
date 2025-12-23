@@ -284,7 +284,7 @@ public void psignals(void)
 		 */
 		old_width = sc_width;
 		old_height = sc_height;
-		get_term(FALSE);
+		get_term();
 		if (sc_width != old_width || sc_height != old_height)
 			screen_size_changed();
 		screen_trashed();
