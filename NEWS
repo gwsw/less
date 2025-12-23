@@ -30,6 +30,8 @@
 
 * Add LESSNOCONFIG environment variable.
 
+* Add --without-termlib to configure (github #701).
+
 * When setting line number colors (-DN), don't force bold attribute.
   To set bold, you must append "d" or "*" to the color string (github #684).
 
