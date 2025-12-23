@@ -1640,7 +1640,6 @@ public void get_term()
  * We use the trick of calling tputs, but as a char printing function
  * we give it inc_costcount, which just increments "costcount".
  * This tells us how many chars would be printed by using this string.
- * {{ Couldn't we just use strlen? }}
  */
 static int costcount;
 
