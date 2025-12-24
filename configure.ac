@@ -48,7 +48,7 @@ AC_TYPE_SIZE_T
 AC_MSG_CHECKING([for working terminal libraries])
 
 AC_ARG_WITH(termlib,
-  [  --without-termlib       Don't require a terminal library])
+  [  --without-termlib       do not require a terminal library])
 if test "x$with_termlib" = "xno"; then
   AC_MSG_RESULT([not using a terminal library due to --without-termlib])
 else
@@ -379,7 +379,7 @@ fi
 
 # Compile in secure mode?
 AC_ARG_WITH(secure,
-  [  --with-secure           Compile in secure mode])
+  [  --with-secure           compile in secure mode])
 AS_IF([test "x$with_secure" = "xyes"],[
   AC_DEFINE(SECURE_COMPILE, 1)
   AC_SUBST(SECURE_COMPILE,1)], [AC_DEFINE(SECURE_COMPILE, 0)
