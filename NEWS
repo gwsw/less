@@ -46,6 +46,8 @@
 
 * Make SIGHUP do an orderly exit like SIGTERM.
 
+* Implement modeline handling in Windows build.
+
 * Fix bugs and improve behavior of screen resize on Windows.
 
 * Fix bug when entering search modifier key at start of non-empty 
@@ -61,7 +63,11 @@
 * Fix incorrect display when returning to a mark after resizeing window
   (github #681).
 
+* Fix bug using --pattern with --incsearch (github #696).
+
 * Disallow mouse click to open OSC8 link in SECURE mode (github #676).
+
+* Add SECURE_COMPILE environment variable for Windows builds.
 
 * Update Unicode tables.
 
