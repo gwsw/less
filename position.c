@@ -147,19 +147,19 @@ public int onscreen(POSITION pos)
 /*
  * See if the entire screen is empty.
  */
-public int empty_screen(void)
+public lbool empty_screen(void)
 {
 	return (empty_lines(0, sc_height-1));
 }
 
-public int empty_lines(int s, int e)
+public lbool empty_lines(int s, int e)
 {
 	int i;
 
 	for (i = s;  i <= e;  i++)
 		if (table[i] != NULL_POSITION && table[i] != 0)
-			return (0);
-	return (1);
+			return FALSE;
+	return TRUE;
 }
 
 /*

@@ -2052,7 +2052,7 @@ public void term_deinit(void)
 /*
  * Are we interactive (ie. writing to an initialized tty)?
  */
-public int interactive(void)
+public lbool interactive(void)
 {
 	return (is_tty && term_init_done);
 }

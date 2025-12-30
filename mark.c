@@ -217,7 +217,7 @@ static struct mark * getmark(char c)
 /*
  * Is a mark letter invalid?
  */
-public int badmark(char c)
+public lbool badmark(char c)
 {
 	return (getmark(c) == NULL);
 }

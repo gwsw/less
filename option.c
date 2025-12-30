@@ -513,20 +513,20 @@ static int flip_triple(int val, lbool lc)
 /*
  * Determine if an option takes a parameter.
  */
-public int opt_has_param(struct loption *o)
+public lbool opt_has_param(constant struct loption *o)
 {
 	if (o == NULL)
-		return (0);
+		return FALSE;
 	if (o->otype & (O_BOOL|O_TRIPLE|O_NOVAR|O_NO_TOGGLE))
-		return (0);
-	return (1);
+		return FALSE;
+	return TRUE;
 }
 
 /*
  * Return the prompt to be used for a given option letter.
  * Only string and number valued options have prompts.
  */
-public constant char * opt_prompt(struct loption *o)
+public constant char * opt_prompt(constant struct loption *o)
 {
 	if (o == NULL || (o->otype & (O_STRING|O_NUMBER)) == 0)
 		return ("?");

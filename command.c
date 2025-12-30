@@ -152,7 +152,7 @@ static void start_mca(int action, constant char *prompt, void *mlist, int cmdfla
 	set_mlist(mlist, cmdflags);
 }
 
-public int in_mca(void)
+public lbool in_mca(void)
 {
 	return (mca != 0 && mca != A_PREFIX);
 }

@@ -101,7 +101,7 @@ public void init_textlist(struct textlist *tlist, mutable char *str)
 	}
 }
 
-public constant char * forw_textlist(struct textlist *tlist, constant char *prev)
+public constant char * forw_textlist(constant struct textlist *tlist, constant char *prev)
 {
 	constant char *s;
 	
@@ -120,7 +120,7 @@ public constant char * forw_textlist(struct textlist *tlist, constant char *prev
 	return (s);
 }
 
-public constant char * back_textlist(struct textlist *tlist, constant char *prev)
+public constant char * back_textlist(constant struct textlist *tlist, constant char *prev)
 {
 	constant char *s;
 	

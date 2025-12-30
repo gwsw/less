@@ -600,7 +600,7 @@ IPRINT_FUNC(iprint_linenum, LINENUM, linenumtoa)
  * {{ This paranoia about the portability of printf dates from experiences
  *    with systems in the 1980s and is of course no longer necessary. }}
  */
-public int less_printf(constant char *fmt, PARG *parg)
+public int less_printf(constant char *fmt, constant PARG *parg)
 {
 	constant char *s;
 	constant char *es;
@@ -686,7 +686,7 @@ public void get_return(void)
  * Output a message in the lower left corner of the screen
  * and wait for carriage return.
  */
-public void error(constant char *fmt, PARG *parg)
+public void error(constant char *fmt, constant PARG *parg)
 {
 	int col = 0;
 	static char return_to_continue[] = "  (press RETURN)";
@@ -732,7 +732,7 @@ public void error(constant char *fmt, PARG *parg)
  * Usually used to warn that we are beginning a potentially
  * time-consuming operation.
  */
-static void ierror_suffix(constant char *fmt, PARG *parg, constant char *suffix1, constant char *suffix2, constant char *suffix3)
+static void ierror_suffix(constant char *fmt, constant PARG *parg, constant char *suffix1, constant char *suffix2, constant char *suffix3)
 {
 	at_exit();
 	clear_bot();
@@ -746,12 +746,12 @@ static void ierror_suffix(constant char *fmt, PARG *parg, constant char *suffix1
 	need_clr = 1;
 }
 
-public void ierror(constant char *fmt, PARG *parg)
+public void ierror(constant char *fmt, constant PARG *parg)
 {
 	ierror_suffix(fmt, parg, "... (interrupt to abort)", "", "");
 }
 
-public void ixerror(constant char *fmt, PARG *parg)
+public void ixerror(constant char *fmt, constant PARG *parg)
 {
 	if (!supports_ctrl_x())
 		ierror(fmt, parg);
@@ -767,7 +767,7 @@ public void ixerror(constant char *fmt, PARG *parg)
  * Output a message in the lower left corner of the screen
  * and return a single-character response.
  */
-public int query(constant char *fmt, PARG *parg)
+public int query(constant char *fmt, constant PARG *parg)
 {
 	int c;
 	int col = 0;

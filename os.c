@@ -207,7 +207,7 @@ public lbool ttyin_ready(void)
 #endif
 }
 
-public int supports_ctrl_x(void)
+public lbool supports_ctrl_x(void)
 {
 #if MSDOS_COMPILER==WIN32C
 	return (TRUE);
