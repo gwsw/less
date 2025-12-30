@@ -1072,6 +1072,7 @@ v688  11/28/25  Add LESSNOCONFIG; defer "ti" until first char received;
 v689  12/27/25  Add prompt seqs %C, %W, %Q, ?Q; don't allow any command to
                 interrupt waiting for data; fix screen resize on Windows;
                 add --without-termlib.
+v690
 */
 
-char version[] = "689";
+char version[] = "690x";
