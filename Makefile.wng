@@ -7,23 +7,23 @@
 #
 # When cross compiling, add also: SHELL=sh CC=<mingw-cc>
 #
-# The optional command line parameter "REGEX_PACKAGE" is used to specify 
+# The optional command line parameter "REGEX_PACKAGE=..." is used to specify
 # a regular expression package for compilation and linking.  This parameter
-# can assume one of three values.  
+# can assume one of four values:
 #
-# REGEX_PACKAGE == regcomp-local
+# REGEX_PACKAGE == regcomp-local  (default, always available)
 #   This choice selects the regular expression package written by Henry
-#   Spencer.  It is implemented by the repository file "regexp.c".  
+#   Spencer.  It is implemented by the repository file "regexp.c", without
+#   any external dependencies.
 #
-# REGEX_PACKAGE == posix
-#   This choice selects the POSIX implementation and is provided by MingW.  
-#   This is the default choice.  
+# REGEX_PACKAGE == none  (always available)
+#   This choice disables regex, and instead uses smart plain text search
 #
-# REGEX_PACKAGE == gnu
-#   This choice selects the GNU implementation and is provided by MingW.  
+# REGEX_PACKAGE == posix  (might not be available)
+#   This choice selects the POSIX implementation, if provided by MingW.
 #
-# REGEX_PACKAGE == none
-#   This choice disables regex, and instead uses smart plain text search.
+# REGEX_PACKAGE == gnu  (might not be available)
+#   This choice selects the GNU implementation, if provided by MingW.
 #
 # By default, the files help.c and funcs.h are generated using few posix
 # utilities (grep, sed, etc). On Windows, if the tools are missing, add:
