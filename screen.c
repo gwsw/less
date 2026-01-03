@@ -3328,8 +3328,8 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 static lbool win32_key_event(XINPUT_RECORD *xip)
 {
 	int repeat;
-	unsigned char utf8[UTF8_MAX_LENGTH];
-	unsigned char *up;
+	char utf8[UTF8_MAX_LENGTH];
+	char *up;
 
 	if (xip->ir.EventType != KEY_EVENT ||
 	    ((xip->ir.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED)) == (RIGHT_ALT_PRESSED|LEFT_CTRL_PRESSED) && xip->ir.Event.KeyEvent.uChar.UnicodeChar == 0) ||
@@ -3357,9 +3357,9 @@ static lbool win32_key_event(XINPUT_RECORD *xip)
 	put_wchar(&up, xip->ichar);
 	for (; repeat > 0; --repeat)
 	{
-		constant unsigned char *p;
+		constant char *p;
 		for (p = utf8; p < up; ++p)
-			 win32_enqueue(*p);
+			 win32_enqueue(*p & 0xFF);
 	}
 	return (TRUE);
 }
