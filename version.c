@@ -1073,7 +1073,7 @@ v689  12/27/25  Add prompt seqs %C, %W, %Q, ?Q; don't allow any command to
                 interrupt waiting for data; fix screen resize on Windows;
                 add --without-termlib.
 v690  12/31/25  Cleanup.
-v691
+v691  1/10/26   Fix mingw build.
 */
 
-char version[] = "691x";
+char version[] = "691";
