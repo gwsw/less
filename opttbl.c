@@ -472,7 +472,7 @@ static struct loption option[] =
 		}
 	},
 	{ 'z', &z_optname,
-		O_NUMBER, -1, &swindow, NULL,
+		O_NUMBER|O_NEGOK, -1, &swindow, NULL,
 		{
 			"Scroll window size: ",
 			"Scroll window size is %d lines",

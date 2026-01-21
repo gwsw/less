@@ -1624,7 +1624,7 @@ lines less than the current screen size.
 For example, if the screen is 24 lines,
 .B "\-z\-4"
 sets the
-scrolling window to 20 lines.  If the screen is resized to 40 lines,
+scrolling window to 20 lines.  If the screen is later resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
 .IP "\fB\-""\fP\fIcc\fP\ or\ \fB\-\-quotes=\fP\fIcc\fP"
 Changes the filename quoting character.
