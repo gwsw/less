@@ -3198,7 +3198,7 @@ Possible location of the history file; see the description of the LESSHISTFILE e
 .BR lessecho (1)
 .
 .SH COPYRIGHT
-Copyright (C) 1984-2025  Mark Nudelman
+Copyright (C) 1984-2026  Mark Nudelman
 .PP
 less is part of the GNU project and is free software.
 You can redistribute it and/or modify it
