@@ -1418,6 +1418,8 @@ public void get_term()
 		term = DEFAULT_TERM;
 	hardcopy = 0;
 #if USE_TERMINFO
+	if (cur_term != NULL)
+		del_curterm(cur_term);
 	if (setupterm(term, -1, NULL) != OK)
 		hardcopy = 1;
 #else
