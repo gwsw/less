@@ -1176,6 +1176,10 @@ static int add_hometable(int (*call_lesskey)(constant char *, lbool), constant c
 	constant char *efilename;
 	int r;
 
+#if LESSTEST
+	if (is_lesstest()) /* Don't use lesskey files in lesstest */
+		return -1;
+#endif
 	if (envname != NULL && (efilename = lgetenv(envname)) != NULL)
 		filename = save(efilename);
 	else if (sysvar) /* def_filename is full path */
