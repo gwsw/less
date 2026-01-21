@@ -369,6 +369,15 @@ static void set_termio_flags(
 		| ONLRET
 #endif
 	);
+
+	s->c_iflag &= ~(0
+#ifdef ICRNL
+		| ICRNL
+#endif
+#ifdef INLCR
+		| INLCR
+#endif
+	);
 }
 #endif
 
@@ -381,7 +390,7 @@ static void set_termio_flags(
  *      4. \t is NOT expanded into spaces.
  *      5. Signal-causing characters such as ctrl-C (interrupt),
  *         etc. are NOT disabled.
- * It doesn't matter whether an input \n is mapped to \r, or vice versa.
+ *      6. Input \r is not mapped to \n, nor vice versa.
  */
 public void raw_mode(int on)
 {
