@@ -1074,6 +1074,7 @@ v689  12/27/25  Add prompt seqs %C, %W, %Q, ?Q; don't allow any command to
                 add --without-termlib.
 v690  12/31/25  Cleanup.
 v691  1/10/26   Fix mingw build.
+v692
 */
 
-char version[] = "691";
+char version[] = "692x";
