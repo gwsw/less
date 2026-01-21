@@ -141,7 +141,7 @@ unicode/EastAsianWidth.txt:
 distfiles: ${DISTFILES}
 
 echo_distfiles: 
-	@echo $(subst .nro,.nro.VER,${DISTFILES})
+	@echo $(subst .nro,.nro.VER,${DISTFILES}) | sed -e 's/[^ ]*\.lt / /g' -e 's/[^ ]*\.man / /g'
 
 dist: ${DISTFILES}
 	if [ ! -d ${srcdir}/release ]; then mkdir ${srcdir}/release; fi
