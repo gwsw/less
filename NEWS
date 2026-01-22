@@ -17,6 +17,8 @@
 
 * Fix bug using negative value with -z option (github #709).
 
+* Fix bug handling empty terminfo capabilties (github #710).
+
 * Fix memory leak in setupterm (github #707).
 
 ======================================================================

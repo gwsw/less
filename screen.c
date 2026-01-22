@@ -1298,6 +1298,8 @@ public constant char * special_key_str(int key)
 	default:
 		return (NULL);
 	}
+	if (s != NULL && *s == '\0')
+		s = NULL;
 	return (s);
 }
 

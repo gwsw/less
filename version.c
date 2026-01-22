@@ -1075,7 +1075,8 @@ v689  12/27/25  Add prompt seqs %C, %W, %Q, ?Q; don't allow any command to
 v690  12/31/25  Cleanup.
 v691  1/10/26   Fix mingw build.
 v692            Fix memory leak in setupterm; clear termio ICRNL|INLCR;
-                fix bug with negative value in -z.
+                fix bug with negative value in -z; fix bug with empty 
+                terminfo caps.
 */
 
 char version[] = "692x";
