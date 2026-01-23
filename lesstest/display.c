@@ -145,7 +145,6 @@ void display_screen_debug(const byte* img, int imglen, int screen_width, int scr
 
 // Print a list of strings.
 void print_strings(const char* title, char* const* strings) {
-	if (1) return; ///
 	fprintf(stderr, "%s:\n", title);
 	char* const* s;
 	for (s = strings; *s != NULL; ++s) {
