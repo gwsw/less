@@ -429,9 +429,18 @@ static void set_charset(void)
 	/*
 	 * Try using the codeset name as the charset name.
 	 */
-	s = nl_langinfo(CODESET);
-	if (icharset(s, 1))
-		return;
+#if LESSTEST
+	/*
+	 * Don't check nl_langinfo in lesstest mode; charset should come
+	 * only from environment variables, not from the system locale.
+	 */
+	if (0) /* {{ unfortunately it's too early to use is_lesstest }} */
+#endif
+	{
+		s = nl_langinfo(CODESET);
+		if (icharset(s, 1))
+			return;
+	}
 #endif
 #endif
 
