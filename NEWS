@@ -21,6 +21,8 @@
 
 * Fix memory leak in setupterm (github #707).
 
+* Make lesstest ignore system locale (nl_langinfo) (github #708).
+
 ======================================================================
 
 	Major changes between "less" versions 685 and 691
