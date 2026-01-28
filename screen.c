@@ -1039,6 +1039,8 @@ public constant char * special_key_str(int key)
 	static char k_left[]            = { '\340', PCK_LEFT, 0  };
 	static char k_ctl_right[]       = { '\340', PCK_CTL_RIGHT, 0  };
 	static char k_ctl_left[]        = { '\340', PCK_CTL_LEFT, 0  };
+	static char k_shift_right[]     = { '\340', PCK_SHIFT_RIGHT, 0  };
+	static char k_shift_left[]      = { '\340', PCK_SHIFT_LEFT, 0  };
 	static char k_insert[]          = { '\340', PCK_INSERT, 0  };
 	static char k_delete[]          = { '\340', PCK_DELETE, 0  };
 	static char k_ctl_delete[]      = { '\340', PCK_CTL_DELETE, 0  };
@@ -1144,6 +1146,12 @@ public constant char * special_key_str(int key)
 	case SK_CTL_RIGHT_ARROW:
 		s = k_ctl_right;
 		break;
+	case SK_SHIFT_LEFT_ARROW:
+		s = k_shift_left;
+		break;
+	case SK_SHIFT_RIGHT_ARROW:
+		s = k_shift_right;
+		break;
 	case SK_CTL_BACKSPACE:
 		s = k_ctl_backspace;
 		break;
@@ -1213,6 +1221,12 @@ public constant char * special_key_str(int key)
 		break;
 	case SK_BACKTAB:
 		s = ltgetstr("kcbt", "kB", &sp);
+		break;
+	case SK_SHIFT_RIGHT_ARROW:
+		s = ltgetstr("kRIT", NULL, &sp);
+		break;
+	case SK_SHIFT_LEFT_ARROW:
+		s = ltgetstr("kLFT", NULL, &sp);
 		break;
 	case SK_CTL_RIGHT_ARROW:
 		s = ltgetstr("kRIT5", NULL, &sp);
@@ -3313,6 +3327,12 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 		{
 			switch (xip->ir.Event.KeyEvent.wVirtualScanCode)
 			{
+				case PCK_RIGHT:
+					scan = PCK_SHIFT_RIGHT;
+					break;
+				case PCK_LEFT:
+					scan = PCK_SHIFT_LEFT;
+					break;
 				case PCK_HOME:
 					scan = PCK_SHIFT_HOME;
 					break;

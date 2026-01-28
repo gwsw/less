@@ -36,3 +36,5 @@
 #define PCK_CTL_HOME            '\x7a'
 #define PCK_CTL_END             '\x7c'
 #define PCK_SHIFT_HOME          '\x7d'
+#define PCK_SHIFT_LEFT          '\x73'
+#define PCK_SHIFT_RIGHT         '\x7f'

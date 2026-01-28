@@ -1076,7 +1076,8 @@ v690  12/31/25  Cleanup.
 v691  1/10/26   Fix mingw build.
 v692            Fix memory leak in setupterm; clear termio ICRNL|INLCR;
                 fix bug with negative value in -z; fix bug with empty 
-                terminfo caps; make lesstest ignore nl_langinfo.
+                terminfo caps; make lesstest ignore nl_langinfo;
+				revert HOME/END to g/G; add keys & cmds to lesskey parser.
 */
 
 char version[] = "692x";
