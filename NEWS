@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 691 and 692
+	Major changes between "less" versions 691 and 693
 
 * Revert HOME key to scroll to beginning of file and END key
   to scroll to end of file (github #658).

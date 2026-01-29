@@ -1078,6 +1078,7 @@ v692  1/29/26   Fix memory leak in setupterm; clear termio ICRNL|INLCR;
                 fix bug with negative value in -z; fix bug with empty 
                 terminfo caps; make lesstest ignore nl_langinfo;
 				revert HOME/END to g/G; add keys & cmds to lesskey parser.
+v693
 */
 
-char version[] = "692";
+char version[] = "693x";
