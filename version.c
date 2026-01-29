@@ -1074,10 +1074,10 @@ v689  12/27/25  Add prompt seqs %C, %W, %Q, ?Q; don't allow any command to
                 add --without-termlib.
 v690  12/31/25  Cleanup.
 v691  1/10/26   Fix mingw build.
-v692            Fix memory leak in setupterm; clear termio ICRNL|INLCR;
+v692  1/29/26   Fix memory leak in setupterm; clear termio ICRNL|INLCR;
                 fix bug with negative value in -z; fix bug with empty 
                 terminfo caps; make lesstest ignore nl_langinfo;
 				revert HOME/END to g/G; add keys & cmds to lesskey parser.
 */
 
-char version[] = "692x";
+char version[] = "692";
