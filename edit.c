@@ -545,7 +545,7 @@ public int edit_ifile(IFILE ifile)
 			} else 
 			{
 				chflags |= CH_CANSEEK;
-				if (is_tty && bin_file(f, &nread) && !force_open && !opened(ifile))
+				if (bin_file(f, &nread) && is_tty && !force_open && !opened(ifile))
 				{
 					/*
 					 * Looks like a binary file.  
