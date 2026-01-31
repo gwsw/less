@@ -413,10 +413,10 @@ int main(int argc, constant char *argv[])
 		 * Output is not a tty.
 		 * Just copy the input file(s) to output.
 		 */
-		set_output(1, TRUE); /* write to stdout */
 		SET_BINARY(1);
 		if (edit_first() == 0)
 		{
+			set_output(1, TRUE); /* write to stdout */
 			do {
 				cat_file();
 			} while (edit_next(1) == 0);
