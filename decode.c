@@ -335,7 +335,7 @@ static void expand_special_keys(unsigned char *table, size_t len)
 		 * Rewrite each command in the table with any
 		 * special key abbreviations expanded.
 		 */
-		for (to = fm;  *fm != '\0'; )
+		for (to = fm;  fm < table + len && *fm != '\0'; )
 		{
 			if (*fm != SK_SPECIAL_KEY)
 			{
