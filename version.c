@@ -1077,8 +1077,10 @@ v691  1/10/26   Fix mingw build.
 v692  1/29/26   Fix memory leak in setupterm; clear termio ICRNL|INLCR;
                 fix bug with negative value in -z; fix bug with empty 
                 terminfo caps; make lesstest ignore nl_langinfo;
-				revert HOME/END to g/G; add keys & cmds to lesskey parser.
-v693
+                revert HOME/END to g/G; add keys & cmds to lesskey parser.
+v693            Fix binary file with redirected stdout; fix error messages
+                with redirected stdout; fix buffer overrun with malformed
+                lesskey file.
 */
 
 char version[] = "693x";
