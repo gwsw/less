@@ -370,7 +370,7 @@ static void expand_special_keys(unsigned char *table, size_t len)
 		a = *fm++ & 0377;
 		if (a & A_EXTRA)
 		{
-			while (*fm++ != '\0')
+			while (fm < table + len && *fm++ != '\0')
 				continue;
 		}
 	}
