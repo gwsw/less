@@ -308,9 +308,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 				 */
 				soft_eof = opos;
 				linepos = opos;
-				if (ABORT_SIGS() ||
-				   (!force && position(TOP) != NULL_POSITION) ||
-				   (!empty_lines(0, 0) && !empty_lines(1, 1) && empty_lines(2, sc_height-1)))
+				if (ABORT_SIGS() || !force)
 				{
 					pos = opos;
 					break;
@@ -397,7 +395,7 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			/*
 			 * Beginning of file: stop here unless "force" is true.
 			 */
-			if (!force)
+			if (ABORT_SIGS() || !force)
 				break;
 		}
 		if (pos != after_header_pos(pos))
