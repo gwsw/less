@@ -800,9 +800,11 @@ static int cmd_search(constant char *cmd, constant unsigned char *table, constan
 				action = taction;
 				if (extra != NULL)
 					*extra = textra;
-			} else if (match > 0 && action == A_INVALID) /* cmd is a prefix of this table entry */
+			} else if (match > 0 && (match > match_len || action == A_INVALID)) /* cmd is a prefix of this table entry */
 			{
 				action = A_PREFIX;
+				if (extra != NULL)
+					*extra = NULL;
 			}
 			match_len = match;
 		}
