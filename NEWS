@@ -15,6 +15,9 @@
 
 * Add -DT option to format tilde lines (github #725).
 
+* Make -w/-W highlight lines when moving backward as well as forward
+  (github #729).
+
 * Don't ask for confirmation when input is a binary file and stdout is
   redirected. Fixes infinite loop in that situation (github #719).
 

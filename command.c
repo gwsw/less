@@ -84,6 +84,7 @@ static struct loption *curropt;
 static lbool opt_lower;
 static int optflag;
 static lbool optgetname;
+static POSITION toppos;
 static POSITION bottompos;
 static int save_hshift;
 static int save_bs_mode;
@@ -899,6 +900,7 @@ static void prompt(void)
 	 * Make sure the screen is displayed.
 	 */
 	make_display();
+	toppos = position(TOP);
 	bottompos = position(BOTTOM_PLUS_ONE);
 
 	/*
@@ -1577,6 +1579,8 @@ public void commands(void)
 			if (number <= 0)
 				number = get_swindow();
 			cmd_exec();
+			if (show_attn && toppos != NULL_POSITION && toppos > ch_zero())
+				set_attnpos(toppos-1);
 			backward((int) number, FALSE, TRUE, FALSE);
 			break;
 
@@ -1602,6 +1606,8 @@ public void commands(void)
 			if (number <= 0)
 				number = 1;
 			cmd_exec();
+			if (show_attn == OPT_ONPLUS && number > 1 && toppos != NULL_POSITION && toppos > ch_zero())
+				set_attnpos(toppos-1);
 			backward((int) number, FALSE, FALSE, action == A_B_NEWLINE && !chopline);
 			break;
 
@@ -1640,6 +1646,8 @@ public void commands(void)
 			if (number <= 0)
 				number = 1;
 			cmd_exec();
+			if (show_attn == OPT_ONPLUS && number > 1 && toppos != NULL_POSITION && toppos > ch_zero())
+				set_attnpos(toppos-1);
 			backward((int) number, TRUE, FALSE, FALSE);
 			break;
 		
@@ -1662,6 +1670,8 @@ public void commands(void)
 			if (number <= 0)
 				number = get_swindow();
 			cmd_exec();
+			if (show_attn == OPT_ONPLUS && toppos != NULL_POSITION && toppos > ch_zero())
+				set_attnpos(toppos-1);
 			backward((int) number, TRUE, FALSE, FALSE);
 			break;
 
@@ -1699,6 +1709,8 @@ public void commands(void)
 			if (number > 0)
 				wscroll = (int) number;
 			cmd_exec();
+			if (show_attn == OPT_ONPLUS && toppos != NULL_POSITION && toppos > ch_zero())
+				set_attnpos(toppos-1);
 			backward(wscroll, FALSE, FALSE, FALSE);
 			break;
 

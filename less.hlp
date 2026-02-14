@@ -202,9 +202,9 @@
   -V  ........  --version
                   Display the version number of "less".
   -w  ........  --hilite-unread
-                  Highlight first new line after forward-screen.
+                  Highlight first new line after full screen movement.
   -W  ........  --HILITE-UNREAD
-                  Highlight first new line after any forward movement.
+                  Highlight first new line after any movement.
   -x [_N[,...]]  --tabs=[_N[,...]]
                   Set tab stops.
   -X  ........  --no-init
