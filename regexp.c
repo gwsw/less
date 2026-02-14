@@ -26,6 +26,7 @@
  * Slightly modified by David MacKenzie to undo most of the changes for TCL.
  * Added regexec2 with notbol parameter. -- 4/19/99 Mark Nudelman
  * Change functions style from K&R to C89 -- 2023-09 Avi Halachmi
+ * Add support for character classes [:NAME:] -- 2026-02 Avi Halachmi
  */
 
 #include "less.h"
@@ -459,6 +460,88 @@ regpiece(int *flagp)
 	return(ret);
 }
 
+
+/*
+ * Handling of character classes [:NAME:]
+ *
+ * - We only cover C/POSIX locale (ASCII).
+ * - We identify the 12 POSIX classes.
+ * - We error on unknown [:THING:].
+ * - [=EQUIV=] or [.COLLATE.] are NOT detected, and considered non-special.
+ * - [:NAME:] errors on either side of '-' range (but not if the '-' is
+ *   literal - at the beginning or end of the [...]).
+ * - The class-name search is unoptimized, but it's only entered
+ *   when "[:" is detected inside [...]. Also, this code is only
+ *   used during regcomp - which is not too perf-critical, so KISS.
+ * - The code is confined to regbracket(), and uses CCLASS_IDX() and cclasses.
+ */
+
+#define CHARS_DIGIT "0123456789"
+#define CHARS_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define CHARS_LOWER "abcdefghijklmnopqrstuvwxyz"
+#define CHARS_PUNCT "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+#define CHARS_ALPHA CHARS_UPPER CHARS_LOWER
+#define CHARS_GRAPH CHARS_DIGIT CHARS_ALPHA CHARS_PUNCT
+
+typedef struct cclass {
+	constant size_t len;  /* of id */
+	constant char *id;
+	constant char *chars;
+} cclass;
+
+/* POSIX regex, collation, and classes:
+ * https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap09.html
+ * https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap07.html
+ */
+static constant cclass cclasses[] = {
+	/* first two chars of id are ignored, and expected to be "[:" */
+	{9,  "[:alnum:]",  CHARS_ALPHA CHARS_DIGIT},
+	{9,  "[:alpha:]",  CHARS_ALPHA},
+	{9,  "[:blank:]",  "\t "},
+	{9,  "[:cntrl:]",      "\x01\x02\x03\x04\x05\x06\x07"
+	                   "\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+	                   "\x10\x11\x12\x13\x14\x15\x16\x17"
+	                   "\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
+	                                     /* DEL */ "\x7f"},
+	{9,  "[:digit:]",  CHARS_DIGIT},
+	{9,  "[:graph:]",  CHARS_GRAPH},
+	{9,  "[:lower:]",  CHARS_LOWER},
+	{9,  "[:print:]",  " " CHARS_GRAPH},
+	{9,  "[:punct:]",  CHARS_PUNCT},
+	{9,  "[:space:]",  "\t\n\v\f\r "},
+	{9,  "[:upper:]",  CHARS_UPPER},
+	{10, "[:xdigit:]", CHARS_DIGIT "ABCDEFabcdef"},
+};
+
+
+/* evaluates to index>=0 in cclasses if s starts with known [:NAME:],
+ *      else to -2 on error (s starts with unknown [:THING:]),
+ *      else to -1 (not-special).
+ *
+ * NOTE: evaluates s multiple times to allow early -1 without function call.
+ */
+#define CCLASS_IDX(s) \
+	((s)[0] == '[' && (s)[1] == ':' ? cclass_idx2((s) + 2) : -1)
+
+/* like CCLASS_IDX, but s2 must be just after the initial "[:" */
+static int
+cclass_idx2(constant char *s2)
+{
+	int i;
+	constant char *p;
+
+	/* linear is enough. don't bother with binary search or hash table */
+	for (i = 0; i < countof(cclasses); ++i)
+		if (strncmp(s2, cclasses[i].id + 2, cclasses[i].len - 2) == 0)
+			return i;
+
+	p = strchr(s2, ']');
+	if (p && p != s2 && p[-1] == ':')
+		return -2;  /* unrecognized [:THING:] */
+
+	return -1;  /* not special as far as we can tell */
+}
+
 /*
  * called with regparse pointing to right after an opening bracket '[' .
  * emits ANYOF/ANYBUT node with a set of chars and (on success) final '\0'.
@@ -471,6 +554,7 @@ regbracket()
 	register char *ret;
 	register int clss;
 	register int classend;
+	int idx;
 
 	if (*regparse == '^') {	/* Complement of range. */
 		ret = regnode(ANYBUT);
@@ -482,6 +566,8 @@ regbracket()
 	while (*regparse != '\0' && *regparse != ']') {
 		if (*regparse == '-') {
 			regparse++;
+			if (CCLASS_IDX(regparse) != -1)
+				FAIL("invalid [] range end");  /* X-[:NAME:] */
 			if (*regparse == ']' || *regparse == '\0')
 				regc('-');
 			else {
@@ -493,8 +579,19 @@ regbracket()
 					regc(clss);
 				regparse++;
 			}
-		} else
+		} else if ((idx = CCLASS_IDX(regparse)) == -1) {
 			regc(*regparse++);
+		} else if (idx == -2) {
+			FAIL("unknown [:CLASS:] name");
+		} else {  /* idx is a valid index, add class chars */
+			constant char *c = cclasses[idx].chars;
+			for (; *c; ++c)
+				regc(*c);
+			regparse += cclasses[idx].len;
+
+			if (*regparse == '-' && regparse[1] != '\0' && regparse[1] != ']')
+				FAIL("invalid [] range start"); /* [:NAME:]-X */
+		}
 	}
 	regc('\0');
 	if (*regparse != ']')
