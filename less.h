@@ -440,8 +440,7 @@ typedef enum osc8_state {
 #define AT_PLACEHOLDER  (1 << 7)  /* Placeholder for half of double-wide char */
 
 #define AT_COLOR_SHIFT    8
-#define AT_NUM_COLORS     16
-#define AT_COLOR          ((AT_NUM_COLORS-1) << AT_COLOR_SHIFT)
+#define AT_COLOR          ((~0) << AT_COLOR_SHIFT)
 #define AT_COLOR_ATTN     (1 << AT_COLOR_SHIFT)
 #define AT_COLOR_BIN      (2 << AT_COLOR_SHIFT)
 #define AT_COLOR_CTRL     (3 << AT_COLOR_SHIFT)
@@ -452,8 +451,11 @@ typedef enum osc8_state {
 #define AT_COLOR_RSCROLL  (8 << AT_COLOR_SHIFT)
 #define AT_COLOR_HEADER   (9 << AT_COLOR_SHIFT)
 #define AT_COLOR_SEARCH   (10 << AT_COLOR_SHIFT)
-#define AT_COLOR_SUBSEARCH(i) ((10+(i)) << AT_COLOR_SHIFT)
-#define NUM_SEARCH_COLORS (AT_NUM_COLORS-10-1)
+#define AT_COLOR_TILDE    (11 << AT_COLOR_SHIFT)
+#define AT_COLOR_SS_OFFSET 12  /* largest AT_COLOR_* value + 1 */
+#define NUM_SEARCH_COLORS  5
+#define AT_NUM_COLORS      (AT_COLOR_SS_OFFSET + NUM_SEARCH_COLORS)
+#define AT_COLOR_SUBSEARCH(i) ((AT_COLOR_SS_OFFSET+(i)-1) << AT_COLOR_SHIFT)
 
 typedef enum { CT_NULL, CT_4BIT, CT_6BIT } COLOR_TYPE;
 

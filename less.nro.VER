@@ -905,6 +905,9 @@ Prompts.
 The rscroll character.
 .IP "S"
 Search results.
+.IP "T"
+The tilde lines displayed after the end of the file or
+before the beginning of the file.
 .IP "W"
 The highlight enabled via the
 .B "\-w"
@@ -1001,7 +1004,7 @@ the corresponding color is set to that of normal text.
 .PP
 A 4-bit or 8-bit color string may be followed by one or more of the
 following characters to set text attributes in addition to the color.
-.IP "s or ~"
+.IP "s or \*~"
 Standout (reverse video)
 .IP "u or _"
 Underline

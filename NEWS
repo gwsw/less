@@ -13,13 +13,29 @@
 
 	Major changes between "less" versions 692 and 693
 
-* Don't ask for confirmation when input is a binary file and stdout is 
+* Add -DT option to format tilde lines (github #725).
+
+* Don't ask for confirmation when input is a binary file and stdout is
   redirected. Fixes infinite loop in that situation (github #719).
 
 * Make early error messages go to stderr if stdout is redirected
   (github #719).
 
 * Fix buffer overflow when using malformed lesskey file (github #721).
+
+* Fix unexpected scrolling past end of file (github #720).
+
+* Fix bug when env var in LESSKEY_CONTENT partially matches env var
+  defined in lesskey file (github #727).
+
+* Fix bug when env var in lesskey file matches tail of env var used
+  by less (github #728).
+
+* Fix command parsing bug when one command is a substring of another.
+  Also fixes --no-paste option (github #724).
+
+* Fix incorrect display using --color to set character attributes
+  without color, such as -DS-u (github #730).
 
 ======================================================================
 

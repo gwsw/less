@@ -1080,7 +1080,8 @@ v692  1/29/26   Fix memory leak in setupterm; clear termio ICRNL|INLCR;
                 revert HOME/END to g/G; add keys & cmds to lesskey parser.
 v693            Fix binary file with redirected stdout; fix error messages
                 with redirected stdout; fix buffer overrun with malformed
-                lesskey file.
+                lesskey file; fix bad scrolling past EOF; fix command
+                parser bugs; fix -D bug when no color specified; add -DT.
 */
 
 char version[] = "693x";
