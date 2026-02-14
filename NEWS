@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 692 and 693
+	Major changes between "less" versions 692 and 694
 
 * Add -DT option to format tilde lines (github #725).
 

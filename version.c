@@ -1084,6 +1084,7 @@ v693  2/14/26   Fix binary file with redirected stdout; fix error messages
                 parser bugs; fix -D bug when no color specified; add -DT;
                 make -w/-W hilite on backward movement; show pattern in
                 "not found" message.
+v694
 */
 
-char version[] = "693";
+char version[] = "694x";
