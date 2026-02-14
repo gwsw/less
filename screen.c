@@ -254,6 +254,11 @@ static constant char
 	*sc_init,               /* Startup terminal initialization */
 	*sc_deinit;             /* Exit terminal de-initialization */
 
+/* attrbits is the current attribute mode of the terminal
+ * (AT_UNDERLINE, AT_BOLD, AT_STANDOUT, AT_BLINK).
+ * attrmode is the user-defined mode, which may include AT_COLOR values,
+ * and the mapping of the AT_COLOR value may include the 4 attribute bits. */
+static int attrbits = 0;
 static int attrcolor = -1;
 #endif
 
@@ -280,7 +285,7 @@ public constant char *kent = NULL;      /* Keypad ENTER sequence */
 public lbool term_addrs = FALSE;        /* "ti" has been sent to terminal */
 public lbool full_screen = TRUE;        /* We're using all lines of terminal */
 
-static int attrmode = AT_NORMAL;
+static int attrmode = AT_NORMAL; /* current attributes (AT_* bits) */
 static int termcap_debug = -1;
 static int no_alt_screen;       /* sc_init does not switch to alt screen */
 extern int binattr;
@@ -2858,13 +2863,25 @@ static void tput_fmt(constant char *fmt, int color, int (*f_putc)(int))
 static void tput_char_cattr(CHAR_ATTR cattr, int (*f_putc)(int))
 {
 	if (cattr & CATTR_UNDERLINE)
+	{
 		ltputs(sc_u_in, 1, f_putc);
+		attrbits |= AT_UNDERLINE;
+	}
 	if (cattr & CATTR_BOLD)
+	{
 		ltputs(sc_b_in, 1, f_putc);
+		attrbits |= AT_BOLD;
+	}
 	if (cattr & CATTR_BLINK)
+	{
 		ltputs(sc_bl_in, 1, f_putc);
+		attrbits |= AT_BLINK;
+	}
 	if (cattr & CATTR_STANDOUT)
+	{
 		ltputs(sc_s_in, 1, f_putc);
+		attrbits |= AT_STANDOUT;
+	}
 }
 
 static void tput_color(constant char *str, int (*f_putc)(int))
@@ -2909,6 +2926,7 @@ static void tput_inmode(constant char *mode_str, int attr, int attr_bit, int (*f
 	if (color_str == NULL || *color_str == '\0' || *color_str == '+')
 	{
 		ltputs(mode_str, 1, f_putc);
+		attrbits |= attr_bit;
 		if (color_str == NULL || *color_str++ != '+')
 			return;
 	}
@@ -2918,9 +2936,10 @@ static void tput_inmode(constant char *mode_str, int attr, int attr_bit, int (*f
 
 static void tput_outmode(constant char *mode_str, int attr_bit, int (*f_putc)(int))
 {
-	if ((attrmode & attr_bit) == 0)
+	if ((attrbits & attr_bit) == 0)
 		return;
 	ltputs(mode_str, 1, f_putc);
+	attrbits &= ~attr_bit;
 }
 
 #else /* MSDOS_COMPILER */
