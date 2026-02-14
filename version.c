@@ -1078,7 +1078,7 @@ v692  1/29/26   Fix memory leak in setupterm; clear termio ICRNL|INLCR;
                 fix bug with negative value in -z; fix bug with empty 
                 terminfo caps; make lesstest ignore nl_langinfo;
                 revert HOME/END to g/G; add keys & cmds to lesskey parser.
-v693            Fix binary file with redirected stdout; fix error messages
+v693  2/14/26   Fix binary file with redirected stdout; fix error messages
                 with redirected stdout; fix buffer overrun with malformed
                 lesskey file; fix bad scrolling past EOF; fix command
                 parser bugs; fix -D bug when no color specified; add -DT;
@@ -1086,4 +1086,4 @@ v693            Fix binary file with redirected stdout; fix error messages
                 "not found" message.
 */
 
-char version[] = "693x";
+char version[] = "693";
