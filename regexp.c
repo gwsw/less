@@ -25,6 +25,7 @@
  * *** NOTE: this code has been altered slightly for use in Tcl. ***
  * Slightly modified by David MacKenzie to undo most of the changes for TCL.
  * Added regexec2 with notbol parameter. -- 4/19/99 Mark Nudelman
+ * Change functions style from K&R to C89 -- 2023-09 Avi Halachmi
  */
 
 #include "less.h"
@@ -701,8 +702,7 @@ STATIC int regrepeat(char *);
 
 #ifdef DEBUG
 int regnarrate = 0;
-void regdump();
-STATIC char *regprop();
+STATIC constant char *regprop(constant char *);
 #endif
 
 /*
@@ -1068,14 +1068,11 @@ regnext(register char *p)
 
 #ifdef DEBUG
 
-STATIC char *regprop();
-
 /*
  - regdump - dump a regexp onto stdout in vaguely comprehensible form
  */
 void
-regdump(r)
-regexp *r;
+regdump(regexp *r)
 {
 	register char *s;
 	register char op = EXACTLY;	/* Arbitrary non-END op. */
@@ -1117,8 +1114,7 @@ regexp *r;
  - regprop - printable representation of opcode
  */
 static constant char *
-regprop(op)
-constant char *op;
+regprop(constant char *op)
 {
 	register char *p;
 	static char buf[50];
