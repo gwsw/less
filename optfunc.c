@@ -649,6 +649,11 @@ public void opt_D(int type, constant char *s)
 		if (*s == 'a')
 		{
 			sgr_mode = !sgr_mode;
+			if (type == TOGGLE)
+			{
+				p.p_string = (sgr_mode) ? "on" : "off";
+				error("SGR mode is %s", &p);
+			}
 			break;
 		}
 #endif
@@ -701,12 +706,6 @@ public void opt_D(int type, constant char *s)
 			return;
 		}
 		break;
-#if MSDOS_COMPILER
-	case QUERY:
-		p.p_string = (sgr_mode) ? "on" : "off";
-		error("SGR mode is %s", &p);
-		break;
-#endif
 	}
 }
 
