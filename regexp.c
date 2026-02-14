@@ -1082,12 +1082,13 @@ regdump(regexp *r)
 	s = r->program + 1;
 	while (op != END) {	/* While that wasn't END last time... */
 		op = OP(s);
-		printf("%2d%s", s-r->program, regprop(s));	/* Where, what. */
+		/* prints ADDRESS:... where the ":..." is from regprop(s) */
+		printf("%2ld%s", (long)(s - r->program), regprop(s));
 		next = regnext(s);
 		if (next == NULL)		/* Next ptr. */
 			printf("(0)");
 		else 
-			printf("(%d)", (s-r->program)+(next-s));
+			printf("(%ld)", (long)((s - r->program)+(next-s)));
 		s += 3;
 		if (op == ANYOF || op == ANYBUT || op == EXACTLY) {
 			/* Literal string, where present. */
