@@ -31,4 +31,8 @@ extern int regexec2 _ANSI_ARGS_((regexp *prog, constant char *string, int notbol
 extern void regsub _ANSI_ARGS_((regexp *prog, constant char *source, char *dest));
 extern void regerror _ANSI_ARGS_((constant char *msg));
 
+#ifdef DEBUG
+  extern void regdump _ANSI_ARGS_((regexp *r));
+#endif
+
 #endif /* REGEXP */
