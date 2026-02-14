@@ -440,7 +440,7 @@ typedef enum osc8_state {
 #define AT_PLACEHOLDER  (1 << 7)  /* Placeholder for half of double-wide char */
 
 #define AT_COLOR_SHIFT    8
-#define AT_COLOR          ((~0u) << AT_COLOR_SHIFT)
+#define AT_COLOR          ((~(unsigned)0) << AT_COLOR_SHIFT)
 #define AT_COLOR_ATTN     (1 << AT_COLOR_SHIFT)
 #define AT_COLOR_BIN      (2 << AT_COLOR_SHIFT)
 #define AT_COLOR_CTRL     (3 << AT_COLOR_SHIFT)
