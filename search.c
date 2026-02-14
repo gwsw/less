@@ -253,6 +253,14 @@ static lbool prev_pattern(struct pattern_info *info)
 	return (info->text != NULL);
 }
 
+/*
+ * Return text of previous search pattern.
+ */
+public constant char* prev_pattern_text(void)
+{
+	return search_info.text;
+}
+
 #if HILITE_SEARCH
 /*
  * Repaint the hilites currently displayed on the screen.

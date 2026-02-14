@@ -18,6 +18,8 @@
 * Make -w/-W highlight lines when moving backward as well as forward
   (github #729).
 
+* Display pattern in "Pattern not found" message (github #731).
+
 * Don't ask for confirmation when input is a binary file and stdout is
   redirected. Fixes infinite loop in that situation (github #719).
 

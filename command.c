@@ -1288,7 +1288,14 @@ static void multi_search(constant char *pattern, int n, int silent)
 	 * Print an error message if we haven't already.
 	 */
 	if (n > 0 && !silent)
-		error("Pattern not found", NULL_PARG);
+	{
+		PARG parg;
+		parg.p_string = prev_pattern_text();
+		if (parg.p_string == NULL) /* {{ can this happen? }} */
+			error("Pattern not found", NULL_PARG);
+		else
+			error("Pattern not found: %s", &parg);
+	}
 
 	if (changed_file)
 	{

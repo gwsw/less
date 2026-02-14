@@ -1082,7 +1082,8 @@ v693            Fix binary file with redirected stdout; fix error messages
                 with redirected stdout; fix buffer overrun with malformed
                 lesskey file; fix bad scrolling past EOF; fix command
                 parser bugs; fix -D bug when no color specified; add -DT;
-                make -w/-W hilite on backward movement.
+                make -w/-W hilite on backward movement; show pattern in
+                "not found" message.
 */
 
 char version[] = "693x";
