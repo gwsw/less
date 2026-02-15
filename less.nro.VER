@@ -613,10 +613,12 @@ For example, the name of the current file would be given as "%f".
 .IP "| <m> shell-command"
 <m> represents any mark letter.
 Pipes a section of the input file to the given shell command.
-The section of the file to be piped is between the position marked by
-the letter and the current screen.
-The entire current screen is included, regardless of whether the
-marked position is before or after the current screen.
+If the marked line is before the top line of the current screen,
+the section to be piped is between the marked line and the bottom line
+of the current screen, inclusive.
+Otherwise (if the marked line is the top line of the current screen
+or after it) the section of the file to be piped is between the top line
+of the current screen and the marked line, inclusive.
 <m> may also be \*^ or $ to indicate beginning or end of file respectively.
 If <m> is \&.\& or newline, the current screen is piped.
 If a \*^P (CONTROL-P) is entered immediately after the mark letter,
