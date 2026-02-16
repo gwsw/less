@@ -2245,7 +2245,7 @@ public void commands(void)
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
-			setmark(c, action == A_SETMARKBOT ? BOTTOM : TOP);
+			setmark(c, sindex_offset(action == A_SETMARK, number));
 			repaint();
 			break;
 

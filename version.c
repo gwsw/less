@@ -1083,8 +1083,9 @@ v693  2/14/26   Fix binary file with redirected stdout; fix error messages
                 lesskey file; fix bad scrolling past EOF; fix command
                 parser bugs; fix -D bug when no color specified; add -DT;
                 make -w/-W hilite on backward movement; show pattern in
-                "not found" message; | cmd pipes 1 line if mark is top line.
-v694
+                "not found" message.
+v694            | cmd pipes 1 line if mark is top line; allow numeric arg
+                on m/M cmds.
 */
 
 char version[] = "694x";

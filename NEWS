@@ -20,6 +20,9 @@
 
 * Display pattern in "Pattern not found" message (github #731).
 
+* Allow m and M commands to take a numeric argument to specify the
+  line to be marked (github #736).
+
 * Change | command to pipe just one line if the marked line is at the
   top of the screen (github #733).
 

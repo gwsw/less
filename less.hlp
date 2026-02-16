@@ -81,8 +81,8 @@
         Each "find open bracket" command goes backward to the open bracket 
           matching the (_N-th) close bracket in the bottom line.
 
-  m_<_l_e_t_t_e_r_>            Mark the current top line with <letter>.
-  M_<_l_e_t_t_e_r_>            Mark the current bottom line with <letter>.
+  m_<_l_e_t_t_e_r_>         *  Mark the (_N-th) top line with <letter>.
+  M_<_l_e_t_t_e_r_>         *  Mark the (_N-th) bottom line with <letter>.
   '_<_l_e_t_t_e_r_>            Go to a previously marked position.
   ''                   Go to the previous position.
   ^X^X                 Same as '.

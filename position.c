@@ -215,6 +215,24 @@ public void get_scrpos(struct scrpos *scrpos, int where)
 }
 
 /*
+ * Convert sline to sindex and clip to screen size.
+ */
+static int sindex_from_sline_clipped(int sline)
+{
+	/*
+	 * Can't be less than 1 or greater than sc_height-1.
+	 */
+	if (sline <= 0)
+		sline = 1;
+	if (sline >= sc_height)
+		sline = sc_height-1;
+	/*
+	 * Return zero-based line number, not one-based.
+	 */
+	return (sline-1);
+}
+
+/*
  * Adjust a screen line number to be a simple positive integer
  * in the range { 0 .. sc_height-2 }.
  * (The bottom line, sc_height-1, is reserved for prompts, etc.)
@@ -231,17 +249,18 @@ public int sindex_from_sline(int sline)
 	 */
 	if (sline < 0)
 		sline += sc_height;
-	/*
-	 * Can't be less than 1 or greater than sc_height-1.
-	 */
-	if (sline <= 0)
-		sline = 1;
-	if (sline >= sc_height)
-		sline = sc_height-1;
-	/*
-	 * Return zero-based line number, not one-based.
-	 */
-	return (sline-1);
+	return sindex_from_sline_clipped(sline);
+}
+
+/*
+ * Add an offset to an sline and convert to an sindex.
+ */
+public int sindex_offset(lbool top, int offset)
+{
+	int sline;
+	if (offset < 1) offset = 1;
+	sline = top ? offset : sc_height - offset;
+	return sindex_from_sline_clipped(sline);
 }
 
 /*
