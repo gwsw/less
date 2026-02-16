@@ -530,8 +530,8 @@ static struct loption option[] =
 	{ OLETTER_NONE, &use_backslash_optname,
 		O_BOOL, OPT_OFF, &opt_use_backslash, NULL,
 		{
-			"Use backslash escaping in command line parameters",
 			"Don't use backslash escaping in command line parameters",
+			"Use backslash escaping in command line parameters",
 			NULL
 		}
 	},
