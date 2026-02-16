@@ -308,7 +308,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 				 */
 				soft_eof = opos;
 				linepos = opos;
-				if (ABORT_SIGS() || !force)
+				if (ABORT_SIGS() || !force ||
+				   (!empty_lines(0, 0) && !empty_lines(1, 1) && empty_lines(2, sc_height-1)))
 				{
 					pos = opos;
 					break;
