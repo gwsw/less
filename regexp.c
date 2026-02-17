@@ -208,7 +208,7 @@ STATIC int strcspn(constant char *, constant char *);
  * of the structure of the compiled regexp.
  */
 regexp *
-regcomp2(constant char *exp, int lower)
+regcomp2(constant char *exp, int icase)
 {
 	register regexp *r;
 	register char *scan;
@@ -224,7 +224,7 @@ regcomp2(constant char *exp, int lower)
 	regnpar = 1;
 	regsize = 0L;
 	regcode = &regdummy;
-	reglower = lower;
+	reglower = icase;
 	regc(MAGIC);
 	if (reg(0, &flags) == NULL)
 		return(NULL);
@@ -248,6 +248,7 @@ regcomp2(constant char *exp, int lower)
 		free(r);
 		return(NULL);
 	}
+	r->regicase = icase;  /* only if prog actually matches alpha chars? */
 
 	/* Dig out information for optimizations. */
 	r->regstart = '\0';	/* Worst-case defaults. */
@@ -717,8 +718,8 @@ STATIC char *regprop();
 /*
  - regexec - match a regexp against a string
  */
-int
-regexec2(register regexp *prog, register constant char *string, int notbol)
+static int
+regexec2_internal(register regexp *prog, register constant char *string, int notbol)
 {
 	register constant char *s;
 
@@ -775,6 +776,57 @@ regexec2(register regexp *prog, register constant char *string, int notbol)
 	/* Failure. */
 	return(0);
 }
+
+/*
+ * frontend for regexec2_internal:
+ * if something is invalid or the program is case-sensitive:
+ * - plain passthrough.
+ * else (case insensitive):
+ * - make a tolower copy of string (the program is already compiled tolower).
+ * - run regexec2_internal on the copy.
+ * - if matched: convert the match pointers back to the original string.
+ *
+ * Optimization opportunities (pending instrumentation):
+ * - regcomp with icase:
+ *   - if prog ends up without a-z (after tolower): don't set prog->regicase.
+ * - regexec2:
+ *   - do plain passthrough if the string is without A-Z .
+ *   - fast table-based tolower: char lower = atolower[(unsigned char)c];
+ *     - also for use in regc() during regcomp.
+ *   - Use local buffer, e.g. 256 bytes, if the string fits - without malloc/free.
+ */
+int
+regexec2(register regexp *prog, register constant char *string, int notbol)
+{
+	int r, i;
+	char *s, *s2;
+
+	/* passthrough */
+	if (!prog || !string || UCHARAT(prog->program) != MAGIC || !prog->regicase)
+		return regexec2_internal(prog, string, notbol);
+
+	/* i-case: work on a tolower copy of string  */
+	if (!(s2 = strdup(string))) {
+		regerror("out of memory");
+		return(0);
+	}
+	for (s = s2; *s; ++s)
+		if (*s >= 'A' && *s <= 'Z')
+			*s += 'a' - 'A';
+
+	r = regexec2_internal(prog, s2, notbol);
+
+	for (i = 0; r && i < NSUBEXP; ++i) {
+		if (prog->startp[i]) {
+			prog->startp[i] = string + (prog->startp[i] - s2);
+			prog->endp[i] = string + (prog->endp[i] - s2);
+		}
+	}
+
+	free(s2);
+	return r;
+}
+
 
 int
 regexec(register regexp *prog, register constant char *string)
