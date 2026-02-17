@@ -38,7 +38,7 @@ less \- display the contents of a file in a terminal
 }
 .IR log-file ]
 .RB [ \-p\ \c
-.I pattern ]
+.IR pattern ]
 .RB [ \-P\ \c
 .IR prompt ]
 .RB [ \-t\ \c
