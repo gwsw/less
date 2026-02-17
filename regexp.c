@@ -163,6 +163,7 @@ static int regnpar;		/* () count. */
 static char regdummy;
 static char *regcode;		/* Code-emit pointer; &regdummy = don't. */
 static long regsize;		/* Code size. */
+static int reglower;		/* Compile every matched c as tolower(c) */
 
 /*
  * The first byte of the regexp internal "program" is actually this magic
@@ -207,7 +208,7 @@ STATIC int strcspn(constant char *, constant char *);
  * of the structure of the compiled regexp.
  */
 regexp *
-regcomp(constant char *exp)
+regcomp2(constant char *exp, int lower)
 {
 	register regexp *r;
 	register char *scan;
@@ -223,6 +224,7 @@ regcomp(constant char *exp)
 	regnpar = 1;
 	regsize = 0L;
 	regcode = &regdummy;
+	reglower = lower;
 	regc(MAGIC);
 	if (reg(0, &flags) == NULL)
 		return(NULL);
@@ -284,6 +286,12 @@ regcomp(constant char *exp)
 	}
 
 	return(r);
+}
+
+regexp *
+regcomp(constant char *exp)
+{
+	return regcomp2(exp, 0);
 }
 
 /*
@@ -604,7 +612,8 @@ static void
 regc(char b)
 {
 	if (regcode != &regdummy)
-		*regcode++ = b;
+		*regcode++ = reglower && b >= 'A' && b <= 'Z' ? b + ('a'-'A')
+		                                              : b;
 	else
 		regsize++;
 }
