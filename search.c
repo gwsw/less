@@ -2034,8 +2034,8 @@ public void chg_caseless(void)
 		 * If regex handles caseless, we need to discard 
 		 * the pattern which was compiled with the old caseless.
 		 */
-		if (!re_handles_caseless)
-			/* We handle caseless, so the pattern doesn't change. */
+		if (!re_handles_caseless && !re_handles_lower)
+			/* We handle pattern caseless, so the pattern doesn't change. */
 			return;
 	}
 	/*
