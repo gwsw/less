@@ -122,11 +122,7 @@ static int compile_pattern2(constant char *pattern, int search_type, PATTERN_TYP
 #if HAVE_V8_REGCOMP
 	struct regexp *comp;
 	reg_show_error = show_error;
-#ifdef re_handles_lower
-	comp = regcomp2(pattern, is_caseless);
-#else
 	comp = regcomp(pattern);
-#endif
 	reg_show_error = 1;
 	if (comp == NULL)
 	{
@@ -151,7 +147,7 @@ public int compile_pattern(constant char *pattern, int search_type, int show_err
 {
 	int result;
 
-	if (caseless != OPT_ONPLUS || ((re_handles_caseless || re_handles_lower) && !(search_type & SRCH_NO_REGEX)))
+	if (caseless != OPT_ONPLUS || (re_handles_caseless && !(search_type & SRCH_NO_REGEX)))
 	{
 		result = compile_pattern2(pattern, search_type, comp_pattern, show_error);
 	} else

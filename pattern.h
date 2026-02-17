@@ -67,10 +67,6 @@ extern char *__loc1;
 extern int reg_show_error;
 #define PATTERN_TYPE             struct regexp *
 #define SET_NULL_PATTERN(name)   name = NULL
-#if HAVE_REGEXEC2
-   /* local regexp.c handles tolower in regcomp2, but not of the text in regexec[2] */
-   #define re_handles_lower      TRUE
-#endif
 #endif
 
 /* ---- NONE  ---- */
@@ -81,8 +77,4 @@ extern int reg_show_error;
 
 #ifndef re_handles_caseless
 #define re_handles_caseless      FALSE
-#endif
-
-#ifndef re_handles_lower
-#define re_handles_lower         FALSE
 #endif
