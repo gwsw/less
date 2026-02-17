@@ -67,6 +67,11 @@ extern char *__loc1;
 extern int reg_show_error;
 #define PATTERN_TYPE             struct regexp *
 #define SET_NULL_PATTERN(name)   name = NULL
+#if HAVE_REGEXEC2
+  /* local regexp.c: have regexec2 (with notbol) and regcomp2 (with icase) */
+  #define USE_REGCOMP2
+  #define re_handles_caseless      TRUE
+#endif
 #endif
 
 /* ---- NONE  ---- */
