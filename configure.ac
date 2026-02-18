@@ -16,7 +16,6 @@ AC_CONFIG_HEADERS([defines.h])
 # Checks for programs.
 AC_PROG_CC
 AC_SEARCH_LIBS([strerror],[cposix])
-AC_PROG_GCC_TRADITIONAL
 AC_PROG_INSTALL
 
 # Checks for compilation model.
