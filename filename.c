@@ -733,7 +733,11 @@ public char * lglob(constant char *afilename)
 	}
 	lessecho = lgetenv("LESSECHO");
 	if (isnullenv(lessecho))
+#ifdef LIBEXECDIR
+		lessecho = LIBEXECDIR "/lessecho";
+#else
 		lessecho = "lessecho";
+#endif
 	/*
 	 * Invoke lessecho, and read its output (a globbed list of filenames).
 	 */
