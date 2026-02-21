@@ -161,6 +161,7 @@ static struct mark * getmark(char c)
 {
 	struct mark *m;
 	static struct mark sm;
+	POSITION pos;
 
 	switch (c)
 	{
@@ -181,7 +182,13 @@ static struct mark * getmark(char c)
 			return (NULL);
 		}
 		m = &sm;
-		cmark(m, curr_ifile, ch_tell(), sc_height);
+		pos = ch_tell();
+		if (pos == NULL_POSITION)
+			return (NULL);
+		pos = back_line(pos, NULL);
+		if (pos == NULL_POSITION)
+			return (NULL);
+		cmark(m, curr_ifile, pos, sc_height-1);
 		break;
 	case '.':
 		/*
