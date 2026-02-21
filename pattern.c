@@ -122,7 +122,11 @@ static int compile_pattern2(constant char *pattern, int search_type, PATTERN_TYP
 #if HAVE_V8_REGCOMP
 	struct regexp *comp;
 	reg_show_error = show_error;
+#ifdef USE_REGCOMP2
+	comp = regcomp2(pattern, is_caseless);
+#else
 	comp = regcomp(pattern);
+#endif
 	reg_show_error = 1;
 	if (comp == NULL)
 	{
