@@ -459,6 +459,46 @@ regpiece(int *flagp)
 	return(ret);
 }
 
+/* Calls regc(c) for each char which a bracket expression matches,
+ * without touching the global regparse.
+ *
+ * The caller should ensure that ANYOF or ANYBUT node was already added
+ * (depending on whether it starts with "[" or "[^"), and "in" should
+ * point to the first data char after this prefix.
+ *
+ * calls FAIL(...) and returns NULL on failure,
+ * or returns a pointer to the first unprocessed char (']' or '\0').
+ * the caller may then update the global regparse, and add final regc(0).
+ */
+static constant char *
+regbracket(constant char *in)
+{
+	register int clss;
+	register int classend;
+
+	if (*in == ']' || *in == '-')
+		regc(*in++);
+	while (*in != '\0' && *in != ']') {
+		if (*in == '-') {
+			in++;
+			if (*in == ']' || *in == '\0')
+				regc('-');
+			else {
+				clss = UCHARAT(in-2)+1;
+				classend = UCHARAT(in);
+				if (clss > classend+1)
+					FAIL("invalid [] range");
+				for (; clss <= classend; clss++)
+					regc(clss);
+				in++;
+			}
+		} else
+			regc(*in++);
+	}
+
+	return in;
+}
+
 /*
  - regatom - the lowest level
  *
@@ -486,40 +526,22 @@ regatom(int *flagp)
 		ret = regnode(ANY);
 		*flagp |= HASWIDTH|SIMPLE;
 		break;
-	case '[': {
-			register int clss;
-			register int classend;
-
-			if (*regparse == '^') {	/* Complement of range. */
-				ret = regnode(ANYBUT);
-				regparse++;
-			} else
-				ret = regnode(ANYOF);
-			if (*regparse == ']' || *regparse == '-')
-				regc(*regparse++);
-			while (*regparse != '\0' && *regparse != ']') {
-				if (*regparse == '-') {
-					regparse++;
-					if (*regparse == ']' || *regparse == '\0')
-						regc('-');
-					else {
-						clss = UCHARAT(regparse-2)+1;
-						classend = UCHARAT(regparse);
-						if (clss > classend+1)
-							FAIL("invalid [] range");
-						for (; clss <= classend; clss++)
-							regc(clss);
-						regparse++;
-					}
-				} else
-					regc(*regparse++);
-			}
-			regc('\0');
-			if (*regparse != ']')
-				FAIL("unmatched []");
+	case '[':
+		if (*regparse == '^') {	/* Complement of range. */
+			ret = regnode(ANYBUT);
 			regparse++;
-			*flagp |= HASWIDTH|SIMPLE;
-		}
+		} else
+			ret = regnode(ANYOF);
+
+		regparse = regbracket(regparse);
+		if (regparse == NULL)
+			return(NULL);
+
+		regc('\0');
+		if (*regparse != ']')
+			FAIL("unmatched []");
+		regparse++;
+		*flagp |= HASWIDTH|SIMPLE;
 		break;
 	case '(':
 		ret = reg(1, &flags);
