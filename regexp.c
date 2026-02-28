@@ -49,16 +49,13 @@
  * regstart	char that must begin a match; '\0' if none obvious
  * reganch	is the match anchored (at beginning-of-line only)?
  * regmust	string (pointer into program) that match must include, or NULL
- * regmlen	length of regmust string
  *
  * Regstart and reganch permit very fast decisions on suitable starting points
  * for a match, cutting down the work a lot.  Regmust permits fast rejection
  * of lines that cannot possibly match.  The regmust tests are costly enough
  * that regcomp() supplies a regmust only if the r.e. contains something
  * potentially expensive (at present, the only such thing detected is * or +
- * at the start of the r.e., which can involve a lot of backup).  Regmlen is
- * supplied because the test in regexec() needs it and regcomp() is
- * computing it anyway.
+ * at the start of the r.e., which can involve a lot of backup).
  */
 
 /*
@@ -253,7 +250,6 @@ regcomp(constant char *exp)
 	r->regstart = '\0';	/* Worst-case defaults. */
 	r->reganch = 0;
 	r->regmust = NULL;
-	r->regmlen = 0;
 	scan = r->program+1;			/* First BRANCH. */
 	if (OP(regnext(scan)) == END) {		/* Only one top-level choice. */
 		scan = OPERAND(scan);
@@ -278,10 +274,10 @@ regcomp(constant char *exp)
 			for (; scan != NULL; scan = regnext(scan))
 				if (OP(scan) == EXACTLY && ((int) strlen(OPERAND(scan))) >= len) {
 					longest = OPERAND(scan);
+					/* redundant strlen, not critical in regcomp */
 					len = (int) strlen(OPERAND(scan));
 				}
 			r->regmust = longest;
-			r->regmlen = len;
 		}
 	}
 
@@ -829,16 +825,8 @@ regexec2(register regexp *prog, register constant char *string, int notbol)
 	}
 
 	/* If there is a "must appear" string, look for it. */
-	if (prog->regmust != NULL) {
-		s = string;
-		while ((s = strchr(s, prog->regmust[0])) != NULL) {
-			if (strncmp(s, prog->regmust, prog->regmlen) == 0)
-				break;	/* Found it. */
-			s++;
-		}
-		if (s == NULL)	/* Not present. */
-			return(0);
-	}
+	if (prog->regmust != NULL && strstr(string, prog->regmust) == NULL)
+		return(0);  /* Not present. */
 
 	/* Mark beginning of line for ^ . */
 	if (notbol)
