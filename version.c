@@ -1085,7 +1085,8 @@ v693  2/14/26   Fix binary file with redirected stdout; fix error messages
                 make -w/-W hilite on backward movement; show pattern in
                 "not found" message.
 v694            | cmd pipes 1 line if mark is top line; allow numeric arg
-                on m/M cmds; support POSIX char classes with built-in regex.
+                on m/M cmds; support POSIX char classes with built-in regex;
+				don't retry read after error.
 */
 
 char version[] = "694x";
