@@ -1595,9 +1595,15 @@ If only one \fIn\fP is specified, tab stops are set at multiples of \fIn\fP.
 If multiple values separated by commas are specified, tab stops
 are set at those positions, and then continue with the same spacing as the
 last two.
+Position numbers are zero-based: the leftmost position is 0,
+the next is 1, etc.
 For example,
-.RB "\[dq]" "\-x9,17" "\[dq]"
-will set tabs at positions 9, 17, 25, 33, etc.
+.RB "\[dq]" "\-x8,16" "\[dq]"
+is the same as
+.RB "\[dq]" "\-x8" "\[dq]"
+and sets tabs at position 8, 16, 24, 32, etc.
+.RB "\[dq]" "\-x10,14,20" "\[dq]"
+will set tabs at position 10, 14, 20, 26, 32, etc.
 The default for \fIn\fP is 8.
 .IP "\fB\-X\fP or \fB\-\-no\-init\fP"
 Disables sending the termcap initialization and deinitialization strings
