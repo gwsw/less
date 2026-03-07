@@ -54,6 +54,8 @@
 * Fix incorrect display using --color to set character attributes
   without color, such as -DS-u (github #730).
 
+* Fix crash when tags file contains invalid line number 0 (github #743).
+
 ======================================================================
 
 	Major changes between "less" versions 691 and 692
