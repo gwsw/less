@@ -1906,6 +1906,12 @@ Searches do not include header columns, but still include header lines.
 Searches do not include header lines or header columns.
 .IP "\fB\-\-no\-vbell\fP"
 Disables the terminal's visual bell.
+.IP "\fB\-\-past\-eof\fP"
+Normally scrolling commands (other than J, K, ESC-SPACE and ESC-b)
+stop scrolling when end-of-file is reached scrolling forward, or
+beginning-of-file is reached scrolling backward.
+This option makes all scrolling commands continue past end-of-file
+or beginning-of-file.
 .IP "\fB\-\-proc\-backspace\fP"
 If set, backspaces are handled as if neither the
 .B "\-u"

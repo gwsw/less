@@ -85,6 +85,7 @@ public int match_shift;         /* Extra horizontal shift on search match */
 public int no_paste;            /* Don't accept pasted input */
 public int no_edit_warn;        /* Don't warn when editing a LESSOPENed file */
 public int stop_on_form_feed;   /* Stop scrolling on a line starting with form feed */
+public int past_eof;            /* Continue scrolling past EOF */
 public long match_shift_fraction = NUM_FRAC_DENOM/2; /* 1/2 of screen width */
 public char intr_char = CONTROL('X'); /* Char to interrupt reads */
 public char *first_cmd_at_prompt = NULL; /* Command to exec before first prompt */
@@ -169,6 +170,7 @@ static struct optname status_line_optname = { "status-line",     NULL };
 static struct optname header_optname = { "header",               NULL };
 static struct optname no_paste_optname = { "no-paste",           NULL };
 static struct optname form_feed_optname = { "form-feed",         NULL };
+static struct optname past_eof_optname = { "past-eof",           NULL };
 static struct optname no_edit_warn_optname2 = { "no-warn-edit",   NULL };
 static struct optname no_edit_warn_optname = { "no-edit-warn",   &no_edit_warn_optname2 };
 static struct optname nonum_headers_optname = { "no-number-headers", NULL };
@@ -636,6 +638,14 @@ static struct loption option[] =
 		{
 			"Don't stop on form feed",
 			"Stop on form feed",
+			NULL
+		}
+	},
+	{ OLETTER_NONE, &past_eof_optname,
+		O_BOOL, OPT_OFF, &past_eof, NULL,
+		{
+			"Stop scrolling at end of file",
+			"Don't stop scrolling at end of file",
 			NULL
 		}
 	},

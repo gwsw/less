@@ -39,6 +39,7 @@ extern int header_lines;
 extern int header_cols;
 extern int full_screen;
 extern int stop_on_form_feed;
+extern int past_eof;
 extern POSITION header_start_pos;
 extern lbool getting_one_screen;
 #if HILITE_SEARCH
@@ -226,6 +227,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 
 	if (pos != NULL_POSITION)
 		pos = after_header_pos(pos);
+	if (past_eof)
+		force = TRUE;
 	squish_check();
 
 	/*
@@ -381,6 +384,8 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 	lbool newline;
 
 	squish_check();
+	if (past_eof)
+		force = TRUE;
 	do_repaint = (n > get_back_scroll() || (only_last && n > sc_height-1) || header_lines > 0);
 
 	while (--n >= 0)
@@ -452,6 +457,8 @@ public void forward(int n, lbool force, lbool only_last, lbool to_newline)
 		return;
 	}
 
+	if (past_eof)
+		force = TRUE;
 	pos = position(BOTTOM_PLUS_ONE);
 	if (pos == NULL_POSITION && (!force || empty_lines(2, sc_height-1)))
 	{
@@ -489,6 +496,8 @@ public void backward(int n, lbool force, lbool only_last, lbool to_newline)
 {
 	POSITION pos;
 
+	if (past_eof)
+		force = TRUE;
 	pos = position(TOP);
 	if (pos == NULL_POSITION && (!force || position(BOTTOM) == 0))
 	{

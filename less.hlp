@@ -52,7 +52,7 @@
   ESC-U                Clear search highlighting.
   &_p_a_t_t_e_r_n          *  Display only matching lines.
         ---------------------------------------------------
-		Search is case-sensitive unless changed with -i or -I.
+        Search is case-sensitive unless changed with -i or -I.
         A search pattern may begin with one or more of:
         ^N or !  Search for NON-matching lines.
         ^E or *  Search multiple files (pass thru END OF FILE).
@@ -276,6 +276,8 @@
                   Set default options for every search.
                 --show-preproc-errors
                   Display a message if preprocessor exits with an error status.
+                --past-eof
+                  Scrolling commands continue past end of file.
                 --proc-backspace
                   Process backspaces for bold/underline.
                 --PROC-BACKSPACE
