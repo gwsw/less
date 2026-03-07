@@ -526,7 +526,7 @@ public lbool get_one_screen(void)
 
 	/* Disable polling until we know whether we will exit early due to -F. */
 	getting_one_screen = TRUE;
-	for (nlines = 0;  nlines + shell_lines <= sc_height;  nlines++)
+	for (nlines = 0;  nlines + shell_lines < sc_height;  nlines++)
 	{
 		pos = forw_line(pos, NULL, NULL);
 		if (ABORT_SIGS())
