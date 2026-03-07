@@ -23,6 +23,7 @@
 typedef POSITION BLOCKNUM;
 
 public lbool ignore_eoi = FALSE;
+public lbool read_error = FALSE;
 
 /*
  * Pool of buffers holding the most recently used blocks of the input file.
@@ -139,24 +140,6 @@ static int ch_addbuf();
 static POSITION ch_position(BLOCKNUM block, size_t offset)
 {
 	return (block * LBUFSIZE) + (POSITION) offset;
-}
-
-/*
- * Display message for a read error.
- */
-static void ch_read_error(void)
-{
-#if HAVE_TIME
-	/* Max one read error message every READ_ERROR_SECS seconds. */
-#define READ_ERROR_SECS 4
-	static time_type last_read_error = 0;
-	time_type now = get_time();
-	if (last_read_error > 0 && now <= last_read_error + READ_ERROR_SECS)
-		return;
-	last_read_error = now;
-#endif /* HAVE_TIME */
-	error("read error", NULL_PARG);
-	clear_eol();
 }
 
 /*
@@ -315,7 +298,7 @@ static int ch_get(void)
 			else
 #endif
 			{
-				ch_read_error();
+				read_error = TRUE;
 				return (EOI);
 			}
 		}

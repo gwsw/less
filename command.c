@@ -51,6 +51,7 @@ extern lbool search_wrapped;
 extern int no_paste;
 extern lbool pasting;
 extern int no_edit_warn;
+extern lbool read_error;
 extern POSITION soft_eof;
 extern POSITION search_incr_start;
 extern char *first_cmd_at_prompt;
@@ -881,6 +882,36 @@ static void make_display(void)
 }
 
 /*
+ * Display any message that needs to be displayed before the prompt.
+ */
+static void prompt_message(void)
+{
+	if (read_error)
+	{
+		error("read error", NULL_PARG);
+		read_error = FALSE;
+	}
+	if (search_wrapped)
+	{
+		if (search_type & SRCH_BACK)
+			error("Search hit top; continuing at bottom", NULL_PARG);
+		else
+			error("Search hit bottom; continuing at top", NULL_PARG);
+		search_wrapped = FALSE;
+	}
+#if OSC8_LINK
+	if (osc8_uri != NULL)
+	{
+		PARG parg;
+		parg.p_string = osc8_uri;
+		error("Link: %s", &parg);
+		free(osc8_uri);
+		osc8_uri = NULL;
+	}
+#endif
+}
+
+/*
  * Display the appropriate prompt.
  */
 static void prompt(void)
@@ -956,28 +987,11 @@ static void prompt(void)
 		clear_bot();
 	clear_cmd();
 	forw_prompt = 0;
+	prompt_message();
 	p = pr_string();
 #if HILITE_SEARCH
 	if (is_filtering())
 		putstr("& ");
-#endif
-	if (search_wrapped)
-	{
-		if (search_type & SRCH_BACK)
-			error("Search hit top; continuing at bottom", NULL_PARG);
-		else
-			error("Search hit bottom; continuing at top", NULL_PARG);
-		search_wrapped = FALSE;
-	}
-#if OSC8_LINK
-	if (osc8_uri != NULL)
-	{
-		PARG parg;
-		parg.p_string = osc8_uri;
-		error("Link: %s", &parg);
-		free(osc8_uri);
-		osc8_uri = NULL;
-	}
 #endif
 	if (p == NULL || *p == '\0')
 	{
