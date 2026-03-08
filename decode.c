@@ -35,6 +35,7 @@
 
 extern int erase_char, erase2_char, kill_char;
 extern int mousecap;
+extern int horz_mousecap;
 extern int sc_height;
 extern char *no_config;
 
@@ -586,7 +587,11 @@ static int mouse_wheel_up(void)
  */
 static int mouse_wheel_left(void)
 {
-	return ((mousecap == OPT_ONPLUS) ? A_R_MOUSE : A_L_MOUSE);
+	switch (horz_mousecap) {
+		case OPT_ON: return A_L_MOUSE;
+		case OPT_ONPLUS: return A_R_MOUSE;
+		case OPT_OFF: return A_NOACTION;
+	}
 }
 
 /*
@@ -594,7 +599,11 @@ static int mouse_wheel_left(void)
  */
 static int mouse_wheel_right(void)
 {
-	return ((mousecap == OPT_ONPLUS) ? A_L_MOUSE : A_R_MOUSE);
+	switch (horz_mousecap) {
+		case OPT_ON: return A_R_MOUSE;
+		case OPT_ONPLUS: return A_L_MOUSE;
+		case OPT_OFF: return A_NOACTION;
+	}
 }
 
 /*
