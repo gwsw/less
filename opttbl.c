@@ -560,7 +560,7 @@ static struct loption option[] =
 		}
 	},
 	{ OLETTER_NONE, &horz_mousecap_optname,
-		O_TRIPLE, OPT_OFF, &horz_mousecap, NULL,
+		O_TRIPLE, OPT_OFF, &horz_mousecap, opt_horz_mousecap,
 		{
 			"Ignore mouse input",
 			"Use the mouse for scrolling horizontally",
