@@ -59,7 +59,8 @@ public int opt_use_backslash;   /* Use backslash escaping in option parsing */
 public LWCHAR rscroll_char;     /* Char which marks chopped lines with -S */
 public int rscroll_attr;        /* Attribute of rscroll_char */
 public int no_hist_dups;        /* Remove dups from history list */
-public int mousecap;            /* Allow mouse for scrolling */
+public int mousecap;            /* Allow mouse for scrolling vertically */
+public int horz_mousecap;       /* Allow mouse for scrolling horizontally */
 public int wheel_lines;         /* Number of lines to scroll on mouse wheel scroll */
 public int perma_marks;         /* Save marks in history file */
 public int linenum_width;       /* Width of line numbers */
@@ -159,6 +160,7 @@ static struct optname use_backslash_optname = { "use-backslash", NULL };
 static struct optname rscroll_optname = { "rscroll", NULL };
 static struct optname nohistdups_optname = { "no-histdups",      NULL };
 static struct optname mousecap_optname = { "mouse",              NULL };
+static struct optname horz_mousecap_optname = { "horz-mouse",    NULL };
 static struct optname wheel_lines_optname = { "wheel-lines",     NULL };
 static struct optname perma_marks_optname = { "save-marks",      NULL };
 static struct optname linenum_width_optname = { "line-num-width", NULL };
@@ -553,8 +555,16 @@ static struct loption option[] =
 		O_TRIPLE, OPT_OFF, &mousecap, opt_mousecap,
 		{
 			"Ignore mouse input",
-			"Use the mouse for scrolling",
-			"Use the mouse for scrolling (reverse)"
+			"Use the mouse for scrolling vertically",
+			"Use the mouse for scrolling vertically (reverse)"
+		}
+	},
+	{ OLETTER_NONE, &horz_mousecap_optname,
+		O_TRIPLE, OPT_OFF, &horz_mousecap, opt_horz_mousecap,
+		{
+			"Ignore mouse input",
+			"Use the mouse for scrolling horizontally",
+			"Use the mouse for scrolling horizontally (reverse)"
 		}
 	},
 	{ OLETTER_NONE, &wheel_lines_optname,
