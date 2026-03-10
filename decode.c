@@ -626,7 +626,10 @@ static int mouse_button_left(int x, int y, lbool down, lbool drag)
 		if (horz_mousecap != OPT_OFF && last_drag_x >= 0 && x != last_drag_x) {
 			/* Drag text left/right */
 			pos_rehead();
-			hshift += last_drag_x - x;
+			if (hshift < x - last_drag_x)
+				hshift = 0;
+			else
+				hshift -= x - last_drag_x;
 			screen_trashed();
 			cmd_exec();
 			last_drag_x = x;
