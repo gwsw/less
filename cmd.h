@@ -11,6 +11,10 @@
 #define MAX_USERCMD            1000
 #define MAX_CMDLEN             16
 
+/*
+ * The following values must not change in order to preserve binary
+ * compatibility with binary lesskey files
+ * */
 #define A_B_LINE               2
 #define A_B_SCREEN             3
 #define A_B_SCROLL             4
