@@ -310,7 +310,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 				 * line in the file reaches the top of screen.
 				 */
 				soft_eof = opos;
-				linepos = opos;
+				linepos = (opos == ch_zero()) ? NULL_POSITION : opos;
 				if (ABORT_SIGS() || !force ||
 				   (!empty_lines(0, 0) && !empty_lines(1, 1) && empty_lines(2, sc_height-1)))
 				{
