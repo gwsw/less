@@ -32,6 +32,7 @@ extern int want_filesize;
 extern int consecutive_nulls;
 extern int modelines;
 extern int show_preproc_error;
+extern lbool read_error;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -660,6 +661,7 @@ public int edit_ifile(IFILE ifile)
 #endif
 		undo_osc8();
 		hshift = 0;
+		read_error = FALSE;
 		if (strcmp(filename, FAKE_HELPFILE) && strcmp(filename, FAKE_EMPTYFILE))
 		{
 			char *qfilename = shell_quote(filename);
