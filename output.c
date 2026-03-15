@@ -74,9 +74,12 @@ public void put_line_hilite(lbool forw_scroll, lbool target)
 		/* Highlight this char of the target line if it's not already highlighted,
 		 * and either we're highlighting the whole line or we're highlighting
 		 * the status column and this is the status column. */
-		if (target && a == AT_NORMAL &&
-		    (status_line || !status_col || i == 0) && !(status_col && i == 1))
-			a = AT_HILITE|AT_COLOR_TARGET;
+		if (target && a == AT_NORMAL)
+		{
+			if ((status_col && i == 0) ||
+			    (i >= line_pfx_width() && (status_line || !status_col)))
+				a = AT_HILITE|AT_COLOR_TARGET;
+		}
 		at_switch(a);
 		final_attr = a;
 		if (c == '\b')
