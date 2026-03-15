@@ -452,7 +452,8 @@ typedef enum osc8_state {
 #define AT_COLOR_HEADER   (9 << AT_COLOR_SHIFT)
 #define AT_COLOR_SEARCH   (10 << AT_COLOR_SHIFT)
 #define AT_COLOR_TILDE    (11 << AT_COLOR_SHIFT)
-#define AT_COLOR_SS_OFFSET 12  /* largest AT_COLOR_* value + 1 */
+#define AT_COLOR_TARGET   (12 << AT_COLOR_SHIFT)
+#define AT_COLOR_SS_OFFSET 13  /* largest AT_COLOR_* value + 1 */
 #define NUM_SEARCH_COLORS  5
 #define AT_NUM_COLORS      (AT_COLOR_SS_OFFSET + NUM_SEARCH_COLORS)
 #define AT_COLOR_SUBSEARCH(i) ((AT_COLOR_SS_OFFSET+(i)-1) << AT_COLOR_SHIFT)

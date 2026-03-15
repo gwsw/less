@@ -29,6 +29,8 @@ extern int proc_backspace;
 extern int proc_return;
 extern int ctldisp;
 extern int status_col;
+extern int status_line;
+extern int hilite_target;
 extern void *ml_search;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
@@ -308,6 +310,20 @@ public void repaint_hilite(lbool on)
 #endif
 
 /*
+ * Redraw the jump target line with the attn hilite on or off.
+ */
+public void draw_target_attn(lbool hilite)
+{
+	int sindex = sindex_from_sline(jump_sline);
+	POSITION pos = position(sindex);
+	forw_line_seg(pos, chop_line() || hshift > 0, TRUE, FALSE, status_line, FALSE, NULL, NULL);
+	goto_line(sindex);
+	clear_eol();
+	put_line_hilite(TRUE, hilite);
+	lower_left();
+}
+
+/*
  * Clear the attn hilite.
  */
 public void clear_attn(void)
@@ -319,6 +335,9 @@ public void clear_attn(void)
 	POSITION pos;
 	POSITION epos;
 	int moved = 0;
+
+	if (hilite_target)
+		draw_target_attn(FALSE);
 
 	if (start_attnpos == NULL_POSITION)
 		return;

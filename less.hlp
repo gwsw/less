@@ -232,6 +232,8 @@
                   Stop scrolling when a form feed character is reached.
                 --header=[_L[,_C[,_N]]]
                   Use _L lines (starting at line _N) and _C columns as headers.
+                --hilite-target
+                  Highlight the target line.
                 --incsearch
                   Search file as each pattern character is typed in.
                 --intr=[_C]

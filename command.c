@@ -47,6 +47,7 @@ extern void *ml_search;
 extern void *ml_examine;
 extern int wheel_lines;
 extern int def_search_type;
+extern int hilite_target;
 extern lbool search_wrapped;
 extern int no_paste;
 extern lbool pasting;
@@ -931,6 +932,8 @@ static void prompt(void)
 	 * Make sure the screen is displayed.
 	 */
 	make_display();
+	if (hilite_target)
+		draw_target_attn(TRUE); /* Redraw target line for --hilite-target. */
 	toppos = position(TOP);
 	bottompos = position(BOTTOM_PLUS_ONE);
 

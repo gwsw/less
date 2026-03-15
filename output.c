@@ -30,6 +30,9 @@ extern int so_s_width, so_e_width;
 extern int is_tty;
 extern int oldbot;
 extern int utf_mode;
+extern int status_col;
+extern int status_line;
+extern int hilite_target;
 extern char intr_char;
 extern lbool term_init_ever;
 
@@ -49,7 +52,7 @@ extern int vt_enabled;
 /*
  * Display the line which is in the line buffer.
  */
-public void put_line(lbool forw_scroll)
+public void put_line_hilite(lbool forw_scroll, lbool target)
 {
 	int c;
 	size_t i;
@@ -68,6 +71,12 @@ public void put_line(lbool forw_scroll)
 
 	for (i = 0;  (c = gline(i, &a)) != '\0';  i++)
 	{
+		/* Highlight this char of the target line if it's not already highlighted,
+		 * and either we're highlighting the whole line or we're highlighting
+		 * the status column and this is the status column. */
+		if (target && a == AT_NORMAL &&
+		    (status_line || !status_col || i == 0) && !(status_col && i == 1))
+			a = AT_HILITE|AT_COLOR_TARGET;
 		at_switch(a);
 		final_attr = a;
 		if (c == '\b')
@@ -79,6 +88,11 @@ public void put_line(lbool forw_scroll)
 
 	if (forw_scroll && should_clear_after_line())
 		clear_eol();
+}
+
+public void put_line(lbool forw_scroll)
+{
+	put_line_hilite(forw_scroll, FALSE);
 }
 
 /*

@@ -899,6 +899,8 @@ Errors and informational messages.
 Header lines and columns, set via the
 .B "\-\-header"
 option.
+.IP "J"
+Target line when highlighted via the \-\-hilite\-target.
 .IP "M"
 Mark letters in the status column.
 .IP "N"
@@ -1783,6 +1785,17 @@ and the
 .B "\-S"
 option is ignored.
 .RE
+.IP "\fB\-\-hilite\-target\fP"
+Highlights the "target" line, as specified by the \-j option.
+If the
+.B "\-\-status\-line"
+option is in effect, the entire line
+(the width of the screen) is highlighted.
+Otherwise, only the text in the line is highlighted,
+unless the
+.B "\-J"
+option is in effect,
+in which case only the status column is highlighted.
 .IP "\fB\-\-incsearch\fP"
 Subsequent search commands will be "incremental"; that is,
 .B less

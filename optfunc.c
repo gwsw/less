@@ -68,6 +68,7 @@ extern int tabstops[];
 extern int ntabstops;
 extern int tabdefault;
 extern int no_paste;
+extern int hilite_target;
 extern char intr_char;
 extern int nosearch_header_lines;
 extern int nosearch_header_cols;
@@ -613,6 +614,7 @@ static int color_from_namechar(char namechar)
 	case 'C': return AT_COLOR_CTRL;
 	case 'E': return AT_COLOR_ERROR;
 	case 'H': return AT_COLOR_HEADER;
+	case 'J': return AT_COLOR_TARGET;
 	case 'M': return AT_COLOR_MARK;
 	case 'N': return AT_COLOR_LINENUM;
 	case 'P': return AT_COLOR_PROMPT;
@@ -1123,6 +1125,24 @@ public void opt_header(int type, constant char *s)
         parg.p_string = buf;
         error("Header (lines,columns,line-number) is %s", &parg);
         break; }
+	}
+}
+
+/*
+ * Handler for the --hilite-target option.
+ */
+	/*ARGSUSED*/
+public void opt_hilite_target(int type, constant char *s)
+{
+	switch (type)
+	{
+	case INIT:
+		break;
+	case TOGGLE:
+		draw_target_attn(hilite_target != OPT_OFF);
+		break;
+    case QUERY:
+		break;
 	}
 }
 

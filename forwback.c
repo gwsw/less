@@ -139,7 +139,7 @@ static POSITION forw_line_pfx(POSITION pos, int pfx, int skipeol)
 	sc_width = pfx + line_pfx_width();
 	auto_wrap = 0;
 	hshift = 0;
-	pos = forw_line_seg(pos, skipeol, FALSE, FALSE, NULL, NULL);
+	pos = forw_line_seg(pos, skipeol, FALSE, FALSE, FALSE, TRUE, NULL, NULL);
 	sc_width = save_sc_width;
 	auto_wrap = save_auto_wrap;
 	hshift = save_hshift;
