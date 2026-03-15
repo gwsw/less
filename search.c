@@ -314,8 +314,13 @@ public void repaint_hilite(lbool on)
  */
 public void draw_target_attn(lbool hilite)
 {
-	int sindex = sindex_from_sline(jump_sline);
-	POSITION pos = position(sindex);
+	int sindex;
+	POSITION pos;
+
+	if (squished)
+		return;
+	sindex = sindex_from_sline(jump_sline);
+	pos = position(sindex);
 	forw_line_seg(pos, chop_line() || hshift > 0, TRUE, FALSE, status_line, FALSE, NULL, NULL);
 	goto_line(sindex);
 	clear_eol();

@@ -22,7 +22,6 @@
 
 public int errmsgs;    /* Count of messages displayed by error() */
 public int need_clr;
-public int final_attr;
 
 extern int sigs;
 extern int sc_width;
@@ -57,6 +56,7 @@ public void put_line_hilite(lbool forw_scroll, lbool target)
 	int c;
 	size_t i;
 	int a;
+	lbool empty_line = TRUE;
 
 	if (ABORT_SIGS())
 	{
@@ -66,8 +66,6 @@ public void put_line_hilite(lbool forw_scroll, lbool target)
 		screen_trashed();
 		return;
 	}
-
-	final_attr = AT_NORMAL;
 
 	for (i = 0;  (c = gline(i, &a)) != '\0';  i++)
 	{
@@ -81,12 +79,21 @@ public void put_line_hilite(lbool forw_scroll, lbool target)
 			    (i >= line_pfx_width() && (status_line || !status_col)))
 				a = AT_HILITE|AT_COLOR_TARGET;
 		}
+		if (target && (c == '\n' || c == '\r') && empty_line)
+		{
+			/* Line is empty; add a space to carry the target hilite. */
+			at_switch(AT_HILITE|AT_COLOR_TARGET);
+			putchr(' ');
+		}
+		if (!(a & AT_ANSI))
+			empty_line = FALSE;
 		at_switch(a);
-		final_attr = a;
 		if (c == '\b')
 			putbs();
 		else
 			putchr(c);
+		if (c == '\0')
+			break;
 	}
 	at_exit();
 

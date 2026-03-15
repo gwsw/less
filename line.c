@@ -136,7 +136,7 @@ static struct color_map color_map[] = {
 	{ AT_COLOR_HEADER,         "" },
 	{ AT_COLOR_SEARCH,         "kG" },
 	{ AT_COLOR_TILDE,          "-d" },
-	{ AT_COLOR_TARGET,         "Wm" },
+	{ AT_COLOR_TARGET,         "-u" },
 	{ AT_COLOR_SUBSEARCH(1),   "ky" },
 	{ AT_COLOR_SUBSEARCH(2),   "wb" },
 	{ AT_COLOR_SUBSEARCH(3),   "YM" },
