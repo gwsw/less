@@ -626,8 +626,8 @@ static struct loption option[] =
 	{ OLETTER_NONE, &status_line_optname,
 		O_BOOL|O_REPAINT, OPT_OFF, &status_line, NULL,
 		{
-			"Don't color each line with its status column color",
-			"Color each line with its status column color",
+			"Line highlight applies to text only",
+			"Line highlight applies to entire width of screen",
 			NULL
 		}
 	},
