@@ -222,6 +222,8 @@
 
                 --autosave=[_m_/_!_*]
                   Actions which cause the history file to be saved.
+                --emouse=[_v_s_c_r_o_l_l,_v_d_r_a_g,_h_s_c_r_o_l_l,_h_d_r_a_g,_l_c_l_i_c_k,_r_c_l_i_c_k]
+                  Enable mouse features.
                 --exit-follow-on-close
                   Exit F command on a pipe when writer closes pipe.
                 --file-size
@@ -247,7 +249,7 @@
                 --modelines=[_N]
                   Read _N lines from the input file and look for vim modelines.
                 --mouse
-                  Enable mouse input.
+                  Enable mouse clicking and vertical scrolling.
                 --no-edit-warn
                   Don't warn when using v command on a file opened via LESSOPEN.
                 --no-keypad

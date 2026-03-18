@@ -53,8 +53,9 @@ extern int match_shift;
 extern long match_shift_fraction;
 extern LWCHAR rscroll_char;
 extern int rscroll_attr;
-extern int mousecap;
-extern int horz_mousecap;
+extern int emouse;
+extern int mouse_reverse;
+extern int xmouse;
 extern int wheel_lines;
 extern int less_is_more;
 extern int linenum_width;
@@ -106,9 +107,6 @@ extern int sgr_mode;
 #endif
 #endif
 #endif
-
-
-public void opt_horz_mousecap(int type, constant char *s);
 
 
 #if LOGFILE
@@ -901,43 +899,97 @@ public void calc_match_shift(void)
 }
 
 /*
- * Handler for the --mouse option.
+ * Handler for the --emouse option.
  */
 	/*ARGSUSED*/
-public void opt_mousecap(int type, constant char *s)
+public void opt_emouse(int type, constant char *s)
 {
+	/* Order of entries matters for QUERY.
+	 * Combinations must come after their components. */
+	static struct csl_bitmap_def emouse_defs[] = {
+		{ "hscroll",   EMOUSE_HSCROLL },
+		{ "vscroll",   EMOUSE_VSCROLL },
+		{ "hdrag",     EMOUSE_HDRAG },
+		{ "vdrag",     EMOUSE_VDRAG },
+		{ "lclick",    EMOUSE_LCLICK },
+		{ "rclick",    EMOUSE_RCLICK },
+		{ "scroll",    EMOUSE_HSCROLL|EMOUSE_VSCROLL },
+		{ "drag",      EMOUSE_HDRAG|EMOUSE_VDRAG },
+		{ "hmove",     EMOUSE_HSCROLL|EMOUSE_HDRAG },
+		{ "vmove",     EMOUSE_VSCROLL|EMOUSE_VDRAG },
+		{ "move",      EMOUSE_VSCROLL|EMOUSE_VDRAG|EMOUSE_HSCROLL|EMOUSE_HDRAG },
+		{ "click",     EMOUSE_LCLICK|EMOUSE_RCLICK },
+		{ "all",       EMOUSE_VSCROLL|EMOUSE_VDRAG|EMOUSE_HSCROLL|EMOUSE_HDRAG|EMOUSE_LCLICK|EMOUSE_RCLICK },
+	};
+
 	switch (type)
 	{
-	case TOGGLE:
-		if (mousecap == OPT_OFF)
-			deinit_mouse();
-		else
-			init_mouse();
-		// fallthough
 	case INIT:
-		if (mousecap == OPT_OFF && horz_mousecap != OPT_OFF) {
-			horz_mousecap = OPT_OFF;
-			opt_horz_mousecap(type, s);
+	case TOGGLE: {
+		lbool was_mouse_enabled = (emouse != 0);
+		if (s == NULL || strcmp(s, "-") == 0)
+			emouse = 0;
+		else
+			emouse = parse_csl_bitmap(s,
+			    emouse_defs, countof(emouse_defs), "--emouse");
+		if (type == TOGGLE && was_mouse_enabled != (emouse != 0))
+		{
+			if (emouse == 0)
+				deinit_mouse();
+			else
+				init_mouse();
 		}
-		break;
-	case QUERY:
-		break;
+		break; }
+	case QUERY: {
+		char buf[128];
+		char *bp = buf;
+		char *ebuf = buf + sizeof(buf);
+		int qmouse = emouse;
+		PARG parg;
+		int i;
+
+		for (i = countof(emouse_defs)-1;  i >= 0;  i--)
+		{
+			int bit = emouse_defs[i].bit_value;
+			if ((qmouse & bit) == bit)
+			{
+				if (bp > buf && bp+1 < ebuf)
+					*bp++ = ',';
+				strncpy(bp, emouse_defs[i].bit_name, ptr_diff(ebuf, bp));
+				bp += strlen(bp);
+				qmouse &= ~bit;
+			}
+		}
+		*bp = '\0';
+		parg.p_string = buf;
+		if (buf[0] == '\0')
+			error("Ignore mouse input", NULL_PARG);
+		else
+			error("Mouse features enabled: %s", &parg);
+		break; }
 	}
 }
 
 /*
- * Handler for the --horz-mouse option.
+ * Handler for the --mouse option.
  */
 	/*ARGSUSED*/
-public void opt_horz_mousecap(int type, constant char *s)
+public void opt_mouse(int type, constant char *s)
 {
 	switch (type)
 	{
-	case TOGGLE:
 	case INIT:
-		if (horz_mousecap != OPT_OFF && mousecap == OPT_OFF) {
-			mousecap = horz_mousecap;
-			opt_mousecap(type, s);
+	case TOGGLE:
+		switch (xmouse)
+		{
+		case OPT_OFF:
+			opt_emouse(type, "-");
+			break;
+		case OPT_ON:
+		case OPT_ONPLUS:
+			opt_emouse(type, "vscroll,vdrag,click");
+			mouse_reverse = (xmouse == OPT_ONPLUS);
+			break;
 		}
 		break;
 	case QUERY:

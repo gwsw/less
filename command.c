@@ -1650,25 +1650,27 @@ public void commands(void)
 
 		case A_L_MOUSE:
 			/*
-			 * Left wheel_lines lines.
+			 * Left wheel_lines columns.
 			 */
+			cmd_exec();
+			chopline = TRUE;
 			pos_rehead();
 			if (wheel_lines > hshift)
 				hshift = 0;
 			else
 				hshift -= wheel_lines;
 			screen_trashed();
-			cmd_exec();
 			break;
 
 		case A_R_MOUSE:
 			/*
-			 * Right wheel_lines lines.
+			 * Right wheel_lines columns.
 			 */
+			cmd_exec();
+			chopline = TRUE;
 			pos_rehead();
 			hshift += wheel_lines;
 			screen_trashed();
-			cmd_exec();
 			break;
 
 		case A_FF_LINE:

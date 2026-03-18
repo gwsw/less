@@ -1708,6 +1708,61 @@ option, while
 commands specified by the \fB+\fP option are executed even if
 .B less
 exits immediately.
+.IP "\fB\-\-emouse=\fP\fIfeatures\fP
+\fIfeatures\fP is a comma-separated list of mouse features to be enabled,
+selected from this list:
+.RS
+.IP "vscroll"
+Scrolling the mouse wheel down or up moves forward or backward in
+the file.
+The number of lines to scroll when the wheel is moved can be set by the
+.B "\-\-wheel\-lines"
+option.
+The
+.B "\-\-rmouse"
+option reverses the direction of movement.
+.IP "vdrag"
+Holding down the left button and dragging up or down moves
+forward or backward in the file.
+.IP "hscroll"
+Scrolling the side scroll wheel left or right moves left or right
+in the file.
+The number of columns to scroll when the wheel is moved can be set by the
+.B "\-\-wheel\-lines"
+option.
+The
+.B "\-\-rmouse"
+option reverses the direction of movement.
+.IP "hdrag"
+Holding down the left button and dragging left or right moves
+left or right in the file.
+.IP "lclick"
+Left-clicking sets the "#" mark to the line where the mouse is clicked.
+If a left-click is performed with the mouse cursor on an OSC 8 hyperlink,
+the hyperlink is selected as if by the \*^O\*^N command.
+If a left-click is performed with the mouse cursor on an OSC 8 hyperlink
+which is already selected, the hyperlink is opened as if by the \*^O\*^O command.
+.IP "rclick"
+Right-clicking (or any other button) returns to the "#" mark position.
+.IP "scroll"
+Same as \fIvscroll,hscroll\fP.
+.IP "drag"
+Same as \fIvdrag,hdrag\fP.
+.IP "hmove"
+Same as \fIhscroll,hdrag\fP.
+.IP "vmove"
+Same as \fIvscroll,vdrag\fP.
+.IP "move"
+Same as \fIvmove,hmove\fP.
+.IP "click"
+Same as \fIlclick,rclick\fP.
+.IP "all"
+Same as \fImove,click\fP.
+.RE
+.IP
+If \fIfeatures\fP is set to "-", all mouse features are disabled.
+Mouse input works only on terminals which support X11 mouse reporting,
+and on Windows.
 .IP "\fB\-\-exit\-follow\-on\-close\fP"
 When using the "F" command on a pipe,
 .B less
@@ -1848,29 +1903,13 @@ See the
 description for acceptable values of \fIn\fP.
 .RE
 .IP "\fB\-\-mouse\fP"
-Enables mouse input:
-scrolling the mouse wheel down moves forward in the file,
-scrolling the mouse wheel up moves backwards in the file,
-scrolling the mouse wheel left scrolls left in the file,
-scrolling the mouse wheel right scrolls right in the file,
-left-click sets the "#" mark to the line where the mouse is clicked,
-and right-click (or any other) returns to the "#" mark position.
-Holding down the left button and dragging also moves in the file.
-If a left-click is performed with the mouse cursor on an OSC 8 hyperlink,
-the hyperlink is selected as if by the \*^O\*^N command.
-If a left-click is performed with the mouse cursor on an OSC 8 hyperlink
-which is already selected, the hyperlink is opened as if by the \*^O\*^O command.
-The number of lines or columns to scroll when the wheel is moved
-can be set by the
-.B "\-\-wheel\-lines"
-option.
-Mouse input works only on terminals which support X11 mouse reporting,
-and on Windows.
+When enabled, same as \fB\-\-emouse=\fP\fIvscroll,vdrag,click\fP.
+When disabled, same as \fB\-\-emouse=\fP\fI-\fP.
 .IP "\fB\-\-MOUSE\fP"
 Like
-.BR "\-\-mouse" ","
-except the direction scrolled
-on mouse wheel movement is reversed.
+.B "\-\-mouse"
+with
+.BR "\-\-rmouse" "."
 .IP "\fB\-\-no\-edit\-warn\fP"
 Don't print a warning message when using the v command
 on a file which was opened using a LESSOPEN preprocessor
@@ -1989,6 +2028,9 @@ terminal to switch from an alternate screen,
 this makes the last screenful of the current file remain visible after
 .B less
 has quit.
+.IP "\fB\-\-rmouse\fP"
+Reverses the normal direction of scrolling when mouse scrolling is
+enabled via \fB\-\-emouse=\fP\fIvscroll\fP or \fB\-\-emouse=\fP\fIhscroll\fP.
 .IP "\fB\-\-rscroll=\fP\fIc\fP"
 This option changes the character used to mark truncated lines.
 It may begin with a two-character attribute indicator like LESSBINFMT does.

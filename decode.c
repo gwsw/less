@@ -34,13 +34,11 @@
 #include "lesskey.h"
 
 extern int erase_char, erase2_char, kill_char;
-extern int mousecap;
-extern int horz_mousecap;
+extern int emouse;
+extern int mouse_reverse;
 extern int hshift;
 extern int sc_height;
 extern char *no_config;
-
-static constant lbool allow_drag = TRUE;
 
 #if USERFILE
 /* "content" is lesskey source, never binary. */
@@ -572,7 +570,9 @@ public void add_sysvar_table(unsigned char *buf, size_t len)
  */
 static int mouse_wheel_down(void)
 {
-	return ((mousecap == OPT_ONPLUS) ? A_B_MOUSE : A_F_MOUSE);
+	if (!(emouse & EMOUSE_VSCROLL))
+		return A_NOACTION;
+	return mouse_reverse ? A_B_MOUSE : A_F_MOUSE;
 }
 
 /*
@@ -580,7 +580,9 @@ static int mouse_wheel_down(void)
  */
 static int mouse_wheel_up(void)
 {
-	return ((mousecap == OPT_ONPLUS) ? A_F_MOUSE : A_B_MOUSE);
+	if (!(emouse & EMOUSE_VSCROLL))
+		return A_NOACTION;
+	return mouse_reverse ? A_F_MOUSE : A_B_MOUSE;
 }
 
 /*
@@ -588,11 +590,9 @@ static int mouse_wheel_up(void)
  */
 static int mouse_wheel_left(void)
 {
-	switch (horz_mousecap) {
-		case OPT_ON: return A_L_MOUSE;
-		case OPT_ONPLUS: return A_R_MOUSE;
-		case OPT_OFF: return A_NOACTION;
-	}
+	if (!(emouse & EMOUSE_HSCROLL))
+		return A_NOACTION;
+	return mouse_reverse ? A_R_MOUSE : A_L_MOUSE;
 }
 
 /*
@@ -600,11 +600,9 @@ static int mouse_wheel_left(void)
  */
 static int mouse_wheel_right(void)
 {
-	switch (horz_mousecap) {
-		case OPT_ON: return A_R_MOUSE;
-		case OPT_ONPLUS: return A_L_MOUSE;
-		case OPT_OFF: return A_NOACTION;
-	}
+	if (!(emouse & EMOUSE_HSCROLL))
+		return A_NOACTION;
+	return mouse_reverse ? A_L_MOUSE : A_R_MOUSE;
 }
 
 /*
@@ -621,9 +619,9 @@ static int mouse_button_left(int x, int y, lbool down, lbool drag)
 		last_drag_x = x;
 		last_drag_y = last_click_y = y;
 	}
-	if (allow_drag && drag)
+	if (drag)
 	{
-		if (horz_mousecap != OPT_OFF && last_drag_x >= 0 && x != last_drag_x) {
+		if ((emouse & EMOUSE_HDRAG) && last_drag_x >= 0 && x != last_drag_x) {
 			/* Drag text left/right */
 			pos_rehead();
 			if (hshift < x - last_drag_x)
@@ -634,7 +632,7 @@ static int mouse_button_left(int x, int y, lbool down, lbool drag)
 			cmd_exec();
 			last_drag_x = x;
 		}
-		if (last_drag_y >= 0) {
+		if ((emouse & EMOUSE_VDRAG) && last_drag_y >= 0) {
 			/* Drag text up/down */
 			if (y > last_drag_y)
 			{
@@ -648,7 +646,7 @@ static int mouse_button_left(int x, int y, lbool down, lbool drag)
 				last_drag_y = y;
 			}
 		}
-	} else if (!down)
+	} else if ((emouse & EMOUSE_LCLICK) && !down)
 	{
 #if OSC8_LINK
 		if (secure_allow(SF_OSC8_OPEN))
@@ -678,6 +676,8 @@ static int mouse_button_right(int x, int y, lbool down, lbool drag)
 	 * {{ unlike mouse_button_left, we could return an action,
 	 *    but keep it near mouse_button_left for readability. }}
 	 */
+	if (!(emouse & EMOUSE_RCLICK))
+		return (A_NOACTION);
 	if (!down && y < sc_height-1)
 	{
 		gomark('#');
@@ -968,6 +968,78 @@ public lbool parse_csl(lbool (*func)(constant char *word, size_t wlen, void *arg
 		str = estr;
 	}
 	return TRUE;
+}
+
+/*
+ * Display error message for parse_csl_bitmap.
+ */
+static int csl_bitmap_error(constant char *pfx, constant char *type, size_t len, constant char *name)
+{
+	PARG parg;
+	size_t msglen = len + strlen(pfx) + strlen(type) + 32;
+	char *msg = ecalloc(msglen, sizeof(char));
+	SNPRINTF4(msg, msglen, "%s: %s name \"%.*s\"", pfx, type, (int) len, name);
+	parg.p_string = msg;
+	error("%s", &parg);
+	free(msg);
+	return 0;
+}
+
+/*
+ * Return the bit value of a csl_bitmap name.
+ */
+public int csl_bitmap_bit(constant char *name, size_t len, struct csl_bitmap_def *defs, int num_defs, constant char *pfx)
+{
+	int i;
+	int match = -1;
+
+	for (i = 0;  i < num_defs;  i++)
+	{
+		if (strncmp(defs[i].bit_name, name, len) == 0)
+		{
+			if (match >= 0) /* name is ambiguous */
+				return csl_bitmap_error(pfx, "ambiguous", len, name);
+			match = i;
+		}
+	}
+	if (match < 0)
+		return csl_bitmap_error(pfx, "invalid", len, name);
+	return defs[match].bit_value;
+}
+
+/* State for parse_csl_bitmap. */
+struct csl_bitmap_info
+{
+	int bitmap;                  /* bitmap being constructed */
+	struct csl_bitmap_def *def;  /* array of name/value pairs */
+	int num_defs;                /* length of def array */
+	constant char *pfx;          /* prefix for error messages */
+};
+
+/*
+ * Set a bit in a csl_bitmap_info based on a csl_bitmap name.
+ */
+static lbool csl_bitmap_set(constant char *word, size_t wlen, void *arg)
+{
+	struct csl_bitmap_info *info = (struct csl_bitmap_info *) arg;
+	info->bitmap |= csl_bitmap_bit(word, wlen, info->def, info->num_defs, info->pfx);
+	return TRUE;
+}
+
+/*
+ * Parse a comma-separated list of csl_bitmap names and return
+ * the combined bitmap value.
+ */
+public int parse_csl_bitmap(constant char *str, struct csl_bitmap_def *defs, int num_defs, constant char *pfx)
+{
+	struct csl_bitmap_info info;
+	info.bitmap = 0;
+	info.def = defs;
+	info.num_defs = num_defs;
+	info.pfx = pfx;
+	if (!parse_csl(csl_bitmap_set, str, &info))
+		return -1;
+	return info.bitmap;
 }
 
 /*
