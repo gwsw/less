@@ -321,7 +321,7 @@ public void draw_target_attn(lbool hilite)
 		return;
 	sindex = sindex_from_sline(jump_sline);
 	pos = position(sindex);
-	forw_line_seg(pos, chop_line() || hshift > 0, TRUE, FALSE, status_line, FALSE, NULL, NULL);
+	forw_line_seg(pos, chop_line() || hshift > 0, TRUE, FALSE, hilite && status_line, FALSE, NULL, NULL);
 	goto_line(sindex);
 	clear_eol();
 	put_line_hilite(TRUE, hilite);
