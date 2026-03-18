@@ -900,7 +900,7 @@ Header lines and columns, set via the
 .B "\-\-header"
 option.
 .IP "J"
-Target line when highlighted via the \-\-hilite\-target.
+Target line when highlighted via \-\-hilite\-target.
 .IP "M"
 Mark letters in the status column.
 .IP "N"

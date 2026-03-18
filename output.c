@@ -92,8 +92,6 @@ public void put_line_hilite(lbool forw_scroll, lbool target)
 			putbs();
 		else
 			putchr(c);
-		if (c == '\0')
-			break;
 	}
 	at_exit();
 
