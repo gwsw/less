@@ -1653,8 +1653,7 @@ public void commands(void)
 			 * Left wheel_lines columns.
 			 */
 			cmd_exec();
-			chopline = TRUE;
-			pos_rehead();
+			pos_rehead(FALSE);
 			if (wheel_lines > hshift)
 				hshift = 0;
 			else
@@ -1667,8 +1666,7 @@ public void commands(void)
 			 * Right wheel_lines columns.
 			 */
 			cmd_exec();
-			chopline = TRUE;
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift += wheel_lines;
 			screen_trashed();
 			break;
@@ -2352,7 +2350,7 @@ public void commands(void)
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
 			if (number > hshift)
 				number = hshift;
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift -= (int) number;
 			screen_trashed();
 			cmd_exec();
@@ -2366,7 +2364,7 @@ public void commands(void)
 				shift_count = (int) number;
 			else
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift += (int) number;
 			screen_trashed();
 			cmd_exec();
@@ -2376,7 +2374,7 @@ public void commands(void)
 			/*
 			 * Shift view left to margin.
 			 */
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift = 0;
 			screen_trashed();
 			cmd_exec();
@@ -2386,7 +2384,7 @@ public void commands(void)
 			/*
 			 * Shift view right to view rightmost char on screen.
 			 */
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift = rrshift();
 			screen_trashed();
 			cmd_exec();

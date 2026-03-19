@@ -335,7 +335,7 @@ public void opt__S(int type, constant char *s)
 	switch (type)
 	{
 	case TOGGLE:
-		pos_rehead();
+		pos_rehead(TRUE);
 		break;
 	}
 }
