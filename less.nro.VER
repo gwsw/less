@@ -1903,7 +1903,7 @@ See the
 description for acceptable values of \fIn\fP.
 .RE
 .IP "\fB\-\-mouse\fP"
-When enabled, same as \fB\-\-emouse=\fP\fIvscroll,vdrag,click\fP.
+When enabled, same as \fB\-\-emouse=\fP\fIvmove,click\fP.
 When disabled, same as \fB\-\-emouse=\fP\fI-\fP.
 .IP "\fB\-\-MOUSE\fP"
 Like

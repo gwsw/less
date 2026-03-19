@@ -987,7 +987,7 @@ public void opt_mouse(int type, constant char *s)
 			break;
 		case OPT_ON:
 		case OPT_ONPLUS:
-			opt_emouse(type, "vscroll,vdrag,click");
+			opt_emouse(type, "vmove,click");
 			mouse_reverse = (xmouse == OPT_ONPLUS);
 			break;
 		}
