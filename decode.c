@@ -37,6 +37,7 @@ extern int erase_char, erase2_char, kill_char;
 extern int emouse;
 extern int mouse_reverse;
 extern int hshift;
+extern int chopline;
 extern int sc_height;
 extern char *no_config;
 
@@ -623,6 +624,7 @@ static int mouse_button_left(int x, int y, lbool down, lbool drag)
 	{
 		if ((emouse & EMOUSE_HDRAG) && last_drag_x >= 0 && x != last_drag_x) {
 			/* Drag text left/right */
+			chopline = TRUE;
 			pos_rehead();
 			if (hshift < x - last_drag_x)
 				hshift = 0;
