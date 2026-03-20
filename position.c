@@ -298,8 +298,8 @@ static POSITION beginning_of_line(POSITION tpos)
 	while (ch_tell() != ch_zero())
 	{
 		int ch = ch_back_get();
-        if (ch == EOI)
-            break; /* {{ probably unnecessary due to ch_zero() check }} */
+		if (ch == EOI)
+			break; /* {{ probably unnecessary due to ch_zero() check }} */
 		if (ch == '\n')
 		{
 			(void) ch_forw_get();
@@ -326,7 +326,7 @@ public void pos_rehead(lbool adj_hshift)
 	if (linepos == tpos)
 		return;
 	table[TOP] = linepos;
-    if (adj_hshift)
-        hshift = pos_shift(linepos, (size_t) (tpos - linepos));
+	if (adj_hshift)
+		hshift = pos_shift(linepos, (size_t) (tpos - linepos));
 	screen_trashed();
 }

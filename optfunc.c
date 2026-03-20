@@ -1197,13 +1197,13 @@ public void opt_header(int type, constant char *s)
 		set_header(start_pos);
 		calc_jump_sline();
 		break; }
-    case QUERY: {
-        char buf[3*INT_STRLEN_BOUND(long)+3];
-        PARG parg;
-        SNPRINTF3(buf, sizeof(buf), "%ld,%ld,%ld", (long) header_lines, (long) header_cols, (long) find_linenum(header_start_pos));
-        parg.p_string = buf;
-        error("Header (lines,columns,line-number) is %s", &parg);
-        break; }
+	case QUERY: {
+		char buf[3*INT_STRLEN_BOUND(long)+3];
+		PARG parg;
+		SNPRINTF3(buf, sizeof(buf), "%ld,%ld,%ld", (long) header_lines, (long) header_cols, (long) find_linenum(header_start_pos));
+		parg.p_string = buf;
+		error("Header (lines,columns,line-number) is %s", &parg);
+		break; }
 	}
 }
 
@@ -1323,11 +1323,11 @@ public void opt_no_paste(int type, constant char *s)
 			init_bracketed_paste();
 		else
 			deinit_bracketed_paste();
-        break;
+		break;
 	case INIT:
 	case QUERY:
 		break;
-    }
+	}
 }
 
 #if LESSTEST
