@@ -1743,21 +1743,22 @@ the hyperlink is selected as if by the \*^O\*^N command.
 If a left-click is performed with the mouse cursor on an OSC 8 hyperlink
 which is already selected, the hyperlink is opened as if by the \*^O\*^O command.
 .IP "rclick"
-Right-clicking (or any other button) returns to the "#" mark position.
+Right-clicking (or clicking any button other than the left one)
+returns to the "#" mark position.
 .IP "scroll"
-Same as \fIvscroll,hscroll\fP.
+Same as "vscroll,hscroll".
 .IP "drag"
-Same as \fIvdrag,hdrag\fP.
+Same as "vdrag,hdrag".
 .IP "hmove"
-Same as \fIhscroll,hdrag\fP.
+Same as "hscroll,hdrag".
 .IP "vmove"
-Same as \fIvscroll,vdrag\fP.
+Same as "vscroll,vdrag".
 .IP "move"
-Same as \fIvmove,hmove\fP.
+Same as "vmove,hmove".
 .IP "click"
-Same as \fIlclick,rclick\fP.
+Same as "lclick,rclick".
 .IP "all"
-Same as \fImove,click\fP.
+Same as "move,click".
 .RE
 .IP
 If \fIfeatures\fP is set to "-", all mouse features are disabled.
@@ -1903,8 +1904,8 @@ See the
 description for acceptable values of \fIn\fP.
 .RE
 .IP "\fB\-\-mouse\fP"
-When enabled, same as \fB\-\-emouse=\fP\fIvmove,click\fP.
-When disabled, same as \fB\-\-emouse=\fP\fI-\fP.
+Enabling \fB\-\-mouse\fP is the same as \fB\-\-emouse=vmove,click\fP.
+Disabling \fB\-\-mouse\fP is the same as \fB\-\-emouse=-\fP.
 .IP "\fB\-\-MOUSE\fP"
 Like
 .B "\-\-mouse"
@@ -2030,7 +2031,7 @@ this makes the last screenful of the current file remain visible after
 has quit.
 .IP "\fB\-\-rmouse\fP"
 Reverses the normal direction of scrolling when mouse scrolling is
-enabled via \fB\-\-emouse=\fP\fIvscroll\fP or \fB\-\-emouse=\fP\fIhscroll\fP.
+enabled via \fB\-\-emouse=vscroll\fP or \fB\-\-emouse=hscroll\fP.
 .IP "\fB\-\-rscroll=\fP\fIc\fP"
 This option changes the character used to mark truncated lines.
 It may begin with a two-character attribute indicator like LESSBINFMT does.
