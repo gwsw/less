@@ -59,7 +59,9 @@ public int opt_use_backslash;   /* Use backslash escaping in option parsing */
 public LWCHAR rscroll_char;     /* Char which marks chopped lines with -S */
 public int rscroll_attr;        /* Attribute of rscroll_char */
 public int no_hist_dups;        /* Remove dups from history list */
-public int mousecap;            /* Allow mouse for scrolling */
+public int emouse;              /* Enabled mouse features */
+public int mouse_reverse;       /* Reverse mouse wheel scrolling direction */
+public int xmouse;              /* Old --mouse option, replaced by --emouse */
 public int wheel_lines;         /* Number of lines to scroll on mouse wheel scroll */
 public int perma_marks;         /* Save marks in history file */
 public int linenum_width;       /* Width of line numbers */
@@ -158,7 +160,9 @@ static struct optname follow_optname = { "follow-name",          NULL };
 static struct optname use_backslash_optname = { "use-backslash", NULL };
 static struct optname rscroll_optname = { "rscroll", NULL };
 static struct optname nohistdups_optname = { "no-histdups",      NULL };
-static struct optname mousecap_optname = { "mouse",              NULL };
+static struct optname mouse_optname = { "mouse",                 NULL };
+static struct optname emouse_optname = { "emouse",               NULL };
+static struct optname mouse_reverse_optname = { "rmouse",        NULL };
 static struct optname wheel_lines_optname = { "wheel-lines",     NULL };
 static struct optname perma_marks_optname = { "save-marks",      NULL };
 static struct optname linenum_width_optname = { "line-num-width", NULL };
@@ -549,12 +553,24 @@ static struct loption option[] =
 			NULL
 		}
 	},
-	{ OLETTER_NONE, &mousecap_optname,
-		O_TRIPLE, OPT_OFF, &mousecap, opt_mousecap,
+	{ OLETTER_NONE, &mouse_optname,
+		O_TRIPLE, OPT_OFF, &xmouse, opt_mouse,
 		{
 			"Ignore mouse input",
-			"Use the mouse for scrolling",
-			"Use the mouse for scrolling (reverse)"
+			"Use the mouse for scrolling vertically",
+			"Use the mouse for scrolling vertically (reverse)"
+		}
+	},
+	{ OLETTER_NONE, &emouse_optname,
+		O_STRING, 0, NULL, opt_emouse,
+		{ "Mouse features: ", "s", NULL }
+	},
+	{ OLETTER_NONE, &mouse_reverse_optname,
+		O_BOOL, OPT_OFF, &mouse_reverse, NULL,
+		{
+			"Normal mouse scroll direction",
+			"Reverse mouse scroll direction",
+			NULL
 		}
 	},
 	{ OLETTER_NONE, &wheel_lines_optname,

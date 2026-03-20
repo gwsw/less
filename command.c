@@ -1648,6 +1648,29 @@ public void commands(void)
 			backward(wheel_lines, FALSE, FALSE, FALSE);
 			break;
 
+		case A_L_MOUSE:
+			/*
+			 * Left wheel_lines columns.
+			 */
+			cmd_exec();
+			pos_rehead(FALSE);
+			if (wheel_lines > hshift)
+				hshift = 0;
+			else
+				hshift -= wheel_lines;
+			screen_trashed();
+			break;
+
+		case A_R_MOUSE:
+			/*
+			 * Right wheel_lines columns.
+			 */
+			cmd_exec();
+			pos_rehead(FALSE);
+			hshift += wheel_lines;
+			screen_trashed();
+			break;
+
 		case A_FF_LINE:
 			/*
 			 * Force forward N (default 1) line.
@@ -2327,7 +2350,7 @@ public void commands(void)
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
 			if (number > hshift)
 				number = hshift;
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift -= (int) number;
 			screen_trashed();
 			cmd_exec();
@@ -2341,7 +2364,7 @@ public void commands(void)
 				shift_count = (int) number;
 			else
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift += (int) number;
 			screen_trashed();
 			cmd_exec();
@@ -2351,7 +2374,7 @@ public void commands(void)
 			/*
 			 * Shift view left to margin.
 			 */
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift = 0;
 			screen_trashed();
 			cmd_exec();
@@ -2361,7 +2384,7 @@ public void commands(void)
 			/*
 			 * Shift view right to view rightmost char on screen.
 			 */
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift = rrshift();
 			screen_trashed();
 			cmd_exec();
