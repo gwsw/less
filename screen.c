@@ -307,7 +307,7 @@ extern int sigs;
 extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
-extern int mousecap;
+extern int emouse;
 extern int is_tty;
 extern int use_color;
 extern int no_paste;
@@ -2003,7 +2003,7 @@ public void term_init(void)
 		}
 		if (!no_keypad)
 			ltputs(sc_s_keypad, sc_height, putchr);
-		if (mousecap)
+		if (emouse != 0)
 			init_mouse();
 		if (no_paste)
 			init_bracketed_paste();
@@ -2031,7 +2031,7 @@ public void term_init(void)
 			win32_init_term();
 			term_addrs = TRUE;
 		}
-		if (mousecap)
+		if (emouse != 0)
 			init_mouse();
 
 	}
@@ -2052,7 +2052,7 @@ public void term_deinit(void)
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
 	{
-		if (mousecap)
+		if (emouse != 0)
 			deinit_mouse();
 		if (no_paste)
 			deinit_bracketed_paste();
@@ -2068,7 +2068,7 @@ public void term_deinit(void)
 	win32_deinit_vt_term();
 	if (!(quit_if_one_screen && one_screen))
 	{
-		if (mousecap)
+		if (emouse != 0)
 			deinit_mouse();
 		if (!no_init)
 			win32_deinit_term();
@@ -3220,7 +3220,7 @@ static lbool win32_mouse_event(XINPUT_RECORD *xip)
 {
 	char b;
 
-	if (!mousecap || xip->ir.EventType != MOUSE_EVENT)
+	if (emouse == 0 || xip->ir.EventType != MOUSE_EVENT)
 		return (FALSE);
 
 	/* Generate an X11 mouse sequence from the mouse event. */

@@ -244,7 +244,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		(forw_scroll >= 0 && n > forw_scroll && n != sc_height-1);
 	if (!do_repaint)
 	{
-		if (top_scroll && n >= sc_height - 1 && pos != ch_length())
+		if (top_scroll && n >= sc_height - 1 && pos != NULL_POSITION && pos != ch_length())
 		{
 			/*
 			 * Start a new screen.
@@ -306,17 +306,25 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 				/*
 				 * End of file: stop here unless the top line 
 				 * is still empty, or "force" is true.
-				 * Even if force is true, stop when the last
-				 * line in the file reaches the top of screen.
 				 */
 				soft_eof = opos;
 				linepos = (opos == ch_zero()) ? NULL_POSITION : opos;
-				if (ABORT_SIGS() || !force ||
-				   (!empty_lines(0, 0) && !empty_lines(1, 1) && empty_lines(2, sc_height-1)))
+				if (ABORT_SIGS() || !force)
 				{
 					pos = opos;
 					break;
 				}
+				/*
+				 * Even if force is true, stop when the last
+				 * line in the file reaches the top of screen.
+				 * Check for 3 non-empty lines at top of screen.
+				 * The first will be shifted away by the add_forw_pos()
+				 * after this loop; the other two are the start and end of
+				 * the single line that we want to retain at top of screen.
+				 */
+				if (!first_line && !empty_lines(0, 0) && !empty_lines(1, 1) &&
+				    !empty_lines(2, 2) && empty_lines(3, sc_height-1))
+					break;
 			}
 		}
 		/*

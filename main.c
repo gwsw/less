@@ -158,26 +158,16 @@ cleanup:
 }
 #endif
 
-#if !SECURE
-static int security_feature_error(constant char *type, size_t len, constant char *name)
-{
-	PARG parg;
-	size_t msglen = len + strlen(type) + 64;
-	char *msg = ecalloc(msglen, sizeof(char));
-	SNPRINTF3(msg, msglen, "LESSSECURE_ALLOW: %s feature name \"%.*s\"", type, (int) len, name);
-	parg.p_string = msg;
-	error("%s", &parg);
-	free(msg);
-	return 0;
-}
-
 /*
- * Return the SF_xxx value of a secure feature given the name of the feature.
+ * Set the secure_allow_features bitmask, which controls
+ * whether certain secure features are allowed.
  */
-static int security_feature(constant char *name, size_t len)
+static void init_secure(void)
 {
-	struct secure_feature { constant char *name; int sf_value; };
-	static struct secure_feature features[] = {
+#if SECURE
+	secure_allow_features = 0;
+#else
+	static struct csl_bitmap_def security_features[] = {
 		{ "edit",     SF_EDIT },
 		{ "examine",  SF_EXAMINE },
 		{ "glob",     SF_GLOB },
@@ -191,39 +181,6 @@ static int security_feature(constant char *name, size_t len)
 		{ "stop",     SF_STOP },
 		{ "tags",     SF_TAGS },
 	};
-	int i;
-	int match = -1;
-
-	for (i = 0;  i < countof(features);  i++)
-	{
-		if (strncmp(features[i].name, name, len) == 0)
-		{
-			if (match >= 0) /* name is ambiguous */
-				return security_feature_error("ambiguous", len, name);
-			match = i;
-		}
-	}
-	if (match < 0)
-		return security_feature_error("invalid", len, name);
-	return features[match].sf_value;
-}
-
-static lbool set_security_feature(constant char *word, size_t wlen, void *arg)
-{
-	secure_allow_features |= security_feature(word, wlen);
-	return TRUE;
-}
-#endif /* !SECURE */
-
-/*
- * Set the secure_allow_features bitmask, which controls
- * whether certain secure features are allowed.
- */
-static void init_secure(void)
-{
-#if SECURE
-	secure_allow_features = 0;
-#else
 	constant char *str = lgetenv("LESSSECURE");
 	if (isnullenv(str))
 		secure_allow_features = ~0; /* allow everything */
@@ -232,7 +189,8 @@ static void init_secure(void)
 
 	str = lgetenv("LESSSECURE_ALLOW");
 	if (!isnullenv(str))
-		parse_csl(set_security_feature, str, NULL);
+		secure_allow_features = parse_csl_bitmap(str,
+		    security_features, countof(security_features), "LESSSECURE_ALLOW");
 #endif
 }
 

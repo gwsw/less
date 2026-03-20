@@ -188,15 +188,15 @@ static void after_header_message(void)
 {
 #if HAVE_TIME
 #define MSG_FREQ 1 /* seconds */
-    static time_type last_msg = (time_type) 0;
-    time_type now = get_time();
-    if (now < last_msg + MSG_FREQ)
-        return;
-    last_msg = now;
+	static time_type last_msg = (time_type) 0;
+	time_type now = get_time();
+	if (now < last_msg + MSG_FREQ)
+		return;
+	last_msg = now;
 #endif
-    lbell();
-    /* {{ This message displays before the file text is updated, which is not a good UX. }} */
-    /** error("Cannot display text before header; use --header=- to disable header", NULL_PARG); */
+	lbell();
+	/* {{ This message displays before the file text is updated, which is not a good UX. }} */
+	/** error("Cannot display text before header; use --header=- to disable header", NULL_PARG); */
 }
 
 /*
@@ -210,8 +210,8 @@ public POSITION after_header_pos(POSITION pos)
 {
 	if (header_start_pos != NULL_POSITION && pos < header_start_pos)
 	{
-        after_header_message();
-        pos = header_start_pos;
+		after_header_message();
+		pos = header_start_pos;
 	}
 	return pos;
 }

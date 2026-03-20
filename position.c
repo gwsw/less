@@ -298,6 +298,8 @@ static POSITION beginning_of_line(POSITION tpos)
 	while (ch_tell() != ch_zero())
 	{
 		int ch = ch_back_get();
+		if (ch == EOI)
+			break; /* {{ probably unnecessary due to ch_zero() check }} */
 		if (ch == '\n')
 		{
 			(void) ch_forw_get();
@@ -310,10 +312,11 @@ static POSITION beginning_of_line(POSITION tpos)
 /*
  * When viewing long lines, it may be that the first char in the top screen
  * line is not the first char in its (file) line (the table is "beheaded").
- * This function sets that entry to the position of the first char in the line,
- * and sets hshift so that the first char in the first line is unchanged.
+ * This function sets that entry to the position of the first char in the
+ * line, and optionally sets hshift so that the first char in the first line
+ * is unchanged.
  */
-public void pos_rehead(void)
+public void pos_rehead(lbool adj_hshift)
 {
 	POSITION linepos;
 	POSITION tpos = table[TOP];
@@ -323,6 +326,7 @@ public void pos_rehead(void)
 	if (linepos == tpos)
 		return;
 	table[TOP] = linepos;
-	hshift = pos_shift(linepos, (size_t) (tpos - linepos));
+	if (adj_hshift)
+		hshift = pos_shift(linepos, (size_t) (tpos - linepos));
 	screen_trashed();
 }
