@@ -317,8 +317,8 @@ public void draw_target_attn(lbool hilite)
 	int sindex;
 	POSITION pos;
 
-    if (!can_goto_line) /* {{ Are there any such terminals any more? }} */
-        return;
+	if (!can_goto_line) /* {{ Are there any such terminals any more? }} */
+		return;
 	if (squished)
 		return;
 	sindex = sindex_from_sline(jump_sline);
