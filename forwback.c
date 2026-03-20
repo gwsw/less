@@ -244,7 +244,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		(forw_scroll >= 0 && n > forw_scroll && n != sc_height-1);
 	if (!do_repaint)
 	{
-		if (top_scroll && n >= sc_height - 1 && pos != ch_length())
+		if (top_scroll && n >= sc_height - 1 && pos != NULL_POSITION && pos != ch_length())
 		{
 			/*
 			 * Start a new screen.
