@@ -46,6 +46,10 @@
 * Don't retry read after read error; fixes hang when attempting to read
   a directory or other unreadable file (github #741).
 
+* Fix incorrect restoration of saved mark if not at top of screen.
+
+* With --save-marks, don't save a mark that was cleared with ESC-m.
+
 * Fix buffer overflow when using malformed lesskey file (github #721).
 
 * Fix unexpected scrolling past end of file (github #720).
