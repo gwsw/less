@@ -322,8 +322,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 				 * after this loop; the other two are the start and end of
 				 * the single line that we want to retain at top of screen.
 				 */
-				if (!first_line && !empty_lines(0, 0) && !empty_lines(1, 1) &&
-				    !empty_lines(2, 2) && empty_lines(3, sc_height-1))
+				if (!first_line && sc_height >= 3 && empty_lines(3, sc_height-1) &&
+				    !empty_lines(0, 0) && !empty_lines(1, 1) && !empty_lines(2, 2))
 					break;
 			}
 		}
@@ -410,6 +410,17 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 			 * Beginning of file: stop here unless "force" is true.
 			 */
 			if (ABORT_SIGS() || !force)
+				break;
+			/*
+			 * Even if force is true, stop when the first
+			 * line in the file reaches the bottom of the screen.
+			 * Check for 2 non-empty lines at bottom of screen.
+			 * These are the start and end of the single line that
+			 * we want to retain at bottom of screen.
+			 */
+			if (sc_height >= 3 && empty_lines(0, sc_height-3) &&
+			    !empty_lines(sc_height-1, sc_height-1) &&
+			    !empty_lines(sc_height-2, sc_height-2))
 				break;
 		}
 		if (pos != after_header_pos(pos))
