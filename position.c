@@ -157,7 +157,7 @@ public lbool empty_lines(int s, int e)
 	int i;
 
 	for (i = s;  i <= e;  i++)
-		if (table[i] != NULL_POSITION && table[i] != 0)
+		if (table[i] != NULL_POSITION)
 			return FALSE;
 	return TRUE;
 }
