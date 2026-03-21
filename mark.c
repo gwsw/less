@@ -267,7 +267,12 @@ public void clrmark(char c)
 		lbell();
 		return;
 	}
-	m->m_scrpos.pos = NULL_POSITION;
+	mark_clear(m);
+#if CMD_HISTORY
+	/* Also clear in file_marks, so save_marks doesn't save it to history file. */
+	m = &file_marks[mark_index(c)];
+	mark_clear(m);
+#endif
 	marks_modified = TRUE;
 	if (perma_marks && autosave_action('m'))
 		save_cmdhist();
