@@ -473,10 +473,6 @@ public void restore_mark(constant char *line)
 	ln = lstrtoic(line, &line, 10);
 	if (ln < 0)
 		return;
-	if (ln < 1)
-		ln = 1;
-	if (ln > sc_height)
-		ln = sc_height;
 	skip_whitespace;
 	pos = lstrtoposc(line, &line, 10);
 	if (pos < 0)
