@@ -15,7 +15,11 @@
 
 * Add --past-eof option.
 
-* Add --emouse option (github #744).
+* When scrolling past end-of-file or before beginning-of-file,
+  stop when exactly one line is left on screen.
+
+* Add --emouse and --rmouse options, and horizontal mouse scrolling
+  and dragging (github #744).
 
 * Add -DT option to format tilde lines (github #725).
 
