@@ -1776,7 +1776,8 @@ is specified,
 .B less
 will determine the size of the file 
 immediately after opening the file.
-Then the "=" command will display the number of lines in the file.
+With this option enabled, the = command and the long prompt will display
+the number of lines in the file.
 Normally this is not done, because it can be slow if the input file 
 is non-seekable (such as a pipe) and is large.
 .IP "\fB\-\-follow\-name\fP"
