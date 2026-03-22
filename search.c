@@ -1967,7 +1967,14 @@ public void osc8_open(void)
 		edit(skipsp(&open_cmd[2]));
 	} else
 	{
-		lsystem(open_cmd, "link done");
+		constant char *cmd = open_cmd;
+		constant char *done_msg = "link done";
+		if (*cmd == CONTROL('P'))
+		{
+			done_msg = NULL;
+			cmd++;
+		}
+		lsystem(cmd, done_msg);
 	}
 	free(open_cmd);
 #else

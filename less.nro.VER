@@ -644,6 +644,13 @@ to produce an OSC 8 "handler" shell command.
 The standard output from the handler is an "opener" shell command 
 which is then executed to open the URI.
 .PP
+If the opener command begins with "\-",
+the command is not displayed before it is executed.
+If the opener command begins with \*^P (CONTROL-P),
+the "link done" message is not displayed after it is executed.
+If the opener command begins with \*^P followed by "\-",
+neither the command nor the "link done" message is displayed.
+.PP
 There are two special cases:
 .RS
 .IP 1.
