@@ -644,23 +644,27 @@ to produce an OSC 8 "handler" shell command.
 The standard output from the handler is an "opener" shell command 
 which is then executed to open the URI.
 .PP
-There are three special cases:
+There are four special cases:
 .RS
 .IP 1.
-If the URI begins with "#", the remainder of the URI is taken to be 
+If the URI begins with "#", the remainder of the URI is taken to be
 the value of the id parameter in another OSC 8 link in the same file,
 and \*^O\*^O will simply jump to that link.
 .IP 2.
-If the opener begins with the characters ":e" followed by 
+If the opener begins with the characters ":e" followed by
 whitespace and a filename,
 then instead of running the opener as a shell command,
 the specified filename is opened in the current instance of
 .BR less .
 .IP 3.
 If the opener begins with "\-",
-then the command is executed silently:
-the command itself is not displayed and no
-"press RETURN" prompt is shown when the command finishes.
+the command itself is not displayed when it is executed.
+.IP 4.
+If the opener begins with \*^P (CONTROL-P),
+no "link done" message is printed after the command is executed.
+These two prefixes may be combined:
+if the opener begins with \*^P followed by "\-",
+the command is not displayed and no "link done" message is printed.
 This is useful for openers that run interactive programs
 such as editors, which take over the full screen.
 .RE
@@ -676,6 +680,47 @@ echo mybrowser \*'%o\*'
 .PP
 In other cases, the URI may need to be modified, so the handler
 may have to do some manipulation of the %o value.
+.PP
+To set up a handler for all URI schemes, set LESS_OSC8_ANY.
+For example, to open any link with
+.BR xdg-open (1)
+on Linux:
+.PP
+.EX
+.nf
+LESS_OSC8_ANY=\*'echo xdg-open \\\*'%o\\\*'\*'
+.fi
+.EE
+.PP
+To suppress the command echo, the handler should output an opener
+beginning with "\-":
+.PP
+.EX
+.nf
+LESS_OSC8_ANY=\*'echo \\-xdg-open \\\*'%o\\\*'\*'
+.fi
+.EE
+.PP
+To suppress the "link done" message,
+the handler should output an opener beginning with \*^P (CONTROL-P).
+This can be done by using
+.BR printf (1)
+with the octal escape \\020:
+.PP
+.EX
+.nf
+LESS_OSC8_ANY=\*'printf \*'\\\\020xdg-open \\\*'%o\\\*'\\n\*'\*'
+.fi
+.EE
+.PP
+To suppress both echo and the "link done" message,
+combine both prefixes (\*^P followed by "\-"):
+.PP
+.EX
+.nf
+LESS_OSC8_ANY=\*'printf \*'\\\\020\\-xdg-open \\\*'%o\\\*'\\n\*'\*'
+.fi
+.EE
 .PP
 If the LESS_OSC8_xxx variable is not set, the variable LESS_OSC8_ANY is tried. 
 If neither LESS_OSC8_xxx nor LESS_OSC8_ANY is set, 

@@ -13,8 +13,9 @@
 
 	Major changes between "less" versions 692 and 694
 
-* Allow OSC8 opener commands to suppress the "press RETURN" prompt
-  by starting with "-".
+* Allow OSC8 opener commands to suppress the command echo
+  by starting with "-", and/or suppress the "press RETURN" prompt
+  by starting with CONTROL-P.
 
 * Add --past-eof option.
 
