@@ -644,7 +644,7 @@ to produce an OSC 8 "handler" shell command.
 The standard output from the handler is an "opener" shell command 
 which is then executed to open the URI.
 .PP
-There are two special cases:
+There are three special cases:
 .RS
 .IP 1.
 If the URI begins with "#", the remainder of the URI is taken to be 
@@ -656,6 +656,13 @@ whitespace and a filename,
 then instead of running the opener as a shell command,
 the specified filename is opened in the current instance of
 .BR less .
+.IP 3.
+If the opener begins with "\-",
+then the command is executed silently:
+the command itself is not displayed and no
+"press RETURN" prompt is shown when the command finishes.
+This is useful for openers that run interactive programs
+such as editors, which take over the full screen.
 .RE
 .PP
 In a simple case where the opener accepts the complete URI

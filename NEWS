@@ -13,6 +13,9 @@
 
 	Major changes between "less" versions 692 and 694
 
+* Allow OSC8 opener commands to suppress the "press RETURN" prompt
+  by starting with "-".
+
 * Add --past-eof option.
 
 * When scrolling past end-of-file or before beginning-of-file,

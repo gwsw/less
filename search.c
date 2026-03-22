@@ -1967,7 +1967,7 @@ public void osc8_open(void)
 		edit(skipsp(&open_cmd[2]));
 	} else
 	{
-		lsystem(open_cmd, "link done");
+		lsystem(open_cmd, (open_cmd[0] == '-') ? NULL : "link done");
 	}
 	free(open_cmd);
 #else
