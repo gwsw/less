@@ -32,6 +32,7 @@ extern int utf_mode;
 extern int status_col;
 extern int status_line;
 extern int hilite_target;
+extern int use_color;
 extern char intr_char;
 extern lbool term_init_ever;
 
@@ -57,6 +58,7 @@ public void put_line_hilite(lbool forw_scroll, lbool target)
 	size_t i;
 	int a;
 	lbool empty_line = TRUE;
+	constant int target_attr = use_color ? AT_COLOR_TARGET : AT_UNDERLINE;
 
 	if (ABORT_SIGS())
 	{
@@ -77,12 +79,12 @@ public void put_line_hilite(lbool forw_scroll, lbool target)
 			 * status column and this is the status column. */
 			if ((status_col && i == 0) ||
 			    (i >= line_pfx_width() && (status_line || !status_col)))
-				a = AT_UNDERLINE|AT_COLOR_TARGET;
+				a = target_attr;
 		}
 		if (target && (c == '\n' || c == '\r') && empty_line)
 		{
 			/* Line is empty; add a space to carry the target hilite. */
-			at_switch(AT_UNDERLINE|AT_COLOR_TARGET);
+			at_switch(target_attr);
 			putchr(' ');
 		}
 		if (!(a & AT_ANSI))
