@@ -448,7 +448,7 @@ public void plinestart(POSITION pos)
  * Return the width of the line prefix (status column and line number).
  * {{ Actual line number can be wider than linenum_width. }}
  */
-public int line_pfx_width(void)
+public unsigned line_pfx_width(void)
 {
 	int width = 0;
 	if (status_col)

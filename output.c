@@ -77,12 +77,12 @@ public void put_line_hilite(lbool forw_scroll, lbool target)
 			 * status column and this is the status column. */
 			if ((status_col && i == 0) ||
 			    (i >= line_pfx_width() && (status_line || !status_col)))
-				a = AT_HILITE|AT_COLOR_TARGET;
+				a = AT_UNDERLINE|AT_COLOR_TARGET;
 		}
 		if (target && (c == '\n' || c == '\r') && empty_line)
 		{
 			/* Line is empty; add a space to carry the target hilite. */
-			at_switch(AT_HILITE|AT_COLOR_TARGET);
+			at_switch(AT_UNDERLINE|AT_COLOR_TARGET);
 			putchr(' ');
 		}
 		if (!(a & AT_ANSI))
