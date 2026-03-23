@@ -1465,7 +1465,7 @@ public void pdone(lbool endline, lbool chopped, lbool forw, lbool full_pad)
 	 * If we're coloring a status line, fill out the line with spaces.
 	 */
 	if (status_line && (line_mark_attr != 0 || full_pad)) {
-		while (end_column +1 < sc_width + cshift)
+		while (end_column < sc_width + cshift)
 			add_linebuf(' ', line_mark_attr, 1);
 	}
 
