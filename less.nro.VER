@@ -644,6 +644,13 @@ to produce an OSC 8 "handler" shell command.
 The standard output from the handler is an "opener" shell command 
 which is then executed to open the URI.
 .PP
+If the opener command begins with "\-",
+the command is not displayed before it is executed.
+If the opener command begins with \*^P (CONTROL-P),
+the "link done" message is not displayed after it is executed.
+If the opener command begins with \*^P followed by "\-",
+neither the command nor the "link done" message is displayed.
+.PP
 There are two special cases:
 .RS
 .IP 1.
@@ -1778,7 +1785,8 @@ is specified,
 .B less
 will determine the size of the file 
 immediately after opening the file.
-Then the "=" command will display the number of lines in the file.
+With this option enabled, the = command and the long prompt will display
+the number of lines in the file.
 Normally this is not done, because it can be slow if the input file 
 is non-seekable (such as a pipe) and is large.
 .IP "\fB\-\-follow\-name\fP"

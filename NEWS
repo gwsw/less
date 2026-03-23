@@ -37,6 +37,9 @@
 * Change | command to pipe just one line if the marked line is at the
   top of the screen (github #733).
 
+* If OSC8 opener command begins with "-", suppress command echo,
+  and if it begins with ctrl-P, suppress "done" message (github #747).
+
 * Don't ask for confirmation when input is a binary file and stdout is
   redirected. Fixes infinite loop in that situation (github #719).
 
