@@ -1089,6 +1089,7 @@ v694  3/24/26   | cmd pipes 1 line if mark is top line; allow numeric arg
                 don't retry read after error; fix crash with bad tags file;
                 add --past-eof; add --emouse; fix restore mark if not at top;
                 don't save cleared marks.
+v695
 */
 
-char version[] = "694";
+char version[] = "695x";
