@@ -73,6 +73,8 @@
 
 * Fix crash when tags file contains invalid line number 0 (github #743).
 
+* Fix build when tparm() doesn't use varargs (github #748).
+
 ======================================================================
 
 	Major changes between "less" versions 691 and 692

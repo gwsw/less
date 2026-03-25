@@ -75,6 +75,18 @@ extern int fd0;
 #if USE_TERMINFO
 #include <curses.h>
 #include <term.h>
+#if HAVE_TPARM2
+#define LTPARM2(s,p1,p2) tparm(s, p1, p2)
+#else
+#if HAVE_TPARM8
+#define LTPARM2(s,p1,p2) tparm(s, p1, p2, 0, 0, 0, 0, 0, 0)
+#else
+#if HAVE_TPARM9
+#define LTPARM2(s,p1,p2) tparm(s, p1, p2, 0, 0, 0, 0, 0, 0, 0)
+#else
+#endif
+#endif
+#endif
 #else
 #if HAVE_NCURSESW_TERMCAP_H
 #include <ncursesw/termcap.h>
@@ -1326,7 +1338,7 @@ public constant char * special_key_str(int key)
 static constant char *ltgoto(constant char *cap, int col, int line)
 {
 #if USE_TERMINFO
-	return tparm(cap, line, col);
+	return LTPARM2(cap, line, col);
 #else
 	return tgoto(cap, col, line);
 #endif
