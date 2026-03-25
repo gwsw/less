@@ -191,21 +191,19 @@ LIBS="$LIBS $TERMLIBS"
 AC_MSG_CHECKING(for terminfo)
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <curses.h>
-#include <term.h>]], [[setupterm("",0,0); tigetflag(""); tigetnum(""); tigetstr("");]])], [have_terminfo=yes], [have_terminfo=no])
-if test $have_terminfo != yes; then
-  AC_MSG_RESULT(no)
-else
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <term.h>]], [[setupterm("",0,0); tigetflag(""); tigetnum(""); tigetstr("");]])], [maybe_have_terminfo=yes], [maybe_have_terminfo=no])
+if test $maybe_have_terminfo = yes; then
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <curses.h>
-#include <term.h>]], [[tparm("x",0,0);]])], AC_DEFINE(HAVE_TPARM2), have_terminfo=no)
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <term.h>]], [[tparm("x",0,0);]])], AC_DEFINE(HAVE_TPARM2) have_terminfo=yes, )
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <curses.h>
-#include <term.h>]], [[tparm("x",0,0,0,0,0,0,0,0);]])], AC_DEFINE(HAVE_TPARM8), have_terminfo=no)
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <term.h>]], [[tparm("x",0,0,0,0,0,0,0,0);]])], AC_DEFINE(HAVE_TPARM8) have_terminfo=yes,)
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <curses.h>
-#include <term.h>]], [[tparm("x",0,0,0,0,0,0,0,0,0);]])], AC_DEFINE(HAVE_TPARM9), have_terminfo=no)
+#include <term.h>]], [[tparm("x",0,0,0,0,0,0,0,0,0);]])], AC_DEFINE(HAVE_TPARM9) have_terminfo=yes, )
 fi
-if test $have_terminfo = yes; then
+if test "$have_terminfo" = yes; then
   AC_DEFINE(HAVE_TERMINFO) AC_MSG_RESULT(yes) ; else AC_MSG_RESULT(no)
 fi
 
