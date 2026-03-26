@@ -1079,7 +1079,7 @@ static int flush_mbc_buf(POSITION pos)
  */
 public int pappend_b(char c, POSITION pos, lbool before_pendc)
 {
-	LWCHAR ch = c & 0377;
+	LWCHAR ch = (unsigned char) c;
 	int r;
 
 	if (pendc && !before_pendc)
@@ -1683,7 +1683,7 @@ public int gline(size_t i, int *ap)
 	}
 	i += linebuf.print - linebuf.pfx_end;
 	*ap = linebuf.attr[i];
-	return (linebuf.buf[i] & 0xFF);
+	return (unsigned char) linebuf.buf[i];
 }
 
 /*
