@@ -232,8 +232,13 @@ public int get_cvt_ops(int search_type)
 {
 	int ops = 0;
 
-	if (is_caseless && (!re_handles_caseless || (search_type & SRCH_NO_REGEX)))
+#if RE_HANDLES_CASELESS
+	if (is_caseless && (search_type & SRCH_NO_REGEX))
 		ops |= CVT_TO_LC;
+#else
+	if (is_caseless)
+		ops |= CVT_TO_LC;
+#endif
 	if (proc_backspace == OPT_ON || (bs_mode == BS_SPECIAL && proc_backspace == OPT_OFF))
 		ops |= CVT_BS;
 	if (proc_return == OPT_ON || (bs_mode != BS_CONTROL && proc_backspace == OPT_OFF))
@@ -2067,9 +2072,10 @@ public void chg_caseless(void)
 		 * If regex handles caseless, we need to discard 
 		 * the pattern which was compiled with the old caseless.
 		 */
-		if (!re_handles_caseless)
-			/* We handle caseless, so the pattern doesn't change. */
-			return;
+#if !RE_HANDLES_CASELESS
+		/* Less handles caseless, so the pattern doesn't change. */
+		return;
+#endif
 	}
 	/*
 	 * Regenerate the pattern using the new state.
