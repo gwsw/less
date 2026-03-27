@@ -75,6 +75,10 @@
 
 * Fix build when tparm() doesn't use varargs (github #748).
 
+* Fix prompt overflow when filtering with long prompt (github #749).
+
+* Fix incorrect highlighting when change -i while filtering (github #750).
+
 ======================================================================
 
 	Major changes between "less" versions 691 and 692

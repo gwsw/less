@@ -2080,8 +2080,11 @@ public void chg_caseless(void)
 	/*
 	 * Regenerate the pattern using the new state.
 	 */
-	clear_pattern(&search_info);
-	(void) hist_pattern(search_info.search_type);
+	if (prev_pattern(&search_info))
+	{
+		clear_pattern(&search_info);
+		(void) hist_pattern(search_info.search_type);
+	}
 }
 
 /*
