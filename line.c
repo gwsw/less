@@ -1880,10 +1880,10 @@ static int pappstr(constant char *str)
 
 /*
  * Load a string into the line buffer.
- * If the string is too long to fit on the screen,
+ * If the string is too long to fit on the screen (minus reserve chars),
  * truncate the beginning of the string to fit.
  */
-public void load_line(constant char *str)
+public void load_line(constant char *str, int attr, int reserve)
 {
 	int save_hshift = hshift;
 	hshift = 0;
@@ -1891,6 +1891,7 @@ public void load_line(constant char *str)
 	/* We're overwriting the line buffer, so what's in it will no longer be contiguous. */
 	set_line_contig_pos(NULL_POSITION);
 
+	sc_width -= reserve;
 	for (;;)
 	{
 		prewind(FALSE);
@@ -1905,13 +1906,14 @@ public void load_line(constant char *str)
 	}
 	set_linebuf(linebuf.end, '\0', AT_NORMAL);
 	linebuf.prev_end = 0;
+	sc_width += reserve;
 
 	/* Color the prompt unless it has ansi sequences in it. */
 	if (!ansi_in_line)
 	{
 		size_t i;
 		for (i = linebuf.print;  i < linebuf.end;  i++)
-			set_linebuf(i, linebuf.buf[i], AT_STANDOUT|AT_COLOR_PROMPT);
+			set_linebuf(i, linebuf.buf[i], attr);
 	}
 	hshift = save_hshift;
 }

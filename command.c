@@ -918,6 +918,11 @@ static void prompt_message(void)
 static void prompt(void)
 {
 	constant char *p;
+	int attr;
+#if MSDOS_COMPILER==WIN32C
+	WCHAR w[MAX_PATH*2];
+	char  a[MAX_PATH*2];
+#endif
 
 	if (ungot != NULL && !ungot->ug_end_command)
 	{
@@ -992,28 +997,31 @@ static void prompt(void)
 	forw_prompt = 0;
 	prompt_message();
 	p = pr_string();
-#if HILITE_SEARCH
-	if (is_filtering())
-		putstr("& ");
-#endif
 	if (p == NULL || *p == '\0')
 	{
-		at_enter(AT_NORMAL|AT_COLOR_PROMPT);
-		putchr(':');
-		at_exit();
-	} else
+		p = ":";
+		attr = AT_NORMAL|AT_COLOR_PROMPT;
+	}
+	else
 	{
+		attr = AT_STANDOUT|AT_COLOR_PROMPT;
 #if MSDOS_COMPILER==WIN32C
-		WCHAR w[MAX_PATH*2];
-		char  a[MAX_PATH*2];
 		MultiByteToWideChar(less_acp, 0, p, -1, w, countof(w));
 		WideCharToMultiByte(utf_mode ? CP_UTF8 : GetConsoleOutputCP(),
 		                    0, w, -1, a, sizeof(a), NULL, NULL);
 		p = a;
 #endif
-		load_line(p);
-		put_line(FALSE);
 	}
+#if HILITE_SEARCH
+	if (is_filtering())
+	{
+		load_line(p, attr, 2);
+		cmd_putstr("& ");
+	}
+	else
+#endif
+		load_line(p, attr, 0);
+	put_line(FALSE);
 	clear_eol();
 	resume_screen();
 }
