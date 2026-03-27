@@ -18,7 +18,7 @@
 
 public lbool squished;
 public int no_back_scroll = 0;
-public int forw_prompt;
+public lbool forw_prompt;
 public lbool first_time = TRUE; /* We're printing the first screen of output */
 public int shell_lines = 1;
 /* soft_eof is set as end-of-file when a read attempt returns EOF. This can
@@ -365,7 +365,7 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 		put_line(TRUE);
 		if (do_stop_on_form_feed && !do_repaint && line_is_ff() && position(TOP) != NULL_POSITION)
 			break;
-		forw_prompt = 1;
+		forw_prompt = TRUE;
 	}
 	if (!first_line)
 		add_forw_pos(pos, FALSE);

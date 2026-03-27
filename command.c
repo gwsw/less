@@ -66,7 +66,7 @@ extern constant char *editproto;
 extern char *osc8_uri;
 #endif
 extern int shift_count;
-extern int forw_prompt;
+extern lbool forw_prompt;
 extern int incr_search;
 extern int full_screen;
 #if MSDOS_COMPILER==WIN32C
@@ -210,7 +210,7 @@ static void mca_search1(void)
 		cmd_putstr("/");
 	else
 		cmd_putstr("?");
-	forw_prompt = 0;
+	forw_prompt = FALSE;
 }
 
 static void mca_search(void)
@@ -250,7 +250,7 @@ static void mca_opt_toggle(void)
 		cmd_putstr("!");
 		break;
 	}
-	forw_prompt = 0;
+	forw_prompt = FALSE;
 	set_mlist(NULL, CF_OPTION);
 }
 
@@ -968,6 +968,7 @@ static void prompt(void)
 #if MSDOS_COMPILER==WIN32C
 	/* 
 	 * In Win32, display the file name in the window title.
+	 * {{ Seems like this should be done in edit_ifile, not on every prompt. }}
 	 */
 	if (!(ch_getflags() & CH_HELPFILE))
 	{
@@ -994,15 +995,14 @@ static void prompt(void)
 	if (!forw_prompt)
 		clear_bot();
 	clear_cmd();
-	forw_prompt = 0;
+	forw_prompt = FALSE;
 	prompt_message();
 	p = pr_string();
 	if (p == NULL || *p == '\0')
 	{
 		p = ":";
 		attr = AT_NORMAL|AT_COLOR_PROMPT;
-	}
-	else
+	} else
 	{
 		attr = AT_STANDOUT|AT_COLOR_PROMPT;
 #if MSDOS_COMPILER==WIN32C
@@ -1015,12 +1015,14 @@ static void prompt(void)
 #if HILITE_SEARCH
 	if (is_filtering())
 	{
-		load_line(p, attr, 2);
-		cmd_putstr("& ");
-	}
-	else
+		constant char *amp = "& ";
+		load_line(p, attr, strlen(amp));
+		cmd_putstr(amp);
+	} else
 #endif
+	{
 		load_line(p, attr, 0);
+	}
 	put_line(FALSE);
 	clear_eol();
 	resume_screen();
