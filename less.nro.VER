@@ -299,7 +299,7 @@ Same as single quote.
 .IP "ESC-m"
 Followed by any lowercase or uppercase letter,
 clears the mark identified by that letter.
-.IP /pattern
+.IP "/\fIpattern\fP"
 Search forward in the file for the N-th line containing the pattern.
 N defaults to 1.
 The pattern is a regular expression, as recognized by
@@ -364,7 +364,7 @@ If the \*^W modifier is set, the \*^E modifier is ignored.
 The next character is taken literally; that is, it becomes part of the pattern
 even if it is one of the above search modifier characters.
 .RE
-.IP ?pattern
+.IP "?\fIpattern\fP"
 Search backward in the file for the N-th line containing the pattern.
 The search starts at the last line displayed
 (but see the
@@ -405,9 +405,9 @@ current file up to the line where it started.
 .IP "\*^L"
 As in forward searches.
 .RE
-.IP "ESC-/pattern"
+.IP "ESC-/\fIpattern\fP"
 Same as "/*".
-.IP "ESC-?pattern"
+.IP "ESC-?\fIpattern\fP"
 Same as "?*".
 .IP n
 Repeat previous search, for N-th line containing the last pattern.
@@ -444,9 +444,9 @@ If the status column is enabled via the
 .B "\-J"
 option,
 this clears all search matches marked in the status column.
-.IP "&pattern"
+.IP "&\fIpattern\fP"
 Display only lines which match the pattern;
-lines which do not match the pattern are not displayed.
+lines which do not match the pattern are hidden.
 If pattern is empty (if you type & immediately followed by ENTER),
 any filtering is turned off, and all lines are displayed.
 While filtering is in effect, an ampersand is displayed at the
@@ -463,7 +463,7 @@ Display only lines which do NOT match the pattern.
 Don't interpret regular expression metacharacters;
 that is, do a simple textual comparison.
 .RE
-.IP ":e [filename]"
+.IP ":e [\fIfilename\fP]"
 Examine a new file.
 If the filename is missing, the "current" file (see the :n and :p commands
 below) from the list of files in the command line is re-examined.
@@ -574,7 +574,7 @@ The setting of the option is not changed.
 Like the _ (underscore) command, but takes a long option name
 rather than a single option letter.
 You must press ENTER or RETURN after typing the option name.
-.IP +cmd
+.IP +\fIcmd\fP
 Causes the specified cmd to be executed each time a new file is examined.
 For example, +G causes
 .B less
@@ -598,7 +598,7 @@ The editor is taken from the environment variable VISUAL if defined,
 or EDITOR if VISUAL is not defined,
 or defaults to "vi" if neither VISUAL nor EDITOR is defined.
 See also the discussion of LESSEDIT under the section on PROMPTS below.
-.IP "! shell-command"
+.IP "! \fIshell-command\fP"
 Invokes a shell to run the shell-command given.
 A percent sign (%) in the command is replaced by the name of the
 current file.
@@ -610,11 +610,11 @@ no "done" message is printed after the shell command is executed.
 On Unix systems, the shell is taken from the environment variable SHELL,
 or defaults to "sh".
 On MS-DOS, Windows, and OS/2 systems, the shell is the normal command processor.
-.IP "# shell-command"
+.IP "# \fIshell-command\fP"
 Similar to the "!" command, 
 except that the command is expanded in the same way as prompt strings.
 For example, the name of the current file would be given as "%f".
-.IP "| <m> shell-command"
+.IP "| <\fIm\fP> \fIshell-command\fP"
 <m> represents any mark letter.
 Pipes a section of the input file to the given shell command.
 If the marked line is before the top line of the current screen,
@@ -627,7 +627,7 @@ of the current screen and the marked line, inclusive.
 If <m> is \&.\& or newline, the current screen is piped.
 If a \*^P (CONTROL-P) is entered immediately after the mark letter,
 no "done" message is printed after the shell command is executed.
-.IP "s filename"
+.IP "s \fIfilename\fP"
 Save the input to a file.
 This works only if the input is a pipe, not an ordinary file.
 .IP "\*^O\*^O"
@@ -829,7 +829,7 @@ the bottom of the screen
 and backward searches to start at the top of the screen,
 thus skipping all lines displayed on the screen.
 .IP "\fB\-A\fP or \fB\-\-SEARCH\-SKIP\-SCREEN\fP"
-Causes all forward searches (not just non-repeated searches)
+auses all forward searches (not just non-repeated searches)
 to start just after the target line, and all backward searches
 to start just before the target line.
 Thus, forward searches will skip part of the displayed screen
@@ -2091,6 +2091,8 @@ If a line is marked, the entire line (rather than just the status column)
 is highlighted.
 Also lines highlighted due to the
 .B "\-w"
+or
+.B "\-\-hilite\-target"
 option will have
 the entire line highlighted.
 If
@@ -2185,7 +2187,7 @@ Move the cursor to the end of the line.
 .IP "BACKSPACE"
 Delete the character to the left of the cursor,
 or cancel the command if the command line is empty.
-.IP "DELETE or [ ESC-x ]"
+.IP "DELETE [ ESC-x ]"
 Delete the character under the cursor.
 .IP "\*^BACKSPACE [ ESC-BACKSPACE ]"
 (That is, CONTROL and BACKSPACE simultaneously.)
@@ -2205,13 +2207,13 @@ it will retrieve the next command which begins with that text.
 Complete the partial filename to the left of the cursor.
 If it matches more than one filename, the first match
 is entered into the command line.
-Repeated TABs will cycle thru the other matching filenames.
+Repeated TABs will cycle through the other matching filenames.
 If the completed filename is a directory, a "/" is appended to the filename.
 (On MS-DOS and Windows systems, a "\e" is appended.)
 The environment variable LESSSEPARATOR can be used to specify a
 different character to append to a directory name.
 .IP "BACKTAB (SHIFT-TAB) [ ESC-TAB ]"
-Like TAB, but cycles in the reverse direction thru the matching filenames.
+Like TAB, but cycles in the reverse direction through the matching filenames.
 .IP "\*^L"
 Complete the partial filename to the left of the cursor.
 If it matches more than one filename, all matches are entered into
