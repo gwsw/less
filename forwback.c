@@ -17,7 +17,7 @@
 #include "position.h"
 
 public lbool squished;
-public int no_back_scroll = 0;
+public lbool no_back_scroll = FALSE;
 public lbool forw_prompt;
 public lbool first_time = TRUE; /* We're printing the first screen of output */
 public int shell_lines = 1;

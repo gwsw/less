@@ -301,7 +301,7 @@ static int attrmode = AT_NORMAL; /* current attributes (AT_* bits) */
 static int termcap_debug = -1;
 static int no_alt_screen;       /* sc_init does not switch to alt screen */
 extern int binattr;
-extern int one_screen;
+extern lbool one_screen;
 extern int shell_lines;
 
 #if !MSDOS_COMPILER
@@ -312,7 +312,7 @@ static void tmodes(constant char *inti, constant char *outti, constant char *int
 
 extern int quiet;               /* If VERY_QUIET, use visual bell for bell */
 extern int no_vbell;
-extern int no_back_scroll;
+extern lbool no_back_scroll;
 extern int no_init;
 extern int no_keypad;
 extern int sigs;
@@ -320,7 +320,7 @@ extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
 extern int emouse;
-extern int is_tty;
+extern lbool is_tty;
 extern int use_color;
 extern int no_paste;
 extern int wscroll;
@@ -1672,7 +1672,7 @@ public void get_term()
 		/*
 		 * Force repaint on any backward movement.
 		 */
-		no_back_scroll = 1;
+		no_back_scroll = TRUE;
 	}
 }
 #endif /* MSDOS_COMPILER */

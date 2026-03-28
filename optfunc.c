@@ -34,7 +34,7 @@ extern lbool plusoption;
 extern int swindow;
 extern int sc_width;
 extern int sc_height;
-extern int dohelp;
+extern lbool dohelp;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
@@ -90,7 +90,7 @@ extern char ztags[];
 #endif
 #if LESSTEST
 extern constant char *ttyin_name;
-extern int is_tty;
+extern lbool is_tty;
 #endif /*LESSTEST*/
 #if MSDOS_COMPILER
 extern int nm_fg_color, nm_bg_color, nm_attr;
@@ -872,7 +872,7 @@ public void opt_query(int type, constant char *s)
 		error("Use \"h\" for help", NULL_PARG);
 		break;
 	case INIT:
-		dohelp = 1;
+		dohelp = TRUE;
 	}
 }
 
@@ -1361,7 +1361,7 @@ public void opt_ttyin_name(int type, constant char *s)
 	{
 	case INIT:
 		ttyin_name = s;
-		is_tty = 1;
+		is_tty = TRUE;
 		break;
 	}
 }

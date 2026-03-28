@@ -29,7 +29,7 @@ public unsigned less_acp = CP_ACP;
 
 public char *   every_first_cmd = NULL;
 public lbool    new_file;
-public int      is_tty;
+public lbool    is_tty;
 public IFILE    curr_ifile = NULL_IFILE;
 public IFILE    old_ifile = NULL_IFILE;
 public struct scrpos initial_scrpos;
@@ -38,7 +38,7 @@ public POSITION end_attnpos = NULL_POSITION;
 public int      wscroll;
 public constant char *progname;
 public lbool    quitting = FALSE;
-public int      dohelp;
+public lbool    dohelp = FALSE;
 public char *   init_header = NULL;
 public char *   no_config = NULL;
 static int      secure_allow_features;
@@ -68,7 +68,7 @@ public time_type less_start_time;
 static wchar_t consoleTitle[256];
 #endif
 
-public int      one_screen;
+public lbool    one_screen;
 extern int      less_is_more;
 extern lbool    missing_cap;
 extern int      know_dumb;
@@ -252,7 +252,7 @@ int main(int argc, constant char *argv[])
 	 * Process command line arguments and LESS environment arguments.
 	 * Command line arguments override environment arguments.
 	 */
-	is_tty = isatty(1);
+	is_tty = (isatty(1) != 0);
 	init_mark();
 	init_cmds();
 	init_poll();

@@ -245,7 +245,7 @@ get_forw_line:
 				} while (c != '\n' && c != EOI);
 				new_pos = ch_tell();
 				endline = TRUE;
-				quit_if_one_screen = FALSE;
+				quit_if_one_screen = 0;
 				chopped = TRUE;
 			} else
 			{
@@ -501,7 +501,7 @@ get_back_line:
 			{
 				endline = TRUE;
 				chopped = TRUE;
-				quit_if_one_screen = FALSE;
+				quit_if_one_screen = 0;
 				edisp_pos = new_pos;
 				break;
 			}

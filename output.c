@@ -21,12 +21,12 @@
 #endif
 
 public int errmsgs;    /* Count of messages displayed by error() */
-public int need_clr;
+static lbool need_clr = FALSE;
 
 extern int sigs;
 extern int sc_width;
 extern int so_s_width, so_e_width;
-extern int is_tty;
+extern lbool is_tty;
 extern int oldbot;
 extern int utf_mode;
 extern int status_col;
@@ -537,7 +537,7 @@ public void clear_bot_if_needed(void)
 {
 	if (!need_clr)
 		return;
-	need_clr = 0;
+	need_clr = FALSE;
 	clear_bot();
 }
 
@@ -768,7 +768,7 @@ static void ierror_suffix(constant char *fmt, constant PARG *parg, constant char
 	putstr(suffix3);
 	at_exit();
 	flush();
-	need_clr = 1;
+	need_clr = TRUE;
 }
 
 public void ierror(constant char *fmt, constant PARG *parg)

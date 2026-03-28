@@ -23,7 +23,7 @@
 extern int erase_char, erase2_char, kill_char;
 extern int sigs;
 extern int quit_if_one_screen;
-extern int one_screen;
+extern lbool one_screen;
 extern int sc_width;
 extern int sc_height;
 extern char *kent;
@@ -957,7 +957,7 @@ static void prompt(void)
 	    entire_file_displayed() && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
-	quit_if_one_screen = FALSE; /* only get one chance at this */
+	quit_if_one_screen = 0; /* only get one chance at this */
 	if (first_cmd_at_prompt != NULL)
 	{
 		ungetsc(first_cmd_at_prompt);
