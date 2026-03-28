@@ -1017,7 +1017,7 @@ static void prompt(void)
 	{
 		constant char *amp = "& ";
 		load_line(p, attr, strlen(amp));
-		cmd_putstr(amp);
+		putstr(amp);
 	} else
 #endif
 	{
