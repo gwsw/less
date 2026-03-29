@@ -93,6 +93,7 @@ public long match_shift_fraction = NUM_FRAC_DENOM/2; /* 1/2 of screen width */
 public char intr_char = CONTROL('X'); /* Char to interrupt reads */
 public char *first_cmd_at_prompt = NULL; /* Command to exec before first prompt */
 public char *autosave;          /* Actions which do autosave of history file */
+public char *end_prompt;        /* Printed after clearing the prompt */
 #if HILITE_SEARCH
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
@@ -197,6 +198,7 @@ static struct optname match_shift_optname = { "match-shift", NULL };
 static struct optname first_cmd_at_prompt_optname = { "cmd", NULL };
 static struct optname autosave_optname = { "autosave", NULL };
 static struct optname hilite_target_optname = { "hilite-target", NULL };
+static struct optname end_prompt_optname = { "end-prompt", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/
@@ -804,6 +806,10 @@ static struct loption option[] =
 	{ OLETTER_NONE, &autosave_optname,
 		O_STRING|O_INIT_HANDLER, 0, NULL, opt_autosave,
 		{ "Autosave actions: ", "s", NULL }
+	},
+	{ OLETTER_NONE, &end_prompt_optname,
+		O_STRING, 0, NULL, opt_end_prompt,
+		{ "Print after prompt: ", "s", NULL }
 	},
 #if LESSTEST
 	{ OLETTER_NONE, &ttyin_name_optname,

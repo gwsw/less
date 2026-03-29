@@ -56,6 +56,7 @@ extern lbool read_error;
 extern POSITION soft_eof;
 extern POSITION search_incr_start;
 extern char *first_cmd_at_prompt;
+extern lbool prompting;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
@@ -1026,6 +1027,7 @@ static void prompt(void)
 	put_line(FALSE);
 	clear_eol();
 	resume_screen();
+	prompting = TRUE;
 }
 
 /*
@@ -1620,7 +1622,6 @@ public void commands(void)
 
 		case A_F_LINE:
 		case A_F_NEWLINE:
-
 			/*
 			 * Forward N (default 1) line.
 			 */

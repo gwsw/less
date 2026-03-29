@@ -1773,6 +1773,17 @@ Same as "move,click".
 If \fIfeatures\fP is set to "-", all mouse features are disabled.
 Mouse input works only on terminals which support X11 mouse reporting,
 and on Windows.
+.IP "\fB\-\-end\-prompt=\fP\fIstring\fP"
+Specifies a string which is printed immediately after the prompt is erased.
+As with the \fB\-\-prompt\fP option, the first character of the string
+determines which prompt the string will be printed after
+("\fBs\fP" for the short prompt, "\fBm\fP" for the medium prompt,
+or "\fBM\fP" for the long prompt).
+Special characters in the string are processed as described in the PROMPTS
+section, in the same way as prompts specified by the \fB\-\-prompt\fP option.
+This option can be useful if the prompt string has been modified to contain
+an escape sequence that puts the terminal in a mode which should be cleared
+when the prompt is erased.
 .IP "\fB\-\-exit\-follow\-on\-close\fP"
 When using the "F" command on a pipe,
 .B less

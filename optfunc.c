@@ -38,6 +38,7 @@ extern lbool dohelp;
 extern char openquote;
 extern char closequote;
 extern char *prproto[];
+extern char *eprproto[];
 extern char *eqproto;
 extern char *hproto;
 extern char *wproto;
@@ -472,7 +473,49 @@ public void opt__P(int type, constant char *s)
 		break;
 	case QUERY:
 		parg.p_string = prproto[pr_type];
-		error("%s", &parg);
+		switch (pr_type)
+		{
+		case PR_MEDIUM: error("Prompt (medium): %s", &parg);  break;
+		case PR_LONG:   error("Prompt (long): %s", &parg);    break;
+		default:        error("Prompt (short): %s", &parg);   break;
+		}
+		break;
+	}
+}
+
+/*
+ * Handler for --end-prompt option.
+ */
+public void opt_end_prompt(int type, constant char *s)
+{
+	char **pend;
+	PARG parg;
+
+	switch (type)
+	{
+	case INIT:
+	case TOGGLE:
+		switch (*s)
+		{
+		case 's':  pend = &eprproto[PR_SHORT];  s++;    break;
+		case 'm':  pend = &eprproto[PR_MEDIUM]; s++;    break;
+		case 'M':  pend = &eprproto[PR_LONG];   s++;    break;
+		default:   pend = &eprproto[PR_SHORT];          break;
+		}
+		if (*pend != NULL)
+			free(*pend);
+		*pend = save(s);
+		break;
+	case QUERY:
+		parg.p_string = eprproto[pr_type];
+		if (parg.p_string == NULL)
+			parg.p_string = "(nothing)";
+		switch (pr_type)
+		{
+		case PR_MEDIUM: error("Print after medium prompt: %s", &parg);  break;
+		case PR_LONG:   error("Print after long prompt: %s", &parg);    break;
+		default:        error("Print after short prompt: %s", &parg);   break;
+		}
 		break;
 	}
 }

@@ -21,6 +21,7 @@
 #endif
 
 public int errmsgs;    /* Count of messages displayed by error() */
+public lbool prompting = FALSE;
 static lbool need_clr = FALSE;
 
 extern int sigs;
@@ -35,6 +36,7 @@ extern int hilite_target;
 extern int use_color;
 extern char intr_char;
 extern lbool term_init_ever;
+extern int pr_type;
 
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;
@@ -491,6 +493,13 @@ public int putchr(int ch)
 	 */
 	if (!term_init_ever && outfd == 1)
 		term_init();
+	if (prompting)
+	{
+		constant char *epr = end_pr_string();
+		prompting = FALSE;
+		if (epr != NULL)
+			putstr(epr);
+	}
 
 #if 0 /* fake UTF-8 output for testing */
 	if (utf_mode)

@@ -17,6 +17,8 @@
 
 * Add --past-eof option.
 
+* Add --end-prompt option.
+
 * When scrolling past end-of-file or before beginning-of-file,
   stop when exactly one line is left on screen.
 

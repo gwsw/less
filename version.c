@@ -1090,7 +1090,8 @@ v694  3/24/26   | cmd pipes 1 line if mark is top line; allow numeric arg
                 add --past-eof; add --emouse; fix restore mark if not at top;
                 don't save cleared marks.
 v695            Fix build if tparm doesn't use varargs; fix prompt overflow
-                with & filtering; fix hilite when change -i with & filtering.
+                with & filtering; fix hilite when change -i with & filtering;
+                add --end-prompt.
 */
 
 char version[] = "695x";
