@@ -1781,6 +1781,7 @@ determines which prompt the string will be printed after
 or "\fBM\fP" for the long prompt).
 Special characters in the string are processed as described in the PROMPTS
 section, in the same way as prompts specified by the \fB\-\-prompt\fP option.
+If set to a dash (\fB\-\fP), nothing is printed after the prompt is erased.
 This option can be useful if the prompt string has been modified to contain
 an escape sequence that puts the terminal in a mode which should be cleared
 when the prompt is erased.
@@ -2455,14 +2456,14 @@ For compatibility with previous versions of
 the input preprocessor or pipe is not used if
 .B less
 is viewing standard input.
-However, if the first character of LESSOPEN is a dash (\-),
+However, if the first character of LESSOPEN is a dash (\fB\-\fP),
 the input preprocessor is used on standard input as well as other files.
 In this case, the dash is not considered to be part of
 the preprocessor command.
 If standard input is being viewed, the input preprocessor is passed
 a file name consisting of a single dash.
 Similarly, if the first two characters of LESSOPEN are vertical bar and dash
-(|\-) or two vertical bars and a dash (||\-),
+(\fB|\-\fP) or two vertical bars and a dash (\fB||\-\fP),
 the input pipe is used on standard input as well as other files.
 Again, in this case the dash is not considered to be part of
 the input pipe command.

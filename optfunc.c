@@ -504,7 +504,7 @@ public void opt_end_prompt(int type, constant char *s)
 		}
 		if (*pend != NULL)
 			free(*pend);
-		*pend = save(s);
+		*pend = (strcmp(s, "-") == 0) ? NULL : save(s);
 		break;
 	case QUERY:
 		parg.p_string = eprproto[pr_type];

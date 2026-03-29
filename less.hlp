@@ -225,7 +225,7 @@
                 --emouse=[_v_s_c_r_o_l_l,_v_d_r_a_g,_h_s_c_r_o_l_l,_h_d_r_a_g,_l_c_l_i_c_k,_r_c_l_i_c_k]
                   Enable mouse features.
                 --end-prompt=[_s_t_r_i_n_g]
-                  String printed after the prompt is erased.
+                  String to be printed after erasing the prompt.
                 --exit-follow-on-close
                   Exit F command on a pipe when writer closes pipe.
                 --file-size
