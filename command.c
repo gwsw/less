@@ -1017,12 +1017,12 @@ static void prompt(void)
 	if (is_filtering())
 	{
 		constant char *amp = "& ";
-		load_line(p, attr, strlen(amp));
+		load_line(p, attr, strlen(amp)+1);
 		putstr(amp);
 	} else
 #endif
 	{
-		load_line(p, attr, 0);
+		load_line(p, attr, 1);
 	}
 	put_line(FALSE);
 	clear_eol();
