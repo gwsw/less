@@ -1001,7 +1001,7 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
  */
 static void create_hilites(POSITION linepos, constant char *line, constant char *sp, constant char *ep, int attr, int *chpos)
 {
-	size_t start_index = ptr_diff(sp, line); /*{{type-issue}}*/
+	size_t start_index = ptr_diff(sp, line);
 	size_t end_index = ptr_diff(ep, line);
 	struct hilite hl;
 	size_t i;

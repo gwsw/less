@@ -585,8 +585,9 @@ public constant char * prutfchar(LWCHAR ch)
 /*
  * Get the length of a UTF-8 character in bytes.
  */
-public int utf_len(char ch)
+public int utf_len(char ach)
 {
+	unsigned char ch = (unsigned char) ach;
 	if ((ch & 0x80) == 0)
 		return 1;
 	if ((ch & 0xE0) == 0xC0)
