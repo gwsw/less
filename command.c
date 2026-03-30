@@ -23,7 +23,7 @@
 extern int erase_char, erase2_char, kill_char;
 extern int sigs;
 extern int quit_if_one_screen;
-extern int one_screen;
+extern lbool one_screen;
 extern int sc_width;
 extern int sc_height;
 extern char *kent;
@@ -47,13 +47,16 @@ extern void *ml_search;
 extern void *ml_examine;
 extern int wheel_lines;
 extern int def_search_type;
+extern int hilite_target;
 extern lbool search_wrapped;
 extern int no_paste;
 extern lbool pasting;
 extern int no_edit_warn;
+extern lbool read_error;
 extern POSITION soft_eof;
 extern POSITION search_incr_start;
 extern char *first_cmd_at_prompt;
+extern lbool prompting;
 #if SHELL_ESCAPE || PIPEC
 extern void *ml_shell;
 #endif
@@ -64,7 +67,7 @@ extern constant char *editproto;
 extern char *osc8_uri;
 #endif
 extern int shift_count;
-extern int forw_prompt;
+extern lbool forw_prompt;
 extern int incr_search;
 extern int full_screen;
 #if MSDOS_COMPILER==WIN32C
@@ -208,7 +211,7 @@ static void mca_search1(void)
 		cmd_putstr("/");
 	else
 		cmd_putstr("?");
-	forw_prompt = 0;
+	forw_prompt = FALSE;
 }
 
 static void mca_search(void)
@@ -248,7 +251,7 @@ static void mca_opt_toggle(void)
 		cmd_putstr("!");
 		break;
 	}
-	forw_prompt = 0;
+	forw_prompt = FALSE;
 	set_mlist(NULL, CF_OPTION);
 }
 
@@ -881,11 +884,46 @@ static void make_display(void)
 }
 
 /*
+ * Display any message that needs to be displayed before the prompt.
+ */
+static void prompt_message(void)
+{
+	if (read_error)
+	{
+		error("read error", NULL_PARG);
+		read_error = FALSE;
+	}
+	if (search_wrapped)
+	{
+		if (search_type & SRCH_BACK)
+			error("Search hit top; continuing at bottom", NULL_PARG);
+		else
+			error("Search hit bottom; continuing at top", NULL_PARG);
+		search_wrapped = FALSE;
+	}
+#if OSC8_LINK
+	if (osc8_uri != NULL)
+	{
+		PARG parg;
+		parg.p_string = osc8_uri;
+		error("Link: %s", &parg);
+		free(osc8_uri);
+		osc8_uri = NULL;
+	}
+#endif
+}
+
+/*
  * Display the appropriate prompt.
  */
 static void prompt(void)
 {
 	constant char *p;
+	int attr;
+#if MSDOS_COMPILER==WIN32C
+	WCHAR w[MAX_PATH*2];
+	char  a[MAX_PATH*2];
+#endif
 
 	if (ungot != NULL && !ungot->ug_end_command)
 	{
@@ -900,6 +938,8 @@ static void prompt(void)
 	 * Make sure the screen is displayed.
 	 */
 	make_display();
+	if (hilite_target)
+		draw_target_attn(TRUE); /* Redraw target line for --hilite-target. */
 	toppos = position(TOP);
 	bottompos = position(BOTTOM_PLUS_ONE);
 
@@ -918,7 +958,7 @@ static void prompt(void)
 	    entire_file_displayed() && !(ch_getflags() & CH_HELPFILE) && 
 	    next_ifile(curr_ifile) == NULL_IFILE)
 		quit(QUIT_OK);
-	quit_if_one_screen = FALSE; /* only get one chance at this */
+	quit_if_one_screen = 0; /* only get one chance at this */
 	if (first_cmd_at_prompt != NULL)
 	{
 		ungetsc(first_cmd_at_prompt);
@@ -929,6 +969,7 @@ static void prompt(void)
 #if MSDOS_COMPILER==WIN32C
 	/* 
 	 * In Win32, display the file name in the window title.
+	 * {{ Seems like this should be done in edit_ifile, not on every prompt. }}
 	 */
 	if (!(ch_getflags() & CH_HELPFILE))
 	{
@@ -955,50 +996,38 @@ static void prompt(void)
 	if (!forw_prompt)
 		clear_bot();
 	clear_cmd();
-	forw_prompt = 0;
+	forw_prompt = FALSE;
+	prompt_message();
 	p = pr_string();
-#if HILITE_SEARCH
-	if (is_filtering())
-		putstr("& ");
-#endif
-	if (search_wrapped)
-	{
-		if (search_type & SRCH_BACK)
-			error("Search hit top; continuing at bottom", NULL_PARG);
-		else
-			error("Search hit bottom; continuing at top", NULL_PARG);
-		search_wrapped = FALSE;
-	}
-#if OSC8_LINK
-	if (osc8_uri != NULL)
-	{
-		PARG parg;
-		parg.p_string = osc8_uri;
-		error("Link: %s", &parg);
-		free(osc8_uri);
-		osc8_uri = NULL;
-	}
-#endif
 	if (p == NULL || *p == '\0')
 	{
-		at_enter(AT_NORMAL|AT_COLOR_PROMPT);
-		putchr(':');
-		at_exit();
+		p = ":";
+		attr = AT_NORMAL|AT_COLOR_PROMPT;
 	} else
 	{
+		attr = AT_STANDOUT|AT_COLOR_PROMPT;
 #if MSDOS_COMPILER==WIN32C
-		WCHAR w[MAX_PATH*2];
-		char  a[MAX_PATH*2];
 		MultiByteToWideChar(less_acp, 0, p, -1, w, countof(w));
 		WideCharToMultiByte(utf_mode ? CP_UTF8 : GetConsoleOutputCP(),
 		                    0, w, -1, a, sizeof(a), NULL, NULL);
 		p = a;
 #endif
-		load_line(p);
-		put_line(FALSE);
 	}
+#if HILITE_SEARCH
+	if (is_filtering())
+	{
+		constant char *amp = "& ";
+		load_line(p, attr, strlen(amp)+1);
+		putstr(amp);
+	} else
+#endif
+	{
+		load_line(p, attr, 1);
+	}
+	put_line(FALSE);
 	clear_eol();
 	resume_screen();
+	prompting = TRUE;
 }
 
 /*
@@ -1593,7 +1622,6 @@ public void commands(void)
 
 		case A_F_LINE:
 		case A_F_NEWLINE:
-
 			/*
 			 * Forward N (default 1) line.
 			 */
@@ -1632,6 +1660,29 @@ public void commands(void)
 			 */
 			cmd_exec();
 			backward(wheel_lines, FALSE, FALSE, FALSE);
+			break;
+
+		case A_L_MOUSE:
+			/*
+			 * Left wheel_lines columns.
+			 */
+			cmd_exec();
+			pos_rehead(FALSE);
+			if (wheel_lines > hshift)
+				hshift = 0;
+			else
+				hshift -= wheel_lines;
+			screen_trashed();
+			break;
+
+		case A_R_MOUSE:
+			/*
+			 * Right wheel_lines columns.
+			 */
+			cmd_exec();
+			pos_rehead(FALSE);
+			hshift += wheel_lines;
+			screen_trashed();
 			break;
 
 		case A_FF_LINE:
@@ -2313,7 +2364,7 @@ public void commands(void)
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
 			if (number > hshift)
 				number = hshift;
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift -= (int) number;
 			screen_trashed();
 			cmd_exec();
@@ -2327,7 +2378,7 @@ public void commands(void)
 				shift_count = (int) number;
 			else
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift += (int) number;
 			screen_trashed();
 			cmd_exec();
@@ -2337,7 +2388,7 @@ public void commands(void)
 			/*
 			 * Shift view left to margin.
 			 */
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift = 0;
 			screen_trashed();
 			cmd_exec();
@@ -2347,7 +2398,7 @@ public void commands(void)
 			/*
 			 * Shift view right to view rightmost char on screen.
 			 */
-			pos_rehead();
+			pos_rehead(FALSE);
 			hshift = rrshift();
 			screen_trashed();
 			cmd_exec();

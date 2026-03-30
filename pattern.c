@@ -147,7 +147,11 @@ public int compile_pattern(constant char *pattern, int search_type, int show_err
 {
 	int result;
 
-	if (caseless != OPT_ONPLUS || (re_handles_caseless && !(search_type & SRCH_NO_REGEX)))
+#if RE_HANDLES_CASELESS
+	if (caseless != OPT_ONPLUS || (!(search_type & SRCH_NO_REGEX)))
+#else
+	if (caseless != OPT_ONPLUS)
+#endif
 	{
 		result = compile_pattern2(pattern, search_type, comp_pattern, show_error);
 	} else

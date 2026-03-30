@@ -59,6 +59,7 @@ static constant char more_proto[] =
   "--More--(?eEND ?x- Next\\: %x.:?pB%pB\\%:byte %bB?s/%s...%t)";
 
 public char *prproto[3];
+public char *eprproto[3];
 public char constant *eqproto = e_proto;
 public char constant *hproto = h_proto;
 public char constant *wproto = w_proto;
@@ -75,6 +76,7 @@ public void init_prompt(void)
 	prproto[0] = save(s_proto);
 	prproto[1] = save(less_is_more ? more_proto : m_proto);
 	prproto[2] = save(M_proto);
+	eprproto[0] = eprproto[1] = eprproto[2] = NULL;
 	eqproto = save(e_proto);
 	hproto = save(h_proto);
 	wproto = save(w_proto);
@@ -596,6 +598,21 @@ public constant char * pr_string(void)
 				hproto : prproto[type]);
 	new_file = FALSE;
 	return (prompt);
+}
+
+/*
+ * Return the end prompt string.
+ */
+public constant char * end_pr_string(void)
+{
+	int type;
+
+	if (ch_getflags() & CH_HELPFILE)
+		return NULL;
+	type = (!less_is_more) ? pr_type : pr_type ? 0 : 1;
+	if (eprproto[type] == NULL)
+		return NULL;
+	return pr_expand(eprproto[type]);
 }
 
 /*

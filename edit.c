@@ -25,13 +25,13 @@ public int fd0 = 0;
 extern lbool new_file;
 extern char *every_first_cmd;
 extern int force_open;
-extern int is_tty;
+extern lbool is_tty;
 extern int sigs;
 extern int hshift;
 extern int want_filesize;
-extern int consecutive_nulls;
 extern int modelines;
 extern int show_preproc_error;
+extern lbool read_error;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 extern struct scrpos initial_scrpos;
@@ -611,7 +611,6 @@ public int edit_ifile(IFILE ifile)
 	set_open(curr_ifile); /* File has been opened */
 	get_pos(curr_ifile, &initial_scrpos);
 	ch_init(f, chflags, nread);
-	consecutive_nulls = 0;
 	check_modelines();
 
 	if (!(chflags & CH_HELPFILE))
@@ -660,6 +659,7 @@ public int edit_ifile(IFILE ifile)
 #endif
 		undo_osc8();
 		hshift = 0;
+		read_error = FALSE;
 		if (strcmp(filename, FAKE_HELPFILE) && strcmp(filename, FAKE_EMPTYFILE))
 		{
 			char *qfilename = shell_quote(filename);

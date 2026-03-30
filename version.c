@@ -1084,8 +1084,14 @@ v693  2/14/26   Fix binary file with redirected stdout; fix error messages
                 parser bugs; fix -D bug when no color specified; add -DT;
                 make -w/-W hilite on backward movement; show pattern in
                 "not found" message.
-v694            | cmd pipes 1 line if mark is top line; allow numeric arg
-                on m/M cmds; install lessecho in libexecdir.
+v694  3/24/26   | cmd pipes 1 line if mark is top line; allow numeric arg
+                on m/M cmds; support POSIX char classes with built-in regex;
+                don't retry read after error; fix crash with bad tags file;
+                add --past-eof; add --emouse; fix restore mark if not at top;
+                don't save cleared marks.
+v695            Fix build if tparm doesn't use varargs; fix prompt overflow
+                with & filtering; fix hilite when change -i with & filtering;
+                add --end-prompt; install lessecho in libexecdir.
 */
 
-char version[] = "694x";
+char version[] = "695x";

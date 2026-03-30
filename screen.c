@@ -75,6 +75,18 @@ extern int fd0;
 #if USE_TERMINFO
 #include <curses.h>
 #include <term.h>
+#if HAVE_TPARM2
+#define LTPARM2(s,p1,p2) tparm(s, p1, p2)
+#else
+#if HAVE_TPARM8
+#define LTPARM2(s,p1,p2) tparm(s, p1, p2, 0, 0, 0, 0, 0, 0)
+#else
+#if HAVE_TPARM9
+#define LTPARM2(s,p1,p2) tparm(s, p1, p2, 0, 0, 0, 0, 0, 0, 0)
+#else
+#endif
+#endif
+#endif
 #else
 #if HAVE_NCURSESW_TERMCAP_H
 #include <ncursesw/termcap.h>
@@ -289,7 +301,7 @@ static int attrmode = AT_NORMAL; /* current attributes (AT_* bits) */
 static int termcap_debug = -1;
 static int no_alt_screen;       /* sc_init does not switch to alt screen */
 extern int binattr;
-extern int one_screen;
+extern lbool one_screen;
 extern int shell_lines;
 
 #if !MSDOS_COMPILER
@@ -300,15 +312,15 @@ static void tmodes(constant char *inti, constant char *outti, constant char *int
 
 extern int quiet;               /* If VERY_QUIET, use visual bell for bell */
 extern int no_vbell;
-extern int no_back_scroll;
+extern lbool no_back_scroll;
 extern int no_init;
 extern int no_keypad;
 extern int sigs;
 extern int top_scroll;
 extern int quit_if_one_screen;
 extern int oldbot;
-extern int mousecap;
-extern int is_tty;
+extern int emouse;
+extern lbool is_tty;
 extern int use_color;
 extern int no_paste;
 extern int wscroll;
@@ -1326,7 +1338,7 @@ public constant char * special_key_str(int key)
 static constant char *ltgoto(constant char *cap, int col, int line)
 {
 #if USE_TERMINFO
-	return tparm(cap, line, col);
+	return LTPARM2(cap, line, col);
 #else
 	return tgoto(cap, col, line);
 #endif
@@ -1660,7 +1672,7 @@ public void get_term()
 		/*
 		 * Force repaint on any backward movement.
 		 */
-		no_back_scroll = 1;
+		no_back_scroll = TRUE;
 	}
 }
 #endif /* MSDOS_COMPILER */
@@ -2003,7 +2015,7 @@ public void term_init(void)
 		}
 		if (!no_keypad)
 			ltputs(sc_s_keypad, sc_height, putchr);
-		if (mousecap)
+		if (emouse != 0)
 			init_mouse();
 		if (no_paste)
 			init_bracketed_paste();
@@ -2031,7 +2043,7 @@ public void term_init(void)
 			win32_init_term();
 			term_addrs = TRUE;
 		}
-		if (mousecap)
+		if (emouse != 0)
 			init_mouse();
 
 	}
@@ -2052,7 +2064,7 @@ public void term_deinit(void)
 #if !MSDOS_COMPILER
 	if (!(quit_if_one_screen && one_screen))
 	{
-		if (mousecap)
+		if (emouse != 0)
 			deinit_mouse();
 		if (no_paste)
 			deinit_bracketed_paste();
@@ -2068,7 +2080,7 @@ public void term_deinit(void)
 	win32_deinit_vt_term();
 	if (!(quit_if_one_screen && one_screen))
 	{
-		if (mousecap)
+		if (emouse != 0)
 			deinit_mouse();
 		if (!no_init)
 			win32_deinit_term();
@@ -3220,7 +3232,7 @@ static lbool win32_mouse_event(XINPUT_RECORD *xip)
 {
 	char b;
 
-	if (!mousecap || xip->ir.EventType != MOUSE_EVENT)
+	if (emouse == 0 || xip->ir.EventType != MOUSE_EVENT)
 		return (FALSE);
 
 	/* Generate an X11 mouse sequence from the mouse event. */
@@ -3411,7 +3423,7 @@ static lbool win32_key_event(XINPUT_RECORD *xip)
 	{
 		constant char *p;
 		for (p = utf8; p < up; ++p)
-			 win32_enqueue(*p & 0xFF);
+			 win32_enqueue((unsigned char) *p);
 	}
 	return (TRUE);
 }

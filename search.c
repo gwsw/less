@@ -29,6 +29,8 @@ extern int proc_backspace;
 extern int proc_return;
 extern int ctldisp;
 extern int status_col;
+extern int status_line;
+extern int hilite_target;
 extern void *ml_search;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
@@ -230,8 +232,13 @@ public int get_cvt_ops(int search_type)
 {
 	int ops = 0;
 
-	if (is_caseless && (!re_handles_caseless || (search_type & SRCH_NO_REGEX)))
+#if RE_HANDLES_CASELESS
+	if (is_caseless && (search_type & SRCH_NO_REGEX))
 		ops |= CVT_TO_LC;
+#else
+	if (is_caseless)
+		ops |= CVT_TO_LC;
+#endif
 	if (proc_backspace == OPT_ON || (bs_mode == BS_SPECIAL && proc_backspace == OPT_OFF))
 		ops |= CVT_BS;
 	if (proc_return == OPT_ON || (bs_mode != BS_CONTROL && proc_backspace == OPT_OFF))
@@ -308,6 +315,27 @@ public void repaint_hilite(lbool on)
 #endif
 
 /*
+ * Redraw the jump target line with the attn hilite on or off.
+ */
+public void draw_target_attn(lbool hilite)
+{
+	int sindex;
+	POSITION pos;
+
+	if (!can_goto_line) /* {{ Are there any such terminals any more? }} */
+		return;
+	if (squished)
+		return;
+	sindex = sindex_from_sline(jump_sline);
+	pos = position(sindex);
+	forw_line_seg(pos, chop_line() || hshift > 0, TRUE, FALSE, hilite && status_line, FALSE, NULL, NULL);
+	goto_line(sindex);
+	clear_eol();
+	put_line_hilite(TRUE, hilite);
+	lower_left();
+}
+
+/*
  * Clear the attn hilite.
  */
 public void clear_attn(void)
@@ -319,6 +347,9 @@ public void clear_attn(void)
 	POSITION pos;
 	POSITION epos;
 	int moved = 0;
+
+	if (hilite_target)
+		draw_target_attn(FALSE);
 
 	if (start_attnpos == NULL_POSITION)
 		return;
@@ -1967,7 +1998,14 @@ public void osc8_open(void)
 		edit(skipsp(&open_cmd[2]));
 	} else
 	{
-		lsystem(open_cmd, "link done");
+		constant char *cmd = open_cmd;
+		constant char *done_msg = "link done";
+		if (*cmd == CONTROL('P'))
+		{
+			done_msg = NULL;
+			cmd++;
+		}
+		lsystem(cmd, done_msg);
 	}
 	free(open_cmd);
 #else
@@ -2034,15 +2072,19 @@ public void chg_caseless(void)
 		 * If regex handles caseless, we need to discard 
 		 * the pattern which was compiled with the old caseless.
 		 */
-		if (!re_handles_caseless)
-			/* We handle caseless, so the pattern doesn't change. */
-			return;
+#if !RE_HANDLES_CASELESS
+		/* Less handles caseless, so the pattern doesn't change. */
+		return;
+#endif
 	}
 	/*
 	 * Regenerate the pattern using the new state.
 	 */
-	clear_pattern(&search_info);
-	(void) hist_pattern(search_info.search_type);
+	if (prev_pattern(&search_info))
+	{
+		clear_pattern(&search_info);
+		(void) hist_pattern(search_info.search_type);
+	}
 }
 
 /*
