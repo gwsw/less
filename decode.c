@@ -355,7 +355,7 @@ static void expand_special_keys(unsigned char *table, size_t len)
 			 * output by the special key on this terminal.
 			 */
 			repl = special_key_str(fm[1]);
-			klen = fm[2] & 0377;
+			klen = fm[2];
 			fm += klen;
 			if (repl == NULL || strlen(repl) > klen)
 				repl = "\377";
@@ -370,7 +370,7 @@ static void expand_special_keys(unsigned char *table, size_t len)
 		while (to <= fm)
 			*to++ = A_SKIP;
 		fm++;
-		a = *fm++ & 0377;
+		a = *fm++;
 		if (a & A_EXTRA)
 		{
 			while (fm < table + len && *fm++ != '\0')

@@ -501,24 +501,6 @@ public int putchr(int ch)
 			putstr(epr);
 	}
 
-#if 0 /* fake UTF-8 output for testing */
-	if (utf_mode)
-	{
-		static char ubuf[MAX_UTF_CHAR_LEN];
-		static int ubuf_len = 0;
-		static int ubuf_index = 0;
-		if (ubuf_len == 0)
-		{
-			ubuf_len = utf_len(c);
-			ubuf_index = 0;
-		}
-		ubuf[ubuf_index++] = c;
-		if (ubuf_index < ubuf_len)
-			return c;
-		c = get_wchar(ubuf) & 0xFF;
-		ubuf_len = 0;
-	}
-#endif
 	clear_bot_if_needed();
 #if MSDOS_COMPILER
 	if (c == '\n' && is_tty)
