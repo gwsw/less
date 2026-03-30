@@ -13,19 +13,19 @@
 
 	Major changes between "less" versions 692 and 695
 
-* Add --hilite-target option (github #745).
+* Add --hilite-target option and -DJ to color target line (github #745).
 
 * Add --past-eof option.
 
 * Add --end-prompt option.
 
-* When scrolling past end-of-file or before beginning-of-file,
-  stop when exactly one line is left on screen.
-
 * Add --emouse and --rmouse options, and horizontal mouse scrolling
   and dragging (github #744).
 
 * Add -DT option to format tilde lines (github #725).
+
+* When scrolling past end-of-file or before beginning-of-file,
+  stop when exactly one line is left on screen.
 
 * Make -w/-W highlight lines when moving backward as well as forward
   (github #729).
