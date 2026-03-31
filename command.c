@@ -925,6 +925,11 @@ static void prompt(void)
 	char  a[MAX_PATH*2];
 #endif
 
+	/*
+	 * Make sure the screen is displayed.
+	 */
+	make_display();
+
 	if (ungot != NULL && !ungot->ug_end_command)
 	{
 		/*
@@ -934,10 +939,6 @@ static void prompt(void)
 		return;
 	}
 
-	/*
-	 * Make sure the screen is displayed.
-	 */
-	make_display();
 	if (hilite_target)
 		draw_target_attn(TRUE); /* Redraw target line for --hilite-target. */
 	toppos = position(TOP);
