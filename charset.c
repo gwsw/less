@@ -906,6 +906,7 @@ public lbool is_composing_char(LWCHAR ch)
 public lbool is_ubin_char(LWCHAR ch)
 {
 	if (is_in_table(ch, &user_prt_table)) return FALSE;
+	if (ch > MAX_UNICODE) return TRUE;
 	return is_in_table(ch, &user_ubin_table) ||
 	       (is_in_table(ch, &ubin_table) ||
 	       (bs_mode == BS_CONTROL && is_in_table(ch, &fmt_table) &&
