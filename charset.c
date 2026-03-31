@@ -619,7 +619,7 @@ public lbool is_utf8_well_formed(constant char *ssa, int slen)
 	if (IS_UTF8_LEAD5(s0) || IS_UTF8_LEAD6(s0) || IS_UTF8_INVALID(s0))
 		return (FALSE);
 
-	len = utf_len(ss[0]);
+	len = utf_len(s0);
 	if (len > slen)
 		return (FALSE);
 	if (len == 1)
