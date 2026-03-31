@@ -270,6 +270,8 @@ Followed by any lowercase or uppercase letter,
 marks the first displayed line with that letter.
 If a number N is given,
 the N-th line down from the first displayed line is marked.
+If N is larger than the number of displayed lines,
+the last displayed line is marked.
 If the status column is enabled via the
 .B "\-J"
 option,
@@ -279,6 +281,8 @@ Acts like m, except the last displayed line is marked
 rather than the first displayed line.
 If a number N is given,
 the N-th line up from the last displayed line is marked.
+If N is larger than the number of displayed lines,
+the first displayed line is marked.
 .IP "\*'"
 (Single quote.)
 Followed by any lowercase or uppercase letter, returns to the position which
