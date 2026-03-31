@@ -2028,6 +2028,7 @@ public void commands(void)
 			/*
 			 * Clear search string highlighting.
 			 */
+			cmd_exec();
 			undo_search(action == A_CLR_SEARCH);
 			break;
 
@@ -2294,6 +2295,7 @@ public void commands(void)
 			}
 			start_mca(A_SETMARK, "set mark: ", NULL, 0);
 			c = getcc();
+			cmd_exec();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
 			setmark(c, sindex_offset(action == A_SETMARK, number));
@@ -2306,6 +2308,7 @@ public void commands(void)
 			 */
 			start_mca(A_CLRMARK, "clear mark: ", NULL, 0);
 			c = getcc();
+			cmd_exec();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
 			clrmark(c);
