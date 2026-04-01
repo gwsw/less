@@ -659,7 +659,7 @@ static int mouse_button_left(int x, int y, lbool down, lbool drag)
 #endif /* OSC8_LINK */
 		if (y < sc_height-1 && y == last_click_y)
 		{
-			setmark('#', y);
+			setmark('#', y, 0);
 			screen_trashed();
 		}
 	}

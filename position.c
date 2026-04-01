@@ -170,7 +170,7 @@ public lbool empty_lines(int s, int e)
  * such that the top few lines are empty, we may have to set
  * the screen line to a number > 0.
  */
-public void get_scrpos(struct scrpos *scrpos, int where)
+public void get_scrpos_pos(struct scrpos *scrpos, int where, POSITION pos)
 {
 	int i;
 	int dir;
@@ -194,24 +194,34 @@ public void get_scrpos(struct scrpos *scrpos, int where)
 		break;
 	}
 
-	/*
-	 * Find the first line on the screen which has something on it,
-	 * and return the screen line number and the file position.
-	 */
-	for (;; i += dir)
+	if (pos != NULL_POSITION)
 	{
-		if (table[i] != NULL_POSITION)
+		scrpos->ln = i+1;
+		scrpos->pos = pos;
+	} else
+	{
+		/*
+		 * Find the first line on the screen which has something on it,
+		 * and return the screen line number and the file position.
+		 */
+		for (;; i += dir)
 		{
-			scrpos->ln = i+1;
-			scrpos->pos = table[i];
-			return;
+			if (table[i] != NULL_POSITION)
+			{
+				scrpos->ln = i+1;
+				scrpos->pos = table[i];
+				return;
+			}
+			if (i == last) break;
 		}
-		if (i == last) break;
+		/* The screen is empty. */
+		scrpos->pos = NULL_POSITION;
 	}
-	/*
-	 * The screen is empty.
-	 */
-	scrpos->pos = NULL_POSITION;
+}
+
+public void get_scrpos(struct scrpos *scrpos, int where)
+{
+	get_scrpos_pos(scrpos, where, NULL_POSITION);
 }
 
 /*
@@ -249,17 +259,6 @@ public int sindex_from_sline(int sline)
 	 */
 	if (sline < 0)
 		sline += sc_height;
-	return sindex_from_sline_clipped(sline);
-}
-
-/*
- * Add an offset to an sline and convert to an sindex.
- */
-public int sindex_offset(lbool top, int offset)
-{
-	int sline;
-	if (offset < 1) offset = 1;
-	sline = top ? offset : sc_height - offset;
 	return sindex_from_sline_clipped(sline);
 }
 

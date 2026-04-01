@@ -268,10 +268,7 @@ go backward to the < which matches the > in the bottom displayed line.
 .IP m
 Followed by any lowercase or uppercase letter,
 marks the first displayed line with that letter.
-If a number N is given,
-the N-th line down from the first displayed line is marked.
-If N is larger than the number of displayed lines,
-the last displayed line is marked.
+If a number N is given, line number N is marked instead.
 If the status column is enabled via the
 .B "\-J"
 option,
@@ -279,10 +276,7 @@ the status column shows the marked line.
 .IP M
 Acts like m, except the last displayed line is marked
 rather than the first displayed line.
-If a number N is given,
-the N-th line up from the last displayed line is marked.
-If N is larger than the number of displayed lines,
-the first displayed line is marked.
+If a number N is given, line number N is marked instead.
 .IP "\*'"
 (Single quote.)
 Followed by any lowercase or uppercase letter, returns to the position which
