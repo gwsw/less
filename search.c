@@ -2000,12 +2000,16 @@ public void osc8_open(void)
 	{
 		constant char *cmd = open_cmd;
 		constant char *done_msg = "link done";
+		POSITION save_osc8_linepos = osc8_linepos;
 		if (*cmd == CONTROL('P'))
 		{
 			done_msg = NULL;
 			cmd++;
 		}
 		lsystem(cmd, done_msg);
+		/* lsystem reedits the input file which clears the selected
+		 * OSC8 link, so restore it. */
+		osc8_linepos = save_osc8_linepos;
 	}
 	free(open_cmd);
 #else
