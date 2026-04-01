@@ -84,8 +84,8 @@
   m_<_l_e_t_t_e_r_>         *  Mark the top line (or line _N) with <letter>.
   M_<_l_e_t_t_e_r_>         *  Mark the bottom line (or line _N) with <letter>.
   '_<_l_e_t_t_e_r_>         *  Go to a previously marked position (put on position _N).
-  ''                 * Go to the previous position.
-  ^X^X               * Same as '.
+  ''                *  Go to the previous position.
+  ^X^X              *  Same as '.
   ESC-m_<_l_e_t_t_e_r_>        Clear a mark.
         ---------------------------------------------------
         A mark is any upper-case or lower-case letter.
