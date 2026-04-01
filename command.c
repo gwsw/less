@@ -2325,7 +2325,7 @@ public void commands(void)
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
 			cmd_exec();
-			gomark(c);
+			gomark(c, number);
 			break;
 
 		case A_PIPE:

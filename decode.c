@@ -680,7 +680,7 @@ static int mouse_button_right(int x, int y, lbool down, lbool drag)
 		return (A_NOACTION);
 	if (!down && y < sc_height-1)
 	{
-		gomark('#');
+		gomark('#', 0);
 		screen_trashed();
 	}
 	return (A_NOACTION);

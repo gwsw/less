@@ -313,7 +313,7 @@ public void lastmark(void)
 /*
  * Go to a mark.
  */
-public void gomark(char c)
+public void gomark(char c, int sline)
 {
 	struct mark *m;
 	struct scrpos scrpos;
@@ -321,6 +321,8 @@ public void gomark(char c)
 	m = getmark(c);
 	if (m == NULL)
 		return;
+	if (sline != 0)
+		m->m_scrpos.ln = sline;
 
 	/*
 	 * If we're trying to go to the lastmark and 

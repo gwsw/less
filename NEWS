@@ -35,6 +35,9 @@
 * Allow m and M commands to take a numeric argument to specify the
   line to be marked (github #736).
 
+* Allow ' command to take a numeric argument to specify the screen
+  position on which to place the marked line.
+
 * Support POSIX character classes with the built-in V8 regex library
   (github #732).
 
