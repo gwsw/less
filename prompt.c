@@ -33,6 +33,7 @@ extern int utf_mode;
 extern IFILE curr_ifile;
 #if OSC8_LINK
 extern char *osc8_path;
+extern POSITION osc8_linepos;
 #endif
 #if EDITOR
 extern constant char *editor;
@@ -242,6 +243,12 @@ static lbool cond(char c, int where)
 		return (ntags() ? TRUE : new_file ? TRUE : FALSE);
 #else
 		return (new_file ? TRUE : FALSE);
+#endif
+	case 'o': /* OSC 8 link selected? */
+#if OSC8_LINK
+		return (osc8_linepos != NULL_POSITION);
+#else
+		return FALSE;
 #endif
 	case 'p': /* Percent into file (bytes) known? */
 		return (curr_byte(where) != NULL_POSITION && ch_length() > 0);

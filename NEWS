@@ -26,6 +26,8 @@
 
 * Add %O to prompt strings, to replace less safe %o.
 
+* Add ?o to prompt strings, to detect whether an OSC 8 link is selected.
+
 * When scrolling past end-of-file or before beginning-of-file,
   stop when exactly one line is left on screen.
 
