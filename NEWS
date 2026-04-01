@@ -24,6 +24,8 @@
 
 * Add -DT option to format tilde lines (github #725).
 
+* Add %O to prompt strings, to replace less safe %o.
+
 * When scrolling past end-of-file or before beginning-of-file,
   stop when exactly one line is left on screen.
 

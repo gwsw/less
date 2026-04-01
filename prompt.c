@@ -370,11 +370,23 @@ static void protochar(char c, int where)
 #endif
 			ap_int(nifile());
 		break; }
-	case 'o': /* path (URI without protocol) of selected OSC8 link */
+	case 'o': /* unquoted path (URI without protocol) of selected OSC8 link */
 #if OSC8_LINK
 		if (osc8_path != NULL)
 			ap_str(osc8_path);
 		else
+#endif
+			ap_quest();
+		break;
+	case 'O': /* shell-quoted path (URI without protocol) of selected OSC8 link */
+#if OSC8_LINK
+		if (osc8_path != NULL)
+		{
+			char *q = shell_quote(osc8_path);
+			if (q != NULL)
+				ap_str(q);
+			free(q);
+		} else
 #endif
 			ap_quest();
 		break;

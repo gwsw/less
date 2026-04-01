@@ -644,8 +644,9 @@ the environment variable named "LESS_OSC8_xxx" is read,
 where "xxx" is the scheme from the URI (the part before the first colon),
 or is empty if there is no colon in the URI.
 The value of the environment variable is then expanded in the same way as 
-prompt strings (in particular, any instance of "%o" is replaced with the URI)
-to produce an OSC 8 "handler" shell command.
+prompt strings to produce an OSC 8 "handler" shell command
+(in particular, any instance of "%O" is replaced with
+the shell-escaped URI).
 The standard output from the handler is an "opener" shell command 
 which is then executed to open the URI.
 .PP
@@ -675,12 +676,12 @@ as a command line parameter, the handler may be as simple as
 .PP
 .EX
 .nf
-echo mybrowser \*'%o\*'
+echo mybrowser %O
 .fi
 .EE
 .PP
 In other cases, the URI may need to be modified, so the handler
-may have to do some manipulation of the %o value.
+may have to do some manipulation of the %O value.
 .PP
 If the LESS_OSC8_xxx variable is not set, the variable LESS_OSC8_ANY is tried. 
 If neither LESS_OSC8_xxx nor LESS_OSC8_ANY is set, 
@@ -696,7 +697,7 @@ If you use LESS_OSC8_ANY to override LESS_OSC8_file, you must
 set LESS_OSC8_file to "\-" to indicate that the default value 
 should not be used, and likewise for LESS_OSC8_man.
 .PP
-The URI passed to an OSC8 handler via %o is guaranteed not to contain any single quote
+The URI passed to an OSC8 handler via %O is guaranteed not to contain any single quote
 or double quote characters, but it may contain any other shell metacharacters
 such as semicolons, dollar signs, ampersands, etc.
 The handler should take care to appropriately quote parameters in the opener command,
@@ -2737,6 +2738,9 @@ Replaced by the total number of input files.
 Replaced by the URI of the currently selected OSC 8 hyperlink,
 or a question mark if no hyperlink is selected.
 This is used by OSC 8 handlers as explained in the \*^O\*^O command description.
+.IP "%O"
+Replaced by the shell-escaped URI of the currently selected OSC 8 hyperlink,
+or a question mark if no hyperlink is selected.
 .IP "%p\fIX\fP"
 Replaced by the percent into the current input file, based on byte offsets.
 The line used is determined by the \fIX\fP as with the %b option.
