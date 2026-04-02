@@ -264,6 +264,7 @@ static void close_pipe(FILE *pipefd)
 	int status;
 	char *p;
 	PARG parg;
+	int sig = 0;
 
 	if (pipefd == NULL)
 		return;
@@ -290,18 +291,36 @@ static void close_pipe(FILE *pipefd)
 	if (WIFEXITED(status))
 	{
 		int s = WEXITSTATUS(status);
-		if (s != 0)
+		if (s == 0)
+			return;
+		else if (s <= 128)
 		{
 			parg.p_int = s;
 			error("Input preprocessor failed (status %d)", &parg);
+			return;
 		}
-		return;
+		else
+		{
+			/*
+			 * popen invoked the shell, which likely last ran a
+			 * program that terminated due to a signal.
+			 * Assume the longstanding tradition (allowed but not
+			 * required by POSIX) of adding 128 to the signal.
+			 * Many shells use last command optimization, i.e.,
+			 * they exec the last command instead of forking and
+			 * waiting for it, and in that case the more-reliable
+			 * WIFSIGNALED code below will be used.
+			 */
+			sig = s - 128;
+		}
 	}
 #endif
 #if defined WIFSIGNALED && defined WTERMSIG
 	if (WIFSIGNALED(status))
+		sig = WTERMSIG(status);
+#endif
+	if (sig != 0)
 	{
-		int sig = WTERMSIG(status);
 		if (
 #ifdef SIGPIPE
 			sig != SIGPIPE || 
@@ -313,7 +332,6 @@ static void close_pipe(FILE *pipefd)
 		}
 		return;
 	}
-#endif
 	if (status != 0)
 	{
 		parg.p_int = status;
