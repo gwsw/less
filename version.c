@@ -1089,7 +1089,7 @@ v694  3/24/26   | cmd pipes 1 line if mark is top line; allow numeric arg
                 don't retry read after error; fix crash with bad tags file;
                 add --past-eof; add --emouse; fix restore mark if not at top;
                 don't save cleared marks.
-v695            Fix build if tparm doesn't use varargs; fix prompt overflow
+v695  4/3/26    Fix build if tparm doesn't use varargs; fix prompt overflow
                 with & filtering; fix hilite when change -i with & filtering;
                 add --end-prompt; install lessecho in libexecdir; change mark
                 cmds to take file line number not screen line; add numeric
@@ -1097,4 +1097,4 @@ v695            Fix build if tparm doesn't use varargs; fix prompt overflow
                 --show-preproc-error with some shells.
 */
 
-char version[] = "695x";
+char version[] = "695";
