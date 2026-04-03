@@ -439,6 +439,7 @@ Turn off highlighting of strings matching the current search pattern.
 If highlighting is already off because of a previous ESC-u command,
 turn highlighting back on.
 Any search command will also turn highlighting back on.
+Also unselects any OSC 8 hyperlink that is currently selected.
 (Highlighting can also be disabled by toggling the
 .B "\-G"
 option;
