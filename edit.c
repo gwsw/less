@@ -293,26 +293,23 @@ static void close_pipe(FILE *pipefd)
 		int s = WEXITSTATUS(status);
 		if (s == 0)
 			return;
-		else if (s <= 128)
+		if (s <= 128)
 		{
 			parg.p_int = s;
 			error("Input preprocessor failed (status %d)", &parg);
 			return;
 		}
-		else
-		{
-			/*
-			 * popen invoked the shell, which likely last ran a
-			 * program that terminated due to a signal.
-			 * Assume the longstanding tradition (allowed but not
-			 * required by POSIX) of adding 128 to the signal.
-			 * Many shells use last command optimization, i.e.,
-			 * they exec the last command instead of forking and
-			 * waiting for it, and in that case the more-reliable
-			 * WIFSIGNALED code below will be used.
-			 */
-			sig = s - 128;
-		}
+		/*
+		 * popen invoked the shell, which likely last ran a
+		 * program that terminated due to a signal.
+		 * Assume the longstanding tradition (allowed but not
+		 * required by POSIX) of adding 128 to the signal.
+		 * Many shells use last command optimization, i.e.,
+		 * they exec the last command instead of forking and
+		 * waiting for it, and in that case the more-reliable
+		 * WIFSIGNALED code below will be used.
+		 */
+		sig = s - 128;
 	}
 #endif
 #if defined WIFSIGNALED && defined WTERMSIG

@@ -1093,7 +1093,8 @@ v695            Fix build if tparm doesn't use varargs; fix prompt overflow
                 with & filtering; fix hilite when change -i with & filtering;
                 add --end-prompt; install lessecho in libexecdir; change mark
                 cmds to take file line number not screen line; add numeric
-                arg to ' cmd; add %O and ?o to prompts.
+                arg to ' cmd; add %O and ?o to prompts; fix
+                --show-preproc-error with some shells.
 */
 
 char version[] = "695x";

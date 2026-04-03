@@ -88,6 +88,9 @@
 
 * Fix incorrect highlighting when change -i while filtering (github #750).
 
+* Fix erroneous error mesage using --show-preproc-error with
+  some shells (github #753).
+
 ======================================================================
 
 	Major changes between "less" versions 691 and 692
