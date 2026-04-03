@@ -1777,6 +1777,8 @@ Same as "lclick,rclick".
 Same as "move,click".
 .RE
 .IP
+Each feature name may be abbreviated as long as the abbreviation
+is unambiguous.
 If \fIfeatures\fP is set to "-", all mouse features are disabled.
 Mouse input works only on terminals which support X11 mouse reporting,
 and on Windows.
