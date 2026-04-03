@@ -1095,6 +1095,7 @@ v695  4/3/26    Fix build if tparm doesn't use varargs; fix prompt overflow
                 cmds to take file line number not screen line; add numeric
                 arg to ' cmd; add %O and ?o to prompts; fix
                 --show-preproc-error with some shells.
+v696  4/3/26    Doc.
 */
 
-char version[] = "695";
+char version[] = "696";
