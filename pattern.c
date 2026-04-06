@@ -394,14 +394,8 @@ static lbool match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, const
 #endif
 #if HAVE_PCRE2
 	{
-		/* max_substrings is the maximum number of subpatterns that PCRE2
-		 * will return. It should be large enough to handle the max number
-		 * of subpatterns that a user would ever use in a pattern.
-		 * If a pattern contains more subpatterns than max_substrings,
-		 * pcre2_match will return an error. */
-		constant int max_substrings = 64;
 		int flags = (notbol) ? PCRE2_NOTBOL : 0;
-		pcre2_match_data *md = pcre2_match_data_create(max_substrings, NULL);
+		pcre2_match_data *md = pcre2_match_data_create_from_pattern(pattern, NULL);
 		int mcount = pcre2_match(pattern, (PCRE2_SPTR)line, line_len,
 			line_off, flags, md, NULL);
 		matched = (mcount > 0);
