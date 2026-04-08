@@ -91,6 +91,9 @@
 * Fix erroneous error mesage using --show-preproc-error with
   some shells (github #753).
 
+* Fix erroneous highlighting when using a search pattern containing more
+  than 5 pairs of parentheses with PCRE2 (github #754).
+
 ======================================================================
 
 	Major changes between "less" versions 691 and 692

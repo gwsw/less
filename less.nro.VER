@@ -287,11 +287,12 @@ Followed by a \*^ or $, jumps to the beginning or end of the
 file respectively.
 If a number N is given, the marked line is placed on the N-th line 
 on the screen.
-Otherwise, it is placed on the first line on the screen (if marked via the
+Otherwise, it is placed on the same line that it was on when it was marked
+(the first line on the screen if marked via the
 .B m
-command, or the last line on the screen (if marked via the
+command, the last line on the screen if marked via the
 .B M
-command).
+command, or the line that was clicked if marked via the mouse).
 Marks are preserved when a new file is examined within a single invocation of
 .BR less ,
 so the \*' command can be used to switch between input files.
@@ -1272,7 +1273,7 @@ Warning: certain environment variables such as
 LESS, LESSSECURE, LESSCHARSET and others,
 which are used early in startup, 
 cannot be set in a file specified by a command line option
-.RB "(" "\-\-lesskey" "," "\-\-lesskey\-src" " or " "\-\-lesskey\-content" ")."
+.RB "(" "\-\-lesskey" ", " "\-\-lesskey\-src" " or " "\-\-lesskey\-content" ")."
 When using a
 .B lesskey
 file to set environment variables, it is safer to use the
