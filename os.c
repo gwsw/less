@@ -304,7 +304,10 @@ start:
 		if (ret != 0)
 		{
 			if (ret == READ_INTR)
+			{
 				sigs |= S_SWINTERRUPT;
+				getcc_clear();
+			}
 			reading = FALSE;
 			return (ret);
 		}
