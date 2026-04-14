@@ -3185,7 +3185,7 @@ static lbool win32_queued_char(void)
 /*
  * Push a char onto the back of the win32_queue.
  */
-static void win32_enqueue(int ch)
+public void win32_enqueue(int ch)
 {
 	WIN32_CHAR *wch = (WIN32_CHAR *) ecalloc(1, sizeof(WIN32_CHAR));
 	wch->wc_ch = ch;
@@ -3223,6 +3223,12 @@ static int win32_get_queue(void)
 	win32_queue = wch->wc_next;
 	free(wch);
 	return ch;
+}
+
+public void win32_clear_queue(void)
+{
+	while (win32_queued_char())
+		(void) win32_get_queue();
 }
 
 /*
@@ -3389,7 +3395,7 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 /*
  * Handle a key input event.
  */
-static lbool win32_key_event(XINPUT_RECORD *xip)
+static lbool win32_key_event(XINPUT_RECORD *xip, char *pch)
 {
 	int repeat;
 	char utf8[UTF8_MAX_LENGTH];
@@ -3410,7 +3416,17 @@ static lbool win32_key_event(XINPUT_RECORD *xip)
 		return (FALSE);
 	if (!xip->ir.Event.KeyEvent.bKeyDown)
 		return (FALSE);
-		
+
+	/*
+	 * If caller wants to see an immediate (unqueued) ASCII char from the
+	 * keyboard, return it now. Otherwise queue the char for WIN32getch to read.
+	 */
+	if (pch != NULL && xip->ichar != '\0' && is_ascii_char(xip->ichar))
+	{
+		*pch = (char) xip->ichar;
+		return (TRUE);
+	}
+
 	if (win32_scan_code(xip))
 		return (TRUE);
 
@@ -3442,11 +3458,12 @@ static lbool win32_window_event(XINPUT_RECORD *xip)
 /*
  * Determine whether an input character is waiting to be read.
  */
-public lbool win32_kbhit2(lbool no_queued)
+public lbool win32_kbhit2(char *pch)
 {
 	XINPUT_RECORD xip;
+	lbool ret = FALSE;
 
-	if (!no_queued && win32_queued_char())
+	if (pch == NULL && win32_queued_char())
 		return (TRUE);
 
 	for (;;)
@@ -3465,15 +3482,23 @@ public lbool win32_kbhit2(lbool no_queued)
 		ReadConsoleInputW(tty, &xip.ir, 1, &nread);
 		if (nread == 0)
 			return (FALSE);
-		if (win32_mouse_event(&xip) || win32_key_event(&xip) || win32_window_event(&xip))
+		if (win32_key_event(&xip, pch))
+		{
+			ret = TRUE;
 			break;
+		}
+		if (win32_mouse_event(&xip) || win32_window_event(&xip))
+		{
+			ret = (pch == NULL);
+			break;
+		}
 	}
-	return (TRUE);
+	return (ret);
 }
 
 public lbool win32_kbhit(void)
 {
-	return win32_kbhit2(FALSE);
+	return win32_kbhit2(NULL);
 }
 
 /*

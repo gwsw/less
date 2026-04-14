@@ -314,16 +314,20 @@ start:
 	}
 #else
 #if MSDOS_COMPILER==WIN32C
-	if (!(quit_if_one_screen && one_screen) && win32_kbhit2(TRUE))
+	if (!(quit_if_one_screen && one_screen))
 	{
-		int c = WIN32getch();
-		if (c == CONTROL('C') || c == intr_char)
+		char c;
+		if (win32_kbhit2(&c))
 		{
-			sigs |= S_SWINTERRUPT;
-			reading = FALSE;
-			return (READ_INTR);
+			if (c == CONTROL('C') || c == intr_char)
+			{
+				sigs |= S_SWINTERRUPT;
+				reading = FALSE;
+				win32_clear_queue();
+				return (READ_INTR);
+			}
+			win32_enqueue((int) c);
 		}
-		WIN32ungetch(c);
 	}
 #endif
 #endif
