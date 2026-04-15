@@ -3461,7 +3461,6 @@ static lbool win32_window_event(XINPUT_RECORD *xip)
 public lbool win32_kbhit2(char *pch)
 {
 	XINPUT_RECORD xip;
-	lbool ret = FALSE;
 
 	if (pch == NULL && win32_queued_char())
 		return (TRUE);
@@ -3483,17 +3482,10 @@ public lbool win32_kbhit2(char *pch)
 		if (nread == 0)
 			return (FALSE);
 		if (win32_key_event(&xip, pch))
-		{
-			ret = TRUE;
-			break;
-		}
+			return (TRUE);
 		if (win32_mouse_event(&xip) || win32_window_event(&xip))
-		{
-			ret = (pch == NULL);
-			break;
-		}
+			return (pch == NULL);
 	}
-	return (ret);
 }
 
 public lbool win32_kbhit(void)
