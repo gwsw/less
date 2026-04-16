@@ -925,11 +925,6 @@ static void prompt(void)
 	char  a[MAX_PATH*2];
 #endif
 
-	/*
-	 * Make sure the screen is displayed.
-	 */
-	make_display();
-
 	if (ungot != NULL && !ungot->ug_end_command)
 	{
 		/*
@@ -938,6 +933,11 @@ static void prompt(void)
 		 */
 		return;
 	}
+
+	/*
+	 * Make sure the screen is displayed.
+	 */
+	make_display();
 
 	if (hilite_target)
 		draw_target_attn(TRUE); /* Redraw target line for --hilite-target. */
@@ -2296,6 +2296,7 @@ public void commands(void)
 			}
 			start_mca(A_SETMARK, "set mark: ", NULL, 0);
 			c = getcc();
+			make_display();
 			cmd_exec();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
