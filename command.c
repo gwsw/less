@@ -1376,7 +1376,7 @@ static int forw_loop(int action)
 /*
  * Ignore subsequent (pasted) input chars.
  */
-public void start_ignoring_input()
+public void start_ignoring_input(void)
 {
 	ignoring_input = TRUE;
 #if HAVE_TIME
@@ -1387,7 +1387,7 @@ public void start_ignoring_input()
 /*
  * Stop ignoring input chars.
  */
-public void stop_ignoring_input()
+public void stop_ignoring_input(void)
 {
 	ignoring_input = FALSE;
 	pasting = FALSE;

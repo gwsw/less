@@ -1369,7 +1369,7 @@ public void init_win_colors(void)
 /*
  * Get terminal capabilities via termcap.
  */
-public void get_term()
+public void get_term(void)
 {
 	termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
 #if MSDOS_COMPILER
