@@ -69,7 +69,7 @@ extern char *osc8_uri;
 extern int shift_count;
 extern lbool forw_prompt;
 extern int incr_search;
-extern int full_screen;
+extern lbool full_screen;
 #if MSDOS_COMPILER==WIN32C
 extern int utf_mode;
 extern unsigned less_acp;

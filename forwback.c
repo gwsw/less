@@ -37,7 +37,7 @@ extern int back_scroll;
 extern lbool ignore_eoi;
 extern int header_lines;
 extern int header_cols;
-extern int full_screen;
+extern lbool full_screen;
 extern int stop_on_form_feed;
 extern int past_eof;
 extern POSITION header_start_pos;
