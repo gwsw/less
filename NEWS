@@ -97,6 +97,8 @@
 * When ^X interrupts F mode, discard pending keys as is done when
   ^C interrupts it (github #757).
 
+* Fix erroneous display in some situations when using LESS_LINES (github #759).
+
 ======================================================================
 
 	Major changes between "less" versions 691 and 692

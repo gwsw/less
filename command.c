@@ -850,12 +850,6 @@ public int is_screen_trashed(void)
 static void make_display(void)
 {
 	/*
-	 * If not full_screen, we can't rely on scrolling to fill the screen.
-	 * We need to clear and repaint screen before any change.
-	 */
-	if (!full_screen && !(quit_if_one_screen && one_screen))
-		lclear();
-	/*
 	 * If nothing is displayed yet, display starting from initial_scrpos.
 	 */
 	if (empty_screen())

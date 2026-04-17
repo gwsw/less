@@ -20,6 +20,8 @@ extern lbool squished;
 extern int sc_width, sc_height;
 extern int show_attn;
 extern int top_scroll;
+extern int quit_if_one_screen;
+extern lbool one_screen;
 extern lbool full_screen;
 extern POSITION header_start_pos;
 
@@ -236,7 +238,7 @@ public void jump_loc(POSITION pos, int sline)
 	pos = next_unfiltered(pos);
 	sindex = sindex_from_sline(sline);
 
-	if (!full_screen)
+	if (!full_screen && !(quit_if_one_screen && one_screen))
 	{
 		/* If not full screen, can't rely on scrolling logic below, since
 		 * "scrolling" may just print lines in the unused part of the screen. */
