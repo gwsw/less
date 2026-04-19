@@ -1099,6 +1099,7 @@ v696  4/3/26    Doc.
 v697  4/19/26   Fix bug using PCRE2 with more than 5 parentheses; discard
                 pending keys when interrupt with ^X; fix bad display with
                 LESS_LINES.
+v698
 */
 
-char version[] = "697";
+char version[] = "698x";
