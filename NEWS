@@ -97,6 +97,9 @@
 * When ^X interrupts F mode, discard pending keys as is done when
   ^C interrupts it (github #757).
 
+* Fix bug in Windows where pressing any key during "waiting for data" would
+  prevent a subsequent ^X from working.
+
 * Fix erroneous display in some situations when using LESS_LINES (github #759).
 
 ======================================================================
