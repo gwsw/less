@@ -993,6 +993,11 @@ static void prompt(void)
 	clear_cmd();
 	forw_prompt = FALSE;
 	prompt_message();
+	/* We called make_display above, but if prompt_message displayed
+	 * a message longer than the screen width, we may have trashed
+	 * the screen and need to call make_display again. */
+	if (is_screen_trashed())
+		make_display();
 	p = pr_string();
 	if (p == NULL || *p == '\0')
 	{

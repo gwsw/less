@@ -102,6 +102,9 @@
 
 * Fix erroneous display in some situations when using LESS_LINES (github #759).
 
+* Fix erroneous display after certain messages are displayed in a
+  very narrow terminal (github #760).
+
 ======================================================================
 
 	Major changes between "less" versions 691 and 692
