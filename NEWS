@@ -24,7 +24,8 @@
 
 * Add -DT option to format tilde lines (github #725).
 
-* Add %O to prompt strings, to replace less safe %o.
+* Change OSC 8 link handling: replace LESS_OSC8_xxx with LESS_OSC8_OPEN_xxx,
+  and replace %o in prompt strings with shell-quoted %O.
 
 * Add ?o to prompt strings, to detect whether an OSC 8 link is selected.
 

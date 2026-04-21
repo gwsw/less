@@ -1888,18 +1888,6 @@ static size_t scheme_length(constant char *uri, size_t uri_len)
 }
 
 /*
- * Does a URI contain any dangerous characters?
- */
-static lbool bad_uri(constant char *uri, size_t uri_len)
-{
-	size_t i;
-	for (i = 0;  i < uri_len;  i++)
-		if (strchr("'\"", uri[i]) != NULL)
-			return TRUE;
-	return FALSE;
-}
-
-/*
  * Re-read the line containing the selected OSC8 link.
  */
 static lbool osc8_read_selected(struct osc8_parse_info *op)
@@ -1929,10 +1917,8 @@ public void osc8_open(void)
 	char env_name[64];
 	size_t scheme_len;
 	constant char *handler;
-	char *open_cmd;
 	size_t uri_len;
-	FILE *hf;
-	static constant char *env_name_pfx = "LESS_OSC8_";
+	static constant char *env_name_pfx = "LESS_OSC8_OPEN_";
 
 	if (osc8_linepos == NULL_POSITION)
 	{
@@ -1945,9 +1931,8 @@ public void osc8_open(void)
 		return;
 	}
 	/*
-	 * Read a "handler" shell cmd from environment variable "LESS_OSC8_scheme".
-	 * pr_expand the handler cmd (to expand %o -> osc8_path) and execute it.
-	 * Handler's stdout is an "opener" shell cmd; execute opener to open the link.
+	 * Read a "handler" shell cmd from environment variable "LESS_OSC8_OPEN_scheme".
+	 * pr_expand the handler cmd (to expand %O -> osc8_path) and execute it.
 	 */
 	uri_len = ptr_diff(op.uri_end, op.uri_start);
 	scheme_len = scheme_length(op.uri_start, uri_len);
@@ -1962,16 +1947,10 @@ public void osc8_open(void)
 		free(param);
 		return;
 	}
-#if HAVE_POPEN
-	if (bad_uri(op.uri_start, uri_len))
-	{
-		error("Cannot open link containing quote characters", NULL_PARG);
-		return;
-	}
 	SNPRINTF3(env_name, sizeof(env_name), "%s%.*s", env_name_pfx, (int) scheme_len, op.uri_start);
 	handler = lgetenv(env_name);
 	if (isnullenv(handler) || strcmp(handler, "-") == 0)
-		handler = lgetenv("LESS_OSC8_ANY");
+		handler = lgetenv("LESS_OSC8_OPEN_ANY");
 	if (isnullenv(handler))
 	{
 		PARG parg;
@@ -1981,24 +1960,12 @@ public void osc8_open(void)
 	}
 	/* {{ ugly global osc8_path }} */
 	osc8_path = saven(op.uri_start, uri_len);
-	hf = popen(pr_expand(handler), "r");
+	handler = pr_expand(handler);
 	free(osc8_path);
 	osc8_path = NULL;
-	if (hf == NULL)
+
 	{
-		PARG parg;
-		parg.p_string = env_name;
-		error("Cannot execute protocol handler in %s", &parg);
-		return;
-	}
-	open_cmd = readfd(hf);
-	pclose(hf);
-	if (strncmp(open_cmd, ":e", 2) == 0)
-	{
-		edit(skipsp(&open_cmd[2]));
-	} else
-	{
-		constant char *cmd = open_cmd;
+		constant char *cmd = handler;
 		constant char *done_msg = "link done";
 		POSITION save_osc8_linepos = osc8_linepos;
 		if (*cmd == CONTROL('P'))
@@ -2011,10 +1978,6 @@ public void osc8_open(void)
 		 * OSC8 link, so restore it. */
 		osc8_linepos = save_osc8_linepos;
 	}
-	free(open_cmd);
-#else
-	error("Cannot open link because your system does not support popen", NULL_PARG);
-#endif /* HAVE_POPEN */
 }
 
 /*

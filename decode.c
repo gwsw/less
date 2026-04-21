@@ -286,17 +286,28 @@ static unsigned char edittable[] =
 	ESC,'[','2','0','1','~',0,      A_END_PASTE,    /* close paste bracket */
 };
 
-static unsigned char dflt_vartable[] =
+/*
+ * Default environment variables.
+ * Since C cannot initialize a char array to a string literal followed by
+ * individual chars, we use '@' as a placeholder for the action byte, and
+ * replace it with the actual action byte in init_cmds().
+ */
+static char dflt_vartable[] =
 {
-	'L','E','S','S','_','O','S','C','8','_','m','a','n', 0, EV_OK|A_EXTRA,
-		/* echo %O | sed -e "s,^man\:\\([^(]*\\)( *\\([^)]*\\)\.*,-man '\\2' '\\1'," -e"t X" -e"s,\.*,-echo Invalid man link," -e"\: X" */
-		'e','c','h','o',' ','%','O',' ','|',' ','s','e','d',' ','-','e',' ','"','s',',','^','m','a','n','\\',':','\\','\\','(','[','^','(',']','*','\\','\\',')','(',' ','*','\\','\\','(','[','^',')',']','*','\\','\\',')','\\','.','*',',','-','m','a','n',' ','\'','\\','\\','2','\'',' ','\'','\\','\\','1','\'',',','"',' ','-','e','"','t',' ','X','"',' ','-','e','"','s',',','\\','.','*',',','-','e','c','h','o',' ','I','n','v','a','l','i','d',' ','m','a','n',' ','l','i','n','k',',','"',' ','-','e','"','\\',':',' ','X','"',
-		0,
-
-	'L','E','S','S','_','O','S','C','8','_','f','i','l','e', 0, EV_OK|A_EXTRA,
-		/* eval `echo %O | sed -e "s,^file://\\([^/]*\\)\\(.*\\),_H='\\1';_P='\\2';_E=0," -e"t X" -e"s,.*,_E=1," -e": X"`; if [ "$_E" = 1 ]; then echo -echo Invalid file link; elif [ -z "$_H" -o "$_H" = localhost -o "$_H" = $HOSTNAME ]; then echo ":e $_P"; else echo -echo Cannot open remote file on "$_H"; fi */
-		'e','v','a','l',' ','`','e','c','h','o',' ','%','O',' ','|',' ','s','e','d',' ','-','e',' ','"','s',',','^','f','i','l','e','\\',':','/','/','\\','\\','(','[','^','/',']','*','\\','\\',')','\\','\\','(','\\','.','*','\\','\\',')',',','_','H','=','\'','\\','\\','1','\'',';','_','P','=','\'','\\','\\','2','\'',';','_','E','=','0',',','"',' ','-','e','"','t',' ','X','"',' ','-','e','"','s',',','\\','.','*',',','_','E','=','1',',','"',' ','-','e','"','\\',':',' ','X','"','`',';',' ','i','f',' ','[',' ','"','$','_','E','"',' ','=',' ','1',' ',']',';',' ','t','h','e','n',' ','e','c','h','o',' ','-','e','c','h','o',' ','I','n','v','a','l','i','d',' ','f','i','l','e',' ','l','i','n','k',';',' ','e','l','i','f',' ','[',' ','-','z',' ','"','$','_','H','"',' ','-','o',' ','"','$','_','H','"',' ','=',' ','l','o','c','a','l','h','o','s','t',' ','-','o',' ','"','$','_','H','"',' ','=',' ','$','H','O','S','T','N','A','M','E',' ',']',';',' ','t','h','e','n',' ','e','c','h','o',' ','"','\\',':','e',' ','$','_','P','"',';',' ','e','l','s','e',' ','e','c','h','o',' ','-','e','c','h','o',' ','C','a','n','n','o','t',' ','o','p','e','n',' ','r','e','m','o','t','e',' ','f','i','l','e',' ','o','n',' ','"','$','_','H','"',';',' ','f','i',
-		0,
+	"LESS_OSC8_OPEN_man\0@"
+#ifdef LIBEXECDIR
+		"-" LIBEXECDIR "/less-osc8-man"
+#else
+		"-less-osc8-man"
+#endif
+		" %O\0"
+	"LESS_OSC8_OPEN_file\0@"
+#ifdef LIBEXECDIR
+		"-" LIBEXECDIR "/less-osc8-file"
+#else
+		"-less-osc8-file"
+#endif
+		" %O\0"
 };
 
 /*
@@ -408,13 +419,20 @@ public void expand_cmd_tables(void)
 public void init_cmds(void)
 {
 	struct tablelist *t;
+	unsigned char *udflt_vartable = (unsigned char *) dflt_vartable;
+	int i;
+
+	/* Replace action byte placeholders in dflt_vartable. */
+	for (i = 0;  i < sizeof(dflt_vartable);  i++)
+		if (udflt_vartable[i] == '@')
+			udflt_vartable[i] = EV_OK|A_EXTRA;
 
 	/*
 	 * Add the default command tables.
 	 */
 	add_fcmd_table(cmdtable, sizeof(cmdtable));
 	add_ecmd_table(edittable, sizeof(edittable));
-	add_sysvar_table(dflt_vartable, sizeof(dflt_vartable));
+	add_sysvar_table(udflt_vartable, sizeof(dflt_vartable));
 #if USERFILE
 #ifdef BINDIR /* For backwards compatibility */
 	/* Try to add tables in the OLD system lesskey file. */

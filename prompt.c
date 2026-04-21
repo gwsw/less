@@ -244,7 +244,7 @@ static lbool cond(char c, int where)
 #else
 		return (new_file ? TRUE : FALSE);
 #endif
-	case 'o': /* OSC 8 link selected? */
+	case 'O': /* OSC 8 link selected? */
 #if OSC8_LINK
 		return (osc8_linepos != NULL_POSITION);
 #else
@@ -377,15 +377,7 @@ static void protochar(char c, int where)
 #endif
 			ap_int(nifile());
 		break; }
-	case 'o': /* unquoted path (URI without protocol) of selected OSC8 link */
-#if OSC8_LINK
-		if (osc8_path != NULL)
-			ap_str(osc8_path);
-		else
-#endif
-			ap_quest();
-		break;
-	case 'O': /* shell-quoted path (URI without protocol) of selected OSC8 link */
+	case 'O': /* shell-quoted path (URI) of selected OSC8 link */
 #if OSC8_LINK
 		if (osc8_path != NULL)
 		{
