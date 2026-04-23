@@ -26,6 +26,8 @@
 
 * Change OSC 8 link handling: replace LESS_OSC8_xxx with LESS_OSC8_OPEN_xxx,
   and replace %o in prompt strings with shell-quoted %O.
+  Any use of environment variables LESS_OSC8_xxx need to be manually
+  changed to use LESS_OSC8_OPEN_xxx.
 
 * Add ?o to prompt strings, to detect whether an OSC 8 link is selected.
 
