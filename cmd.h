@@ -180,5 +180,6 @@
 #define SK_CTL_END             37
 #define SK_SHIFT_LEFT_ARROW    38
 #define SK_SHIFT_RIGHT_ARROW   39
+#define SK_PAD_ENTER           41
 
 #define SK_CONTROL_K           40

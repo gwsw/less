@@ -148,6 +148,7 @@ l l.
 \ekp+	+ on the numeric keypad
 \ekp.	. on the numeric keypad
 \ekp,	, on the numeric keypad
+\ekpe	ENTER on the numeric keypad
 .TE
 .RE
 .PP

@@ -294,6 +294,7 @@ public int can_goto_line;               /* Can move cursor to any line */
 public int clear_bg;                    /* Clear fills with background color */
 public lbool missing_cap = FALSE;       /* Some capability is missing */
 public constant char *kent = NULL;      /* Keypad ENTER sequence */
+public lbool kent_mapped = FALSE;       /* Keypad ENTER is mapped to a command */
 public lbool term_addrs = FALSE;        /* "ti" has been sent to terminal */
 public lbool full_screen = TRUE;        /* We're using all lines of terminal */
 
@@ -1301,6 +1302,10 @@ public constant char * special_key_str(int key)
 		break;
 	case SK_PAD_ZERO:
 		s = ltgetstr("kpZRO", NULL, &sp);
+		break;
+	case SK_PAD_ENTER:
+		s = kent;
+		kent_mapped = TRUE;
 		break;
 	case SK_DELETE:
 		s = ltgetstr("kdch1", "kD", &sp);

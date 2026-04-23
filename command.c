@@ -27,6 +27,7 @@ extern lbool one_screen;
 extern int sc_width;
 extern int sc_height;
 extern char *kent;
+extern lbool kent_mapped;
 extern int swindow;
 extern int jump_sline;
 extern lbool quitting;
@@ -1165,8 +1166,9 @@ static char getcc_repl(char constant *orig, char constant *repl, char (*gr_getc)
  */
 public char getcc(void)
 {
-	/* Replace kent (keypad Enter) with a newline. */
-	return getcc_repl(kent, "\n", getccu, ungetcc);
+	/* Replace kent (keypad Enter) with a newline.
+	 * However don't do this if kent is mapped to a command via lesskey. */
+	return getcc_repl(kent_mapped ? kent : NULL, "\n", getccu, ungetcc);
 }
 
 /*
