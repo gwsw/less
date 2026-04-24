@@ -1168,7 +1168,7 @@ public char getcc(void)
 {
 	/* Replace kent (keypad Enter) with a newline.
 	 * However don't do this if kent is mapped to a command via lesskey. */
-	return getcc_repl(kent_mapped ? kent : NULL, "\n", getccu, ungetcc);
+	return getcc_repl(kent_mapped ? NULL : kent, "\n", getccu, ungetcc);
 }
 
 /*
