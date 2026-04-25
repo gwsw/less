@@ -85,8 +85,8 @@ install: all ${srcdir}/less.nro ${srcdir}/lesskey.nro ${srcdir}/lessecho.nro ins
 	${INSTALL_PROGRAM} less$(EXEEXT) ${DESTDIR}${bindir}/${binprefix}less$(EXEEXT)
 	${INSTALL_PROGRAM} lesskey$(EXEEXT) ${DESTDIR}${bindir}/${binprefix}lesskey$(EXEEXT)
 	${INSTALL_PROGRAM} lessecho$(EXEEXT) ${DESTDIR}${libexecdir}/${binprefix}lessecho$(EXEEXT)
-	${INSTALL_PROGRAM} ${srcdir}/less-osc8-file.bash ${DESTDIR}${libexecdir}/${binprefix}less-osc8-file
-	${INSTALL_PROGRAM} ${srcdir}/less-osc8-man.bash ${DESTDIR}${libexecdir}/${binprefix}less-osc8-man
+	${INSTALL_DATA} ${srcdir}/less-osc8-file.bash ${DESTDIR}${libexecdir}/${binprefix}less-osc8-file
+	${INSTALL_DATA} ${srcdir}/less-osc8-man.bash ${DESTDIR}${libexecdir}/${binprefix}less-osc8-man
 	${INSTALL_DATA} ${srcdir}/less.nro ${DESTDIR}${mandir}/man${manext}/${manprefix}less.${manext}
 	${INSTALL_DATA} ${srcdir}/lesskey.nro ${DESTDIR}${mandir}/man${manext}/${manprefix}lesskey.${manext}
 	${INSTALL_DATA} ${srcdir}/lessecho.nro ${DESTDIR}${mandir}/man${manext}/${manprefix}lessecho.${manext}
