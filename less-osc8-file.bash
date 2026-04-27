@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Less OSC 8 handler for file links.
 # Open a link of the form "file://HOST/PATH".
 

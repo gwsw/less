@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Less OSC 8 handler for man links.
 # Open a link of the form "man:NAME" or "man:NAME(SECTION)".
 
