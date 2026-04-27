@@ -2726,13 +2726,10 @@ The line to be used is determined by the \fIX\fP, as with the %b option.
 Replaced by the line number of the last line in the input file.
 .IP "%m"
 Replaced by the total number of input files.
-.IP "%o"
-Replaced by the URI of the currently selected OSC 8 hyperlink,
-or a question mark if no hyperlink is selected.
-This is used by OSC 8 handlers as explained in the \*^O\*^O command description.
 .IP "%O"
 Replaced by the shell-escaped URI of the currently selected OSC 8 hyperlink,
 or a question mark if no hyperlink is selected.
+This is used by OSC 8 handlers as explained in the \*^O\*^O command description.
 .IP "%p\fIX\fP"
 Replaced by the percent into the current input file, based on byte offsets.
 The line used is determined by the \fIX\fP as with the %b option.
