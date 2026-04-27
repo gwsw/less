@@ -45,13 +45,18 @@
 * Allow ' command to take a numeric argument to specify the screen
   position on which to place the marked line.
 
+* Allow lesskey to map keypad ENTER with \kpe (github #761).
+
+* Add "noaction" as a possible action in #line-edit section
+  in a lesskey file (github #761).
+
 * Support POSIX character classes with the built-in V8 regex library
   (github #732).
 
 * Change | command to pipe just one line if the marked line is at the
   top of the screen (github #733).
 
-* If OSC8 opener command begins with "-", suppress command echo,
+* If OSC8 handler command begins with "-", suppress command echo,
   and if it begins with ctrl-P, suppress "done" message (github #747).
 
 * Don't ask for confirmation when input is a binary file and stdout is
