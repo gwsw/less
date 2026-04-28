@@ -383,8 +383,10 @@ static void protochar(char c, int where)
 		{
 			char *q = shell_quote(osc8_path);
 			if (q != NULL)
+            {
 				ap_str(q);
-			free(q);
+                free(q);
+            }
 		} else
 #endif
 			ap_quest();
