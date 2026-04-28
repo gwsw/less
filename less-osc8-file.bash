@@ -12,5 +12,4 @@ if [[ "$1" =~ ^file://([^/]+)(/.+)$ ]]; then
     fi
 else
     echo "Invalid file link"
-    exit 1
 fi
