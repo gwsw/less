@@ -5,7 +5,7 @@
 if [[ "$1" =~ ^file://([^/]+)(/.+)$ ]]; then
     _HOST="${BASH_REMATCH[1]}"
     _PATH="${BASH_REMATCH[2]}"
-    if [ "$_HOST" = localhost -o "$_HOST" = "$HOSTNAME" ]; then
+    if [[ "$_HOST" = localhost || "$_HOST" = "$HOSTNAME" ]]; then
         less "$_PATH"
     else
         echo "Cannot open remote file on $_HOST"
