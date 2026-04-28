@@ -2796,7 +2796,7 @@ True if the line number of the last line in the file is known.
 True if there is more than one input file.
 .IP "?n"
 True if this is the first prompt in a new input file.
-.IP "?o"
+.IP "?O"
 True if an OSC 8 hyperlink is selected.
 .IP "?p\fIX\fP"
 True if the percent into the current input file, based on byte offsets,
