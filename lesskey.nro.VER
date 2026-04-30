@@ -1,5 +1,5 @@
 '\" t
-.TH LESSKEY 1 "@@DATE@@" "less @@VERSION@@"
+.TH LESSKEY 5 "@@DATE@@" "less @@VERSION@@"
 .\" Define a string for the caret ("hat") as portably as possible.
 .ie \n(.g .ds ^ \(ha
 .el       .ds ^ ^
@@ -13,49 +13,12 @@
 .el       .ds : \" empty
 .SH NAME
 lesskey \- customize key bindings for less
-.SH "SYNOPSIS (deprecated)"
-.B lesskey
-.RB [ \-o
-.IR output ]
-.B \-\-
-.I input
-.br
-.B lesskey
-.RB [ \-\-output=\c
-.IR output ]
-.B \-\-
-.I input
-.PP
-.B "lesskey \-V"
-.br
-.B "lesskey \-\-version"
-.SH SCOPE
-This document describes the format of the 
-.B lesskey
-source file, which is used by
-.B less
-version 582 and later.
-In previous versions of 
-.BR less ,
-a separate program called
-.B lesskey
-was used to compile the 
-.B lesskey 
-source file into a format understood by
-.BR less .
-This compilation step is no longer required and the
-.B lesskey
-program is therefore deprecated, although the file format remains supported by
-.B less
-itself.
-.PP
 .SH DESCRIPTION
 A
 .B lesskey
 file specifies a set of key bindings and environment variables
 to be used by subsequent invocations of
 .BR less .
-.SH FILE FORMAT
 The input file consists of one or more
 .IR sections .
 Each section starts with a line that identifies the type of section.
