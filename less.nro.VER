@@ -746,7 +746,7 @@ and
 .B "\-\-modelines"
 begin with
 .BR "\-\-mo" "."
-
+.PP
 Some long option names are in uppercase, such as
 .BR "\-\-QUIT\-AT\-EOF" ","
 as
