@@ -529,7 +529,8 @@ If possible, it also prints the length of the file,
 the number of lines in the file
 and the percent of the file above the last displayed line.
 .IP \-
-Followed by one of the command line option letters (see OPTIONS below),
+Followed by one of the command line option letters
+(see \*(lqOPTIONS\*(rq below),
 this will change the setting of that option
 and print a message describing the new setting.
 If a \*^P (CONTROL-P) is entered immediately after the dash,
@@ -546,7 +547,8 @@ a new value may be entered after the option letter.
 If no new value is entered, a message describing
 the current setting is printed and nothing is changed.
 .IP \-\-
-Like the \- command, but takes a long option name (see OPTIONS below)
+Like the \- command, but takes a long option name
+(see \*(lqOPTIONS\*(rq below),
 rather than a single option letter.
 Press ENTER or RETURN after typing the option name to change it.
 You can enter just the beginning of an option name, 
