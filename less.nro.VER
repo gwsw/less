@@ -3022,7 +3022,7 @@ command rather than a search pattern.
 The LESS environment variable is ignored,
 and the MORE environment variable is used in its place.
 .
-.SH "ENVIRONMENT VARIABLES"
+.SH ENVIRONMENT
 Environment variables may be specified either in the system environment
 as usual, or in a
 .BR lesskey (5)
