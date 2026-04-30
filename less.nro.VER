@@ -1210,7 +1210,7 @@ option is in effect.
 Causes
 .B less
 to open and interpret the named file as a
-.BR lesskey (1)
+.BR lesskey (5)
 binary file.
 Multiple
 .B "\-k"
@@ -1227,7 +1227,7 @@ below.
 Causes
 .B less
 to open and interpret the named file as a 
-.BR lesskey (1)
+.BR lesskey (5)
 source file. 
 If the LESSKEYIN or LESSKEYIN_SYSTEM environment variable is set, or
 if a lesskey source file is found in a standard place (see KEY BINDINGS),
@@ -1252,7 +1252,7 @@ below.
 Causes
 .B less
 to interpret the specified text as the contents of a
-.BR lesskey (1)
+.BR lesskey (5)
 source file.
 In the text,
 .B lesskey
@@ -2251,7 +2251,7 @@ You may also change the line-editing keys (see LINE EDITING),
 and set environment variables used by
 .BR less .
 See the
-.BR lesskey (1)
+.BR lesskey (5)
 manual page for details about the file format.
 .PP
 If the environment variable LESSKEYIN is set,
@@ -3020,7 +3020,7 @@ and the MORE environment variable is used in its place.
 .SH "ENVIRONMENT VARIABLES"
 Environment variables may be specified either in the system environment
 as usual, or in a
-.BR lesskey (1)
+.BR lesskey (5)
 file.
 If environment variables are defined in more than one place,
 variables defined in a local lesskey file take precedence over
@@ -3300,7 +3300,7 @@ Possible location of the history file; see the description of the LESSHISTFILE e
 Possible location of the history file; see the description of the LESSHISTFILE environment variable.
 .
 .SH "SEE ALSO"
-.BR lesskey (1),
+.BR lesskey (5),
 .BR lessecho (1)
 .
 .SH COPYRIGHT
