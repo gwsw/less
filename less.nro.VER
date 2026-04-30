@@ -2129,9 +2129,9 @@ The
 option can be used to change the colors.
 Colored text works only if the terminal supports 
 ANSI color escape sequences (as defined in 
-.nh
-https://\*:www\*:.ecma\-international\*:.org/\*:publications\-and\-standards/\*:standards/\*:ecma\-48).
-.hy
+.UR https://\*:www\*:.ecma\-international\*:.org/\*:publications\-and\-standards/\*:standards/\*:ecma\-48)
+ECMA-48
+.UE .
 .IP "\fB\-\-wheel\-lines=\fP\fIn\fP"
 Set the number of lines or columns to scroll when the mouse wheel is scrolled
 and the
