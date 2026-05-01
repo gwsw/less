@@ -1651,7 +1651,8 @@ lines less than the current screen size.
 For example, if the screen is 24 lines,
 .B "\-z\-4"
 sets the
-scrolling window to 20 lines.  If the screen is later resized to 40 lines,
+scrolling window to 20 lines.
+If the screen is later resized to 40 lines,
 the scrolling window automatically changes to 36 lines.
 .IP "\fB\-""\fP\fIcc\fP\ or\ \fB\-\-quotes=\fP\fIcc\fP"
 Changes the filename quoting character.
@@ -2512,7 +2513,8 @@ Selects a character set appropriate for MS-DOS.
 Selects an EBCDIC character set.
 .IP IBM\-1047
 Selects an EBCDIC character set used by OS/390 Unix Services.
-This is the EBCDIC analogue of latin1.  You get similar results
+This is the EBCDIC analogue of latin1.
+You get similar results
 by setting either LESSCHARSET=IBM\-1047 or LC_CTYPE=en_US
 in your environment.
 .IP koi8\-r
@@ -2581,7 +2583,8 @@ interface is also not available, the default character set is utf\-8.
 .PP
 Control and binary characters are displayed in standout (reverse video).
 Each such character is displayed in caret notation if possible
-(e.g.\& \*^A for control-A).  Caret notation is used only if
+(e.g.\& \*^A for control-A).
+Caret notation is used only if
 inverting the 0100 bit results in a normal printable character.
 Otherwise, the character is displayed as a hex number in angle brackets.
 This format can be changed by
@@ -3098,7 +3101,8 @@ Name of the command used by the
 option to find global tags.
 Normally should be set to "global" if your system has the
 .BR global (1)
-command.  If not set, global tags are not used.
+command.
+If not set, global tags are not used.
 .IP LESSHISTFILE
 Name of the history file used to remember search commands and
 shell commands between invocations of
