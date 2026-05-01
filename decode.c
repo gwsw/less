@@ -367,6 +367,8 @@ static void expand_special_keys(unsigned char *table, size_t len)
 			 */
 			repl = special_key_str(fm[1]);
 			klen = fm[2];
+			if (klen == 0)               /* malformed entry, abandon table */
+    			break;
 			fm += klen;
 			if (repl == NULL || strlen(repl) > klen)
 				repl = "\377";
