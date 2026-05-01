@@ -11,6 +11,43 @@
 .\" compatibility, else interpolate nothing.
 .ie \n(.g .ds : \:
 .el       .ds : \" empty
+.\" Define local versions of groff's "an-ext.tmac" macros if needed.
+.ds %% \" empty
+.if \n(.g .ig %%
+.\" Prepare link text for mail/web hyperlinks.  `MT` and `UR` call this.
+.de mV
+.  ds mU \\$1\"
+..
+.
+.
+.\" Emit hyperlink.  The optional argument supplies trailing punctuation
+.\" after link text.  `ME` and `UE` call this.
+.de mQ
+.  mY
+.  nh
+<\\*(mU>\\$1
+.  hy \\n(mH
+.  rm mU
+..
+.
+.
+.\" Start URL.
+.\" .UR url
+.if !\n(.g-\n(mG \{\
+.de UR
+.  mV \\$1
+..
+.\}
+.
+.
+.\" End URL.
+.\" .UE [punctuation]
+.if !\n(.g-\n(mG \{\
+.de UE
+.  mQ \\$1
+..
+.\}
+.%%
 .SH NAME
 lesskey \- customize key bindings for less
 .SH DESCRIPTION
@@ -564,6 +601,5 @@ See the GNU General Public License for more details.
 Mark Nudelman
 .br
 Report bugs at
-.nh
-https://\*:github\*:.com/\*:gwsw/\*:less/\*:issues.
-.hy
+.UR https://\*:github\*:.com/\*:gwsw/\*:less/\*:issues
+.UE .
