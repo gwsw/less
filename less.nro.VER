@@ -22,8 +22,10 @@ less \- display the contents of a file in a terminal
 .na
 .B less
 .\" AT&T man(7) macros accept six arguments at most.
-.RB [ \- [ + ] aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\*~\c
-]
+.\" DWB 3.3 has a bug when a sixth argument is long and interpolates a
+.\" string.  <https://github.com/n-t-roff/DWB3.3/issues/10>
+.RB [ \- [ + ]
+.BR aABcCdeEfFgGiIJKLmMnNqQrRsSuUVwWX\*~ ]
 .RB [ \-b\ \c
 .IR size ]
 .RB [ \-D\ \c
@@ -1261,7 +1263,10 @@ Warning: certain environment variables such as
 LESS, LESSSECURE, LESSCHARSET and others,
 which are used early in startup, 
 cannot be set in a file specified by a command line option
-.RB "(" "\-\-lesskey" ", " "\-\-lesskey\-src" " or " "\-\-lesskey\-content" ")."
+.RB ( \-\-lesskey ,
+.B \-\-lesskey\-src
+or
+.BR \-\-lesskey\-content ).
 When using a
 .B lesskey
 file to set environment variables, it is safer to use the
