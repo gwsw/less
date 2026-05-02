@@ -367,6 +367,9 @@ static void expand_special_keys(unsigned char *table, size_t len)
 			 */
 			repl = special_key_str(fm[1]);
 			klen = fm[2];
+			/* bounds check: klen comes from input table, ensure we don't read past end */
+			if (klen == 0 || fm + klen > table + len)
+				break;
 			fm += klen;
 			if (repl == NULL || strlen(repl) > klen)
 				repl = "\377";
