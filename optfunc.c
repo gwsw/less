@@ -803,18 +803,18 @@ public void opt_x(int type, constant char *s)
 		set_tabs(s, strlen(s));
 		break;
 	case QUERY:
-		strcpy(msg, "Tab stops ");
+		snprintf(msg, sizeof(msg), "Tab stops ");
 		if (ntabstops > 2)
 		{
 			for (i = 1;  i < ntabstops;  i++)
 			{
 				if (i > 1)
-					strcat(msg, ",");
-				sprintf(msg+strlen(msg), "%d", tabstops[i]);
+					snprintf(msg+strlen(msg), sizeof(msg)-strlen(msg), ",");
+				snprintf(msg+strlen(msg), sizeof(msg)-strlen(msg), "%d", tabstops[i]);
 			}
-			sprintf(msg+strlen(msg), " and then ");
+			snprintf(msg+strlen(msg), sizeof(msg)-strlen(msg), " and then ");
 		}
-		sprintf(msg+strlen(msg), "every %d spaces",
+		snprintf(msg+strlen(msg), sizeof(msg)-strlen(msg), "every %d spaces",
 			tabdefault);
 		p.p_string = msg;
 		error("%s", &p);
@@ -1000,7 +1000,7 @@ public void opt_emouse(int type, constant char *s)
 			{
 				if (bp > buf && bp+1 < ebuf)
 					*bp++ = ',';
-				strncpy(bp, emouse_defs[i].bit_name, ptr_diff(ebuf, bp));
+				snprintf(bp, ptr_diff(ebuf, bp), "%s", emouse_defs[i].bit_name);
 				bp += strlen(bp);
 				qmouse &= ~bit;
 			}

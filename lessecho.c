@@ -145,7 +145,7 @@ static void add_metachar(char ch)
 
 		if (metachars != NULL)
 		{
-			strcpy(p, metachars);
+			snprintf(p, (size_t) size_metachars, "%s", metachars);
 			free(metachars);
 		}
 		metachars = p;
