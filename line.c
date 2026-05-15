@@ -1993,7 +1993,7 @@ public int set_color_map(int attr, constant char *colorstr)
 		return -1;
 	if (*colorstr != '\0' && parse_color(colorstr, NULL, NULL, NULL) == CT_NULL)
 		return -1;
-	snprintf(color_map[cx].color, sizeof(color_map[cx].color), "%s", colorstr);
+	strcpy(color_map[cx].color, colorstr);
 	return 0;
 }
 
