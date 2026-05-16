@@ -55,7 +55,6 @@ static size_t size_linebuf = 0; /* Size of line buffer (and attr buffer) */
 static struct ansi_state *line_ansi = NULL;
 static lbool ansi_in_line;
 static int ff_starts_line;
-static lbool hlink_in_line;
 static int line_mark_attr;
 static int cshift;   /* Current left-shift of output line buffer */
 public int hshift;   /* Desired left-shift of output line buffer */
@@ -324,7 +323,6 @@ public void prewind(lbool contig)
 	in_hilite = FALSE;
 	ansi_in_line = FALSE;
 	ff_starts_line = -1;
-	hlink_in_line = FALSE;
 	clear_after_line = FALSE;
 	line_mark_attr = 0;
 	line_pos = NULL_POSITION;
@@ -1221,7 +1219,6 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 		STORE_CHAR(ch, AT_ANSI, rep, pos);
 		switch (ansi_osc8_state(line_ansi))
 		{
-		case OSC_TYPENUM: case OSC_STRING: hlink_in_line = TRUE; break;
 		case OSC8_PARAMS: in_osc8_link = FALSE; break;
 		case OSC8_URI: if (prev_ostate == OSC8_URI) in_osc8_link = TRUE; break;
 		default: break;
@@ -1426,7 +1423,7 @@ static void add_attr_normal(void)
 	if (ctldisp != OPT_ONPLUS || !is_ansi_end('m'))
 		return;
 	addstr_linebuf("\033[m", AT_ANSI, 0);
-	if (hlink_in_line) /* Don't send hyperlink clear if we know we don't need to. */
+	if (in_osc8_link) /* Don't send hyperlink clear if we know we don't need to. */
 		addstr_linebuf("\033]8;;\033\\", AT_ANSI, 0);
 }
 
