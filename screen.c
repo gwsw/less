@@ -2742,6 +2742,11 @@ public void deinit_bracketed_paste(void)
  * Any of x,y,N,M may also be "-" to mean "unchanged".
  */
 
+static lbool is_attr_char(char ch)
+{
+	return (strchr("*~_&dsul", ch) != NULL);
+}
+
 /*
  * Parse a 4-bit color char.
  */
@@ -2775,6 +2780,8 @@ static int parse_color4(char ch)
  */
 static int parse_color6(constant char **ps)
 {
+	if (**ps == '\0')
+		return CV_NOCHANGE;
 	if (**ps == '-')
 	{
 		(*ps)++;
@@ -2807,18 +2814,24 @@ public COLOR_TYPE parse_color(constant char *str, mutable int *p_fg, mutable int
 	if (*str == '+')
 		str++; /* ignore leading + */
 
-	fg = parse_color4(*str);
-	if (fg != CV_ERROR)
+	if (is_attr_char(*str))
 	{
-		if (str[1] == '\0' || strchr("*~_&dsul", str[1]) != NULL)
+		fg = bg = CV_NOCHANGE;
+	} else
+	{
+		fg = parse_color4(*str);
+		if (fg != CV_ERROR)
 		{
-			bg = CV_NOCHANGE;
-			str++; /* skip the fg char */
-		} else
-		{
-			bg = parse_color4(str[1]);
-			if (bg != CV_ERROR)
-				str += 2; /* skip both fg and bg chars */
+			if (str[1] == '\0' || is_attr_char(str[1]))
+			{
+				bg = CV_NOCHANGE;
+				str++; /* skip the fg char */
+			} else
+			{
+				bg = parse_color4(str[1]);
+				if (bg != CV_ERROR)
+					str += 2; /* skip both fg and bg chars */
+			}
 		}
 	}
 	if (fg != CV_ERROR && bg != CV_ERROR)
