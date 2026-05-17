@@ -85,6 +85,7 @@ static lbool clear_after_line;
 static int attr_swidth(int a);
 static int attr_ewidth(int a);
 static int do_append(LWCHAR ch, constant char *rep, POSITION pos);
+static void resend_last_ansi(POSITION pos);
 
 extern int sigs;
 extern int bs_mode;
@@ -868,7 +869,6 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 #if HILITE_SEARCH
 	{
 		int matches;
-		lbool resend_last = FALSE;
 		int hl_attr = 0;
 		int link_attr = 0;
 
@@ -891,7 +891,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 			 * This character should be highlighted.
 			 * Override the attribute passed in.
 			 */
-			a |= hl_attr | link_attr;
+			a |= hl_attr;
 			if (highest_hilite != NULL_POSITION && pos != NULL_POSITION && pos > highest_hilite)
 				highest_hilite = pos;
 			in_hilite = TRUE;
@@ -904,18 +904,8 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 				 * This is the first non-hilited char after a hilite.
 				 * Resend the last ANSI sequence(s) to restore color.
 				 */
-				resend_last = TRUE;
-			}
-			in_hilite = FALSE;
-		}
-		if (resend_last)
-		{
-			int ai;
-			for (ai = 0;  ai < NUM_LAST_ANSIS;  ai++)
-			{
-				int ax = (curr_last_ansi + ai) % NUM_LAST_ANSIS;
-				for (i = 0;  i < last_ansis[ax].end;  i++)
-					STORE_CHAR(last_ansis[ax].data[i], AT_ANSI, NULL, pos);
+				in_hilite = FALSE;
+				resend_last_ansi(pos);
 			}
 		}
 	}
@@ -1240,6 +1230,9 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 		xbuf_reset(&last_ansi);
 		ansi_done(line_ansi);
 		line_ansi = NULL;
+		/* After ending an OSC 8 sequence, resend the last SGR sequence to restore color. */
+		if (prev_ostate != OSC_START)
+			resend_last_ansi(pos);
 		break;
 	case ANSI_ERR:
 		{
@@ -1262,6 +1255,22 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 	}
 	return (0);
 } 
+
+/*
+ * Resend the last ANSI sequence(s) to restore color after we have temporarily
+ * overridden the color with a hilite or OSC 8 link.
+ */
+static void resend_last_ansi(POSITION pos)
+{
+	int ai;
+	for (ai = 0;  ai < NUM_LAST_ANSIS;  ai++)
+	{
+		int ax = (curr_last_ansi + ai) % NUM_LAST_ANSIS;
+		int i;
+		for (i = 0;  i < last_ansis[ax].end;  i++)
+			store_char(last_ansis[ax].data[i], AT_ANSI, NULL, pos);
+	}
+}
 
 static int store_bs(LWCHAR ch, constant char *rep, POSITION pos)
 {
