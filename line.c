@@ -868,8 +868,9 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 #if HILITE_SEARCH
 	{
 		int matches;
-		int resend_last = 0;
+		lbool resend_last = FALSE;
 		int hl_attr = 0;
+		int link_attr = 0;
 
 		if (pos != NULL_POSITION && a != AT_ANSI)
 		{
@@ -879,9 +880,9 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 			if (in_osc8_link)
 			{
 				if (hl_attr != 0)
-					hl_attr |= AT_UNDERLINE;
+					link_attr = hl_attr | AT_UNDERLINE;
 				else
-					hl_attr = use_color ? AT_COLOR_OSC8 : AT_UNDERLINE;
+					link_attr = use_color ? AT_COLOR_OSC8 : AT_UNDERLINE;
 			}
 		}
 		if (hl_attr)
@@ -890,19 +891,20 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 			 * This character should be highlighted.
 			 * Override the attribute passed in.
 			 */
-			a |= hl_attr;
+			a |= hl_attr | link_attr;
 			if (highest_hilite != NULL_POSITION && pos != NULL_POSITION && pos > highest_hilite)
 				highest_hilite = pos;
 			in_hilite = TRUE;
 		} else 
 		{
+			a |= link_attr;
 			if (in_hilite)
 			{
 				/*
 				 * This is the first non-hilited char after a hilite.
-				 * Resend the last ANSI seq to restore color.
+				 * Resend the last ANSI sequence(s) to restore color.
 				 */
-				resend_last = 1;
+				resend_last = TRUE;
 			}
 			in_hilite = FALSE;
 		}
@@ -1227,12 +1229,17 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 		break; }
 	case ANSI_END:
 		STORE_CHAR(ch, AT_ANSI, rep, pos);
+		/* Save the ANSI sequence, in case we need to resend it.
+		 * But don't save OSC 8 sequences; they never need to be resent. */
+		if (ansi_osc8_state(line_ansi) == OSC_START)
+		{
+			xbuf_add_char(&last_ansi, (char) ch);
+			xbuf_set(&last_ansis[curr_last_ansi], &last_ansi);
+			curr_last_ansi = (curr_last_ansi + 1) % NUM_LAST_ANSIS;
+		}
+		xbuf_reset(&last_ansi);
 		ansi_done(line_ansi);
 		line_ansi = NULL;
-		xbuf_add_char(&last_ansi, (char) ch);
-		xbuf_set(&last_ansis[curr_last_ansi], &last_ansi);
-		xbuf_reset(&last_ansi);
-		curr_last_ansi = (curr_last_ansi + 1) % NUM_LAST_ANSIS;
 		break;
 	case ANSI_ERR:
 		{
