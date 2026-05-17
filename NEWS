@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 692 and 701
+	Major changes between "less" versions 692 and 702
 
 * Add --hilite-target option and -DJ to color target line (github #745).
 
@@ -117,6 +117,10 @@
 
 * Fix bug clicking OSC 8 link that crosses a screen line boundary
   (github #775).
+
+* Fix beeps when resizing window on Windows (github #771).
+
+* Fix beeps when paging continuously on Windows (github #772).
 
 ======================================================================
 

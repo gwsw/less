@@ -726,7 +726,7 @@ if the file is local).
 should work on systems which provide a POSIX-compatible shell.
 .PP
 Any shell metacharacters such as semicolons, dollar signs, ampersands, etc.
-in the URI will be shell-escaped when %O is expanded.
+in the URI will be shell-escaped before the URI is appended to the handler command.
 If the handler passes the URI or any substring of it to a shell,
 it should take care to appropriately quote such strings,
 to prevent execution of unintended shell commands when opening
@@ -2823,7 +2823,7 @@ True if the byte offset of the specified line is known.
 .IP "?B"
 True if the size of current input file is known.
 .IP "?c"
-True if the text is horizontally shifted (%c is not zero).
+True if the text is horizontally shifted (%c is greater than 1).
 .IP "?d\fIX\fP"
 True if the page number of the specified line is known.
 .IP "?e"
