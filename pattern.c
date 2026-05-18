@@ -343,24 +343,19 @@ static lbool match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, const
 			int i;
 			int ecount;
 			for (ecount = RM_COUNT;  ecount > 0;  ecount--)
-				if (rm[ecount-1].rm_so >= 0)
+				if (RM_VALID(&rm[ecount-1]))
 					break;
 			if (ecount >= nsp)
 				ecount = nsp-1;
 			for (i = 0;  i < ecount;  i++)
 			{
-				if (rm[i].rm_so < 0)
+				if (!RM_VALID(&rm[i]))
 				{
 					*sp++ = *ep++ = line;
 				} else
 				{
-#ifndef __WATCOMC__
-					*sp++ = line + rm[i].rm_so;
-					*ep++ = line + rm[i].rm_eo;
-#else
-					*sp++ = rm[i].rm_sp;
-					*ep++ = rm[i].rm_ep;
-#endif
+					*sp++ = RM_PTR(&rm[i], line);
+					*ep++ = RM_EPTR(&rm[i], line);
 				}
 			}
 		}
