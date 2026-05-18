@@ -445,7 +445,6 @@ public void expand_cmd_tables(void)
  */
 public void init_cmds(void)
 {
-	struct tablelist *t;
 	unsigned char *udflt_vartable = (unsigned char *) dflt_vartable;
 
 	/*
@@ -497,11 +496,13 @@ public void init_cmds(void)
 	/*
 	 * If any command table contains a #stop directive, discard all other tables.
 	 */
-	t = find_stop_table(list_fcmd_tables);
-	if (t != NULL)
 	{
-		t->t_next = NULL;
-		list_fcmd_tables = t;
+		struct tablelist *t = find_stop_table(list_fcmd_tables);
+		if (t != NULL)
+		{
+			t->t_next = NULL;
+			list_fcmd_tables = t;
+		}
 	}
 #endif /* USERFILE */
 }
@@ -902,6 +903,7 @@ static constant unsigned char * cmd_next_entry(constant unsigned char *entry, co
 	return entry;
 }
 
+#if USERFILE
 /*
  * Does a command table contain a #stop directive?
  */
@@ -933,6 +935,7 @@ static struct tablelist * find_stop_table(struct tablelist *t)
 	}
 	return NULL;
 }
+#endif /* USERFILE */
 
 /*
  * Search a single command table for the command string in cmd.

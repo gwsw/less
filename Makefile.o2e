@@ -26,13 +26,10 @@ OBJ = \
 	output.${O} pattern.${O} position.${O} prompt.${O} search.${O} signal.${O} \
 	tags.${O} ttyin.${O} version.${O} xbuf.${O}  regexp.${O}
 
-all:    less.exe lesskey.exe scrsize.exe
+all:    less.exe scrsize.exe
 
 less.exe: ${OBJ}
 	${CC} ${OBJ} -o $@ ${LDFLAGS} ${LIBS}
-
-lesskey.exe: lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O}
-	${CC} lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O} -o $@ ${LDFLAGS}
 
 scrsize.exe: scrsize.c
 	${CC} ${CFLAGS} -D__ST_MT_ERRNO__ -s -Zmtd -lX11 $<

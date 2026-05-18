@@ -41,16 +41,13 @@ CFLAGS = $(CFLAGS1)
 .c.obj:
 	${CC} -c -I. ${CPPFLAGS} ${CFLAGS} $<
 
-all: less lesskey lessecho
+all: less lessecho
 
 # 
 # This is really horrible, but the command line is too long for 
 # MS-DOS if we try to link ${OBJ}.
 # 
 less: ${OBJ}
-	${LD} ${LDFLAGS} ${LIBDIR}\c0x32.obj $**, $@,,${LIBS}
-
-lesskey: lesskey.obj lesskey_parse.obj version.obj xbuf.obj
 	${LD} ${LDFLAGS} ${LIBDIR}\c0x32.obj $**, $@,,${LIBS}
 
 lessecho: lessecho.obj version.obj
@@ -70,7 +67,6 @@ clean:
 
 spotless: clean
 	-del less.exe
-	-del lesskey.exe
 	-del lessecho.exe
 
 realclean: spotless

@@ -15,6 +15,8 @@
 #include "cmd.h"
 #include "xbuf.h"
 
+#if USERFILE
+
 #define CONTROL(c)      ((c)&037)
 #define ESC             CONTROL('[')
 
@@ -764,3 +766,5 @@ int parse_lesskey_content(constant char *content, struct lesskey_tables *tables)
 	lesskey_file = NULL;
 	return (errors);
 }
+
+#endif /* USERFILE */

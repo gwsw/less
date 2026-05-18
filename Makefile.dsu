@@ -35,16 +35,12 @@ OBJ = \
 	output.obj pattern.obj position.obj prompt.obj search.obj signal.obj \
 	tags.obj  ttyin.obj version.obj xbuf.obj
 
-all: less lesskey
+all: less
 
 # This is really horrible, but the command line is too long for 
 # MS-DOS if we try to link $(OBJ).
 less: $(OBJ)
-	-if exist lesskey.obj del lesskey.obj
 	$(CC) $(LDFLAGS) -o $@ *.obj $(LIBS)
-
-lesskey: lesskey.obj lesskey_parse.obj version.obj xbuf.obj
-	$(CC) $(LDFLAGS) -o $@ lesskey.obj lesskey_parse.obj version.obj xbuf.obj $(LIBS)
 
 defines.h: defines.ds
 	-del defines.h
@@ -55,5 +51,3 @@ $(OBJ): less.h defines.h
 clean:
 	-del *.obj 
 	-del less.exe
-	-del lesskey.exe
-

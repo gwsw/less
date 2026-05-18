@@ -51,13 +51,10 @@ CFLAGS = $(CFLAGS1)
 .c.obj::
 	$(CC) $(CFLAGS) $<
 
-all: less.exe lesskey.exe
+all: less.exe
 
 less.exe: $(OBJ)
 	$(LD) $(LDFLAGS) $** $(LIBS) /out:$@
-
-lesskey.exe: lesskey.obj lesskey_parse.obj version.obj xbuf.obj
-	$(LD) $(LDFLAGS) lesskey.obj lesskey_parse.obj version.obj xbuf.obj $(LIBS) /out:$@
 
 defines.h: defines.wn
 	-del defines.h
@@ -75,6 +72,5 @@ generated:
 clean:
 	-del *.obj 
 	-del less.exe
-	-del lesskey.exe
 	-del defines.h
 

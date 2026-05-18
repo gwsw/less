@@ -30,13 +30,10 @@ OBJ = \
 	output.${O} pattern.${O} position.${O} prompt.${O} search.${O} signal.${O} \
 	tags.${O} ttyin.${O} version.${O} xbuf.${O}  regexp.${O}
 
-all: less lessecho lesskey
+all: less lessecho
 
 less: ${OBJ}
 	${CC} ${OBJ} -f=$@ ${LDFLAGS} ${LIBS}
-
-lesskey: lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O}
-	${CC} lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O} -f=$@ ${LDFLAGS}
 
 lessecho: lessecho.${O} version.${O}
 	${CC} lessecho.${O} version.${O} -f=$@ ${LDFLAGS}

@@ -28,13 +28,10 @@ OBJ = \
 	output.${O} pattern.${O} position.${O} prompt.${O} search.${O} signal.${O} \
 	tags.${O} ttyin.${O} version.${O} xbuf.${O}  regexp.${O}
 
-all:    less lesskey
+all:    less
 
 less: ${OBJ}
 	${CC} ${OBJ} ${LDFLAGS} ${LIBS}
-
-lesskey: lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O}
-	${CC} lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O} ${LDFLAGS}
 
 ${OBJ}: defines.h less.h
 

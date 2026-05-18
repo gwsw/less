@@ -137,13 +137,10 @@ MINGW_DEFINES += -DSECURE_COMPILE=1
 endif
 
 
-all: less.exe lesskey.exe lessecho.exe
+all: less.exe lessecho.exe
 
 less.exe: ${OBJ}
 	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
-
-lesskey.exe: lesskey.o lesskey_parse.o version.o xbuf.o
-	${CC} ${LDFLAGS} -o $@ lesskey.o lesskey_parse.o version.o xbuf.o
 
 lessecho.exe: lessecho.o version.o
 	${CC} ${LDFLAGS} -o $@ lessecho.o version.o
