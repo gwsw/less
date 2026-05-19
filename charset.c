@@ -527,7 +527,7 @@ public constant char * prchar(LWCHAR c)
 	/* {{ Fixed buffer size means LESSBINFMT etc can be truncated. }} */
 	static char buf[MAX_PRCHAR_LEN+1];
 
-	c &= 0377; /*{{type-issue}}*/
+	c = (unsigned char) c; /* {{ parameter is interpreted as a byte }} */
 	if ((c < 128 || !utf_mode) && !control_char(c))
 		SNPRINTF1(buf, sizeof(buf), "%c", (int) c);
 	else if (c == ESC)
@@ -617,27 +617,28 @@ public lbool is_utf8_well_formed(constant char *ssa, int slen)
 	unsigned char s0 = ss[0];
 
 	if (IS_UTF8_LEAD5(s0) || IS_UTF8_LEAD6(s0) || IS_UTF8_INVALID(s0))
-		return (FALSE);
+		return (FALSE); /* invalid lead byte */
 
 	len = utf_len(s0);
 	if (len > slen)
-		return (FALSE);
+		return (FALSE); /* UTF-8 sequence doesn't fit in buffer */
 	if (len == 1)
 		return (TRUE);
 	if (len == 2)
 	{
 		if (s0 < 0xC2)
-			return (FALSE);
+			return (FALSE); /* overlong (fits in 1 byte) */
 	} else
 	{
+		/* mask = byte with len high-order bits set to 1, others 0 */
 		unsigned char mask = (unsigned char) (~((1 << (8-len)) - 1));
 		if (s0 == mask && (ss[1] & mask) == 0x80)
-			return (FALSE);
+			return (FALSE); /* overlong (fits in fewer bytes) */
 	}
 
 	for (i = 1;  i < len;  i++)
 		if (!IS_UTF8_TRAIL(ss[i]))
-			return (FALSE);
+			return (FALSE); /* not a continuation byte */
 	return (TRUE);
 }
 
@@ -650,7 +651,6 @@ public void utf_skip_to_lead(constant char **pp, constant char *limit)
 		++(*pp);
 	} while (*pp < limit && !IS_UTF8_LEAD((*pp)[0] & 0377) && !IS_ASCII_OCTET((*pp)[0]));
 }
-
 
 /*
  * Get the value of a UTF-8 character.
@@ -755,7 +755,8 @@ public void put_wchar(mutable char **pp, LWCHAR ch)
 }
 
 /*
- * Step forward or backward one character in a string.
+ * Step forward (dir > 0) or backward (dir < 0) one character in a string.
+ * If dir > 0, limit is end of string; if dir < 0, limit is start of string.
  */
 public LWCHAR step_charc(constant char **pp, signed int dir, constant char *limit)
 {
@@ -779,6 +780,7 @@ public LWCHAR step_charc(constant char **pp, signed int dir, constant char *limi
 			len = utf_len(*p);
 			if (p + len > limit || !is_utf8_well_formed(p, len))
 			{
+				/* Invalid UTF-8 sequence; just take the next byte as a character. */
 				ch = (LWCHAR) (unsigned char) *p++;
 			} else
 			{
@@ -797,6 +799,7 @@ public LWCHAR step_charc(constant char **pp, signed int dir, constant char *limi
 			len = utf_len(*--p);
 			if (p + len != *pp || !is_utf8_well_formed(p, len))
 			{
+				/* Invalid UTF-8 sequence; just take the next byte as a character. */
 				p = *pp - 1;
 				ch = (LWCHAR) (unsigned char) *p;
 			} else
