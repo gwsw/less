@@ -543,7 +543,7 @@ static enum tag_result findgtag(constant char *tag, int type)
 		/* Get our data from global(1). */
 		qtag = shell_quote(tag);
 		if (qtag == NULL)
-			qtag = save(tag);
+			return TAG_NOTAG;
 		command = (char *) ecalloc(strlen(cmd) + strlen(flag) +
 				strlen(qtag) + 5, sizeof(char));
 		sprintf(command, "%s -x%s %s", cmd, flag, qtag);

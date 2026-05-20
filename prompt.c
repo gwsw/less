@@ -341,8 +341,13 @@ static void protochar(char c, int where)
 		break;
 	case 'g': /* Shell-escaped file name */
 		s = shell_quote(get_filename(curr_ifile));
-		ap_str(s);
-		free(s);
+		if (s == NULL)
+			ap_quest();
+		else
+		{
+			ap_str(s);
+			free(s);
+		}
 		break;
 	case 'i': /* Index into list of files */
 #if TAGS

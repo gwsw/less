@@ -681,8 +681,13 @@ public int edit_ifile(IFILE ifile)
 		if (strcmp(filename, FAKE_HELPFILE) && strcmp(filename, FAKE_EMPTYFILE))
 		{
 			char *qfilename = shell_quote(filename);
-			cmd_addhist(ml_examine, qfilename, 1);
-			free(qfilename);
+			if (qfilename == NULL)
+				cmd_addhist(ml_examine, filename, 1);
+			else
+			{
+				cmd_addhist(ml_examine, qfilename, 1);
+				free(qfilename);
+			}
 		}
 		if (want_filesize)
 			scan_eof();

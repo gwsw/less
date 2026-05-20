@@ -1971,6 +1971,11 @@ public void osc8_open(void)
 		return;
 	}
 	uri_q = shell_quoten(op.uri_start, uri_len);
+	if (uri_q == NULL)
+	{
+		error("Cannot quote URI", NULL_PARG);
+		return;
+	}
 	cmd = ecalloc(strlen(handler) + strlen(uri_q) + 2, sizeof(char));
 	sprintf(cmd, "%s %s", handler, uri_q);
 	free(uri_q);

@@ -375,8 +375,8 @@ static size_t fexpand_copy(constant char *fr, char *to)
 /*
  * Expand a string, substituting any "%" with the current filename,
  * and any "#" with the previous filename.
- * But a string of N "%"s is just replaced with N-1 "%"s.
- * Likewise for a string of N "#"s.
+ * But two consecutive "%"s are just replaced with one "%".
+ * Likewise for two consecutive "#"s.
  * {{ This is a lot of work just to support % and #. }}
  */
 public char * fexpand(constant char *s)
@@ -571,7 +571,8 @@ static FILE * shellcmd(constant char *cmd)
 			char *esccmd = shell_quote(cmd);
 			if (esccmd == NULL)
 			{
-				fd = popen(cmd, "r");
+				error("cannot quote command", NULL_PARG);
+				return NULL;
 			} else
 			{
 				size_t len = strlen(shell) + strlen(esccmd) + strlen(copt) + 3;
@@ -906,6 +907,10 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 	}
 
 	qfilename = shell_quote(filename);
+	if (qfilename == NULL)
+	{
+		return (NULL);
+	}
 	len = strlen(lessopen) + strlen(qfilename) + 2;
 	cmd = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF1(cmd, len, lessopen, qfilename);
@@ -996,7 +1001,14 @@ public void close_altfile(constant char *altfilename, constant char *filename)
 		return;
 	}
 	qfilename = shell_quote(filename);
+	if (qfilename == NULL)
+		return;
 	qaltfilename = shell_quote(altfilename);
+	if (qaltfilename == NULL)
+	{
+		free(qfilename);
+		return;
+	}
 	len = strlen(lessclose) + strlen(qfilename) + strlen(qaltfilename) + 2;
 	cmd = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF2(cmd, len, lessclose, qfilename, qaltfilename);
