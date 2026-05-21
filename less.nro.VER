@@ -650,7 +650,9 @@ See also the discussion of LESSEDIT under the section on PROMPTS below.
 Invokes a shell to run the shell-command given.
 A percent sign (%) in the command is replaced by the name of the
 current file.
+Two consecutive percent signs (%%) are replaced with a single percent sign.
 A pound sign (#) is replaced by the name of the previously examined file.
+Two consecutive pound signs (##) are replaced with a single pound sign.
 "!!" repeats the last shell command.
 "!" with no shell command invokes an interactive shell.
 If a \*^P (CONTROL-P) is entered immediately after the !,
@@ -2372,6 +2374,7 @@ to a command line which will invoke your input preprocessor.
 This command line should include one occurrence of the string "%s",
 which will be replaced by the filename
 when the input preprocessor command is invoked.
+Two consecutive percent signs are replaced with a single percent sign.
 .PP
 When
 .B less
@@ -2387,6 +2390,7 @@ It may include two occurrences of the string "%s";
 the first is replaced with the original name of the file and
 the second with the name of the replacement file,
 which was output by LESSOPEN.
+Two consecutive percent signs are replaced with a single percent sign.
 .PP
 For example, on many Unix systems, these two scripts will allow you
 to keep files in compressed format, but still let
@@ -2752,9 +2756,9 @@ The line to be used is determined by the \fIX\fP, as with the %b option.
 Replaced by the number of pages in the input file,
 or equivalently, the page number of the last line in the input file.
 .IP "%E"
-Replaced by the name of the editor (from the VISUAL environment variable,
-or the EDITOR environment variable if VISUAL is not defined).
-See the discussion of the LESSEDIT feature below.
+Replaced by the value of the VISUAL environment variable,
+or the EDITOR environment variable if VISUAL is not defined.
+See the usage example at the LESSEDIT feature below.
 .IP "%f"
 Replaced by the name of the current input file.
 .IP "%F"
