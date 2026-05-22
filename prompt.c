@@ -349,6 +349,16 @@ static void protochar(char c, int where)
 			free(s);
 		}
 		break;
+	case 'G': /* Shell-escaped last component of file name */
+		s = shell_quote(last_component(get_filename(curr_ifile)));
+		if (s == NULL)
+			ap_quest();
+		else
+		{
+			ap_str(s);
+			free(s);
+		}
+		break;
 	case 'i': /* Index into list of files */
 #if TAGS
 		if (ntags())
@@ -431,6 +441,24 @@ static void protochar(char c, int where)
 			ap_str(get_filename(h));
 		else
 			ap_quest();
+		break;
+	case 'y': /* Shell-escaped name of next file */
+		h = next_ifile(curr_ifile);
+		if (h != NULL_IFILE)
+		{
+			s = shell_quote(get_filename(h));
+			if (s == NULL)
+				ap_quest();
+			else
+			{
+				ap_str(s);
+				free(s);
+			}
+		} else
+			ap_quest();
+		break;
+	case '%': /* Literal percent sign */
+		ap_char('%');
 		break;
 	}
 }

@@ -2767,6 +2767,8 @@ Replaced by the last component of the name of the current input file.
 Replaced by the shell-escaped name of the current input file.
 This is useful when the expanded string will be used in a shell command,
 such as in LESSEDIT.
+.IP "%G"
+Replaced by the shell-escaped last component of the name of the current input file.
 .IP "%i"
 Replaced by the index of the current file in the list of
 input files.
@@ -2804,6 +2806,10 @@ Replaced by the width of the longest line currently displayed on the screen.
 Note that using this sequence can make displaying the prompt be slower than usual.
 .IP "%x"
 Replaced by the name of the next input file in the list.
+.IP "%y"
+Replaced by the shell-escaped name of the next input file in the list.
+.IP "%%"
+Replaced by a single percent sign.
 .PP
 If any item is unknown (for example, the file size if input
 is a pipe), a question mark is printed instead.
@@ -2959,10 +2965,11 @@ and filename completion (TAB, \*^L)
 .IP "history"
 history file
 .IP "lesskey"
-use of lesskey files 
+use of lesskey files, including the
 .B "\-k"
 and
-.BR "\-\-lesskey\-src" ")"
+.B "\-\-lesskey\-src"
+options, and all environment variables whose name begins with "LESSKEY"
 .IP "lessopen"
 input preprocessor (LESSOPEN environment variable)
 .IP "logfile"
