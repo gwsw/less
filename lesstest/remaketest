@@ -1,12 +1,17 @@
 #!/bin/sh
 usage="usage: remaketest FILE.lt..."
 
-extract_env() {
-	eval export $1=$(sed -n "/^E \"$1\"/ { s/^E \"$1\" \"\([^\"]*\).*$/\1/; p; q; }" < $2)
-}
-
 # Create a .lt file, using the same inputs as were used to create an existing .lt file.
 # Moves the current .lt file to xxx.lt.old
+
+# extract_env LTFILE FVAR EVAR
+# Extracts the value of an environment variable named FVAR from an .lt file
+# and exports it in the current environment as EVAR (or FVAR if no EVAR).
+extract_env() {
+    FVAR=$2
+    if [ -n "$3" ]; then EVAR=$3; else EVAR=$FVAR; fi
+    eval export $EVAR=$(sed -n "/^E \"$FVAR\"/ { s/^E \"$FVAR\" \"\([^\"]*\).*$/\1/; p; q; }" < $1)
+}
 
 if [ $# -eq 0 -o "$1" = '-?' -o "$1" = '--help' ]; then echo $usage; exit 1; fi
 
@@ -24,19 +29,16 @@ for lt_file in "$@"; do
     rm -f "$lt_file.textname"
     if [ ! -r "$text_file" ]; then echo "cannot read $text_file"; exit 1; fi
 
-	extract_env LESS          $lt_file
-	extract_env LESSCHARSET   $lt_file
-	extract_env LANG          $lt_file
-	extract_env LC_CTYPE      $lt_file
-	extract_env LINES         $lt_file
-	extract_env COLUMNS       $lt_file
-
-	LINES=$(($LINES+1))
-	COLUMNS=$(($COLUMNS+1))
+    extract_env $lt_file LESS
+    extract_env $lt_file LESSCHARSET
+    extract_env $lt_file LANG
+    extract_env $lt_file LC_CTYPE
+    extract_env $lt_file LINES    NL
+    extract_env $lt_file COLUMNS  NC
 
     # Extract the input keypresses from lt_file and pass them to maketest.
-    if $lt_dir/extract -k "$lt_file" > "$lt_file.k" && 
-       $lt_dir/maketest -o "$lt_file.new" "-Ok$lt_file.k" "$text_file"; then
+    if $lt_dir/extract -k "$lt_file" > "$lt_file.k" &&
+       $lt_dir/maketest -o "$lt_file.new" "-Ok$lt_file.k" -w$NC -h$NL "$text_file"; then
         mv -f "$lt_file" "$lt_file.old"
         mv "$lt_file.new" "$lt_file" 
     fi
