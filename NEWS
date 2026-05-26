@@ -13,6 +13,12 @@
 
 	Major changes between "less" versions 702 and 703
 
+* Fix possibly passing unsafe options to man when opening an
+  OSC 8 link (github #779).
+
+* Fix possibly sending unsafe OSC sequence to terminal when file
+  contains an unterminated OSC sequence (github #781).
+
 ======================================================================
 
 	Major changes between "less" versions 692 and 702

@@ -1107,7 +1107,8 @@ v701  5/13/26   Replace less-osc-*.bash with less-osc8-open.sh; don't init
                 terminal if stdout is not tty; fix bug clicking OSC 8 link
                 in a long line; fix misread chars on Windows; remove %O.
 v702  5/22/26   Doc.
-v703
+v703            Fix handling unsafe man options in OSC 8 link; fix unsafe
+                handling of unterminated OSC seq.
 */
 
 char version[] = "703x";
