@@ -43,6 +43,15 @@ open_man() {
 	man:?*\(*\) )
 		sect=${1#*\(}; sect=${sect%?}
 		name=${1#man:}; name=${name%%\(*}
+
+                case $sect in
+                    ''|[1-9]|[1-9][A-Za-z0-9]*)
+                        ;;
+                    *)
+                        echo "invalid man link section: $sect" >&2
+                        exit 1
+                        ;;
+                esac
 		man ${sect:+"$sect"} "$name"
 		;;
 
