@@ -46,13 +46,16 @@ open_man() {
 
                 case $sect in
                     ''|[1-9]|[1-9][A-Za-z0-9]*)
+                       case $sect in
+                           -* ) echo "invalid man link section: $sect" >&2; exit 1 ;;
+                        esac
                         ;;
                     *)
                         echo "invalid man link section: $sect" >&2
                         exit 1
                         ;;
                 esac
-		man ${sect:+"$sect"} "$name"
+		man ${sect:+"$sect"} -- "$name"
 		;;
 
 	man:?*)
