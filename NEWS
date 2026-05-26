@@ -11,6 +11,10 @@
 
 ======================================================================
 
+	Major changes between "less" versions 702 and 703
+
+======================================================================
+
 	Major changes between "less" versions 692 and 702
 
 * Add --hilite-target option and -DJ to color target line (github #745).
