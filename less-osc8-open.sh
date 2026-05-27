@@ -43,11 +43,11 @@ open_man() {
 	man:?*\(*\) )
 		sect=${1#*\(}; sect=${sect%?}
 		name=${1#man:}; name=${name%%\(*}
-		man ${sect:+"$sect"} "$name"
+		man -- ${sect:+"$sect"} "$name"
 		;;
 
 	man:?*)
-		man "${1#man:}"
+		man -- "${1#man:}"
 		;;
 
 	*)

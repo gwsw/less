@@ -1202,6 +1202,22 @@ static int store_control_char(LWCHAR ch, constant char *rep, POSITION pos)
 	return (0);
 }
 
+/*
+ * Remove invalid ANSI sequence.
+ */
+static void remove_ansi(void)
+{
+	constant char *start = (cshift < hshift) ? xbuf_char_data(&shifted_ansi): linebuf.buf;
+	size_t *end = (cshift < hshift) ? &shifted_ansi.end : &linebuf.end;
+	constant char *p = start + *end;
+	LWCHAR bch;
+	do {
+		bch = step_charc(&p, -1, start);
+	} while (p > start && (!IS_CSI_START(bch) || line_ansi->escs_in_seq-- > 0));
+	*end = ptr_diff(p, start);
+	xbuf_reset(&last_ansi);
+}
+
 static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 {
 	osc8_state prev_ostate = ansi_osc8_state(line_ansi);
@@ -1235,18 +1251,7 @@ static int store_ansi(LWCHAR ch, constant char *rep, POSITION pos)
 			resend_last_ansi(pos);
 		break;
 	case ANSI_ERR:
-		{
-			/* Remove whole unrecognized sequence.  */
-			constant char *start = (cshift < hshift) ? xbuf_char_data(&shifted_ansi): linebuf.buf;
-			size_t *end = (cshift < hshift) ? &shifted_ansi.end : &linebuf.end;
-			constant char *p = start + *end;
-			LWCHAR bch;
-			do {
-				bch = step_charc(&p, -1, start);
-			} while (p > start && (!IS_CSI_START(bch) || line_ansi->escs_in_seq-- > 0));
-			*end = ptr_diff(p, start);
-		}
-		xbuf_reset(&last_ansi);
+		remove_ansi();
 		ansi_done(line_ansi);
 		line_ansi = NULL;
 		break;
@@ -1424,13 +1429,12 @@ static void add_attr_normal(void)
 	{
 		switch (line_ansi->ostate)
 		{
-		case OSC_TYPENUM:
-		case OSC8_PARAMS:
-		case OSC8_URI:
-		case OSC_STRING:
-			addstr_linebuf("\033\\", AT_ANSI, 0);
+		case OSC_START:
+		case OSC_END:
 			break;
 		default:
+			/* We're in an unterminated OSC sequence; remove it. */
+			remove_ansi();
 			break;
 		}
 		ansi_done(line_ansi);
