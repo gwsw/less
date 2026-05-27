@@ -146,20 +146,55 @@ static lbool must_quote(char c)
  */
 public char * shell_quoten(constant char *s, size_t slen)
 {
-	constant char *p;
-	char *np;
 	char *newstr;
+	char *np;
+	constant char *p;
+	lbool use_quotes = FALSE;
+	constant char *es = s + slen;
+#if MSDOS_COMPILER
+	int cbs = 0; /* consecutive backslashes */
+
+	if (slen == 0)
+		use_quotes = TRUE;
+	else
+	{
+		for (p = s;  p < es;  ++p)
+		{
+			if (*p == ' ' || *p == '\t')
+			{
+				use_quotes = TRUE;
+				break;
+			}
+		}
+	}
+	newstr = np = (char *) ecalloc(2*slen+3, sizeof(char));
+	if (use_quotes)
+		*np++ = '"';
+	while (s < es)
+	{
+		if (*s == '\\' || *s == '"')
+			*np++ = '\\';
+		else
+			np -= cbs;
+		cbs = (*s == '\\') ? cbs + 1 : 0;
+		*np++ = *s++;
+	}
+	if (use_quotes)
+		*np++ = '"';
+	else
+		np -= cbs;
+	*np = '\0';
+#else
 	size_t len;
 	constant char *esc = get_meta_escape();
 	size_t esclen = strlen(esc);
-	lbool use_quotes = FALSE;
 	lbool have_quotes = FALSE;
 
 	/*
 	 * Determine how big a string we need to allocate.
 	 */
 	len = 1; /* Trailing null byte */
-	for (p = s;  p < s + slen;  p++)
+	for (p = s;  p < es;  p++)
 	{
 		len++;
 		if (*p == openquote || *p == closequote)
@@ -203,7 +238,6 @@ public char * shell_quoten(constant char *s, size_t slen)
 		SNPRINTF4(newstr, len, "%c%.*s%c", openquote, (int) slen, s, closequote);
 	} else
 	{
-		constant char *es = s + slen;
 		while (s < es)
 		{
 			if (!metachar(*s))
@@ -225,6 +259,7 @@ public char * shell_quoten(constant char *s, size_t slen)
 		}
 		*np = '\0';
 	}
+#endif
 	return (newstr);
 }
 
