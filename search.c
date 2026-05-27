@@ -1352,8 +1352,8 @@ static lbool osc8_param_match(POSITION linepos, constant char *line, constant st
 
 	if (clickpos != NULL_POSITION)
 	{
-		return clickpos >= linepos + ptr_diff(op1->osc8_start, line) &&
-		       clickpos < linepos + ptr_diff(op2->osc8_end, line);
+		return clickpos >= linepos + (POSITION) ptr_diff(op1->osc8_start, line) &&
+		       clickpos < linepos + (POSITION) ptr_diff(op2->osc8_end, line);
 	}
 	if (param == NULL)
 		return TRUE;
@@ -1446,7 +1446,7 @@ static osc8_match osc8_search_line1(int search_type, POSITION linepos, POSITION 
 		/* Don't set osc8 globals if we're just searching for a parameter. */
 		return OSC8_MATCH;
 
-	if (osc8_linepos == linepos && osc8_match_start == spos + ptr_diff(op1.osc8_start, line))
+	if (osc8_linepos == linepos && osc8_match_start == spos + (POSITION) ptr_diff(op1.osc8_start, line))
 		return OSC8_ALREADY; /* already selected */
 
 	osc8_linepos = linepos;

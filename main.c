@@ -611,7 +611,7 @@ public void quit(int status)
 /*
  * Are all the features in the features mask allowed by security?
  */
-public lbool secure_allow(int features)
+public lbool secure_allow(unsigned int features)
 {
 	return ((secure_allow_features & features) == features);
 }

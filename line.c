@@ -1271,7 +1271,7 @@ static void resend_last_ansi(POSITION pos)
 	for (ai = 0;  ai < NUM_LAST_ANSIS;  ai++)
 	{
 		int ax = (curr_last_ansi + ai) % NUM_LAST_ANSIS;
-		int i;
+		size_t i;
 		for (i = 0;  i < last_ansis[ax].end;  i++)
 			store_char(last_ansis[ax].data[i], AT_ANSI, NULL, pos);
 	}

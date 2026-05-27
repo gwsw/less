@@ -402,7 +402,7 @@ static lbool match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, const
 			if (ecount > mcount) ecount = mcount;
 			for (i = 0;  i < ecount*2; )
 			{
-				if (ovector[i] < 0 || ovector[i+1] < 0)
+				if (ovector[i] == PCRE2_UNSET || ovector[i+1] == PCRE2_UNSET)
 				{
 					*sp++ = *ep++ = line;
 					i += 2;
