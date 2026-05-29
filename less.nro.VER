@@ -474,9 +474,9 @@ that is, do a simple textual comparison.
 Examine a new file.
 If the filename is missing, the "current" file (see the :n and :p commands
 below) from the list of files in the command line is re-examined.
-A percent sign (%) in the filename is replaced by the name of the
-current file.
-A pound sign (#) is replaced by the name of the previously examined file.
+A percent sign (%) in the filename is replaced by the
+shell-escaped name of the current file.
+A pound sign (#) is replaced by the shell-escaped name of the previously examined file.
 However, two consecutive percent signs are simply
 replaced with a single percent sign.
 This allows you to enter a filename that contains a percent sign
@@ -607,9 +607,9 @@ or defaults to "vi" if neither VISUAL nor EDITOR is defined.
 See also the discussion of LESSEDIT under the section on PROMPTS below.
 .IP "! \fIshell-command\fP"
 Invokes a shell to run the shell-command given.
-A percent sign (%) in the command is replaced by the name of the
-current file.
-A pound sign (#) is replaced by the name of the previously examined file.
+A percent sign (%) in the filename is replaced by the
+shell-escaped name of the current file.
+A pound sign (#) is replaced by the shell-escaped name of the previously examined file.
 "!!" repeats the last shell command.
 "!" with no shell command invokes an interactive shell.
 If a \*^P (CONTROL-P) is entered immediately after the !,
