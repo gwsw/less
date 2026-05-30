@@ -1110,6 +1110,7 @@ v702  5/22/26   Doc.
 v703  5/30/26   Fix handling unsafe man options in OSC 8 link; fix unsafe
                 handling of unterminated OSC seq; shell-escape expansion
                 of % and #.
+v704
 */
 
-char version[] = "703";
+char version[] = "704x";
