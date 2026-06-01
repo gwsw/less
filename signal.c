@@ -1,5 +1,7 @@
 #include <errno.h>
 /*
+ * SPDX-License-Identifier: GPL-3.0-or-later OR BSD-2-Clause
+ *
  * Copyright (C) 1984-2026  Mark Nudelman
  *
  * You may distribute under the terms of either the GNU General Public
