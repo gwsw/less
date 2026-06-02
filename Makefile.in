@@ -80,6 +80,7 @@ ${OBJ}: ${srcdir}/less.h ${srcdir}/funcs.h defines.h lang.h pattern.h xbuf.h
 screen.${O} ttyin.${O}: pckeys.h
 
 install: all ${srcdir}/less.nro ${srcdir}/lesskey.nro ${srcdir}/lessecho.nro installdirs
+	@if [ -x less$(EXEEXT) ] && ./less$(EXEEXT) -V | grep -q LESSTEST; then echo "Error: attempting to install a LESSTEST build. Run 'make clean' and try again."; exit 1; fi
 	${INSTALL_PROGRAM} less$(EXEEXT) ${DESTDIR}${bindir}/${binprefix}less$(EXEEXT)
 	${INSTALL_PROGRAM} lessecho$(EXEEXT) ${DESTDIR}${libexecdir}/${binprefix}lessecho$(EXEEXT)
 	${INSTALL} ${srcdir}/less-osc8-open.sh ${DESTDIR}${libexecdir}/${binprefix}less-osc8-open
