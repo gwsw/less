@@ -11,13 +11,16 @@
 
 ======================================================================
 
-	Major changes between "less" versions 702 and 703
+	Major changes between "less" versions 702 and 704
 
 * Fix possibly passing unsafe options to man when opening an
   OSC 8 link (github #779).
 
 * Fix possibly sending unsafe OSC sequence to terminal when file
   contains an unterminated OSC sequence (github #781).
+
+* In Examine and Shell commands, expand % and # to shell-escaped
+  filenames (github #784).
 
 ======================================================================
 

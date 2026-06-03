@@ -96,8 +96,8 @@ installdirs: mkinstalldirs
 
 uninstall:
 	rm -f ${DESTDIR}${bindir}/${binprefix}less$(EXEEXT)
-	rm -f ${DESTDIR}${bindir}/${libexecprefix}lessecho$(EXEEXT)
-	rm -f ${DESTDIR}${bindir}/${libexecprefix}less-osc8-open
+	rm -f ${DESTDIR}${libexecdir}/${binprefix}lessecho$(EXEEXT)
+	rm -f ${DESTDIR}${libexecdir}/${binprefix}less-osc8-open
 	rm -f ${DESTDIR}${mandir}/man${manprogext}/${manprefix}less.${manprogext}
 	rm -f ${DESTDIR}${mandir}/man${manfileext}/${manprefix}lesskey.${manfileext}
 	rm -f ${DESTDIR}${mandir}/man${manprogext}/${manprefix}lessecho.${manprogext}
