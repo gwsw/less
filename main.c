@@ -391,7 +391,7 @@ int main(int argc, constant char *argv[])
 	if (missing_cap && !know_dumb)
 		error("WARNING: terminal is not fully functional", NULL_PARG);
 	open_getchr();
-	raw_mode(1);
+	raw_mode(TRUE);
 	init_signals(1);
 #if HAVE_TIME
 	less_start_time = get_time();
@@ -591,7 +591,7 @@ public void quit(int status)
 	}
 	edit((char*)NULL);
 	save_cmdhist();
-	raw_mode(0);
+	raw_mode(FALSE);
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
 	/* 
 	 * If we don't close 2, we get some garbage from

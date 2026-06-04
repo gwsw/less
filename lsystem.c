@@ -95,7 +95,7 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 	 */
 	term_deinit();
 	flush();         /* Make sure the deinit chars get out */
-	raw_mode(0);
+	raw_mode(FALSE);
 #if MSDOS_COMPILER==WIN32C
 	close_getchr();
 #endif
@@ -189,7 +189,7 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 	open_getchr();
 #endif
 	init_signals(1);
-	raw_mode(1);
+	raw_mode(TRUE);
 	if (donemsg != NULL)
 	{
 		putstr(donemsg);
@@ -312,7 +312,7 @@ public int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
 
 	term_deinit();
 	flush();
-	raw_mode(0);
+	raw_mode(FALSE);
 	init_signals(0);
 #if MSDOS_COMPILER==WIN32C
 	close_getchr();
@@ -355,7 +355,7 @@ public int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
 	open_getchr();
 #endif
 	init_signals(1);
-	raw_mode(1);
+	raw_mode(TRUE);
 	term_init();
 	screen_trashed();
 #if defined(SIGWINCH) || defined(SIGWIND)

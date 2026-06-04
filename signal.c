@@ -256,7 +256,7 @@ public void psignals(void)
 		clear_bot();
 		term_deinit();
 		flush();
-		raw_mode(0);
+		raw_mode(FALSE);
 #ifdef SIGTTOU
 		LSIGNAL(SIGTTOU, SIG_DFL);
 #endif
@@ -269,7 +269,7 @@ public void psignals(void)
 		 * screen when we get back to the main command loop.
 		 */
 		LSIGNAL(SIGTSTP, stop);
-		raw_mode(1);
+		raw_mode(TRUE);
 		term_init();
 		screen_trashed();
 		tsignals |= S_WINCH;

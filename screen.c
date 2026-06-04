@@ -409,9 +409,9 @@ static void set_termio_flags(
  *         etc. are NOT disabled.
  *      6. Input \r is not mapped to \n, nor vice versa.
  */
-public void raw_mode(int on)
+public void raw_mode(lbool on)
 {
-	static int curr_on = 0;
+	static lbool curr_on = 0;
 
 	if (on == curr_on)
 			return;
