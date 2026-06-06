@@ -100,10 +100,14 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 	close_getchr();
 #endif
 
+#if !MSDOS_COMPILER
 	/*
 	 * Restore signals to their defaults.
+	 * But not on Windows, since signals are received by background processes
+	 * and a ctrl-C while running the child would kill this instance of less.
 	 */
-	init_signals(0);
+	init_signals(FALSE);
+#endif
 
 #if HAVE_DUP
 	/*
@@ -188,7 +192,9 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 #if MSDOS_COMPILER==WIN32C
 	open_getchr();
 #endif
-	init_signals(1);
+#if !MSDOS_COMPILER
+	init_signals(TRUE);
+#endif
 	raw_mode(TRUE);
 	if (donemsg != NULL)
 	{
@@ -313,7 +319,9 @@ public int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
 	term_deinit();
 	flush();
 	raw_mode(FALSE);
-	init_signals(0);
+#if !MSDOS_COMPILER
+	init_signals(FALSE);
+#endif
 #if MSDOS_COMPILER==WIN32C
 	close_getchr();
 #endif
@@ -354,7 +362,9 @@ public int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
 #if MSDOS_COMPILER==WIN32C
 	open_getchr();
 #endif
-	init_signals(1);
+#if !MSDOS_COMPILER
+	init_signals(TRUE);
+#endif
 	raw_mode(TRUE);
 	term_init();
 	screen_trashed();

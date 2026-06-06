@@ -392,7 +392,7 @@ int main(int argc, constant char *argv[])
 		error("WARNING: terminal is not fully functional", NULL_PARG);
 	open_getchr();
 	raw_mode(TRUE);
-	init_signals(1);
+	init_signals(TRUE);
 #if HAVE_TIME
 	less_start_time = get_time();
 #endif

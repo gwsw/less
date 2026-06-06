@@ -165,7 +165,7 @@ static RETSIGTYPE sigusr1(int type)
 /*
  * Set up the signal handlers.
  */
-public void init_signals(int on)
+public void init_signals(lbool on)
 {
 	if (on)
 	{
