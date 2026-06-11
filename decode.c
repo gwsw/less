@@ -988,7 +988,7 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, lbool anchore
 				action = taction;
 				if (extra != NULL)
 					*extra = (constant char *) textra;
-			} else if (tmatch > 0 && (tmatch > match_len || action == A_INVALID))
+			} else if (tmatch > 0 && (tmatch > match_len || action == A_INVALID || action == A_UINVALID))
 			{
 				/* cmd is a prefix of this table entry */
 				action = A_PREFIX;
