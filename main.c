@@ -309,7 +309,7 @@ int main(int argc, constant char *argv[])
 		 * following string, but there was no following string.
 		 */
 		nopendopt();
-		quit(QUIT_OK);
+		quit(QUIT_ERROR);
 	}
 
 	if (is_tty)
@@ -380,13 +380,15 @@ int main(int argc, constant char *argv[])
 		 * Just copy the input file(s) to output.
 		 */
 		SET_BINARY(1);
-		if (edit_first() == 0)
-		{
-			set_output(1, TRUE); /* write to stdout */
-			do {
-				cat_file();
-			} while (edit_next(1) == 0);
-		}
+
+		if (edit_first())
+			quit(QUIT_ERROR);
+
+		set_output(1, TRUE); /* write to stdout */
+		do {
+			cat_file();
+		} while (edit_next(1) == 0);
+
 		quit(QUIT_OK);
 	}
 

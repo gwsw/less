@@ -924,7 +924,7 @@ public int edit_stdin(void)
 	if (isatty(fd0))
 	{
 		error("Missing filename (\"less --help\" for help)", NULL_PARG);
-		quit(QUIT_OK);
+		quit(QUIT_ERROR);
 	}
 	return (edit("-"));
 }
