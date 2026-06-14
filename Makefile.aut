@@ -163,8 +163,7 @@ dist: ${DISTFILES}
 	echo "Creating $$RELDIR/$$TARF" && \
 	tar -cf - $$LESSREL | gzip -c >$$RELDIR/$$TARF && \
 	echo "Signing $$RELDIR/$$TARF" && \
-	${GPG} --detach-sign $$RELDIR/$$TARF && \
-	mv $$RELDIR/$$TARF.sig $$RELDIR/$$LESSREL.sig && \
+	${GPG} --detach-sign --output=$$RELDIR/$$LESSREL.sig $$RELDIR/$$TARF && \
 	echo "Creating $$RELDIR/$$ZIPF" && \
 	zip -rq $$RELDIR/$$ZIPF $$LESSREL && \
 	rm -rf $$LESSREL
