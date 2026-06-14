@@ -1,0 +1,61 @@
+name: Main
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  dist:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Build distribution
+      id: build-dist
+      # Since we don't have a PGP key here, replace gpg with a no-op.
+      run: |
+        make -f Makefile.aut dist GPG=:
+        echo "basename=$(basename release/less-*)" > "$GITHUB_OUTPUT"
+
+    - uses: actions/upload-artifact@v7
+      with:
+        archive: false
+        path: release/${{ steps.build-dist.outputs.basename }}/${{ steps.build-dist.outputs.basename }}-beta.tar.gz
+
+    outputs:
+      basename: ${{ steps.build-dist.outputs.basename }}
+
+  linux:
+    runs-on: ubuntu-latest
+
+    needs: dist
+
+    steps:
+    - uses: actions/download-artifact@v8
+      with:
+        name: ${{ needs.dist.outputs.basename }}-beta.tar.gz
+
+    - name: Unpack
+      env:
+        BASENAME: ${{ needs.dist.outputs.basename }}
+      run: tar -xzf "$BASENAME-beta.tar.gz"
+
+    - name: Configure
+      working-directory: ${{ needs.dist.outputs.basename }}
+      run: ./configure
+
+    - name: Make
+      working-directory: ${{ needs.dist.outputs.basename }}
+      run: make LESSTEST=1
+
+    - name: Test
+      working-directory: ${{ needs.dist.outputs.basename }}
+      run: make check LESSTEST=1
