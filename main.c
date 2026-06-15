@@ -40,7 +40,7 @@ public constant char *progname;
 public lbool    quitting = FALSE;
 public lbool    dohelp = FALSE;
 public char *   init_header = NULL;
-public char *   no_config = NULL;
+public constant char * no_config = NULL;
 static unsigned int secure_allow_features;
 
 #if LOGFILE
@@ -214,7 +214,7 @@ int main(int argc, constant char *argv[])
 	lbool end_opts = FALSE;
 	lbool posixly_correct;
 
-	no_config = getenv("LESSNOCONFIG");
+	no_config = lgetenv("LESSNOCONFIG");
 
 #if MSDOS_COMPILER==WIN32C && (defined(__MINGW32__) || defined(_MSC_VER))
 	if (GetACP() != CP_UTF8)  /* not using a UTF-8 manifest */
@@ -231,14 +231,14 @@ int main(int argc, constant char *argv[])
 	init_secure();
 
 #ifdef WIN32
-	if (getenv("HOME") == NULL)
+	if (lgetenv("HOME") == NULL)
 	{
 		/*
 		 * If there is no HOME environment variable,
 		 * try the concatenation of HOMEDRIVE + HOMEPATH.
 		 */
-		char *drive = getenv("HOMEDRIVE");
-		char *path  = getenv("HOMEPATH");
+		char *drive = lgetenv("HOMEDRIVE");
+		char *path  = lgetenv("HOMEPATH");
 		if (drive != NULL && path != NULL)
 		{
 			char *env = (char *) ecalloc(strlen(drive) + 
