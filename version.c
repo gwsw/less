@@ -1111,7 +1111,7 @@ v703  5/30/26   Fix handling unsafe man options in OSC 8 link; fix unsafe
                 handling of unterminated OSC seq; shell-escape expansion
                 of % and #.
 v704  5/30/26   Fix uninstall target in Makefile.
-v705
+v705  6/15/26   Fix bug overriding built-in command.
 */
 
-char version[] = "705x";
+char version[] = "705";

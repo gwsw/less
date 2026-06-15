@@ -13,6 +13,9 @@
 
 	Major changes between "less" versions 704 and 705
 
+* Fix bug defining command which has a built-in command as a prefix
+  (github #795).
+
 ======================================================================
 
 	Major changes between "less" versions 702 and 704
