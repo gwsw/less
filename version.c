@@ -1112,6 +1112,7 @@ v703  5/30/26   Fix handling unsafe man options in OSC 8 link; fix unsafe
                 of % and #.
 v704  5/30/26   Fix uninstall target in Makefile.
 v705
+v706
 */
 
-char version[] = "705x";
+char version[] = "706x";

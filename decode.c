@@ -38,7 +38,7 @@ extern int emouse;
 extern int mouse_reverse;
 extern int hshift;
 extern int sc_height;
-extern char *no_config;
+extern constant char *no_config;
 
 #if USERFILE
 /* "content" is lesskey source, never binary. */
@@ -988,7 +988,7 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, lbool anchore
 				action = taction;
 				if (extra != NULL)
 					*extra = (constant char *) textra;
-			} else if (tmatch > 0 && (tmatch > match_len || action == A_INVALID))
+			} else if (tmatch > 0 && (tmatch > match_len || action == A_INVALID || action == A_UINVALID))
 			{
 				/* cmd is a prefix of this table entry */
 				action = A_PREFIX;
@@ -1132,6 +1132,52 @@ static lbool ignore_env(constant char *var)
 	return parse_csl(word_no_match, no_config, (void*) var);
 }
 
+#if !GETENV_NONVOLATILE
+
+/*
+ * Cache for environment variables.
+ * We keep them in a cache to ensure that lgetenv always returns
+ * a string with indefinite lifetime. POSIX specifies that a string
+ * returned from getenv may be overwritten by a subsequent getenv.
+ */
+struct env_cache {
+	struct env_cache *ec_next;
+	char *ec_var;
+	char *ec_value;
+};
+
+static struct env_cache *env_cache_list = NULL;
+
+/*
+ * Add an environment variable to the cache.
+ */
+static void addenv_cache(constant char *var, constant char *value)
+{
+	struct env_cache *ec = ecalloc(1, sizeof(struct env_cache));
+
+	ec->ec_var = save(var);
+	ec->ec_value = save(value);
+	ec->ec_next = env_cache_list;
+	env_cache_list = ec;
+}
+
+/*
+ * Find an environment variable in the cache.
+ */
+static constant char * getenv_cache(constant char *var)
+{
+	struct env_cache *ec;
+
+	for (ec = env_cache_list;  ec != NULL;  ec = ec->ec_next)
+	{
+		if (strcmp(var, ec->ec_var) == 0)
+			return ec->ec_value;
+	}
+	return NULL;
+}
+
+#endif /* GETENV_NONVOLATILE */
+
 /*
  * Get the value of an environment variable.
  * Looks first in the lesskey file, then in the real environment.
@@ -1146,9 +1192,19 @@ public constant char * lgetenv(constant char *var)
 	a = cmd_decode(list_var_tables, var, TRUE, &s);
 	if (a == EV_OK)
 		return (s);
-	s = getenv(var);
-	if (s != NULL && *s != '\0')
+#if !GETENV_NONVOLATILE
+	s = getenv_cache(var);
+	if (!isnullenv(s))
 		return (s);
+#endif
+	s = getenv(var);
+	if (!isnullenv(s))
+	{
+#if !GETENV_NONVOLATILE
+		addenv_cache(var, s);
+#endif
+		return (s);
+	}
 	a = cmd_decode(list_sysvar_tables, var, TRUE, &s);
 	if (a == EV_OK)
 		return (s);
