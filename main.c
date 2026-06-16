@@ -237,8 +237,8 @@ int main(int argc, constant char *argv[])
 		 * If there is no HOME environment variable,
 		 * try the concatenation of HOMEDRIVE + HOMEPATH.
 		 */
-		char *drive = lgetenv("HOMEDRIVE");
-		char *path  = lgetenv("HOMEPATH");
+		constant char *drive = lgetenv("HOMEDRIVE");
+		constant char *path  = lgetenv("HOMEPATH");
 		if (drive != NULL && path != NULL)
 		{
 			char *env = (char *) ecalloc(strlen(drive) + 
