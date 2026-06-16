@@ -1,4 +1,6 @@
 /*
+ * SPDX-License-Identifier: Spencer-86
+ *
  * regcomp and regexec -- regsub and regerror are elsewhere
  *
  *	Copyright (c) 1986 by University of Toronto.
