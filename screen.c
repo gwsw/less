@@ -3378,27 +3378,13 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 	{
 		switch (xip->ir.Event.KeyEvent.wVirtualScanCode)
 		{
-		case PCK_RIGHT: /* right arrow */
-			scan = PCK_CTL_RIGHT;
-			break;
-		case PCK_LEFT: /* left arrow */
-			scan = PCK_CTL_LEFT;
-			break;
-		case PCK_UP: /* up arrow */
-			scan = PCK_CTL_UP;
-			break;
-		case PCK_DOWN: /* down arrow */
-			scan = PCK_CTL_DOWN;
-			break;
-		case PCK_DELETE: /* delete */
-			scan = PCK_CTL_DELETE;
-			break;
-		case PCK_HOME:
-			scan = PCK_CTL_HOME;
-			break;
-		case PCK_END:
-			scan = PCK_CTL_END;
-			break;
+		case PCK_RIGHT:  scan = PCK_CTL_RIGHT;  break;
+		case PCK_LEFT:   scan = PCK_CTL_LEFT;   break;
+		case PCK_UP:     scan = PCK_CTL_UP;     break;
+		case PCK_DOWN:   scan = PCK_CTL_DOWN;   break;
+		case PCK_DELETE: scan = PCK_CTL_DELETE; break;
+		case PCK_HOME:   scan = PCK_CTL_HOME;   break;
+		case PCK_END:    scan = PCK_CTL_END;    break;
 		}
 	} else if (xip->ir.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
 	{
@@ -3408,27 +3394,13 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 		{
 			switch (xip->ir.Event.KeyEvent.wVirtualScanCode)
 			{
-				case PCK_RIGHT:
-					scan = PCK_SHIFT_RIGHT;
-					break;
-				case PCK_LEFT:
-					scan = PCK_SHIFT_LEFT;
-					break;
-				case PCK_UP:
-					scan = PCK_SHIFT_UP;
-					break;
-				case PCK_DOWN:
-					scan = PCK_SHIFT_DOWN;
-					break;
-				case PCK_DELETE:
-					scan = PCK_SHIFT_DELETE;
-					break;
-				case PCK_HOME:
-					scan = PCK_SHIFT_HOME;
-					break;
-				case PCK_END:
-					scan = PCK_SHIFT_END;
-					break;
+				case PCK_RIGHT:  scan = PCK_SHIFT_RIGHT;  break;
+				case PCK_LEFT:   scan = PCK_SHIFT_LEFT;   break;
+				case PCK_UP:     scan = PCK_SHIFT_UP;     break;
+				case PCK_DOWN:   scan = PCK_SHIFT_DOWN;   break;
+				case PCK_DELETE: scan = PCK_SHIFT_DELETE; break;
+				case PCK_HOME:   scan = PCK_SHIFT_HOME;   break;
+				case PCK_END:    scan = PCK_SHIFT_END;    break;
 			}
 		}
 	}
