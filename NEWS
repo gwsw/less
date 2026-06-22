@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 705 and 706
+	Major changes between "less" versions 705 and 707
 
 * In lesskey files, add ^x syntax for control chars and +x syntax
   for shifted chars.

@@ -1118,6 +1118,7 @@ v706  6/22/26   Add ^ and + modifiers in lesskey file; support ctl and shift
                 OSC 8 links; use separate names for lesstest executable;
                 add getenv cache; improve error handling for bad lesskey files
                 and bad OSC 8 links; remove lesskey program.
+v707
 */
 
-char version[] = "706";
+char version[] = "707x";
