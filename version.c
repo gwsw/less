@@ -1112,7 +1112,7 @@ v703  5/30/26   Fix handling unsafe man options in OSC 8 link; fix unsafe
                 of % and #.
 v704  5/30/26   Fix uninstall target in Makefile.
 v705  6/15/26   Fix bug overriding built-in command.
-v706            Add ^ and + modifiers in lesskey file; support ctl and shift
+v706  6/22/26   Add ^ and + modifiers in lesskey file; support ctl and shift
                 up/down arrows; add -DO; add LESSSECURE_DISALLOW;
                 add LESS_SHELL_COPTION; add %G,%y,%% in prompts; underline
                 OSC 8 links; use separate names for lesstest executable;
@@ -1120,4 +1120,4 @@ v706            Add ^ and + modifiers in lesskey file; support ctl and shift
                 and bad OSC 8 links; remove lesskey program.
 */
 
-char version[] = "706x";
+char version[] = "706";
