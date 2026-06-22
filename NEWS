@@ -18,7 +18,7 @@
 
 * Add -DO for custom coloring of OSC 8 links.
 
-* Add LESS_SECURE_DISALLOW.
+* Add LESSSECURE_DISALLOW.
 
 * Add LESS_SHELL_COPTION.
 
