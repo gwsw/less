@@ -1,3 +1,4 @@
+#include <sys/time.h>
 /*
  * Copyright (C) 1984-2026  Mark Nudelman
  *
@@ -343,6 +344,7 @@ static struct tablelist *list_sysvar_tables = NULL;
 
 #if USERFILE
 static struct tablelist * find_stop_table(struct tablelist *t);
+static void override_cmds(struct tablelist *tlist);
 #endif
 
 /*
@@ -503,6 +505,8 @@ public void init_cmds(void)
 			t->t_next = NULL;
 			list_fcmd_tables = t;
 		}
+		override_cmds(list_fcmd_tables);
+		override_cmds(list_ecmd_tables);
 	}
 #endif /* USERFILE */
 }
@@ -873,7 +877,7 @@ static constant unsigned char * skip_to_null(constant unsigned char *entry, cons
  * Also return the action and the extra string from the current entry.
  * Return NULL if the entry is truncated.
  */
-static constant unsigned char * cmd_next_entry(constant unsigned char *entry, constant unsigned char *end, mutable int *action, mutable constant unsigned char **extra, mutable size_t *cmdlen)
+static constant unsigned char * cmd_next_entry(constant unsigned char *entry, constant unsigned char *end, mutable int *action, mutable constant unsigned char **extra, mutable size_t *cmdlen, constant unsigned char **paction)
 {
 	int a;
 	constant unsigned char *oentry = entry;
@@ -887,6 +891,8 @@ static constant unsigned char * cmd_next_entry(constant unsigned char *entry, co
 			return NULL;
 		a = *entry;
 	} while (a == A_SKIP);
+	if (paction != NULL)
+		*paction = entry;
 	++entry; /* skip action */
 	if (extra != NULL)
 		*extra = (a & A_EXTRA) ? entry : NULL;
@@ -914,7 +920,7 @@ static lbool table_has_stop(struct tablelist *t)
 	while (entry < t->t_end)
 	{
 		int action;
-		entry = cmd_next_entry(entry, t->t_end, &action, NULL, NULL);
+		entry = cmd_next_entry(entry, t->t_end, &action, NULL, NULL, NULL);
 		if (entry == NULL)
 			break;
 		if (action == A_END_LIST)
@@ -935,6 +941,54 @@ static struct tablelist * find_stop_table(struct tablelist *t)
 	}
 	return NULL;
 }
+
+/*
+ * If cmd A is followed by cmd B in a command table and cmd A is a prefix
+ * of cmd B, if the string "A" is passed to cmd_decode, it will return a
+ * match for cmd A, not A_PREFIX for cmd B as intended.
+ * We do a one-time check for such cases and invalidate cmd A in order
+ * to ensure that cmd B will override cmd A.
+ * {{ This is kind of kludgy; is there a way to handle this case
+ *    in cmd_decode without this preprocessing? }}
+ */
+static void override_cmd(struct tablelist *tlist, constant unsigned char *cmd, size_t cmdlen)
+{
+	struct tablelist *t;
+	for (t = tlist;  t != NULL;  t = t->t_next)
+	{
+		constant unsigned char *entry = t->t_start;
+		while (entry != NULL && entry < t->t_end)
+		{
+			constant unsigned char *tcmd = entry;
+			constant unsigned char *paction;
+			size_t tcmdlen;
+			if (tcmd == cmd)
+				/* Only need to check cmds before this one in the table(s). */
+				return;
+			entry = cmd_next_entry(entry, t->t_end, NULL, NULL, &tcmdlen, &paction);
+			if (tcmdlen < cmdlen && strncmp((constant char *) tcmd, (constant char *) cmd, tcmdlen) == 0)
+				*(unsigned char *)paction = A_INVALID | (*paction & A_EXTRA);
+		}
+	}
+}
+
+static void override_cmds(struct tablelist *tlist)
+{
+	struct tablelist *t;
+	for (t = tlist;  t != NULL;  t = t->t_next)
+	{
+		constant unsigned char *entry = t->t_start;
+		while (entry != NULL && entry < t->t_end)
+		{
+			constant unsigned char *cmd = entry;
+			size_t cmdlen;
+			entry = cmd_next_entry(entry, t->t_end, NULL, NULL, &cmdlen, NULL);
+			if (cmdlen > 1)
+				override_cmd(tlist, cmd, cmdlen);
+		}
+	}
+}
+
 #endif /* USERFILE */
 
 /*
@@ -965,7 +1019,7 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, lbool anchore
 			tmatch = (strcmp((constant char *) table, cmd) == 0) ? strlen(cmd) : 0;
 		else
 			tmatch = cmd_match((constant char *) table, cmd);
-		table = cmd_next_entry(table, tlist->t_end, &taction, &textra, &tcmdlen);
+		table = cmd_next_entry(table, tlist->t_end, &taction, &textra, &tcmdlen, NULL);
 		if (table == NULL)
 		{
 			/* Truncated/malformed entry; ignore this entry and move to next table. */
