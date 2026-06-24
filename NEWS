@@ -13,7 +13,7 @@
 
 	Major changes between "less" versions 705 and 707
 
-* In lesskey files, add ^x syntax for control chars and +x syntax
+* In lesskey files, add \k^x syntax for control chars and \k+x syntax
   for shifted chars.
 
 * Add -DO for custom coloring of OSC 8 links.
