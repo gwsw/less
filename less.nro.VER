@@ -530,6 +530,10 @@ the entire filename should be enclosed in double quotes
 (also see the
 .B "\-\[dq]"
 option).
+Any shell metacharacters in the filename, such as "*" and "?", are
+expanded by the shell named in the SHELL environment variable.
+(Note that some shells may execute external programs if
+certain metacharacters are used, such as backticks or dollar signs.)
 .IP "\*^X\*^V or E"
 Same as :e.
 Warning: some systems use \*^V as a special literalization character.
