@@ -48,6 +48,9 @@
 
 * Don't reset signal handlers in a subprocess on Windows.
 
+* Fix ' command to not modify the mark when given a numeric argument
+  (github #799).
+
 ======================================================================
 
 	Major changes between "less" versions 704 and 705
