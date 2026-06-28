@@ -321,8 +321,6 @@ public void gomark(char c, int sline)
 	m = getmark(c);
 	if (m == NULL)
 		return;
-	if (sline != 0)
-		m->m_scrpos.ln = sline;
 
 	/*
 	 * If we're trying to go to the lastmark and 
@@ -345,8 +343,9 @@ public void gomark(char c, int sline)
 		if (edit_ifile(m->m_ifile))
 			return;
 	}
-
-	jump_loc(scrpos.pos, scrpos.ln);
+	if (sline == 0)
+		sline = m->m_scrpos.ln;
+	jump_loc(scrpos.pos, sline);
 }
 
 /*
