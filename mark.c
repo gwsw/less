@@ -192,10 +192,18 @@ static struct mark * getmark(char c)
 		break;
 	case '.':
 		/*
-		 * Current position in the current file.
+		 * Top line on screen.
 		 */
 		m = &sm;
 		get_scrpos(&m->m_scrpos, TOP);
+		cmark(m, curr_ifile, m->m_scrpos.pos, m->m_scrpos.ln);
+		break;
+	case ';':
+		/*
+		 * Bottom line on screen.
+		 */
+		m = &sm;
+		get_scrpos(&m->m_scrpos, BOTTOM);
 		cmark(m, curr_ifile, m->m_scrpos.pos, m->m_scrpos.ln);
 		break;
 	case '\'':

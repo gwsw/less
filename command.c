@@ -103,6 +103,7 @@ static time_type ignoring_input_time;
 #endif
 #if PIPEC
 static char pipec;
+static char pipec2;
 #endif
 
 /* Stack of ungotten chars (via ungetcc) */
@@ -356,7 +357,7 @@ static void exec_mca(void)
 			++cbuf;
 		if (!secure_allow(SF_PIPE))
 			break;
-		(void) pipe_mark(pipec, cbuf);
+		(void) pipe_mark(pipec, pipec2, cbuf);
 		if (done_msg != NULL)
 			error(done_msg, NULL_PARG);
 		break; }
@@ -1420,6 +1421,29 @@ public lbool is_ignoring_input(int action)
 	return (action != A_PREFIX);
 }
 
+#if PIPEC
+/*
+ * Read a mark char from the user for use by the pipe command.
+ * Also accept ok_char.
+ */
+static char get_mark_char(constant char *msg, char ok_char)
+{
+	char c;
+
+	start_mca(A_PIPE, msg, NULL, 0);
+	c = getcc();
+	if (ok_char != '\0' && c == ok_char)
+		return c;
+	if (is_erase_char(c))
+		return '\0';
+	if (is_newline_char(c))
+		c = '.';
+	if (badmark(c))
+		return '\0';
+	return c;
+}
+#endif /* PIPEC */
+
 /*
  * Main command processor.
  * Accept and execute commands until a quit command.
@@ -2339,15 +2363,25 @@ public void commands(void)
 #if PIPEC
 			if (secure_allow(SF_PIPE))
 			{
-				start_mca(A_PIPE, "|mark: ", NULL, 0);
-				c = getcc();
-				if (is_erase_char(c))
-					break;
-				if (is_newline_char(c))
-					c = '.';
-				if (badmark(c))
-					break;
-				pipec = c;
+				c = get_mark_char("|mark: ", '|');
+				if (c == '|')
+				{
+					if ((pipec = get_mark_char("|first mark: ", '\0')) == '\0' ||
+					    (pipec2 = get_mark_char("|second mark: ", '\0')) == '\0')
+					{
+						getcc_clear();
+						break;
+					}
+				} else
+				{
+					if (c == '\0')
+					{
+						getcc_clear();
+						break;
+					}
+					pipec = c;
+					pipec2 = '\0';
+				}
 				start_mca(A_PIPE, "!", ml_shell, 0);
 				c = getcc();
 				goto again;

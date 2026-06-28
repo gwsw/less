@@ -677,10 +677,18 @@ of the current screen, inclusive.
 Otherwise (if the marked line is the top line of the current screen
 or after it) the section of the file to be piped is between the top line
 of the current screen and the marked line, inclusive.
-<m> may also be \*^ or $ to indicate beginning or end of file respectively.
-If <m> is \&.\& or newline, the current screen is piped.
-If a \*^P (CONTROL-P) is entered immediately after the mark letter,
+<m> may also be "\*^" or "$" to indicate beginning or end of file respectively.
+If <m> is "\&.\&" or newline, the current screen is piped.
+If a \*^P (CONTROL-P) is entered at the start of the shell command,
 no "done" message is printed after the shell command is executed.
+.IP "|| <\fIm1\fP> <\fIm2\fP> \fIshell-command\fP"
+Like "|", pipes a section of the input file to the given shell command.
+The section of the file to be piped is between the two lines marked with
+m1 and m2, inclusive.
+The line marked by m1 may be before or after the line marked by m2 in the file.
+Either mark may be "\*^" or "$" to indicate beginning or end of file respectively.
+"\&.\&" or newline indicates the first line displayed on the screen,
+and ";" indicates the last line displayed on the screen.
 .IP "s \fIfilename\fP"
 Save the input to a file.
 This works only if the input is a pipe, not an ordinary file.

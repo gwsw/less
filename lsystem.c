@@ -258,24 +258,32 @@ public void lsystem(constant char *cmd, constant char *donemsg)
  * If the mark is on the current screen, or if the mark is ".",
  * the whole current screen is piped.
  */
-public int pipe_mark(char c, constant char *cmd)
+public int pipe_mark(char c, char c2, constant char *cmd)
 {
-	POSITION mpos, tpos, bpos;
+	POSITION mpos, mpos2, tpos, bpos;
 
 	/*
-	 * mpos = the marked position.
+	 * mpos = the first marked position.
+	 * mpos2 = the second marked position.
 	 * tpos = top of screen.
 	 * bpos = bottom of screen.
 	 */
 	mpos = markpos(c);
 	if (mpos == NULL_POSITION)
 		return (-1);
+	mpos2 = (c2 == '\0') ? NULL_POSITION : markpos(c2);
 	tpos = position(TOP);
 	if (tpos == NULL_POSITION)
 		tpos = ch_zero();
 	bpos = position(BOTTOM);
 
-	if (c == '.') 
+	if (mpos2 != NULL_POSITION)
+	{
+		if (mpos < mpos2)
+			return (pipe_data(cmd, mpos, mpos2));
+		else
+			return (pipe_data(cmd, mpos2, mpos));
+	} else if (c == '.')
 		return (pipe_data(cmd, tpos, bpos));
 	else if (mpos < tpos)
 		return (pipe_data(cmd, mpos, bpos));
