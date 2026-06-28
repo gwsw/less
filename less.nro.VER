@@ -669,7 +669,7 @@ Similar to the "!" command,
 except that the command is expanded in the same way as prompt strings.
 For example, the name of the current file would be given as "%f".
 .IP "| <\fIm\fP> \fIshell-command\fP"
-<m> represents any mark letter.
+<m> represents any mark character.
 Pipes a section of the input file to the given shell command.
 If the marked line is before the top line of the current screen,
 the section to be piped is between the marked line and the bottom line
