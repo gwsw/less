@@ -15,6 +15,8 @@
 
 * Add || command.
 
+* In | and || commands, ^N allows entering line number instead of mark letter.
+
 * In lesskey files, add \k^x syntax for control chars and \k+x syntax
   for shifted chars.
 

@@ -190,7 +190,7 @@ static struct mark * getmark(char c)
 			return (NULL);
 		cmark(m, curr_ifile, pos, sc_height-1);
 		break;
-	case '.':
+	case '.': case ':':
 		/*
 		 * Top line on screen.
 		 */

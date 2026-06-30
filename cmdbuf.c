@@ -1422,11 +1422,14 @@ public LINENUM cmd_int(mutable long *frac)
 			return (0);
 		}
 	}
-	*frac = 0;
-	if (*p++ == '.')
+	if (frac != NULL)
 	{
-		/* {{ Just ignore error in fractional part. }} */
-		(void) getfraction(&p, frac);
+		*frac = 0;
+		if (*p++ == '.')
+		{
+			/* {{ Just ignore error in fractional part. }} */
+			(void) getfraction(&p, frac);
+		}
 	}
 	return (n);
 }

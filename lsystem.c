@@ -248,30 +248,17 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 
 /*
  * Pipe a section of the input file into the given shell command.
- * The section to be piped is the section "between" the current
- * position and the position marked by the given letter.
- *
- * If the mark is after the current screen, the section between
- * the top line displayed and the mark is piped.
- * If the mark is before the current screen, the section between
- * the mark and the bottom line displayed is piped.
- * If the mark is on the current screen, or if the mark is ".",
- * the whole current screen is piped.
+ * If mpos2 is not NULL_POSITION, the section between
+ * mpos1 and mpos2 is piped.
+ * Otherwise, if mpos1 is before the current screen,
+ * the section between mpos1 and the bottom line displayed is piped.
+ * Otherwise, the section between the top line displayed and
+ * mpos1 is piped.
  */
-public int pipe_mark(char c, char c2, constant char *cmd)
+public int pipe_pos(constant char *cmd, POSITION mpos1, POSITION mpos2)
 {
-	POSITION mpos, mpos2, tpos, bpos;
+	POSITION tpos, bpos;
 
-	/*
-	 * mpos = the first marked position.
-	 * mpos2 = the second marked position.
-	 * tpos = top of screen.
-	 * bpos = bottom of screen.
-	 */
-	mpos = markpos(c);
-	if (mpos == NULL_POSITION)
-		return (-1);
-	mpos2 = (c2 == '\0') ? NULL_POSITION : markpos(c2);
 	tpos = position(TOP);
 	if (tpos == NULL_POSITION)
 		tpos = ch_zero();
@@ -279,18 +266,14 @@ public int pipe_mark(char c, char c2, constant char *cmd)
 
 	if (mpos2 != NULL_POSITION)
 	{
-		if (mpos < mpos2)
-			return (pipe_data(cmd, mpos, mpos2));
+		if (mpos1 < mpos2)
+			return pipe_data(cmd, mpos1, mpos2);
 		else
-			return (pipe_data(cmd, mpos2, mpos));
-	} else if (c == '.')
-		return (pipe_data(cmd, tpos, bpos));
-	else if (mpos < tpos)
-		return (pipe_data(cmd, mpos, bpos));
-	else if (bpos == NULL_POSITION)
-		return (pipe_data(cmd, tpos, bpos));
+			return pipe_data(cmd, mpos2, mpos1);
+	} else if (mpos1 < tpos)
+		return pipe_data(cmd, mpos1, bpos);
 	else
-		return (pipe_data(cmd, tpos, mpos));
+		return pipe_data(cmd, tpos, mpos1);
 }
 
 /*

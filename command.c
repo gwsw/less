@@ -102,8 +102,8 @@ static int search_incr_hshift;
 static time_type ignoring_input_time;
 #endif
 #if PIPEC
-static char pipec;
-static char pipec2;
+static POSITION pipe_pos1;
+static POSITION pipe_pos2;
 #endif
 
 /* Stack of ungotten chars (via ungetcc) */
@@ -357,7 +357,7 @@ static void exec_mca(void)
 			++cbuf;
 		if (!secure_allow(SF_PIPE))
 			break;
-		(void) pipe_mark(pipec, pipec2, cbuf);
+		(void) pipe_pos(cbuf, pipe_pos1, pipe_pos2);
 		if (done_msg != NULL)
 			error(done_msg, NULL_PARG);
 		break; }
@@ -1423,24 +1423,67 @@ public lbool is_ignoring_input(int action)
 
 #if PIPEC
 /*
- * Read a mark char from the user for use by the pipe command.
- * Also accept ok_char.
+ * Read a mark char or line number from the user for use by the pipe command.
+ * If mark_char != NULL, accept *mark_char as well as the normal mark chars.
+ * Also return the entered mark char in *mark_char.
  */
-static char get_mark_char(constant char *msg, char ok_char)
+static POSITION get_pipe_pos(constant char *mark_msg, constant char *line_msg, mutable char *mark_char)
 {
+	lbool get_line = FALSE;
+	char spec_char = '\0';
 	char c;
 
-	start_mca(A_PIPE, msg, NULL, 0);
-	c = getcc();
-	if (ok_char != '\0' && c == ok_char)
-		return c;
-	if (is_erase_char(c))
-		return '\0';
-	if (is_newline_char(c))
-		c = '.';
-	if (badmark(c))
-		return '\0';
-	return c;
+	start_mca(A_PIPE, mark_msg, NULL, 0);
+	if (mark_char != NULL)
+	{
+		spec_char = *mark_char;
+		*mark_char = '\0';
+	}
+	for (;;)
+	{
+		c = getcc();
+		if (spec_char != '\0' && c == spec_char)
+		{
+			*mark_char = c;
+			return NULL_POSITION;
+		}
+		if (c == CONTROL('N')) /* toggle between reading mark and line number */
+		{
+			get_line = !get_line;
+			cmd_reset();
+			start_mca(A_PIPE, get_line ? line_msg : mark_msg, NULL, 0);
+		} else if (get_line) /* reading line number */
+		{
+			if ((c >= '0' && c <= '9') || is_erase_char(c))
+			{
+				if (cmd_char(c) == CC_QUIT)
+					return NULL_POSITION;
+			} else if (is_newline_char(c))
+			{
+				POSITION pos;
+				LINENUM lnum = cmd_int(NULL);
+				cmd_reset();
+				if (lnum == 0 || (pos = find_pos(lnum)) == NULL_POSITION)
+				{
+					error("Invalid line number", NULL_PARG);
+					return NULL_POSITION;
+				}
+				return pos;
+			} else
+				lbell();
+		} else /* reading mark char */
+		{
+			if (is_erase_char(c))
+				return NULL_POSITION;
+			if (is_newline_char(c))
+				c = '.';
+			if (badmark(c))
+				return NULL_POSITION;
+			if (mark_char != NULL)
+				*mark_char = c;
+			return markpos(c);
+		}
+	}
 }
 #endif /* PIPEC */
 
@@ -2363,24 +2406,31 @@ public void commands(void)
 #if PIPEC
 			if (secure_allow(SF_PIPE))
 			{
-				c = get_mark_char("|mark: ", '|');
-				if (c == '|')
+				char mark_char = '|';
+				pipe_pos1 = get_pipe_pos("|mark: ", "|line number: ", &mark_char);
+				if (mark_char == '|') /* double pipe: read two marks */
 				{
-					if ((pipec = get_mark_char("|first mark: ", '\0')) == '\0' ||
-					    (pipec2 = get_mark_char("|second mark: ", '\0')) == '\0')
+					if ((pipe_pos1 = get_pipe_pos("|first mark: ", "|first line number: ", NULL)) == NULL_POSITION ||
+					    (pipe_pos2 = get_pipe_pos("|second mark: ", "|second line number: ", NULL)) == NULL_POSITION)
 					{
 						getcc_clear();
 						break;
 					}
 				} else
 				{
-					if (c == '\0')
+					if (pipe_pos1 == NULL_POSITION)
 					{
 						getcc_clear();
 						break;
 					}
-					pipec = c;
-					pipec2 = '\0';
+					if (mark_char == '.') /* special case: pipe current screen */
+					{
+						pipe_pos1 = markpos(':');
+						pipe_pos2 = markpos(';');
+					} else
+					{
+						pipe_pos2 = NULL_POSITION;
+					}
 				}
 				start_mca(A_PIPE, "!", ml_shell, 0);
 				c = getcc();
