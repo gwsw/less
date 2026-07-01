@@ -112,7 +112,7 @@ dvi:
 installcheck:
 
 check:
-	if [ -x less_t@EXEEXT@ ]; then :; else ${MAKE} LESSTEST=1; fi
+	${MAKE} LESSTEST=1
 	objdir=$$(pwd); rflags=""; if [ -z "${VERBOSE}" ]; then rflags=-e; fi; cd $(srcdir)/lesstest && ${MAKE} && ./runtest $$rflags -l "$$objdir/less_t@EXEEXT@" lt
 
 TAGS:
