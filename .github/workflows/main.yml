@@ -54,6 +54,14 @@ jobs:
 
     - name: Make
       working-directory: ${{ needs.dist.outputs.basename }}
+      run: make
+
+    - name: Run sanity check
+      working-directory: ${{ needs.dist.outputs.basename }}
+      run: ./less README > README.out && cmp README README.out
+
+    - name: Make (LESSTEST)
+      working-directory: ${{ needs.dist.outputs.basename }}
       run: make LESSTEST=1
 
     - name: Test
