@@ -66,4 +66,4 @@ jobs:
 
     - name: Test
       working-directory: ${{ needs.dist.outputs.basename }}
-      run: make check LESSTEST=1
+      run: make check
