@@ -103,6 +103,9 @@ extern int fd0;
 #ifdef _OSK
 #include <signal.h>
 #endif
+#ifdef __APPLE__
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
+#endif
 #if OS2
 #include <sys/signal.h>
 #include "pckeys.h"
