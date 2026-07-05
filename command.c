@@ -181,28 +181,28 @@ static void mca_search1(void)
 		set_mca(A_B_SEARCH);
 
 	if (search_type & SRCH_NO_MATCH)
-		cmd_putstr("Non-match ");
+		cmd_putstr(LM(Non_match));
 	if (search_type & SRCH_FIRST_FILE)
-		cmd_putstr("First-file ");
+		cmd_putstr(LM(First_file));
 	if (search_type & SRCH_PAST_EOF)
-		cmd_putstr("EOF-ignore ");
+		cmd_putstr(LM(EOF_ignore));
 	if (search_type & SRCH_NO_MOVE)
-		cmd_putstr("Keep-pos ");
+		cmd_putstr(LM(Keep_pos));
 	if (search_type & SRCH_NO_REGEX)
-		cmd_putstr("Regex-off ");
+		cmd_putstr(LM(Regex_off));
 	if (search_type & SRCH_WRAP)
-		cmd_putstr("Wrap ");
+		cmd_putstr(LM(Wrap));
 	for (i = 1; i <= NUM_SEARCH_COLORS; i++)
 	{
 		if (search_type & SRCH_SUBSEARCH(i))
 		{
 			char buf[INT_STRLEN_BOUND(int)+8];
-			SNPRINTF1(buf, sizeof(buf), "Sub-%d ", i);
+			SNPRINTF1(buf, sizeof(buf), LM(Sub_X), i);
 			cmd_putstr(buf);
 		}
 	}
 	if (literal_char)
-		cmd_putstr("Lit ");
+		cmd_putstr(LM(Lit));
 
 #if HILITE_SEARCH
 	if (search_type & SRCH_FILTER)
@@ -513,7 +513,7 @@ static int mca_opt_char(char c)
 			parg.p_string = get_cmdbuf();
 			if (parg.p_string == NULL)
 				return (MCA_MORE);
-			error("There is no --%s option", &parg);
+			error(LM(There_is_no__X_option), &parg);
 			return (MCA_DONE);
 		}
 		optgetname = FALSE;
@@ -529,7 +529,7 @@ static int mca_opt_char(char c)
 		if (curropt == NULL)
 		{
 			parg.p_string = propt(c);
-			error("There is no %s option", &parg);
+			error(LM(There_is_no_X_option), &parg);
 			return (MCA_DONE);
 		}
 		opt_lower = ASCII_IS_LOWER(c);
@@ -605,7 +605,7 @@ static int mca_search_char(char c)
 		break;
 	case CONTROL('S'): { /* SUBSEARCH */
 		char buf[INT_STRLEN_BOUND(int)+24];
-		SNPRINTF1(buf, sizeof(buf), "Sub-pattern (1-%d):", NUM_SEARCH_COLORS);
+		SNPRINTF1(buf, sizeof(buf), LM(Sub_pattern_1_X), NUM_SEARCH_COLORS);
 		clear_bot();
 		cmd_putstr(buf);
 		flush();
@@ -886,15 +886,15 @@ static void prompt_message(void)
 {
 	if (read_error)
 	{
-		error("read error", NULL_PARG);
+		error(LM(read_error), NULL_PARG);
 		read_error = FALSE;
 	}
 	if (search_wrapped)
 	{
 		if (search_type & SRCH_BACK)
-			error("Search hit top; continuing at bottom", NULL_PARG);
+			error(LM(Search_hit_top), NULL_PARG);
 		else
-			error("Search hit bottom; continuing at top", NULL_PARG);
+			error(LM(Search_hit_bottom), NULL_PARG);
 		search_wrapped = FALSE;
 	}
 #if OSC8_LINK
@@ -902,7 +902,7 @@ static void prompt_message(void)
 	{
 		PARG parg;
 		parg.p_string = osc8_uri;
-		error("Link: %s", &parg);
+		error(LM(Link_X), &parg);
 		free(osc8_uri);
 		osc8_uri = NULL;
 	}
@@ -1324,9 +1324,9 @@ static void multi_search(constant char *pattern, int n, int silent)
 		PARG parg;
 		parg.p_string = prev_pattern_text();
 		if (parg.p_string == NULL) /* {{ can this happen? }} */
-			error("Pattern not found", NULL_PARG);
+			error(LM(Pattern_not_found), NULL_PARG);
 		else
-			error("Pattern not found: %s", &parg);
+			error(LM(Pattern_not_found_X), &parg);
 	}
 
 	if (changed_file)
@@ -1465,7 +1465,7 @@ static POSITION get_pipe_pos(constant char *mark_msg, constant char *line_msg, m
 				cmd_reset();
 				if (lnum == 0 || (pos = find_pos(lnum)) == NULL_POSITION)
 				{
-					error("Invalid line number", NULL_PARG);
+					error(LM(Invalid_line_number), NULL_PARG);
 					return NULL_POSITION;
 				}
 				return pos;
@@ -1811,7 +1811,7 @@ public void commands(void)
 			 * Forward forever, ignoring EOF.
 			 */
 			if (get_altfilename(curr_ifile) != NULL)
-				error("Warning: command may not work correctly when file is viewed via LESSOPEN", NULL_PARG);
+				error(LM(command_may_not_work_correctly_with_LESSOPEN), NULL_PARG);
 			if (show_attn)
 				set_attnpos(bottompos);
 			newaction = forw_loop(action);
@@ -2009,7 +2009,7 @@ public void commands(void)
 				number = 1;
 			osc8_search(SRCH_FORW, NULL, number);
 #else
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 #endif
 			break;
 
@@ -2020,7 +2020,7 @@ public void commands(void)
 				number = 1;
 			osc8_search(SRCH_BACK, NULL, number);
 #else
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 #endif
 			break;
 
@@ -2033,7 +2033,7 @@ public void commands(void)
 				break;
 			}
 #endif
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 			break;
 
 		case A_OSC8_JUMP:
@@ -2041,7 +2041,7 @@ public void commands(void)
 			cmd_exec();
 			osc8_jump();
 #else
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 #endif
 			break;
 
@@ -2053,7 +2053,7 @@ public void commands(void)
 			c = getcc();
 			goto again;
 #else
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 			break;
 #endif
 
@@ -2126,12 +2126,12 @@ public void commands(void)
 #if EXAMINE
 			if (secure_allow(SF_EXAMINE))
 			{
-				start_mca(A_EXAMINE, "Examine: ", ml_examine, 0);
+				start_mca(A_EXAMINE, LM(Examine), ml_examine, 0);
 				c = getcc();
 				goto again;
 			}
 #endif
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 			break;
 			
 		case A_VISUAL:
@@ -2145,12 +2145,12 @@ public void commands(void)
 					break;
 				if (strcmp(get_filename(curr_ifile), "-") == 0)
 				{
-					error("Cannot edit standard input", NULL_PARG);
+					error(LM(Cannot_edit_standard_input), NULL_PARG);
 					break;
 				}
 				if (!no_edit_warn && get_altfilename(curr_ifile) != NULL)
 				{
-					error("WARNING: This file was viewed via LESSOPEN", NULL_PARG);
+					error(LM(This_file_was_viewed_via_LESSOPEN), NULL_PARG);
 				}
 				start_mca(A_SHELL, "!", ml_shell, 0);
 				/*
@@ -2165,7 +2165,7 @@ public void commands(void)
 				break;
 			}
 #endif
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 			break;
 
 		case A_NEXT_FILE:
@@ -2175,7 +2175,7 @@ public void commands(void)
 #if TAGS
 			if (ntags())
 			{
-				error("No next file", NULL_PARG);
+				error(LM(No_next_file), NULL_PARG);
 				break;
 			}
 #endif
@@ -2188,7 +2188,7 @@ public void commands(void)
 				    !(ch_getflags() & CH_HELPFILE))
 					quit(QUIT_OK);
 				parg.p_string = (number > 1) ? "(N-th) " : "";
-				error("No %snext file", &parg);
+				error(LM(No_X_next_file), &parg);
 			}
 			break;
 
@@ -2199,7 +2199,7 @@ public void commands(void)
 #if TAGS
 			if (ntags())
 			{
-				error("No previous file", NULL_PARG);
+				error(LM(No_previous_file), NULL_PARG);
 				break;
 			}
 #endif
@@ -2209,7 +2209,7 @@ public void commands(void)
 			if (edit_prev((int) number))
 			{
 				parg.p_string = (number > 1) ? "(N-th) " : "";
-				error("No %sprevious file", &parg);
+				error(LM(No_X_previous_file), &parg);
 			}
 			break;
 
@@ -2223,7 +2223,7 @@ public void commands(void)
 			tagfile = nexttag((int) number);
 			if (tagfile == NULL)
 			{
-				error("No next tag", NULL_PARG);
+				error(LM(No_next_tag), NULL_PARG);
 				break;
 			}
 			cmd_exec();
@@ -2234,7 +2234,7 @@ public void commands(void)
 					jump_loc(pos, jump_sline);
 			}
 #else
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 #endif
 			break;
 
@@ -2248,7 +2248,7 @@ public void commands(void)
 			tagfile = prevtag((int) number);
 			if (tagfile == NULL)
 			{
-				error("No previous tag", NULL_PARG);
+				error(LM(No_previous_tag), NULL_PARG);
 				break;
 			}
 			cmd_exec();
@@ -2259,7 +2259,7 @@ public void commands(void)
 					jump_loc(pos, jump_sline);
 			}
 #else
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 #endif
 			break;
 
@@ -2271,7 +2271,7 @@ public void commands(void)
 				number = 1;
 			cmd_exec();
 			if (edit_index((int) number))
-				error("No such file", NULL_PARG);
+				error(LM(No_such_file), NULL_PARG);
 			break;
 
 		case A_REMOVE_FILE:
@@ -2343,7 +2343,7 @@ public void commands(void)
 				goto again;
 			}
 #endif
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 			break;
 
 		case A_SETMARK:
@@ -2364,7 +2364,7 @@ public void commands(void)
 				}
 				break;
 			}
-			start_mca(A_SETMARK, "set mark: ", NULL, 0);
+			start_mca(A_SETMARK, LM(set_mark), NULL, 0);
 			c = getcc();
 			make_display();
 			cmd_exec();
@@ -2378,7 +2378,7 @@ public void commands(void)
 			/*
 			 * Clear a mark.
 			 */
-			start_mca(A_CLRMARK, "clear mark: ", NULL, 0);
+			start_mca(A_CLRMARK, LM(clear_mark), NULL, 0);
 			c = getcc();
 			cmd_exec();
 			if (is_erase_char(c) || is_newline_char(c))
@@ -2391,7 +2391,7 @@ public void commands(void)
 			/*
 			 * Jump to a marked position.
 			 */
-			start_mca(A_GOMARK, "goto mark: ", NULL, 0);
+			start_mca(A_GOMARK, LM(goto_mark), NULL, 0);
 			c = getcc();
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
@@ -2407,11 +2407,11 @@ public void commands(void)
 			if (secure_allow(SF_PIPE))
 			{
 				char mark_char = '|';
-				pipe_pos1 = get_pipe_pos("|mark: ", "|line number: ", &mark_char);
+				pipe_pos1 = get_pipe_pos(LM(pipe_mark), LM(pipe_line_number), &mark_char);
 				if (mark_char == '|') /* double pipe: read two marks */
 				{
-					if ((pipe_pos1 = get_pipe_pos("|first mark: ", "|first line number: ", NULL)) == NULL_POSITION ||
-					    (pipe_pos2 = get_pipe_pos("|second mark: ", "|second line number: ", NULL)) == NULL_POSITION)
+					if ((pipe_pos1 = get_pipe_pos(LM(pipe_first_mark), LM(pipe_first_line_number), NULL)) == NULL_POSITION ||
+					    (pipe_pos2 = get_pipe_pos(LM(pipe_second_mark), LM(pipe_second_line_number), NULL)) == NULL_POSITION)
 					{
 						getcc_clear();
 						break;
@@ -2437,12 +2437,12 @@ public void commands(void)
 				goto again;
 			}
 #endif
-			error("Command not available", NULL_PARG);
+			error(LM(Command_not_available), NULL_PARG);
 			break;
 
 		case A_B_BRACKET:
 		case A_F_BRACKET:
-			start_mca(action, "Brackets: ", NULL, 0);
+			start_mca(action, LM(Brackets), NULL, 0);
 			c = getcc();
 			goto again;
 

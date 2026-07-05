@@ -80,6 +80,7 @@
 #define muldiv(val,num,den) umuldiv((uintmax)(val), (uintmax)(num), (uintmax)(den))
 
 #include "lang.h"
+#include "lmsg.h"
 
 #if defined UINTMAX_MAX
 typedef uintmax_t uintmax;

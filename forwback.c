@@ -271,7 +271,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 				need_home = TRUE;
 			} else if (!first_time && !is_filtering() && full_screen)
 			{
-				putstr("...skipping...\n");
+				putstr(LM(skipping));
+				putstr("\n");
 			}
 		}
 	}

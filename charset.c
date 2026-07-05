@@ -191,12 +191,12 @@ static void ichardef_utf(constant char *s)
 			wchar_range_get(&s, &range);
 			if (range.last == 0)
 			{
-				error("invalid hex number(s) in LESSUTFCHARDEF", NULL_PARG);
+				error(LM(invalid_hex_number_in_LESSUTFCHARDEF), NULL_PARG);
 				quit(QUIT_ERROR);
 			}
 			if (*s++ != ':')
 			{
-				error("missing colon in LESSUTFCHARDEF", NULL_PARG);
+				error(LM(missing_colon_in_LESSUTFCHARDEF), NULL_PARG);
 				quit(QUIT_ERROR);
 			}
 			switch (*s++)
@@ -279,7 +279,7 @@ static void ichardef(constant char *s)
 
 		default:
 		invalid_chardef:
-			error("invalid chardef", NULL_PARG);
+			error(LM(invalid_chardef), NULL_PARG);
 			quit(QUIT_ERROR);
 			/*NOTREACHED*/
 		}
@@ -288,7 +288,7 @@ static void ichardef(constant char *s)
 		{
 			if (cp >= chardef + sizeof(chardef))
 			{
-				error("chardef longer than 256", NULL_PARG);
+				error(LM(chardef_longer_than_256), NULL_PARG);
 				quit(QUIT_ERROR);
 				/*NOTREACHED*/
 			}
@@ -341,7 +341,7 @@ static int icharset(constant char *name, int no_error)
 	}
 
 	if (!no_error) {
-		error("invalid charset name", NULL_PARG);
+		error(LM(invalid_charset_name), NULL_PARG);
 		quit(QUIT_ERROR);
 	}
 	return (0);

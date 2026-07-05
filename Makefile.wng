@@ -111,7 +111,7 @@ LIBS += ${XLDLIBS}
 
 LESS_SRC = brac.c ch.c charset.c cmdbuf.c command.c		\
            cvt.c decode.c edit.c evar.c filename.c forwback.c 		\
-           ifile.c input.c jump.c line.c linenum.c 		\
+           ifile.c input.c jump.c line.c linenum.c lmsg.c 		\
            lsystem.c main.c mark.c optfunc.c option.c 		\
 	   opttbl.c os.c output.c pattern.c position.c 		\
 	   prompt.c          screen.c scrsize.c search.c 	\
@@ -123,7 +123,7 @@ endif
 OBJ = \
 	main.o screen.o brac.o ch.o charset.o cmdbuf.o \
 	command.o cvt.o decode.o edit.o evar.o filename.o forwback.o \
-	help.o ifile.o input.o jump.o line.o linenum.o \
+	help.o ifile.o input.o jump.o line.o linenum.o lmsg.o \
 	lsystem.o mark.o optfunc.o option.o opttbl.o os.o \
 	output.o pattern.o position.o prompt.o search.o signal.o \
 	tags.o ttyin.o version.o xbuf.o
@@ -170,7 +170,7 @@ help.c: less.hlp ${BUILDGEN}
 buildgen.exe: buildgen.c
 	${CC} $< -o $@
 
-${OBJ}: less.h defines.h funcs.h
+$(OBJ): less.h funcs.h defines.h lang.h lmsg.h lessmsg.inc pattern.h xbuf.h
 
 TAGS:
 	etags *.c *.h

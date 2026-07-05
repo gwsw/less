@@ -178,13 +178,13 @@ public void findtag(constant char *tag)
 	case TAG_INTR:
 		break;
 	case TAG_NOFILE:
-		error("No tags file", NULL_PARG);
+		error(LM(No_tags_file), NULL_PARG);
 		break;
 	case TAG_NOTAG:
-		error("No such tag in tags file", NULL_PARG);
+		error(LM(No_such_tag_in_tags_file), NULL_PARG);
 		break;
 	case TAG_NOTYPE:
-		error("unknown tag type", NULL_PARG);
+		error(LM(unknown_tag_type), NULL_PARG);
 		break;
 	}
 }
@@ -444,7 +444,7 @@ static POSITION ctagsearch(void)
 			/*
 			 * We hit EOF without a match.
 			 */
-			error("Tag not found", NULL_PARG);
+			error(LM(Tag_not_found), NULL_PARG);
 			return (NULL_POSITION);
 		}
 

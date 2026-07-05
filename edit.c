@@ -296,7 +296,7 @@ static void close_pipe(FILE *pipefd)
 		if (s <= 128)
 		{
 			parg.p_int = s;
-			error("Input preprocessor failed (status %d)", &parg);
+			error(LM(Input_preprocessor_failed), &parg);
 			return;
 		}
 		/*
@@ -325,14 +325,14 @@ static void close_pipe(FILE *pipefd)
 			ch_length() != NULL_POSITION)
 		{
 			parg.p_string = signal_message(sig);
-			error("Input preprocessor terminated: %s", &parg);
+			error(LM(Input_preprocessor_terminated_X), &parg);
 		}
 		return;
 	}
 	if (status != 0)
 	{
 		parg.p_int = status;
-		error("Input preprocessor exited with status %x", &parg);
+		error(LM(Input_preprocessor_exited_with_status_X), &parg);
 	}
 }
 
@@ -570,7 +570,7 @@ public int edit_ifile(IFILE ifile)
 					 * Ask user if we should proceed.
 					 */
 					parg.p_string = filename;
-					answer = query("\"%s\" may be a binary file.  See it anyway? ", &parg);
+					answer = query(LM(X_may_be_a_binary_file), &parg);
 					if (answer != 'y' && answer != 'Y')
 					{
 						close(f);
@@ -583,7 +583,7 @@ public int edit_ifile(IFILE ifile)
 		{
 			PARG parg;
 			parg.p_string = filename;
-			error("%s is a terminal (use -f to open it)", &parg);
+			error(LM(X_is_a_terminal), &parg);
 			return edit_error(filename, alt_filename, altpipe, ifile);
 		}
 	}
@@ -923,7 +923,7 @@ public int edit_stdin(void)
 {
 	if (isatty(fd0))
 	{
-		error("Missing filename (\"less --help\" for help)", NULL_PARG);
+		error(LM(Missing_filename), NULL_PARG);
 		quit(QUIT_ERROR);
 	}
 	return (edit("-"));
@@ -943,8 +943,6 @@ public void cat_file(void)
 }
 
 #if LOGFILE
-
-#define OVERWRITE_OPTIONS "Overwrite, Append, Don't log, or Quit?"
 
 /*
  * If the user asked for a log file and our input file
@@ -987,7 +985,7 @@ public void use_logfile(constant char *filename)
 		 * Ask user what to do.
 		 */
 		parg.p_string = filename;
-		answer = query("Warning: \"%s\" exists; "OVERWRITE_OPTIONS" ", &parg);
+		answer = query(LM(X_exists), &parg);
 	}
 
 loop:
@@ -1020,7 +1018,7 @@ loop:
 		 * Eh?
 		 */
 
-		answer = query(OVERWRITE_OPTIONS" (Type \"O\", \"A\", \"D\" or \"Q\") ", NULL_PARG);
+		answer = query(LM(Overwrite), NULL_PARG);
 		goto loop;
 	}
 
@@ -1030,7 +1028,7 @@ loop:
 		 * Error in opening logfile.
 		 */
 		parg.p_string = filename;
-		error("Cannot write to \"%s\"", &parg);
+		error(LM(Cannot_write_to_X), &parg);
 		return;
 	}
 	SET_BINARY(logfile);

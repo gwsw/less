@@ -149,7 +149,7 @@ static void try_utf8_locale(int *pargc, constant char ***pargv)
 	goto cleanup;
 
 bad_args:
-	error("WARNING: cannot use unicode arguments", NULL_PARG);
+	error(LM(cannot_use_unicode_arguments), NULL_PARG);
 	setlocale(LC_ALL, locale_orig);
 
 cleanup:
@@ -215,6 +215,7 @@ int main(int argc, constant char *argv[])
 	lbool posixly_correct;
 
 	no_config = lgetenv("LESSNOCONFIG");
+	lmsg_init(lgetenv("LESSMSG"));
 
 #if MSDOS_COMPILER==WIN32C && (defined(__MINGW32__) || defined(_MSC_VER))
 	if (GetACP() != CP_UTF8)  /* not using a UTF-8 manifest */
@@ -393,7 +394,7 @@ int main(int argc, constant char *argv[])
 	}
 
 	if (missing_cap && !know_dumb)
-		error("WARNING: terminal is not fully functional", NULL_PARG);
+		error(LM(terminal_is_not_fully_functional), NULL_PARG);
 	open_getchr();
 	raw_mode(TRUE);
 	init_signals(TRUE);
@@ -415,7 +416,7 @@ int main(int argc, constant char *argv[])
 		 */
 		if (nifile() > 0)
 		{
-			error("No filenames allowed with -t option", NULL_PARG);
+			error(LM(No_filenames_allowed_with_t_option), NULL_PARG);
 			quit(QUIT_ERROR);
 		}
 		findtag(tagoption);
@@ -461,7 +462,7 @@ int main(int argc, constant char *argv[])
 		 * (file descriptor 2; see flush()).
 		 * Before erasing the screen contents, wait for a keystroke.
 		 */
-		less_printf("Press RETURN to continue ", NULL_PARG);
+		less_printf(LM(Press_RETURN_to_continue), NULL_PARG);
 		get_return();
 		putchr('\n');
 	}
@@ -494,7 +495,7 @@ public char * save(constant char *s)
 
 public void out_of_memory(void)
 {
-	error("Cannot allocate memory", NULL_PARG);
+	error(LM(Cannot_allocate_memory), NULL_PARG);
 	quit(QUIT_ERROR);
 }
 

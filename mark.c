@@ -146,7 +146,7 @@ static struct mark * getumark(char c)
 	{
 		PARG parg;
 		parg.p_char = (char) c;
-		error("Invalid mark letter %c", &parg);
+		error(LM(Invalid_mark_letter_X), &parg);
 		return NULL;
 	}
 	return &marks[index];
@@ -178,7 +178,7 @@ static struct mark * getmark(char c)
 		 */
 		if (ch_end_seek())
 		{
-			error("Cannot seek to end of file", NULL_PARG);
+			error(LM(Cannot_seek_to_end_of_file), NULL_PARG);
 			return (NULL);
 		}
 		m = &sm;
@@ -221,7 +221,7 @@ static struct mark * getmark(char c)
 			break;
 		if (!mark_is_set(m))
 		{
-			error("Mark not set", NULL_PARG);
+			error(LM(Mark_not_set), NULL_PARG);
 			return (NULL);
 		}
 		break;
@@ -265,7 +265,7 @@ public void setmark(char c, int where, LINENUM linenum)
 		{
 			PARG parg;
 			parg.p_linenum = linenum;
-			error("Cannot find line number %n", &parg);
+			error(LM(Cannot_find_line_number_X), &parg);
 			return;
 		}
 		get_scrpos_pos(&scrpos, where, pos);
@@ -373,7 +373,7 @@ public POSITION markpos(char c)
 
 	if (m->m_ifile != curr_ifile)
 	{
-		error("Mark not in current file", NULL_PARG);
+		error(LM(Mark_not_in_current_file), NULL_PARG);
 		return (NULL_POSITION);
 	}
 	return (m->m_scrpos.pos);

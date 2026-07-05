@@ -42,6 +42,7 @@ binprefix =
 
 sysconfdir = @sysconfdir@
 datarootdir = @datarootdir@
+datadir = @datadir@
 
 mandir = @mandir@
 manprogext = 1
@@ -62,7 +63,7 @@ OBJ = \
 	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
 	command.${O} cvt.${O} decode.${O} edit.${O} evar.${O} filename.${O} forwback.${O} \
 	help.${O} ifile.${O} input.${O} jump.${O} \
-	line.${O} linenum.${O} \
+	line.${O} linenum.${O} lmsg.${O} \
 	lsystem.${O} mark.${O} optfunc.${O} option.${O} opttbl.${O} os.${O} \
 	output.${O} pattern.${O} position.${O} prompt.${O} search.${O} signal.${O} \
 	tags.${O} ttyin.${O} version.${O} xbuf.${O}  @REGEX_O@
@@ -81,7 +82,7 @@ lessecho$(EXE): lessecho.${O} version.${O}
 
 charset.${O}: compose.uni ubin.uni wide.uni
 
-${OBJ}: ${srcdir}/less.h ${srcdir}/funcs.h defines.h lang.h pattern.h xbuf.h
+${OBJ}: ${srcdir}/less.h ${srcdir}/funcs.h defines.h lang.h lmsg.h lessmsg.inc pattern.h xbuf.h
 screen.${O} ttyin.${O}: pckeys.h
 
 install: all ${srcdir}/less.nro ${srcdir}/lesskey.nro ${srcdir}/lessecho.nro installdirs

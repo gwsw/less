@@ -33,7 +33,7 @@ LIBS = user32.lib shell32.lib
 OBJ1 = \
 	main.obj screen.obj brac.obj ch.obj charset.obj cmdbuf.obj \
 	command.obj cvt.obj decode.obj edit.obj evar.obj filename.obj forwback.obj \
-	help.obj ifile.obj input.obj jump.obj line.obj linenum.obj \
+	help.obj ifile.obj input.obj jump.obj line.obj linenum.obj lmsg.obj \
 	lsystem.obj mark.obj optfunc.obj option.obj opttbl.obj os.obj \
 	output.obj pattern.obj position.obj prompt.obj search.obj signal.obj \
 	tags.obj ttyin.obj version.obj xbuf.obj regexp.obj
@@ -60,7 +60,7 @@ defines.h: defines.wn
 	-del defines.h
 	-copy defines.wn defines.h
 
-$(OBJ): less.h defines.h funcs.h cmd.h
+$(OBJ): less.h funcs.h defines.h lang.h lmsg.h lessmsg.inc pattern.h xbuf.h
 
 # generate help.c and funcs.h. We use *.c because we don't have a sources list.
 # intentionally detached from $(OBJ) in case of cross compile - needs native cc

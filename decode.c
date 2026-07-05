@@ -569,7 +569,7 @@ static void pop_cmd_table(struct tablelist **tlist)
 public void add_fcmd_table(unsigned char *buf, size_t len)
 {
 	if (add_cmd_table(&list_fcmd_tables, buf, len) < 0)
-		error("Warning: some commands disabled", NULL_PARG);
+		error(LM(some_commands_disabled), NULL_PARG);
 }
 
 /*
@@ -578,7 +578,7 @@ public void add_fcmd_table(unsigned char *buf, size_t len)
 public void add_ecmd_table(unsigned char *buf, size_t len)
 {
 	if (add_cmd_table(&list_ecmd_tables, buf, len) < 0)
-		error("Warning: some edit commands disabled", NULL_PARG);
+		error(LM(some_edit_commands_disabled), NULL_PARG);
 }
 
 /*
@@ -592,7 +592,7 @@ static void add_var_table(struct tablelist **tlist, mutable unsigned char *buf, 
 	expand_evars((mutable char*)buf, len, &xbuf); /*{{unsigned-issue}}*/
 	/* {{ We leak the table in buf. expand_evars scribbled in it so it's useless anyway. }} */
 	if (add_cmd_table(tlist, xbuf.data, xbuf.end) < 0)
-		error("Warning: environment variables from lesskey file unavailable", NULL_PARG);
+		error(LM(environment_variables_from_lesskey_file_unavailable), NULL_PARG);
 }
 
 public void add_uvar_table(unsigned char *buf, size_t len)
@@ -1072,12 +1072,12 @@ public int csl_bitmap_bit(constant char *name, size_t len, struct csl_bitmap_def
 		if (strncmp(defs[i].bit_name, name, len) == 0)
 		{
 			if (match >= 0) /* name is ambiguous */
-				return csl_bitmap_error(pfx, "ambiguous", len, name);
+				return csl_bitmap_error(pfx, LM(ambiguous), len, name);
 			match = i;
 		}
 	}
 	if (match < 0)
-		return csl_bitmap_error(pfx, "invalid", len, name);
+		return csl_bitmap_error(pfx, LM(invalid), len, name);
 	return defs[match].bit_value;
 }
 

@@ -1418,7 +1418,7 @@ public LINENUM cmd_int(mutable long *frac)
 	{
 		if (ckd_mul(&n, n, 10) || ckd_add(&n, n, *p - '0'))
 		{
-			error("Integer is too big", NULL_PARG);
+			error(LM(Integer_is_too_big), NULL_PARG);
 			return (0);
 		}
 	}

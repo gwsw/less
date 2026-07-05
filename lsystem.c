@@ -199,7 +199,8 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 	if (donemsg != NULL)
 	{
 		putstr(donemsg);
-		putstr("  (press RETURN)");
+		putstr("  ");
+		putstr(LM(press_RETURN));
 		get_return();
 		putchr('\n');
 		flush();
@@ -293,13 +294,13 @@ public int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
 	 */
 	if (ch_seek(spos) != 0)
 	{
-		error("Cannot seek to start position", NULL_PARG);
+		error(LM(Cannot_seek_to_start_position), NULL_PARG);
 		return (-1);
 	}
 
 	if ((f = popen(cmd, "w")) == NULL)
 	{
-		error("Cannot create pipe", NULL_PARG);
+		error(LM(Cannot_create_pipe), NULL_PARG);
 		return (-1);
 	}
 	clear_bot();

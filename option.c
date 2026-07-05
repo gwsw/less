@@ -186,7 +186,7 @@ public void scan_option(constant char *s, lbool is_env)
 			if (o == NULL)
 			{
 				parg.p_string = printopt;
-				error("There is no %s option (\"less --help\" for help)", &parg);
+				error(LM(There_is_no_X_option_help), &parg);
 				return;
 			}
 		} else
@@ -213,8 +213,7 @@ public void scan_option(constant char *s, lbool is_env)
 				    (o->otype & OTYPE) != O_NUMBER)
 				{
 					parg.p_string = printopt;
-					error("The --%s option should not be followed by =",
-						&parg);
+					error(LM(The_X_option_should_not_be_followed_by_eq), &parg);
 					return;
 				}
 				s++;
@@ -230,9 +229,9 @@ public void scan_option(constant char *s, lbool is_env)
 			{
 				parg.p_string = printopt;
 				if (ambig)
-					error("--%s is an ambiguous abbreviation (\"less --help\" for help)", &parg);
+					error(LM(X_is_an_ambiguous_abbreviation), &parg);
 				else
-					error("There is no --%s option (\"less --help\" for help)", &parg);
+					error(LM(There_is_no__X_option_help), &parg);
 				return;
 			}
 		}
@@ -327,21 +326,21 @@ public lbool toggle_option(struct loption *o, lbool lower, constant char *s, int
 
 	if (o == NULL)
 	{
-		error("No such option", NULL_PARG);
+		error(LM(No_such_option), NULL_PARG);
 		return FALSE;
 	}
 
 	if (how_toggle == OPT_TOGGLE && (o->otype & O_NO_TOGGLE))
 	{
 		parg.p_string = opt_desc(o);
-		error("Cannot change the %s option", &parg);
+		error(LM(Cannot_change_the_X_option), &parg);
 		return FALSE;
 	}
 
 	if (how_toggle == OPT_NO_TOGGLE && (o->otype & O_NO_QUERY))
 	{
 		parg.p_string = opt_desc(o);
-		error("Cannot query the %s option", &parg);
+		error(LM(Cannot_query_the_X_option), &parg);
 		return FALSE;
 	} 
 
@@ -425,8 +424,7 @@ public lbool toggle_option(struct loption *o, lbool lower, constant char *s, int
 			{
 			case OPT_SET:
 			case OPT_UNSET:
-				error("Cannot use \"-+\" or \"-!\" for a string option",
-					NULL_PARG);
+				error(LM(Cannot_use_or_for_a_string_option), NULL_PARG);
 				return FALSE;
 			}
 			break;
@@ -444,8 +442,7 @@ public lbool toggle_option(struct loption *o, lbool lower, constant char *s, int
 				*(o->ovar) = o->odefault;
 				break;
 			case OPT_SET:
-				error("Can't use \"-!\" for a numeric option",
-					NULL_PARG);
+				error(LM(Cant_use_for_a_numeric_option), NULL_PARG);
 				return FALSE;
 			}
 			break;
@@ -543,7 +540,7 @@ public constant char * opt_toggle_disallowed(int c)
 	{
 	case 'o':
 		if (ch_getflags() & CH_CANSEEK)
-			return "Input is not a pipe";
+			return LM(Input_is_not_a_pipe);
 		break;
 	}
 	return NULL;
@@ -568,7 +565,7 @@ static void nostring(constant char *printopt)
 {
 	PARG parg;
 	parg.p_string = printopt;
-	error("Value is required after %s", &parg);
+	error(LM(Value_is_required_after_X), &parg);
 }
 
 /*
@@ -668,9 +665,9 @@ static lbool num_error(constant char *printopt, num_error_type error_type)
 		PARG parg;
 		switch (error_type)
 		{
-		case NUM_ERR_OVERFLOW: msg = "Number too large in %s"; break;
-		case NUM_ERR_NEG:      msg = "Negative number not allowed in %s"; break;
-		default:               msg = "Number is required after %s"; break;
+		case NUM_ERR_OVERFLOW: msg = LM(Number_too_large_in_X); break;
+		case NUM_ERR_NEG:      msg = LM(Negative_number_not_allowed_in_X); break;
+		default:               msg = LM(Number_is_required_after_X); break;
 		}
 		parg.p_string = printopt;
 		error(msg, &parg);

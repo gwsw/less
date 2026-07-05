@@ -3264,6 +3264,18 @@ The default is 4000 (4 seconds).
 Emulate the
 .BR more (1)
 command.
+.IP LESSMSG
+When set to the name of a
+.I lessmsg
+file, messages displayed by less are taken from that file.
+This can be used to translate
+.B less
+messages into another language.
+See the file
+.B lessmsg
+in the
+.B less
+distribution for more details.
 .IP LESS_OSC8_OPEN_xxx
 Where "xxx" is a URI scheme such as "http" or "file",
 sets an OSC 8 handler for opening OSC 8 links containing a URI with that scheme.

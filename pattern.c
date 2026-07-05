@@ -33,7 +33,7 @@ static int compile_pattern2(constant char *pattern, int search_type, PATTERN_TYP
 	{
 		free(comp);
 		if (show_error)
-			error("Invalid pattern", NULL_PARG);
+			error(LM(Invalid_pattern), NULL_PARG);
 		return (-1);
 	}
 	if (*comp_pattern != NULL)
@@ -49,7 +49,7 @@ static int compile_pattern2(constant char *pattern, int search_type, PATTERN_TYP
 	{
 		free(comp);
 		if (show_error)
-			error("Invalid pattern", NULL_PARG);
+			error(LM(Invalid_pattern), NULL_PARG);
 		return (-1);
 	}
 	if (*comp_pattern != NULL)
@@ -112,7 +112,7 @@ static int compile_pattern2(constant char *pattern, int search_type, PATTERN_TYP
 	if ((comp = regcmp(pattern, 0)) == NULL)
 	{
 		if (show_error)
-			error("Invalid pattern", NULL_PARG);
+			error(LM(Invalid_pattern), NULL_PARG);
 		return (-1);
 	}
 	if (comp_pattern != NULL)

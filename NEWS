@@ -22,6 +22,8 @@
 
 * Add -DO for custom coloring of OSC 8 links.
 
+* Add LESSMSG, which allows translation of messages into other languages.
+
 * Add LESSSECURE_DISALLOW.
 
 * Add LESS_SHELL_COPTION.

@@ -604,7 +604,7 @@ static FILE * shellcmd(constant char *cmd)
 			char *esccmd = shell_quote(cmd);
 			if (esccmd == NULL)
 			{
-				error("cannot quote command", NULL_PARG);
+				error(LM(cannot_quote_command), NULL_PARG);
 				return NULL;
 			} else
 			{
@@ -915,7 +915,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 		 * a "pipe preprocessor".
 		 */
 #if !HAVE_FILENO
-		error("LESSOPEN pipe is not supported", NULL_PARG);
+		error(LM(LESSOPEN_pipe_is_not_supported), NULL_PARG);
 		return (NULL);
 #else
 		lessopen++;
@@ -935,7 +935,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 	}
 	if (num_pct_s(lessopen) != 1)
 	{
-		error("LESSOPEN ignored: must contain exactly one %%s", NULL_PARG);
+		error(LM(LESSOPEN_ignored), NULL_PARG);
 		return (NULL);
 	}
 
@@ -1030,7 +1030,7 @@ public void close_altfile(constant char *altfilename, constant char *filename)
 		return;
 	if (num_pct_s(lessclose) > 2) 
 	{
-		error("LESSCLOSE ignored; must contain no more than 2 %%s", NULL_PARG);
+		error(LM(LESSCLOSE_ignored), NULL_PARG);
 		return;
 	}
 	qfilename = shell_quote(filename);
@@ -1095,11 +1095,10 @@ public char * bad_file(constant char *filename)
 
 	if (!force_open && is_dir(filename))
 	{
-		static char is_a_dir[] = " is a directory";
-
-		m = (char *) ecalloc(strlen(filename) + sizeof(is_a_dir), 
-			sizeof(char));
+		constant char *is_a_dir = LM(is_a_directory);
+		m = (char *) ecalloc(strlen(filename) + strlen(is_a_dir) + 2, sizeof(char));
 		strcpy(m, filename);
+		strcat(m, " ");
 		strcat(m, is_a_dir);
 	} else
 	{
@@ -1116,10 +1115,10 @@ public char * bad_file(constant char *filename)
 			m = NULL;
 		} else if (!S_ISREG(statbuf.st_mode))
 		{
-			static char not_reg[] = " is not a regular file (use -f to see it)";
-			m = (char *) ecalloc(strlen(filename) + sizeof(not_reg),
-				sizeof(char));
+			constant char *not_reg = LM(is_not_a_regular_file);
+			m = (char *) ecalloc(strlen(filename) + strlen(not_reg) + 2, sizeof(char));
 			strcpy(m, filename);
+			strcat(m, " ");
 			strcat(m, not_reg);
 		}
 #endif
