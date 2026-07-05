@@ -793,7 +793,8 @@ public void set_tabs(constant char *s, size_t len)
  */
 public void opt_x(int type, constant char *s)
 {
-	char msg[60+((INT_STRLEN_BOUND(int)+1)*TABSTOP_MAX)];
+	size_t msglen;
+	char *msg;
 	int i;
 	PARG p;
 
@@ -804,6 +805,8 @@ public void opt_x(int type, constant char *s)
 		set_tabs(s, strlen(s));
 		break;
 	case QUERY:
+		msglen = strlen(LM(Tab_stops)) + strlen(LM(and_then)) + strlen(LM(every_X_spaces)) + ((INT_STRLEN_BOUND(int)+1)*TABSTOP_MAX) + 2;
+		msg = ecalloc(msglen, sizeof(char));
 		strcpy(msg, LM(Tab_stops));
 		if (ntabstops > 2)
 		{
@@ -814,11 +817,12 @@ public void opt_x(int type, constant char *s)
 				sprintf(msg+strlen(msg), "%d", tabstops[i]);
 			}
 			strcat(msg, " ");
-			sprintf(msg+strlen(msg), LM(and_then));
+			strcat(msg, LM(and_then));
 		}
 		sprintf(msg+strlen(msg), LM(every_X_spaces), tabdefault);
 		p.p_string = msg;
 		error("%s", &p);
+		free(msg);
 		break;
 	}
 }
