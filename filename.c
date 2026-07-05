@@ -1100,6 +1100,7 @@ public char * bad_file(constant char *filename)
 		strcpy(m, filename);
 		strcat(m, " ");
 		strcat(m, is_a_dir);
+		free(m);
 	} else
 	{
 #if HAVE_STAT
@@ -1120,6 +1121,7 @@ public char * bad_file(constant char *filename)
 			strcpy(m, filename);
 			strcat(m, " ");
 			strcat(m, not_reg);
+			free(m);
 		}
 #endif
 	}

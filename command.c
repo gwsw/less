@@ -196,8 +196,14 @@ static void mca_search1(void)
 	{
 		if (search_type & SRCH_SUBSEARCH(i))
 		{
-			char buf[INT_STRLEN_BOUND(int)+8];
-			SNPRINTF1(buf, sizeof(buf), LM(Sub_X), i);
+			static char *buf = NULL;
+			static size_t buflen;
+			if (buf == NULL)
+			{
+				buflen = INT_STRLEN_BOUND(int)+strlen(LM(Sub_X)+1);
+				buf = ecalloc(buflen, sizeof(char));
+			}
+			SNPRINTF1(buf, buflen, LM(Sub_X), i);
 			cmd_putstr(buf);
 		}
 	}
@@ -604,8 +610,14 @@ static int mca_search_char(char c)
 			flag = SRCH_NO_MOVE;
 		break;
 	case CONTROL('S'): { /* SUBSEARCH */
-		char buf[INT_STRLEN_BOUND(int)+24];
-		SNPRINTF1(buf, sizeof(buf), LM(Sub_pattern_1_X), NUM_SEARCH_COLORS);
+		static char *buf = NULL;
+		static size_t buflen;
+		if (buf == NULL)
+		{
+			buflen = INT_STRLEN_BOUND(int)+strlen(LM(Sub_pattern_1_X))+1;
+			buf = ecalloc(buflen, sizeof(char));
+		}
+		SNPRINTF1(buf, buflen, LM(Sub_pattern_1_X), NUM_SEARCH_COLORS);
 		clear_bot();
 		cmd_putstr(buf);
 		flush();

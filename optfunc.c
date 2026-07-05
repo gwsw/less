@@ -805,7 +805,7 @@ public void opt_x(int type, constant char *s)
 		set_tabs(s, strlen(s));
 		break;
 	case QUERY:
-		msglen = strlen(LM(Tab_stops)) + strlen(LM(and_then)) + strlen(LM(every_X_spaces)) + ((INT_STRLEN_BOUND(int)+1)*TABSTOP_MAX) + 2;
+		msglen = strlen(LM(Tab_stops)) + strlen(LM(and_then)) + strlen(LM(every_X_spaces)) + ((INT_STRLEN_BOUND(int)+1)*ntabstops) + 2;
 		msg = ecalloc(msglen, sizeof(char));
 		strcpy(msg, LM(Tab_stops));
 		if (ntabstops > 2)
