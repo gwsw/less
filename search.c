@@ -187,20 +187,19 @@ static int set_pattern(struct pattern_info *info, constant char *pattern, int se
 	info->is_ucase_pattern = (pattern == NULL) ? FALSE : is_ucase(pattern);
 	is_caseless = (info->is_ucase_pattern && caseless != OPT_ONPLUS) ? 0 : caseless;
 #if !NO_REGEX
-	if (pattern == NULL)
-		SET_NULL_PATTERN(info->compiled);
-	else if (compile_pattern(pattern, search_type, show_error, &info->compiled) < 0)
-		return -1;
+	uncompile_pattern(&info->compiled);
+	if (pattern != NULL)
+	{
+		if (compile_pattern(pattern, search_type, show_error, &info->compiled) < 0)
+			return -1;
+	}
 #endif
 	/* Pattern compiled successfully; save the text too. */
 	if (info->text != NULL)
 		free(info->text);
 	info->text = NULL;
 	if (pattern != NULL)
-	{
-		info->text = (char *) ecalloc(1, strlen(pattern)+1);
-		strcpy(info->text, pattern);
-	}
+		info->text = save(pattern);
 	info->search_type = search_type;
 	return 0;
 }
