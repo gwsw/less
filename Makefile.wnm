@@ -71,6 +71,8 @@ generated:
 
 clean:
 	-del *.obj 
-	-del less.exe
+	-del *.exe
 	-del defines.h
+	-del help.c
+	-del funcs.h
 
