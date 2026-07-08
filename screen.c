@@ -240,6 +240,7 @@ static constant char
 	*sc_home,               /* Cursor home */
 	*sc_addline,            /* Add line, scroll down following lines */
 	*sc_lower_left,         /* Cursor to last line, first column */
+	*sc_ll,                 /* Raw lower-left cap (but we may use sc_move for sc_lower_left) */
 	*sc_return,             /* Cursor to beginning of current line */
 	*sc_move,               /* General cursor positioning */
 	*sc_clear,              /* Clear screen */
@@ -303,12 +304,6 @@ static int attrmode = AT_NORMAL; /* current attributes (AT_* bits) */
 extern int binattr;
 extern lbool one_screen;
 extern int shell_lines;
-
-#if !MSDOS_COMPILER
-static constant char *cheaper(constant char *t1, constant char *t2, constant char *def);
-static void tmodes(constant char *inti, constant char *outti, constant char *intc, constant char *outtc, constant char **instr,
-    constant char **outstr, constant char *def_instr, constant char *def_outstr, char **spp);
-#endif
 
 extern int quiet;               /* If VERY_QUIET, use visual bell for bell */
 extern int no_vbell;
@@ -828,6 +823,7 @@ static constant char * ltgetstr(constant char *tiname, constant char *tcname, ch
 	if (hardcopy)
 		return (NULL);
 #if USE_TERMINFO
+	(void) pp;
 	if (tiname == NULL)
 		return (NULL);
 	s = tigetstr(tiname);
@@ -1408,72 +1404,75 @@ public void init_win_colors(void)
 }
 #endif /* MSDOS_COMPILER */
 
+#if !MSDOS_COMPILER
 /*
- * Get permanent terminal characteristics.
- * Called once at startup.
+ * Return the cost of displaying a termcap string.
+ * We use the trick of calling tputs, but as a char printing function
+ * we give it inc_costcount, which just increments "costcount".
+ * This tells us how many chars would be printed by using this string.
  */
-public void get_term(void)
-{
-#if MSDOS_COMPILER
-	auto_wrap = 1;
-	defer_wrap = 0;
-	can_goto_line = 1;
-	/*
-	 * Set up default colors.
-	 * The xx_s_width and xx_e_width vars are already initialized to 0.
-	 */
-#if MSDOS_COMPILER==MSOFTC
-	sy_bg_color = _getbkcolor();
-	sy_fg_color = _gettextcolor();
-	get_clock();
-#else
-#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
-    {
-	struct text_info w;
-	gettextinfo(&w);
-	sy_bg_color = (w.attribute >> 4) & 0x0F;
-	sy_fg_color = (w.attribute >> 0) & 0x0F;
-    }
-#else
-#if MSDOS_COMPILER==WIN32C
-    {
-	CONSOLE_SCREEN_BUFFER_INFO scr;
+static int costcount;
 
-	con_out_save = con_out = GetStdHandle(STD_OUTPUT_HANDLE);
-	/*
-	 * Always open stdin in binary. Note this *must* be done
-	 * before any file operations have been done on fd0.
-	 */
-	SET_BINARY(0);
-	GetConsoleMode(con_out, &init_console_output_mode);
-	GetConsoleScreenBufferInfo(con_out, &scr);
-	curr_attr = scr.wAttributes;
-	sy_bg_color = (curr_attr & BG_COLORS) >> 4; /* normalize */
-	sy_fg_color = curr_attr & FG_COLORS;
-    }
-#endif
-#endif
-#endif
-	init_win_colors();
-#else
-	termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
-#endif /* MSDOS_COMPILER */
-	update_term();
+/*ARGSUSED*/
+static int inc_costcount(int c)
+{
+	costcount++;
+	return (c);
+}
+
+static int cost(constant char *t)
+{
+	costcount = 0;
+	tputs(t, sc_height, inc_costcount);
+	return (costcount);
 }
 
 /*
- * Get terminal characteristics which may change during execution (size, etc).
- * May be called multiple times.
+ * Return the "best" of the two given termcap strings.
+ * The best, if both exist, is the one with the lower 
+ * cost (see cost() function).
  */
-public void update_term(void)
+static constant char * cheaper(constant char *t1, constant char *t2, constant char *def)
 {
-#if MSDOS_COMPILER
-	/*
-	 * Get size of the screen.
-	 */
-	scrsize();
-	pos_init();
-#else
+	if (*t1 == '\0' && *t2 == '\0')
+	{
+		missing_cap = TRUE;
+		return (def);
+	}
+	if (*t1 == '\0')
+		return (t2);
+	if (*t2 == '\0')
+		return (t1);
+	if (cost(t1) < cost(t2))
+		return (t1);
+	return (t2);
+}
+
+static void tmodes(constant char *inti, constant char *outti, constant char *intc, constant char *outtc, constant char **instr, constant char **outstr, constant char *def_instr, constant char *def_outstr, char **spp)
+{
+	*instr = ltgetstr(inti, intc, spp);
+	if (*instr == NULL)
+	{
+		/* Use defaults. */
+		*instr = def_instr;
+		*outstr = def_outstr;
+		return;
+	}
+
+	*outstr = ltgetstr(outti, outtc, spp);
+	if (*outstr == NULL)
+		/* No specific out capability; use "me". */
+		*outstr = ltgetstr("sgr0", "me", spp);
+	if (*outstr == NULL)
+		/* Don't even have "me"; use a null string. */
+		*outstr = "";
+}
+
+/*
+ * Get terminal capabilities from termcap or terminfo.
+ */
+static void get_term_info(void)
+{
 	constant char *t1;
 	constant char *t2;
 	constant char *term;
@@ -1511,8 +1510,6 @@ public void update_term(void)
 		term = DEFAULT_TERM;
 	hardcopy = 0;
 #if USE_TERMINFO
-	if (cur_term != NULL)
-		del_curterm(cur_term);
 	if (setupterm(term, -1, NULL) != OK)
 		hardcopy = 1;
 #else
@@ -1521,12 +1518,6 @@ public void update_term(void)
 #endif
 	if (!hardcopy && ltgetflag("hc", "hc"))
 		hardcopy = 1;
-
-	/*
-	 * Get size of the screen.
-	 */
-	scrsize();
-	pos_init();
 
 	auto_wrap = ltgetflag("am", "am");
 	defer_wrap = ltgetflag("xenl", "xn");
@@ -1677,22 +1668,7 @@ public void update_term(void)
 	}
 	sc_home = cheaper(t1, t2, "|\b^");
 
-	/*
-	 * Choose between using "ll" and "cm"  ("lower left" and "cursor move")
-	 * to move the cursor to the lower left corner of the screen.
-	 */
-	t1 = ltgetstr("ll", "ll", &sp);
-	if (t1 == NULL || !full_screen)
-		t1 = "";
-	if (*sc_move == '\0')
-		t2 = "";
-	else
-	{
-		strcpy(sp, ltgoto(sc_move, 0, sc_height-1));
-		t2 = sp;
-		sp += strlen(sp) + 1;
-	}
-	sc_lower_left = cheaper(t1, t2, "\r");
+	sc_ll = ltgetstr("ll", "ll", &sp);
 
 	/*
 	 * Get carriage return string.
@@ -1724,74 +1700,102 @@ public void update_term(void)
 		 */
 		no_back_scroll = TRUE;
 	}
+}
+
+/*
+ * Update terminal capabilities after screen size has changed.
+ */
+static void reget_term_info(void)
+{
+	constant char *t1;
+	constant char *t2;
+	static char sbuf[64];
+
+	/*
+	 * Choose between using "ll" and "cm"  ("lower left" and "cursor move")
+	 * to move the cursor to the lower left corner of the screen.
+	 */
+	t1 = sc_ll;
+	if (t1 == NULL || !full_screen)
+		t1 = "";
+	if (*sc_move == '\0')
+		t2 = "";
+	else
+	{
+		SNPRINTF1(sbuf, sizeof(sbuf), "%s", ltgoto(sc_move, 0, sc_height-1));
+		t2 = sbuf;
+	}
+	sc_lower_left = cheaper(t1, t2, "\r");
+}
+#endif /* !MSDOS_COMPILER */
+
+/*
+ * Get permanent terminal characteristics.
+ * Called once at startup.
+ */
+public void get_term(void)
+{
+#if MSDOS_COMPILER
+	auto_wrap = 1;
+	defer_wrap = 0;
+	can_goto_line = 1;
+	/*
+	 * Set up default colors.
+	 * The xx_s_width and xx_e_width vars are already initialized to 0.
+	 */
+#if MSDOS_COMPILER==MSOFTC
+	sy_bg_color = _getbkcolor();
+	sy_fg_color = _gettextcolor();
+	get_clock();
+#else
+#if MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
+    {
+	struct text_info w;
+	gettextinfo(&w);
+	sy_bg_color = (w.attribute >> 4) & 0x0F;
+	sy_fg_color = (w.attribute >> 0) & 0x0F;
+    }
+#else
+#if MSDOS_COMPILER==WIN32C
+    {
+	CONSOLE_SCREEN_BUFFER_INFO scr;
+
+	con_out_save = con_out = GetStdHandle(STD_OUTPUT_HANDLE);
+	/*
+	 * Always open stdin in binary. Note this *must* be done
+	 * before any file operations have been done on fd0.
+	 */
+	SET_BINARY(0);
+	GetConsoleMode(con_out, &init_console_output_mode);
+	GetConsoleScreenBufferInfo(con_out, &scr);
+	curr_attr = scr.wAttributes;
+	sy_bg_color = (curr_attr & BG_COLORS) >> 4; /* normalize */
+	sy_fg_color = curr_attr & FG_COLORS;
+    }
+#endif
+#endif
+#endif
+	init_win_colors();
+#else
+	termcap_debug = !isnullenv(lgetenv("LESS_TERMCAP_DEBUG"));
+	get_term_info();
+#endif /* MSDOS_COMPILER */
+	update_term();
+}
+
+/*
+ * Get terminal characteristics which may change during execution (size, etc).
+ * May be called multiple times.
+ */
+public void update_term(void)
+{
+	/* Get size of the screen. */
+	scrsize();
+	pos_init();
+#if !MSDOS_COMPILER
+	reget_term_info();
 #endif
 }
-
-#if !MSDOS_COMPILER
-/*
- * Return the cost of displaying a termcap string.
- * We use the trick of calling tputs, but as a char printing function
- * we give it inc_costcount, which just increments "costcount".
- * This tells us how many chars would be printed by using this string.
- */
-static int costcount;
-
-/*ARGSUSED*/
-static int inc_costcount(int c)
-{
-	costcount++;
-	return (c);
-}
-
-static int cost(constant char *t)
-{
-	costcount = 0;
-	tputs(t, sc_height, inc_costcount);
-	return (costcount);
-}
-
-/*
- * Return the "best" of the two given termcap strings.
- * The best, if both exist, is the one with the lower 
- * cost (see cost() function).
- */
-static constant char * cheaper(constant char *t1, constant char *t2, constant char *def)
-{
-	if (*t1 == '\0' && *t2 == '\0')
-	{
-		missing_cap = TRUE;
-		return (def);
-	}
-	if (*t1 == '\0')
-		return (t2);
-	if (*t2 == '\0')
-		return (t1);
-	if (cost(t1) < cost(t2))
-		return (t1);
-	return (t2);
-}
-
-static void tmodes(constant char *inti, constant char *outti, constant char *intc, constant char *outtc, constant char **instr, constant char **outstr, constant char *def_instr, constant char *def_outstr, char **spp)
-{
-	*instr = ltgetstr(inti, intc, spp);
-	if (*instr == NULL)
-	{
-		/* Use defaults. */
-		*instr = def_instr;
-		*outstr = def_outstr;
-		return;
-	}
-
-	*outstr = ltgetstr(outti, outtc, spp);
-	if (*outstr == NULL)
-		/* No specific out capability; use "me". */
-		*outstr = ltgetstr("sgr0", "me", spp);
-	if (*outstr == NULL)
-		/* Don't even have "me"; use a null string. */
-		*outstr = "";
-}
-
-#endif /* MSDOS_COMPILER */
 
 
 /*
