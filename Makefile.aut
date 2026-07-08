@@ -83,7 +83,7 @@ funcs.h: ${SRC:%=${srcdir}/%}
 
 lessmsg.inc: ${LMSG_FILES}
 	-mv -f $@ $@.old
-	sed -e '/^\s*#/d' -e '/^\s*$$/d' -e 's/\t/ /g' -e 's/^ *\([^ ]*\)  *\(.*\)/M(\1,"\2")/' $^ > $@
+	sed -e '/^\s*#/d' -e '/^\s*$$/d' -e 's/^ *\([^ ]*\)  *\(.*\)/M(\1,"\2")/' $^ > $@
 
 lint:
 	lint -I. ${CPPFLAGS} ${SRC}
