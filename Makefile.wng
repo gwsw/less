@@ -154,9 +154,11 @@ ifeq  (${WINGEN},1)
     BUILDGEN = buildgen.exe
     MKHELP = buildgen.exe help
     MKFUNCS = type 2>NUL ${LESS_SRC} | buildgen.exe funcs
+    MKLESSMSG = type lessmsg lessmsg_int 2>NUL | buildgen.exe lessmsg
 else
     MKHELP = (perl mkhelp.pl || sh mkhelp.sh)
     MKFUNCS = grep -h "^public [^;]*$$" ${LESS_SRC} | sed "s/$$/;/"
+    MKLESSMSG = sed -e '/^\s*#/d' -e '/^\s*$$/d' -e 's/^ *\([^ ]*\)  *\(.*\)/M(\1,"\2")/' lessmsg lessmsg_int
 endif
 
 funcs.h: ${LESS_SRC} ${BUILDGEN}
@@ -166,6 +168,9 @@ funcs.h: ${LESS_SRC} ${BUILDGEN}
 
 help.c: less.hlp ${BUILDGEN}
 	${MKHELP}  < less.hlp > $@
+
+lessmsg.inc: lessmsg lessmsg_int ${BUILDGEN}
+	${MKLESSMSG} > $@
 
 buildgen.exe: buildgen.c
 	${CC} $< -o $@

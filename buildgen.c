@@ -28,6 +28,29 @@ int main(int argc, char **argv)
 		puts("constant int size_helpdata = sizeof(helpdata) - 1;");
 	}
 
+	if (argc == 2 && !strcmp(argv[1], "lessmsg"))
+	{
+		for (cmd = 1; fgets(buf, sizeof buf, stdin); ok = 1)
+		{
+			char *sym = buf;
+			char *msg;
+			while (*sym == ' ')
+				++sym;
+			if (*sym == '\0' || *sym == '\n' || *sym == '#')
+				continue;
+			for (p = sym; *p != '\0' && *p != ' ' && *p != '\n'; ++p)
+				;
+			if (*p != '\0')
+				*p++= '\0';
+			while (*p == ' ')
+				++p;
+			for (msg = p; *p != '\0' && *p != '\n'; ++p)
+				;
+			*p = '\0';
+			printf("M(%s,\"%s\")\n", sym, msg);
+		}
+	}
+
 	if (cmd && ok)
 		return 0;
 	fprintf(stderr, !cmd ? "stdin -> stdout: %s MODE  (funcs or help)\n"

@@ -68,6 +68,7 @@ generated:
 	$(CC) buildgen.c
 	buildgen.exe help < less.hlp > help.c
 	type *.c 2>NUL | buildgen.exe funcs > funcs.h
+	type lessmsg lessmsg_int 2>NUL | buildgen.exe lessmsg > lessmsg.inc
 
 clean:
 	-del *.obj 
