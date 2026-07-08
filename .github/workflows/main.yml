@@ -24,11 +24,12 @@ jobs:
       run: |
         make -f Makefile.aut dist GPG=:
         echo "basename=$(basename release/less-*)" > "$GITHUB_OUTPUT"
+        mv -v release/less-*/*.tar.gz less-githubtest.tar.gz
 
     - uses: actions/upload-artifact@v7
       with:
         archive: false
-        path: release/${{ steps.build-dist.outputs.basename }}/${{ steps.build-dist.outputs.basename }}-beta.tar.gz
+        path: less-githubtest.tar.gz
 
     outputs:
       basename: ${{ steps.build-dist.outputs.basename }}
@@ -41,12 +42,10 @@ jobs:
     steps:
     - uses: actions/download-artifact@v8
       with:
-        name: ${{ needs.dist.outputs.basename }}-beta.tar.gz
+        name: less-githubtest.tar.gz
 
     - name: Unpack
-      env:
-        BASENAME: ${{ needs.dist.outputs.basename }}
-      run: tar -xzf "$BASENAME-beta.tar.gz"
+      run: tar -xzf less-githubtest.tar.gz
 
     - name: Configure
       working-directory: ${{ needs.dist.outputs.basename }}
