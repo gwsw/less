@@ -571,6 +571,8 @@ public int edit_ifile(IFILE ifile)
 					 */
 					parg.p_string = filename;
 					answer = query(LM(X_may_be_a_binary_file), &parg);
+					if (answer == 'q')
+						quit(QUIT_OK);
 					if (answer != 'y' && answer != 'Y')
 					{
 						close(f);
