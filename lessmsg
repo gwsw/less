@@ -5,11 +5,16 @@
 # This file defines a list of mappings from a symbol name to a message string.
 # Each line in the file contains the symbol name, followed by one or more
 # ASCII spaces, followed by the message string.
-# The message string may contain the C-style escape sequences:
-# \n, \r, \t, \", \\, \xDD where DD is a hexadecimal number, and
-# \DDD where DDD is an octal number.
+# To include a literal double-quote character in the message string, use
+# the C-style escape sequence \". Similarly, use \\ to include a literal
+# backslash, \n for newline, \r for carriage return, and \t for tab.
+# You can also use \xDD where DD is a hexadecimal number, or \DDD where DDD
+# is an octal number, to encode a character using its ASCII value.
+# Non-ASCII characters should be encoded as UTF-8 bytes.
 # A backslash at the end of a line indicates continuation onto the next line.
 # The backslash and following newline are removed from the line.
+# (Continuation lines work only in custom lessmsg files, not in the lessmsg
+# file which is compiled into less.)
 
 # Any spaces at the end of a line are significant, and will be included
 # in the message string. To make it easier to see that such trailing
@@ -347,14 +352,15 @@ No_such_tag_in_tags_file No such tag in tags file
 unknown_tag_type unknown tag type
 Tag_not_found Tag not found
 
-# The help file can be overridden with the "Help" symbol.
+# The help file can be overridden with the "HELP" symbol.
 # Normally this will be a multi-line string, so it is convenient to define
 # it here as a list of lines, each ending with a newline and backslash to
 # continue the message on the next line.  The last line should not have a
 # final backslash.
 #
-# Example (uncomment and remove final space-dot):
+# Example (remove initial ## from each line):
 #
-## HELP First line of example help file.\n\ .
-## Second line of help file.\n\ .
-## Last line of help file.\n .
+##HELP \
+##First line of example help file.\n\
+##Second line of help file.\n\
+##Last line of help file.\n

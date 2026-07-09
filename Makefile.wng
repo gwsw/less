@@ -158,7 +158,7 @@ ifeq  (${WINGEN},1)
 else
     MKHELP = (perl mkhelp.pl || sh mkhelp.sh)
     MKFUNCS = grep -h "^public [^;]*$$" ${LESS_SRC} | sed "s/$$/;/"
-    MKLESSMSG = sed -e '/^\s*#/d' -e '/^\s*$$/d' -e 's/^ *\([^ ]*\)  *\(.*\)/M(\1,"\2")/' lessmsg lessmsg_int
+    MKLESSMSG = sed -e "/^ *\#/d" -e "/^ *$$/d" -e "s/^ *\([^ ]*\)  *\(.*\)/M(\1,\"\2\")/" lessmsg lessmsg_int
 endif
 
 funcs.h: ${LESS_SRC} ${BUILDGEN}
