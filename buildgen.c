@@ -1,6 +1,20 @@
 #include <stdio.h>
 #include <string.h>
 
+static char *skip_over(char *s, const char *skip)
+{
+	while (*s != '\0' && strchr(skip, *s) != NULL)
+		++s;
+	return s;
+}
+
+static char *skip_to(char *s, const char *skip)
+{
+	while (*s != '\0' && strchr(skip, *s) == NULL)
+		++s;
+	return s;
+}
+
 int main(int argc, char **argv)
 {
 	char *p, buf[1024];  /* enough for the longest prototype at funcs.h */
@@ -32,20 +46,15 @@ int main(int argc, char **argv)
 	{
 		for (cmd = 1; fgets(buf, sizeof buf, stdin); ok = 1)
 		{
-			char *sym = buf;
 			char *msg;
-			while (*sym == ' ')
-				++sym;
-			if (*sym == '\0' || *sym == '\n' || *sym == '#')
+			char *sym = skip_over(buf, " ");
+			if (*sym == '\0' || *sym == '\n' || *sym == '\r' || *sym == '#')
 				continue;
-			for (p = sym; *p != '\0' && *p != ' ' && *p != '\n'; ++p)
-				;
+			p = skip_to(sym, " \r\n");
 			if (*p != '\0')
 				*p++= '\0';
-			while (*p == ' ')
-				++p;
-			for (msg = p; *p != '\0' && *p != '\n'; ++p)
-				;
+			msg = skip_over(p, " ");
+			p = skip_to(msg, "\r\n");
 			*p = '\0';
 			printf("M(%s,\"%s\")\n", sym, msg);
 		}
