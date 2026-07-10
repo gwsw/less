@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 
 	if (cmd && ok)
 		return 0;
-	fprintf(stderr, !cmd ? "stdin -> stdout: %s MODE  (funcs or help)\n"
+	fprintf(stderr, !cmd ? "stdin -> stdout: %s MODE  (funcs or help or lessmsg)\n"
 	                     : "%s: error: empty input\n", *argv);
 	return 1;
 }
