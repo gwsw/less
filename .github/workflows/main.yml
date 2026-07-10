@@ -25,11 +25,19 @@ jobs:
         make -f Makefile.aut dist GPG=:
         echo "basename=$(basename release/less-*)" > "$GITHUB_OUTPUT"
         mv -v release/less-*/*.tar.gz less-githubtest.tar.gz
+        mv -v release/less-*/*.zip less-githubtest.zip
 
-    - uses: actions/upload-artifact@v7
+    - name: Upload tarball
+      uses: actions/upload-artifact@v7
       with:
         archive: false
         path: less-githubtest.tar.gz
+
+    - name: Upload ZIP file
+      uses: actions/upload-artifact@v7
+      with:
+        archive: false
+        path: less-githubtest.zip
 
     outputs:
       basename: ${{ steps.build-dist.outputs.basename }}
@@ -69,3 +77,38 @@ jobs:
     - name: Test
       working-directory: ${{ needs.dist.outputs.basename }}
       run: make check
+
+  windows:
+    runs-on: windows-latest
+
+    needs: dist
+
+    strategy:
+      matrix:
+        toolchain: [mingw-w64, msvc]
+
+    steps:
+    - uses: actions/download-artifact@v8
+      with:
+        # Since the artifact is a ZIP file, it will automatically be unpacked.
+        name: less-githubtest.zip
+
+    - name: Make with Mingw-w64
+      if: matrix.toolchain == 'mingw-w64'
+      working-directory: ${{ needs.dist.outputs.basename }}
+      run: |
+        mingw32-make -j4 -f Makefile.wng
+
+    - name: Make with Visual C++
+      if: matrix.toolchain == 'msvc'
+      working-directory: ${{ needs.dist.outputs.basename }}
+      run: |
+        $vsPath = & "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+        & "$vsPath\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
+        nmake -f Makefile.wnm
+
+    - name: Run sanity check
+      working-directory: ${{ needs.dist.outputs.basename }}
+      run: |
+        .\less.exe README > README.out
+        cmd /c fc /b README README.out
