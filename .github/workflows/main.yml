@@ -39,6 +39,9 @@ jobs:
 
     needs: dist
 
+    env:
+      SAN: 1 # enable sanitizers
+
     steps:
     - uses: actions/download-artifact@v8
       with:
