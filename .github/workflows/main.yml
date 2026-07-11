@@ -83,29 +83,37 @@ jobs:
     strategy:
       matrix:
         toolchain: [mingw-w64, msvc]
+        source: [dist, git]
+
+    defaults:
+      run:
+        working-directory: ${{ case(matrix.source == 'dist', needs.dist.outputs.basename, '.') }}
 
     steps:
     - uses: actions/download-artifact@v8
+      if: matrix.source == 'dist'
       with:
         # Since the artifact is a ZIP file, it will automatically be unpacked.
         name: less-githubtest.zip
 
+    - uses: actions/checkout@v7
+      if: matrix.source == 'git'
+
     - name: Make with Mingw-w64
       if: matrix.toolchain == 'mingw-w64'
-      working-directory: ${{ needs.dist.outputs.basename }}
       run: |
         mingw32-make -j4 -f Makefile.wng
 
     - name: Make with Visual C++
       if: matrix.toolchain == 'msvc'
-      working-directory: ${{ needs.dist.outputs.basename }}
+      env:
+        TARGETS: ${{ case(matrix.source == 'dist', 'all', 'generated all') }}
       run: |
         $vsPath = & "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
         & "$vsPath\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
-        nmake -f Makefile.wnm
+        nmake -f Makefile.wnm (-split $Env:TARGETS)
 
     - name: Run sanity check
-      working-directory: ${{ needs.dist.outputs.basename }}
       run: |
         .\less.exe README > README.out
         cmd /c fc /b README README.out
