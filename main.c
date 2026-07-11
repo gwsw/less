@@ -462,7 +462,9 @@ int main(int argc, constant char *argv[])
 		 * (file descriptor 2; see flush()).
 		 * Before erasing the screen contents, wait for a keystroke.
 		 */
-		less_printf(LM(Press_RETURN_to_continue), NULL_PARG);
+		PARG parg;
+		parg.p_string = LM(Press_RETURN_to_continue);
+		less_printf("%s", &parg);
 		get_return();
 		putchr('\n');
 	}
