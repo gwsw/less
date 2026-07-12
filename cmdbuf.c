@@ -993,10 +993,12 @@ static int cmd_istr(constant char *str)
  */
 static void set_tk_original(constant char *word)
 {
+	size_t len = ptr_diff(cp, word);
 	if (tk_original != NULL)
 		free(tk_original);
-	tk_original = (char *) ecalloc(ptr_diff(cp,word)+1, sizeof(char));
-	strncpy(tk_original, word, ptr_diff(cp,word));
+	tk_original = (char *) ecalloc(len+1, sizeof(char));
+	strncpy(tk_original, word, len);
+	tk_original[len] = '\0';
 }
 
 #if TAB_COMPLETE_FILENAME
