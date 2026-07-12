@@ -16,6 +16,12 @@
 #define CONTROL(c)      ((c)&037)
 #define ESC             CONTROL('[')
 
+struct lesskey_cmdname
+{
+	constant char *cn_name;
+	int cn_action;
+};
+
 extern char version[];
 
 static int linenum;
@@ -675,7 +681,7 @@ static void parse_line(char *line, struct lesskey_tables *tables)
 /*
  * Parse a lesskey source file and store result in tables.
  */
-int parse_lesskey(constant char *infile, struct lesskey_tables *tables)
+public int parse_lesskey(constant char *infile, struct lesskey_tables *tables)
 {
 	FILE *desc;
 	char line[1024];
@@ -722,7 +728,7 @@ int parse_lesskey(constant char *infile, struct lesskey_tables *tables)
 /*
  * Parse a lesskey source content and store result in tables.
  */
-int parse_lesskey_content(constant char *content, struct lesskey_tables *tables)
+public int parse_lesskey_content(constant char *content, struct lesskey_tables *tables)
 {
 	size_t cx = 0;
 

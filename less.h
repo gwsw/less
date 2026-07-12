@@ -683,6 +683,7 @@ struct mlist;
 struct loption;
 struct hilite_tree;
 struct ansi_state;
+struct lesskey_tables;
 #include "pattern.h"
 #include "xbuf.h"
 #include "funcs.h"

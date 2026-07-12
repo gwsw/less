@@ -26,7 +26,7 @@ endif
 SRC = \
 	main.c screen.c brac.c ch.c charset.c cmdbuf.c \
 	command.c cvt.c decode.c edit.c evar.c filename.c forwback.c \
-	help.c ifile.c input.c jump.c line.c linenum.c lmsg.c \
+	help.c ifile.c input.c jump.c lesskey_parse.c line.c linenum.c lmsg.c \
 	lsystem.c mark.c optfunc.c option.c opttbl.c os.c \
 	output.c pattern.c position.c prompt.c search.c signal.c \
 	tags.c ttyin.c version.c xbuf.c
@@ -43,7 +43,7 @@ LMSG_FILES = \
 DISTFILES = \
 	${SRC} regexp.c regexp.h \
 	COPYING INSTALL LICENSE Makefile.in Makefile.aut NEWS README \
-	configure.ac lesskey.c lesskey_parse.c lessecho.c scrsize.c \
+	configure.ac lessecho.c scrsize.c \
 	charset.h cmd.h funcs.h lang.h lglob.h less.h lesskey.h lmsg.h option.h \
 	pckeys.h pattern.h position.h xbuf.h \
 	install.sh defines.h.in mkinstalldirs \
