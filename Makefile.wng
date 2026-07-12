@@ -119,6 +119,9 @@ LESS_SRC = brac.c ch.c charset.c cmdbuf.c command.c		\
 ifeq  (${REGEX_PACKAGE},regcomp-local)
 LESS_SRC += regexp.c
 endif
+ifneq (${SECURE_COMPILE},1)
+LESS_SRC += lesskey_parse.c
+endif
 
 OBJ = \
 	main.o screen.o brac.o ch.o charset.o cmdbuf.o \
