@@ -7,23 +7,15 @@
  * For more information, see the README file.
  */
 
-#include "defines.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "less.h"
 #include "lesskey.h"
 #include "cmd.h"
-#include "xbuf.h"
 
 #if USERFILE
 
 #define CONTROL(c)      ((c)&037)
 #define ESC             CONTROL('[')
 
-extern void lesskey_parse_error(char *msg);
-extern char *homefile(char *filename);
-extern void *ecalloc(size_t count, size_t size);
-extern int lstrtoi(char *str, char **end, int radix);
 extern char version[];
 
 static int linenum;
@@ -253,6 +245,7 @@ static constant char * tstr(char **pp, int xlate)
 		case 'k':
 			if (xlate)
 			{
+				char *seq = p-1;
 				ch = 0;
 				switch (*++p)
 				{
@@ -329,7 +322,11 @@ static constant char * tstr(char **pp, int xlate)
 				}
 				if (ch == 0)
 				{
-					parse_error("invalid escape sequence \"\\k%s\"", char_string(buf, *p, 0));
+					char seq_buf[8];
+					size_t len = p - seq + 1;
+					strncpy(seq_buf, seq, len);
+					seq_buf[len] = '\0';
+					parse_error(LM(invalid_escape_sequence), seq_buf);
 					*pp = increment_pointer(p);
 					return ("");
 				}
@@ -375,16 +372,6 @@ static constant char * tstr(char **pp, int xlate)
 static int issp(char ch)
 {
 	return (ch == ' ' || ch == '\t');
-}
-
-/*
- * Skip leading spaces in a string.
- */
-static char * skipsp(char *s)
-{
-	while (issp(*s))
-		s++;
-	return (s);
 }
 
 /*
@@ -476,14 +463,14 @@ static char * version_line(char *s)
 	case '=': if (*s == '=') { s++; } break;
 	case '!': if (*s == '=') { s++; } break;
 	default: 
-		parse_error("invalid operator '%s' in #version line", char_string(buf, op, 0));
+		parse_error(LM(invalid_operator_X_in_version_line), char_string(buf, op, 0));
 		return (NULL);
 	}
 	s = skipsp(s);
 	ver = lstrtoi(s, &e, 10);
 	if (e == s)
 	{
-		parse_error("non-numeric version number in #version line", "");
+		parse_error(LM(non_numeric_version_number_in_version_line), "");
 		return (NULL);
 	}
 	if (!match_version(op, ver))
@@ -536,7 +523,7 @@ static int findaction(char *actname, struct lesskey_tables *tables)
 	for (i = 0;  tables->currtable->names[i].cn_name != NULL;  i++)
 		if (strcmp(tables->currtable->names[i].cn_name, actname) == 0)
 			return (tables->currtable->names[i].cn_action);
-	parse_error("unknown action: \"%s\"", actname);
+	parse_error(LM(unknown_action_X), actname);
 	return (A_INVALID);
 }
 
@@ -575,7 +562,7 @@ static void parse_cmdline(char *p, struct lesskey_tables *tables)
 	p = skipsp(p);
 	if (*p == '\0')
 	{
-		parse_error("missing action", "");
+		parse_error(LM(missing_action), "");
 		return;
 	}
 	actname = p;
@@ -643,7 +630,7 @@ static void parse_varline(char *line, struct lesskey_tables *tables)
 		p = skipsp(p);
 		if (*p++ != '=')
 		{
-			parse_error("missing = in variable definition", "");
+			parse_error(LM(missing_eq_in_variable_definition), "");
 			return;
 		}
 		add_cmd_char(EV_OK|A_EXTRA, tables);
@@ -710,7 +697,7 @@ int parse_lesskey(constant char *infile, struct lesskey_tables *tables)
 		desc = stdin;
 	else if ((desc = fopen(lesskey_file, "r")) == NULL)
 	{
-		/* parse_error("cannot open lesskey file %s", lesskey_file); */
+		/* No error message since we try several possible files. */
 		errors = -1;
 	}
 

@@ -1440,7 +1440,7 @@ public int lesskey_content(constant char *content, lbool sysvar)
 	return lesskey_text(content, sysvar, TRUE);
 }
 
-void lesskey_parse_error(char *s)
+public void lesskey_parse_error(constant char *s)
 {
 	PARG parg;
 	parg.p_string = s;

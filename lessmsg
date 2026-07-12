@@ -351,6 +351,12 @@ No_tags_file No tags file
 No_such_tag_in_tags_file No such tag in tags file
 unknown_tag_type unknown tag type
 Tag_not_found Tag not found
+invalid_escape_sequence invalid escape sequence \"%s\"
+invalid_operator_X_in_version_line invalid operator '%s' in #version line
+non_numeric_version_number_in_version_line non-numeric version number in #version line
+unknown_action_X unknown action: \"%s\"
+missing_action missing action
+missing_eq_in_variable_definition missing = in variable definition
 
 # The help file can be overridden with the "HELP" symbol.
 # Normally this will be a multi-line string, so it is convenient to define
