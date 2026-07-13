@@ -63,7 +63,7 @@ defines.h: defines.wn
 
 $(OBJ): less.h funcs.h defines.h lang.h lmsg.h lessmsg.inc pattern.h xbuf.h
 
-# generate help.c and funcs.h.
+# generate help.c, funcs.h and lessmsg.inc.
 # intentionally detached from $(OBJ) in case of cross compile - needs native cc
 generated:
 	$(CC) buildgen.c
