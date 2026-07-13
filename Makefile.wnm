@@ -18,7 +18,7 @@
 CC = cl
 
 # Normal flags
-CFLAGS1 = /nologo /W3 /EHsc /O2 /I "." /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /c
+CFLAGS = /nologo /W3 /EHsc /O2 /I "." /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /c
 LDFLAGS = /nologo /subsystem:console /incremental:no
 
 # Debugging flags
@@ -30,24 +30,22 @@ LIBS = user32.lib shell32.lib
 
 #### End of system configuration section. ####
 
-SRC1 = brac.c ch.c charset.c cmdbuf.c command.c \
-       cvt.c decode.c edit.c evar.c filename.c forwback.c \
-       ifile.c input.c jump.c line.c linenum.c lmsg.c \
-       lsystem.c main.c mark.c optfunc.c option.c \
-       opttbl.c os.c output.c pattern.c position.c \
-       prompt.c screen.c search.c \
-       signal.c tags.c ttyin.c version.c xbuf.c \
-       regexp.c
+SRC = brac.c ch.c charset.c cmdbuf.c command.c \
+      cvt.c decode.c edit.c evar.c filename.c forwback.c \
+      ifile.c input.c jump.c line.c linenum.c lmsg.c \
+      lsystem.c main.c mark.c optfunc.c option.c \
+      opttbl.c os.c output.c pattern.c position.c \
+      prompt.c screen.c search.c \
+      signal.c tags.c ttyin.c version.c xbuf.c \
+      regexp.c
 
 !IF "$(SECURE_COMPILE)" == "1"
-SRC = $(SRC1)
-CFLAGS = $(CFLAGS1) /D "SECURE_COMPILE=1"
+CFLAGS = $(CFLAGS) /D "SECURE_COMPILE=1"
 !ELSE
-SRC = $(SRC1) lesskey_parse.c
-CFLAGS = $(CFLAGS1)
+SRC = $(SRC) lesskey_parse.c
 !ENDIF
 
-OBJ = $(patsubst %.c,%.obj,$(SRC)) help.obj
+OBJ = $(SRC:.c=.obj) help.obj
 
 # This rule allows us to supply the necessary -D options
 # in addition to whatever the user asks for.
