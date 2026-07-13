@@ -25,8 +25,8 @@
 # REGEX_PACKAGE == gnu  (might not be available)
 #   This choice selects the GNU implementation, if provided by MingW.
 #
-# By default, the files help.c and funcs.h are generated using few posix
-# utilities (grep, sed, etc). On Windows, if the tools are missing, add:
+# By default, the files help.c, funcs.h and lessmsg.inc are generated using few
+# posix utilities (grep, sed, etc). On Windows, if the tools are missing, add:
 #   WINGEN=1
 # to compile a native C program which will be used instead of the posix tools.
 # NOTE: to cross compile with WINGEN=1, e.g. to arm, first run with native CC:
