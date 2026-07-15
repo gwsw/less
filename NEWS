@@ -42,6 +42,8 @@
 
 * Improve error handling for malformed binary lesskey file.
 
+* Improve messaging when using __mouse after --emouse (github #808).
+
 * Remove obsolete lesskey program.
 
 * Move lesskey man page to section 5.
