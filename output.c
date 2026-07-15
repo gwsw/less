@@ -492,7 +492,10 @@ public int putchr(int ch)
 	 * as part of a term_deinit/term_init pair, so we shouldn't do it here.
 	 */
 	if (!term_init_ever && outfd == 1)
+	{
+		raw_mode(TRUE);
 		term_init();
+	}
 	if (prompting)
 	{
 		constant char *epr = end_pr_string();

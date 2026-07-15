@@ -396,7 +396,6 @@ int main(int argc, constant char *argv[])
 	if (missing_cap && !know_dumb)
 		error(LM(terminal_is_not_fully_functional), NULL_PARG);
 	open_getchr();
-	raw_mode(TRUE);
 	init_signals(TRUE);
 #if HAVE_TIME
 	less_start_time = get_time();
