@@ -608,11 +608,7 @@ static struct loption option[] =
 	},
 	{ OLETTER_NONE, &mouse_optname,
 		O_TRIPLE, OPT_OFF, &xmouse, opt_mouse,
-		{
-			LM_Ignore_mouse_input,
-			LM_Use_the_mouse_for_scrolling_vertically,
-			LM_Use_the_mouse_for_scrolling_vertically_reverse,
-		},
+		{ LM_NULL, LM_NULL, LM_NULL },
 		{ NULL, NULL, NULL }
 	},
 	{ OLETTER_NONE, &emouse_optname,

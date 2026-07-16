@@ -1960,6 +1960,7 @@ public void commands(void)
 			/*
 			 * Exit.
 			 */
+			cmd_exec();
 			if (curr_ifile != NULL_IFILE && 
 			    ch_getflags() & CH_HELPFILE)
 			{

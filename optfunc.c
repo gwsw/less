@@ -1030,19 +1030,27 @@ public void opt_mouse(int type, constant char *s)
 	{
 	case INIT:
 	case TOGGLE:
-		switch (xmouse)
+		if (emouse == 0)
 		{
-		case OPT_OFF:
-			opt_emouse(type, "-");
-			break;
-		case OPT_ON:
-		case OPT_ONPLUS:
 			opt_emouse(type, "vmove,click");
 			mouse_reverse = (xmouse == OPT_ONPLUS);
-			break;
+		} else
+		{
+			opt_emouse(type, "-");
+			xmouse = 0;
 		}
-		break;
-	case QUERY:
+		if (type == INIT)
+			break;
+		/*FALLTHRU*/
+	case QUERY: /* odesc[] entries are NULL so we can do the QUERY here */
+		if (emouse == (EMOUSE_VSCROLL|EMOUSE_VDRAG|EMOUSE_LCLICK|EMOUSE_RCLICK))
+		{
+			if (mouse_reverse)
+				error(LM(Use_the_mouse_for_scrolling_vertically_reverse), NULL_PARG);
+			else
+				error(LM(Use_the_mouse_for_scrolling_vertically), NULL_PARG);
+		} else
+			opt_emouse(QUERY, NULL);
 		break;
 	}
 }

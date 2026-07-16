@@ -473,7 +473,7 @@ public lbool toggle_option(struct loption *o, lbool lower, constant char *s, int
 			/*
 			 * Print the odesc message.
 			 */
-			if (o->ovar != NULL)
+			if (o->ovar != NULL && o->odesc[*(o->ovar)] != NULL)
 				error(o->odesc[*(o->ovar)], NULL_PARG);
 			break;
 		case O_NUMBER:
@@ -481,8 +481,11 @@ public lbool toggle_option(struct loption *o, lbool lower, constant char *s, int
 			 * The message is in odesc[1] and has a %d for 
 			 * the value of the variable.
 			 */
-			parg.p_int = *(o->ovar);
-			error(o->odesc[1], &parg);
+			if (o->odesc[1] != NULL)
+			{
+				parg.p_int = *(o->ovar);
+				error(o->odesc[1], &parg);
+			}
 			break;
 		case O_STRING:
 			if (how_toggle != OPT_NO_TOGGLE && o->ofunc != NULL)
