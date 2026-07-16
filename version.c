@@ -1118,8 +1118,8 @@ v706  6/22/26   Add ^ and + modifiers for \k in lesskey file; support ctl
                 OSC 8 links; use separate names for lesstest executable;
                 add getenv cache; improve error handling for bad lesskey files
                 and bad OSC 8 links; remove lesskey program.
-v707            Don't let ' with numeric arg modify the mark; add || cmd;
+v707  7/16/26   Don't let ' with numeric arg modify the mark; add || cmd;
                 allow ^N to enter line number in pipe cmd; add LESSMSG.
 */
 
-char version[] = "707x";
+char version[] = "707";
