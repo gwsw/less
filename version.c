@@ -1121,6 +1121,7 @@ v706  6/22/26   Add ^ and + modifiers for \k in lesskey file; support ctl
 v707  7/16/26   Don't let ' with numeric arg modify the mark; add || cmd;
                 allow ^N to enter line number in pipe cmd; add LESSMSG.
 v708  7/16/26   Merge.
+v709
 */
 
-char version[] = "708";
+char version[] = "709x";
