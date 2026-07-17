@@ -9,7 +9,7 @@
 
 #include "less.h"
 
-struct lmsg_sym { int id; constant char *sym; };
+struct lmsg_sym { lessmsg_id id; constant char *sym; };
 
 /*
  * lmsgs is the array of all messages, indexed by lmsg id.
@@ -59,13 +59,13 @@ static void lmsg_error(constant char *err, constant char *lmsg_file, int linenum
 /*
  * Return a numeric lmsg id given a symbolic name.
  */
-static int lmsg_id(constant char *sym)
+static lessmsg_id lmsg_id(constant char *sym)
 {
-	int i;
+	size_t i;
 	for (i = 0; i < countof(lmsg_syms); i++)
 		if (strcmp(sym, lmsg_syms[i].sym) == 0)
 			return lmsg_syms[i].id;
-	return 0;
+	return LM_NULL;
 }
 
 /*
@@ -132,7 +132,7 @@ static char * lmsg_char(char *mp, char *line, size_t line_size, FILE* fd, struct
  */
 static lbool lmsg_line(char *line, size_t line_size, FILE* fd, struct xbuffer *xbuf, constant char *lmsg_file, int *linenum)
 {
-	int id;
+	lessmsg_id id;
 	char *msg;
 	char *mp;
 	char *sym = skipsp(line);
@@ -205,13 +205,13 @@ public void lmsg_init(constant char *lmsg_file)
 /*
  * Return the string associated with a numeric lmsg id.
  */
-public constant char * lmsg(int id)
+public constant char * lmsg(lessmsg_id id)
 {
 #if 1
 	if (id <= 0 || id >= countof(lmsgs))
 	{
 		PARG parg;
-		parg.p_int = id;
+		parg.p_int = (int) id;
 		error("invalid lessmsg id %d", &parg);
 		return NULL;
 	}

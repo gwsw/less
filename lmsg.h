@@ -12,11 +12,11 @@
  * */
 #undef  M
 #define M(sym,msg) LM_##sym,
-enum {
+typedef enum lessmsg_id {
 	LM_NULL = 0,
 #include "lessmsg.inc"
 	LM_HELP
-};
+} lessmsg_id;
 
 /*
  * Use LM(sym) to get the message string for the symbol LM_sym.
