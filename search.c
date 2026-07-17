@@ -57,14 +57,14 @@ public lbool search_wrapped = FALSE;
 public POSITION search_incr_start = NULL_POSITION;
 #if OSC8_LINK
 public POSITION osc8_linepos = NULL_POSITION;
-public POSITION osc8_match_start = NULL_POSITION;
-public POSITION osc8_match_end = NULL_POSITION;
-public POSITION osc8_params_start = NULL_POSITION;
-public POSITION osc8_params_end = NULL_POSITION;
-public POSITION osc8_uri_start = NULL_POSITION;
-public POSITION osc8_uri_end = NULL_POSITION;
-public POSITION osc8_text_start = NULL_POSITION;
-public POSITION osc8_text_end = NULL_POSITION;
+static POSITION osc8_match_start = NULL_POSITION;
+static POSITION osc8_match_end = NULL_POSITION;
+static POSITION osc8_params_start = NULL_POSITION;
+static POSITION osc8_params_end = NULL_POSITION;
+static POSITION osc8_uri_start = NULL_POSITION;
+static POSITION osc8_uri_end = NULL_POSITION;
+static POSITION osc8_text_start = NULL_POSITION;
+static POSITION osc8_text_end = NULL_POSITION;
 char *osc8_uri = NULL;
 constant char *osc8_search_param = NULL;
 #endif

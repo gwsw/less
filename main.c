@@ -36,7 +36,7 @@ public struct scrpos initial_scrpos;
 public POSITION start_attnpos = NULL_POSITION;
 public POSITION end_attnpos = NULL_POSITION;
 public int      wscroll;
-public constant char *progname;
+static constant char *progname;
 public lbool    quitting = FALSE;
 public lbool    dohelp = FALSE;
 public char *   init_header = NULL;
