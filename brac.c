@@ -28,7 +28,7 @@ public void match_brac(char obrac, char cbrac, int forwdir, int n)
 	int c;
 	int nest;
 	POSITION pos;
-	int (*chget)();
+	int (*chget)(void);
 
 	extern int ch_forw_get(), ch_back_get();
 
@@ -83,8 +83,7 @@ public void match_brac(char obrac, char cbrac, int forwdir, int n)
 			if (nest == INT_MAX)
 				break;
 			nest++;
-		}
-		else if (c == cbrac && --nest < 0)
+		} else if (c == cbrac && --nest < 0)
 		{
 			/*
 			 * Found the matching bracket.
