@@ -73,6 +73,7 @@ extern int tabdefault;
 extern int no_paste;
 extern int hilite_target;
 extern char intr_char;
+extern int utf_mode;
 extern int nosearch_header_lines;
 extern int nosearch_header_cols;
 extern POSITION header_start_pos;
@@ -904,7 +905,7 @@ public void opt_rscroll(int type, constant char *s)
 		}
 		break; }
 	case QUERY: {
-		p.p_string = rscroll_char ? prchar((LWCHAR) rscroll_char) : "-";
+		p.p_string = rscroll_char == 0 ? "-" : utf_mode ? prutfchar(rscroll_char) : prchar(rscroll_char);
 		error(LM(rscroll_character_is_X), &p);
 		break; }
 	}

@@ -59,6 +59,8 @@
 * Fix ' command to not modify the mark when given a numeric argument
   (github #799).
 
+* Fix erroneous message from --rscroll command when rscroll char is non-ASCII.
+
 ======================================================================
 
 	Major changes between "less" versions 704 and 705

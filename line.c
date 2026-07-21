@@ -1075,7 +1075,7 @@ static int flush_mbc_buf(POSITION pos)
 	int i;
 
 	for (i = 0; i < mbc_buf_index; i++)
-		if (store_prchar((LWCHAR) mbc_buf[i], pos))
+		if (store_prchar((LWCHAR) (unsigned char) mbc_buf[i], pos))
 			return mbc_buf_index - i;
 	return 0;
 }
