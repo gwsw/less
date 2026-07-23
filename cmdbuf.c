@@ -358,7 +358,7 @@ static void cmd_lshift(void)
 		s = ns;
 	}
 
-	cmd_offset = (int) (s - cmdbuf);
+	cmd_offset = (int) ptr_diff(s, cmdbuf);
 	save_cp = cp;
 	cmd_home();
 	cmd_repaint(save_cp);
@@ -387,7 +387,7 @@ static void cmd_rshift(void)
 		cols += width;
 	}
 
-	cmd_offset = (int) (s - cmdbuf);
+	cmd_offset = (int) ptr_diff(s, cmdbuf);
 	save_cp = cp;
 	cmd_home();
 	cmd_repaint(save_cp);
@@ -479,7 +479,7 @@ static int cmd_erase(void)
 	 */
 	s = cp;
 	cmd_left();
-	clen = (int) (s - cp);
+	clen = (int) ptr_diff(s, cp);
 
 	/*
 	 * Remove the char from the buffer (shift the buffer left).

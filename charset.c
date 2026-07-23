@@ -353,9 +353,9 @@ static int icharset(constant char *name, int no_error)
  */
 static void ilocale(void)
 {
-	int c;
+	size_t c;
 
-	for (c = 0;  c < (int) sizeof(chardef);  c++)
+	for (c = 0;  c < sizeof(chardef);  c++)
 	{
 		if (isprint(c))
 			chardef[c] = 0;

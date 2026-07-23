@@ -306,10 +306,10 @@ static void exec_mca(void)
 		curropt = NULL;
 		break;
 	case A_F_BRACKET:
-		match_brac(cbuf[0], cbuf[1], 1, (int) number);
+		match_brac(cbuf[0], cbuf[1], TRUE, (int) number);
 		break;
 	case A_B_BRACKET:
-		match_brac(cbuf[1], cbuf[0], 0, (int) number);
+		match_brac(cbuf[1], cbuf[0], FALSE, (int) number);
 		break;
 #if EXAMINE
 	case A_EXAMINE: {

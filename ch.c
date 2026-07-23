@@ -817,7 +817,7 @@ static void ch_delbufs(void)
 /*
  * Is it possible to seek on a file descriptor?
  */
-public int seekable(int f)
+public lbool seekable(int f)
 {
 #if MSDOS_COMPILER
 	extern int fd0;
@@ -827,7 +827,7 @@ public int seekable(int f)
 		 * In MS-DOS, pipes are seekable.  Check for
 		 * standard input, and pretend it is not seekable.
 		 */
-		return (0);
+		return (FALSE);
 	}
 #endif
 	return (less_lseek(f, (less_off_t)1, SEEK_SET) != BAD_LSEEK);
