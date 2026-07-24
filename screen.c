@@ -1484,7 +1484,9 @@ static void get_term_info(void)
 	 * Some termcap libraries assume termbuf is static
 	 * (accessible after tgetent returns).
 	 */
-#if !USE_TERMINFO
+#if USE_TERMINFO
+	int err;
+#else
 	static char termbuf[TERMBUF_SIZE];
 #endif
 	static char sbuf[TERMSBUF_SIZE];
@@ -1513,7 +1515,7 @@ static void get_term_info(void)
 		term = DEFAULT_TERM;
 	hardcopy = 0;
 #if USE_TERMINFO
-	if (setupterm(term, -1, NULL) != OK)
+	if (setupterm(term, -1, &err) != OK || err != 1)
 		hardcopy = 1;
 #else
 	if (tgetent(termbuf, term) != TGETENT_OK)
