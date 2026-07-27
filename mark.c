@@ -492,22 +492,21 @@ public void restore_mark(constant char *line)
 	int ln;
 	POSITION pos;
 
-#define skip_whitespace while (*line == ' ') line++
 	if (*line++ != 'm')
 		return;
-	skip_whitespace;
+	line = skipspc(line);
 	index = mark_index(*line++);
 	if (index < 0)
 		return;
-	skip_whitespace;
+	line = skipspc(line);
 	ln = lstrtoic(line, &line, 10);
 	if (ln < 0)
 		return;
-	skip_whitespace;
+	line = skipspc(line);
 	pos = lstrtoposc(line, &line, 10);
 	if (pos < 0)
 		return;
-	skip_whitespace;
+	line = skipspc(line);
 	/* Save in both active marks table and file_marks table. */
 	cmarkf(&marks[index], NULL_IFILE, pos, ln, line);
 	cmarkf(&file_marks[index], NULL_IFILE, pos, ln, line);
