@@ -22,6 +22,7 @@
 #include "less.h"
 
 extern IFILE    curr_ifile;
+extern IFILE    old_ifile;
 
 struct ifile {
 	struct ifile *h_next;           /* Links for command line list */
@@ -139,6 +140,8 @@ public void del_ifile(IFILE h)
 	unmark(h);
 	if (h == curr_ifile)
 		curr_ifile = getoff_ifile(curr_ifile);
+	if (h == old_ifile)
+		old_ifile = NULL_IFILE;
 	p = int_ifile(h);
 	unlink_ifile(p);
 	free(p->h_rfilename);
