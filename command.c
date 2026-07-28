@@ -335,7 +335,7 @@ static void exec_mca(void)
 		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : "!done";
 		if (done_msg == NULL)
 			++cbuf;
-		if (*cbuf != '!')
+		if (strcmp(cbuf, "!") != 0)
 		{
 			if (shellcmd != NULL)
 				free(shellcmd);
