@@ -61,6 +61,16 @@
 
 * Fix erroneous message from --rscroll command when rscroll char is non-ASCII.
 
+* Fix unexpected exit when TERM is invalid (github #809).
+
+* Fix possible crash when use ":e #" after ":d" (github #810).
+
+* Fix infinite loop if invalid option letter in LESS_UNSUPPORT.
+
+* Fix crash if run !! command with no previous ! command (github #812).
+
+* Fix inability to run a shell command starting with "!" character.
+
 ======================================================================
 
 	Major changes between "less" versions 704 and 705
