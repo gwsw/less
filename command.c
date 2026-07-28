@@ -343,9 +343,7 @@ static void exec_mca(void)
 		}
 		if (!secure_allow(SF_SHELL))
 			break;
-		if (shellcmd == NULL)
-			shellcmd = "";
-		lsystem(shellcmd, done_msg);
+		lsystem(shellcmd == NULL ? "" : shellcmd, done_msg);
 		break; }
 	case A_PSHELL: {
 		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : "#done";
