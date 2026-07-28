@@ -753,6 +753,7 @@ public lbool getfraction(constant char **sp, mutable long *p_frac)
  */
 public void init_unsupport(void)
 {
+	PARG parg;
 	constant char *s = lgetenv("LESS_UNSUPPORT");
 	if (isnullenv(s))
 		return;
@@ -761,17 +762,19 @@ public void init_unsupport(void)
 		struct loption *opt;
 		s = skipspc(s);
 		if (*s == '\0') break;
-		if (*s == '-' && *++s == '\0') break;
-		if (*s == '-') /* long option name */
+		parg.p_string = s;
+		if (s[0] == '-' && s[1] == '-') /* long option name */
 		{
-			++s;
-			opt = findopt_name(&s, NULL, NULL);
+			s += 2;
+			opt = (*s == '\0') ? NULL : findopt_name(&s, NULL, NULL);
 		} else /* short (single-char) option */
 		{
-			opt = findopt(*s);
-			if (opt != NULL) ++s;
+			if (*s == '-') s++;
+			opt = (*s == '\0') ? NULL : findopt(*s++);
 		}
-		if (opt != NULL)
+		if (opt == NULL)
+			error("invalid option in LESS_UNSUPPORT: %s", &parg);
+		else
 			opt->otype |= O_UNSUPPORTED;
 	}
 }
