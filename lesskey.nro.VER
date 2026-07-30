@@ -55,7 +55,7 @@ A
 .B lesskey
 file specifies a set of key bindings and environment variables
 to be used by subsequent invocations of
-.BR less .
+.BR less (1).
 The input file consists of one or more
 .IR sections .
 Each section starts with a line that identifies the type of section.
@@ -115,6 +115,8 @@ l l.
 \ek\*^d	ctrl-DOWN ARROW
 \ek+d	shift-DOWN ARROW
 \ekD	PAGE DOWN
+\ek^D	ctrl-PAGE DOWN
+\ek+D	shift-PAGE DOWN
 \eke	END
 \ek\*^e or \ekE	ctrl-END
 \ek+e or \ekF	shift-END
@@ -133,6 +135,8 @@ l l.
 \ek\*^u	ctrl-UP ARROW
 \ek+u	shift-UP ARROW
 \ekU	PAGE UP
+\ek^U	shift-PAGE UP
+\ek+U	ctrl-PAGE UP
 \ekx	DELETE
 \ek\*^x or \ekX	ctrl-DELETE
 \ek+x	shift-DELETE
@@ -514,8 +518,6 @@ the syntax ${NAME/STRING1/REPL1/STRING2/REPL2} and so on.
 If a line begins with #version followed by a relational operator and a version number,
 the remainder of the line is parsed if and only if the running version of
 .B less
-(or
-.BR lesskey )
 matches the operator.
 This can be helpful if a lesskey file is used by different versions of
 .BR less .
@@ -548,8 +550,6 @@ l l.
 .PP
 The #version feature is not supported in
 .B less
-and
-.B lesskey
 before version 594.
 In those older versions, all #version lines are ignored.
 .

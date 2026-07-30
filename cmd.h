@@ -188,3 +188,7 @@
 #define SK_CTL_UP_ARROW        44
 #define SK_CTL_DOWN_ARROW      45
 #define SK_SHIFT_DELETE        46
+#define SK_SHIFT_PAGE_UP       47
+#define SK_SHIFT_PAGE_DOWN     48
+#define SK_CTL_PAGE_UP         49
+#define SK_CTL_PAGE_DOWN       50

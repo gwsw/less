@@ -1073,7 +1073,11 @@ public constant char * special_key_str(int key)
 	static char k_down[]            = { '\340', PCK_DOWN, 0 };
 	static char k_backtab[]         = { '\340', PCK_SHIFT_TAB, 0 };
 	static char k_pagedown[]        = { '\340', PCK_PAGEDOWN, 0 };
+	static char k_shift_pagedown[]  = { '\340', PCK_SHIFT_PAGEDOWN, 0 };
+	static char k_ctl_pagedown[]    = { '\340', PCK_CTL_PAGEDOWN, 0 };
 	static char k_pageup[]          = { '\340', PCK_PAGEUP, 0 };
+	static char k_shift_pageup[]    = { '\340', PCK_SHIFT_PAGEUP, 0 };
+	static char k_ctl_pageup[]      = { '\340', PCK_CTL_PAGEUP, 0 };
 	static char k_ctl_home[]        = { '\340', PCK_CTL_HOME, 0 };
 	static char k_ctl_end[]         = { '\340', PCK_CTL_END, 0 };
 	static char k_shift_home[]      = { '\340', PCK_SHIFT_HOME, 0 };
@@ -1144,8 +1148,20 @@ public constant char * special_key_str(int key)
 	case SK_PAGE_UP:
 		s = k_pageup;
 		break;
+	case SK_SHIFT_PAGE_UP:
+		s = k_shift_pageup;
+		break;
+	case SK_CTL_PAGE_UP:
+		s = k_ctl_pageup;
+		break;
 	case SK_PAGE_DOWN:
 		s = k_pagedown;
+		break;
+	case SK_SHIFT_PAGE_DOWN:
+		s = k_shift_pagedown;
+		break;
+	case SK_CTL_PAGE_DOWN:
+		s = k_ctl_pagedown;
 		break;
 	case SK_HOME:
 		s = k_home;
@@ -1231,8 +1247,20 @@ public constant char * special_key_str(int key)
 	case SK_PAGE_UP:
 		s = ltgetstr("kpp", "kP", &sp);
 		break;
+	case SK_SHIFT_PAGE_UP:
+		s = ltgetstr("kPRV", NULL, &sp);
+		break;
+	case SK_CTL_PAGE_UP:
+		s = ltgetstr("kPRV5", NULL, &sp);
+		break;
 	case SK_PAGE_DOWN:
 		s = ltgetstr("knp", "kN", &sp);
+		break;
+	case SK_SHIFT_PAGE_DOWN:
+		s = ltgetstr("kNXT", NULL, &sp);
+		break;
+	case SK_CTL_PAGE_DOWN:
+		s = ltgetstr("kNXT5", NULL, &sp);
 		break;
 	case SK_HOME:
 		s = ltgetstr("khome", "kh", &sp);
@@ -3394,6 +3422,8 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 		case PCK_DELETE: scan = PCK_CTL_DELETE; break;
 		case PCK_HOME:   scan = PCK_CTL_HOME;   break;
 		case PCK_END:    scan = PCK_CTL_END;    break;
+		case PCK_PAGEUP: scan = PCK_CTL_PAGEUP; break;
+		case PCK_PAGEDOWN: scan = PCK_CTL_PAGEDOWN; break;
 		}
 	} else if (xip->ir.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
 	{
@@ -3410,6 +3440,8 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 				case PCK_DELETE: scan = PCK_SHIFT_DELETE; break;
 				case PCK_HOME:   scan = PCK_SHIFT_HOME;   break;
 				case PCK_END:    scan = PCK_SHIFT_END;    break;
+				case PCK_PAGEUP: scan = PCK_SHIFT_PAGEUP; break;
+				case PCK_PAGEDOWN: scan = PCK_SHIFT_PAGEDOWN; break;
 			}
 		}
 	}

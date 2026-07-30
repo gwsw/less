@@ -284,11 +284,13 @@ static constant char * tstr(char **pp, int xlate)
 					{
 					case 'b': ch = SK_CTL_BACKSPACE; break;
 					case 'd': ch = SK_CTL_DOWN_ARROW; break;
+					case 'D': ch = SK_CTL_PAGE_DOWN; break;
 					case 'e': ch = SK_CTL_END; break;
 					case 'h': ch = SK_CTL_HOME; break;
 					case 'l': ch = SK_CTL_LEFT_ARROW; break;
 					case 'r': ch = SK_CTL_RIGHT_ARROW; break;
 					case 'u': ch = SK_CTL_UP_ARROW; break;
+					case 'U': ch = SK_CTL_PAGE_UP; break;
 					case 'x': ch = SK_CTL_DELETE; break;
 					}
 					break;
@@ -296,11 +298,13 @@ static constant char * tstr(char **pp, int xlate)
 					switch (*++p)
 					{
 					case 'd': ch = SK_SHIFT_DOWN_ARROW; break;
+					case 'D': ch = SK_SHIFT_PAGE_DOWN; break;
 					case 'e': ch = SK_SHIFT_END; break;
 					case 'h': ch = SK_SHIFT_HOME; break;
 					case 'l': ch = SK_SHIFT_LEFT_ARROW; break;
 					case 'r': ch = SK_SHIFT_RIGHT_ARROW; break;
 					case 'u': ch = SK_SHIFT_UP_ARROW; break;
+					case 'U': ch = SK_SHIFT_PAGE_UP; break;
 					case 'x': ch = SK_SHIFT_DELETE; break;
 					}
 					break;

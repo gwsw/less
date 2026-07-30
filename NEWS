@@ -32,8 +32,9 @@
 
 * Add %G, %y, and %% in prompt strings.
 
-* Add lesskey support for shift-uparrow, shift-downarrow,
-  ctl-uparrow, ctl-downarrow, shift-delete.
+* Add lesskey support for shift-uparrow, shift-downarrow, shift-pageup,
+  shift-pagedown, ctl-uparrow, ctl-downarrow, ctl-pageup, ctl-pagedown,
+  shift-delete.
 
 * Underline OSC 8 links in text.
 
