@@ -135,8 +135,8 @@ l l.
 \ek\*^u	ctrl-UP ARROW
 \ek+u	shift-UP ARROW
 \ekU	PAGE UP
-\ek^U	shift-PAGE UP
-\ek+U	ctrl-PAGE UP
+\ek^U	ctrl-PAGE UP
+\ek+U	shift-PAGE UP
 \ekx	DELETE
 \ek\*^x or \ekX	ctrl-DELETE
 \ek+x	shift-DELETE
