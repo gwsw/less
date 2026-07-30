@@ -256,10 +256,12 @@ p	percent
 %	percent
 \ee(	left\-scroll
 \ee)	right\-scroll
+\ee]	right\-limit\-scroll
 \ee{	no\-scroll
 \ee}	end\-scroll
 \ekl	left\-scroll
 \ekr	right\-scroll
+\ee\ekr	right\-limit\-scroll
 \ekL	no\-scroll
 \ekM	no\-scroll
 \ekR	end\-scroll

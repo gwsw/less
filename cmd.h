@@ -89,6 +89,7 @@
 #define A_F_FOREVER_BELL       77
 #define A_L_MOUSE              78
 #define A_R_MOUSE              79
+#define A_RSHIFT_LIMIT         80
 
 /* These values must not conflict with any A_* or EC_* value. */
 #define A_INVALID              100

@@ -203,6 +203,10 @@ While the text is scrolled, it acts as though the
 .B "\-S"
 option
 (chop lines) were in effect.
+.IP "ESC-] or ESC-RIGHTARROW"
+Scroll horizontally right N characters like RIGHTARROW,
+but stop scrolling when the last (rightmost) character on the
+displayed screen becomes visible at the right margin.
 .IP "ESC-( or LEFTARROW"
 Scroll horizontally left N characters, default half the screen width
 (see the

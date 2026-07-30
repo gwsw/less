@@ -1124,7 +1124,7 @@ v708  7/16/26   Merge.
 v709            Fix --rscroll with non-ASCII char; fix exit with invalid TERM;
                 fix crash with :e# after :d; fix loop if invalid option in
                 LESS_UNSUPPORT; fix crash with initial !!; allow shell cmd
-                starting with '!'.
+                starting with '!'; add ESC-].
 */
 
 char version[] = "709x";

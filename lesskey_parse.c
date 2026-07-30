@@ -98,6 +98,7 @@ static constant struct lesskey_cmdname cmdnames[] =
 	{ "reverse-search",       A_REVERSE_SEARCH },
 	{ "reverse-search-all",   A_T_REVERSE_SEARCH },
 	{ "right-scroll",         A_RSHIFT },
+	{ "right-limit-scroll",   A_RSHIFT_LIMIT },
 	{ "set-mark",             A_SETMARK },
 	{ "set-mark-bottom",      A_SETMARKBOT },
 	{ "shell",                A_SHELL },

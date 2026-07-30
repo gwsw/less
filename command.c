@@ -2474,6 +2474,7 @@ public void commands(void)
 			break;
 
 		case A_RSHIFT:
+		case A_RSHIFT_LIMIT:
 			/*
 			 * Shift view right.
 			 */
@@ -2482,6 +2483,12 @@ public void commands(void)
 			else
 				number = (shift_count > 0) ? shift_count : sc_width / 2;
 			pos_rehead(FALSE);
+			if (action == A_RSHIFT_LIMIT)
+			{
+				int ll = longest_line_width();
+				if (hshift + sc_width + (int) number > ll)
+					number = ll - hshift - sc_width;
+			}
 			hshift += (int) number;
 			screen_trashed();
 			cmd_exec();

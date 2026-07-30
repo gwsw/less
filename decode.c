@@ -122,6 +122,8 @@ static unsigned char cmdtable[] =
 	SK(SK_CTL_LEFT_ARROW),0,        A_LLSHIFT,
 	SK(SK_SHIFT_RIGHT_ARROW),0,     A_RRSHIFT,
 	SK(SK_SHIFT_LEFT_ARROW),0,      A_LLSHIFT,
+	ESC,SK(SK_RIGHT_ARROW),0,       A_RSHIFT_LIMIT,
+	ESC,']',0,                      A_RSHIFT_LIMIT,
 	'{',0,                          A_F_BRACKET|A_EXTRA,        '{','}',0,
 	'}',0,                          A_B_BRACKET|A_EXTRA,        '{','}',0,
 	'(',0,                          A_F_BRACKET|A_EXTRA,        '(',')',0,
