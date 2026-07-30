@@ -872,7 +872,8 @@ static constant unsigned char * skip_to_null(constant unsigned char *entry, cons
 
 /*
  * Return pointer to next command table entry.
- * Also return the action and the extra string from the current entry.
+ * Also return the command length, the action code and the extra string
+ * from the current entry.
  * Return NULL if the entry is truncated.
  */
 static constant unsigned char * cmd_next_entry(constant unsigned char *entry, constant unsigned char *end, mutable int *action, mutable constant unsigned char **extra, mutable size_t *cmdlen)
@@ -940,7 +941,7 @@ static struct tablelist * find_stop_table(struct tablelist *t)
 #endif /* USERFILE */
 
 /*
- * Search a single command table for the command string in cmd.
+ * Search a list of command tables for the command string in cmd.
  */
 static int cmd_decode(struct tablelist *tlist, constant char *cmd, lbool anchored, constant char **extra)
 {
@@ -1268,24 +1269,6 @@ static size_t gint(unsigned char **sp)
 	return (n);
 }
 
-/*
- * Process an old (pre-v241) lesskey file.
- */
-static int old_lesskey(unsigned char *buf, size_t len)
-{
-	/*
-	 * Old-style lesskey file.
-	 * The file must end with either 
-	 *     ...,cmd,0,action
-	 * or  ...,cmd,0,action|A_EXTRA,string,0
-	 * So the last byte or the second to last byte must be zero.
-	 */
-	if (buf[len-1] != '\0' && buf[len-2] != '\0')
-		return (-1);
-	add_fcmd_table(buf, len);
-	return (0);
-}
-
 /* 
  * Process a new (post-v241) lesskey file.
  */
@@ -1402,13 +1385,12 @@ public int lesskey(constant char *filename, lbool sysvar)
 	}
 
 	/*
-	 * Figure out if this is an old-style (before version 241)
-	 * or new-style lesskey file format.
+	 * Verify lesskey file header.
 	 */
 	if (len < 4 || 
 	    buf[0] != C0_LESSKEY_MAGIC || buf[1] != C1_LESSKEY_MAGIC ||
 	    buf[2] != C2_LESSKEY_MAGIC || buf[3] != C3_LESSKEY_MAGIC)
-		return (old_lesskey(buf, (size_t) len));
+		return (-1);
 	return (new_lesskey(buf, (size_t) len, sysvar));
 }
 
