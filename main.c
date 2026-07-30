@@ -469,6 +469,7 @@ int main(int argc, constant char *argv[])
 	}
 	set_output(1, FALSE);
 #if MSDOS_COMPILER
+	raw_mode(TRUE);
 	term_init();
 #endif
 	commands();
