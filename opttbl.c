@@ -213,8 +213,8 @@ static struct optname ttyin_name_optname = { "tty",              NULL };
  * a new value, and odesc[1] is the description, which should contain 
  * one %d which is replaced by the value of the number.
  * For STRING options, odesc[0] is the prompt to use when entering
- * a new value, and odesc[1], if not NULL, is the set of characters
- * that are valid in the string.
+ * a new value, and odesc[1], if not NULL, is a description of the
+ * characters that are valid in the string (see optstring()).
  */
 static struct loption option[] =
 {
