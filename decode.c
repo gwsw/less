@@ -308,6 +308,10 @@ static unsigned char edittable[] =
 	SK(SK_PAGE_DOWN),0,             A_NOACTION,
 	SK(SK_SHIFT_LEFT_ARROW),0,      A_NOACTION,
 	SK(SK_SHIFT_RIGHT_ARROW),0,     A_NOACTION,
+	SK(SK_SHIFT_PAGE_UP),0,         A_NOACTION,
+	SK(SK_SHIFT_PAGE_DOWN),0,       A_NOACTION,
+	SK(SK_CTL_PAGE_UP),0,           A_NOACTION,
+	SK(SK_CTL_PAGE_DOWN),0,         A_NOACTION,
 	ESC,'[','M',0,                  EC_X11MOUSE,    /* X11 mouse report */
 	ESC,'[','<',0,                  EC_X116MOUSE,   /* X11 1006 mouse report */
 	ESC,'[','2','0','0','~',0,      A_START_PASTE,  /* open paste bracket */
