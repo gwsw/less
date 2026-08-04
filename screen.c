@@ -2355,6 +2355,7 @@ static void win32_clear(void)
 	FillConsoleOutputAttribute(con_out, curr_attr, winsz, topleft, &nchars);
 }
 
+#if 0
 /*
  * Remove the n topmost lines and scroll everything below it in the 
  * window upward.
@@ -2418,6 +2419,7 @@ public void win32_scroll_up(int n)
 	csbi.dwCursorPosition.Y -= n;
 	SetConsoleCursorPosition(con_out, csbi.dwCursorPosition);
 }
+#endif
 #endif
 
 /*

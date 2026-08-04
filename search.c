@@ -428,7 +428,7 @@ public lbool undo_osc8(void)
 /*
  * Clear the hilite list.
  */
-public void clr_hlist(struct hilite_tree *anchor)
+static void clr_hlist(struct hilite_tree *anchor)
 {
 	struct hilite_storage *hls;
 	struct hilite_storage *nexthls;

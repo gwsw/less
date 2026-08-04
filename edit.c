@@ -339,7 +339,7 @@ static void close_pipe(FILE *pipefd)
 /*
  * Drain and close an input pipe if needed.
  */
-public void close_altpipe(IFILE ifile)
+static void close_altpipe(IFILE ifile)
 {
 	FILE *altpipe = get_altpipe(ifile);
 	if (altpipe != NULL && !(ch_getflags() & CH_KEEPOPEN))

@@ -133,7 +133,7 @@ static struct tag * maketagent(constant char *file, LINENUM linenum, constant ch
 /*
  * Get tag mode.
  */
-public int gettagtype(void)
+static int gettagtype(void)
 {
 	int f;
 

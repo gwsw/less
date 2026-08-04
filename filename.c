@@ -820,7 +820,7 @@ public char * lglob(constant char *afilename)
 /*
  * Does path not represent something in the file system?
  */
-public lbool is_fake_pathname(constant char *path)
+static lbool is_fake_pathname(constant char *path)
 {
 	return (strcmp(path, "-") == 0 ||
 	        strcmp(path, FAKE_HELPFILE) == 0 || strcmp(path, FAKE_EMPTYFILE) == 0);

@@ -246,42 +246,11 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 #endif
 
 #if PIPEC
-
-/*
- * Pipe a section of the input file into the given shell command.
- * If mpos2 is not NULL_POSITION, the section between
- * mpos1 and mpos2 is piped.
- * Otherwise, if mpos1 is before the current screen,
- * the section between mpos1 and the bottom line displayed is piped.
- * Otherwise, the section between the top line displayed and
- * mpos1 is piped.
- */
-public int pipe_pos(constant char *cmd, POSITION mpos1, POSITION mpos2)
-{
-	POSITION tpos, bpos;
-
-	tpos = position(TOP);
-	if (tpos == NULL_POSITION)
-		tpos = ch_zero();
-	bpos = position(BOTTOM);
-
-	if (mpos2 != NULL_POSITION)
-	{
-		if (mpos1 < mpos2)
-			return pipe_data(cmd, mpos1, mpos2);
-		else
-			return pipe_data(cmd, mpos2, mpos1);
-	} else if (mpos1 < tpos)
-		return pipe_data(cmd, mpos1, bpos);
-	else
-		return pipe_data(cmd, tpos, mpos1);
-}
-
 /*
  * Create a pipe to the given shell command.
  * Feed it the file contents between the positions spos and epos.
  */
-public int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
+static int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
 {
 	FILE *f;
 	int c;
@@ -365,6 +334,36 @@ public int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
 	lwinch(0);
 #endif
 	return (0);
+}
+
+/*
+ * Pipe a section of the input file into the given shell command.
+ * If mpos2 is not NULL_POSITION, the section between
+ * mpos1 and mpos2 is piped.
+ * Otherwise, if mpos1 is before the current screen,
+ * the section between mpos1 and the bottom line displayed is piped.
+ * Otherwise, the section between the top line displayed and
+ * mpos1 is piped.
+ */
+public int pipe_pos(constant char *cmd, POSITION mpos1, POSITION mpos2)
+{
+	POSITION tpos, bpos;
+
+	tpos = position(TOP);
+	if (tpos == NULL_POSITION)
+		tpos = ch_zero();
+	bpos = position(BOTTOM);
+
+	if (mpos2 != NULL_POSITION)
+	{
+		if (mpos1 < mpos2)
+			return pipe_data(cmd, mpos1, mpos2);
+		else
+			return pipe_data(cmd, mpos2, mpos1);
+	} else if (mpos1 < tpos)
+		return pipe_data(cmd, mpos1, bpos);
+	else
+		return pipe_data(cmd, tpos, mpos1);
 }
 
 #endif

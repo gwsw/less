@@ -451,6 +451,81 @@ public void expand_cmd_tables(void)
 }
 
 /*
+ * Add a command table.
+ */
+static int add_cmd_table(struct tablelist **tlist, unsigned char *buf, size_t len)
+{
+	struct tablelist *t;
+
+	if (len == 0)
+		return (0);
+	/*
+	 * Allocate a tablelist structure, initialize it, 
+	 * and link it into the list of tables.
+	 */
+	if ((t = (struct tablelist *) 
+			calloc(1, sizeof(struct tablelist))) == NULL)
+	{
+		return (-1);
+	}
+	t->t_start = buf;
+	t->t_end = buf + len;
+	t->t_next = NULL;
+	if (*tlist == NULL)
+		*tlist = t;
+	else
+	{
+		struct tablelist *e;
+		for (e = *tlist;  e->t_next != NULL;  e = e->t_next)
+			continue;
+		e->t_next = t;
+	}
+	return (0);
+}
+
+/*
+ * Add a command table.
+ */
+static void add_fcmd_table(unsigned char *buf, size_t len)
+{
+	if (add_cmd_table(&list_fcmd_tables, buf, len) < 0)
+		error(LM(some_commands_disabled), NULL_PARG);
+}
+
+/*
+ * Add an editing command table.
+ */
+static void add_ecmd_table(unsigned char *buf, size_t len)
+{
+	if (add_cmd_table(&list_ecmd_tables, buf, len) < 0)
+		error(LM(some_edit_commands_disabled), NULL_PARG);
+}
+
+/*
+ * Add an environment variable table.
+ */
+static void add_var_table(struct tablelist **tlist, mutable unsigned char *buf, size_t len)
+{
+	struct xbuffer xbuf;
+
+	xbuf_init(&xbuf);
+	expand_evars((mutable char*)buf, len, &xbuf); /*{{unsigned-issue}}*/
+	/* {{ We leak the table in buf. expand_evars scribbled in it so it's useless anyway. }} */
+	if (add_cmd_table(tlist, xbuf.data, xbuf.end) < 0)
+		error(LM(environment_variables_from_lesskey_file_unavailable), NULL_PARG);
+}
+
+static void add_uvar_table(unsigned char *buf, size_t len)
+{
+	add_var_table(&list_var_tables, buf, len);
+}
+
+static void add_sysvar_table(unsigned char *buf, size_t len)
+{
+	add_var_table(&list_sysvar_tables, buf, len);
+}
+
+/*
  * Initialize the command lists.
  */
 public void init_cmds(void)
@@ -518,39 +593,6 @@ public void init_cmds(void)
 }
 
 /*
- * Add a command table.
- */
-static int add_cmd_table(struct tablelist **tlist, unsigned char *buf, size_t len)
-{
-	struct tablelist *t;
-
-	if (len == 0)
-		return (0);
-	/*
-	 * Allocate a tablelist structure, initialize it, 
-	 * and link it into the list of tables.
-	 */
-	if ((t = (struct tablelist *) 
-			calloc(1, sizeof(struct tablelist))) == NULL)
-	{
-		return (-1);
-	}
-	t->t_start = buf;
-	t->t_end = buf + len;
-	t->t_next = NULL;
-	if (*tlist == NULL)
-		*tlist = t;
-	else
-	{
-		struct tablelist *e;
-		for (e = *tlist;  e->t_next != NULL;  e = e->t_next)
-			continue;
-		e->t_next = t;
-	}
-	return (0);
-}
-
-/*
  * Remove the last command table in a list.
  */
 static void pop_cmd_table(struct tablelist **tlist)
@@ -571,48 +613,6 @@ static void pop_cmd_table(struct tablelist **tlist)
 		e->t_next = NULL;
 	}
 	free(t);
-}
-
-/*
- * Add a command table.
- */
-public void add_fcmd_table(unsigned char *buf, size_t len)
-{
-	if (add_cmd_table(&list_fcmd_tables, buf, len) < 0)
-		error(LM(some_commands_disabled), NULL_PARG);
-}
-
-/*
- * Add an editing command table.
- */
-public void add_ecmd_table(unsigned char *buf, size_t len)
-{
-	if (add_cmd_table(&list_ecmd_tables, buf, len) < 0)
-		error(LM(some_edit_commands_disabled), NULL_PARG);
-}
-
-/*
- * Add an environment variable table.
- */
-static void add_var_table(struct tablelist **tlist, mutable unsigned char *buf, size_t len)
-{
-	struct xbuffer xbuf;
-
-	xbuf_init(&xbuf);
-	expand_evars((mutable char*)buf, len, &xbuf); /*{{unsigned-issue}}*/
-	/* {{ We leak the table in buf. expand_evars scribbled in it so it's useless anyway. }} */
-	if (add_cmd_table(tlist, xbuf.data, xbuf.end) < 0)
-		error(LM(environment_variables_from_lesskey_file_unavailable), NULL_PARG);
-}
-
-public void add_uvar_table(unsigned char *buf, size_t len)
-{
-	add_var_table(&list_var_tables, buf, len);
-}
-
-public void add_sysvar_table(unsigned char *buf, size_t len)
-{
-	add_var_table(&list_sysvar_tables, buf, len);
 }
 
 /*
@@ -1027,7 +1027,7 @@ public int fcmd_decode(constant char *cmd, constant char **sp)
 /*
  * Decode a command from the edittables list.
  */
-public int ecmd_decode(constant char *cmd, constant char **sp)
+static int ecmd_decode(constant char *cmd, constant char **sp)
 {
 	return (cmd_decode(list_ecmd_tables, cmd, FALSE, sp));
 }
@@ -1073,7 +1073,7 @@ static int csl_bitmap_error(constant char *pfx, constant char *type, size_t len,
 /*
  * Return the bit value of a csl_bitmap name.
  */
-public int csl_bitmap_bit(constant char *name, size_t len, struct csl_bitmap_def *defs, int num_defs, constant char *pfx)
+static int csl_bitmap_bit(constant char *name, size_t len, struct csl_bitmap_def *defs, int num_defs, constant char *pfx)
 {
 	int i;
 	int match = -1;
