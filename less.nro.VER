@@ -1727,7 +1727,7 @@ character and followed by the close quote character.
 Note that even after the quote characters are changed, this option
 remains \-" (a dash followed by a double quote).
 .IP "\fB\-\*~\fP or \fB\-\-tilde\fP"
-Normally lines after end of file are displayed as a single tilde (\*~).
+Normally, lines after end of file are displayed as a single tilde (\*~).
 This option causes lines after end of file to be displayed as blank lines.
 .IP "\fB\-#\fP or \fB\-\-shift\fP"
 Specifies the default number of positions to scroll horizontally
@@ -1740,7 +1740,7 @@ screen width, \&.3 is three tenths of the screen width, and so on.
 If the number is specified as a fraction, the actual number of
 scroll positions is recalculated if the terminal window is resized.
 .IP "\fB\-\-autosave=\fP\fIactions\fP
-Normally the history file is saved only when
+Normally, the history file is saved only when
 .B less
 exits.
 This option specifies other actions which will cause the history file to be saved.
@@ -2046,7 +2046,7 @@ Searches do not include header lines or header columns.
 .IP "\fB\-\-no\-vbell\fP"
 Disables the terminal's visual bell.
 .IP "\fB\-\-past\-eof\fP"
-Normally scrolling commands (other than J, K, ESC-SPACE and ESC-b)
+Normally, scrolling commands (other than J, K, ESC-SPACE and ESC-b)
 stop scrolling when end-of-file is reached scrolling forward, or
 beginning-of-file is reached scrolling backward.
 This option makes all scrolling commands continue past end-of-file
