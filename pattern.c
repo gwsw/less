@@ -447,26 +447,34 @@ static lbool match_pattern1(PATTERN_TYPE pattern, constant char *tpattern, const
 }
 
 /*
- * Return TRUE if the match satisfies all SUBSEARCH conditions.
+ * Return TRUE if the match satisfies all conditions in *subsearch.
+ * Update *subsearch to remove any satisfied conditions.
  */
-static lbool subsearch_ok(constant char **sp, constant char **ep, int search_type)
+static lbool subsearch_ok(constant char **sp, constant char **ep, int *subsearch)
 {
 	int i;
+	if (*subsearch == 0)
+		return TRUE;
 	for (i = 1;  i <= NUM_SEARCH_COLORS;  i++)
 	{
-		if ((search_type & SRCH_SUBSEARCH(i)) && ep[i] == sp[i])
-			return FALSE;
+		if (ep[i] != sp[i]) /* i-th subpattern matched */
+		{
+			*subsearch &= ~SRCH_SUBSEARCH(i);
+			if (*subsearch == 0)
+				return TRUE;
+		}
 	}
-	return TRUE;
+	return FALSE;
 }
 
 public lbool match_pattern(PATTERN_TYPE pattern, constant char *tpattern, constant char *line, size_t line_len, size_t line_off, constant char **sp, constant char **ep, int nsp, int notbol, int search_type)
 {
+	int subsearch = search_type & SRCH_SUBSEARCH_ALL;
 	for (;;)
 	{
 		size_t mlen;
 		lbool matched = match_pattern1(pattern, tpattern, line, line_len, line_off, sp, ep, nsp, notbol, search_type);
-		if (!matched || subsearch_ok(sp, ep, search_type))
+		if (!matched || subsearch_ok(sp, ep, &subsearch))
 			return matched;
 		/* We have a match, but it does not satisfy all SUBSEARCH conditions.
 		 * Continue searching after this match. */

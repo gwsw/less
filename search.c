@@ -1085,7 +1085,9 @@ static void hilite_line(POSITION linepos, constant char *line, size_t line_len, 
 		else /* end of line */
 			break;
 	} while (match_pattern(info_compiled(&search_info), search_info.text,
-			line, line_len, line_off, sp, ep, nsp, 1, search_info.search_type));
+			line, line_len, line_off, sp, ep, nsp, 1,
+			search_info.search_type & ~SRCH_SUBSEARCH_ALL));
+
 }
 #endif
 
