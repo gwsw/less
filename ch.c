@@ -226,6 +226,8 @@ static int ch_get(void)
 		POSITION len;
 		POSITION pos = ch_position(ch_block, bp->datasize);
 		lbool read_pipe_at_eof = FALSE;
+		if (ch_file < 0)
+			return (EOI);
 		if ((len = ch_length()) != NULL_POSITION && pos >= len)
 		{
 			/*
@@ -324,7 +326,22 @@ static int ch_get(void)
 			/* Either end of file or no data available.
 			 * read_again indicates the latter. */
 			if (!read_again)
+			{
 				ch_fsize = pos;
+				if (ch_flags & CH_POPENED)
+				{
+					/*
+					 * ch_file is a pipe from a LESSOPEN child program.
+					 * Since we've read to EOF, the child should have exited.
+					 * Close the pipe now so the child does not remain a
+					 * zombie. This also reports any error status from the
+					 * child if -show-preproc-errors is enabled.
+					 */
+					close_pipe(get_altpipe(curr_ifile));
+					set_altpipe(curr_ifile, NULL);
+					ch_file = -1;
+				}
+			}
 			if (ignore_eoi || read_again)
 			{
 				/* Wait a while, then try again. */
@@ -923,7 +940,7 @@ public void ch_close(void)
 		 * But don't really close it if it was opened via popen(),
 		 * because pclose() wants to close it.
 		 */
-		if (!(ch_flags & (CH_POPENED|CH_HELPFILE)))
+		if (ch_file >= 0 && !(ch_flags & (CH_POPENED|CH_HELPFILE)))
 			close(ch_file);
 		ch_file = -1;
 	} else

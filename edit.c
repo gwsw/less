@@ -259,7 +259,7 @@ static void check_modelines(void)
 /*
  * Close a pipe opened via popen.
  */
-static void close_pipe(FILE *pipefd)
+public void close_pipe(FILE *pipefd)
 {
 	int status;
 	char *p;
@@ -421,7 +421,7 @@ public int edit(constant char *filename)
 /*
  * Clean up what edit_ifile did before error return.
  */
-static int edit_error(constant char *filename, constant char *alt_filename, void *altpipe, IFILE ifile)
+static int edit_error(constant char *filename, constant char *alt_filename, FILE *altpipe, IFILE ifile)
 {
 	if (alt_filename != NULL)
 	{
@@ -456,7 +456,7 @@ public int edit_ifile(IFILE ifile)
 	constant char *filename;
 	constant char *open_filename;
 	char *alt_filename;
-	void *altpipe;
+	FILE *altpipe;
 	IFILE was_curr_ifile;
 	char *p;
 	PARG parg;

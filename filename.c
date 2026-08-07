@@ -887,7 +887,7 @@ static int num_pct_s(constant char *lessopen)
  * See if we should open a "replacement file" 
  * instead of the file we're about to open.
  */
-public char * open_altfile(constant char *filename, int *pf, void **pfd)
+public char * open_altfile(constant char *filename, int *pf, FILE **pfd)
 {
 #if !HAVE_POPEN
 	return (NULL);
@@ -991,7 +991,7 @@ public char * open_altfile(constant char *filename, int *pf, void **pfd)
 		}
 		/* Alt pipe contains data, so use it. */
 		ch_ungetchar(c);
-		*pfd = (void *) fd;
+		*pfd = fd;
 		*pf = f;
 		return (save("-"));
 	}
