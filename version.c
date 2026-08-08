@@ -1125,7 +1125,7 @@ v709            Fix --rscroll with non-ASCII char; fix exit with invalid TERM;
                 fix crash with :e# after :d; fix loop if invalid option in
                 LESS_UNSUPPORT; fix crash with initial !!; allow shell cmd
                 starting with '!'; add ESC-]; support shift/ctl page up/down;
-                fix search ^S bugs.
+                fix search ^S bugs; fix display issues with less_printf.
 */
 
 char version[] = "709x";

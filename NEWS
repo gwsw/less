@@ -76,6 +76,9 @@
 
 * Fix bugs using ^S search modifier (github #814).
 
+* Fix display bugs when a status message contains non-ASCII chars
+  or is displayed on a very narrow screen (github #816).
+
 ======================================================================
 
 	Major changes between "less" versions 704 and 705

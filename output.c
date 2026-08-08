@@ -601,12 +601,11 @@ STR_TO_TYPE_FUNC(lstrtoul, lstrtoulc, unsigned long)
  * Print an integral type.
  */
 #define IPRINT_FUNC(funcname, type, typetoa) \
-static int funcname(type num, int radix) \
+static void funcname(type num, int radix) \
 { \
 	char buf[INT_STRLEN_BOUND(num)]; \
 	typetoa(num, buf, radix); \
 	putstr(buf); \
-	return (int) strlen(buf); \
 }
 
 IPRINT_FUNC(iprint_int, int, inttoa)
@@ -619,19 +618,16 @@ IPRINT_FUNC(iprint_linenum, LINENUM, linenumtoa)
  * {{ This paranoia about the portability of printf dates from experiences
  *    with systems in the 1980s and is of course no longer necessary. }}
  */
-public int less_printf(constant char *fmt, constant PARG *parg)
+public void less_printf(constant char *fmt, constant PARG *parg)
 {
 	constant char *s;
 	constant char *es;
-	int col;
 
-	col = 0;
 	while (*fmt != '\0')
 	{
 		if (*fmt != '%')
 		{
 			putchr(*fmt++);
-			col++;
 		} else
 		{
 			++fmt;
@@ -645,33 +641,25 @@ public int less_printf(constant char *fmt, constant PARG *parg)
 				{
 					LWCHAR ch = step_charc(&s, +1, es);
 					constant char *ps = utf_mode ? prutfchar(ch) : prchar(ch);
-					while (*ps != '\0')
-					{
-						putchr(*ps++);
-						col++;
-					}
+					putstr(ps);
 				}
 				break;
 			case 'd':
-				col += iprint_int(parg->p_int, 10);
+				iprint_int(parg->p_int, 10);
 				parg++;
 				break;
 			case 'x':
-				col += iprint_int(parg->p_int, 16);
+				iprint_int(parg->p_int, 16);
 				parg++;
 				break;
 			case 'n':
-				col += iprint_linenum(parg->p_linenum, 10);
+				iprint_linenum(parg->p_linenum, 10);
 				parg++;
 				break;
 			case 'c':
 				s = prchar((LWCHAR) parg->p_char);
 				parg++;
-				while (*s != '\0')
-				{
-					putchr(*s++);
-					col++;
-				}
+				putstr(s);
 				break;
 			case '%':
 				putchr('%');
@@ -679,7 +667,6 @@ public int less_printf(constant char *fmt, constant PARG *parg)
 			}
 		}
 	}
-	return (col);
 }
 
 /*
@@ -707,9 +694,6 @@ public void get_return(void)
  */
 public void error(constant char *fmt, constant PARG *parg)
 {
-	int col = 0;
-	static char return_to_continue[] = "  (press RETURN)";
-
 	errmsgs++;
 
 	if (!interactive())
@@ -724,24 +708,17 @@ public void error(constant char *fmt, constant PARG *parg)
 	at_exit();
 	clear_bot();
 	at_enter(AT_STANDOUT|AT_COLOR_ERROR);
-	col += so_s_width;
-	col += less_printf(fmt, parg);
-	putstr(return_to_continue);
+	less_printf(fmt, parg);
+	putstr("  ");
+	putstr(LM(press_RETURN));
 	at_exit();
-	col += (int) sizeof(return_to_continue) + so_e_width;
 
 	get_return();
 	lower_left();
 	clear_eol();
 
-	if (col >= sc_width)
-		/*
-		 * Printing the message has probably scrolled the screen.
-		 * {{ Unless the terminal doesn't have auto margins,
-		 *    in which case we just hammered on the right margin. }}
-		 */
-		screen_trashed();
-
+	/* Printing the message may have scrolled the screen. */
+	screen_trashed();
 	flush();
 }
 
@@ -761,6 +738,7 @@ static void ierror_suffix(constant char *fmt, constant PARG *parg, constant char
 	putstr(suffix2);
 	putstr(suffix3);
 	at_exit();
+	screen_trashed();
 	flush();
 	need_clr = TRUE;
 }
@@ -789,20 +767,18 @@ public void ixerror(constant char *fmt, constant PARG *parg)
 public int query(constant char *fmt, constant PARG *parg)
 {
 	int c;
-	int col = 0;
 
 	if (interactive())
 		clear_bot();
 
-	(void) less_printf(fmt, parg);
+	less_printf(fmt, parg);
 	c = getchr();
 
 	if (interactive())
 	{
 		lower_left();
-		if (col >= sc_width)
-			screen_trashed();
 		flush();
+		screen_trashed();
 	} else
 	{
 		putchr('\n');
