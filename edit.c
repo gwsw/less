@@ -643,10 +643,13 @@ public int edit_ifile(IFILE ifile)
 #endif
 #if HAVE_STAT_INO
 		/* Remember the i-number and device of the opened file. */
-		if (strcmp(open_filename, "-") != 0)
+		if (is_fake_pathname(open_filename))
 		{
-			struct stat statbuf;
-			int r = stat(open_filename, &statbuf);
+			curr_ino = curr_dev = 0;
+		} else
+		{
+			less_stat_t statbuf;
+			int r = less_stat(open_filename, &statbuf);
 			if (r == 0)
 			{
 				curr_ino = statbuf.st_ino;

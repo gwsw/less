@@ -820,7 +820,7 @@ public char * lglob(constant char *afilename)
 /*
  * Does path not represent something in the file system?
  */
-static lbool is_fake_pathname(constant char *path)
+public lbool is_fake_pathname(constant char *path)
 {
 	return (strcmp(path, "-") == 0 ||
 	        strcmp(path, FAKE_HELPFILE) == 0 || strcmp(path, FAKE_EMPTYFILE) == 0);
@@ -1156,9 +1156,9 @@ public lbool curr_ifile_changed(void)
 	 * or if the file is smaller than it previously was,
 	 * the file must be different.
 	 */
-	struct stat st;
+	less_stat_t st;
 	POSITION curr_pos = ch_tell();
-	int r = stat(get_filename(curr_ifile), &st);
+	int r = less_stat(get_filename(curr_ifile), &st);
 	if (r == 0 && (st.st_ino != curr_ino ||
 		st.st_dev != curr_dev ||
 		(curr_pos != NULL_POSITION && st.st_size < curr_pos)))

@@ -1726,8 +1726,8 @@ static void make_file_private(FILE *f)
 #if HAVE_FCHMOD
 	lbool do_chmod = TRUE;
 #if HAVE_STAT
-	struct stat statbuf;
-	int r = fstat(fileno(f), &statbuf);
+	less_stat_t statbuf;
+	int r = less_fstat(fileno(f), &statbuf);
 	if (r < 0 || !S_ISREG(statbuf.st_mode))
 		/* Don't chmod if not a regular file. */
 		do_chmod = FALSE;
