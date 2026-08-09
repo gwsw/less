@@ -226,8 +226,6 @@ static int ch_get(void)
 		POSITION len;
 		POSITION pos = ch_position(ch_block, bp->datasize);
 		lbool read_pipe_at_eof = FALSE;
-		if (ch_file < 0)
-			return (EOI);
 		if ((len = ch_length()) != NULL_POSITION && pos >= len)
 		{
 			/*
@@ -281,6 +279,8 @@ static int ch_get(void)
 			n = 1;
 		} else
 		{
+			if (ch_file < 0)
+				return (EOI);
 			n = iread(ch_file, &bp->data[bp->datasize], LBUFSIZE - bp->datasize);
 		}
 
