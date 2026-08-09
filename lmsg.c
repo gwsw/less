@@ -47,13 +47,11 @@ extern int size_helpdata;
  */
 static void lmsg_error(constant char *err, constant char *lmsg_file, int linenum)
 {
-	size_t slen = strlen(err) + strlen(lmsg_file) + 64;
-	char *str = ecalloc(slen, sizeof(char));
-	PARG parg;
-	SNPRINTF3(str, slen, "Error in lessmsg file %s line %d: %s", lmsg_file, linenum, err);
-	parg.p_string = str;
-	error("%s", &parg);
-	free(str);
+	PARG parg[3];
+	parg[0].p_string = lmsg_file;
+	parg[1].p_int = linenum;
+	parg[2].p_string = err;
+	error("Error in lessmsg file %s line %d: %s", parg);
 }
 
 /*
