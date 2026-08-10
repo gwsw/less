@@ -1132,17 +1132,23 @@ public char * bad_file(constant char *filename)
  */
 public POSITION filesize(int f)
 {
+	if (f < 0)
+		return (NULL_POSITION);
 #if HAVE_STAT
+{
 	less_stat_t statbuf;
 
 	if (less_fstat(f, &statbuf) >= 0)
 		return ((POSITION) statbuf.st_size);
+}
 #else
 #ifdef _OSK
+{
 	long size;
 
 	if ((size = (long) _gs_size(f)) >= 0)
 		return ((POSITION) size);
+}
 #endif
 #endif
 	return (seek_filesize(f));
