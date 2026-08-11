@@ -22,6 +22,8 @@
 * In lesskey files, add \k^x syntax for control chars and \k+x syntax
   for shifted chars.
 
+* Underline OSC 8 links in text.
+
 * Add -DO for custom coloring of OSC 8 links.
 
 * Add LESSMSG, which allows translation of messages into other languages.
@@ -36,8 +38,6 @@
   shift-pagedown, ctl-uparrow, ctl-downarrow, ctl-pageup, ctl-pagedown,
   shift-delete.
 
-* Underline OSC 8 links in text.
-
 * Change "make check" to use nonstandard object and binary file names,
   to avoid accidentally installing test binaries (github #791).
 
@@ -46,6 +46,8 @@
 * Improve error handling for malformed binary lesskey file.
 
 * Improve messaging when using __mouse after --emouse (github #808).
+
+* Remove support for obsolete pre-241 lesskey binary format.
 
 * Remove obsolete lesskey program.
 
