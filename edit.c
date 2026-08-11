@@ -643,10 +643,8 @@ public int edit_ifile(IFILE ifile)
 #endif
 #if HAVE_STAT_INO
 		/* Remember the i-number and device of the opened file. */
-		if (is_fake_pathname(open_filename))
-		{
-			curr_ino = curr_dev = 0;
-		} else
+		curr_ino = curr_dev = 0;
+		if (!is_fake_pathname(open_filename))
 		{
 			less_stat_t statbuf;
 			int r = less_stat(open_filename, &statbuf);
