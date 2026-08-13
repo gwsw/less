@@ -1462,14 +1462,14 @@ static int add_hometable(int (*call_lesskey)(constant char *, lbool), constant c
 		/* Remove first char (normally a dot) unless stored in $HOME. */
 		constant char *xdg = lgetenv("XDG_CONFIG_HOME");
 		if (!isnullenv(xdg))
-			filename = dirfile(xdg, &def_filename[1], 1);
+			filename = dirfile(xdg, &def_filename[1], TRUE);
 		if (filename == NULL)
 		{
 			constant char *home = lgetenv("HOME");
 			if (!isnullenv(home))
 			{
-				char *cfg_dir = dirfile(home, ".config", 0);
-				filename = dirfile(cfg_dir, &def_filename[1], 1);
+				char *cfg_dir = dirfile(home, ".config", FALSE);
+				filename = dirfile(cfg_dir, &def_filename[1], TRUE);
 				free(cfg_dir);
 			}
 		}

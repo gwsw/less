@@ -1486,7 +1486,7 @@ static char * histfile_find(lbool must_exist)
 	name = dirfile(lgetenv("XDG_STATE_HOME"), &LESSHISTFILE[1], must_exist);
 	if (name == NULL)
 	{
-		char *dir = dirfile(home, ".local/state", 1);
+		char *dir = dirfile(home, ".local/state", TRUE);
 		if (dir != NULL)
 		{
 			name = dirfile(dir, &LESSHISTFILE[1], must_exist);

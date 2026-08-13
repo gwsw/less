@@ -272,7 +272,7 @@ public char * shell_quote(constant char *s)
  * Return a pathname that points to a specified file in a specified directory.
  * Return NULL if the file does not exist in the directory.
  */
-public char * dirfile(constant char *dirname, constant char *filename, int must_exist)
+public char * dirfile(constant char *dirname, constant char *filename, lbool must_exist)
 {
 	char *pathname;
 	size_t len;
@@ -314,12 +314,12 @@ public char * homefile(constant char *filename)
 	char *pathname;
 
 	/* Try $HOME/filename. */
-	pathname = dirfile(lgetenv("HOME"), filename, 1);
+	pathname = dirfile(lgetenv("HOME"), filename, TRUE);
 	if (pathname != NULL)
 		return (pathname);
 #if OS2
 	/* Try $INIT/filename. */
-	pathname = dirfile(lgetenv("INIT"), filename, 1);
+	pathname = dirfile(lgetenv("INIT"), filename, TRUE);
 	if (pathname != NULL)
 		return (pathname);
 #endif
