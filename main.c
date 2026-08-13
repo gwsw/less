@@ -69,7 +69,7 @@ static wchar_t consoleTitle[256];
 #endif
 
 public lbool    one_screen;
-extern int      less_is_more;
+extern lbool    less_is_more;
 extern lbool    missing_cap;
 extern int      know_dumb;
 extern int      quit_if_one_screen;
@@ -274,7 +274,7 @@ int main(int argc, constant char *argv[])
 	 */
 	if (strcmp(last_component(progname), "more") == 0 &&
 			isnullenv(lgetenv("LESS_IS_MORE")))
-		less_is_more = 1;
+		less_is_more = TRUE;
 
 	init_prompt();
 

@@ -307,7 +307,7 @@ static void win_flush(void)
 		 * in such case, once it happens, we keep passthrough sequences
 		 * until we know we're in sync again - on a valid reset.
 		 */
-		static int sgr_bad_sync;
+		static lbool sgr_bad_sync;
 
 		for (anchor = p_next = obuf;
 			 (p_next = memchr(p_next, ESC, ob - p_next)) != NULL; )
@@ -344,7 +344,7 @@ static void win_flush(void)
 					anchor = p_next = p;
 					update_sgr(&sgr, 0);
 					set_win_colors(&sgr);
-					sgr_bad_sync = 0;
+					sgr_bad_sync = FALSE;
 					continue;
 				}
 				p_next = p;
@@ -388,9 +388,9 @@ static void win_flush(void)
 						bad_code = update_sgr(&sgr, code);
 
 					if (bad_code)
-						sgr_bad_sync = 1;
+						sgr_bad_sync = TRUE;
 					else if (code == 0)
-						sgr_bad_sync = 0;
+						sgr_bad_sync = FALSE;
 
 					p = q;
 				}
@@ -574,7 +574,7 @@ TYPE_TO_A_FUNC(inttoa, int)
 type cfuncname(constant char *buf, constant char **ebuf, int radix) \
 { \
 	type val = 0; \
-	lbool v = 0; \
+	lbool v = FALSE; \
 	for (;; buf++) { \
 		char c = *buf; \
 		int digit = (c >= '0' && c <= '9') ? c - '0' : (c >= 'a' && c <= 'f') ? c - 'a' + 10 : (c >= 'A' && c <= 'F') ? c - 'A' + 10 : -1; \

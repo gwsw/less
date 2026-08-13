@@ -685,10 +685,10 @@ public int edit_ifile(IFILE ifile)
 		{
 			char *qfilename = shell_quote(filename);
 			if (qfilename == NULL)
-				cmd_addhist(ml_examine, filename, 1);
+				cmd_addhist(ml_examine, filename, TRUE);
 			else
 			{
-				cmd_addhist(ml_examine, qfilename, 1);
+				cmd_addhist(ml_examine, qfilename, TRUE);
 				free(qfilename);
 			}
 		}

@@ -416,12 +416,12 @@ static POSITION ctagsearch(void)
 	LINENUM linenum;
 	size_t line_len;
 	constant char *line;
-	int found;
+	lbool found;
 
 	pos = ch_zero();
 	linenum = find_linenum(pos);
 
-	for (found = 0; !found;)
+	for (found = FALSE; !found;)
 	{
 		/*
 		 * Get lines until we find a matching one or 
@@ -459,7 +459,7 @@ static POSITION ctagsearch(void)
 		if (ctldisp != OPT_ONPLUS)
 		{
 			if (curtag_match(line, linepos))
-				found = 1;
+				found = TRUE;
 		} else
 		{
 			int cvt_ops = CVT_ANSI;
@@ -468,7 +468,7 @@ static POSITION ctagsearch(void)
 			char *cline = (char *) ecalloc(1, cvt_len);
 			cvt_text(cline, line, chpos, &line_len, cvt_ops);
 			if (curtag_match(cline, linepos))
-				found = 1;
+				found = TRUE;
 			free(chpos);
 			free(cline);
 		}

@@ -27,7 +27,7 @@ extern int hshift;
 extern int sc_width;
 extern int sc_height;
 extern int jump_sline;
-extern int less_is_more;
+extern lbool less_is_more;
 extern int header_lines;
 extern int utf_mode;
 extern IFILE curr_ifile;

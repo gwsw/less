@@ -108,7 +108,7 @@ public lbool entire_file_displayed(void)
 		return (FALSE);
 
 	/* Make sure first line of file is displayed. */
-	pos = position(0);
+	pos = position(TOP);
 	return (pos == NULL_POSITION || pos == 0);
 }
 
@@ -154,7 +154,7 @@ static POSITION forw_line_pfx(POSITION pos, int pfx, int skipeol)
 static void set_attr_header(int ln)
 {
 	set_attr_line(AT_COLOR_HEADER);
-	if (ln+1 == header_lines && position(0) != header_start_pos)
+	if (ln+1 == header_lines && position(TOP) != header_start_pos)
 		set_attr_line(AT_UNDERLINE);
 }
 

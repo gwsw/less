@@ -296,7 +296,7 @@ public int bo_s_width, bo_e_width;      /* Printing width of boldface seq */
 public int ul_s_width, ul_e_width;      /* Printing width of underline seq */
 public int so_s_width, so_e_width;      /* Printing width of standout seq */
 public int bl_s_width, bl_e_width;      /* Printing width of blink seq */
-public int can_goto_line;               /* Can move cursor to any line */
+public lbool can_goto_line;             /* Can move cursor to any line */
 public lbool missing_cap = FALSE;       /* Some capability is missing */
 public constant char *kent = NULL;      /* Keypad ENTER sequence */
 public lbool kent_mapped = FALSE;       /* Keypad ENTER is mapped to a command */
@@ -409,7 +409,7 @@ static void set_termio_flags(
  */
 public void raw_mode(lbool on)
 {
-	static lbool curr_on = 0;
+	static lbool curr_on = FALSE;
 
 	if (on == curr_on)
 			return;
@@ -427,7 +427,7 @@ public void raw_mode(lbool on)
     {
 	struct termios s;
 	static struct termios save_term;
-	static int saved_term = 0;
+	static lbool saved_term = FALSE;
 
 	if (on) 
 	{
@@ -447,7 +447,7 @@ public void raw_mode(lbool on)
 			if (!saved_term)
 			{
 				save_term = s;
-				saved_term = 1;
+				saved_term = TRUE;
 			}
 #if HAVE_OSPEED
 			switch (cfgetospeed(&s))
@@ -578,7 +578,7 @@ public void raw_mode(lbool on)
     {
 	struct termio s;
 	static struct termio save_term;
-	static int saved_term = 0;
+	static lbool saved_term = FALSE;
 
 	if (on)
 	{
@@ -593,7 +593,7 @@ public void raw_mode(lbool on)
 		if (!saved_term)
 		{
 			save_term = s;
-			saved_term = 1;
+			saved_term = TRUE;
 		}
 #if HAVE_OSPEED
 		ospeed = s.c_cflag & CBAUD;
@@ -632,7 +632,7 @@ public void raw_mode(lbool on)
     {
 	struct sgttyb s;
 	static struct sgttyb save_term;
-	static int saved_term = 0;
+	static lbool saved_term = FALSE;
 
 	if (on)
 	{
@@ -647,7 +647,7 @@ public void raw_mode(lbool on)
 		if (!saved_term)
 		{
 			save_term = s;
-			saved_term = 1;
+			saved_term = TRUE;
 		}
 #if HAVE_OSPEED
 		ospeed = s.sg_ospeed;
@@ -675,7 +675,7 @@ public void raw_mode(lbool on)
     {
 	struct sgbuf s;
 	static struct sgbuf save_term;
-	static int saved_term = 0;
+	static lbool saved_term = FALSE;
 
 	if (on)
 	{
@@ -690,7 +690,7 @@ public void raw_mode(lbool on)
 		if (!saved_term)
 		{
 			save_term = s;
-			saved_term = 1;
+			saved_term = TRUE;
 		}
 		erase_char = s.sg_bspch;
 		kill_char = s.sg_dlnch;
@@ -746,7 +746,7 @@ public void raw_mode(lbool on)
 /*
  * Some glue to prevent calling termcap functions if tgetent() failed.
  */
-static int hardcopy;
+static lbool hardcopy;
 
 static constant char * ltget_env(constant char *tiname, constant char *tcname)
 {
@@ -1541,16 +1541,16 @@ static void get_term_info(void)
 	 */
 	if ((term = lgetenv("TERM")) == NULL && (term = getenv("TERM")) == NULL)
 		term = DEFAULT_TERM;
-	hardcopy = 0;
+	hardcopy = FALSE;
 #if USE_TERMINFO
 	if (setupterm(term, -1, &err) != OK || err != 1)
-		hardcopy = 1;
+		hardcopy = TRUE;
 #else
 	if (tgetent(termbuf, term) != TGETENT_OK)
-		hardcopy = 1;
+		hardcopy = TRUE;
 #endif
 	if (!hardcopy && ltgetflag("hc", "hc"))
-		hardcopy = 1;
+		hardcopy = TRUE;
 
 	auto_wrap = ltgetflag("am", "am");
 	defer_wrap = ltgetflag("xenl", "xn");
@@ -1662,9 +1662,9 @@ static void get_term_info(void)
 		 * We need it only if we don't have home or lower-left.
 		 */
 		sc_move = "";
-		can_goto_line = 0;
+		can_goto_line = FALSE;
 	} else
-		can_goto_line = 1;
+		can_goto_line = TRUE;
 
 	tmodes("smso", "rmso", "so", "se", &sc_s_in, &sc_s_out, "", "", &sp);
 	tmodes("smul", "rmul", "us", "ue", &sc_u_in, &sc_u_out, sc_s_in, sc_s_out, &sp);
@@ -1771,7 +1771,7 @@ public void get_term(void)
 #if MSDOS_COMPILER
 	auto_wrap = 1;
 	defer_wrap = 0;
-	can_goto_line = 1;
+	can_goto_line = TRUE;
 	/*
 	 * Set up default colors.
 	 * The xx_s_width and xx_e_width vars are already initialized to 0.

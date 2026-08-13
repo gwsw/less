@@ -1611,7 +1611,7 @@ static void addhist_init(void *uparam, struct mlist *ml, constant char *string)
 {
 	(void) uparam;
 	if (ml != NULL)
-		cmd_addhist(ml, string, 0);
+		cmd_addhist(ml, string, FALSE);
 	else if (string != NULL)
 		restore_mark(string);
 }

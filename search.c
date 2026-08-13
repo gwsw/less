@@ -47,7 +47,7 @@ extern LWCHAR rscroll_char;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern lbool squished;
-extern int can_goto_line;
+extern lbool can_goto_line;
 static lbool hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
@@ -98,7 +98,7 @@ struct hilite_node
 	struct hilite_node *right;
 	struct hilite_node *prev;
 	struct hilite_node *next;
-	int red;
+	lbool red;
 	struct hilite r;
 };
 struct hilite_storage
@@ -344,7 +344,7 @@ public void clear_attn(void)
 	POSITION old_end_attnpos;
 	POSITION pos;
 	POSITION epos;
-	int moved = 0;
+	lbool moved = FALSE;
 
 	if (hilite_target)
 		draw_target_attn(FALSE);
@@ -376,11 +376,11 @@ public void clear_attn(void)
 			goto_line(sindex);
 			clear_eol();
 			put_line(FALSE);
-			moved = 1;
+			moved = TRUE;
 		}
 	}
 	if (overlay_header())
-		moved = 1;
+		moved = TRUE;
 	if (moved)
 		lower_left();
 #endif
@@ -471,7 +471,7 @@ static struct hilite_node* hlist_find(struct hilite_tree *anchor, POSITION pos)
 	if (anchor->lookaside)
 	{
 		int steps = 0;
-		int hit = 0;
+		lbool hit = FALSE;
 
 		n = anchor->lookaside;
 
@@ -481,13 +481,13 @@ static struct hilite_node* hlist_find(struct hilite_tree *anchor, POSITION pos)
 			{
 				if (n->prev == NULL || pos >= n->prev->r.hl_endpos)
 				{
-					hit = 1;
+					hit = TRUE;
 					break;
 				}
 			} else if (n->next == NULL)
 			{
 				n = NULL;
-				hit = 1;
+				hit = TRUE;
 				break;
 			}
 
@@ -918,7 +918,7 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 		p->next = n;
 	}
 	n->parent = p;
-	n->red = 1;
+	n->red = TRUE;
 	n->r = *hl;
 
 	/*
@@ -931,7 +931,7 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 		/* case 1 - current is root, root is always black */
 		if (n->parent == NULL)
 		{
-			n->red = 0;
+			n->red = FALSE;
 			break;
 		}
 
@@ -954,10 +954,10 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 			u = n->parent->parent->right;
 		if (u != NULL && u->red)
 		{
-			n->parent->red = 0;
-			u->red = 0;
+			n->parent->red = FALSE;
+			u->red = FALSE;
 			n = n->parent->parent;
-			n->red = 1;
+			n->red = TRUE;
 			continue;
 		}
 
@@ -984,8 +984,8 @@ static void add_hilite(struct hilite_tree *anchor, struct hilite *hl)
 		 * case 5 - parent is red but uncle is black, parent and
 		 * grandparent on same side
 		 */
-		n->parent->red = 0;
-		n->parent->parent->red = 1;
+		n->parent->red = FALSE;
+		n->parent->parent->red = TRUE;
 		if (n == n->parent->left)
 			hlist_rotate_right(anchor, n->parent->parent);
 		else

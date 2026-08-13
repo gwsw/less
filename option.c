@@ -26,7 +26,7 @@ public lbool plusoption = FALSE;
 static constant char *optstring(constant char *s, char **p_str, constant char *printopt, constant char *validchars);
 static int flip_triple(int val, lbool lc);
 
-extern int less_is_more;
+extern lbool less_is_more;
 extern int quit_at_eof;
 extern char *every_first_cmd;
 extern int opt_use_backslash;

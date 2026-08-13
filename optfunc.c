@@ -58,7 +58,7 @@ extern int emouse;
 extern int mouse_reverse;
 extern int xmouse;
 extern int wheel_lines;
-extern int less_is_more;
+extern lbool less_is_more;
 extern int linenum_width;
 extern int status_col_width;
 extern int use_color;
@@ -288,7 +288,7 @@ public void opt_k(int type, constant char *s)
 	switch (type)
 	{
 	case INIT:
-		if (lesskey(s, 0))
+		if (lesskey(s, FALSE))
 		{
 			parg.p_string = s;
 			error(LM(Cannot_use_lesskey_file_X), &parg);
@@ -305,7 +305,7 @@ public void opt_ks(int type, constant char *s)
 	switch (type)
 	{
 	case INIT:
-		if (lesskey_src(s, 0))
+		if (lesskey_src(s, FALSE))
 		{
 			parg.p_string = s;
 			error(LM(Cannot_use_lesskey_source_file_X), &parg);
@@ -319,7 +319,7 @@ public void opt_kc(int type, constant char *s)
 	switch (type)
 	{
 	case INIT:
-		if (lesskey_content(s, 0))
+		if (lesskey_content(s, FALSE))
 		{
 			error(LM(Error_in_lesskey_content), NULL_PARG);
 		}

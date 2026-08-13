@@ -305,7 +305,7 @@ static void ichardef(constant char *s)
  * Define a charset, given a charset name.
  * The valid charset names are listed in the "charsets" array.
  */
-static int icharset(constant char *name, int no_error)
+static int icharset(constant char *name, lbool no_error)
 {
 	struct charset *p;
 	struct cs_alias *a;
@@ -411,7 +411,7 @@ static void set_charset(void)
 	 * See if environment variable LESSCHARSET is defined.
 	 */
 	s = lgetenv("LESSCHARSET");
-	if (icharset(s, 0))
+	if (icharset(s, FALSE))
 		return;
 
 	/*
@@ -438,7 +438,7 @@ static void set_charset(void)
 #endif
 	{
 		s = nl_langinfo(CODESET);
-		if (icharset(s, 1))
+		if (icharset(s, TRUE))
 			return;
 	}
 #endif
@@ -453,7 +453,7 @@ static void set_charset(void)
 	{
 		if (   strstr(s, "UTF-8") != NULL || strstr(s, "utf-8") != NULL
 		    || strstr(s, "UTF8")  != NULL || strstr(s, "utf8")  != NULL)
-			if (icharset("utf-8", 1))
+			if (icharset("utf-8", TRUE))
 				return;
 	}
 
@@ -466,12 +466,12 @@ static void set_charset(void)
 #else
 #if MSDOS_COMPILER
 #if MSDOS_COMPILER==WIN32C
-	(void) icharset("utf-8", 1);
+	(void) icharset("utf-8", TRUE);
 #else
-	(void) icharset("dos", 1);
+	(void) icharset("dos", TRUE);
 #endif
 #else
-	(void) icharset("utf-8", 1);
+	(void) icharset("utf-8", TRUE);
 #endif
 #endif
 }

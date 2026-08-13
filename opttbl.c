@@ -98,7 +98,7 @@ public char *end_prompt;        /* Printed after clearing the prompt */
 public int hilite_search;       /* Highlight matched search patterns? */
 #endif
 
-public int less_is_more = 0;    /* Make compatible with POSIX more */
+public lbool less_is_more = FALSE; /* Make compatible with POSIX more */
 
 /*
  * Long option names.
@@ -897,7 +897,7 @@ public void init_option(void)
 
 	p = lgetenv("LESS_IS_MORE");
 	if (!isnullenv(p) && !(p[0] == '0' && p[1] == '\0'))
-		less_is_more = 1;
+		less_is_more = TRUE;
 
 	for (o = option;  o->oletter != '\0';  o++)
 	{
