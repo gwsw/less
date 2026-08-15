@@ -1121,11 +1121,11 @@ v706  6/22/26   Add ^ and + modifiers for \k in lesskey file; support ctl
 v707  7/16/26   Don't let ' with numeric arg modify the mark; add || cmd;
                 allow ^N to enter line number in pipe cmd; add LESSMSG.
 v708  7/16/26   Merge.
-v709            Fix --rscroll with non-ASCII char; fix exit with invalid TERM;
+v709  8/15/26   Fix --rscroll with non-ASCII char; fix exit with invalid TERM;
                 fix crash with :e# after :d; fix loop if invalid option in
                 LESS_UNSUPPORT; fix crash with initial !!; allow shell cmd
                 starting with '!'; add ESC-]; support shift/ctl page up/down;
                 fix search ^S bugs; fix display issues with less_printf.
 */
 
-char version[] = "709x";
+char version[] = "709";
