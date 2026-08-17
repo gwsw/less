@@ -87,6 +87,7 @@ public int proc_return;         /* Special handling of carriage return */
 public int match_shift;         /* Extra horizontal shift on search match */
 public int no_paste;            /* Don't accept pasted input */
 public int no_edit_warn;        /* Don't warn when editing a LESSOPENed file */
+public int spool_stdin;         /* Spool standard input to a temporary file */
 public int stop_on_form_feed;   /* Stop scrolling on a line starting with form feed */
 public int past_eof;            /* Continue scrolling past EOF */
 public long match_shift_fraction = NUM_FRAC_DENOM/2; /* 1/2 of screen width */
@@ -179,6 +180,7 @@ static struct optname form_feed_optname = { "form-feed",         NULL };
 static struct optname past_eof_optname = { "past-eof",           NULL };
 static struct optname no_edit_warn_optname2 = { "no-warn-edit",   NULL };
 static struct optname no_edit_warn_optname = { "no-edit-warn",   &no_edit_warn_optname2 };
+static struct optname spool_stdin_optname = { "spool-stdin", NULL };
 static struct optname nonum_headers_optname = { "no-number-headers", NULL };
 static struct optname nosearch_headers_optname = { "no-search-headers", NULL };
 static struct optname nosearch_header_lines_optname = { "no-search-header-lines", NULL };
@@ -734,6 +736,15 @@ static struct loption option[] =
 		{
 			LM_Warn_when_editing_a_file_opened_via_LESSOPEN,
 			LM_Dont_warn_when_editing_a_file_opened_via_LESSOPEN,
+			LM_NULL
+		},
+		{ NULL, NULL, NULL }
+	},
+	{ OLETTER_NONE, &spool_stdin_optname,
+		O_BOOL, OPT_OFF, &spool_stdin, NULL,
+		{
+			LM_Dont_spool_standard_input,
+			LM_Spool_standard_input,
 			LM_NULL
 		},
 		{ NULL, NULL, NULL }

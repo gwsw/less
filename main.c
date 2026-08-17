@@ -37,6 +37,7 @@ public POSITION start_attnpos = NULL_POSITION;
 public POSITION end_attnpos = NULL_POSITION;
 public int      wscroll;
 static constant char *progname;
+static char *stdin_spoolfile;
 public lbool    quitting = FALSE;
 public lbool    dohelp = FALSE;
 public char *   init_header = NULL;
@@ -74,11 +75,82 @@ extern lbool    missing_cap;
 extern int      know_dumb;
 extern int      quit_if_one_screen;
 extern int      no_init;
+extern int      spool_stdin;
 extern int      errmsgs;
 extern int      redraw_on_quit;
 extern int      term_addrs;
 extern lbool    first_time;
 extern lbool    term_init_ever;
+
+static void remove_stdin_spoolfile(void)
+{
+	if (stdin_spoolfile != NULL)
+	{
+		unlink(stdin_spoolfile);
+		free(stdin_spoolfile);
+	}
+}
+
+static char * make_stdin_spoolfile(void)
+{
+	constant char *tmpdir;
+	char *filename;
+	unsigned char buf[8192];
+	size_t len;
+	ssize_t n;
+	int fd;
+
+	tmpdir = lgetenv("TMPDIR");
+	if (isnullenv(tmpdir))
+		tmpdir = "/tmp";
+	len = strlen(tmpdir) + sizeof(PATHNAME_SEP) + sizeof("less-stdin-XXXXXX");
+	filename = (char *) ecalloc(len, sizeof(char));
+	SNPRINTF1(filename, len, "%s", tmpdir);
+	if (filename[strlen(filename)-1] != PATHNAME_SEP[0])
+		strcat(filename, PATHNAME_SEP);
+	strcat(filename, "less-stdin-XXXXXX");
+#if HAVE_MKSTEMP
+	fd = mkstemp(filename);
+#else
+	fd = -1;
+#endif
+	if (fd < 0)
+		goto error;
+	SET_BINARY(fd);
+	while ((n = read(0, buf, sizeof(buf))) > 0)
+	{
+		unsigned char *p = buf;
+		ssize_t remaining = n;
+		while (remaining > 0)
+		{
+			n = write(fd, p, (size_t) remaining);
+			if (n <= 0)
+			{
+				close(fd);
+				goto error;
+			}
+			p += n;
+			remaining -= n;
+		}
+	}
+	if (n < 0)
+	{
+		close(fd);
+		goto error;
+	}
+	close(fd);
+	return (filename);
+
+error:
+	{
+		PARG parg;
+		parg.p_string = filename;
+		error(LM(Cannot_write_to_X), &parg);
+	}
+	unlink(filename);
+	free(filename);
+	return (NULL);
+}
 
 #if MSDOS_COMPILER==WIN32C && (defined(__MINGW32__) || defined(_MSC_VER))
 /* malloc'ed 0-terminated utf8 of 0-terminated wide ws, or null on errors */
@@ -370,6 +442,16 @@ int main(int argc, constant char *argv[])
 #endif
 	}
 	xbuf_deinit(&xfiles);
+	if (spool_stdin && !dohelp && num_files == 0)
+	{
+		stdin_spoolfile = make_stdin_spoolfile();
+		if (stdin_spoolfile == NULL)
+			quit(QUIT_ERROR);
+		if (atexit(remove_stdin_spoolfile) != 0)
+			quit(QUIT_ERROR);
+		(void) get_ifile(stdin_spoolfile, ifile);
+		ifile = prev_ifile(NULL_IFILE);
+	}
 
 	/*
 	 * Set up terminal, etc.

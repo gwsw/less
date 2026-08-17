@@ -286,6 +286,8 @@
                   Set default options for every search.
                 --show-preproc-errors
                   Display a message if preprocessor exits with an error status.
+                --spool-stdin
+                  Spool standard input to a temporary file before viewing it.
                 --past-eof
                   Scrolling commands continue past end of file.
                 --proc-backspace

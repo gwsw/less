@@ -2157,6 +2157,9 @@ If a LESSOPEN preprocessor produces data,
 then exits with a non-zero exit code,
 .B less
 will display a warning.
+.IP "\fB\-\-spool\-stdin\fP"
+When viewing standard input, copy it to a temporary file before displaying it.
+The temporary file is removed when \fBless\fP exits.
 .IP "\fB\-\-status\-col\-width=\fP\fIn\fP"
 Sets the width of the status column when the
 .B "\-J"

@@ -331,6 +331,8 @@ Mouse_features Mouse features:\40
 Header_lines Header lines:\40
 Warn_when_editing_a_file_opened_via_LESSOPEN Warn when editing a file opened via LESSOPEN
 Dont_warn_when_editing_a_file_opened_via_LESSOPEN Don't warn when editing a file opened via LESSOPEN
+Dont_spool_standard_input Don't spool standard input to a temporary file
+Spool_standard_input Spool standard input to a temporary file
 interrupt_character interrupt character:\40
 Search_match_shift Search match shift:\40
 Autosave_actions Autosave actions:\40
