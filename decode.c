@@ -1459,17 +1459,29 @@ static int add_hometable(int (*call_lesskey)(constant char *, lbool), constant c
 		filename = save(def_filename);
 	else /* def_filename is just basename */
 	{
-		/* Remove first char (normally a dot) unless stored in $HOME. */
 		constant char *xdg = lgetenv("XDG_CONFIG_HOME");
 		if (!isnullenv(xdg))
+		/*
+		 * Remove the first character from the filename (either "." or "_"),
+		 * except on OS/2 which never has a leading character.
+		 */
+#if OS2
+			filename = dirfile(xdg, &def_filename, TRUE);
+#else
 			filename = dirfile(xdg, &def_filename[1], TRUE);
+#endif
 		if (filename == NULL)
 		{
 			constant char *home = lgetenv("HOME");
 			if (!isnullenv(home))
 			{
 				char *cfg_dir = dirfile(home, ".config", FALSE);
+				/* See earlier comment for rationale */
+#if OS2
+				filename = dirfile(cfg_dir, &def_filename, TRUE);
+#else
 				filename = dirfile(cfg_dir, &def_filename[1], TRUE);
+#endif
 				free(cfg_dir);
 			}
 		}
