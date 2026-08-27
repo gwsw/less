@@ -1,0 +1,5 @@
+# Shell scripts should always be LF terminated
+*.sh                            text        eol=lf
+configure                       text        eol=lf
+mkinstalldirs                   text        eol=lf
+remaketest                      text        eol=lf
