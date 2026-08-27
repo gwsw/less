@@ -14,7 +14,7 @@
  * User preferences.
  * Settings always true for MS-DOS systems. 
  */
-
+
 /* User preferences.  */
 
 /*
@@ -131,7 +131,7 @@
 #define LESSKEYINFILE_SYS       "c:\\_syslesskey"
 #define LESSHISTFILE            "_lesshst"
 
-
+
 /* Settings always true for MS-DOS systems.  */
 
 /*
