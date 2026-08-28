@@ -1248,7 +1248,7 @@ public constant char * lgetenv_ext(constant char *var, unsigned char *env_buf, s
 		env_end = e;
 	}
 	/* Temporarily add env_buf to var_tables, do the lookup, then remove it. */
-	add_uvar_table(env_buf, env_end);
+	add_cmd_table(&list_var_tables, env_buf, env_end);
 	r = lgetenv(var);
 	pop_cmd_table(&list_var_tables);
 	return r;

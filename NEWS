@@ -86,6 +86,8 @@
 
 * Fix string overrrun if input contains "\e\0".
 
+* Fix memory leak when using ${...} in lesskey file.
+
 ======================================================================
 
 	Major changes between "less" versions 702 and 704
