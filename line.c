@@ -699,7 +699,7 @@ public struct ansi_state * ansi_start(LWCHAR ch)
 static lbool valid_osc_intro(char ch, lbool content)
 {
 	constant char *p = strchr(osc_ansi_chars, ch);
-	if (p == NULL)
+	if (p == NULL || *p == '\0')
 		return FALSE;
 	return (!content || p[1] == '*');
 }
