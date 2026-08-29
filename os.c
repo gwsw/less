@@ -610,7 +610,13 @@ public void sleep_ms(int ms)
 #if HAVE_USLEEP
 	usleep(ms * 1000);
 #else
+#if MSDOS_COMPILER==MSOFTC
+	/* The MSVC DOS runtime doesn't implement POSIX sleep(). */
+	clock_t end = clock() + (clock_t) ms * CLOCKS_PER_SEC / 1000;
+	while (clock() < end) ;
+#else
 	sleep(ms / 1000 + (ms % 1000 != 0));
+#endif
 #endif
 #endif
 #endif
