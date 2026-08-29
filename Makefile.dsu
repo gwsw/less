@@ -1,53 +1,99 @@
-# Makefile for less.
-# MS-DOS version
+# Makefile for less
+#
+# Target:   MS-DOS or compatible
+# Compiler: Microsoft Visual C++ 1.52
 
-#### Start of system configuration section. ####
+##### Start configuration section #####
 
+# Compiler executable name
 CC = cl
-# Change the following directories to match your installation.
-LIBDIR = c:\msvc\lib
-INCDIR = c:\msvc\include
+
+# Path to system headers
+INCDIR = C:\MSVC\INCLUDE
+# Path to system libraries
+LIBDIR = C:\MSVC\LIB
 
 # CFLAGS are compile-time options and LDFLAGS are link-time options. They are
-# customized for MSVC 1.0 (MSC 8.0). If you have a different version of the
+# customized for MSVC 1.52 (MSC 8.00). If you have a different version of the
 # compiler, you may need to change some of the options to their equivalents.
-# -Ot     optimize for speed
-# -AL     large memory model
-# -Za     ANSI C conformance
-# -nologo suppress MSVC banners
-# -onerror:noexe   no .EXE file if link errors occur
-CFLAGS = -Ot -AL -Za -nologo
-LDFLAGS = -onerror:noexe -nologo
-LIBS = $(LIBDIR)\llibce.lib $(LIBDIR)\graphics.lib
+#
+# CFLAGS
+# /AL       Large memory model (default: small)
+# /Ot       Optimize binary for speed (default: none)
+# /Za       Disable MSVC extensions (default: enabled)
+# /nologo   Suppress compiler copyright message
+CFLAGS = /AL /Ot /Za /nologo
+#
+# LDFLAGS
+# /ONERROR:NOEXE    Skip writing executable on error
+# /NOLOGO           Suppress linker copyright message
+LDFLAGS = /ONERROR:NOEXE /NOLOGO
 
-#### End of system configuration section. ####
+# System libraries to link against
+# - LLIBCE      Large memory model (L), C runtime (LIBC), 8087 emulator (E)
+# - GRAPHICS    Graphics library
+LIBS = $(LIBDIR)\LLIBCE.LIB $(LIBDIR)\GRAPHICS.LIB
 
-# This rule allows us to supply the necessary -D options
-# in addition to whatever the user asks for.
-.c.obj:
-	$(CC) -c -I. -I$(INCDIR) $(CPPFLAGS) $(CFLAGS) $<
+##### End configuration section #####
 
+# Add ".obj" extension to the suffix list
+.SUFFIXES: .obj
+
+# All object files to build
 OBJ = \
-	main.obj screen.obj brac.obj ch.obj charset.obj cmdbuf.obj \
-	command.obj cvt.obj decode.obj edit.obj evar.obj filename.obj forwback.obj \
-	help.obj ifile.obj input.obj jump.obj lesskey_parse.obj line.obj linenum.obj lmsg.obj \
-	lsystem.obj mark.obj optfunc.obj option.obj opttbl.obj os.obj \
-	output.obj pattern.obj position.obj prompt.obj search.obj signal.obj \
-	tags.obj  ttyin.obj version.obj xbuf.obj
+	main.obj \
+	brac.obj \
+	ch.obj \
+	charset.obj \
+	cmdbuf.obj \
+	command.obj \
+	cvt.obj \
+	decode.obj \
+	edit.obj \
+	evar.obj \
+	filename.obj \
+	forwback.obj \
+	help.obj \
+	ifile.obj \
+	input.obj \
+	jump.obj \
+	lesskey_parse.obj \
+	line.obj \
+	linenum.obj \
+	lmsg.obj \
+	lsystem.obj \
+	mark.obj \
+	optfunc.obj \
+	option.obj \
+	opttbl.obj \
+	os.obj \
+	output.obj \
+	pattern.obj \
+	position.obj \
+	prompt.obj \
+	screen.obj \
+	search.obj \
+	signal.obj \
+	tags.obj \
+	ttyin.obj \
+	version.obj \
+	xbuf.obj
 
-all: less
+all: less.exe
 
-# This is really horrible, but the command line is too long for 
-# MS-DOS if we try to link $(OBJ).
-less: $(OBJ)
-	$(CC) $(LDFLAGS) -o $@ *.obj $(LIBS)
-
-defines.h: defines.ds
-	-del defines.h
-	-copy defines.ds defines.h
-
-$(OBJ): less.h funcs.h defines.h lang.h lmsg.h lessmsg.inc pattern.h xbuf.h
+less.exe: $(OBJ)
+	$(CC) -o $@ *.obj $(LIBS) /link $(LDFLAGS)
 
 clean:
-	-del *.obj 
-	-del less.exe
+	-del *.exe *.obj 2> NUL
+
+# Suffix rule associating each source file to object file
+.c.obj:
+	$(CC) -c -I. -I$(INCDIR) $(CFLAGS) $<
+
+defines.h: defines.ds
+	-del defines.h 2> NUL
+	copy defines.ds defines.h > NUL
+
+# Rebuild object files when any of these change
+$(OBJ): less.h defines.h funcs.h lang.h lmsg.h pattern.h xbuf.h lessmsg.inc
