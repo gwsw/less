@@ -368,7 +368,7 @@ static constant char * tstr(char **pp, int xlate)
 		 * Caret means CONTROL.
 		 */
 		*pp = increment_pointer(p+1);
-		char_string(buf, CONTROL(p[1]), 1);
+		char_string(buf, (char) CONTROL(p[1]), 1);
 		if (xlate && buf[0] == CONTROL('K'))
 			return tstr_control_k;
 		return (buf);
