@@ -20,9 +20,11 @@ LIBDIR = C:\MSVC\LIB
 # CFLAGS
 # /AL       Large memory model (default: small)
 # /Ot       Optimize binary for speed (default: none)
+# /G3       Use 386 instructions (default: 8086)
+#           Reduces binary size but safe to remove if target is pre-386
 # /Gt16     Allocate static data >= 16 bytes in a far segment (default: 256)
 # /nologo   Suppress compiler copyright message
-CFLAGS = /AL /Ot /Gt16 /nologo
+CFLAGS = /AL /Ot /G3 /Gt16 /nologo
 #
 # LDFLAGS
 # /STACK:0x8000     Use a 32KB stack size (default: 2KB)
