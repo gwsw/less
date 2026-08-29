@@ -20,8 +20,9 @@ LIBDIR = C:\MSVC\LIB
 # CFLAGS
 # /AL       Large memory model (default: small)
 # /Ot       Optimize binary for speed (default: none)
+# /Gt16     Allocate static data >= 16 bytes in a far segment (default: 256)
 # /nologo   Suppress compiler copyright message
-CFLAGS = /AL /Ot /nologo
+CFLAGS = /AL /Ot /Gt16 /nologo
 #
 # LDFLAGS
 # /ONERROR:NOEXE    Skip writing executable on error
