@@ -25,9 +25,10 @@ LIBDIR = C:\MSVC\LIB
 CFLAGS = /AL /Ot /Gt16 /nologo
 #
 # LDFLAGS
+# /STACK:0x8000     Use a 32KB stack size (default: 2KB)
 # /ONERROR:NOEXE    Skip writing executable on error
 # /NOLOGO           Suppress linker copyright message
-LDFLAGS = /ONERROR:NOEXE /NOLOGO
+LDFLAGS = /STACK:0x8000 /ONERROR:NOEXE /NOLOGO
 
 # System libraries to link against
 # - LLIBCE      Large memory model (L), C runtime (LIBC), 8087 emulator (E)
