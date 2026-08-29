@@ -27,15 +27,17 @@ LIBDIR = C:\MSVC\LIB
 CFLAGS = /AL /Ot /G3 /Gt16 /nologo
 #
 # LDFLAGS
+# /NOEXTDICTIONARY  Don't search extended dictionaries during symbol resolution
+#                   Required with TXTONLY.OBJ to avoid pulling in GRAPHICS.LIB
 # /STACK:0x8000     Use a 32KB stack size (default: 2KB)
 # /ONERROR:NOEXE    Skip writing executable on error
 # /NOLOGO           Suppress linker copyright message
-LDFLAGS = /STACK:0x8000 /ONERROR:NOEXE /NOLOGO
+LDFLAGS = /NOEXTDICTIONARY /STACK:0x8000 /ONERROR:NOEXE /NOLOGO
 
 # System libraries to link against
 # - LLIBCE      Large memory model (L), C runtime (LIBC), 8087 emulator (E)
-# - GRAPHICS    Graphics library
-LIBS = $(LIBDIR)\LLIBCE.LIB $(LIBDIR)\GRAPHICS.LIB
+# - TXTONLY     Graphics library function stubs (not needed for text-mode)
+LIBS = $(LIBDIR)\TXTONLY.OBJ $(LIBDIR)\LLIBCE.LIB
 
 ##### End configuration section #####
 
