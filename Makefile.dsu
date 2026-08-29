@@ -20,9 +20,8 @@ LIBDIR = C:\MSVC\LIB
 # CFLAGS
 # /AL       Large memory model (default: small)
 # /Ot       Optimize binary for speed (default: none)
-# /Za       Disable MSVC extensions (default: enabled)
 # /nologo   Suppress compiler copyright message
-CFLAGS = /AL /Ot /Za /nologo
+CFLAGS = /AL /Ot /nologo
 #
 # LDFLAGS
 # /ONERROR:NOEXE    Skip writing executable on error

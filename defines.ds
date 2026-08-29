@@ -386,33 +386,3 @@
 #else
 #define HAVE_VALUES_H 1
 #endif
-
-#if MSDOS_COMPILER == MSOFTC && _MSC_VER >= 700
-/*
- * The names of these things changed in Microsoft C version 7.0.
- */
-#define videoconfig     _videoconfig
-#define rccoord         _rccoord
-#define O_RDONLY        _O_RDONLY
-#define O_WRONLY        _O_WRONLY
-#define O_APPEND        _O_APPEND
-#define O_BINARY        _O_BINARY
-#define O_TEXT          _O_TEXT
-#define find_t          _find_t
-#define stat            _stat
-#define S_IFMT          _S_IFMT
-#define S_IFDIR         _S_IFDIR
-#define S_IFREG         _S_IFREG
-#define dup             _dup
-#define open            _open
-#define lseek           _lseek
-#define write           _write
-#define creat           _creat
-#define fstat           _fstat
-#define isatty          _isatty
-#define close           _close
-#define read            _read
-#define ungetch         _ungetch
-#define kbhit           _kbhit
-#define getch           _getch
-#endif
