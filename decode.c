@@ -1236,7 +1236,7 @@ public constant char * lgetenv_ext(constant char *var, unsigned char *env_buf, s
 		for (; e < env_buf_len; e++)
 			if (env_buf[e] == '\0')
 				break;
-		if (e >= env_buf_len) break;
+		if (e+1 >= env_buf_len) break;
 		if (env_buf[++e] & A_EXTRA)
 		{
 			for (e = e+1; e < env_buf_len; e++)
