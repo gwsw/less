@@ -2173,7 +2173,7 @@ public void term_deinit(void)
 	}
 #else
 	/* Need clreol to make SETCOLORS take effect. */
-	clreol();
+	clear_eol();
 #endif
 #endif
 	term_init_done = FALSE;
