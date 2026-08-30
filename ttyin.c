@@ -16,6 +16,7 @@
 #if OS2
 #include "cmd.h"
 #include "pckeys.h"
+#include <emx/syscalls.h>
 #endif
 #if MSDOS_COMPILER==WIN32C
 #define WIN32_LEAN_AND_MEAN
@@ -52,7 +53,7 @@ static int open_tty_device(constant char* dev)
 {
 #if OS2
 	/* The __open() system call translates "/dev/tty" to "con". */
-	return __open(dev, OPEN_READ);
+	return __open(dev, OPEN_READ, 0);
 #else
 	return open(dev, OPEN_READ);
 #endif
