@@ -424,9 +424,6 @@
 #endif
 #endif
 
-/* Define HAVE_VOID if your compiler supports the "void" type. */
-#define HAVE_VOID 1
-
 /* Define to 1 if you have the '_setjmp' function. */
 #define HAVE__SETJMP 1
 

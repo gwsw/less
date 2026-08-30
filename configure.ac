@@ -228,8 +228,6 @@ AH_TEMPLATE([NO_REGEX],
 	[pattern matching is supported, but without metacharacters.])
 AH_TEMPLATE([HAVE_REGEXEC2],
 	[])
-AH_TEMPLATE([HAVE_VOID],
-	[Define HAVE_VOID if your compiler supports the "void" type.])
 AH_TEMPLATE([HAVE_CONST],
 	[Define HAVE_CONST if your compiler supports the "const" modifier.])
 AH_TEMPLATE([HAVE_STAT_INO],
@@ -278,8 +276,6 @@ AH_TEMPLATE([SECURE_COMPILE],
 	[Define SECURE_COMPILE=1 to build a secure version of less.])
 
 # Checks for identifiers.
-AC_MSG_CHECKING(for void)
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[void *foo = 0;]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_VOID)],[AC_MSG_RESULT(no)])
 AC_MSG_CHECKING(for const)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[const int foo = 0;]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_CONST)],[AC_MSG_RESULT(no)])
 AC_MSG_CHECKING(for time_t)

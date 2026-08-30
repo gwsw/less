@@ -255,9 +255,6 @@
 #define NO_REGEX 1
 #endif
 
-/* Define HAVE_VOID if your compiler supports the "void" type. */
-#define HAVE_VOID 1
-
 /* Define HAVE_CONST if your compiler supports the "const" modifier. */
 #define HAVE_CONST 1
 
