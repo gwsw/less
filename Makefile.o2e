@@ -80,8 +80,8 @@ OBJ = \
 
 all: less.exe scrsize.exe
 
-less.exe: ${OBJ}
-	${CC} ${OBJ} -o $@ ${LDFLAGS} ${LIBS}
+less.exe: ${OBJ} less.def
+	${CC} ${OBJ} less.def -o $@ ${LDFLAGS} ${LIBS}
 
 scrsize.exe: scrsize.c
 	${CC} ${CFLAGS} -Zmtd -lX11 -D__ST_MT_ERRNO__ -s $<
@@ -96,6 +96,9 @@ clean:
 defines.h: defines.o2
 	-del defines.h 2> NUL
 	copy defines.o2 defines.h > NUL
+
+less.def: less.def.o2
+	copy less.def.o2 less.def > NUL
 
 # Rebuild object files when any of these change
 $(OBJ): less.h defines.h funcs.h lang.h lmsg.h pattern.h xbuf.h lessmsg.inc
