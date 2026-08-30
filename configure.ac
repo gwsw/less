@@ -284,10 +284,6 @@ AC_MSG_CHECKING(for st_ino in struct stat)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
 #include <sys/stat.h>]], [[struct stat s; dev_t dev = s.st_dev; ino_t ino = s.st_ino;]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STAT_INO)],[AC_MSG_RESULT(no)])
 
-# Checks for ANSI function prototypes.
-AC_MSG_CHECKING(for ANSI function prototypes)
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[int f(int a) { return a; }]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_ANSI_PROTOS)],[AC_MSG_RESULT(no)])
-
 # Checks for library functions.
 AC_CHECK_FUNCS([fchmod fsync nanosleep poll popen realpath _setjmp sigprocmask sigsetmask snprintf stat strsignal system ttyname usleep])
 AC_CHECK_DECL(sigsetjmp, [AC_DEFINE(HAVE_SIGSETJMP)], [], [#include <setjmp.h>])
@@ -661,11 +657,6 @@ AH_TOP([
  * Some HP-UX systems return 0 on success.
  */
 #define TGETENT_OK  1
-
-/*
- * HAVE_ANSI_PROTOS is 1 if your compiler supports ANSI function prototypes.
- */
-#define HAVE_ANSI_PROTOS 1
 
 /*
  * HAVE_SYS_TYPES_H is 1 if your system has <sys/types.h>.
