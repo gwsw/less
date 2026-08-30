@@ -126,11 +126,10 @@
  * (in the HOME directory).
  */
 #define LESSKEYFILE         "_less"
-#define LESSKEYFILE_SYS     "c:\\_sysless"
+#define LESSKEYFILE_SYS     "C:\\_sysless"
 #define DEF_LESSKEYINFILE   "_lesskey"
-#define LESSKEYINFILE_SYS   "c:\\_syslesskey"
+#define LESSKEYINFILE_SYS   "C:\\_syslesskey"
 #define LESSHISTFILE        "_lesshst"
-
 
 /* Settings always true for MS-DOS systems. */
 
@@ -224,12 +223,8 @@
 #define off_t long
 #endif
 
-/* Define if you need to in order for stat and other things to work. */
-/* #undef _POSIX_SOURCE */
-
 /* Define as the return type of signal handlers (int or void). */
 #define RETSIGTYPE void
-
 
 /*
  * Regular expression library.
@@ -240,10 +235,6 @@
  * HAVE_V8_REGCOMP: Henry Spencer V8 regcomp() and regexp.h
  * NO_REGEX: pattern matching is supported, but without metacharacters.
  */
-/* #undef HAVE_POSIX_REGCOMP */
-/* #undef HAVE_RE_COMP */
-/* #undef HAVE_REGCMP */
-/* #undef HAVE_V8_REGCOMP */
 #if MSDOS_COMPILER==DJGPPC
 #define HAVE_POSIX_REGCOMP 1
 #else
@@ -263,27 +254,27 @@
 #define HAVE_FILENO 1
 
 /* Define HAVE_ERRNO if you have the errno variable */
+#define HAVE_ERRNO 1
 /* Define MUST_DEFINE_ERRNO if you have errno but it is not defined
  * in errno.h */
 #if MSDOS_COMPILER==MSOFTC || MSDOS_COMPILER==DJGPPC
-#define HAVE_ERRNO 1
 #define MUST_DEFINE_ERRNO 0
 #else
-#define HAVE_ERRNO 1
 #define MUST_DEFINE_ERRNO 1
 #endif
+/* Define HAVE_SETTABLE_ERRNO if the errno variable can be assigned to. */
 #define HAVE_SETTABLE_ERRNO 1
 
 /* Define HAVE_SYS_ERRLIST if you have the sys_errlist[] variable */
 #define HAVE_SYS_ERRLIST 1
 
 /* Define HAVE_OSPEED if your termcap library has the ospeed variable */
+#define HAVE_OSPEED 0
 /* Define MUST_DEFINE_OSPEED if you have ospeed but it is not defined
  * in termcap.h. */
-#define HAVE_OSPEED 0
 #define MUST_DEFINE_OSPEED 0
 
-/* Define HAVE_LOCALE if you have locale.h and setlocale. */
+/* Define HAVE_LOCALE if you have <locale.h> and setlocale. */
 #define HAVE_LOCALE 0
 
 /* Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr */
@@ -346,7 +337,7 @@
 /* Define if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1
 
-/* Define if you have the <stdlib> header file. */
+/* Define if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
 
 /* Define if you have the <string.h> header file. */
