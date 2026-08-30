@@ -327,6 +327,8 @@
 
 /* Define if you have the <termcap.h> header file. */
 #define HAVE_TERMCAP_H 1
+/* Define the value returned by tgetent() on success. */
+#define TGETENT_OK 1
 
 /* Define if you have the <termio.h> header file. */
 #define HAVE_TERMIO_H 1
