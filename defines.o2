@@ -198,15 +198,8 @@
 #define LINENUM_POOL    1024    /* Size of line number pool */
 #endif
 
-/* Define to `long' if <sys/types.h> doesn't define. */
-/* #define off_t long */
-
-/* Define if you need to in order for stat and other things to work. */
-/* #undef _POSIX_SOURCE */
-
 /* Define as the return type of signal handlers (int or void). */
 #define RETSIGTYPE void
-
 
 /*
  * Regular expression library.
@@ -217,11 +210,7 @@
  * HAVE_V8_REGCOMP: Henry Spencer V8 regcomp() and regexp.h
  * NO_REGEX: pattern matching is supported, but without metacharacters.
  */
-/* #undef HAVE_POSIX_REGCOMP */
-/* #undef HAVE_RE_COMP */
-/* #undef HAVE_REGCMP */
 #define HAVE_V8_REGCOMP 1
-/* #undef NO_REGEX */
 #define HAVE_REGEXEC2 1
 
 /* Define HAVE_CONST if your compiler supports the "const" modifier. */
@@ -238,8 +227,6 @@
 
 /* Define HAVE_ERRNO if you have the errno variable */
 #define HAVE_ERRNO 1
-/* Define MUST_DEFINE_ERRNO if you have errno but it is not defined in errno.h */
-/* #undef MUST_DEFINE_ERRNO */
 /* Define HAVE_SETTABLE_ERRNO if the errno variable can be assigned to. */
 #define HAVE_SETTABLE_ERRNO 1
 
@@ -252,7 +239,7 @@
  * in termcap.h. */
 #define MUST_DEFINE_OSPEED 0
 
-/* Define HAVE_LOCALE if you have locale.h and setlocale. */
+/* Define HAVE_LOCALE if you have <locale.h> and setlocale. */
 #define HAVE_LOCALE 1
 
 /* Define HAVE_TERMIOS_FUNCS if you have tcgetattr/tcsetattr */
@@ -310,7 +297,7 @@
 /* Define if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1
 
-/* Define if you have the <stdlib> header file. */
+/* Define if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
 
 /* Define if you have the <string.h> header file. */
