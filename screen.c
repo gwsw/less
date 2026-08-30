@@ -1050,6 +1050,12 @@ public constant char * special_key_str(int key)
 {
 	static char tbuf[40];
 	constant char *s;
+#if MSDOS_COMPILER
+	static char k_ctl_pageup[]      = { '\340', PCK_CTL_PAGEUP, 0 };
+	static char k_ctl_pagedown[]    = { '\340', PCK_CTL_PAGEDOWN, 0 };
+	static char k_shift_pageup[]    = { '\340', PCK_SHIFT_PAGEUP, 0 };
+	static char k_shift_pagedown[]  = { '\340', PCK_SHIFT_PAGEDOWN, 0 };
+#endif
 #if MSDOS_COMPILER || OS2
 	static char k_right[]           = { '\340', PCK_RIGHT, 0 };
 	static char k_left[]            = { '\340', PCK_LEFT, 0  };
@@ -1073,11 +1079,7 @@ public constant char * special_key_str(int key)
 	static char k_down[]            = { '\340', PCK_DOWN, 0 };
 	static char k_backtab[]         = { '\340', PCK_SHIFT_TAB, 0 };
 	static char k_pagedown[]        = { '\340', PCK_PAGEDOWN, 0 };
-	static char k_shift_pagedown[]  = { '\340', PCK_SHIFT_PAGEDOWN, 0 };
-	static char k_ctl_pagedown[]    = { '\340', PCK_CTL_PAGEDOWN, 0 };
 	static char k_pageup[]          = { '\340', PCK_PAGEUP, 0 };
-	static char k_shift_pageup[]    = { '\340', PCK_SHIFT_PAGEUP, 0 };
-	static char k_ctl_pageup[]      = { '\340', PCK_CTL_PAGEUP, 0 };
 	static char k_ctl_home[]        = { '\340', PCK_CTL_HOME, 0 };
 	static char k_ctl_end[]         = { '\340', PCK_CTL_END, 0 };
 	static char k_shift_home[]      = { '\340', PCK_SHIFT_HOME, 0 };
