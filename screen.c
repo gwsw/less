@@ -1171,6 +1171,9 @@ public constant char * special_key_str(int key)
 	case SK_END:
 		s = k_end;
 		break;
+	case SK_F1:
+		s = k_f1;
+		break;
 	case SK_DELETE:
 		s = k_delete;
 		break;
@@ -1214,9 +1217,6 @@ public constant char * special_key_str(int key)
 		break;
 	case SK_BACKSPACE:
 		s = k_backspace;
-		break;
-	case SK_F1:
-		s = k_f1;
 		break;
 	case SK_BACKTAB:
 		s = k_backtab;
