@@ -1503,7 +1503,7 @@ static POSITION get_pipe_pos(constant char *mark_msg, constant char *line_msg, m
  */
 public void commands(void)
 {
-	char c;
+	char c = '\0'; /* Silence warning on older gcc versions */
 	int action;
 	constant char *cbuf;
 	constant char *msg;

@@ -956,7 +956,7 @@ static int cmd_decode(struct tablelist *tlist, constant char *cmd, lbool anchore
 	int action = A_INVALID;
 	size_t match_len = 0;
 	constant unsigned char *table = NULL;
-	constant unsigned char *endtable;
+	constant unsigned char *endtable = NULL; /* Silence warning on older gcc versions */
 
 	if (extra != NULL)
 		*extra = NULL;

@@ -173,8 +173,8 @@ public lbool empty_lines(int s, int e)
 public void get_scrpos_pos(struct scrpos *scrpos, int where, POSITION pos)
 {
 	int i;
-	int dir;
-	int last;
+	int dir = 0; /* Silence warning on older gcc versions */
+	int last = 0; /* Silence warning on older gcc versions */
 
 	switch (where)
 	{

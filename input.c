@@ -47,7 +47,7 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
 	int hl_after = (chop_line() && edisp_pos != NULL_POSITION) ?
 	    is_hilited_attr(edisp_pos, eol_pos, TRUE, NULL) : 0;
 	int attr;
-	char ch;
+	char ch = '\0'; /* Silence warning on older gcc versions */
 
 	if (hl_before && hl_after)
 	{

@@ -452,10 +452,10 @@ public int edit_ifile(IFILE ifile)
 {
 	int f;
 	int answer;
-	int chflags;
-	constant char *filename;
+	int chflags = 0; /* Silence warning on older gcc versions */
+	constant char *filename = NULL; /* Silence warning on older gcc versions */
 	constant char *open_filename;
-	char *alt_filename;
+	char *alt_filename = NULL; /* Silence warning on older gcc versions */
 	FILE *altpipe;
 	IFILE was_curr_ifile;
 	char *p;
