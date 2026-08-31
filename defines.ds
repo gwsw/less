@@ -303,6 +303,13 @@
 /* Define if you have the strchr function. */
 #define HAVE_STRCHR 1
 
+/* Define if you have the strstr function. */
+#if MSDOS_COMPILER==MSOFTC
+#define HAVE_STRSTR 1
+#else
+#define HAVE_STRSTR 0
+#endif
+
 /* Define if you have the system function. */
 #define HAVE_SYSTEM 1
 
