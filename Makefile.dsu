@@ -1,7 +1,33 @@
 # Makefile for less
 #
 # Target:   MS-DOS or compatible
-# Compiler: Microsoft Visual C++ 1.52
+# Compiler: Microsoft Visual C++ 1.52c
+#
+# Build requirements
+# 1. Microsoft Visual C++ 1.52c is the last release to support building for an
+#    MS-DOS target. Older versions may work but have not been tested. This
+#    software is abandonware and can be obtained from various online archives
+#    (e.g. archive.org).
+# 2. The compiler requires a Windows system: at least Windows 3.1 or Windows NT
+#    3.1 (inc. Windows 9x). I'm unsure if it works on modern Windows releases
+#    (e.g. Windows 10). It's unlikely to work on any 64-bit release of Windows
+#    as they have dropped 16-bit support.
+# 3. When installing you can simply perform a "Typical Installation". If you
+#    want to perform a "Custom Installation" you will minimally need:
+#    - Microsoft C/C++ Compiler
+#    - Run-time Libraries
+#      - Memory Models: Large/Huge
+#      - Targets: MS-DOS .EXE Files
+#      - Math Support: Emulation
+#
+# Build steps
+# 1. Open a command prompt and run "C:\MSVC\BIN\MSVCVARS.BAT" (default install
+#    path) to setup the development environment.
+# 2. Change to the directory with the less source and copy this Makefile to
+#    "Makefile". If MSVC is not installed at "C:\MSVC" update the "INCDIR" and
+#    "LIBDIR" variables appropriately.
+# 3. Run "nmake". If all goes well, you'll now have a "less.exe" executable.
+#    It's self-contained and can be simply copied to any other DOS system.
 
 ##### Start configuration section #####
 
