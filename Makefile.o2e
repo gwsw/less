@@ -1,7 +1,48 @@
 # Makefile for less
 #
 # Target:   OS/2 or compatible
-# Compiler: EMX 0.9d with GCC 2.8.1
+# Compiler: EMX 0.9d fix 4 with GCC 2.8.1 (included) and GNU Make 3.76.1
+
+# Build requirements
+# 1. EMX 0.9d fix 4 is the last release of the EMX runtime and development
+#    environment. Older versions may work but have not been tested. This
+#    software is abandonware and can be obtained from various online archives
+#    (e.g. archive.org or Hobbes Archive).
+# 2. The environment is delivered as a series of Zip archives, many of which are
+#    optional. Extract each archive into a common directory (e.g. "C:\EMX"). The
+#    minimum required set of archives is:
+#    - emxrt.zip
+#      EMX runtime package
+#    - emxdev1.zip, emxdev2.zip
+#      EMX development system
+#    - gnudev1.zip, gnudev2.zip
+#      GNU development tools compiled for EMX (inc. GCC)
+# 3. GNU Make is distributed separately from EMX with 3.76.1 the contemporaneous
+#    release. Retrieve the "make-3_76_1s.zip" archive and extract "make.exe" to
+#    "C:\EMX\BIN". The other files in the archive are not required.
+# 4. Open "C:\CONFIG.SYS" for editing:
+#    - Add "C:\EMX\DLL" to "LIBPATH" (required)
+#      You must reboot after making this change for it take effect. Do so before
+#      proceeding to step 5.
+#    - Add "C:\EMX\BIN" to "PATH" (optional)
+#      Alternatively, you can manually update the "PATH" environment variable in
+#      the command prompt you'll be running the build if you don't want the EMX
+#      executables to be on the system-wide path.
+# 5. Open a command prompt and run "C:\EMX\LIB\OMFLIBS.CMD" to generate the OMF
+#    (Object Module Format) files required by the linker. This is the native
+#    object file format for OS/2 development.
+#
+# Build steps
+# 1. Open a command prompt and add "C:\EMX\BIN" to the "PATH" environment
+#    variable if you didn't previously add it to the default system-wide path.
+# 2. Change to the directory with the less source and copy this Makefile to
+#    "Makefile". If EMX is not installed at "C:\EMX" update the "INCDIR"
+#    variable appropriately.
+# 3. Run "make less.exe". If all goes well, you'll now have a "less.exe"
+#    executable. The default build is self-contained and can be copied to other
+#    systems and run without requiring the EMX runtime. For dynamic linking you
+#    can replace "-Zsys" with "-Zcrtdll" in "LDFLAGS". This will save ~82KB in
+#    the resulting binary at the cost of requiring the EMX runtime.
 
 ##### Start configuration section #####
 
