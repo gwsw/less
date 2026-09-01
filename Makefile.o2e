@@ -23,10 +23,10 @@ CFLAGS = -Zomf -Wall -O2
 #
 # LDFLAGS
 # -Zomf     Link using OS/2 Linear Executable Linker (LINK386)
-# -Zcrtdll  Dynamically link the EMX Unix emulation layer & C runtime
-#           Use -Zsys to statically link everything (no EMX dependency)
+# -Zsys     Statically link the EMX Unix emulation layer & C runtime
+#           Use -Zcrtdll to dynamically link everything (EMX dependency)
 # -s        Remove symbol table and relocation information
-LDFLAGS = -Zomf -Zcrtdll -s
+LDFLAGS = -Zomf -Zsys -s
 
 # System libraries to link against
 # - termcap     Terminal capabilities
