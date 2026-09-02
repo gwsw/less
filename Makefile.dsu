@@ -24,20 +24,11 @@
 # 1. Open a command prompt and run "C:\MSVC\BIN\MSVCVARS.BAT" (default install
 #    path) to setup the development environment.
 # 2. Change to the directory with the less source and copy this Makefile to
-#    "Makefile". If MSVC is not installed at "C:\MSVC" update the "INCDIR" and
-#    "LIBDIR" variables appropriately.
+#    "Makefile".
 # 3. Run "nmake". If all goes well, you'll now have a "less.exe" executable.
 #    It's self-contained and can be simply copied to any other DOS system.
 
 ##### Start configuration section #####
-
-# Compiler executable name
-CC = cl
-
-# Path to system headers
-INCDIR = C:\MSVC\INCLUDE
-# Path to system libraries
-LIBDIR = C:\MSVC\LIB
 
 # CFLAGS are compile-time options and LDFLAGS are link-time options. They are
 # customized for MSVC 1.52 (MSC 8.00). If you have a different version of the
@@ -65,7 +56,7 @@ LDFLAGS = /EXEPACK /FARCALLTRANS /NOEXTDICTIONARY /STACK:0x8000 /ONERROR:NOEXE /
 # System libraries to link against
 # - LLIBCE      Large memory model (L), C runtime (LIBC), 8087 emulator (E)
 # - TXTONLY     Graphics library function stubs (not needed for text-mode)
-LIBS = $(LIBDIR)\TXTONLY.OBJ $(LIBDIR)\LLIBCE.LIB
+LIBS = TXTONLY.OBJ LLIBCE.LIB
 
 ##### End configuration section #####
 
@@ -115,14 +106,14 @@ OBJ = \
 all: less.exe
 
 less.exe: $(OBJ)
-	$(CC) -o $@ *.obj $(LIBS) /link $(LDFLAGS)
+	cl -o $@ *.obj $(LIBS) /link $(LDFLAGS)
 
 clean:
 	-del *.exe *.obj 2> NUL
 
 # Suffix rule associating each source file to object file
 .c.obj:
-	$(CC) -c -I. -I$(INCDIR) $(CFLAGS) $<
+	cl -c -I. $(CFLAGS) $<
 
 defines.h: defines.ds
 	-del defines.h 2> NUL
