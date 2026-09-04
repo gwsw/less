@@ -146,13 +146,13 @@ get_forw_line:
 	if (is_line_contig_pos(curr_pos))
 	{
 		prewind(TRUE);
-		plinestart(base_pos);
+		plinestart(base_pos, curr_pos);
 		ch_seek(curr_pos);
 		new_pos = curr_pos;
 	} else
 	{
 		prewind(FALSE);
-		plinestart(base_pos);
+		plinestart(base_pos, curr_pos);
 		ch_seek(base_pos);
 		new_pos = base_pos;
 		while (new_pos < curr_pos)
@@ -461,9 +461,9 @@ get_back_line:
 		return (NULL_POSITION);
 	}
 	endline = FALSE;
-	prewind(FALSE);
-	plinestart(new_pos);
     loop:
+	prewind(FALSE);
+	plinestart(new_pos, new_pos);
 	wrap_pos = NULL_POSITION;
 	skipped_leading = FALSE;
 	begin_new_pos = new_pos;

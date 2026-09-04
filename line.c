@@ -389,7 +389,7 @@ static void add_pfx(char ch, int attr)
 /*
  * Insert the status column and line number into the line buffer.
  */
-public void plinestart(POSITION pos)
+public void plinestart(POSITION line_pos, POSITION curr_pos)
 {
 	LINENUM linenum = 0;
 
@@ -403,7 +403,7 @@ public void plinestart(POSITION pos)
 		 * {{ Since forw_raw_line modifies linebuf, we must
 		 *    do this first, before storing anything in linebuf. }}
 		 */
-		linenum = find_linenum(pos);
+		linenum = find_linenum(line_pos);
 	}
 
 	/*
@@ -411,11 +411,11 @@ public void plinestart(POSITION pos)
 	 */
 	if (status_col || status_line)
 	{
-		char c = posmark(pos);
+		char c = posmark(curr_pos);
 		if (c != 0)
 			line_mark_attr = AT_HILITE|AT_COLOR_MARK;
 		else if (start_attnpos != NULL_POSITION &&
-		         pos >= start_attnpos && pos <= end_attnpos)
+		         line_pos >= start_attnpos && line_pos <= end_attnpos)
 			line_mark_attr = AT_HILITE|AT_COLOR_ATTN;
 		if (status_col)
 		{
