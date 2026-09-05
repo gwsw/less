@@ -88,6 +88,8 @@
 
 * Fix memory leak when using ${...} in lesskey file.
 
+* Fix status column display when long line is marked (github #820).
+
 ======================================================================
 
 	Major changes between "less" versions 702 and 704
