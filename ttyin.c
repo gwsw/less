@@ -75,7 +75,7 @@ public int open_tty(void)
 			fd = 0; /* assume lesstest uses stdin */
 	}
 #endif /*LESSTEST*/
-#if HAVE_TTYNAME
+#if HAVE_TTYNAME && !defined(__KLIBC__)
 	if (fd < 0)
 	{
 		constant char *dev = ttyname(2);
