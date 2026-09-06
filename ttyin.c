@@ -213,7 +213,7 @@ public int getchr_timeout(unsigned long timeout_ms)
 	do
 	{
 		flush();
-#if !LESS_IREAD_TTY
+#if !LESS_IREAD_TTY || defined(__KLIBC__)
 		/*
 		 * In raw read, we don't see ^C so look here for it.
 		 */
@@ -223,6 +223,8 @@ public int getchr_timeout(unsigned long timeout_ms)
 			return (READ_INTR);
 #endif
 		c = WIN32getch();
+#elif defined(__KLIBC__)
+		c = _read_kbd(0, 1, 0);
 #else
 		c = getch();
 #endif
