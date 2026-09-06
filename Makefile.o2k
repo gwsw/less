@@ -1,0 +1,60 @@
+# Makefile for less.
+# OS/2 version, for klibc+gcc compiler
+
+#### Start of system configuration section. ####
+
+PREFIX = /@unixroot/usr/local
+BINDIR = ${PREFIX}/bin
+LIBEXECDIR = ${PREFIX}/libexecdir
+SYSDIR = ${PREFIX}/etc
+
+CC = gcc
+CFLAGS = -g -O2 -Wall -I. \
+         -DBINDIR=\"${BINDIR}\" -DLIBEXECDIR=\"${LIBEXECDIR}\" \
+         -DSYSDIR=\"${SYSDIR}\"
+LDFLAGS = -Zhigh-mem -Wl,-static
+LIBS = -lncurses
+O = o
+
+#### End of system configuration section. ####
+
+.SUFFIXES: .c .${O}
+
+# This rule allows us to supply the necessary -D options
+# in addition to whatever the user asks for.
+.c.${O}:
+	${CC} -c ${CPPFLAGS} ${CFLAGS} -o $@ $<
+
+OBJ = \
+	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
+	command.${O} cvt.${O} decode.${O} edit.${O} evar.${O} filename.${O} forwback.${O} \
+	help.${O} ifile.${O} input.${O} jump.${O} \
+	line.${O} linenum.${O} lmsg.$(O) \
+	lsystem.${O} mark.${O} optfunc.${O} option.${O} opttbl.${O} os.${O} \
+	output.${O} pattern.${O} position.${O} prompt.${O} search.${O} signal.${O} \
+	tags.${O} ttyin.${O} version.${O} xbuf.${O}
+
+OBJ += lesskey_parse.${O}
+
+.PHONY: all clean
+
+all: less.exe lessecho.exe
+
+less.exe: ${OBJ}
+	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
+
+lessecho.exe: lessecho.${O} version.${O}
+	${CC} ${LDFLAGS} -o $@ lessecho.${O} version.${O} ${LIBS}
+
+${OBJ}: less.h funcs.h defines.h lang.h lmsg.h lessmsg.inc pattern.h xbuf.h
+
+charset.$(O): compose.uni ubin.uni wide.uni
+screen.${O} ttyin.${O}: pckeys.h
+
+defines.h: defines.o2k
+	copy defines.o2k defines.h
+
+clean:
+	-del *.exe
+	-del *.$(O)
+	-del defines.h
