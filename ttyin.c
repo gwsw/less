@@ -50,7 +50,7 @@ public lbool is_lesstest(void)
 #if !MSDOS_COMPILER
 static int open_tty_device(constant char* dev)
 {
-#if OS2
+#if OS2 && !defined(__KLIBC__)
 	/* The __open() system call translates "/dev/tty" to "con". */
 	return __open(dev, OPEN_READ);
 #else

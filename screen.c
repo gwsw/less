@@ -1213,8 +1213,10 @@ public constant char * special_key_str(int key)
 	case SK_BACKSPACE:
 		s = k_backspace;
 		break;
+#if !OS2
 	case SK_F1:
 		s = k_f1;
+#endif
 		break;
 	case SK_BACKTAB:
 		s = k_backtab;
