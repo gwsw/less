@@ -133,11 +133,6 @@
 #define PATHNAME_SEP    "\\"
 
 /*
- * HAVE_ANSI_PROTOS is 1 if your compiler supports ANSI function prototypes.
- */
-#define HAVE_ANSI_PROTOS 1
-
-/*
  * HAVE_SYS_TYPES_H is 1 if your system has <sys/types.h>.
  */
 #define HAVE_SYS_TYPES_H 1
@@ -423,9 +418,6 @@
 #define HAVE_VALUES_H 1
 #endif
 #endif
-
-/* Define HAVE_VOID if your compiler supports the "void" type. */
-#define HAVE_VOID 1
 
 /* Define to 1 if you have the '_setjmp' function. */
 #define HAVE__SETJMP 1
