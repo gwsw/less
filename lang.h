@@ -50,7 +50,11 @@ typedef enum lbool { LFALSE, LTRUE } lbool;
 #if _WIN64
 typedef __int64 ssize_t;
 #else
+#if _MSC_VER <= 800
+typedef int ssize_t;
+#else
 typedef __int32 ssize_t;
+#endif
 #endif
 #endif
 #ifdef __BORLANDC__

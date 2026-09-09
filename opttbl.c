@@ -1050,7 +1050,7 @@ public char * findopts_name(constant char *pfx)
 				{
 					constant char *np;
 					for (np = oname->oname;  *np != '\0';  np++)
-						xbuf_add_char(&xbuf, uppercase && ASCII_IS_LOWER(*np) ? ASCII_TO_UPPER(*np) : *np);
+						xbuf_add_char(&xbuf, (char) (uppercase && ASCII_IS_LOWER(*np) ? ASCII_TO_UPPER(*np) : *np));
 					xbuf_add_char(&xbuf, ' ');
 				}
 				if (!(o->otype & O_TRIPLE))

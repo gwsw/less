@@ -419,7 +419,7 @@ public void plinestart(POSITION line_pos, POSITION curr_pos)
 			line_mark_attr = AT_HILITE|AT_COLOR_ATTN;
 		if (status_col)
 		{
-			add_pfx(c ? c : ' ', line_mark_attr); /* column 0: status */
+			add_pfx((char) (c ? c : ' '), line_mark_attr); /* column 0: status */
 			while (linebuf.pfx_end < (size_t) status_col_width) /*{{type-issue}}*/
 				add_pfx(' ', AT_NORMAL);
 		}

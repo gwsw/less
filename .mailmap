@@ -1,0 +1,12 @@
+# Map multiple author identities to one canonical form per contributor.
+# Format: Canonical Name <canonical@email> [Old Name] <old@email>
+
+Avi Halachmi <avihpit@yahoo.com> Avi Halachmi (:avih)
+Avi Halachmi <avihpit@yahoo.com> avih <avih@users.noreply.github.com>
+Mark Nudelman <markn@greenwoodsoftware.com> gwsw <markn@greenwoodsoftware.com>
+Mark Nudelman <markn@greenwoodsoftware.com> marknu <empty>
+Roman Donchenko <rdonchen@outlook.com> Роман Донченко <dpb@corrigendum.ru>
+Shawn Webb <shawn.webb@hardenedbsd.org> <lattera@gmail.com>
+Stefan A. Haubenthal <stefan.haubenthal@gmail.com>
+Stefan A. Haubenthal <stefan.haubenthal@gmail.com> <polluks@sdf.org>
+Stefan A. Haubenthal <stefan.haubenthal@gmail.com> Stefan <polluks@sdf.lonestar.org>

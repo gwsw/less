@@ -2018,7 +2018,7 @@ public void commands(void)
 			cmd_exec();
 			if (number <= 0)
 				number = 1;
-			osc8_search(SRCH_FORW, NULL, number);
+			osc8_search(SRCH_FORW, NULL, (int) number);
 #else
 			error(LM(Command_not_available), NULL_PARG);
 #endif
@@ -2029,7 +2029,7 @@ public void commands(void)
 			cmd_exec();
 			if (number <= 0)
 				number = 1;
-			osc8_search(SRCH_BACK, NULL, number);
+			osc8_search(SRCH_BACK, NULL, (int) number);
 #else
 			error(LM(Command_not_available), NULL_PARG);
 #endif
@@ -2407,7 +2407,7 @@ public void commands(void)
 			if (is_erase_char(c) || is_newline_char(c))
 				break;
 			cmd_exec();
-			gomark(c, number);
+			gomark(c, (int) number);
 			break;
 
 		case A_PIPE:

@@ -134,12 +134,6 @@ void free();
 #undef IS_SPACE
 #undef IS_DIGIT
 
-#if HAVE_WCTYPE
-#define IS_UPPER(c)     iswupper((wint_t) (c))
-#define IS_LOWER(c)     iswlower((wint_t) (c))
-#define TO_UPPER(c)     towupper((wint_t) (c))
-#define TO_LOWER(c)     towlower((wint_t) (c))
-#else
 #if HAVE_UPPER_LOWER
 #define IS_UPPER(c)     (is_ascii_char(c) && isupper((unsigned char) (c)))
 #define IS_LOWER(c)     (is_ascii_char(c) && islower((unsigned char) (c)))
@@ -150,7 +144,6 @@ void free();
 #define IS_LOWER(c)     (is_ascii_char(c) && ASCII_IS_LOWER(c))
 #define TO_UPPER(c)     (is_ascii_char(c) ? (LWCHAR) ASCII_TO_UPPER(c) : (LWCHAR) (c))
 #define TO_LOWER(c)     (is_ascii_char(c) ? (LWCHAR) ASCII_TO_LOWER(c) : (LWCHAR) (c))
-#endif
 #endif
 
 #ifdef isspace

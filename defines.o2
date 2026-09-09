@@ -132,11 +132,6 @@
 #define PATHNAME_SEP    "\\"
 
 /*
- * HAVE_ANSI_PROTOS is 1 if your compiler supports ANSI function prototypes.
- */
-#define HAVE_ANSI_PROTOS 1
-
-/*
  * HAVE_SYS_TYPES_H is 1 if your system has <sys/types.h>.
  */
 #define HAVE_SYS_TYPES_H 1
@@ -229,9 +224,6 @@
 /* #undef NO_REGEX */
 #define HAVE_REGEXEC2 1
 
-/* Define HAVE_VOID if your compiler supports the "void" type. */
-#define HAVE_VOID 1
-
 /* Define HAVE_CONST if your compiler supports the "const" modifier. */
 #define HAVE_CONST 1
 
@@ -305,9 +297,6 @@
 
 /* Define if you have the <ctype.h> header file.  */
 #define HAVE_CTYPE_H 1
-
-/* Define if you have the <wctype.h> header file.  */
-#define HAVE_WCTYPE_H 0
 
 /* Define if you have the <errno.h> header file.  */
 #define HAVE_ERRNO_H 1

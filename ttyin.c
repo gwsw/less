@@ -165,6 +165,19 @@ public int pclose(FILE *f)
 }
 #endif
 
+#if MSDOS_COMPILER==MSOFTC
+/*
+ * The Microsoft C DOS runtime doesn't have popen/pclose. Should never be called
+ * as call sites are either excluded during pre-processing via HAVE_POPEN or are
+ * in unreachable code. The alternative is introducing even more #if statements.
+ * Without this stub function linking will fail as the symbol can't be resolved.
+ */
+public int pclose(FILE *f)
+{
+	return fclose(f);
+}
+#endif
+
 /*
  * Get the number of lines to scroll when mouse wheel is moved.
  */
