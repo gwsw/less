@@ -1126,9 +1126,9 @@ v709  8/15/26   Fix --rscroll with non-ASCII char; fix exit with invalid TERM;
                 LESS_UNSUPPORT; fix crash with initial !!; allow shell cmd
                 starting with '!'; add ESC-]; support shift/ctl page up/down;
                 fix search ^S bugs; fix display issues with less_printf.
-v710            Fix string overrrun if input contains "\e\0"; fix memory leak
+v710  9/8/26    Fix string overrrun if input contains "\e\0"; fix memory leak
                 when using ${...} in lesskey file; fix status column when long
                 line is marked.
 */
 
-char version[] = "710x";
+char version[] = "710";
