@@ -683,7 +683,9 @@ public char * lglob(constant char *afilename)
 	/*
 	 * Overwrite the final trailing space with a null terminator.
 	 */
-	*--p = '\0';
+	length = strlen(gfilename);
+	if (length > 0)
+		gfilename[length-1] = '\0';
 	GLOB_LIST_DONE(list);
 }
 #else

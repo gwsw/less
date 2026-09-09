@@ -1,40 +1,145 @@
-# Makefile for less.
-# OS/2 version, for emx+gcc compiler
+# Makefile for less
+#
+# Target:   OS/2 or compatible
+# Compiler: EMX 0.9d fix 4 with GCC 2.8.1 (included) and GNU Make 3.76.1
 
-#### Start of system configuration section. ####
+# Build requirements
+# 1. EMX 0.9d fix 4 is the last release of the EMX runtime and development
+#    environment. Older versions may work but have not been tested. This
+#    software is abandonware and can be obtained from various online archives
+#    (e.g. archive.org or Hobbes Archive).
+# 2. The environment is delivered as a series of Zip archives, many of which are
+#    optional. Extract each archive into a common directory (e.g. "C:\EMX"). The
+#    minimum required set of archives is:
+#    - emxrt.zip
+#      EMX runtime package
+#    - emxdev1.zip, emxdev2.zip
+#      EMX development system
+#    - gnudev1.zip, gnudev2.zip
+#      GNU development tools compiled for EMX (inc. GCC)
+# 3. GNU Make is distributed separately from EMX with 3.76.1 the contemporaneous
+#    release. Retrieve the "make-3_76_1s.zip" archive and extract "make.exe" to
+#    "C:\EMX\BIN". The other files in the archive are not required.
+# 4. Open "C:\CONFIG.SYS" for editing:
+#    - Add "C:\EMX\DLL" to "LIBPATH" (required)
+#      You must reboot after making this change for it take effect. Do so before
+#      proceeding to step 5.
+#    - Add "C:\EMX\BIN" to "PATH" (optional)
+#      Alternatively, you can manually update the "PATH" environment variable in
+#      the command prompt you'll be running the build if you don't want the EMX
+#      executables to be on the system-wide path.
+# 5. Open a command prompt and run "C:\EMX\LIB\OMFLIBS.CMD" to generate the OMF
+#    (Object Module Format) files required by the linker. This is the native
+#    object file format for OS/2 development.
+#
+# Build steps
+# 1. Open a command prompt and add "C:\EMX\BIN" to the "PATH" environment
+#    variable if you didn't previously add it to the default system-wide path.
+# 2. Change to the directory with the less source and copy this Makefile to
+#    "Makefile". If EMX is not installed at "C:\EMX" update the "INCDIR"
+#    variable appropriately.
+# 3. Run "make less.exe". If all goes well, you'll now have a "less.exe"
+#    executable. The default build is self-contained and can be copied to other
+#    systems and run without requiring the EMX runtime. For dynamic linking you
+#    can replace "-Zsys" with "-Zcrtdll" in "LDFLAGS". This will save ~82KB in
+#    the resulting binary at the cost of requiring the EMX runtime.
 
-CC = gcc -Zomf
-CFLAGS = -I. -O2 -Wall
-LDFLAGS = -s -Zcrtdll
+##### Start configuration section #####
+
+# Compiler executable name
+CC = gcc
+
+# Path to system headers
+INCDIR = C:\EMX\INCLUDE
+
+# CFLAGS are compile-time options and LDFLAGS are link-time options. They are
+# customized for EMX 0.9d with GCC 2.8.1. If you have a different version of the
+# compiler, you may need to change some of the options to their equivalents.
+#
+# CFLAGS
+# -Zomf     Link using OS/2 Linear Executable Linker (LINK386)
+# -Wall     Enable most compiler warnings
+# -O2       Optimize at level 2 (default: none)
+CFLAGS = -Zomf -Wall -O2
+#
+# LDFLAGS
+# -Zomf     Link using OS/2 Linear Executable Linker (LINK386)
+# -Zsys     Statically link the EMX Unix emulation layer & C runtime
+#           Use -Zcrtdll to dynamically link everything (EMX dependency)
+# -s        Remove symbol table and relocation information
+LDFLAGS = -Zomf -Zsys -s
+
+# System libraries to link against
+# - termcap     Terminal capabilities
 LIBS = -ltermcap
-O = obj
 
-#### End of system configuration section. ####
+##### End configuration section #####
 
-.SUFFIXES: .c .${O}
+# Add ".obj" extension to the suffix list
+.SUFFIXES: .obj
 
-# This rule allows us to supply the necessary -D options
-# in addition to whatever the user asks for.
-.c.${O}:
-	${CC} -c ${CPPFLAGS} ${CFLAGS} $<
-
+# All object files to build
 OBJ = \
-	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
-	command.${O} cvt.${O} decode.${O} edit.${O} evar.${O} filename.${O} forwback.${O} \
-	help.${O} ifile.${O} input.${O} jump.${O} lesskey_parse.${O} line.${O} linenum.${O} lmsg.${O} \
-	lsystem.${O} mark.${O} optfunc.${O} option.${O} opttbl.${O} os.${O} \
-	output.${O} pattern.${O} position.${O} prompt.${O} search.${O} signal.${O} \
-	tags.${O} ttyin.${O} version.${O} xbuf.${O}  regexp.${O}
+	main.obj \
+	brac.obj \
+	ch.obj \
+	charset.obj \
+	cmdbuf.obj \
+	command.obj \
+	cvt.obj \
+	decode.obj \
+	edit.obj \
+	evar.obj \
+	filename.obj \
+	forwback.obj \
+	help.obj \
+	ifile.obj \
+	input.obj \
+	jump.obj \
+	lesskey_parse.obj \
+	line.obj \
+	linenum.obj \
+	lmsg.obj \
+	lsystem.obj \
+	mark.obj \
+	optfunc.obj \
+	option.obj \
+	opttbl.obj \
+	os.obj \
+	output.obj \
+	pattern.obj \
+	position.obj \
+	prompt.obj \
+	regexp.obj \
+	screen.obj \
+	search.obj \
+	signal.obj \
+	tags.obj \
+	ttyin.obj \
+	version.obj \
+	xbuf.obj
 
-all:    less.exe scrsize.exe
+all: less.exe scrsize.exe
 
-less.exe: ${OBJ}
-	${CC} ${OBJ} -o $@ ${LDFLAGS} ${LIBS}
+less.exe: ${OBJ} less.def
+	${CC} ${OBJ} less.def -o $@ ${LDFLAGS} ${LIBS}
 
 scrsize.exe: scrsize.c
-	${CC} ${CFLAGS} -D__ST_MT_ERRNO__ -s -Zmtd -lX11 $<
+	${CC} ${CFLAGS} -Zmtd -lX11 -D__ST_MT_ERRNO__ -s $<
 
-$(OBJ): less.h funcs.h defines.h lang.h lmsg.h lessmsg.inc pattern.h xbuf.h
+clean:
+	-del *.exe *.obj 2> NUL
+
+# Suffix rule associating each source file to object file
+.c.obj:
+	${CC} -c -I. -I$(INCDIR) ${CFLAGS} $<
 
 defines.h: defines.o2
-	copy defines.o2 defines.h
+	-del defines.h 2> NUL
+	copy defines.o2 defines.h > NUL
+
+less.def: less.def.o2
+	copy less.def.o2 less.def > NUL
+
+# Rebuild object files when any of these change
+$(OBJ): less.h defines.h funcs.h lang.h lmsg.h pattern.h xbuf.h lessmsg.inc

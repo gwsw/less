@@ -147,7 +147,7 @@ static POSITION ch_position(BLOCKNUM block, size_t offset)
  */
 static int ch_get(void)
 {
-	struct buf *bp;
+	struct buf *bp = NULL; /* Silence warning on older gcc versions */
 	struct bufnode *bn;
 	ssize_t n;
 	int h;

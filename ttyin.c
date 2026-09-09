@@ -16,6 +16,7 @@
 #if OS2
 #include "cmd.h"
 #include "pckeys.h"
+#include <emx/syscalls.h>
 #endif
 #if MSDOS_COMPILER==WIN32C
 #define WIN32_LEAN_AND_MEAN
@@ -52,7 +53,7 @@ static int open_tty_device(constant char* dev)
 {
 #if OS2
 	/* The __open() system call translates "/dev/tty" to "con". */
-	return __open(dev, OPEN_READ);
+	return __open(dev, OPEN_READ, 0);
 #else
 	return open(dev, OPEN_READ);
 #endif
@@ -162,6 +163,19 @@ public int pclose(FILE *f)
 	result = _pclose(f);
 	SetConsoleMode(tty, curr_console_input_mode);
 	return result;
+}
+#endif
+
+#if MSDOS_COMPILER==MSOFTC
+/*
+ * The Microsoft C DOS runtime doesn't have popen/pclose. Should never be called
+ * as call sites are either excluded during pre-processing via HAVE_POPEN or are
+ * in unreachable code. The alternative is introducing even more #if statements.
+ * Without this stub function linking will fail as the symbol can't be resolved.
+ */
+public int pclose(FILE *f)
+{
+	return fclose(f);
 }
 #endif
 
