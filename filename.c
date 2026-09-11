@@ -649,7 +649,7 @@ public char * lglob(constant char *afilename)
 	 * The globbing function returns a list of names.
 	 */
 	size_t length;
-	char *p;
+	char *p = NULL; /* Make compiler happy. */
 	char *qfilename;
 	DECL_GLOB_LIST(list)
 

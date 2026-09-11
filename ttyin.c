@@ -50,7 +50,7 @@ public lbool is_lesstest(void)
 #if !MSDOS_COMPILER
 static int open_tty_device(constant char* dev)
 {
-#if OS2
+#if OS2 && !defined(__KLIBC__)
 	/* The __open() system call translates "/dev/tty" to "con". */
 	return __open(dev, OPEN_READ);
 #else
@@ -75,7 +75,7 @@ public int open_tty(void)
 			fd = 0; /* assume lesstest uses stdin */
 	}
 #endif /*LESSTEST*/
-#if HAVE_TTYNAME
+#if HAVE_TTYNAME && !defined(__KLIBC__)
 	if (fd < 0)
 	{
 		constant char *dev = ttyname(2);
@@ -192,7 +192,7 @@ public int getchr(void)
 	do
 	{
 		flush();
-#if !LESS_IREAD_TTY
+#if !LESS_IREAD_TTY || defined(__KLIBC__)
 		/*
 		 * In raw read, we don't see ^C so look here for it.
 		 */
@@ -202,6 +202,8 @@ public int getchr(void)
 			return (READ_INTR);
 #endif
 		c = WIN32getch();
+#elif defined(__KLIBC__)
+		c = _read_kbd(0, 1, 0);
 #else
 		c = getch();
 #endif
