@@ -1008,7 +1008,7 @@ static void prompt(void)
 	/* We called make_display above, but if prompt_message displayed
 	 * a message longer than the screen width, we may have trashed
 	 * the screen and need to call make_display again. */
-	if (is_screen_trashed())
+	if (is_screen_trashed() && !ABORT_SIGS())
 		make_display();
 	p = pr_string();
 	if (p == NULL || *p == '\0')
