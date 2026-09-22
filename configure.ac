@@ -646,6 +646,19 @@ AH_TOP([
  * Pathname separator character.
  */
 #define PATHNAME_SEP    "\\"
+#elif defined(__OS2__)
+/*
+ * Define MSDOS_COMPILER if compiling under Microsoft C.
+ */
+#define MSDOS_COMPILER  0
+
+/*
+ * Pathname separator character.
+ */
+#define PATHNAME_SEP    "\\"
+
+/* Settings always true on OS/2.  */
+#define OS2 1
 #else
 /*
  * Define MSDOS_COMPILER if compiling under Microsoft C.
