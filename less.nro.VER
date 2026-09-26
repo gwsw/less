@@ -2321,22 +2321,34 @@ If the environment variable LESSKEYIN is set,
 uses that as the name of the lesskey source file.
 Otherwise,
 .B less
-looks in a standard place for the lesskey source file:
-On Unix systems,
+checks several paths for the lesskey source file and uses the first it finds:
+.IP \(bu
+On Unix-like and OS-9 systems,
 .B less
-looks for a lesskey file called "$XDG_CONFIG_HOME/lesskey" or "$HOME/.config/lesskey" or "$HOME/.lesskey".
-On MS-DOS and Windows systems,
+looks for a lesskey file at "$XDG_CONFIG_HOME/lesskey" if the XDG_CONFIG_HOME
+environment variable is set, then "$HOME/.config/lesskey" and "$HOME/.lesskey".
+.IP \(bu
+On Windows systems,
 .B less
-looks for a lesskey file called "$HOME/_lesskey", and if it is not found there,
-then looks for a lesskey file called "_lesskey" in any directory specified
-in the PATH environment variable.
+looks for a lesskey file at "%XDG_CONFIG_HOME%\\lesskey" if the XDG_CONFIG_HOME
+environment variable is set, then "%HOME%\\.config\\lesskey" and
+"%HOME%\\_lesskey". If the HOME environment variable is unset (typical on
+Windows), it is derived from the concatenation of HOMEDRIVE and HOMEPATH.
+.IP \(bu
+On MS-DOS systems,
+.B less
+looks for a lesskey file at "%XDG_CONFIG_HOME%\\lesskey" if the XDG_CONFIG_HOME
+environment variable is set, then "%HOME%\\.config\\lesskey" and
+"%HOME%\\_lesskey". If none of these paths yield a lesskey file, every directory
+on the PATH is searched for a "_lesskey" file.
+.IP \(bu
 On OS/2 systems,
 .B less
-looks for a lesskey file called "$HOME/lesskey.ini", and if it is not found,
-then looks for a lesskey file called "lesskey.ini" in any directory specified
-in the INIT environment variable, and if it not found there,
-then looks for a lesskey file called "lesskey.ini" in any directory specified
-in the PATH environment variable.
+looks for a lesskey file at "%XDG_CONFIG_HOME%\\lesskey.ini" if the
+XDG_CONFIG_HOME environment variable is set, then
+"%HOME%\\.config\\lesskey.ini", "%HOME%\\lesskey.ini", and
+"%INIT%\\lesskey.ini". If none of these paths yield a lesskey file, every
+directory on the PATH is searched for a "lesskey.ini" file.
 .PP
 A system-wide lesskey source file may also be set up to provide key bindings.
 If a key is defined in both a local lesskey file and in the
