@@ -13,6 +13,10 @@
 
 	Major changes between "less" versions 710 and 711
 
+* Improve build for MS-DOS.
+
+* Improve build for OS/2 with EMX.
+
 ======================================================================
 
 	Major changes between "less" versions 704 and 710

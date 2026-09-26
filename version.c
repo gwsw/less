@@ -1129,7 +1129,7 @@ v709  8/15/26   Fix --rscroll with non-ASCII char; fix exit with invalid TERM;
 v710  9/8/26    Fix string overrrun if input contains "\e\0"; fix memory leak
                 when using ${...} in lesskey file; fix status column when long
                 line is marked.
-v711
+v711            Improve builds for MS-DOS and OS/2.
 */
 
 char version[] = "711x";
