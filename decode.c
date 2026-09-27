@@ -1453,23 +1453,26 @@ static int add_hometable(int (*call_lesskey)(constant char *, lbool), constant c
 	if (is_lesstest()) /* Don't use lesskey files in lesstest */
 		return -1;
 #endif
-	if (envname != NULL && (efilename = lgetenv(envname)) != NULL)
+	if (envname != NULL && !isnullenv(efilename = lgetenv(envname)))
 		filename = save(efilename);
 	else if (sysvar) /* def_filename is full path */
 		filename = save(def_filename);
 	else /* def_filename is just basename */
 	{
-		/* Remove first char (normally a dot) unless stored in $HOME. */
 		constant char *xdg = lgetenv("XDG_CONFIG_HOME");
+		constant char *xdg_filename = def_filename;
+		/* Remove first char from xdg_filename if it is a dot or underscore. */
+		if (xdg_filename[0] == '.' || xdg_filename[0] == '_')
+			xdg_filename = &xdg_filename[1];
 		if (!isnullenv(xdg))
-			filename = dirfile(xdg, &def_filename[1], TRUE);
+			filename = dirfile(xdg, xdg_filename, TRUE);
 		if (filename == NULL)
 		{
 			constant char *home = lgetenv("HOME");
 			if (!isnullenv(home))
 			{
 				char *cfg_dir = dirfile(home, ".config", FALSE);
-				filename = dirfile(cfg_dir, &def_filename[1], TRUE);
+				filename = dirfile(cfg_dir, xdg_filename, TRUE);
 				free(cfg_dir);
 			}
 		}
