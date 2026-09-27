@@ -497,7 +497,7 @@ this clears all search matches marked in the status column.
 .IP "&\fIpattern\fP"
 Display only lines which match the pattern;
 lines which do not match the pattern are hidden.
-If pattern is empty (if you type & immediately followed by ENTER),
+If pattern is empty (if you type & immediately followed by ENTER or RETURN),
 any filtering is turned off, and all lines are displayed.
 While filtering is in effect, an ampersand is displayed at the
 beginning of the prompt,
@@ -645,7 +645,7 @@ Exits
 .BR less .
 .PP
 The following
-seven
+eight
 commands may or may not be valid, depending on your particular installation.
 .
 .IP v
@@ -670,7 +670,8 @@ or defaults to "sh".
 On MS-DOS, Windows, and OS/2 systems, the shell is the normal command processor.
 .IP "# \fIshell-command\fP"
 Similar to the "!" command, 
-except that the command is expanded in the same way as prompt strings.
+except that the command is expanded in the same way as prompt strings
+(see the PROMPTS section below).
 For example, the name of the current file would be given as "%f".
 .IP "| <\fIm\fP> \fIshell-command\fP"
 <m> represents any mark character.
@@ -699,7 +700,7 @@ You can type \*^N in place of either <m1> or <m2> in order to enter
 a line number instead of a mark letter.
 .IP "s \fIfilename\fP"
 Save the input to a file.
-This works only if the input is a pipe, not an ordinary file.
+This works only if the input is standard input or a pipe, not an ordinary file.
 .IP "\*^O\*^O"
 .RS
 Run a shell command to open the URI in the current OSC 8 hyperlink,
@@ -900,7 +901,7 @@ Specifies the amount of buffer space
 .B less
 will use for each file, in units of kilobytes (1024 bytes).
 By default 64\ KB of buffer space is used for each file
-(unless the file is a pipe; see the
+(unless the file is standard input or a pipe; see the
 .B "\-B"
 option).
 The
@@ -910,7 +911,7 @@ buffer space should be used for each file.
 If \fIn\fP is \-1, buffer space is unlimited; that is,
 the entire file can be read into memory.
 .IP "\fB\-B\fP or \fB\-\-auto\-buffers\fP"
-By default, when data is read from a pipe,
+By default, when data is read from standard input or a pipe,
 buffers are allocated automatically as needed.
 If a large amount of data is read from the pipe, this can cause
 a large amount of memory to be allocated.
@@ -1264,6 +1265,8 @@ The line has been marked with the corresponding letter via the m or M command.
 The line has been marked by left-clicking it with the mouse
 when the
 .B "\-\-mouse"
+or
+.B "\-\-emouse"
 option is in effect.
 .RE
 .IP "\fB\-k\fP\fIfilename\fP or \fB\-\-lesskey\-file=\fP\fIfilename\fP"
@@ -1367,8 +1370,8 @@ Suppresses line numbers.
 The default (to use line numbers) may cause
 .B less
 to run more slowly in some cases, especially with a very large input file.
-Using line numbers means: the line number will be displayed in the verbose
-prompt and in the = command,
+Using line numbers means: the line number will be displayed in the
+verbose (\fB\-M\fP) prompt and in the = command,
 and the v command will pass the current line number to the editor
 (see also the discussion of LESSEDIT in PROMPTS below).
 .IP "\fB\-N\fP or \fB\-\-LINE\-NUMBERS\fP"
@@ -1378,7 +1381,7 @@ each line in the display.
 Causes
 .B less
 to copy its input to the named file as it is being viewed.
-This applies only when the input file is a pipe,
+This applies only when the input file is standard input or a pipe,
 not an ordinary file.
 If the file already exists,
 .B less
@@ -1480,7 +1483,7 @@ each type of control character).
 Thus, various display problems may result,
 such as long lines being split in the wrong place.
 .IP
-USE OF THE
+WARNING: USE OF THE
 .B "\-r"
 OPTION IS DANGEROUS AND IS NOT RECOMMENDED.
 .br
@@ -1565,12 +1568,12 @@ While the
 option is active, the
 .B "\-S"
 option is ignored,
-and lines longer than the screen width are truncated.
+and lines longer than the screen width are always truncated.
 .IP "\fB\-t\fP\fItag\fP or \fB\-\-tag=\fP\fItag\fP"
 The
 .B "\-t"
 option, followed immediately by a TAG,
-will edit the file containing that tag.
+will view the file containing that tag.
 For this to work, tag information must be available;
 for example, there may be a file in the current directory called "tags",
 which was previously built by
@@ -1642,7 +1645,9 @@ Displays the version number of
 Temporarily highlights the first "new" line after a movement
 of a full page.
 The first "new" line is the line immediately following the line previously
-at the bottom of the screen.
+at the bottom of the screen after a forward movement,
+or the line immediately preceding the line previously
+at the top of the screen after a backward movement.
 Also highlights the target line after a g or p command.
 The highlight is removed at the next command which causes movement.
 If the
@@ -1864,7 +1869,7 @@ immediately after opening the file.
 With this option enabled, the = command and the long prompt will display
 the number of lines in the file.
 Normally this is not done, because it can be slow if the input file 
-is non-seekable (such as a pipe) and is large.
+is large and non-seekable (such as a pipe).
 .IP "\fB\-\-follow\-name\fP"
 Normally, if the input file is renamed while an F command is executing,
 .B less
@@ -1936,6 +1941,9 @@ unless the
 .B "\-J"
 option is in effect,
 in which case only the status column is highlighted.
+The highlight is underlining by default but can be changed via the
+.B "\-\-color=J"
+option.
 .IP "\fB\-\-incsearch\fP"
 Subsequent search commands will be "incremental"; that is,
 .B less
@@ -1996,9 +2004,9 @@ If any option setting is of the form "tabstop=\fIn\fP" or "ts=\fIn\fP",
 then tab stops are automatically set as if
 .BI "\-\-tabs=" "n"
 had been given.
-See the
+See the description of the
 .B "\-\-tabs"
-description for acceptable values of \fIn\fP.
+option for acceptable values of \fIn\fP.
 .RE
 .IP "\fB\-\-mouse\fP"
 Enabling \fB\-\-mouse\fP is the same as \fB\-\-emouse=vmove,click\fP.
@@ -2197,7 +2205,7 @@ Set the number of lines or columns to scroll when the mouse wheel is scrolled
 and the
 .B "\-\-mouse"
 or
-.B "\-\-MOUSE"
+.B "\-\-emouse"
 option is in effect.
 The default is 1 line or column.
 .IP "\fB\-\-wordwrap\fP"
@@ -2246,7 +2254,6 @@ a key does not exist on a particular keyboard.
 on some MS-DOS and Windows systems because ESC is the line erase character.)
 Any of these special keys may be entered literally by preceding
 it with the "literal" character, either \*^V or \*^A.
-A backslash itself may also be entered literally by entering two backslashes.
 .IP "LEFTARROW [ ESC-h ]"
 Move the cursor one space to the left.
 .IP "RIGHTARROW [ ESC-l ]"
@@ -2263,7 +2270,7 @@ Move the cursor to the beginning of the line.
 Move the cursor to the end of the line.
 .IP "BACKSPACE"
 Delete the character to the left of the cursor,
-or cancel the command if the command line is empty.
+or cancel the command if the cursor is at the beginning of the command line.
 .IP "DELETE [ ESC-x ]"
 Delete the character under the cursor.
 .IP "\*^BACKSPACE [ ESC-BACKSPACE ]"
@@ -2294,14 +2301,14 @@ Like TAB, but cycles in the reverse direction through the matching filenames.
 .IP "\*^L"
 Complete the partial filename to the left of the cursor.
 If it matches more than one filename, all matches are entered into
-the command line (if they fit).
+the command line.
 .IP "\*^U (Unix and OS/2) or ESC (MS-DOS and Windows)"
 Delete the entire command line,
 or cancel the command if the cursor is at the beginning of the command line.
 If you have changed your line-kill character in Unix to something
 other than \*^U, that character is used instead of \*^U.
 .IP "\*^G"
-Delete the entire command line and return to the main prompt.
+Delete the entire command line and cancel the command.
 .
 .SH "KEY BINDINGS"
 You may define your own
@@ -2367,14 +2374,6 @@ was built with a different sysconf directory than /usr/local/etc,
 that directory is where the sysless file is found.)
 On MS-DOS and Windows systems, the system-wide lesskey file is c:\e_syslesskey.
 On OS/2 systems, the system-wide lesskey file is c:\esyslesskey.ini.
-.PP
-Older versions of
-.B less
-(before v582) used lesskey files with a binary format, produced by the
-.B lesskey
-program. It is no longer necessary to use the
-.B lesskey
-program.
 .
 .SH "INPUT PREPROCESSOR"
 You may define an "input preprocessor" for
@@ -2759,7 +2758,7 @@ personalized prompt strings.
 .PP
 A percent sign followed by a single character is expanded
 according to what the following character is.
-(References to the input file size below refer to the preprocessed size,
+(References to the input file size below refer to the processed size,
 if an input preprocessor is being used.)
 .IP "%b\fIX\fP"
 Replaced by the byte offset into the current input file.
@@ -2862,12 +2861,14 @@ Condition characters (which follow a question mark) may be:
 True if any characters have been included in the prompt so far.
 .IP "?b\fIX\fP"
 True if the byte offset of the specified line is known.
+The line used is determined by the \fIX\fP as with the %b option.
 .IP "?B"
 True if the size of current input file is known.
 .IP "?c"
 True if the text is horizontally shifted (%c is greater than 1).
 .IP "?d\fIX\fP"
 True if the page number of the specified line is known.
+The line used is determined by the \fIX\fP as with the %b option.
 .IP "?e"
 True if at end-of-file.
 .IP "?f"
@@ -2875,6 +2876,7 @@ True if there is an input filename
 (that is, if input is not a pipe).
 .IP "?l\fIX\fP"
 True if the line number of the specified line is known.
+The line used is determined by the \fIX\fP as with the %b option.
 .IP "?L"
 True if the line number of the last line in the file is known.
 .IP "?m"
@@ -2886,9 +2888,11 @@ True if an OSC 8 hyperlink is selected.
 .IP "?p\fIX\fP"
 True if the percent into the current input file, based on byte offsets,
 of the specified line is known.
+The line used is determined by the \fIX\fP as with the %b option.
 .IP "?P\fIX\fP"
 True if the percent into the current input file, based on line numbers,
 of the specified line is known.
+The line used is determined by the \fIX\fP as with the %b option.
 .IP "?Q"
 True if %Q is less than 100.
 Note that using this sequence can make displaying the prompt be slower than usual.
@@ -3118,7 +3122,7 @@ Takes precedence over the number of columns specified by the TERM variable.
 the window system's idea of the screen size takes precedence over the
 LINES and COLUMNS environment variables.)
 .IP EDITOR
-The name of the editor (used for the v command).
+The name of the text editor (used for the v command).
 .IP HOME
 Name of the user's home directory
 (used to find a lesskey file on Unix and OS/2 systems).
@@ -3361,6 +3365,8 @@ Overrides the standard ANSI escape sequence to disable bracketed paste.
 Overrides the standard ANSI escape sequence to enable mouse reporting.
 This is used when the
 .B "\-\-mouse"
+or
+.B "\-\-emouse"
 option is in effect.
 .IP LESS_TERMCAP_MOUSE_END
 Overrides the standard ANSI escape sequence to disable mouse reporting.
