@@ -353,6 +353,11 @@ public void opt_t(int type, constant char *s)
 	IFILE save_ifile;
 	POSITION pos;
 
+	if (!secure_allow(SF_TAGS))
+	{
+		error(LM(tags_support_is_not_available), NULL_PARG);
+		return;
+	}
 	switch (type)
 	{
 	case INIT:
@@ -360,11 +365,6 @@ public void opt_t(int type, constant char *s)
 		/* Do the rest in main() */
 		break;
 	case TOGGLE:
-		if (!secure_allow(SF_TAGS))
-		{
-			error(LM(tags_support_is_not_available), NULL_PARG);
-			break;
-		}
 		findtag(skipspc(s));
 		save_ifile = save_curr_ifile();
 		/*
