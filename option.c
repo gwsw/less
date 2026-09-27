@@ -753,7 +753,6 @@ public lbool getfraction(constant char **sp, mutable long *p_frac)
  */
 public void init_unsupport(void)
 {
-	PARG parg;
 	constant char *s = lgetenv("LESS_UNSUPPORT");
 	if (isnullenv(s))
 		return;
@@ -762,7 +761,6 @@ public void init_unsupport(void)
 		struct loption *opt;
 		s = skipspc(s);
 		if (*s == '\0') break;
-		parg.p_string = s;
 		if (s[0] == '-' && s[1] == '-') /* long option name */
 		{
 			s += 2;

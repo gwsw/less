@@ -13,6 +13,8 @@
 
 	Major changes between "less" versions 710 and 711
 
+* The binary lesskey file format is no longer supported.
+
 * Implement INSERT mode on command line.
 
 * Add support for shift-INSERT and ctrl-INSERT in lesskey.

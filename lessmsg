@@ -138,6 +138,7 @@ Position_target_at_screen_line_X Position target at screen line %d
 Position_target_at_screen_position_X Position target at screen position %s
 Horizontal_shift_X_columns Horizontal shift %d columns
 Horizontal_shift_X_of_screen_width Horizontal shift %s of screen width
+opt_k_not_supported Ignoring -k option: the binary lesskey file format is no longer supported
 Cannot_use_lesskey_file_X Cannot use lesskey file \"%s\"
 Cannot_use_lesskey_source_file_X Cannot use lesskey source file \"%s\"
 Error_in_lesskey_content Error in lesskey content

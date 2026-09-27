@@ -169,8 +169,6 @@
                   Screen position of target lines.
   -J  ........  --status-column
                   Display a status column at left edge of screen.
-  -k _f_i_l_e  ...  --lesskey-file=_f_i_l_e
-                  Use a compiled lesskey file.
   -K  ........  --quit-on-intr
                   Exit less in response to ctrl-C.
   -L  ........  --no-lessopen

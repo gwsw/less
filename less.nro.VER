@@ -71,8 +71,6 @@ less \- display the contents of a file in a terminal
 .IR lines ]
 .RB [ \-j\ \c
 .IR line ]
-.RB [ \-k\ \c
-.IR key-file ]
 .RB [ \- { o | O\c
 }
 .IR log-file ]
@@ -844,8 +842,6 @@ line option with
 .RB "\[dq]" "\-+" "\[dq]."
 .PP
 Some options like
-.B "\-k"
-or
 .B "\-D"
 require a string to follow the option letter.
 The string for that option is considered to end when a dollar sign ($) is found.
@@ -1269,23 +1265,6 @@ or
 .B "\-\-emouse"
 option is in effect.
 .RE
-.IP "\fB\-k\fP\fIfilename\fP or \fB\-\-lesskey\-file=\fP\fIfilename\fP"
-Causes
-.B less
-to open and interpret the named file as a
-.BR lesskey (5)
-binary file.
-Multiple
-.B "\-k"
-options may be specified.
-If the LESSKEY or LESSKEY_SYSTEM environment variable is set, or
-if a lesskey file is found in a standard place (see KEY BINDINGS),
-it is also used as a
-.B lesskey
-file.
-Note the warning under
-.B "\-\-lesskey\-content"
-below.
 .IP "\fB\-\-lesskey\-src=\fP\fIfilename\fP"
 Causes
 .B less
@@ -3215,22 +3194,10 @@ The default is 100.
 Name of the default
 .I "lesskey source"
 file.
-.IP LESSKEY
-Name of the default
-.I "lesskey binary"
-file. (Not used if "$LESSKEYIN" exists.)
-.IP LESSKEY_CONTENT
-The value is parsed as if it were the parameter of a
-.B "\-\-lesskey\-content"
-option.
 .IP LESSKEYIN_SYSTEM
 Name of the default system-wide
 .I "lesskey source"
 file.
-.IP LESSKEY_SYSTEM
-Name of the default system-wide
-.I "lesskey binary"
-file. (Not used if "$LESSKEYIN_SYSTEM" exists.)
 .IP LESSMETACHARS
 List of characters which are considered "metacharacters" by the shell.
 .IP LESSMETAESCAPE

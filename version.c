@@ -1132,7 +1132,8 @@ v710  9/8/26    Fix string overrrun if input contains "\e\0"; fix memory leak
 v711            Improve builds for MS-DOS and OS/2; fix redirected stderr;
                 disallow -t with LESSSECURE; don't clear screen on ^C;
                 fix invalid lesskey file name on OS/2; add INSERT mode;
-                add lesskey support for shift/ctrl INSERT.
+                add lesskey support for shift/ctrl INSERT; remove support
+                for binary lesskey file.
 */
 
 char version[] = "711x";
