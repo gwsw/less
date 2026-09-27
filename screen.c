@@ -1068,6 +1068,8 @@ public constant char * special_key_str(int key)
 	static char k_shift_up[]        = { '\340', PCK_SHIFT_UP, 0  };
 	static char k_shift_down[]      = { '\340', PCK_SHIFT_DOWN, 0  };
 	static char k_insert[]          = { '\340', PCK_INSERT, 0  };
+	static char k_ctl_insert[]      = { '\340', PCK_CTL_INSERT, 0  };
+	static char k_shift_insert[]    = { '\340', PCK_SHIFT_INSERT, 0  };
 	static char k_delete[]          = { '\340', PCK_DELETE, 0  };
 	static char k_ctl_delete[]      = { '\340', PCK_CTL_DELETE, 0  };
 	static char k_shift_delete[]    = { '\340', PCK_SHIFT_DELETE, 0  };
@@ -1215,6 +1217,12 @@ public constant char * special_key_str(int key)
 	case SK_SHIFT_DELETE:
 		s = k_shift_delete;
 		break;
+	case SK_CTL_INSERT:
+		s = k_ctl_insert;
+		break;
+	case SK_SHIFT_INSERT:
+		s = k_shift_insert;
+		break;
 	case SK_BACKSPACE:
 		s = k_backspace;
 		break;
@@ -1284,6 +1292,12 @@ public constant char * special_key_str(int key)
 		break;
 	case SK_INSERT:
 		s = ltgetstr("kich1", "kI", &sp);
+		break;
+	case SK_SHIFT_INSERT:
+		s = ltgetstr("kIC", "#3", &sp);
+		break;
+	case SK_CTL_INSERT:
+		s = ltgetstr("kIC5", NULL, &sp);
 		break;
 	case SK_BACKTAB:
 		s = ltgetstr("kcbt", "kB", &sp);
@@ -3424,6 +3438,7 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 		case PCK_UP:     scan = PCK_CTL_UP;     break;
 		case PCK_DOWN:   scan = PCK_CTL_DOWN;   break;
 		case PCK_DELETE: scan = PCK_CTL_DELETE; break;
+		case PCK_INSERT: scan = PCK_CTL_INSERT; break;
 		case PCK_HOME:   scan = PCK_CTL_HOME;   break;
 		case PCK_END:    scan = PCK_CTL_END;    break;
 		case PCK_PAGEUP: scan = PCK_CTL_PAGEUP; break;
@@ -3442,6 +3457,7 @@ static lbool win32_scan_code(XINPUT_RECORD *xip)
 				case PCK_UP:     scan = PCK_SHIFT_UP;     break;
 				case PCK_DOWN:   scan = PCK_SHIFT_DOWN;   break;
 				case PCK_DELETE: scan = PCK_SHIFT_DELETE; break;
+				case PCK_INSERT: scan = PCK_SHIFT_INSERT; break;
 				case PCK_HOME:   scan = PCK_SHIFT_HOME;   break;
 				case PCK_END:    scan = PCK_SHIFT_END;    break;
 				case PCK_PAGEUP: scan = PCK_SHIFT_PAGEUP; break;

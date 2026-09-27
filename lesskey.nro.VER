@@ -124,6 +124,8 @@ l l.
 \ek\*^h or \ekH	ctrl-HOME
 \ek+h or \ekI	shift-HOME
 \eki	INSERT
+\ek\*^i	ctrl-INSERT
+\ek+i	shift-INSERT
 \ekl	LEFT ARROW
 \ek\*^l or \ekL	ctrl-LEFT ARROW
 \ek+l or \ekM	shift-LEFT ARROW

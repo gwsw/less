@@ -32,6 +32,8 @@
 #define PCK_SHIFT_END           '\x61'
 #define PCK_CTL_DELETE          '\x62'
 #define PCK_CTL_LEFT            '\x63'
+#define PCK_SHIFT_INSERT        '\x64'
+#define PCK_CTL_INSERT          '\x65'
 #define PCK_SHIFT_PAGEDOWN      '\x6f'
 #define PCK_CTL_PAGEDOWN        '\x70'
 #define PCK_SHIFT_PAGEUP        '\x71'

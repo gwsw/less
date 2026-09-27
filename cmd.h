@@ -192,3 +192,5 @@
 #define SK_SHIFT_PAGE_DOWN     48
 #define SK_CTL_PAGE_UP         49
 #define SK_CTL_PAGE_DOWN       50
+#define SK_SHIFT_INSERT        51
+#define SK_CTL_INSERT          52
