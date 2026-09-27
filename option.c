@@ -772,10 +772,9 @@ public void init_unsupport(void)
 			if (*s == '-') s++;
 			opt = (*s == '\0') ? NULL : findopt(*s++);
 		}
-		if (opt == NULL)
-			error("invalid option in LESS_UNSUPPORT: %s", &parg);
-		else
+		if (opt != NULL)
 			opt->otype |= O_UNSUPPORTED;
+		/* No error message for unrecognized option; just ignore it. */
 	}
 }
 

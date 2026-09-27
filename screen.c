@@ -181,7 +181,7 @@ static void win32_deinit_term();
 #define BG_COLORS       (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY)
 #define MAKEATTR(fg,bg)         ((WORD)((fg)|((bg)<<4)))
 #define APPLY_COLORS()          { if (SetConsoleTextAttribute(con_out, curr_attr) == 0) \
-                                  error("SETCOLORS failed", NULL_PARG); }
+                                  error(LM(SETCOLORS_failed), NULL_PARG); }
 #define SET_FG_COLOR(fg)        { curr_attr &= ~0x0f; curr_attr |= (fg); APPLY_COLORS(); }
 #define SET_BG_COLOR(bg)        { curr_attr &= ~0xf0; curr_attr |= ((bg)<<4); APPLY_COLORS(); }
 #define SETCOLORS(fg,bg)        { curr_attr = MAKEATTR(fg,bg); APPLY_COLORS(); }

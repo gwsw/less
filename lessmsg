@@ -357,6 +357,7 @@ non_numeric_version_number_in_version_line non-numeric version number in #versio
 unknown_action_X unknown action: \"%s\"
 missing_action missing action
 missing_eq_in_variable_definition missing = in variable definition
+SETCOLORS_failed SETCOLORS failed
 
 # The help file can be overridden with the "HELP" symbol.
 # Normally this will be a multi-line string, so it is convenient to define
