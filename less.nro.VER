@@ -2279,6 +2279,12 @@ Delete the word to the left of the cursor.
 .IP "\*^DELETE [ ESC-X or ESC-DELETE ]"
 (That is, CONTROL and DELETE simultaneously.)
 Delete the word under the cursor.
+.IP "INSERT [ ESC-i ]"
+Toggle insert mode on or off.
+When insert mode is on (the default),
+a typed character is inserted before the character under the cursor.
+When insert mode is off,
+a typed character replaces the character under the cursor.
 .IP "UPARROW [ ESC-k ]"
 Retrieve the previous command line.
 If you first enter some text and then press UPARROW,

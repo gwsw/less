@@ -332,6 +332,7 @@
  ctrl-BACKSPACE   ESC-BACKSPACE ........... Delete word to left of cursor.
  ctrl-DELETE .... ESC-DELETE .... ESC-X ... Delete word under cursor.
  ctrl-U ......... ESC (MS-DOS only) ....... Delete entire line.
+ INSERT ......................... ESC-i ... Toggle insert/overwrite mode.
  UpArrow ........................ ESC-k ... Retrieve previous command line.
  DownArrow ...................... ESC-j ... Retrieve next command line.
  TAB ...................................... Complete filename & cycle.
