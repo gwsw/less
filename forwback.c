@@ -225,6 +225,8 @@ public void forw(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 	lbool first_line = TRUE;
 	lbool need_home = FALSE;
 
+	if (ABORT_SIGS())
+		return;
 	if (pos != NULL_POSITION)
 		pos = after_header_pos(pos);
 	if (past_eof)
@@ -392,6 +394,8 @@ public void back(int n, POSITION pos, lbool force, lbool only_last, lbool to_new
 	lbool do_repaint;
 	lbool newline;
 
+	if (ABORT_SIGS())
+		return;
 	squish_check();
 	if (past_eof)
 		force = TRUE;
