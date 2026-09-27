@@ -76,6 +76,8 @@ public int open_tty(void)
 			fd = 0; /* assume lesstest uses stdin */
 	}
 #endif /*LESSTEST*/
+	if (fd < 0)
+		fd = open_tty_device("/dev/tty");
 #if HAVE_TTYNAME
 	if (fd < 0)
 	{
@@ -84,8 +86,6 @@ public int open_tty(void)
 			fd = open_tty_device(dev);
 	}
 #endif
-	if (fd < 0)
-		fd = open_tty_device("/dev/tty");
 	if (fd < 0)
 		fd = 2;
 #ifdef __MVS__
