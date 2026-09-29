@@ -171,6 +171,7 @@ public void expand_evars(mutable char *buf, size_t len, struct xbuffer *xbuf)
 		if (i+1 < len && buf[i] == '$' && buf[i+1] == '{')
 		{
 			constant char *evar;
+			char *evar2;
 			char term;
 			size_t e;
 			i += 2; /* skip "${" */
@@ -183,7 +184,11 @@ public void expand_evars(mutable char *buf, size_t len, struct xbuffer *xbuf)
 			buf[e++] = '\0';
 			evar = lgetenv_ext(&buf[i], xbuf->data, xbuf->end);
 			if (evar == NULL) evar = "";
-			i = add_evar(xbuf, buf, len, e, evar, term);
+			/* Need to save a copy of evar because it might be part of xbuf
+			 * and could get freed when we add to xbuf in add_evar. */
+			evar2 = save(evar);
+			i = add_evar(xbuf, buf, len, e, evar2, term);
+			free(evar2);
 		} else
 		{
 			xbuf_add_char(xbuf, buf[i++]);
