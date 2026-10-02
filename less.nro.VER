@@ -3379,7 +3379,8 @@ This must be set as an actual environment variable, not in a
 .B lesskey
 file.
 .IP SHELL
-The shell used to execute the !\& command, as well as to expand filenames.
+The program used to execute shell commands, such as in the !\&, #, v and \*^O\*^O commands,
+running a LESSOPEN script, and to expand filenames.
 .IP TERM
 The type of terminal on which
 .B less
