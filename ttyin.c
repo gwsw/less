@@ -198,7 +198,7 @@ public int default_wheel_lines(void)
 /*
  * Get a character from the keyboard.
  */
-public int getchr(void)
+public int getchr_timeout(unsigned long timeout_ms)
 {
 	char c;
 	ssize_t result;
@@ -225,7 +225,16 @@ public int getchr(void)
 #else /* LESS_IREAD_TTY */
 		{
 			unsigned char uc;
+			if (timeout_ms > 0)
+				set_mstimer(timeout_ms); /* set timer */
 			result = iread(tty, &uc, sizeof(char));
+			if (timeout_ms > 0)
+				set_mstimer(0); /* cancel timer */
+			if (sigs & S_TIMER)
+			{
+				sigs &= ~S_TIMER;
+				return (READ_TIMEOUT);
+			}
 			c = (char) uc;
 		}
 		if (result == READ_INTR)
@@ -297,4 +306,9 @@ public int getchr(void)
 	} while (result != 1);
 
 	return (unsigned char) c;
+}
+
+public int getchr(void)
+{
+	return getchr_timeout(0);
 }

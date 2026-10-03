@@ -35,7 +35,7 @@ AC_CHECK_LIB(termlib, tgetent, [have_termlib=yes], [have_termlib=no])
 AC_SEARCH_LIBS([regcmp], [gen intl PW])
 
 # Checks for header files.
-AC_CHECK_HEADERS_ONCE([ctype.h errno.h fcntl.h limits.h stdckdint.h stdio.h stdlib.h string.h termcap.h ncurses/termcap.h ncursesw/termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h sys/types.h sys/wait.h time.h])
+AC_CHECK_HEADERS_ONCE([ctype.h errno.h fcntl.h limits.h stdckdint.h stdio.h stdlib.h string.h termcap.h ncurses/termcap.h ncursesw/termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h sys/time.h sys/types.h sys/wait.h time.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
@@ -285,7 +285,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
 #include <sys/stat.h>]], [[struct stat s; dev_t dev = s.st_dev; ino_t ino = s.st_ino;]])],[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STAT_INO)],[AC_MSG_RESULT(no)])
 
 # Checks for library functions.
-AC_CHECK_FUNCS([fchmod fsync nanosleep poll popen realpath _setjmp sigprocmask sigsetmask snprintf stat strsignal system ttyname usleep])
+AC_CHECK_FUNCS([fchmod fsync nanosleep poll popen realpath _setjmp setitimer sigprocmask sigsetmask snprintf stat strsignal system ttyname usleep])
 AC_CHECK_DECL(sigsetjmp, [AC_DEFINE(HAVE_SIGSETJMP)], [], [#include <setjmp.h>])
 
 # AC_CHECK_FUNCS may not work for inline functions, so test these separately.

@@ -78,6 +78,16 @@ static RETSIGTYPE stop(int type)
 }
 #endif
 
+#ifdef SIGALRM
+static RETSIGTYPE sigalarm(int type)
+{
+	(void) type;
+	LSIGNAL(SIGALRM, sigalarm);
+	sigs |= S_TIMER;
+	intio();
+}
+#endif
+
 #undef SIG_LESSWINDOW
 #ifdef SIGWINCH
 #define SIG_LESSWINDOW SIGWINCH
@@ -195,6 +205,9 @@ public void init_signals(lbool on)
 #ifdef SIGHUP
 		(void) LSIGNAL(SIGHUP, terminate);
 #endif
+#ifdef SIGALRM
+		(void) LSIGNAL(SIGALRM, sigalarm);
+#endif
 #ifdef SIGUSR1
 		(void) LSIGNAL(SIGUSR1, sigusr1);
 #endif
@@ -225,6 +238,9 @@ public void init_signals(lbool on)
 #endif
 #ifdef SIGHUP
 		(void) LSIGNAL(SIGHUP, SIG_DFL);
+#endif
+#ifdef SIGALRM
+		(void) LSIGNAL(SIGALRM, SIG_DFL);
 #endif
 #ifdef SIGUSR1
 		(void) LSIGNAL(SIGUSR1, SIG_DFL);

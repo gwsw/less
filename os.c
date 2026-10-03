@@ -29,6 +29,9 @@
 #if HAVE_TIME_H
 #include <time.h>
 #endif
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 #if HAVE_ERRNO_H
 #include <errno.h>
 #endif
@@ -619,5 +622,19 @@ public void sleep_ms(int ms)
 #endif
 #endif
 #endif
+#endif
+}
+
+/*
+ * Set a timer to send SIGALRM after the specified number of milliseconds.
+ */
+public void set_mstimer(unsigned long ms)
+{
+#if HAVE_SETITIMER
+	struct itimerval timer;
+	timer.it_value.tv_sec = ms / 1000;
+	timer.it_value.tv_usec = (ms % 1000) * 1000;
+	timer.it_interval.tv_sec = timer.it_interval.tv_usec = 0;
+	setitimer(ITIMER_REAL, &timer, NULL);
 #endif
 }

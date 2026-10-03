@@ -347,6 +347,7 @@ typedef short POLL_EVENTS;
 #define READ_ERR        (-1)
 #define READ_INTR       (-2)
 #define READ_AGAIN      (-3)
+#define READ_TIMEOUT    (-4)
 
 /*
  * A fraction is represented by a long n; the fraction is n/NUM_FRAC_DENOM.
@@ -589,6 +590,7 @@ typedef enum {
 #define S_SWINTERRUPT   (1<<1)
 #define S_STOP          (1<<2)
 #define S_WINCH         (1<<3)
+#define S_TIMER         (1<<4)
 #define ABORT_SIGS()    (sigs & (S_INTERRUPT|S_SWINTERRUPT|S_STOP))
 
 #ifdef EXIT_SUCCESS
