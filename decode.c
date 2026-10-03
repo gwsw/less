@@ -33,7 +33,7 @@
 #include "cmd.h"
 #include "lesskey.h"
 
-extern int erase_char, erase2_char, kill_char;
+extern int erase_char, erase2_char, werase_char, kill_char;
 extern int emouse;
 extern int mouse_reverse;
 extern int hshift;
@@ -1361,6 +1361,8 @@ public int editchar(char c, int flags)
 	 */
 	if (c == erase_char || c == erase2_char)
 		return (EC_BACKSPACE);
+	if (c == werase_char)
+		return (EC_W_BACKSPACE);
 	if (c == kill_char)
 	{
 #if MSDOS_COMPILER==WIN32C
