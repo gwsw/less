@@ -208,19 +208,22 @@ static void longloopmessage(void)
 	ierror(LM(Calculating_line_numbers), NULL_PARG);
 }
 
+typedef enum dm_type { DM_LINENUM, DM_SCAN_EOF } dm_type;
 struct delayed_msg
 {
 	void (*message)(void);
 	int loopcount;
+	dm_type dmtype;
 #if HAVE_TIME
 	time_type startime;
 #endif
 };
 
-static void start_delayed_msg(struct delayed_msg *dmsg, void (*message)(void))
+static void start_delayed_msg(struct delayed_msg *dmsg, dm_type dmtype, void (*message)(void))
 {
 	dmsg->loopcount = 0;
 	dmsg->message = message;
+	dmsg->dmtype = dmtype;
 #if HAVE_TIME
 	dmsg->startime = get_time();
 #endif
@@ -253,15 +256,19 @@ static void delayed_msg(struct delayed_msg *dmsg)
  */
 static void abort_delayed_msg(struct delayed_msg *dmsg)
 {
-	if (dmsg->loopcount >= 0)
-		return;
-	if (linenums == OPT_ONPLUS)
-		/*
-		 * We were displaying line numbers, so need to repaint.
-		 */
-		screen_trashed();
-	linenums = 0;
-	error(LM(Line_numbers_turned_off), NULL_PARG);
+	if (dmsg->dmtype == DM_LINENUM)
+	{
+		if (linenums == OPT_ONPLUS)
+		{
+			/* We were displaying line numbers, so need to repaint. */
+			screen_trashed();
+		}
+		if (linenums != OPT_OFF)
+		{
+			linenums = OPT_OFF;
+			error(LM(Line_numbers_turned_off), NULL_PARG);
+		}
+	}
 }
 
 /*
@@ -311,7 +318,7 @@ public LINENUM find_linenum(POSITION pos)
 	 * The decision is based on which way involves 
 	 * traversing fewer bytes in the file.
 	 */
-	start_delayed_msg(&dmsg, longloopmessage);
+	start_delayed_msg(&dmsg, DM_LINENUM, longloopmessage);
 	if (p == &anchor || pos - p->prev->pos < p->pos - pos)
 	{
 		/*
@@ -486,7 +493,7 @@ public void scan_eof(void)
 	 * scanning_eof prevents the "Waiting for data" message from 
 	 * overwriting "Determining length of file".
 	 */
-	start_delayed_msg(&dmsg, detlenmessage);
+	start_delayed_msg(&dmsg, DM_SCAN_EOF, detlenmessage);
 	scanning_eof = TRUE;
 	while (pos != NULL_POSITION)
 	{
