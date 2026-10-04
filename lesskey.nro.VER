@@ -469,6 +469,19 @@ l l.
 \ee[<	mouse6
 .TE
 .RE
+.PP
+In addition these commands also exist but are by default assigned
+to keys based on your terminal's
+.BR stty (1)
+settings:
+.PP
+.RS 5m
+.TS
+l l.
+(erase)	backspace
+(kill)	kill-line
+.TE
+.RE
 .
 .SH "LESS ENVIRONMENT VARIABLES"
 The environment variable section begins with the line
