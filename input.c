@@ -461,9 +461,9 @@ get_back_line:
 		return (NULL_POSITION);
 	}
 	endline = FALSE;
-    loop:
 	prewind(FALSE);
 	plinestart(new_pos, new_pos);
+    loop:
 	wrap_pos = NULL_POSITION;
 	skipped_leading = FALSE;
 	begin_new_pos = new_pos;
