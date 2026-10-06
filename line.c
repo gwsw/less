@@ -389,7 +389,7 @@ static void add_pfx(char ch, int attr)
 /*
  * Insert the status column and line number into the line buffer.
  */
-public void plinestart(POSITION line_pos, POSITION curr_pos)
+public void plinestart(POSITION pos)
 {
 	LINENUM linenum = 0;
 
@@ -403,23 +403,20 @@ public void plinestart(POSITION line_pos, POSITION curr_pos)
 		 * {{ Since forw_raw_line modifies linebuf, we must
 		 *    do this first, before storing anything in linebuf. }}
 		 */
-		linenum = find_linenum(line_pos);
+		linenum = find_linenum(pos);
 	}
+	linebuf.pfx_end = 0;
 
 	/*
 	 * Display a status column if the -J option is set.
 	 */
 	if (status_col || status_line)
 	{
-		char c = posmark(curr_pos);
-		if (c != 0)
-			line_mark_attr = AT_HILITE|AT_COLOR_MARK;
-		else if (start_attnpos != NULL_POSITION &&
-		         line_pos >= start_attnpos && line_pos <= end_attnpos)
+		if (start_attnpos != NULL_POSITION &&
+		         pos >= start_attnpos && pos <= end_attnpos)
 			line_mark_attr = AT_HILITE|AT_COLOR_ATTN;
 		if (status_col)
 		{
-			add_pfx((char) (c ? c : ' '), line_mark_attr); /* column 0: status */
 			while (linebuf.pfx_end < (size_t) status_col_width) /*{{type-issue}}*/
 				add_pfx(' ', AT_NORMAL);
 		}
@@ -875,8 +872,6 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 		if (pos != NULL_POSITION && a != AT_ANSI)
 		{
 			hl_attr = is_hilited_attr(pos, pos+1, 0, &matches);
-			if (hl_attr == 0 && status_line)
-				hl_attr = line_mark_attr;
 			if (in_osc8_link)
 			{
 				if (hl_attr != 0)
@@ -1004,6 +999,15 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 				add_linebuf(' ', rscroll_attr|AT_PLACEHOLDER, 0);
 				cshift--;
 			}
+		}
+	}
+	if (pos != NULL_POSITION)
+	{
+		char c = posmark(pos);
+		if (c != '\0')
+		{
+			line_mark_attr = AT_HILITE|AT_COLOR_MARK;
+			set_status_col(c, line_mark_attr);
 		}
 	}
 	return (0);
@@ -1505,6 +1509,7 @@ public void pdone(lbool endline, lbool chopped, lbool forw, lbool full_pad)
 	if (status_line && (line_mark_attr != 0 || full_pad)) {
 		while (end_column < sc_width + cshift)
 			add_linebuf(' ', line_mark_attr, 1);
+		set_attr_line(line_mark_attr);
 	}
 
 	/*
