@@ -15,7 +15,7 @@ sub main {
 	die $usage if not defined $textfile;
 	my $lesstest  = ($opt{t} or "./lesstest");
 	my $lt_screen = ($opt{s} or "./lt_screen");
-	my $less      = ($opt{l} or "../obj/less");
+	my $less      = ($opt{l} or "../obj/less_t");
 	my $lines     = ($opt{h} or $ENV{LINES}-1);
 	my $columns   = ($opt{w} or $ENV{COLUMNS}-1);
 	my $verbose   = ($opt{v} or 0);
