@@ -1133,7 +1133,8 @@ v711            Improve builds for MS-DOS and OS/2; fix redirected stderr;
                 disallow -t with LESSSECURE; don't clear screen on ^C;
                 fix invalid lesskey file name on OS/2; add INSERT mode;
                 add lesskey support for shift/ctrl INSERT; remove support
-                for binary lesskey file.
+                for binary lesskey file; make word-erase char work; improve
+                mapping of ESC; fix bug with wrapped colored text.
 */
 
 char version[] = "711x";

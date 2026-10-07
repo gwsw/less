@@ -13,11 +13,18 @@
 
 	Major changes between "less" versions 710 and 711
 
-* The binary lesskey file format is no longer supported.
+* The binary lesskey file format produced by lesskey(1) is
+  no longer supported.
 
 * Implement INSERT mode on command line.
 
 * Add support for shift-INSERT and ctrl-INSERT in lesskey.
+
+* Make word erase char (from stty) work in command line.
+
+* Improve behavior if ESC is mapped via lesskey (github #83).
+
+* Disallow -t option when LESSSECURE is set.
 
 * Improve build for MS-DOS.
 
@@ -27,9 +34,11 @@
 
 * Fix unnecessary screen clear in some cases when handling ^C (github #828).
 
-* Disallow -t option when LESSSECURE is set.
+* Fix use-after-free bug when using ${...} in lesskey file (github #831).
 
 * Fix bug when running less with stderr redirected (github #360).
+
+* Fix bug displaying wrapped colored text (github #835).
 
 ======================================================================
 
