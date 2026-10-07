@@ -1001,7 +1001,7 @@ static int store_char(LWCHAR ch, int a, constant char *rep, POSITION pos)
 			}
 		}
 	}
-	if (pos != NULL_POSITION)
+	if (status_col && pos != NULL_POSITION)
 	{
 		char c = posmark(pos);
 		if (c != '\0')
