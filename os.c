@@ -42,10 +42,6 @@ extern int errno;
 #include <values.h>
 #endif
 
-#if defined(__APPLE__)
-#include <sys/utsname.h>
-#endif
-
 #if HAVE_POLL && !MSDOS_COMPILER && !defined(__MVS__)
 #define USE_POLL 1
 static lbool use_poll = TRUE;
@@ -119,14 +115,6 @@ public void init_poll(void)
 	idelay = (delay == NULL) ? 0 : atoi(delay);
 	if (idelay > 0)
 		screenfill_ms = idelay;
-#if USE_POLL
-#if defined(__APPLE__)
-	/* In old versions of MacOS, poll() does not work with /dev/tty. */
-	struct utsname uts;
-	if (uname(&uts) < 0 || lstrtoi(uts.release, NULL, 10) < 20)
-		use_poll = FALSE;
-#endif
-#endif
 }
 
 #if USE_POLL

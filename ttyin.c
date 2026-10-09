@@ -76,8 +76,11 @@ public int open_tty(void)
 			fd = 0; /* assume lesstest uses stdin */
 	}
 #endif /*LESSTEST*/
+#ifndef __APPLE__
+	/* MacOS does not support poll() on /dev/tty, so prefer ttyname(2). */
 	if (fd < 0)
 		fd = open_tty_device("/dev/tty");
+#endif
 #if HAVE_TTYNAME
 	if (fd < 0)
 	{
@@ -85,6 +88,10 @@ public int open_tty(void)
 		if (dev != NULL)
 			fd = open_tty_device(dev);
 	}
+#endif
+#ifdef __APPLE__
+	if (fd < 0)
+		fd = open_tty_device("/dev/tty");
 #endif
 	if (fd < 0)
 		fd = 2;
