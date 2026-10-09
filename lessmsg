@@ -286,6 +286,8 @@ Dont_use_color Don't use color
 Use_color Use color
 Dont_get_size_of_each_file Don't get size of each file
 Get_size_of_each_file Get size of each file
+Time_file_size Time limit for --file-size (milliseconds; 0=unlimited):\40
+Time_file_size_is_X Time limit for --file-size is %d milliseconds
 Line_highlight_applies_to_text_only Line highlight applies to text only
 Line_highlight_applies_to_entire_width_of_screen Line highlight applies to entire width of screen
 Accept_pasted_input Accept pasted input

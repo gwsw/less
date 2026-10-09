@@ -33,6 +33,9 @@
  */
 
 #include "less.h"
+#if MSDOS_COMPILER==WIN32C
+#include <windows.h>
+#endif
 
 /*
  * Structure to keep track of a line number and the associated file position.
@@ -68,6 +71,7 @@ extern int sigs;
 extern int sc_height;
 extern int header_lines;
 extern int nonum_headers;
+extern int time_want_filesize;
 extern POSITION header_start_pos;
 
 /*
@@ -484,6 +488,15 @@ public void scan_eof(void)
 	POSITION pos = ch_zero();
 	LINENUM linenum = 0;
 	struct delayed_msg dmsg;
+#if MSDOS_COMPILER==WIN32C
+  /*
+   * We don't have a timer signal on Windows, so we just check the elapsed
+   * time in the loop. This is not as good as using a signal because it
+   * doesn't interrupt a blocked read.
+   * {{ Could probably do this with SetTimer and CancelSynchronousIo. }}
+   */
+  ULONGLONG start_time;
+#endif
 
 	if (ch_seek(0))
 		return;
@@ -493,19 +506,38 @@ public void scan_eof(void)
 	 */
 	start_delayed_msg(&dmsg, DM_SCAN_EOF, LM(Determining_length_of_file));
 	scanning_eof = TRUE;
+	if (time_want_filesize > 0)
+	{
+#if MSDOS_COMPILER==WIN32C
+		start_time = GetTickCount64();
+#else
+		set_mstimer(time_want_filesize);
+#endif
+	}
 	while (pos != NULL_POSITION)
 	{
 		/* For efficiency, only add one every 256 line numbers. */
 		if ((linenum++ % 256) == 0)
 			add_lnum(linenum, pos);
 		pos = forw_raw_line(pos, NULL, NULL);
-		if (ABORT_SIGS())
+		if (ABORT_SIGS() || (sigs & S_TIMER)
+#if MSDOS_COMPILER==WIN32C
+			|| (time_want_filesize > 0 && GetTickCount64() > start_time + time_want_filesize)
+#endif
+			)
 		{
 			abort_delayed_msg(&dmsg);
 			break;
 		}
 		delayed_msg(&dmsg);
 	}
+#if MSDOS_COMPILER!=WIN32C
+	if (time_want_filesize > 0)
+	{
+		set_mstimer(0);
+		sigs &= ~S_TIMER;
+	}
+#endif
 	scanning_eof = FALSE;
 }
 

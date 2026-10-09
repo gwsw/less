@@ -16,6 +16,8 @@
 * The binary lesskey file format produced by lesskey(1) is
   no longer supported.
 
+* Add --time-file-size option (github #815).
+
 * Implement INSERT mode on command line.
 
 * Add support for shift-INSERT and ctrl-INSERT in lesskey.

@@ -1723,6 +1723,7 @@ of the screen, starting with a decimal point: \&.5 is half of the
 screen width, \&.3 is three tenths of the screen width, and so on.
 If the number is specified as a fraction, the actual number of
 scroll positions is recalculated if the terminal window is resized.
+The default is half of the screen width.
 .IP "\fB\-\-autosave=\fP\fIactions\fP
 Normally, the history file is saved only when
 .B less
@@ -1849,6 +1850,9 @@ With this option enabled, the = command and the long prompt will display
 the number of lines in the file.
 Normally this is not done, because it can be slow if the input file 
 is large and non-seekable (such as a pipe).
+See also the
+.B "\-\-time\-file\-size"
+option.
 .IP "\fB\-\-follow\-name\fP"
 Normally, if the input file is renamed while an F command is executing,
 .B less
@@ -2161,6 +2165,15 @@ the entire line highlighted.
 If
 .B "\-\-use\-color"
 is set, the line is colored rather than highlighted.
+.IP "\fB\-\-time\-file\-size=\fP\fIms\fP"
+When the
+.B "\-\-file\-size"
+option is given, don't spend more than \fIms\fP milliseconds
+finding the file size.
+A value of zero means that no time limit is specified.
+Has no effect unless the
+.B "\-\-file\-size"
+option is also specified.
 .IP "\fB\-\-use\-backslash\fP"
 This option changes the interpretations of options which follow this one.
 After the

@@ -70,6 +70,7 @@ public int status_col_width;    /* Width of status column */
 public int incr_search;         /* Incremental search */
 public int use_color;           /* Use UI color */
 public int want_filesize;       /* Scan to EOF if necessary to get file size */
+public int time_want_filesize;  /* Time limit for --file-size (ms) */
 public int status_line;         /* Highlight entire marked lines */
 public int header_lines;        /* Freeze header lines at top of screen */
 public int header_cols;         /* Freeze header columns at left of screen */
@@ -172,6 +173,7 @@ static struct optname status_col_width_optname = { "status-col-width", NULL };
 static struct optname incr_search_optname = { "incsearch",       NULL };
 static struct optname use_color_optname = { "use-color",         NULL };
 static struct optname want_filesize_optname = { "file-size",     NULL };
+static struct optname time_want_filesize_optname = { "time-file-size", NULL };
 static struct optname status_line_optname = { "status-line",     NULL };
 static struct optname header_optname = { "header",               NULL };
 static struct optname no_paste_optname = { "no-paste",           NULL };
@@ -684,6 +686,15 @@ static struct loption option[] =
 		{
 			LM_Dont_get_size_of_each_file,
 			LM_Get_size_of_each_file,
+			LM_NULL
+		},
+		{ NULL, NULL, NULL }
+	},
+	{ OLETTER_NONE, &time_want_filesize_optname,
+		O_NUMBER, 0, &time_want_filesize, NULL,
+		{
+			LM_Time_file_size,
+			LM_Time_file_size_is_X,
 			LM_NULL
 		},
 		{ NULL, NULL, NULL }
