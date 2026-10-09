@@ -2170,7 +2170,7 @@ When the
 .B "\-\-file\-size"
 option is given, don't spend more than \fIms\fP milliseconds
 finding the file size.
-A value of zero means that no time limit is specified.
+A value of zero (the default) means that no time limit is specified.
 Has no effect unless the
 .B "\-\-file\-size"
 option is also specified.
