@@ -231,7 +231,7 @@ static struct loption option[] =
 	},
 
 	{ 'b', &b_optname,
-		O_NUMBER|O_INIT_HANDLER, 64, &bufspace, opt_b, 
+		O_NUMBER|O_INIT_HANDLER|O_NEGOK, 64, &bufspace, opt_b, 
 		{
 			LM_Max_buffer_space_per_file,
 			LM_Max_buffer_space_per_file_X,
