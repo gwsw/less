@@ -37,6 +37,7 @@ extern int use_color;
 extern char intr_char;
 extern lbool term_init_ever;
 extern int pr_type;
+extern lbool in_raw_mode;
 
 #if MSDOS_COMPILER==WIN32C || MSDOS_COMPILER==BORLANDC || MSDOS_COMPILER==DJGPPC
 extern int ctldisp;
@@ -779,11 +780,16 @@ public int query(constant char *fmt, constant PARG *parg)
 		lower_left();
 		flush();
 		screen_trashed();
-	} else
+	} else if (in_raw_mode)
 	{
 		putchr('\n');
+	} else
+	{
+		/* Not in raw mode; read and discard the rest of the input line. */
+		int eol = c;
+		while (eol != '\n' && eol != '\r')
+			eol = getchr();
 	}
-
 	if (c == 'Q')
 		quit(QUIT_OK);
 	return (c);

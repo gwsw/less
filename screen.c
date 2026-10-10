@@ -284,6 +284,7 @@ static int above_mem, below_mem;        /* Memory retained above/below screen */
 /* term_init has been called; terminal is ready for use by less */
 static lbool term_init_done = FALSE;
 public lbool term_init_ever = FALSE;
+public lbool in_raw_mode = FALSE;
 
 public int auto_wrap;           /* Terminal does \r\n when write past margin */
 public int defer_wrap;          /* After printing char in last column, doesn't wrap until next char */
@@ -409,10 +410,8 @@ static void set_termio_flags(
  */
 public void raw_mode(lbool on)
 {
-	static lbool curr_on = FALSE;
-
-	if (on == curr_on)
-			return;
+	if (on == in_raw_mode)
+		return;
 	erase2_char = '\b'; /* in case OS doesn't know about erase2 */
 #if LESSTEST
 	if (is_lesstest())
@@ -738,7 +737,7 @@ public void raw_mode(lbool on)
 #endif
 #endif
 #endif
-	curr_on = on;
+	in_raw_mode = on;
 }
 
 #if !MSDOS_COMPILER
