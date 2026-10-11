@@ -32,6 +32,8 @@
 
 * Improve build for OS/2 with EMX.
 
+* Support build for OS/2 with kLIBC.
+
 * Fix incorrect name of default lesskey file on OS/2 (github #819).
 
 * Fix unnecessary screen clear in some cases when handling ^C (github #828).

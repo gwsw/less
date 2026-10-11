@@ -840,6 +840,10 @@ If an option appears in the LESS variable, it can be reset
 to its default value on the command line by beginning the command
 line option with
 .RB "\[dq]" "\-+" "\[dq]."
+Similarly, if a long option name appears in the LESS variable, it can be reset
+to its default value on the command line by beginning the command
+line option with
+.RB "\[dq]" "\-\-+" "\[dq]."
 .PP
 Some options like
 .B "\-D"
@@ -884,7 +888,7 @@ the bottom of the screen
 and backward searches to start at the top of the screen,
 thus skipping all lines displayed on the screen.
 .IP "\fB\-A\fP or \fB\-\-SEARCH\-SKIP\-SCREEN\fP"
-auses all forward searches (not just non-repeated searches)
+Causes all forward searches (not just non-repeated searches)
 to start just after the target line, and all backward searches
 to start just before the target line.
 Thus, forward searches will skip part of the displayed screen
