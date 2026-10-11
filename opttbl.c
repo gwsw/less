@@ -750,7 +750,7 @@ static struct loption option[] =
 		{ NULL, NULL, NULL }
 	},
 	{ OLETTER_NONE, &nonum_headers_optname,
-		O_BOOL|O_REPAINT, 0, &nonum_headers, NULL,
+		O_BOOL|O_REPAINT, OPT_OFF, &nonum_headers, NULL,
 		{
 			LM_Number_header_lines,
 			LM_Dont_number_header_lines,
@@ -759,17 +759,17 @@ static struct loption option[] =
 		{ NULL, NULL, NULL }
 	},
 	{ OLETTER_NONE, &nosearch_headers_optname,
-		O_BOOL|O_HL_REPAINT, 0, NULL, opt_nosearch_headers,
+		O_BOOL|O_HL_REPAINT, OPT_OFF, NULL, opt_nosearch_headers,
 		{ LM_NULL, LM_NULL, LM_NULL },
 		{ NULL, NULL, NULL }
 	},
 	{ OLETTER_NONE, &nosearch_header_lines_optname,
-		O_BOOL|O_HL_REPAINT, 0, NULL, opt_nosearch_header_lines,
+		O_BOOL|O_HL_REPAINT, OPT_OFF, NULL, opt_nosearch_header_lines,
 		{ LM_NULL, LM_NULL, LM_NULL },
 		{ NULL, NULL, NULL }
 	},
 	{ OLETTER_NONE, &nosearch_header_cols_optname,
-		O_BOOL|O_HL_REPAINT, 0, NULL, opt_nosearch_header_cols,
+		O_BOOL|O_HL_REPAINT, OPT_OFF, NULL, opt_nosearch_header_cols,
 		{ LM_NULL, LM_NULL, LM_NULL },
 		{ NULL, NULL, NULL }
 	},
