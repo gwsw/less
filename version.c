@@ -1137,6 +1137,7 @@ v711  10/10/26  Improve builds for MS-DOS and OS/2; fix redirected stderr;
                 mapping of ESC; fix bug with wrapped colored text.
                 mapping of ESC; fix bug with wrapped colored texts;
                 add --time-file-size.
+v712
 */
 
-char version[] = "711";
+char version[] = "712x";
