@@ -920,6 +920,12 @@ public void init_option(void)
 		if (o->otype & O_INIT_HANDLER)
 			(*(o->ofunc))(INIT, (char *) NULL);
 	}
+	/*
+	 * Ugly special case to make -R be the default. We don't change its
+	 * odefault in the option table because we want the -R and -+R options
+	 * to retain their historical behavior.
+	 */
+	ctldisp = OPT_ONPLUS;
 }
 
 /*

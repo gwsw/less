@@ -1486,6 +1486,12 @@ sequences are output in "raw" form.
 Unlike
 .BR "\-r" ","
 the screen appearance is maintained correctly.
+In
+.B less
+version 712 and later, this is the default behavior.
+It can be disabled with
+.BR "\-+R" "."
+.IP
 The sequences which are output raw are:
 .IP
 1. ANSI SGR ("color") sequences
