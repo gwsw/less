@@ -349,6 +349,9 @@ Cannot_find_OSC8_link Cannot find OSC8 link
 No_handler_for_X_link_type No handler for \"%s\" link type
 Cannot_quote_URI Cannot quote URI
 link_done link done
+pipe_done |done
+shell_done !done
+hash_done #done
 Please_re_enter_search_pattern Please re-enter search pattern
 No_tags_file No tags file
 No_such_tag_in_tags_file No such tag in tags file

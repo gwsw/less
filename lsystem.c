@@ -35,6 +35,19 @@
 extern int sigs;
 extern IFILE curr_ifile;
 
+#if HAVE_SYSTEM || HAVE_PIPEC
+static void print_done_msg(constant char* donemsg)
+{
+	if (donemsg == NULL)
+		return;
+	putstr(donemsg);
+	putstr("  ");
+	putstr(LM(press_RETURN));
+	get_return();
+	putchr('\n');
+	flush();
+}
+#endif
 
 #if HAVE_SYSTEM
 
@@ -196,15 +209,7 @@ public void lsystem(constant char *cmd, constant char *donemsg)
 	init_signals(TRUE);
 #endif
 	raw_mode(TRUE);
-	if (donemsg != NULL)
-	{
-		putstr(donemsg);
-		putstr("  ");
-		putstr(LM(press_RETURN));
-		get_return();
-		putchr('\n');
-		flush();
-	}
+	print_done_msg(donemsg);
 	term_init();
 	screen_trashed();
 
@@ -250,7 +255,7 @@ public void lsystem(constant char *cmd, constant char *donemsg)
  * Create a pipe to the given shell command.
  * Feed it the file contents between the positions spos and epos.
  */
-static int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
+static int pipe_data(constant char *cmd, POSITION spos, POSITION epos, constant char *donemsg)
 {
 	FILE *f;
 	int c;
@@ -327,6 +332,7 @@ static int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
 	init_signals(TRUE);
 #endif
 	raw_mode(TRUE);
+	print_done_msg(donemsg);
 	term_init();
 	screen_trashed();
 #if defined(SIGWINCH) || defined(SIGWIND)
@@ -345,7 +351,7 @@ static int pipe_data(constant char *cmd, POSITION spos, POSITION epos)
  * Otherwise, the section between the top line displayed and
  * mpos1 is piped.
  */
-public int pipe_pos(constant char *cmd, POSITION mpos1, POSITION mpos2)
+public int pipe_pos(constant char *cmd, POSITION mpos1, POSITION mpos2, constant char *donemsg)
 {
 	POSITION tpos, bpos;
 
@@ -357,13 +363,13 @@ public int pipe_pos(constant char *cmd, POSITION mpos1, POSITION mpos2)
 	if (mpos2 != NULL_POSITION)
 	{
 		if (mpos1 < mpos2)
-			return pipe_data(cmd, mpos1, mpos2);
+			return pipe_data(cmd, mpos1, mpos2, donemsg);
 		else
-			return pipe_data(cmd, mpos2, mpos1);
+			return pipe_data(cmd, mpos2, mpos1, donemsg);
 	} else if (mpos1 < tpos)
-		return pipe_data(cmd, mpos1, bpos);
+		return pipe_data(cmd, mpos1, bpos, donemsg);
 	else
-		return pipe_data(cmd, tpos, mpos1);
+		return pipe_data(cmd, tpos, mpos1, donemsg);
 }
 
 #endif

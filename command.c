@@ -332,7 +332,7 @@ static void exec_mca(void)
 		 * Otherwise, copy cmdbuf to shellcmd,
 		 * expanding any special characters ("%" or "#").
 		 */
-		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : "!done";
+		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : LM(shell_done);
 		if (done_msg == NULL)
 			++cbuf;
 		if (strcmp(cbuf, "!") != 0)
@@ -346,7 +346,7 @@ static void exec_mca(void)
 		lsystem(shellcmd == NULL ? "" : shellcmd, done_msg);
 		break; }
 	case A_PSHELL: {
-		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : "#done";
+		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : LM(hash_done);
 		if (done_msg == NULL)
 			++cbuf;
 		if (!secure_allow(SF_SHELL))
@@ -356,14 +356,12 @@ static void exec_mca(void)
 #endif
 #if PIPEC
 	case A_PIPE: {
-		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : "|done";
+		constant char *done_msg = (*cbuf == CONTROL('P')) ? NULL : LM(pipe_done);
 		if (done_msg == NULL)
 			++cbuf;
 		if (!secure_allow(SF_PIPE))
 			break;
-		(void) pipe_pos(cbuf, pipe_pos1, pipe_pos2);
-		if (done_msg != NULL)
-			error(done_msg, NULL_PARG);
+		(void) pipe_pos(cbuf, pipe_pos1, pipe_pos2, done_msg);
 		break; }
 #endif
 	}

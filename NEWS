@@ -30,6 +30,9 @@
 
 * Disallow -t option when LESSSECURE is set.
 
+* Make | command print done message before restoring alternate screen,
+  so any output from the piped command can be seen.
+
 * Improve build for MS-DOS.
 
 * Improve build for OS/2 with EMX.
