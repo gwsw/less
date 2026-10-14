@@ -15,6 +15,7 @@ extern IFILE curr_ifile;
 extern int sc_height;
 extern int jump_sline;
 extern int perma_marks;
+extern POSITION last_search_pos;
 
 /*
  * A mark is an ifile (input file) plus a position within the file.
@@ -219,7 +220,7 @@ static struct mark * getmark(char c)
 		/*
 		 * Jump target line.
 		 */
-		m = get_where_mark(&sm, sindex_from_sline(jump_sline));
+		m = get_where_mark(&sm, jump_sline);
 		break;
 	case '\'':
 		/*

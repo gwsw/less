@@ -691,7 +691,7 @@ static int mouse_button_left(int x, int y, lbool down, lbool drag)
 		if (y < sc_height-1 && y == last_click_y)
 		{
 			cmd_exec();
-			setmark('#', y, 0);
+			setmark('#', y+1, 0);
 			screen_trashed();
 		}
 	}

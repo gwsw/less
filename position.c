@@ -170,13 +170,13 @@ public lbool empty_lines(int s, int e)
  * such that the top few lines are empty, we may have to set
  * the screen line to a number > 0.
  */
-public void get_scrpos_pos(struct scrpos *scrpos, int where, POSITION pos)
+public void get_scrpos_pos(struct scrpos *scrpos, int sline, POSITION pos)
 {
 	int i;
 	int dir = 0; /* Silence warning on older gcc versions */
 	int last = 0; /* Silence warning on older gcc versions */
 
-	switch (where)
+	switch (sline)
 	{
 	case TOP:
 		i = 0; dir = +1; last = sc_height-2;
@@ -188,7 +188,7 @@ public void get_scrpos_pos(struct scrpos *scrpos, int where, POSITION pos)
 		i = (sc_height - 1) / 2; dir = -1; last = 0;
 		break;
 	default:
-		i = where;
+		i = sindex_from_sline(sline);
 		if (table[i] == NULL_POSITION) {
 			scrpos->pos = NULL_POSITION;
 			return;
@@ -222,9 +222,9 @@ public void get_scrpos_pos(struct scrpos *scrpos, int where, POSITION pos)
 	}
 }
 
-public void get_scrpos(struct scrpos *scrpos, int where)
+public void get_scrpos(struct scrpos *scrpos, int sline)
 {
-	get_scrpos_pos(scrpos, where, NULL_POSITION);
+	get_scrpos_pos(scrpos, sline, NULL_POSITION);
 }
 
 /*
