@@ -51,6 +51,7 @@ extern lbool can_goto_line;
 static lbool hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
+public POSITION last_search_pos = NULL_POSITION;
 public POSITION header_start_pos = NULL_POSITION;
 static POSITION header_end_pos;
 public lbool search_wrapped = FALSE;
@@ -405,6 +406,7 @@ public void undo_search(lbool clear)
 		else if (!osc8_active)
 			error(LM(No_previous_regular_expression), NULL_PARG);
 	}
+	last_search_pos = NULL_POSITION;
 	repaint_hilite(TRUE);
 #else
 	undo_osc8();
@@ -2207,6 +2209,7 @@ public int search(int search_type, constant char *pattern, int n)
 		/*
 		 * Go to the matching line.
 		 */
+		last_search_pos = lastlinepos != NULL_POSITION ? lastlinepos : pos;
 		if (lastlinepos != NULL_POSITION)
 			jump_loc(lastlinepos, BOTTOM);
 		else if (pos != opos)

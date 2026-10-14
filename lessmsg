@@ -126,6 +126,7 @@ Press_RETURN_to_continue Press RETURN to continue\40
 Cannot_allocate_memory Cannot allocate memory
 Invalid_mark_letter_X Invalid mark letter %c
 Mark_not_set Mark not set
+No_previous_search_match No previous search match
 Cannot_find_line_number_X Cannot find line number %n
 Mark_not_in_current_file Mark not in current file
 log_file_support_is_not_available log file support is not available

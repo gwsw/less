@@ -222,6 +222,18 @@ static struct mark * getmark(char c)
 		 */
 		m = get_where_mark(&sm, jump_sline);
 		break;
+	case '@':
+		/*
+		 * Last search match.
+		 */
+		if (last_search_pos == NULL_POSITION)
+		{
+			error(LM(No_previous_search_match), NULL_PARG);
+			return (NULL);
+		}
+		m = &sm;
+		cmark(m, curr_ifile, last_search_pos, jump_sline);
+		break;
 	case '\'':
 		/*
 		 * The "last mark".

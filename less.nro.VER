@@ -680,7 +680,8 @@ of the current screen, inclusive.
 Otherwise (if the marked line is the top line of the current screen
 or after it) the section of the file to be piped is between the top line
 of the current screen and the marked line, inclusive.
-<m> may also be "\*^" or "$" to indicate beginning or end of file respectively.
+<m> may also be "\*^" or "$" to indicate beginning or end of file respectively,
+or "@" to indicate the line containing the last search match.
 If <m> is "\&.\&" or newline, the currently displayed screen is piped.
 You can type \*^N in place of <m> in order to enter
 a line number instead of a mark letter.
@@ -694,10 +695,11 @@ The line marked by <m1> may be either before or after the line marked by <m2> in
 Either mark may be "\*^" or "$" to indicate beginning or end of file respectively.
 Also, ":" or newline indicates the first line displayed on the screen,
 ";" indicates the last line displayed on the screen,
-"," indicates the middle line displayed on the screen, and
+"," indicates the middle line displayed on the screen,
 "_" indicates the target line (as specified by the
 .B "\-j"
-option).
+option), and
+"@" indicates the line containing the last search match.
 You can type \*^N in place of either <m1> or <m2> in order to enter
 a line number instead of a mark letter.
 .IP "s \fIfilename\fP"
@@ -1263,6 +1265,9 @@ and there are matches beyond both sides of the screen.
 .IP "*"
 There are matches in the visible part of the line
 but none to the right or left of it.
+.IP "@"
+There are matches in the visible part of the line,
+and this is the line that was moved to the target line in the last search.
 .IP "a-z, A-Z"
 The line has been marked with the corresponding letter via the m or M command.
 .IP "#"
