@@ -1129,7 +1129,7 @@ static int getccu(unsigned long timeout_ms)
 				c = getcc_end_command();
 		}
 	}
-	return c;
+	return (unsigned char) c;
 }
 
 /*
