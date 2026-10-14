@@ -26,7 +26,7 @@
 
 * Make word erase char (from stty) work in command line.
 
-* Add new mark characters '*' for target line and ',' for middle line
+* Add new mark characters '_' for target line and ',' for middle line
   (github #790).
 
 * Improve behavior if ESC is mapped via lesskey (github #83).

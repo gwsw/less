@@ -695,7 +695,7 @@ Either mark may be "\*^" or "$" to indicate beginning or end of file respectivel
 Also, ":" or newline indicates the first line displayed on the screen,
 ";" indicates the last line displayed on the screen,
 "," indicates the middle line displayed on the screen, and
-"*" indicates the target line (as specified by the
+"_" indicates the target line (as specified by the
 .B "\-j"
 option).
 You can type \*^N in place of either <m1> or <m2> in order to enter

@@ -215,7 +215,7 @@ static struct mark * getmark(char c)
 		 */
 		m = get_where_mark(&sm, MIDDLE);
 		break;
-	case '*':
+	case '_':
 		/*
 		 * Jump target line.
 		 */

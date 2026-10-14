@@ -1137,7 +1137,7 @@ v711  10/10/26  Improve builds for MS-DOS and OS/2; fix redirected stderr;
                 mapping of ESC; fix bug with wrapped colored text;
                 add --time-file-size.
 v712            Enable -R by default; | cmd print done msg before term init;
-                add mark chars '*' and ','.
+                add mark chars '_' and ','.
 */
 
 char version[] = "712x";
