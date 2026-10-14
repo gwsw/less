@@ -692,8 +692,12 @@ The section of the file to be piped is between the two lines marked
 with <m1> and <m2>, inclusive.
 The line marked by <m1> may be either before or after the line marked by <m2> in the file.
 Either mark may be "\*^" or "$" to indicate beginning or end of file respectively.
-":" or newline indicates the first line displayed on the screen,
-and ";" indicates the last line displayed on the screen.
+Also, ":" or newline indicates the first line displayed on the screen,
+";" indicates the last line displayed on the screen,
+"," indicates the middle line displayed on the screen, and
+"*" indicates the target line (as specified by the
+.B "\-j"
+option).
 You can type \*^N in place of either <m1> or <m2> in order to enter
 a line number instead of a mark letter.
 .IP "s \fIfilename\fP"

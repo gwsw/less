@@ -152,6 +152,13 @@ static struct mark * getumark(char c)
 	return &marks[index];
 }
 
+static struct mark* get_where_mark(struct mark *m, int where)
+{
+	get_scrpos(&m->m_scrpos, where);
+	cmark(m, curr_ifile, m->m_scrpos.pos, m->m_scrpos.ln);
+	return m;
+}
+
 /*
  * Get the mark structure identified by a character.
  * The mark struct may either be in the mark table (user mark)
@@ -194,17 +201,25 @@ static struct mark * getmark(char c)
 		/*
 		 * Top line on screen.
 		 */
-		m = &sm;
-		get_scrpos(&m->m_scrpos, TOP);
-		cmark(m, curr_ifile, m->m_scrpos.pos, m->m_scrpos.ln);
+		m = get_where_mark(&sm, TOP);
 		break;
 	case ';':
 		/*
 		 * Bottom line on screen.
 		 */
-		m = &sm;
-		get_scrpos(&m->m_scrpos, BOTTOM);
-		cmark(m, curr_ifile, m->m_scrpos.pos, m->m_scrpos.ln);
+		m = get_where_mark(&sm, BOTTOM);
+		break;
+	case ',':
+		/*
+		 * Middle line on screen.
+		 */
+		m = get_where_mark(&sm, MIDDLE);
+		break;
+	case '*':
+		/*
+		 * Jump target line.
+		 */
+		m = get_where_mark(&sm, sindex_from_sline(jump_sline));
 		break;
 	case '\'':
 		/*

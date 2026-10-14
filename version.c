@@ -1134,10 +1134,10 @@ v711  10/10/26  Improve builds for MS-DOS and OS/2; fix redirected stderr;
                 fix invalid lesskey file name on OS/2; add INSERT mode;
                 add lesskey support for shift/ctrl INSERT; remove support
                 for binary lesskey file; make word-erase char work; improve
-                mapping of ESC; fix bug with wrapped colored text.
-                mapping of ESC; fix bug with wrapped colored texts;
+                mapping of ESC; fix bug with wrapped colored text;
                 add --time-file-size.
-v712            Enable -R by default; | cmd print done msg before term init.
+v712            Enable -R by default; | cmd print done msg before term init;
+                add mark chars '*' and ','.
 */
 
 char version[] = "712x";

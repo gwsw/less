@@ -184,6 +184,9 @@ public void get_scrpos_pos(struct scrpos *scrpos, int where, POSITION pos)
 	case BOTTOM: case BOTTOM_PLUS_ONE:
 		i = sc_height-2; dir = -1; last = 0;
 		break;
+	case MIDDLE:
+		i = (sc_height - 1) / 2; dir = -1; last = 0;
+		break;
 	default:
 		i = where;
 		if (table[i] == NULL_POSITION) {
