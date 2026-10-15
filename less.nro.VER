@@ -3230,6 +3230,23 @@ file.
 Name of the default system-wide
 .I "lesskey source"
 file.
+.IP LESSKEY_CONTENT
+Text which is interpreted as if it were the contents of a
+.BR lesskey (5)
+file.
+This is similar to passing the text to a
+.B "\-\-lesskey\-content"
+option, although there are no restrictions on which environment variables
+may be set in the text, as there are when using
+.BR "\-\-lesskey\-content" "."
+.IP LESSKEY_CONTENT_SYSTEM
+Same as LESSKEY_CONTENT, except the
+content is treated as if it were contained in a system-wide
+.B lesskey
+file; thus, any settings in this content are overridden by
+conflicting settings in a local lesskey file, in a
+.BR "\-\-lesskey\-content"
+parameter, or in the LESSKEY_CONTENT environment variable.
 .IP LESSMETACHARS
 List of characters which are considered "metacharacters" by the shell.
 .IP LESSMETAESCAPE
