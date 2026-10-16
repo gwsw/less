@@ -44,6 +44,7 @@ extern int nosearch_header_cols;
 extern int header_lines;
 extern int header_cols;
 extern LWCHAR rscroll_char;
+extern IFILE curr_ifile;
 #if HILITE_SEARCH
 extern int hilite_search;
 extern lbool squished;
@@ -52,6 +53,7 @@ static lbool hide_hilite;
 static POSITION prep_startpos;
 static POSITION prep_endpos;
 public POSITION last_search_pos = NULL_POSITION;
+public IFILE last_search_ifile = NULL;
 public POSITION header_start_pos = NULL_POSITION;
 static POSITION header_end_pos;
 public lbool search_wrapped = FALSE;
@@ -2210,6 +2212,7 @@ public int search(int search_type, constant char *pattern, int n)
 		 * Go to the matching line.
 		 */
 		last_search_pos = lastlinepos != NULL_POSITION ? lastlinepos : pos;
+		last_search_ifile = curr_ifile;
 		if (lastlinepos != NULL_POSITION)
 			jump_loc(lastlinepos, BOTTOM);
 		else if (pos != opos)

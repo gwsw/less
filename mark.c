@@ -16,6 +16,7 @@ extern int sc_height;
 extern int jump_sline;
 extern int perma_marks;
 extern POSITION last_search_pos;
+extern IFILE last_search_ifile;
 
 /*
  * A mark is an ifile (input file) plus a position within the file.
@@ -232,7 +233,7 @@ static struct mark * getmark(char c)
 			return (NULL);
 		}
 		m = &sm;
-		cmark(m, curr_ifile, last_search_pos, jump_sline);
+		cmark(m, last_search_ifile, last_search_pos, jump_sline);
 		break;
 	case '\'':
 		/*
@@ -434,6 +435,8 @@ public void unmark(IFILE ifile)
 	for (i = 0;  i < NMARKS;  i++)
 		if (marks[i].m_ifile == ifile)
 			mark_clear(&marks[i]);
+	if (last_search_ifile == ifile)
+		last_search_pos = NULL_POSITION;
 }
 
 /*
