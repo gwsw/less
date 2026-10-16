@@ -25,6 +25,8 @@ extern int quit_if_one_screen;
 extern int status_col;
 extern int wordwrap;
 extern POSITION last_search_pos;
+extern IFILE last_search_ifile;
+extern IFILE curr_ifile;
 extern POSITION start_attnpos;
 extern POSITION end_attnpos;
 #if HILITE_SEARCH
@@ -65,7 +67,7 @@ static void init_status_col(POSITION base_pos, POSITION disp_pos, POSITION edisp
 	} else if (disp_pos != NULL_POSITION)
 	{
 		attr = is_hilited_attr(disp_pos, edisp_pos, TRUE, NULL);
-		ch = (last_search_pos != NULL_POSITION &&
+		ch = (last_search_pos != NULL_POSITION && last_search_ifile == curr_ifile &&
 			last_search_pos >= base_pos && last_search_pos < eol_pos) ? '@' : '*';
 	} else
 	{
