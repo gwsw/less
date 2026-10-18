@@ -1288,19 +1288,6 @@ source file.
 If the LESSKEYIN or LESSKEYIN_SYSTEM environment variable is set, or
 if a lesskey source file is found in a standard place (see KEY BINDINGS),
 it is also used as a lesskey source file.
-Prior to version 582, the
-.B lesskey
-program needed to be run to convert a lesskey 
-.I source
-file to a lesskey 
-.I binary
-file for
-.B less
-to use.
-Newer versions of
-.B less
-read the lesskey source
-file directly and ignore the binary file if the source file exists.
 Note the warning under
 .B "\-\-lesskey\-content"
 below.
@@ -1319,8 +1306,7 @@ Warning: certain environment variables such as
 LESS, LESSSECURE, LESSCHARSET and others,
 which are used early in startup, 
 cannot be set in a file specified by a command line option
-.RB ( \-\-lesskey ,
-.B \-\-lesskey\-src
+.RB ( \-\-lesskey\-src
 or
 .BR \-\-lesskey\-content ).
 When using a
@@ -3020,9 +3006,9 @@ and filename completion (TAB, \*^L)
 history file
 .IP "lesskey"
 use of lesskey files, including the
-.B "\-k"
-and
 .B "\-\-lesskey\-src"
+and
+.B "\-\-lesskey\-content"
 options, and all environment variables whose name begins with "LESSKEY"
 .IP "lessopen"
 input preprocessor (LESSOPEN environment variable)
@@ -3032,7 +3018,7 @@ log files (s and
 .IP "osc8"
 opening OSC 8 links (\*^O\*^O)
 .IP "pipe"
-the pipe command (|) 
+the pipe command (| and ||)
 .IP "shell"
 the shell and pshell commands (! and #)
 .IP "stop"
@@ -3192,7 +3178,7 @@ Selects a predefined character set.
 Command line to invoke the (optional) input-postprocessor.
 .IP LESSECHO
 Name of the lessecho program (default "lessecho").
-The lessecho program is needed to expand metacharacters, such as * and ?,
+The lessecho program is used to expand metacharacters, such as * and ?,
 in filenames on Unix systems.
 .IP LESSEDIT
 Editor prototype string (used for the v command).
@@ -3216,7 +3202,7 @@ The default depends on the operating system, but is usually:
 "$XDG_STATE_HOME/lesshst" or "$HOME/.local/state/lesshst" or
 "$XDG_DATA_HOME/lesshst" or "$HOME/.lesshst".
 .IP "Windows and MS-DOS"
-"$HOME/_lesshst".
+"%HOME%/_lesshst".
 .IP "OS/2"
 "$HOME/lesshst.ini" or "$INIT/lesshst.ini".
 .RE
@@ -3421,7 +3407,7 @@ automatically when running in
 .BR more "-compatible mode."
 .IP PATH
 User's search path (used to find a lesskey file
-on MS-DOS, Windows, and OS/2 systems).
+on MS-DOS and OS/2 systems).
 .IP POSIXLY_CORRECT
 If set to any value, all option arguments on the command line
 are expected to appear before any filename arguments.
