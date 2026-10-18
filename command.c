@@ -967,6 +967,7 @@ static void prompt(void)
 	if (first_cmd_at_prompt != NULL)
 	{
 		ungetsc(first_cmd_at_prompt);
+		ungetcc_end_command();
 		first_cmd_at_prompt = NULL;
 		return;
 	}
