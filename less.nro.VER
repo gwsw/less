@@ -324,8 +324,9 @@ Followed by any lowercase or uppercase letter, returns to the position which
 was previously marked with that letter.
 Followed by another single quote, returns to the position at
 which the last "large" movement command was executed.
-Followed by a \*^ or $, jumps to the beginning or end of the
+Followed by a "\*^" or "$", jumps to the beginning or end of the
 file respectively.
+Followed by a "@", jumps to the line containing the last search match.
 If a number N is given, the marked line is placed on the N-th line 
 on the screen.
 Otherwise, it is placed on the same line that it was on when it was marked
@@ -684,7 +685,7 @@ of the current screen and the marked line, inclusive.
 or "@" to indicate the line containing the last search match.
 If <m> is "\&.\&" or newline, the currently displayed screen is piped.
 You can type \*^N in place of <m> in order to enter
-a line number instead of a mark letter.
+a line number instead of a mark character.
 If a \*^P (CONTROL-P) is entered at the start of the shell command,
 no "done" message is printed after the shell command is executed.
 .IP "|| <\fIm1\fP> <\fIm2\fP> \fIshell-command\fP"
@@ -701,7 +702,7 @@ Also, ":" or newline indicates the first line displayed on the screen,
 option), and
 "@" indicates the line containing the last search match.
 You can type \*^N in place of either <m1> or <m2> in order to enter
-a line number instead of a mark letter.
+a line number instead of a mark character.
 .IP "s \fIfilename\fP"
 Save the input to a file.
 This works only if the input is standard input or a pipe, not an ordinary file.
@@ -974,7 +975,7 @@ option.
 .IP "J"
 Target line when highlighted via \-\-hilite\-target.
 .IP "M"
-Mark letters in the status column.
+Mark characters in the status column.
 .IP "N"
 Line numbers enabled via the
 .B "\-N"
