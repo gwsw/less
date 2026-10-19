@@ -31,6 +31,8 @@
 
 * Improve behavior if ESC is mapped via lesskey (github #83).
 
+* Make --cmd complete certain incomplete commands, like + does.
+
 * Disallow -t option when LESSSECURE is set.
 
 * Make | command print done message before restoring alternate screen,
