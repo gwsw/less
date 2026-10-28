@@ -90,6 +90,7 @@ public int no_paste;            /* Don't accept pasted input */
 public int no_edit_warn;        /* Don't warn when editing a LESSOPENed file */
 public int stop_on_form_feed;   /* Stop scrolling on a line starting with form feed */
 public int past_eof;            /* Continue scrolling past EOF */
+public int no_underline_header; /* Do not underline last header line */
 public long match_shift_fraction = NUM_FRAC_DENOM/2; /* 1/2 of screen width */
 public char intr_char = CONTROL('X'); /* Char to interrupt reads */
 public char *first_cmd_at_prompt = NULL; /* Command to exec before first prompt */
@@ -201,6 +202,7 @@ static struct optname first_cmd_at_prompt_optname = { "cmd", NULL };
 static struct optname autosave_optname = { "autosave", NULL };
 static struct optname hilite_target_optname = { "hilite-target", NULL };
 static struct optname end_prompt_optname = { "end-prompt", NULL };
+static struct optname no_underline_header_optname = { "no-underline-header", NULL };
 #if LESSTEST
 static struct optname ttyin_name_optname = { "tty",              NULL };
 #endif /*LESSTEST*/
@@ -882,6 +884,15 @@ static struct loption option[] =
 	{ OLETTER_NONE, &end_prompt_optname,
 		O_STRING, 0, NULL, opt_end_prompt,
 		{ LM_Print_after_prompt, LM_s, LM_NULL },
+		{ NULL, NULL, NULL }
+	},
+	{ OLETTER_NONE, &no_underline_header_optname,
+		O_BOOL, OPT_OFF, &no_underline_header, NULL,
+		{
+			LM_Underline_header_line,
+			LM_Dont_underline_header_line,
+			LM_NULL
+		},
 		{ NULL, NULL, NULL }
 	},
 #if LESSTEST

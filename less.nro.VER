@@ -2040,6 +2040,12 @@ Searches do not include header lines, but still include header columns.
 Searches do not include header columns, but still include header lines.
 .IP "\fB\-\-no\-search\-headers\fP"
 Searches do not include header lines or header columns.
+.IP "\fB\-\-no\-underline\-header\fP"
+Normally if one or more header lines is displayed because of a
+.B "\-\-header"
+option, the last header line is underlined when the following line is
+not contiguous.
+This option disables that underlining.
 .IP "\fB\-\-no\-vbell\fP"
 Disables the terminal's visual bell.
 .IP "\fB\-\-past\-eof\fP"

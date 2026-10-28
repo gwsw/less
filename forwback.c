@@ -40,6 +40,7 @@ extern int header_cols;
 extern lbool full_screen;
 extern int stop_on_form_feed;
 extern int past_eof;
+extern int no_underline_header;
 extern POSITION header_start_pos;
 extern lbool getting_one_screen;
 #if HILITE_SEARCH
@@ -154,7 +155,7 @@ static POSITION forw_line_pfx(POSITION pos, int pfx, int skipeol)
 static void set_attr_header(int ln)
 {
 	set_attr_line(AT_COLOR_HEADER);
-	if (ln+1 == header_lines && position(TOP) != header_start_pos)
+	if (!no_underline_header && ln+1 == header_lines && position(TOP) != header_start_pos)
 		set_attr_line(AT_UNDERLINE);
 }
 

@@ -272,6 +272,8 @@
                   Searches do not include header columns.
                 --no-search-headers
                   Searches do not include header lines or columns.
+                --no-underline-header
+                  Do not underline the last header line.
                 --no-vbell
                   Disable the terminal's visual bell.
                 --redraw-on-quit

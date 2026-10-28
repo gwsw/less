@@ -339,6 +339,8 @@ interrupt_character interrupt character:\40
 Search_match_shift Search match shift:\40
 Autosave_actions Autosave actions:\40
 Print_after_prompt Print after prompt:\40
+Underline_header_line Underline last header line
+Dont_underline_header_line Don't underline last header line
 Error_X Error %d
 cannot_open cannot open
 Invalid_pattern Invalid pattern
