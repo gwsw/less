@@ -224,6 +224,8 @@
 
                 --autosave=[_m_/_!_*]
                   Actions which cause the history file to be saved.
+                --cmd=[_c_m_d]
+                  Execute the less cmd once at startup.
                 --emouse=[_v_s_c_r_o_l_l,_v_d_r_a_g,_h_s_c_r_o_l_l,_h_d_r_a_g,_l_c_l_i_c_k,_r_c_l_i_c_k]
                   Enable mouse features.
                 --end-prompt=[_s_t_r_i_n_g]
@@ -244,7 +246,7 @@
                   Search file as each pattern character is typed in.
                 --intr=[_C]
                   Use _C instead of ^X to interrupt a read.
-                --lesskey-context=_t_e_x_t
+                --lesskey-content=_t_e_x_t
                   Use lesskey source file contents.
                 --lesskey-src=_f_i_l_e
                   Use a lesskey source file.
@@ -276,16 +278,6 @@
                   Do not underline the last header line.
                 --no-vbell
                   Disable the terminal's visual bell.
-                --redraw-on-quit
-                  Redraw final screen when quitting.
-                --rscroll=[_C]
-                  Set the character used to mark truncated lines.
-                --save-marks
-                  Retain marks across invocations of less.
-                --search-options=[EFKNRW-]
-                  Set default options for every search.
-                --show-preproc-errors
-                  Display a message if preprocessor exits with an error status.
                 --past-eof
                   Scrolling commands continue past end of file.
                 --proc-backspace
@@ -300,6 +292,18 @@
                   Expand tabs to spaces.
                 --PROC-TAB
                   Treat tabs as control characters.
+                --redraw-on-quit
+                  Redraw final screen when quitting.
+                --rmouse
+                  Reverse direction of mouse scrolling.
+                --rscroll=[_C]
+                  Set the character used to mark truncated lines.
+                --save-marks
+                  Retain marks across invocations of less.
+                --search-options=[EFKNRW-]
+                  Set default options for every search.
+                --show-preproc-errors
+                  Display a message if preprocessor exits with an error status.
                 --status-col-width=[_N]
                   Set the width of the -J status column to _N characters.
                 --status-line
