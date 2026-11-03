@@ -16,9 +16,11 @@
 * The binary lesskey file format produced by lesskey(1) is
   no longer supported.
 
+* Enable -R by default (github #839).
+
 * Add --time-file-size option (github #815).
 
-* Enable -R by default (github #839).
+* Add --no-underline-header option (github #841).
 
 * Implement INSERT mode on command line.
 
