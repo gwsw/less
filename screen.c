@@ -563,7 +563,7 @@ public void raw_mode(lbool on)
 #if HAVE_FSYNC
 	fsync(tty);
 #endif
-	tcsetattr(tty, TCSADRAIN, &s);
+	tcsetattr(tty, on ? TCSADRAIN : TCSAFLUSH, &s);
 #if MUST_SET_LINE_DISCIPLINE
 	if (!on)
 	{
