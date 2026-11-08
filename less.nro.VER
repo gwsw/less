@@ -1388,10 +1388,13 @@ from within
 .BR less .
 .IP "\fB\-p\fP\fIpattern\fP or \fB\-\-pattern=\fP\fIpattern\fP"
 The \-p option on the command line is equivalent to
-specifying +/\fIpattern\fP;
+specifying \-\-cmd=/\fIpattern\fP;
 that is, it tells
 .B less
 to start at the first occurrence of \fIpattern\fP in the file.
+If the \-E or \-F option causes
+.B less
+to exit before the first prompt is displayed, the search is not performed.
 .IP "\fB\-P\fP\fIprompt\fP or \fB\-\-prompt=\fP\fIprompt\fP"
 Provides a way to tailor the three prompt
 styles to your own preference.

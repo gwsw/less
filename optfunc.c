@@ -416,7 +416,7 @@ public void opt_p(int type, constant char *s)
 	{
 	case INIT:
 		/*
-		 * Unget a command for the specified string.
+		 * Defer a search command for the specified string.
 		 */
 		if (less_is_more)
 		{
@@ -427,14 +427,11 @@ public void opt_p(int type, constant char *s)
 			every_first_cmd = save(s);
 		} else
 		{
-			plusoption = TRUE;
-			 /*
-			  * {{ This won't work if the "/" command is
-			  *    changed or invalidated by a .lesskey file. }}
-			  */
-			ungetsc("/");
-			ungetsc(s);
-			ungetcc_end_command();
+			char *cmd = (char *) ecalloc(strlen(s) + 2, sizeof(char));
+			cmd[0] = '/';
+			strcpy(cmd + 1, s);
+			opt_first_cmd_at_prompt(INIT, cmd);
+			free(cmd);
 		}
 		break;
 	}
