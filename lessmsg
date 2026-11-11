@@ -367,6 +367,8 @@ unknown_action_X unknown action: \"%s\"
 missing_action missing action
 missing_eq_in_variable_definition missing = in variable definition
 SETCOLORS_failed SETCOLORS failed
+interrupt_to_abort ... (interrupt to abort)
+or_interrupt_to_abort \40or interrupt to abort)
 
 # The help file can be overridden with the "HELP" symbol.
 # Normally this will be a multi-line string, so it is convenient to define

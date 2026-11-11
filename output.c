@@ -746,7 +746,7 @@ static void ierror_suffix(constant char *fmt, constant PARG *parg, constant char
 
 public void ierror(constant char *fmt, constant PARG *parg)
 {
-	ierror_suffix(fmt, parg, "... (interrupt to abort)", "", "");
+	ierror_suffix(fmt, parg, LM(interrupt_to_abort), "", "");
 }
 
 public void ixerror(constant char *fmt, constant PARG *parg)
@@ -757,7 +757,7 @@ public void ixerror(constant char *fmt, constant PARG *parg)
 	{
 		char ichar[MAX_PRCHAR_LEN+1];
 		strcpy(ichar, prchar((LWCHAR) intr_char));
-		ierror_suffix(fmt, parg, "... (", ichar, " or interrupt to abort)");
+		ierror_suffix(fmt, parg, "... (", ichar, LM(or_interrupt_to_abort));
 	}
 }
 
