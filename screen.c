@@ -563,7 +563,7 @@ public void raw_mode(lbool on)
 #if HAVE_FSYNC
 	fsync(tty);
 #endif
-	tcsetattr(tty, TCSADRAIN, &s);
+	tcsetattr(tty, on ? TCSADRAIN : TCSAFLUSH, &s);
 #if MUST_SET_LINE_DISCIPLINE
 	if (!on)
 	{
@@ -2180,6 +2180,16 @@ public void term_deinit(void)
 			ltputs(sc_e_keypad, sc_height, putchr);
 		if (!no_init)
 			ltputs(sc_deinit, sc_height, putchr);
+		flush();
+		if (emouse != 0)
+		{
+			/*
+			 * If mouse was disabled, allow time for the terminal to process
+			 * the mouse disable. Otherwise, a mouse report in progress might
+			 * be received later unexpectedly, even after a TCSAFLUSH.
+			 */
+			sleep_ms(5);
+		}
 	}
 #else
 	/* Restore system colors. */

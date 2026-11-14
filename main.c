@@ -584,7 +584,6 @@ public void quit(int status)
 	if (interactive())
 		clear_bot();
 	term_deinit();
-	flush();
 	if (redraw_on_quit && term_addrs)
 	{
 		/*
@@ -594,11 +593,11 @@ public void quit(int status)
 		 */
 		first_time = TRUE; /* Don't print "skipping" or tildes */
 		repaint();
-		flush();
 	}
 	edit((char*)NULL);
 	save_cmdhist();
 	raw_mode(FALSE);
+	flush();
 #if MSDOS_COMPILER && MSDOS_COMPILER != DJGPPC
 	/* 
 	 * If we don't close 2, we get some garbage from
