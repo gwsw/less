@@ -1138,7 +1138,8 @@ v711  10/10/26  Improve builds for MS-DOS and OS/2; fix redirected stderr;
                 add --time-file-size.
 v712  10/19/26  Enable -R by default; | cmd print done msg before term init;
                 add mark chars '_', '@' and ','; make --cmd complete cmds.
-v713
+v713            Flush queued tty input on exit; add --no-underline-header;
+                update Unicode tables.
 */
 
 char version[] = "713x";

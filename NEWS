@@ -56,6 +56,9 @@
 
 * Fix bug displaying wrapped colored text (github #835).
 
+* Prevent queued tty input (mouse reports etc) from leaking out to the shell
+  after less exits (github #825).
+
 ======================================================================
 
 	Major changes between "less" versions 704 and 710
