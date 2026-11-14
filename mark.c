@@ -250,7 +250,9 @@ static struct mark * getmark(char c)
 			break;
 		if (!mark_is_set(m))
 		{
-			error(LM(Mark_not_set), NULL_PARG);
+			PARG parg;
+			parg.p_char = c;
+			error(LM(Mark_X_not_set), &parg);
 			return (NULL);
 		}
 		break;
@@ -402,7 +404,9 @@ public POSITION markpos(char c)
 
 	if (m->m_ifile != curr_ifile)
 	{
-		error(LM(Mark_not_in_current_file), NULL_PARG);
+		PARG parg;
+		parg.p_char = c;
+		error(LM(Mark_X_not_in_current_file), &parg);
 		return (NULL_POSITION);
 	}
 	return (m->m_scrpos.pos);
