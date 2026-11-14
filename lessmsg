@@ -125,11 +125,9 @@ No_filenames_allowed_with_t_option No filenames allowed with -t option
 Press_RETURN_to_continue Press RETURN to continue\40
 Cannot_allocate_memory Cannot allocate memory
 Invalid_mark_letter_X Invalid mark letter %c
-Mark_not_set Mark not set
 Mark_X_not_set Mark '%c' not set
 No_previous_search_match No previous search match
 Cannot_find_line_number_X Cannot find line number %n
-Mark_not_in_current_file Mark not in current file
 Mark_X_not_in_current_file Mark '%c' not in current file
 log_file_support_is_not_available log file support is not available
 Input_is_not_a_pipe Input is not a pipe
@@ -384,3 +382,9 @@ or_interrupt_to_abort \40or interrupt to abort)
 ##First line of example help file.\n\
 ##Second line of help file.\n\
 ##Last line of help file.\n
+
+# Obsolete symbols.
+# These symbols were used in older versions of less, but are no longer used.
+# Keep them here to avoid warnings when reading an old lessmsg file.
+Mark_not_set 
+Mark_not_in_current_file 
