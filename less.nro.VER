@@ -3040,22 +3040,21 @@ use of tags files
 .RB "(" "\-t" ")"
 .PP
 The LESSSECURE_ALLOW environment variable can be set to a comma-separated list
-of names of features which are selectively enabled when LESSSECURE is set.
+of names of features which are selectively enabled;
+any features which are not in the list are disabled.
 Each feature name is the first word in each line in the above list.
 A feature name may be abbreviated as long as the abbreviation is unambiguous.
-For example, if 
-.nh
-LESSSECURE=1
-.hy
-and
-.nh
-LESSSECURE_ALLOW=hist,edit
-.hy
-were set, all of the above features would be disabled 
+For example, if LESSSECURE_ALLOW were set to "hist,edit",
+all of the above features would be disabled 
 except for history files and the edit command.
+If LESSSECURE_ALLOW is set, LESSSECURE is ignored.
 .PP
 The LESSSECURE_DISALLOW environment variable can be set to a comma-separated list
-of names of features which are selectively disabled when LESSSECURE is not set.
+of names of features which are selectively disabled.
+If LESSSECURE is set, LESSSECURE_DISALLOW is ignored.
+If both LESSSECURE_ALLOW and LESSSECURE_DISALLOW are set,
+any features listed in both of them are disabled;
+that is, LESSSECURE_DISALLOW takes precedence over LESSSECURE_ALLOW.
 .PP
 Less can also be compiled to be permanently in "secure" mode.
 In that case, all of the above features are disabled,
