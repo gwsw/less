@@ -40,11 +40,11 @@
 * Make | command print done message before restoring alternate screen,
   so any output from the piped command can be seen.
 
-* Improve build for MS-DOS.
+* Improve build for MS-DOS (github #823).
 
-* Improve build for OS/2 with EMX.
+* Improve build for OS/2 with EMX (github #824).
 
-* Support build for OS/2 with kLIBC.
+* Support build for OS/2 with kLIBC (github #826).
 
 * Fix incorrect name of default lesskey file on OS/2 (github #819).
 
