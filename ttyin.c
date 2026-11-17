@@ -85,6 +85,10 @@ public int open_tty(void)
 	if (fd < 0)
 	{
 		constant char *dev = ttyname(2);
+#ifdef __APPLE__
+		if (dev == NULL)
+			dev = ttyname(1); /* stderr may be redirected; avoid polling /dev/tty. */
+#endif
 		if (dev != NULL)
 			fd = open_tty_device(dev);
 	}
