@@ -464,7 +464,11 @@ public void flush(void)
 #endif
 
 	if (write(outfd, obuf, n) != (ssize_t) n)
+	{
+		if (!is_tty && outfd == 1)
+			quit(QUIT_ERROR);
 		screen_trashed();
+	}
 }
 
 /*
