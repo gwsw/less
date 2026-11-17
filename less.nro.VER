@@ -3040,14 +3040,19 @@ use of tags files
 .RB "(" "\-t" ")"
 .PP
 The LESSSECURE_ALLOW environment variable can be set to a comma-separated list
-of names of features which are selectively enabled;
-any features which are not in the list are disabled.
+of names of features which are selectively enabled.
 Each feature name is the first word in each line in the above list.
 A feature name may be abbreviated as long as the abbreviation is unambiguous.
-For example, if LESSSECURE_ALLOW were set to "hist,edit",
+Features not listed in LESSSECURE_ALLOW are handled differently depending
+on whether the LESSSECURE_ALLOW value is prefixed with a plus sign (+).
+If no plus sign is present, unlisted features are disabled,
+regardless of the value of LESSSECURE.
+If a plus sign is present, unlisted features are disabled if
+LESSSECURE is set to 1, or enabled if LESSECURE is not set.
+For example, if LESSSECURE were set to 1 and
+LESSSECURE_ALLOW were set to "hist,edit",
 all of the above features would be disabled 
 except for history files and the edit command.
-If LESSSECURE_ALLOW is set, LESSSECURE is ignored.
 .PP
 The LESSSECURE_DISALLOW environment variable can be set to a comma-separated list
 of names of features which are selectively disabled.

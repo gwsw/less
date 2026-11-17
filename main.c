@@ -189,8 +189,15 @@ static void init_secure(void)
 
 	str = lgetenv("LESSSECURE_ALLOW");
 	if (!isnullenv(str))
-		secure_allow_features = parse_csl_bitmap(str,
+	{
+		lbool plus = (str[0] == '+');
+		unsigned int features = parse_csl_bitmap(plus ? str+1 : str,
 		    security_features, countof(security_features), "LESSSECURE_ALLOW");
+		if (plus)
+			secure_allow_features |= features;
+		else
+			secure_allow_features = features;
+	}
 
 	str = lgetenv("LESSSECURE_DISALLOW");
 	if (!isnullenv(str))
