@@ -663,6 +663,7 @@ public int edit_ifile(IFILE ifile)
 	}
 
 	flush();
+	read_error = FALSE;
 
 	if (is_tty)
 	{
@@ -680,7 +681,6 @@ public int edit_ifile(IFILE ifile)
 #endif
 		undo_osc8();
 		hshift = 0;
-		read_error = FALSE;
 		if (strcmp(filename, FAKE_HELPFILE) && strcmp(filename, FAKE_EMPTYFILE))
 		{
 			char *qfilename = shell_quote(filename);
@@ -936,13 +936,14 @@ public int edit_stdin(void)
  * Copy a file directly to standard output.
  * Used if standard output is not a tty.
  */
-public void cat_file(void)
+public lbool cat_file(void)
 {
 	int c;
 
 	while ((c = ch_forw_get()) != EOI)
 		putchr(c);
 	flush();
+	return !read_error;
 }
 
 #if LOGFILE

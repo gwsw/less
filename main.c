@@ -376,6 +376,8 @@ int main(int argc, constant char *argv[])
 	 */
 	if (!is_tty)
 	{
+		lbool err = FALSE;
+
 		/*
 		 * Output is not a tty.
 		 * Just copy the input file(s) to output.
@@ -387,10 +389,14 @@ int main(int argc, constant char *argv[])
 
 		set_output(1, TRUE); /* write to stdout */
 		do {
-			cat_file();
+			if (!cat_file())
+			{
+				fprintf(stderr, LM(read_error_in_X), get_filename(curr_ifile));
+				err = TRUE;
+			}
 		} while (edit_next(1) == 0);
 
-		quit(QUIT_OK);
+		quit(err ? QUIT_ERROR : QUIT_OK);
 	}
 
 	if (missing_cap && !know_dumb)

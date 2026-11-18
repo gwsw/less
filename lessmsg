@@ -58,6 +58,7 @@ There_is_no_X_option There is no %s option
 There_is_no__X_option There is no --%s option
 Sub_pattern_1_X Sub-pattern (1-%d):
 read_error read error
+read_error_in_X read error in %s\n
 Search_hit_top Search hit top; continuing at bottom
 Search_hit_bottom Search hit bottom; continuing at top
 Link_X Link: %s
