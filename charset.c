@@ -33,6 +33,7 @@
 extern int bs_mode;
 
 public int utf_mode = 0;
+public lbool unsupported_multibyte = FALSE;
 
 /*
  * Predefined character sets,
@@ -490,6 +491,11 @@ public void init_charset(void)
 #endif
 
 	set_charset();
+
+#ifdef MB_CUR_MAX
+	if (!utf_mode && MB_CUR_MAX > 1)
+		unsupported_multibyte = TRUE;
+#endif
 
 	s = lgetenv("LESSBINFMT");
 	setfmt(s, &binfmt, &binattr, "*s<%02X>", TRUE);

@@ -47,6 +47,7 @@ extern int force_open;
 extern int use_lessopen;
 extern int ctldisp;
 extern int utf_mode;
+extern lbool unsupported_multibyte;
 extern IFILE curr_ifile;
 extern IFILE old_ifile;
 #if SPACES_IN_FILENAMES
@@ -201,6 +202,17 @@ public char * shell_quoten(constant char *s, size_t slen)
 			have_quotes = TRUE;
 		if (metachar(*p))
 		{
+			if (unsupported_multibyte)
+			{
+				/*
+				 * Don't try to quote metachars if using a multibyte charset
+				 * other than UTF-8. In such a charset, the escape char ('\')
+				 * may be part of a multibyte char, so adding an escape char
+				 * may not do what we expect. Multibyte charsets other than
+				 * UTF-8 are not supported by less anyway, but let's be safe.
+				 */
+				return (NULL);
+			}
 			if (esclen == 0)
 			{
 				/*
