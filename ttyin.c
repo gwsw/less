@@ -77,26 +77,29 @@ public int open_tty(void)
 	}
 #endif /*LESSTEST*/
 #ifndef __APPLE__
-	/* MacOS does not support poll() on /dev/tty, so prefer ttyname(2). */
 	if (fd < 0)
 		fd = open_tty_device("/dev/tty");
-#endif
 #if HAVE_TTYNAME && !defined(__KLIBC__)
 	if (fd < 0)
 	{
 		constant char *dev = ttyname(2);
-#ifdef __APPLE__
-		if (dev == NULL)
-			dev = ttyname(1); /* stderr may be redirected; avoid polling /dev/tty. */
-#endif
 		if (dev != NULL)
 			fd = open_tty_device(dev);
 	}
 #endif
-#ifdef __APPLE__
+#else /* __APPLE__ */
+	/* MacOS does not support poll() on /dev/tty, so prefer ttyname(). */
+	if (fd < 0)
+	{
+		constant char *dev = ttyname(2);
+		if (dev == NULL)
+			dev = ttyname(1); /* stderr may be redirected; avoid polling /dev/tty. */
+		if (dev != NULL)
+			fd = open_tty_device(dev);
+	}
 	if (fd < 0)
 		fd = open_tty_device("/dev/tty");
-#endif
+#endif /* __APPLE__ */
 	if (fd < 0)
 		fd = 2;
 #ifdef __MVS__
