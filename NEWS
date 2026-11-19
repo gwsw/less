@@ -61,6 +61,10 @@
 * Prevent queued tty input (mouse reports etc) from leaking out to the shell
   after less exits (github #825).
 
+* Fix handling of malformed OSC 8 sequence containing nested escape sequence.
+
+* Fix potentially unsafe shell escaping in a non-UTF8 multibyte charset.
+
 ======================================================================
 
 	Major changes between "less" versions 704 and 710
