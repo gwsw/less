@@ -3049,10 +3049,12 @@ If no plus sign is present, unlisted features are disabled,
 regardless of the value of LESSSECURE.
 If a plus sign is present, unlisted features are disabled if
 LESSSECURE is set to 1, or enabled if LESSECURE is not set.
-For example, if LESSSECURE were set to 1 and
-LESSSECURE_ALLOW were set to "hist,edit",
+For example, if LESSSECURE_ALLOW were set to "+hist,edit"
+and LESSSECURE were set to 1,
 all of the above features would be disabled 
 except for history files and the edit command.
+The same would be true if LESSSECURE_ALLOW were set to "hist,edit",
+regardless of the value of LESSSECURE.
 .PP
 The LESSSECURE_DISALLOW environment variable can be set to a comma-separated list
 of names of features which are selectively disabled.
@@ -3143,13 +3145,14 @@ LINES and COLUMNS environment variables.)
 The name of the text editor (used for the v command).
 .IP HOME
 Name of the user's home directory
-(used to find a lesskey file on Unix and OS/2 systems).
+(used to find a lesskey or history file).
 .IP "HOMEDRIVE, HOMEPATH"
 Concatenation of the HOMEDRIVE and HOMEPATH environment variables is
 the name of the user's home directory if the HOME variable is not set
 (only in the Windows version).
 .IP INIT
-Name of the user's init directory (used to find a lesskey file on OS/2 systems).
+Name of the user's init directory
+(used to find a lesskey or history file on OS/2 systems).
 .IP LANG
 Language for determining the character set.
 .IP LC_CTYPE
