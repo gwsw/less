@@ -795,7 +795,7 @@ static ansi_state ansi_step2(struct ansi_state *pansi, LWCHAR ch, lbool content)
 		if (ch == '\\')
 			return osc_return(pansi, OSC_END, valid_osc_type(pansi->otype, content) ? ANSI_END : ANSI_ERR);
 		/* ESC not followed by backslash. */
-		return osc_return(pansi, pansi->ostate == OSC8_URI_CSI ? OSC8_URI : OSC_STRING, ANSI_MID);
+		return osc_return(pansi, OSC_END, ANSI_ERR);
 	case OSC_END:
 		return ANSI_END;
 	case OSC8_NOT:
