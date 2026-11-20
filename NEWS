@@ -11,7 +11,7 @@
 
 ======================================================================
 
-	Major changes between "less" versions 710 and 713
+	Major changes between "less" versions 710 and 714
 
 * The binary lesskey file format produced by lesskey(1) is
   no longer supported.

@@ -1140,6 +1140,7 @@ v712  10/19/26  Enable -R by default; | cmd print done msg before term init;
                 add mark chars '_', '@' and ','; make --cmd complete cmds.
 v713  11/19/26  Flush queued tty input on exit; add --no-underline-header;
                 update Unicode tables; add '+' prefix for LESSSECURE_ALLOW.
+v714
 */
 
-char version[] = "713";
+char version[] = "714x";
