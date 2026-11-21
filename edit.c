@@ -647,7 +647,7 @@ public int edit_ifile(IFILE ifile)
 		if (!is_fake_pathname(open_filename))
 		{
 			less_stat_t statbuf;
-			int r = less_stat(open_filename, &statbuf);
+			int r = less_fstat(f, &statbuf);
 			if (r == 0)
 			{
 				curr_ino = statbuf.st_ino;
