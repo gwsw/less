@@ -703,8 +703,11 @@ public void error(constant char *fmt, constant PARG *parg)
 
 	if (!interactive())
 	{
+		int save_outfd = outfd;
+		set_output(2, FALSE);
 		less_printf(fmt, parg);
 		putchr('\n');
+		set_output(save_outfd, FALSE);
 		return;
 	}
 

@@ -403,7 +403,7 @@ int main(int argc, constant char *argv[])
 			}
 		} while (edit_next(1) == 0);
 
-		quit(err ? QUIT_ERROR : QUIT_OK);
+		quit((err || errmsgs > 0) ? QUIT_ERROR : QUIT_OK);
 	}
 
 	if (missing_cap && !know_dumb)
