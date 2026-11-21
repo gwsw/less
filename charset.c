@@ -17,7 +17,7 @@
 #if HAVE_LOCALE
 #include <locale.h>
 #include <ctype.h>
-#ifdef CODESET
+#if HAVE_LANGINFO_H
 #include <langinfo.h>
 #endif
 #endif

@@ -35,7 +35,7 @@ AC_CHECK_LIB(termlib, tgetent, [have_termlib=yes], [have_termlib=no])
 AC_SEARCH_LIBS([regcmp], [gen intl PW])
 
 # Checks for header files.
-AC_CHECK_HEADERS_ONCE([ctype.h errno.h fcntl.h limits.h stdckdint.h stdio.h stdlib.h string.h termcap.h ncurses/termcap.h ncursesw/termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h sys/time.h sys/types.h sys/wait.h time.h])
+AC_CHECK_HEADERS_ONCE([ctype.h errno.h fcntl.h langinfo.h limits.h stdckdint.h stdio.h stdlib.h string.h termcap.h ncurses/termcap.h ncursesw/termcap.h termio.h termios.h time.h unistd.h values.h sys/ioctl.h sys/stream.h sys/time.h sys/types.h sys/wait.h time.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
