@@ -1787,7 +1787,7 @@ public void save_cmdhist(void)
 		ctx.mlist = NULL;
 		read_cmdhist(&copy_hist, &ctx, skip_search, skip_shell);
 		save_marks(fout, HISTFILE_MARK_SECTION);
-		write_error = ferror(fout);
+		write_error = (ferror(fout) != 0);
 		if (fclose(fout) != 0 || write_error)
 			remove(tempname);
 		else
