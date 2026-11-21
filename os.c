@@ -325,6 +325,20 @@ start:
 	n = read(fd, buf, len);
 	reading = FALSE;
 
+#if USE_POLL
+	if (n == 0 && fd != tty && ignore_eoi && exit_F_on_close)
+	{
+		/* Darwin reports POLLIN even on a drained pipe with POLLHUP. */
+		struct pollfd poller = { fd, POLLIN, 0 };
+		if (poll(&poller, 1, 0) > 0 && (poller.revents & POLLHUP))
+		{
+			sigs |= S_SWINTERRUPT;
+			getcc_clear();
+			return (READ_INTR);
+		}
+	}
+#endif
+
 	if (n < 0)
 	{
 #if HAVE_ERRNO
