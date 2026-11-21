@@ -793,7 +793,7 @@ public char * lglob(constant char *afilename)
 	/*
 	 * Invoke lessecho, and read its output (a globbed list of filenames).
 	 */
-	len = strlen(lessecho) + strlen(filename) + (7*strlen(metachars())) + 24;
+	len = strlen(lessecho) + strlen(filename) + (7*strlen(metachars())) + strlen(qesc) + 24;
 	cmd = (char *) ecalloc(len, sizeof(char));
 	SNPRINTF4(cmd, len, "%s -p0x%x -d0x%x -e%s ", lessecho,
 		(unsigned char) openquote, (unsigned char) closequote, qesc);
