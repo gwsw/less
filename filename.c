@@ -976,6 +976,7 @@ public char * open_altfile(constant char *filename, int *pf, FILE **pfd)
 	{
 		unsigned char c;
 		int f;
+		ssize_t n;
 
 		/*
 		 * The alt file is a pipe. Read one char 
@@ -984,7 +985,14 @@ public char * open_altfile(constant char *filename, int *pf, FILE **pfd)
 		 */
 		f = fileno(fd);
 		SET_BINARY(f);
-		if (read(f, &c, 1) != 1)
+		for (;;)
+		{
+			n = iread(f, &c, 1);
+			if (n != READ_INTR && n != READ_AGAIN)
+				break;
+			psignals();
+		}
+		if (n != 1)
 		{
 			/*
 			 * Pipe is empty.
