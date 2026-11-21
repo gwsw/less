@@ -95,6 +95,9 @@
         Certain marks are predefined:
              ^  means  beginning of the file
              $  means  end of the file
+             ,  means  middle line displayed on the screen
+             _  means  target line (as specified by -j)
+             @  means  line containing the last search match
  ---------------------------------------------------------------------------
 
                         CCHHAANNGGIINNGG FFIILLEESS
