@@ -134,11 +134,11 @@ public constant char * back_textlist(constant struct textlist *tlist, constant c
 		return (NULL);
 	else
 		s = prev - 1;
-	while (*s == '\0')
+	while (s > tlist->string && *s == '\0')
 		s--;
-	if (s <= tlist->string)
+	if (s == tlist->string && *s == '\0')
 		return (NULL);
-	while (s[-1] != '\0' && s > tlist->string)
+	while (s > tlist->string && s[-1] != '\0')
 		s--;
 	return (s);
 }
