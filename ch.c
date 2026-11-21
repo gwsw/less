@@ -130,6 +130,19 @@ extern IFILE curr_ifile;
 #if LOGFILE
 extern int logfile;
 extern char *namelogfile;
+
+static void write_logfile(constant void *data, size_t len)
+{
+	PARG parg;
+
+	if (write(logfile, data, len) == (ssize_t) len)
+		return;
+	close(logfile);
+	logfile = -1; /* Don't try to finish the failed log while quitting. */
+	parg.p_string = namelogfile;
+	error(LM(Cannot_write_to_X), &parg);
+	quit(QUIT_ERROR);
+}
 #endif
 
 static int ch_addbuf();
@@ -312,7 +325,7 @@ static int ch_get(void)
 		if (secure_allow(SF_LOGFILE))
 		{
 			if (logfile >= 0 && n > 0)
-				write(logfile, &bp->data[bp->datasize], (size_t) n);
+				write_logfile(&bp->data[bp->datasize], (size_t) n);
 		}
 #endif
 
@@ -464,7 +477,7 @@ public void sync_logfile(void)
 			bp = bufnode_buf(bn);
 			if (bp->block == block)
 			{
-				write(logfile, bp->data, bp->datasize);
+				write_logfile(bp->data, bp->datasize);
 				wrote = TRUE;
 				break;
 			}
