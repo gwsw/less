@@ -138,10 +138,9 @@ static void write_logfile(constant void *data, size_t len)
 	if (write(logfile, data, len) == (ssize_t) len)
 		return;
 	close(logfile);
-	logfile = -1; /* Don't try to finish the failed log while quitting. */
+	logfile = -1; /* Don't try to write to the failed log again. */
 	parg.p_string = namelogfile;
 	error(LM(Cannot_write_to_X), &parg);
-	quit(QUIT_ERROR);
 }
 #endif
 
