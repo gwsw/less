@@ -1758,6 +1758,7 @@ public void save_cmdhist(void)
 	struct save_ctx ctx;
 	constant char *s;
 	FILE *fout;
+	lbool write_error;
 	int histsize = 0;
 
 	if (!secure_allow(SF_HISTORY) || !histfile_modified())
@@ -1786,15 +1787,20 @@ public void save_cmdhist(void)
 		ctx.mlist = NULL;
 		read_cmdhist(&copy_hist, &ctx, skip_search, skip_shell);
 		save_marks(fout, HISTFILE_MARK_SECTION);
-		fclose(fout);
+		write_error = ferror(fout);
+		if (fclose(fout) != 0 || write_error)
+			remove(tempname);
+		else
+		{
 #if MSDOS_COMPILER==WIN32C
-		/*
-		 * Windows rename doesn't remove an existing file,
-		 * making it useless for atomic operations. Sigh.
-		 */
-		remove(histname);
+			/*
+			 * Windows rename doesn't remove an existing file,
+			 * making it useless for atomic operations. Sigh.
+			 */
+			remove(histname);
 #endif
-		rename(tempname, histname);
+			rename(tempname, histname);
+		}
 	}
 	free(tempname);
 	free(histname);
