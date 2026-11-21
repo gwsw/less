@@ -446,6 +446,9 @@ public void plinestart(POSITION pos)
 			add_pfx(buf[i], use_color ? AT_COLOR_LINENUM : AT_BOLD);
 		add_pfx(' ', AT_NORMAL);
 	}
+	/* Leave room for file content even in a narrow terminal. */
+	if (linebuf.pfx_end >= (size_t) sc_width)
+		linebuf.pfx_end = 0;
 	end_column = (int) linebuf.pfx_end; /*{{type-issue}}*/
 }
 
@@ -460,7 +463,7 @@ public unsigned line_pfx_width(void)
 		width += status_col_width;
 	if (linenums == OPT_ONPLUS)
 		width += linenum_width + 1;
-	return width;
+	return (width >= sc_width) ? 0 : width;
 }
 
 /*
