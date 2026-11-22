@@ -65,6 +65,30 @@
 
 * Fix potentially unsafe shell escaping in a non-UTF8 multibyte charset.
 
+* Fix bug setting --buffers to -1 (github #832).
+
+* When copying input to stdout (no terminal), exit with error status
+  if write to stdout fails (github #848).
+
+* When copying input to stdout (no terminal), exit with error status
+  if read from to stdin fails (github #849).
+
+* When copying input to stdout (no terminal), ensure any error messages
+  are written to stderr not stdout (github #851).
+
+* If write to history file fails, keep the existing history file
+  (github #852).
+
+* Disable line number display (-N) if terminal is too narrow (github #853).
+
+* Fix race condition using --follow-name if file name changs while it
+  is being opened (github #854).
+
+* Report error if write to log file fails (github #856).
+
+* Fix hang if SIGTSTP is received before LESSOPEN script produces output
+  (github #857).
+
 ======================================================================
 
 	Major changes between "less" versions 704 and 710
