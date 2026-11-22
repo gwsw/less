@@ -467,7 +467,7 @@ public void sync_logfile(void)
 	if (logfile < 0)
 		return;
 	nblocks = (ch_fpos + LBUFSIZE - 1) / LBUFSIZE;
-	for (block = 0;  block < nblocks;  block++)
+	for (block = 0;  block < nblocks && logfile >= 0;  block++)
 	{
 		lbool wrote = FALSE;
 		h = BUFHASH(block);
