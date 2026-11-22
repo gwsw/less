@@ -250,7 +250,11 @@ static void fputbytes(FILE *fd, constant char *buf, size_t len)
 {
 	while (len-- > 0)
 	{
-		fwrite(buf, sizeof(char), 1, fd);
+		if (fwrite(buf, sizeof(char), 1, fd) != 1)
+		{
+			perror(outfile);
+			exit(1);
+		}
 		buf++;
 	}
 }
@@ -277,8 +281,12 @@ static void fputint(FILE *fd, size_t val)
 			(long) val, (long) (KRADIX*KRADIX));
 		exit(1);
 	}
-	fwrite(&c1, sizeof(char), 1, fd);
-	fwrite(&c2, sizeof(char), 1, fd);
+	if (fwrite(&c1, sizeof(char), 1, fd) != 1 ||
+	    fwrite(&c2, sizeof(char), 1, fd) != 1)
+	{
+		perror(outfile);
+		exit(1);
+	}
 }
 
 int main(int argc, constant char *argv[])
@@ -359,6 +367,14 @@ int main(int argc, constant char *argv[])
 	/* File trailer */
 	fputbytes(out, endsection, sizeof(endsection));
 	fputbytes(out, filetrailer, sizeof(filetrailer));
-	fclose(out);
+	if (fclose(out) != 0)
+	{
+#if HAVE_PERROR
+		perror(outfile);
+#else
+		fprintf(stderr, "Cannot write %s\n", outfile);
+#endif
+		return (1);
+	}
 	return (0);
 }
