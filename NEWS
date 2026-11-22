@@ -76,6 +76,9 @@
 * When copying input to stdout (no terminal), ensure any error messages
   are written to stderr not stdout (github #851).
 
+* Fix corrupted output using --modelines when copying input to stdout
+  (github #863).
+
 * If write to history file fails, keep the existing history file
   (github #852).
 
