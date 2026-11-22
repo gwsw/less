@@ -529,9 +529,9 @@ public int ch_seek(POSITION pos)
 	new_block = pos / LBUFSIZE;
 	if (!(ch_flags & CH_CANSEEK) && pos != ch_fpos && !buffered(new_block))
 	{
-		if (ch_fpos > pos)
+		if (ch_tell() > pos)
 			return (1);
-		while (ch_fpos < pos)
+		while (ch_tell() < pos)
 		{
 			if (ch_forw_get() == EOI)
 				return (1);

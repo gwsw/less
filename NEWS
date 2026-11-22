@@ -89,6 +89,8 @@
 * Fix hang if SIGTSTP is received before LESSOPEN script produces output
   (github #857).
 
+* Fix bug seeking in a pipe (github #862).
+
 ======================================================================
 
 	Major changes between "less" versions 704 and 710
