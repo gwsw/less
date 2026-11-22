@@ -631,7 +631,8 @@ public int edit_ifile(IFILE ifile)
 	set_open(curr_ifile); /* File has been opened */
 	get_pos(curr_ifile, &initial_scrpos);
 	ch_init(f, chflags, nread);
-	check_modelines();
+	if (is_tty)
+		check_modelines();
 
 	if (!(chflags & CH_HELPFILE))
 	{
