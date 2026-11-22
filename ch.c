@@ -538,7 +538,6 @@ public int ch_seek(POSITION pos)
 			if (ABORT_SIGS())
 				return (1);
 		}
-		return (0);
 	}
 	/*
 	 * Set read pointer.
