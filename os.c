@@ -155,9 +155,16 @@ static int check_poll(int fd, int tty)
 			ungetcc_back((char) ch);
 		}
 	}
-	if (ignore_eoi && exit_F_on_close && (poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
-		/* Break out of F loop on HUP due to --exit-follow-on-close. */
-		return (READ_INTR);
+	if (ignore_eoi && exit_F_on_close)
+	{
+		if ((poller[0].revents & (POLLHUP|POLLIN)) == POLLHUP)
+			/* Break out of F loop on HUP due to --exit-follow-on-close. */
+			return (READ_INTR);
+		if (poller[0].revents & POLLHUP)
+			/* Some systems (eg. MacOS) return POLLHUP|POLLIN on hangup.
+			 * Do the read() and assume hangup if it returns 0. */
+			return (READ_HUP);
+	}
 	if ((poller[0].revents & (POLLIN|POLLHUP|POLLERR)) == 0)
 		/* No data available; let caller take action, then try again. */
 		return (READ_AGAIN);
@@ -218,6 +225,7 @@ public lbool supports_ctrl_x(void)
 public ssize_t iread(int fd, unsigned char *buf, size_t len)
 {
 	ssize_t n;
+	lbool hup = FALSE;
 
 start:
 #if MSDOS_COMPILER==WIN32C
@@ -292,7 +300,8 @@ start:
 	if (is_tty && fd != tty && use_poll && !(quit_if_one_screen && one_screen))
 	{
 		int ret = check_poll(fd, tty);
-		if (ret != 0)
+		hup = (ret == READ_HUP);
+		if (ret != 0 && !hup)
 		{
 			if (ret == READ_INTR)
 			{
@@ -341,6 +350,12 @@ start:
 #endif
 #endif
 		return (READ_ERR);
+	}
+	if (n == 0 && hup)
+	{
+		sigs |= S_SWINTERRUPT;
+		getcc_clear();
+		return (READ_INTR);
 	}
 #if LESS_IREAD_TTY
 	if (fd != tty)
